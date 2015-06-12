@@ -4,24 +4,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>phenotypedata-parent</artifactId>
+    <groupId>org.mousephenotype.cda</groupId>
+    <artifactId>parent</artifactId>
     <version>0.0.1</version>
+
     <packaging>pom</packaging>
-
-    <parent>
-        <groupId>org.mousephenotype.cda.phenotypedata</groupId>
-        <artifactId>phenotypedata-dependencies</artifactId>
-        <version>0.0.1</version>
-        <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
-        <!-- lookup parent from repository -->
-    </parent>
-
-    <name>data processing and web serving for the mousephenotype.org website at the Collections Data Archive at the EBI</name>
+    <name>parent</name>
     <description>
        mousephenotype.org infrastructure - data generation, service layer and web app source code from the CDA at the EBI
     </description>
 
     <url>http://www.mousephenotype.org</url>
+
+    <modules>
+    	<module>web</module>
+       <!--  <module>data-model-db</module>
+        <module>data-model-solr</module>
+        <module>indexers</module>
+        <module>loads</module>
+        <module>meta-data</module> -->
+    </modules>
+    
+    
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -205,31 +209,5 @@
         </developer>
     </developers>
     
-
-   <!--  <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <properties>
-                <java.location>java</java.location>
-                <java.args />
-            </properties>
-        </profile>
-
-        <profile>
-            <id>fgservers</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <java.location>/ebi/research/software/Linux_x86_64/opt/java/jdk1.7/bin/java</java.location>
-                <java.args>-Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true</java.args>
-            </properties>
-        </profile>
-    </profiles> -->
 
 </project>
