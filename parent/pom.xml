@@ -18,8 +18,7 @@
 
     <name>PhenotypeData project is the CDA code for www.mousephenotype.org</name>
     <description>
-        The GWAS catalog infrastructure, for search, ontology annotation, curation and display activities of GWAS
-        publications.
+        PhenotypeData project is the CDA code for www.mousephenotype.org.
     </description>
 
     <url>http://www.ebi.ac.uk/gwas</url>
@@ -69,32 +68,4 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
-    
-<!--    <profiles>
-        <profile>
-            <id>default</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <properties>
-                <java.location>java</java.location>
-                <java.args />
-            </properties>
-        </profile>
-
-        <profile>
-            <id>fgservers</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
-            <properties>
-                <java.location>/ebi/research/software/Linux_x86_64/opt/java/jdk1.7/bin/java</java.location>
-                <java.args>-Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true</java.args>
-            </properties>
-        </profile>
-    </profiles>-->
-
 </project>
