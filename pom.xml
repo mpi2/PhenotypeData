@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.mousephenotype.cda</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>phenotypedata</artifactId>
     <version>0.0.1</version>
 
     <packaging>pom</packaging>
-    <name>parent</name>
+    <name>phenotypedata</name>
     <description>
        mousephenotype.org infrastructure - data generation, service layer and web app source code from the CDA at the EBI
     </description>
@@ -17,6 +17,8 @@
     <url>http://www.mousephenotype.org</url>
 
     <modules>
+        <module>parent</module>
+        <module>phenotypedata-dependencies</module>
     	<module>web</module>
        <!--  <module>data-model-db</module>
         <module>data-model-solr</module>
@@ -31,183 +33,5 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>attach-source</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.4</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.8.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.1</version>
-            </plugin>
-        </plugins>
-        <extensions>
-            <!-- Enabling the use of SCP -->
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh</artifactId>
-                <version>2.7</version>
-            </extension>
-        </extensions>
-    </build>
-
-    <!-- Reporting/Documentation output -->
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.5.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8.1</version>
-                <reportSets>
-                    <reportSet>
-                        <id>aggregate</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
-
-    <!-- Licensing -->
-    <licenses>
-        <license>
-            <name>Apache License</name>
-            <url>http://www.apache.org/licenses/</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <!-- Mailing Lists -->
-   <!--  <mailingLists>
-        <mailingList>
-            <name>EBI GWAS Ontology/Curation List</name>
-            <subscribe>ebi-gwas-oc@ebi.ac.uk</subscribe>
-            <unsubscribe>ebi-gwas-oc@ebi.ac.uk</unsubscribe>
-            <post>ebi-gwas-oc@ebi.ac.uk</post>
-        </mailingList>
-    </mailingLists> -->
-
-    <!-- Bug Tracker -->
-   <!--  <issueManagement>
-        <system>jira</system>
-        <url>http://www.ebi.ac.uk/panda/jira/browse/GOCI</url>
-    </issueManagement>
- -->
-    <!-- Version control (project hosted on GitHub) -->
-  <!--   <scm>
-        <connection>scm:git:git@github.com:tburdett/goci.git</connection>
-        <developerConnection>scm:git:git@github.com:tburdett/goci.git</developerConnection>
-        <url>git@github.com:tburdett/goci.git</url>
-        <tag>HEAD</tag>
-    </scm> -->
-
-
-    <!-- Developer Listing -->
-    <developers>
-        <developer>
-            <id>jwarren</id>
-            <name>Jonathan Warren</name>
-            <email>jwarren@ebi.ac.uk</email>
-            <organization>EBI</organization>
-            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-            <properties />
-        </developer>
-        <developer>
-            <id>jmason</id>
-            <name>Jeremy Mason</name>
-            <email>jmason@ebi.ac.uk</email>
-            <organization>EBI</organization>
-            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-            <properties />
-        </developer>
-        <developer>
-            <id>ckchen</id>
-            <name>Chao-Kung Chen</name>
-            <email>ckchen@ebi.ac.uk</email>
-            <organization>EBI</organization>
-            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-            <properties />
-        </developer>
-         <developer>
-            <id>itudose</id>
-            <name>Ilinca Tudose</name>
-            <email>tudose@ebi.ac.uk</email>
-            <organization>EBI</organization>
-            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-            <properties />
-        </developer>
-         <developer>
-            <id>mrelac</id>
-            <name>Mike Relac</name>
-            <email>mrelac@ebi.ac.uk</email>
-            <organization>EBI</organization>
-            <organizationUrl>http://www.ebi.ac.uk</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-            <properties />
-        </developer>
-    </developers>
-    
 
 </project>
