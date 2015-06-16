@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-    <artifactId>phenotypedata-dependencies</artifactId>
-    <version>0.0.1</version>
-    <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
+        <artifactId>phenotypedata-dependencies</artifactId>
+        <version>0.0.1</version>
+        <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
     </parent>
     
     <artifactId>web</artifactId>
@@ -15,23 +15,29 @@
     
 
     <name>web</name>
-	<description>PhenotypeData web application code</description>
-<!--        <parent>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>parent</artifactId>
-        </parent>-->
-<dependencies>
-    <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+    <description>PhenotypeData web application code</description>
+    <!--        <parent>
+        <groupId>org.mousephenotype.cda</groupId>
+        <artifactId>parent</artifactId>
+    </parent>-->
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-</dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+                
+        <dependency>
+            <artifactId>solr-solrj</artifactId>
+            <groupId>org.apache.solr</groupId>
+            <version>4.9.0</version>
+        </dependency>
+    </dependencies>
 </project>
 
 </project>
