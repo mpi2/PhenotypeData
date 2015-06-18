@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mousephenotype.cda.data.model.solr.repositories.image;
+package org.mousephenotype.cda.repositories.solr.image;
 
 import org.mousephenotype.cda.repositories.solr.image.Image;
 import org.springframework.data.domain.Page;

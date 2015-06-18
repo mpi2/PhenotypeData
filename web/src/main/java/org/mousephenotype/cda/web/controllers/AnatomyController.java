@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.data.model.solr.repositories.image.ImageService;
+import org.mousephenotype.cda.repositories.solr.image.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.*;
 import org.springframework.boot.autoconfigure.*;
@@ -47,7 +47,5 @@ public class AnatomyController {
 		return "anatomy";
 	}
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(AnatomyController.class, args);
-    }
+  
 }
