@@ -15,7 +15,7 @@
  */
 package org.mousephenotype.cda.data.model.solr.repositories.image;
 
-import org.mousephenotype.cda.repositories.solr.image.Image;
+import org.mousephenotype.cda.data.model.solr.repositories.image.model.Image;
 import java.util.Collection;
 
 import org.springframework.data.domain.Pageable;

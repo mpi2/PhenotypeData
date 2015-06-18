@@ -5,22 +5,32 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>phenotypedata-dependencies</artifactId>
         <version>0.0.1</version>
-        <relativePath>../parent/pom.xml</relativePath>
+        <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
     </parent>
     
-    <artifactId>web</artifactId>
+    <artifactId>solr-web</artifactId>
     <packaging>war</packaging>
     
 
-    <name>web</name>
-    <description>PhenotypeData web application code</description>
+    <name>solr-web</name>
+    <description>Data model DTOs for interacting with SOLR</description>
     <!--        <parent>
         <groupId>org.mousephenotype.cda</groupId>
         <artifactId>parent</artifactId>
     </parent>-->
     <dependencies>
+<!--        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-solr</artifactId>
+        </dependency>-->
+        
+        <dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-solr</artifactId>
+		
+		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -30,19 +40,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>data-model-solr</artifactId>
-                
-                <version>${phenotypedata.version}</version>
-            </dependency>
-                
-        <dependency>
-            <artifactId>solr-solrj</artifactId>
-            <groupId>org.apache.solr</groupId>
-            <version>4.9.0</version>
         </dependency>
         
         <!-- JSON -->
@@ -62,9 +59,19 @@
 		    <artifactId>tomcat-embed-jasper</artifactId>
 		    <scope>provided</scope>
 		</dependency>
-   
     </dependencies>
     
-</project>
-
+    <build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+                                <configuration>
+<!--          <jvmArguments>
+            -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+          </jvmArguments>-->
+        </configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

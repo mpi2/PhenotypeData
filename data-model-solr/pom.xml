@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>phenotypedata-dependencies</artifactId>
+        <artifactId>parent</artifactId>
         <version>0.0.1</version>
-        <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
     
     <artifactId>data-model-solr</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     
 
     <name>data-model-solr</name>
@@ -21,20 +21,17 @@
         <artifactId>parent</artifactId>
     </parent>-->
     <dependencies>
-<!--        <dependency>
+ <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-solr</artifactId>
-        </dependency>-->
+        </dependency>
         
-        <dependency>
+<!--        <dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-solr</artifactId>
 		
-		</dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+		</dependency>-->
+        
 		
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -42,24 +39,7 @@
             <scope>test</scope>
         </dependency>
         
-        <!-- JSON -->
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.11</version>
-		</dependency>
-		
-		<!-- WEB -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.tomcat.embed</groupId>
-		    <artifactId>tomcat-embed-jasper</artifactId>
-		    <scope>provided</scope>
-		</dependency>
-    </dependencies>
+        
     
     <build>
 		<plugins>

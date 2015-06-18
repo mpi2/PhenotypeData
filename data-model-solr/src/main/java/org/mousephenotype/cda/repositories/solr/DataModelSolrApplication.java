@@ -1,7 +1,6 @@
-package org.mousephenotype.cda.web;
+package org.mousephenotype.cda.repositories.solr;
 
-import org.mousephenotype.cda.web.config.SearchContext;
-import org.mousephenotype.cda.web.config.WebContext;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,12 +10,10 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan
-@EnableAutoConfiguration
-@Import({ WebContext.class, SearchContext.class })
 @SpringBootApplication
-public class PhentoypeDataApplication {
+public class DataModelSolrApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(PhentoypeDataApplication.class, args);
+        SpringApplication.run(DataModelSolrApplication.class, args);
     }
 }

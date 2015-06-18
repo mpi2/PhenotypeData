@@ -17,7 +17,7 @@ package org.mousephenotype.cda.data.model.solr.repositories.image;
 
 import java.util.regex.Pattern;
 
-import org.mousephenotype.cda.repositories.solr.image.Image;
+import org.mousephenotype.cda.data.model.solr.repositories.image.model.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
