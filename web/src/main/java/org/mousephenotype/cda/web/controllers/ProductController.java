@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.mousephenotype.cda.repositories.solr.image.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @Scope("prototype")
+@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
 public class ProductController {
         @Autowired
 	ImageService imageService;

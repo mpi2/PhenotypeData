@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.web;
+package org.mousephenotype.cda;
 
 import org.mousephenotype.cda.web.config.SearchContext;
 import org.mousephenotype.cda.web.config.WebContext;

@@ -13,8 +13,19 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 public class Image {
 	
 	public static final String DOWNLOAD_URL = "download_url";
+        public static final String MA_ID = "ma_id";
 	@Indexed(DOWNLOAD_URL)
         private String downloadUrl;
+        @Indexed(MA_ID)
+        private String maId;
+
+    public String getMaId() {
+        return maId;
+    }
+
+    public void setMaId(String maId) {
+        this.maId = maId;
+    }
 
     public String getDownloadUrl() {
         return downloadUrl;

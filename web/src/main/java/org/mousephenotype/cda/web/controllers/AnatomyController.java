@@ -43,7 +43,7 @@ public class AnatomyController {
 //		model.addAttribute("anatomyTable", anatomyTable);
 //        model.addAttribute("phenoFacets", getFacets(anatomy_id));
        
-                model.addAttribute("image", imageService.findById("13584735"));
+                model.addAttribute("image", imageService.findById("19539479"));
 		return "anatomy";
 	}
 

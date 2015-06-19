@@ -15,16 +15,8 @@
  */
 package org.mousephenotype.cda.repositories.solr.image;
 
-import org.mousephenotype.cda.repositories.solr.image.Image;
-import java.util.Collection;
+import java.util.List;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.solr.core.query.Query.Operator;
-import org.springframework.data.solr.core.query.result.FacetPage;
-import org.springframework.data.solr.core.query.result.HighlightPage;
-import org.springframework.data.solr.repository.Facet;
-import org.springframework.data.solr.repository.Highlight;
-import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 
 
@@ -39,5 +31,6 @@ interface ImageRepository extends SolrCrudRepository<Image, String> {
 //	HighlightPage<Image> findByDownloadUrlIn(Collection<String> names, Pageable page);
 //	@Facet(fields = { Image.DOWNLOAD_URL})
 //	FacetPage<Image> findByDownloadUrl(Collection<String> nameFragments, Pageable pagebale);
+        List<Image> findByMaId(String maId);
 
 }

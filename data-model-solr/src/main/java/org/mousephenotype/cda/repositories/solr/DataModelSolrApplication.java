@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan
+@EnableAutoConfiguration
 @SpringBootApplication
 public class DataModelSolrApplication {
 
