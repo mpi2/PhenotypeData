@@ -2,7 +2,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,12 +10,12 @@
         <version>0.0.1</version>
         <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
     </parent>
-
-    <artifactId>data-model-db</artifactId>
+    
+    <artifactId>reports</artifactId>
     <packaging>jar</packaging>
 
-    <name>data-model-db</name>
-    <description>Hibernate and sql data access objects</description>
+    <name>reports</name>
+    <description>IMPC report product</description>
 
     <dependencies>
 
@@ -24,7 +23,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+		
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
