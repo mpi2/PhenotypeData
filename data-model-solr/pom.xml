@@ -9,50 +9,36 @@
         <version>0.0.1</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
-    
+
     <artifactId>data-model-solr</artifactId>
     <packaging>jar</packaging>
-    
+
 
     <name>data-model-solr</name>
     <description>Data model DTOs for interacting with SOLR</description>
-    <!--        <parent>
-        <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>parent</artifactId>
-    </parent>-->
+
     <dependencies>
- <dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-solr</artifactId>
         </dependency>
-        
-<!--        <dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-solr</artifactId>
-		
-		</dependency>-->
-        
-		
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
-    
+
     <build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-                                <configuration>
-<!--          <jvmArguments>
-            -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
-          </jvmArguments>-->
-        </configuration>
-			</plugin>
-		</plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
-	
+
 </project>

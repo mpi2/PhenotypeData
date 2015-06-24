@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>phenotypedata-dependencies</artifactId>
+        <artifactId>parent</artifactId>
         <version>0.0.1</version>
-        <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
     
     <artifactId>loads</artifactId>
@@ -32,6 +32,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-</project>
-
 </project>
