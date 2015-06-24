@@ -15,10 +15,10 @@
  */
 package org.mousephenotype.cda.repositories.solr.image;
 
-import java.util.regex.Pattern;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.regex.Pattern;
 
 /**
  * @author Christoph Strobl
