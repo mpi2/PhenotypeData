@@ -11,14 +11,15 @@
     <packaging>pom</packaging>
     <name>phenotypedata</name>
     <description>
-        mousephenotype.org infrastructure - data generation, service layer and web app source code from the CDA at the EBI
+        mousephenotype.org infrastructure - data generation, service layer and web app source code from the CDA at the
+        EBI
     </description>
 
     <url>http://www.mousephenotype.org</url>
 
     <modules>
         <module>parent</module>
-        <module>phenotypedata-dependencies</module>
+        <module>dependencies</module>
         <module>web</module>
         <module>data-model-db</module>
         <module>data-model-solr</module>
@@ -26,8 +27,6 @@
         <module>loads</module>
         <module>solr-web</module>
     </modules>
-    
-    
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

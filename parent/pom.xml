@@ -10,16 +10,13 @@
 
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>phenotypedata-dependencies</artifactId>
+        <artifactId>dependencies</artifactId>
         <version>0.0.1</version>
-        <relativePath>../phenotypedata-dependencies/pom.xml</relativePath>
-        <!-- lookup parent from repository -->
+        <relativePath>../dependencies/pom.xml</relativePath>
     </parent>
 
     <name>parent</name>
-    <description>
-        PhenotypeData project is the CDA code for www.mousephenotype.org.
-    </description>
+    <description>PhenotypeData project is the CDA code for www.mousephenotype.org.</description>
 
     <url>http://www.mousephenotype.org</url>
 
@@ -28,7 +25,18 @@
         <java.version>1.8</java.version>
     </properties>
 
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>2.5.1</version>
+        </dependency>
+    </dependencies>
+
+
     <build>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -54,27 +62,62 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.2</version>
             </plugin>
-            
-           
-    <plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-                                <configuration>
-<!--          <jvmArguments>
-            -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
-          </jvmArguments>-->
-        </configuration>
-			</plugin>
-                        
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.1</version>
+            </plugin>
         </plugins>
 
-       
+        <extensions>
+            <!-- Enabling the use of SCP -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.7</version>
+            </extension>
+        </extensions>
+
     </build>
 
-   
+
+    <!-- Reporting/Documentation output -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.5.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8.1</version>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
 
     <!-- Licensing -->
     <licenses>
@@ -84,4 +127,33 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+
+    <!-- Run profiles, default=no proxy, server=proxy -->
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <java.location>java</java.location>
+                <java.args />
+            </properties>
+        </profile>
+
+        <profile>
+            <id>server</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <properties>
+                <java.location>/nfs/web-hx/webadmin/java/jdks/latest_1.8/bin/java</java.location>
+                <java.args>-Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true</java.args>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>

@@ -15,7 +15,6 @@
  */
 package org.mousephenotype.cda.web.controllers;
 
-import javax.servlet.http.HttpServletRequest;
 import org.mousephenotype.cda.repositories.solr.image.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -25,6 +24,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+
+
 /**
  * @author Christoph Strobl
  */
@@ -32,8 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Scope("prototype")
 @EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
 public class ProductController {
-        @Autowired
+
+	@Autowired
 	ImageService imageService;
+
 
 	@RequestMapping("/product/{id}")
 	public String search(Model model, @PathVariable("id") String id, HttpServletRequest request) {
