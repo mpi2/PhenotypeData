@@ -26,7 +26,6 @@
         <module>indexers</module>
         <module>loads</module>
         <module>reports</module>
-        <module>solr-web</module>
     </modules>
 
     <properties>
