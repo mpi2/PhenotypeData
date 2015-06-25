@@ -34,7 +34,7 @@ interface ImageRepository extends SolrCrudRepository<Image, String> {
 //	FacetPage<Image> findByDownloadUrl(Collection<String> nameFragments, Pageable pagebale);
         //@Query("ma_id:?")
         List<Image> findByMaId(String maId);
-        
+        //@Query("mgi_accession_id:\"?0\"")
         public List<Image> findByMarkerAccession(String markerAccession);
 
 }

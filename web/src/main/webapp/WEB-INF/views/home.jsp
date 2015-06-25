@@ -9,5 +9,5 @@
 </head>
 <body>
 	Welcome.<br />
-	Currently the default page <a href="./anatomy/">goto</a>
+	Currently the default page
 </body>
