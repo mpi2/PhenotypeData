@@ -3,11 +3,11 @@
 <%@ page session="false"%>
 <html>
 <head>
-	<title>spring-data-solr-showcase</title>
+	<title>PhenotypeData Project Home Page</title>
 	<link href="<c:url value="/resources/css/styles.css" />" rel="stylesheet"  type="text/css" />
 	<script type="text/javascript" src="<c:url value="/resources/jquery/jquery-1.8.2.js" />"></script>
 </head>
 <body>
 	Welcome.<br />
-	Search Sample &gt; <a href="./search">goto</a>
+	Currently the default page <a href="./anatomy/">goto</a>
 </body>

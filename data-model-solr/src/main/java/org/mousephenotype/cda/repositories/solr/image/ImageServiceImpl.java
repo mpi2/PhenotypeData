@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Service
 class ImageServiceImpl implements ImageService {
 
-    private static final Pattern IGNORED_CHARS_PATTERN = Pattern.compile("\\p{Punct}");
+    
 
     private ImageRepository imageRepository;
 
@@ -42,9 +42,18 @@ class ImageServiceImpl implements ImageService {
 
     @Override
     public List<Image> findByMaId(String maId) {
-        List<Image> imageList = imageRepository.findByMaId(maId);
+        List<Image> imageList = imageRepository.findByMaId("\""+maId+"\"");
         for (Image image : imageList) {
             System.out.println("one image found=" + image.getMaId());
+        }
+        return imageList;
+    }
+    
+    @Override
+    public List<Image> findByMarkerAccession(String markerAccession) {
+        List<Image> imageList = imageRepository.findByMarkerAccession("\""+markerAccession+"\"");
+        for (Image image : imageList) {
+            System.out.println("one image found id=" + image.getId());
         }
         return imageList;
     }

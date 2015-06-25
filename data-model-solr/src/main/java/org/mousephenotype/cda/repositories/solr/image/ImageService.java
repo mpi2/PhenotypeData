@@ -31,6 +31,7 @@ public interface ImageService {
         
         List<Image> findByMaId(String maId);
 
+        public List<Image> findByMarkerAccession(String markerAccession);
 	//FacetPage<Image> autocompleteNameFragment(String fragment, Pageable pageable);
 
 }

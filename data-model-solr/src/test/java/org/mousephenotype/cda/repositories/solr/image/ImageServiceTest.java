@@ -17,14 +17,21 @@ package org.mousephenotype.cda.repositories.solr.image;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.repositories.solr.DataModelSolrApplication;
+import org.mousephenotype.cda.repositories.solr.DataModelSolrTest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.solr.repository.cdi.SolrRepositoryBean;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -33,30 +40,41 @@ import org.springframework.test.context.web.WebAppConfiguration;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = DataModelSolrApplication.class)
-@WebAppConfiguration
+@SpringApplicationConfiguration(classes = DataModelSolrTest.class)
+@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
 public class ImageServiceTest{
-
-    private static final Pattern IGNORED_CHARS_PATTERN = Pattern.compile("\\p{Punct}");
+    
     @Autowired
     private ImageServiceImpl imageService;
+    
+    
 
     @Test
     public void findByIdTest() {
-        String id="19539479";
+        String id="22654363";
+        System.out.println("ImageService= " + imageService);
         System.out.println("querying for one image with " + id);
+        
         Image image = imageService.findById(id);
-        System.out.println("one image found=" + image.getMaId());
+        System.out.println("one image found id="+ image.getId()+" maId="+ image.getMaId());
         
     }
     
     @Test
     public void findByMaIdTest() {
         String maId="MA:0000191";
+        System.out.println("imageService="+imageService);
         List<Image> imageList=imageService.findByMaId(maId);
         assertTrue(imageList!=null);
         assertTrue(imageList.size()>0);
         
+    }
+    
+    @Test
+    public void findByMarkerAccessionTest(){
+        String markerAccession="MGI:1342278";
+        List<Image> images=imageService.findByMarkerAccession(markerAccession);
+        assertTrue(images.size()>0);
     }
 
     
