@@ -12,8 +12,11 @@
     </script>
 </head>
 <body>
-	
-		<h3>
-			${product.downloadUrl}
+<c:if test="${images!=null}">
+<c:forEach var="image" items="${images}">
+    ${image.downloadUrl}
+</c:forEach>
+</c:if>
+			
 			
 </body>

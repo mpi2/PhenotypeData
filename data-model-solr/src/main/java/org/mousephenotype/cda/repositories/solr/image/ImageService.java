@@ -15,10 +15,7 @@
  */
 package org.mousephenotype.cda.repositories.solr.image;
 
-import org.mousephenotype.cda.repositories.solr.image.Image;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.solr.core.query.result.FacetPage;
+import java.util.List;
 
 
 /**
@@ -31,7 +28,10 @@ public interface ImageService {
 	//Page<Image> findByDownloadUrl(String searchTerm, Pageable pageable);
 
 	Image findById(String id);
+        
+        List<Image> findByMaId(String maId);
 
+        public List<Image> findByMarkerAccession(String markerAccession);
 	//FacetPage<Image> autocompleteNameFragment(String fragment, Pageable pageable);
 
 }

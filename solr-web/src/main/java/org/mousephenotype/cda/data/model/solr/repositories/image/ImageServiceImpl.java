@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author Christoph Strobl
  */
-@Service
+
 class ImageServiceImpl implements ImageService {
 
 	private static final Pattern IGNORED_CHARS_PATTERN = Pattern.compile("\\p{Punct}");

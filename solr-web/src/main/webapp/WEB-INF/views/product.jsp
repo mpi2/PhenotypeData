@@ -15,7 +15,6 @@
     </script>
 </head>
 <body>
-	<jsp:include page="../fragments/searchbox.jsp"></jsp:include>
 	<hr />
 	<div style="margin-top: 5px; padding: 0 .7em;">
 		<a href="javascript:history.back()">&lt;&lt; Back to List</a>

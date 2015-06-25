@@ -2,8 +2,10 @@ package org.mousephenotype.cda.web.controllers;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.repositories.solr.image.Image;
 import org.mousephenotype.cda.repositories.solr.image.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.*;
@@ -19,15 +21,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Component
 @Scope("prototype")
 @EnableAutoConfiguration
+@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
 public class AnatomyController {
 
     @Autowired
     ImageService imageService;
     
     @RequestMapping(value = "/anatomy/{anatomy_id}", method = RequestMethod.GET)
-    @ResponseBody
-   public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws SolrServerException, IOException, URISyntaxException {
+   public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request)
+	 {
 	
 		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
 		// right eye
@@ -42,8 +44,18 @@ public class AnatomyController {
 //		model.addAttribute("expressionImages", expressionImageDocs);
 //		model.addAttribute("anatomyTable", anatomyTable);
 //        model.addAttribute("phenoFacets", getFacets(anatomy_id));
+        System.out.println("loading ma page with id="+anatomy_id);
+        List<Image>list=null;
+             try {
+                 
+             
+        list=imageService.findByMaId(anatomy_id);
+         System.out.println("images size="+list.size());
+                model.addAttribute("images", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+             }
        
-                model.addAttribute("image", imageService.findById("13584735"));
 		return "anatomy";
 	}
 
