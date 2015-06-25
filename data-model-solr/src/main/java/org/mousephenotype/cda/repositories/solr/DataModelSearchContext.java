@@ -30,7 +30,7 @@ import org.springframework.data.solr.server.support.MulticoreSolrServerFactory;
  */
 @Configuration
 @EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
-public class SearchContext {
+public class DataModelSearchContext {
 
 	@Bean
 	public SolrServer solrServer(@Value("${solr.host}") String solrHost) {

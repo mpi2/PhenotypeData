@@ -27,7 +27,7 @@ public class AnatomyController {
     @Autowired
     ImageService imageService;
     
-    @RequestMapping(value = "/anatomy/{anatomy_id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/body/{anatomy_id}", method = RequestMethod.GET)
    public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request)
 	 {
 	

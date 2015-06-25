@@ -44,7 +44,7 @@ class ImageServiceImpl implements ImageService {
 
     @Override
     public List<Image> findByMaId(String maId) {
-        List<Image> imageList = imageRepository.findByMaId("\""+maId+"\"");
+        List<Image> imageList = imageRepository.findByMaId(maId);
         for (Image image : imageList) {
             System.out.println("one image found=" + image.getMaId());
         }
@@ -53,7 +53,7 @@ class ImageServiceImpl implements ImageService {
     
     @Override
     public List<Image> findByMarkerAccession(String markerAccession1) {
-        List<Image> imageList = imageRepository.findByMarkerAccession("\""+markerAccession1+"\"");
+        List<Image> imageList = imageRepository.findByMarkerAccession(markerAccession1);
         for (Image image : imageList) {
             System.out.println("one image found id=" + image.getId());
         }

@@ -7,7 +7,6 @@
 <%@ page session="false"%>
 <html lang="us">
 <head>
-	<jsp:include page="../fragments/meta.jsp"></jsp:include>
 	<script>
     </script>
 </head>
