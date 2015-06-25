@@ -52,8 +52,8 @@ class ImageServiceImpl implements ImageService {
     }
     
     @Override
-    public List<Image> findByMarkerAccession(String markerAccession) {
-        List<Image> imageList = imageRepository.findByMarkerAccession("\""+markerAccession+"\"");
+    public List<Image> findByMarkerAccession(String markerAccession1) {
+        List<Image> imageList = imageRepository.findByMarkerAccession("\""+markerAccession1+"\"");
         for (Image image : imageList) {
             System.out.println("one image found id=" + image.getId());
         }
