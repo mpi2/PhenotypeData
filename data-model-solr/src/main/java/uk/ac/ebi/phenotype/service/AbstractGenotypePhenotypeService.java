@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.service;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -28,6 +29,8 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -55,6 +58,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
     public static final double P_VALUE_THRESHOLD = 0.0001;
     
+    public static final ArrayList<String> OVERVIEW_STRAINS = new ArrayList(Arrays.asList("MGI:2159965", "MGI:2164831", "MGI:3056279", "MGI:2683688"));
+	
     /**
      * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
@@ -312,7 +317,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
             GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")");
         if (onlyB6N){
-        	q.setFilterQueries("(" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + 
+        	q.setFilterQueries("(" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OVERVIEW_STRAINS, "\" OR " + 
         	GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")");
         }
         q.setRows(10000000);
@@ -332,7 +337,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         List<String> res = new ArrayList();
         SolrQuery query = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\""
                 + phenotype_id + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\") AND ("
-                + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\") AND "
+                + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\") AND "
                 + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + parameterStableId + "\"").setRows(100000000);
         query.set("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
         query.set("group", true);
