@@ -21,6 +21,8 @@ import uk.ac.ebi.phenotype.pojo.*;
 import java.sql.SQLException;
 import java.util.*;
 
+import org.mousephenotype.cda.enumerations.ObservationType;
+
 public class ExperimentDTO {
 
     private String experimentId;
