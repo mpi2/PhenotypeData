@@ -21,6 +21,7 @@
         <module>parent</module>
         <module>dependencies</module>
         <module>web</module>
+        <module>data-model</module>
         <module>data-model-db</module>
         <module>data-model-solr</module>
         <module>indexers</module>

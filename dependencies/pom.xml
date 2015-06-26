@@ -17,6 +17,13 @@
         <!-- lookup parent from repository -->
     </parent>
 
+    <!--<parent>-->
+        <!--<groupId>io.spring.platform</groupId>-->
+        <!--<artifactId>platform-bom</artifactId>-->
+        <!--<version>1.1.2.RELEASE</version>-->
+        <!--<relativePath/>-->
+    <!--</parent>-->
+
     <name>dependencies</name>
     <description>
         Dependency management for the PhenotypeData
@@ -36,7 +43,10 @@
                 <commons-net.version>2.0</commons-net.version>-->
     </properties>
 
+
+
     <build>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -64,10 +74,16 @@
 
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>data-model</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>data-model-db</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>data-model-solr</artifactId>

@@ -12,7 +12,7 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>data-model-db</artifactId>
+    <artifactId>data-model</artifactId>
     <packaging>jar</packaging>
 
     <name>data-model</name>
