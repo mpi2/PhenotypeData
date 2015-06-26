@@ -117,3 +117,8 @@ local.properties
 .texlipse
 
 
+/data-model-solr/target/
+/solr-web/target/
+/phenotypedata-dependencies/target/
+/data-model-db/target/
+/loads/target/

@@ -25,6 +25,7 @@
         <module>data-model-solr</module>
         <module>indexers</module>
         <module>loads</module>
+        <module>reports</module>
     </modules>
 
     <properties>

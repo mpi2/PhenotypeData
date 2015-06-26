@@ -38,14 +38,6 @@ import java.nio.file.Paths;
  */
 public class DownloadStream {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-//    private final String IMSR_URL = "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=";
-//    private final String HTTP_PROXY = "http://hx-wwwcache.ebi.ac.uk:3128";
-//    private HttpClient httpClient;
-//    private Path fqDirectoryPath;
-//    private Path fqFilePath;
-//    private String workspace;
-
-
     private URL source;
     private Path target;
     private boolean append;
@@ -73,8 +65,6 @@ public class DownloadStream {
      * @param source the source url
      * @param target the fully-qualified target filename
      * @param append if true, <code>target</code> is appended; otherwise it is created fresh.
-     *
-     * @throws IOException
      */
     public DownloadStream(URL source, Path target, boolean append) {
         this.source = source;
@@ -105,7 +95,6 @@ public class DownloadStream {
      */
     public File getReport() throws IOException {
         File outputFile = null;
-//        createDirectory();
         final Process p;
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -115,7 +104,7 @@ public class DownloadStream {
             HttpEntity entity = response.getEntity();
             InputStream inputStream = entity.getContent();
             BufferedReader input = new BufferedReader(new InputStreamReader(inputStream));
-            String line = null;
+            String line;
 
             try {
                 outputFile = new File(target.toString());
@@ -147,6 +136,7 @@ public class DownloadStream {
 
     // SETTERS AND GETTERS
 
+
     public URL getSource() {
         return source;
     }
@@ -173,20 +163,6 @@ public class DownloadStream {
 
 
     // PRIVATE METHODS
-
-
-
-//    /**
-//     * Create the IMSR directory if it doesn't already exist.
-//     *
-//     * @throws IOException
-//     */
-//    private void createDirectory() throws IOException {
-//        if ( ! Files.isDirectory(fqDirectoryPath)) {
-//            Files.createDirectory(fqDirectoryPath);
-//        }
-//        logger.info("Using IMSR load directory " + fqDirectoryPath.toAbsolutePath().toString());
-//    }
 
 
     // MAIN
