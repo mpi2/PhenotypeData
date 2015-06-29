@@ -30,14 +30,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
-import uk.ac.ebi.phenotype.util.Utils;
+
+import uk.ac.ebi.generic.util.Utils;
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
+
 
 /**
  * Encapsulates the code and data necessary to represent an ontology service,

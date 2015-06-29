@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.service;
 
 import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -26,9 +27,10 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
+
+import uk.ac.ebi.phenotype.service.dto.BasicBean;
 import uk.ac.ebi.phenotype.service.dto.MpDTO;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+import uk.ac.ebi.phenotype.service.dto.SimpleOntoTerm;
 
 import java.util.*;
 

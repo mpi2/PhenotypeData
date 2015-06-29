@@ -26,11 +26,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
+
+
 
 /**
  * This class encapsulates the code and data necessary to serve a Mouse

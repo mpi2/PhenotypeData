@@ -27,11 +27,11 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.imits.StatusConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.data.imits.StatusConstants;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 
 import javax.servlet.http.HttpServletRequest;

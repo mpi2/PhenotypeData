@@ -28,18 +28,21 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.pojo.Parameter;
 import org.mousephenotype.cda.pojo.StatisticalResult;
+import org.mousephenotype.cda.stats.strategy.AllControlsStrategy;
+import org.mousephenotype.cda.stats.strategy.ControlSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.*;
+import uk.ac.ebi.phenotype.service.exception.SpecificExperimentException;
 
 @Service
 public class ExperimentService {

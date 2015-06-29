@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
+
 
 public class JSONRestUtil {
 

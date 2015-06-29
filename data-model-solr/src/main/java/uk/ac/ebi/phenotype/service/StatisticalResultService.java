@@ -15,7 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
-import uk.ac.ebi.phenotype.service.dto.BasicBean;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -30,28 +41,31 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.mousephenotype.cda.dao.BiologicalModelDAO;
+import org.mousephenotype.cda.dao.DatasourceDAO;
+import org.mousephenotype.cda.dao.OrganisationDAO;
+import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.dao.ProjectDAO;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.pojo.CategoricalResult;
+import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.pojo.StatisticalResult;
+import org.mousephenotype.cda.pojo.UnidimensionalResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import uk.ac.ebi.generic.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.chart.StackedBarsData;
-import uk.ac.ebi.phenotype.dao.*;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.dto.BasicBean;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import uk.ac.ebi.phenotype.service.dto.StackedBarsData;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
-import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
-
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class StatisticalResultService extends AbstractGenotypePhenotypeService {
@@ -818,7 +832,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
 		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" +
-			StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+			StringUtils.join(AbstractGenotypePhenotypeService.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
@@ -845,7 +859,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
-		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(AbstractGenotypePhenotypeService.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);

@@ -15,6 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -37,6 +39,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -53,6 +56,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -64,8 +68,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
+import uk.ac.ebi.phenotype.service.dto.CategoricalDataObject;
+import uk.ac.ebi.phenotype.service.dto.CategoricalSet;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
+
 
 @Service
 public class ObservationService extends BasicService {
@@ -1440,7 +1447,7 @@ public class ObservationService extends BasicService {
             query += ")";
 
             SolrQuery q = new SolrQuery().setQuery(query).addField(ObservationDTO.GENE_ACCESSION_ID)
-                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
+                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(AbstractGenotypePhenotypeService.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
             q.set("group.field", ObservationDTO.GENE_ACCESSION_ID);
             q.set("group", true);
             if (sex != null) {
@@ -1700,6 +1707,68 @@ public class ObservationService extends BasicService {
         }
 
         return retVal;
+    }
+    
+    public class DataBatchesBySex {
+
+    	
+
+
+    	private Set<String> maleBatches = new HashSet<>();
+    	private Set<String> femaleBatches = new HashSet<>();
+
+    	public DataBatchesBySex(List<ObservationDTO> observations) {
+    		for (ObservationDTO obs : observations) {
+
+    			if (obs.getSex().equals(SexType.male.toString())) {
+    				maleBatches.add(obs.getDateOfExperimentString());
+    			}
+
+    			if (obs.getSex().equals(SexType.female.toString())) {
+    				femaleBatches.add(obs.getDateOfExperimentString());
+    			}
+
+    		}
+    	}
+
+    	/*
+    	    if male_batches == 0 or female_batches == 0:
+    	        batch = "One sex only"
+    	    elif both_batches == 1:
+    	        batch = "One batch"
+    	    elif both_batches <= 3:
+    	        batch = "Low batch"
+    	    elif male_batches >= 3 and female_batches >= 2:
+    	        batch = "Multi batch"
+    	    elif female_batches >= 3 and male_batches >= 2:
+    	        batch = "Multi batch"
+    	    else:
+    	        batch = "Low batch"
+    	 */
+    	public BatchClassification getBatchClassification() {
+
+    		LOG.debug("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
+    		LOG.debug("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
+    		LOG.debug("Both batches by sex: " + StringUtils.join(CollectionUtils.union(maleBatches, femaleBatches), ", "));
+
+    		if ((maleBatches.size()==0 && femaleBatches.size()>0) ||
+    			(femaleBatches.size()==0 && maleBatches.size()>0) ) {
+    			return BatchClassification.one_sex_only;
+
+    		} else if ( CollectionUtils.union(maleBatches, femaleBatches).size() == 1 ) {
+    			return BatchClassification.one_batch;
+
+    		} else if ( CollectionUtils.union(maleBatches, femaleBatches).size() <= 3 ) {
+    			return BatchClassification.low_batch;
+
+    		} else if ( maleBatches.size() >=3 && femaleBatches.size() >= 2 ||
+    			femaleBatches.size() >=3 && maleBatches.size() >= 2 ) {
+    			return BatchClassification.multi_batch;
+    		}
+
+    		return BatchClassification.low_batch;
+    	}
+
     }
 
 }

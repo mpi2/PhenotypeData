@@ -26,7 +26,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
 
 public class PostQcService extends AbstractGenotypePhenotypeService {
 

@@ -25,17 +25,19 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
-import uk.ac.ebi.phenotype.pojo.SexType;
+
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
-import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
-import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
+import uk.ac.ebi.phenotype.service.dto.AnatomyPageTableRow;
+import uk.ac.ebi.phenotype.service.dto.DataTableRow;
 
 import javax.annotation.Resource;
+
 import java.util.*;
 
 public class ImageService {

@@ -32,7 +32,7 @@ import net.sf.json.JSONSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
+
 
 public class RegisterInterestDrupalSolr {
 
