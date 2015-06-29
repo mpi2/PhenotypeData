@@ -28,7 +28,6 @@ import org.mousephenotype.cda.pojo.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import org.mousephenotype.cda.pojo.*;
 
 @Repository
 public interface BiologicalModelDAO extends HibernateDAO {
