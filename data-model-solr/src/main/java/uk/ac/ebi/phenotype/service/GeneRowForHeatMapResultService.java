@@ -34,6 +34,7 @@ import org.mousephenotype.cda.dao.DatasourceDAO;
 import org.mousephenotype.cda.dao.OrganisationDAO;
 import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.dao.ProjectDAO;
+import org.mousephenotype.cda.pojo.GenomicFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.service.dto.BasicBean;
 import uk.ac.ebi.phenotype.service.dto.GeneRowForHeatMap;
 import uk.ac.ebi.phenotype.service.dto.HeatMapCell;
-import pojo.GenomicFeature;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 
 @Service

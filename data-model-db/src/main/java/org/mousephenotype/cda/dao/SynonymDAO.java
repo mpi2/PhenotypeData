@@ -24,9 +24,9 @@ package org.mousephenotype.cda.dao;
  */
 
 
-import pojo.Synonym;
-
 import java.util.List;
+
+import org.mousephenotype.cda.pojo.Synonym;
 
 
 public interface SynonymDAO extends HibernateDAO {

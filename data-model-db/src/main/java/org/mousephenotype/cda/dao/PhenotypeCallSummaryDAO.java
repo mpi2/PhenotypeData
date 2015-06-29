@@ -25,9 +25,9 @@ package org.mousephenotype.cda.dao;
 
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import pojo.Datasource;
-import pojo.Parameter;
-import pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.pojo.Datasource;
+import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
 
 import java.sql.SQLException;
 import java.util.List;

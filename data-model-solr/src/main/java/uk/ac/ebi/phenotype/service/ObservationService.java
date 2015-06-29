@@ -39,7 +39,6 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -53,24 +52,20 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
+import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.pojo.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
-import uk.ac.ebi.phenotype.chart.CategoricalSet;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 import uk.ac.ebi.phenotype.service.dto.ParallelCoordinatesDTO;
-import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 
 @Service
 public class ObservationService extends BasicService {

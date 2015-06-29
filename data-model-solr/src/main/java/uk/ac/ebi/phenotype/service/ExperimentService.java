@@ -15,26 +15,31 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.pojo.StatisticalResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.chart.FertilityDTO;
-import uk.ac.ebi.phenotype.chart.ViabilityDTO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAO;
-import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.*;
+
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.stats.strategy.AllControlsStrategy;
-import uk.ac.ebi.phenotype.stats.strategy.ControlSelectionStrategy;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
 
 @Service
 public class ExperimentService {
@@ -47,13 +52,7 @@ public class ExperimentService {
     ObservationService os;
 
     @Autowired
-    PhenotypePipelineDAO parameterDAO;
-
-    @Autowired
-    private PhenotypeCallSummarySolr phenoDAO;
-
-    @Autowired
-    private UnidimensionalStatisticsDAO unidimensionalStatisticsDAO;
+    org.mousephenotype.cda.dao.PhenotypePipelineDAO parameterDAO;
 
 //    @Autowired
 //    private StatisticalResultDAO statisticalResultDAO;

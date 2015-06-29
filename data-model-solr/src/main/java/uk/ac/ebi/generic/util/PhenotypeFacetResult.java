@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
 
 public class PhenotypeFacetResult {
 	

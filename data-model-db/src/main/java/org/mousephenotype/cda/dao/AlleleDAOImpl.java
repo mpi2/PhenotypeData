@@ -24,9 +24,9 @@ package org.mousephenotype.cda.dao;
  */
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.pojo.Allele;
+import org.mousephenotype.cda.pojo.GenomicFeature;
 import org.springframework.transaction.annotation.Transactional;
-import pojo.Allele;
-import pojo.GenomicFeature;
 
 import java.util.List;
 

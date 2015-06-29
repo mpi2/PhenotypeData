@@ -25,10 +25,10 @@ package org.mousephenotype.cda.dao;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.pojo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import pojo.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

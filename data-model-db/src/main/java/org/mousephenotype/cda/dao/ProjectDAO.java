@@ -24,9 +24,9 @@ package org.mousephenotype.cda.dao;
  */
 
 
-import pojo.Project;
-
 import java.util.List;
+
+import org.mousephenotype.cda.pojo.Project;
 
 
 public interface ProjectDAO extends HibernateDAO {

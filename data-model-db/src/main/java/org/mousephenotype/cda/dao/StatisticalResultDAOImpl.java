@@ -17,13 +17,13 @@ package org.mousephenotype.cda.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.enumerations.SignificantType;
+import org.mousephenotype.cda.pojo.BiologicalModel;
+import org.mousephenotype.cda.pojo.CategoricalResult;
+import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.pojo.UnidimensionalResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import pojo.BiologicalModel;
-import pojo.CategoricalResult;
-import pojo.Parameter;
-import pojo.UnidimensionalResult;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
