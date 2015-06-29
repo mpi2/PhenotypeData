@@ -15,6 +15,19 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -29,26 +42,34 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.beans.AggregateCountXYBean;
+import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 
+import pojo.Allele;
+import pojo.CategoricalResult;
+import pojo.Datasource;
+import pojo.DatasourceEntityId;
+import pojo.GenomicFeature;
+import pojo.OntologyTerm;
+import pojo.Parameter;
+import pojo.PhenotypeCallSummary;
+import pojo.Pipeline;
+import pojo.Procedure;
+import pojo.Project;
+import pojo.StatisticalResult;
+import pojo.UnidimensionalResult;
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.generic.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
-import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
-import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
-import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public abstract class AbstractGenotypePhenotypeService extends BasicService {
+
+	public static final ArrayList<String> OVERVIEW_STRAINS = new ArrayList(Arrays.asList("MGI:2159965", "MGI:2164831", "MGI:3056279", "MGI:2683688"));
+	
 
     protected PhenotypePipelineDAO pipelineDAO;
 
@@ -58,8 +79,6 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
     public static final double P_VALUE_THRESHOLD = 0.0001;
     
-    public static final ArrayList<String> OVERVIEW_STRAINS = new ArrayList(Arrays.asList("MGI:2159965", "MGI:2164831", "MGI:3056279", "MGI:2683688"));
-	
     /**
      * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
@@ -294,7 +313,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             throws SolrServerException {
 
         ArrayList<Parameter> res = new ArrayList<>();
-        SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
+        SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
         q.set("facet.field", "" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID);
         q.set("facet", true);
         q.set("facet.limit", -1);
@@ -997,48 +1016,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         return null;
     }
 
-    /*
-     * End of method for PhenotypeCallSummarySolrImpl
-     */
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<BasicBean> xAxisBeans, Map<String, List<String>> geneToTopLevelMpMap) {
-
-        GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
-        if (gene != null) {
-            row.setSymbol(gene.getSymbol());
-        } else {
-            System.err.println("error no symbol for gene " + accession);
-        }
-
-        Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
-        for (BasicBean xAxisBean : xAxisBeans) {
-            HeatMapCell cell = new HeatMapCell();
-            if (geneToTopLevelMpMap.containsKey(accession)) {
-
-                List<String> mps = geneToTopLevelMpMap.get(accession);
-                // cell.setLabel("No Phenotype Detected");
-                if (mps != null &&  ! mps.isEmpty()) {
-                    if (mps.contains(xAxisBean.getId())) {
-                        cell.setxAxisKey(xAxisBean.getId());
-                        cell.setLabel("Data Available");
-                        cell.setStatus("Data Available");
-                    } else {
-                        cell.setStatus("No MP");
-                    }
-                } else {
-                    // System.err.println("mps are null or empty");
-                    cell.setStatus("No MP");
-                }
-            } else {
-                // if no doc found for the gene then no data available
-                cell.setStatus("No Data Available");
-            }
-            xAxisToCellMap.put(xAxisBean.getId(), cell);
-        }
-        row.setXAxisToCellMap(xAxisToCellMap);
-
-        return row;
-    }
-
+   
     public SolrServer getSolrServer() {
         return solr;
     }

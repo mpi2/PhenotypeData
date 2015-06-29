@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import uk.ac.ebi.phenotype.service.dto.BasicBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.StackedBarsData;
-import uk.ac.ebi.phenotype.comparator.GeneRowForHeatMap3IComparator;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.pojo.*;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
@@ -45,8 +45,7 @@ import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
-import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
+
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -769,117 +768,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map, String resourceName) {
-    	
-        GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
-        Map<String, HeatMapCell> paramPValueMap = new HashMap<>();
-        
-        if (gene != null) {
-            row.setSymbol(gene.getSymbol());
-        } else {
-            System.err.println("error no symbol for gene " + accession);
-        }
-        
-        for (String procedure : map.get(accession)) {
-        	paramPValueMap.put(procedure, null);
-        }
-
-        SolrQuery q = new SolrQuery()
-                .setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"")
-                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
-                .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
-                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-                .addField(StatisticalResultDTO.STATUS)
-                .addField(StatisticalResultDTO.P_VALUE)
-                .setRows(10000000);
-        q.add("group", "true");
-        q.add("group.field", StatisticalResultDTO.PROCEDURE_STABLE_ID);
-        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
-        
-        try {
-        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
-            for (Group group:  groups.getValues()){
-            	HeatMapCell cell = new HeatMapCell();
-            	SolrDocument doc = group.getResult().get(0);
-            	cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
-            	if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-            		cell.setStatus("Significant call");
-            	} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-            			cell.setStatus("Data analysed, no significant call");
-            		} else {
-            			cell.setStatus("Could not analyse");
-            		}
-            	paramPValueMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
-            }
-            row.setXAxisToCellMap(paramPValueMap);
-        } catch (SolrServerException ex) {
-            LOG.error(ex.getMessage());
-        }
-        return row;
-    }
-    
-    public List<GeneRowForHeatMap> getSecondaryProjectMapForResource(String resourceName) {
-    	
-    	List<GeneRowForHeatMap> res = new ArrayList<>();    	
-        HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
-        List<BasicBean> procedures = getProceduresForDataSource(resourceName);
-        
-        for (BasicBean procedure : procedures){
-	        SolrQuery q = new SolrQuery()
-	        .setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
-	        .addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedure.getId())
-	        .setSort(StatisticalResultDTO.P_VALUE, SolrQuery.ORDER.asc)
-	        .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-	        .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-	        .addField(StatisticalResultDTO.MARKER_SYMBOL)
-	        .addField(StatisticalResultDTO.STATUS)
-	        .addField(StatisticalResultDTO.P_VALUE)
-	        .setRows(10000000);
-	        q.add("group", "true");
-	        q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
-	        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
-	
-	        try {
-	        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
-		        		        	
-		        for (Group group:  groups.getValues()){
-		        	GeneRowForHeatMap row;
-		            HeatMapCell cell = new HeatMapCell();
-		            SolrDocument doc = group.getResult().get(0);
-		        	String geneAcc = doc.get(StatisticalResultDTO.MARKER_ACCESSION_ID).toString();
-		            Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
-		            
-		        	if (geneRowMap.containsKey(geneAcc)){
-		        		row = geneRowMap.get(geneAcc);
-		        		xAxisToCellMap = row.getXAxisToCellMap();
-		        	} else {
-		        		row = new GeneRowForHeatMap(geneAcc);
-		        		row.setSymbol(doc.get(StatisticalResultDTO.MARKER_SYMBOL).toString());
-			        	xAxisToCellMap.put(procedure.getId(), null);
-		        	}
-		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
-		            if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
-		            	cell.setStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
-		            		cell.setStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
-		            } else {
-		            	cell.setStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
-		            }
-		            xAxisToCellMap.put(doc.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(), cell);
-			        row.setXAxisToCellMap(xAxisToCellMap);
-			        geneRowMap.put(geneAcc, row);
-		            }
-		        } catch (SolrServerException ex) {
-		            LOG.error(ex.getMessage());
-		        }
-        }
-        
-        res = new ArrayList<>(geneRowMap.values());
-        Collections.sort(res, new GeneRowForHeatMap3IComparator());
-     
-        return res;
-    }
-  
     
     public List<BasicBean> getProceduresForDataSource(String resourceName){
     	
@@ -910,50 +798,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
      
     
-    /*
-	 * End of method for PhenotypeCallSummarySolrImpl
-	 */
-	public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<BasicBean> xAxisBeans, Map<String, List<String>> geneToTopLevelMpMap) {
-
-		GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
-		if (gene != null) {
-			row.setSymbol(gene.getSymbol());
-		} else {
-			System.err.println("error no symbol for gene " + accession);
-		}
-
-		Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
-		for (BasicBean xAxisBean : xAxisBeans) {
-			HeatMapCell cell = new HeatMapCell();
-			if (geneToTopLevelMpMap.containsKey(accession)) {
-
-				List<String> mps = geneToTopLevelMpMap.get(accession);
-				// cell.setLabel("No Phenotype Detected");
-				if (mps != null && !mps.isEmpty()) {
-					if (mps.contains(xAxisBean.getId())) {
-						cell.setxAxisKey(xAxisBean.getId());
-						cell.setLabel("Data Available");
-						cell.setStatus("Data Available");
-					} else {
-						cell.setStatus("No MP");
-					}
-				} else {
-					// System.err.println("mps are null or empty");
-					cell.setStatus("No MP");
-				}
-			} else {
-				// if no doc found for the gene then no data available
-				cell.setStatus("No Data Available");
-			}
-			xAxisToCellMap.put(xAxisBean.getId(), cell);
-		}
-		row.setXAxisToCellMap(xAxisToCellMap);
-
-		return row;
-	}
-   
-
-	/**
+    /**
 	 * This map is needed for the summary on phenotype pages (the percentages &
 	 * pie chart). It takes a long time to load so it does it asynchronously.
 	 * 

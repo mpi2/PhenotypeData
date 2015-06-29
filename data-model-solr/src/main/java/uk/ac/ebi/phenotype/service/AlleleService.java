@@ -15,8 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -29,8 +31,6 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
-import uk.ac.ebi.phenotype.util.PhenotypingStatusComparator;
-import uk.ac.ebi.phenotype.util.ProductionStatusComparator;
 
 
 public class AlleleService {
@@ -162,4 +162,46 @@ public class AlleleService {
 		}
 		return res;
 	}
+	
+	
+	public class PhenotypingStatusComparator implements Comparator<String> {
+
+		Map<String, Integer> order = new HashMap<>(); //<string, desiredPosition>
+
+		
+		@Override
+		public int compare(String o1, String o2) {
+			order.put("Phenotype Attempt Registered", 1);
+			order.put("Phenotyping Started", 2);
+			order.put("Phenotyping Complete", 3);
+
+			if (order.containsKey(o1) && order.containsKey(o2)){
+				return order.get(o1).compareTo(order.get(o2));
+			}
+			
+			return 0;
+		}
+
+	}
+	
+	public class ProductionStatusComparator  implements Comparator<String> {
+		Map<String, Integer> order = new HashMap<>(); //<string, desiredPosition>
+		
+		@Override
+		public int compare(String o1, String o2) {
+			order.put("Micro-injection in progress", 1);
+			order.put("Chimeras obtained", 2);
+			order.put("Genotype confirmed", 3);
+			order.put("Cre Excision Started", 4);
+			order.put("Cre Excision Complete", 5);
+
+			if (order.containsKey(o1) && order.containsKey(o2)){
+				return order.get(o1).compareTo(order.get(o2));
+			}
+			
+			return 0;
+		}
+	}
+
+
 }
