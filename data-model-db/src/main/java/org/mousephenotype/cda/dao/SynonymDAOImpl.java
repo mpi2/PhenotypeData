@@ -24,8 +24,8 @@ package org.mousephenotype.cda.dao;
  */
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.pojo.Synonym;
 import org.springframework.transaction.annotation.Transactional;
-import pojo.Synonym;
 
 import java.util.List;
 

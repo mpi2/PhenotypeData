@@ -24,11 +24,11 @@ package org.mousephenotype.cda.dao;
  */
 
 
-import pojo.GenomicFeature;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import org.mousephenotype.cda.pojo.GenomicFeature;
 
 
 public interface GenomicFeatureDAO extends HibernateDAO {

@@ -28,10 +28,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.pojo.Datasource;
+import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
 import org.springframework.transaction.annotation.Transactional;
-import pojo.Datasource;
-import pojo.Parameter;
-import pojo.PhenotypeCallSummary;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

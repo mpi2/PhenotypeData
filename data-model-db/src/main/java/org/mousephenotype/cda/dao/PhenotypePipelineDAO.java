@@ -24,12 +24,12 @@ package org.mousephenotype.cda.dao;
  */
 
 
-import pojo.*;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.mousephenotype.cda.pojo.*;
 
 
 public interface PhenotypePipelineDAO extends HibernateDAO {

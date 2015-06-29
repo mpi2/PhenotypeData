@@ -24,7 +24,7 @@ package org.mousephenotype.cda.dao;
 
 
 import org.mousephenotype.cda.enumerations.ObservationType;
-import pojo.*;
+import org.mousephenotype.cda.pojo.*;
 
 import java.sql.SQLException;
 import java.util.List;

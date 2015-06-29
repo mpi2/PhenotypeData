@@ -24,10 +24,10 @@ package org.mousephenotype.cda.dao;
  */
 
 
-import pojo.Allele;
-import pojo.GenomicFeature;
-
 import java.util.List;
+
+import org.mousephenotype.cda.pojo.Allele;
+import org.mousephenotype.cda.pojo.GenomicFeature;
 
 
 public interface AlleleDAO extends HibernateDAO {

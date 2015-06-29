@@ -16,10 +16,10 @@
 package org.mousephenotype.cda.dao;
 
 import org.mousephenotype.cda.enumerations.SignificantType;
-import pojo.BiologicalModel;
-import pojo.CategoricalResult;
-import pojo.Parameter;
-import pojo.UnidimensionalResult;
+import org.mousephenotype.cda.pojo.BiologicalModel;
+import org.mousephenotype.cda.pojo.CategoricalResult;
+import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.pojo.UnidimensionalResult;
 
 import java.sql.SQLException;
 import java.util.HashMap;

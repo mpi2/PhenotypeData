@@ -24,10 +24,10 @@ package org.mousephenotype.cda.dao;
  */
 
 
-import pojo.SequenceRegion;
-
 import java.util.HashMap;
 import java.util.List;
+
+import org.mousephenotype.cda.pojo.SequenceRegion;
 
 
 public interface SequenceRegionDAO extends HibernateDAO {

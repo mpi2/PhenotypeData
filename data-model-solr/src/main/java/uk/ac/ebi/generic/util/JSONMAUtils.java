@@ -43,7 +43,7 @@ public class JSONMAUtils {
 			System.err.println("something odd in that the maId doesn't equal the anatomy_id!");
 		}
 		Anatomy ma = new Anatomy(maIdString,maTerm) ;
-	
+
 		if(maJson.containsKey("child_ma_idTerm")) {
 			Collection<String> idTerms=JSONArray.toCollection(maJson.getJSONArray("child_ma_idTerm") , String.class);
 			idTerms=getDistinct(idTerms);
@@ -61,12 +61,12 @@ public class JSONMAUtils {
 			ma.setChildTerms(terms);
 			ma.setChildIds(ids);
 		}
-		
+
 		if (maJson.containsKey("ma_term_synonym")){
 			ArrayList<String> synList = new ArrayList<String>( JSONArray.toCollection(maJson.getJSONArray("ma_term_synonym") , String.class));
 			ma.setSynonyms(synList);
 		}
-		
+
 		// the fields below don't exist anymore in the schema - do we replace these with something or not??? JW
 //		if(maJson.containsKey("ma_2_mp_id")) {
 //			Collection<String> mpIds=JSONArray.toCollection(maJson.getJSONArray("ma_2_mp_id") , String.class);
@@ -93,5 +93,5 @@ public class JSONMAUtils {
 		childTermStrings.addAll(hs);
 		return childTermStrings;
 	}
-	
+
 }

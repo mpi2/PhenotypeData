@@ -26,9 +26,9 @@ package org.mousephenotype.cda.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.mousephenotype.cda.pojo.Datasource;
+import org.mousephenotype.cda.pojo.OntologyTerm;
 import org.springframework.transaction.annotation.Transactional;
-import pojo.Datasource;
-import pojo.OntologyTerm;
 
 import java.util.Collection;
 import java.util.HashMap;

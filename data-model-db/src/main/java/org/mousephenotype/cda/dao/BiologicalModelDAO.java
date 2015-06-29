@@ -24,10 +24,11 @@ package org.mousephenotype.cda.dao;
  */
 
 
+import org.mousephenotype.cda.pojo.*;
 import org.springframework.stereotype.Repository;
-import pojo.*;
 
 import java.util.List;
+import org.mousephenotype.cda.pojo.*;
 
 @Repository
 public interface BiologicalModelDAO extends HibernateDAO {

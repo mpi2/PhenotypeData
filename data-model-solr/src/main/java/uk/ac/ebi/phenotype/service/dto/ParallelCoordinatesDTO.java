@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.pojo.Parameter;
 
-import uk.ac.ebi.phenotype.pojo.Parameter;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
