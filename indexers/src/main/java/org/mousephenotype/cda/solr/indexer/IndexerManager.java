@@ -836,6 +836,8 @@ public class IndexerManager {
     
     private void sleep(Integer threadWaitInMs) {
         if ((threadWaitInMs != null) && (threadWaitInMs > 0))
-            try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
+            try { Thread.sleep(threadWaitInMs); } catch (Exception e) {
+            	e.printStackTrace();
+            }
     }
 }
