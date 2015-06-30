@@ -16,6 +16,14 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.apache.log4j.Logger;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.junit.Assert.fail;
+
 //import org.apache.commons.lang3.StringUtils;
 //import org.apache.log4j.Logger;
 //import org.apache.solr.client.solrj.SolrQuery;
@@ -50,24 +58,17 @@ package org.mousephenotype.cda.seleniumtests.support;
 //import java.util.regex.Pattern;
 //
 //import static com.thoughtworks.selenium.SeleneseTestBase.fail;
-//
-///**
-// *
-// * @author mrelac
-// *
-// * Returns an iteration count. The count may be specified in one of three ways.
-// * In order of priority:
-// * <ul>
-// * <li>system property specified as -D<i>testName=iterationCount</i> parameter on JVM command line</li>
-// * <li>matching value from 'testIterations.properties' properties file (<i>testName=iterationCount</i> in properties file</li>
-// * <li>value passed in by caller using getTargetCount(String, Integer)</li>
-// * </ul>
-// * If the property is still not found, the value specified in DEFAULT_COUNT is used.
-// */
+
+/**
+ * This class is intended to hold static methods useful for testing but not worthy of their own class.
+ *
+ * @author mrelac
+ *
+ */
 public class TestUtils {
-//    public final int DEFAULT_COUNT = 10;
-//    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-//    private static final Logger logger = Logger.getLogger("TestUtils");
+    public final int DEFAULT_COUNT = 10;
+    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private static final Logger logger = Logger.getLogger("TestUtils");
 //
 //    @Resource(name="testIterationsHash")
 //    Map<String, String> testIterationsHash;
@@ -810,7 +811,7 @@ public class TestUtils {
 //        }
 //
 //        stop = new Date();
-//        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " (" + totalPossible + ") records successfully processed in " + Tools.dateDiff(start, stop) + ".");
+//        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " (" + totalPossible + ") records successfully processed in " + Tools.formatDateDifference(start, stop) + ".");
 //
 //        if (errorList.size() + exceptionList.size() > 0) {
 //            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
@@ -818,42 +819,64 @@ public class TestUtils {
 //
 //        System.out.println();
 //    }
-//
-//    /**
-//     * Given a test name, test start time, error list, exception list, success list,
-//     * and total number of expected records to be processed, writes the given
-//     * information to stdout.
-//     *
-//     * @param testName the test name (must not be null)
-//     * @param start the test start time (must not be null)
-//     * @param status the <code>PageStatus</code> instance
-//     * @param successRecords the number of success records processed
-//     * @param totalRecords the total number of expected records to process
-//     * @param totalPossible the total number of possible records to process
-//     */
-//    public static void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
-//        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-//        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-//        Date stop;
-//
-//        if (status.hasWarnings()) {
-//            System.out.println(status.getWarningMessages().size() + " records had warnings:");
-//            System.out.println(status.toStringWarningMessages());
-//        }
-//
-//        if (status.hasErrors()) {
-//            System.out.println(status.getErrorMessages().size() + " errors:");
-//            System.out.println(status.toStringErrorMessages());
-//        }
-//
-//        stop = new Date();
-//        String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
-//        System.out.println(dateFormat.format(stop) + ": " + successRecords + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + Tools.dateDiff(start, stop) + ".");
-//        if (status.hasErrors()) {
-//            fail("ERRORS: " + status.getErrorMessages().size());
-//        }
-//    }
-//
+
+    /**
+     * Given a test name, test start time, error list, exception list, success list,
+     * and total number of expected records to be processed, writes the given
+     * information to stdout.
+     *
+     * @param testName the test name (must not be null)
+     * @param start the test start time (must not be null)
+     * @param status the <code>PageStatus</code> instance
+     * @param successRecords the number of success records processed
+     * @param totalRecords the total number of expected records to process
+     * @param totalPossible the total number of possible records to process
+     */
+    public static void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        Date stop;
+
+        if (status.hasWarnings()) {
+            System.out.println(status.getWarningMessages().size() + " records had warnings:");
+            System.out.println(status.toStringWarningMessages());
+        }
+
+        if (status.hasErrors()) {
+            System.out.println(status.getErrorMessages().size() + " errors:");
+            System.out.println(status.toStringErrorMessages());
+        }
+
+        stop = new Date();
+        String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
+        System.out.println(dateFormat.format(stop) + ": " + successRecords + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + formatDateDifference(start, stop) + ".");
+        if (status.hasErrors()) {
+            fail("ERRORS: " + status.getErrorMessages().size());
+        }
+    }
+
+    /**
+     * Given two dates (in any order), returns a <code>String</code> in the
+     * format "xxx days, yyy hours, zzz minutes, nnn seconds" that equals
+     * the absolute value of the time difference between the two days.
+     * @param date1 the first operand
+     * @param date2 the second operand
+     * @return a <code>String</code> in the format "dd:hh:mm:ss" that equals the
+     * absolute value of the time difference between the two date.
+     */
+    private static String formatDateDifference(Date date1, Date date2) {
+        long lower = Math.min(date1.getTime(), date2.getTime());
+        long upper = Math.max(date1.getTime(), date2.getTime());
+        long diff = upper - lower;
+
+        long days = diff / (24 * 60 * 60 * 1000);
+        long hours = diff / (60 * 60 * 1000) % 24;
+        long minutes = diff / (60 * 1000) % 60;
+        long seconds = diff / 1000 % 60;
+
+        return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
+    }
+
 //    /**
 //     * Removes the protocol and double slashes from the url string
 //     * @param url url string which may or may not contain a protocol
