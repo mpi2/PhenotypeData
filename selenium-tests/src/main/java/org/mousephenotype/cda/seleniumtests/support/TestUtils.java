@@ -19,10 +19,14 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.fail;
 
@@ -62,19 +66,19 @@ import static org.junit.Assert.fail;
 //import static com.thoughtworks.selenium.SeleneseTestBase.fail;
 
 /**
- * This class is intended to hold static methods useful for testing but not worthy of their own class.
+ * This class is intended to hold methods useful for testing but not worthy of their own class.
  *
  * @author mrelac
  *
  */
+@Component
 public class TestUtils {
     public final int DEFAULT_COUNT = 10;
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private static final Logger logger = Logger.getLogger("TestUtils");
-//
-//    @Resource(name="testIterationsHash")
-//    Map<String, String> testIterationsHash;
-//
+
+    Map<String, String> testIterationsHash;
+
 //    @Autowired
 //    ObservationService observationService;
 //
@@ -174,54 +178,54 @@ public class TestUtils {
 //
 //        return retVal;
 //    }
-//
-//    /**
-//     * Return target count prioritized as follows:
-//     * <p><b>NOTE: If the returned target size is less than the collection size,
-//     * the collection is shuffled (i.e. randomized)</b></p>
-//     * <ul>
-//     * <li>if there is a system property matching <i>testMethodName</i>, that value is used</li>
-//     * <li>else if <i>testMethodName</i> appears in the <code>testIterations.properties</code> file, that value is used</li>
-//     * <li>else if <i>defaultCount</i> is not null, it is used</li>
-//     * <li>else the value defined by <i>DEFAULT_COUNT</i> is used</li>
-//     * </ul>
-//     * @param testMethodName the method to which the target count applies
-//     * @param collection the collection to be tested (used for maximum size when target count of -1 is specified)
-//     * @param defaultCount if not null, the value to use if it was not specified as a -D parameter on the command line
-//     *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
-//     * @return target count
-//     */
-//    public int getTargetCount(String testMethodName, List collection, Integer defaultCount) {
-//        Integer targetCount = null;
-//
-//        if (defaultCount != null)
-//            targetCount = defaultCount;
-//
-//        if (testIterationsHash.containsKey(testMethodName)) {
-//            if (Utils.tryParseInt(testIterationsHash.get(testMethodName)) != null) {
-//                targetCount = Utils.tryParseInt(testIterationsHash.get(testMethodName));
-//            }
-//        }
-//        if (Utils.tryParseInt(System.getProperty(testMethodName)) != null) {
-//            targetCount = Utils.tryParseInt(System.getProperty(testMethodName));
-//        }
-//
-//        if (targetCount == null) {
-//            targetCount = DEFAULT_COUNT;
-//        }
-//
-//        if (targetCount == -1)
-//            targetCount = collection.size();
-//
-//        // If targetCount is less than the collection, randomize the collection.
-//        if (targetCount < collection.size()) {
-//            Collections.shuffle(collection);
-//            System.out.println("Randomizing collection.");
-//        }
-//
-//        return Math.min(targetCount, collection.size());
-//    }
-//
+
+    /**
+     * Return target count prioritized as follows:
+     * <p><b>NOTE: If the returned target size is less than the collection size,
+     * the collection is shuffled (i.e. randomized)</b></p>
+     * <ul>
+     * <li>if there is a system property matching <i>testMethodName</i>, that value is used</li>
+     * <li>else if <i>testMethodName</i> appears in the <code>testIterations.properties</code> file, that value is used</li>
+     * <li>else if <i>defaultCount</i> is not null, it is used</li>
+     * <li>else the value defined by <i>DEFAULT_COUNT</i> is used</li>
+     * </ul>
+     * @param testMethodName the method to which the target count applies
+     * @param collection the collection to be tested (used for maximum size when target count of -1 is specified)
+     * @param defaultCount if not null, the value to use if it was not specified as a -D parameter on the command line
+     *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
+     * @return target count
+     */
+    public int getTargetCount(String testMethodName, List collection, Integer defaultCount) {
+        Integer targetCount = null;
+
+        if (defaultCount != null)
+            targetCount = defaultCount;
+
+        if (testIterationsHash.containsKey(testMethodName)) {
+            if (tryParseInt(testIterationsHash.get(testMethodName)) != null) {
+                targetCount = tryParseInt(testIterationsHash.get(testMethodName));
+            }
+        }
+        if (tryParseInt(System.getProperty(testMethodName)) != null) {
+            targetCount = tryParseInt(System.getProperty(testMethodName));
+        }
+
+        if (targetCount == null) {
+            targetCount = DEFAULT_COUNT;
+        }
+
+        if (targetCount == -1)
+            targetCount = collection.size();
+
+        // If targetCount is less than the collection, randomize the collection.
+        if (targetCount < collection.size()) {
+            Collections.shuffle(collection);
+            System.out.println("Randomizing collection.");
+        }
+
+        return Math.min(targetCount, collection.size());
+    }
+
 //    /**
 //     * Return target count prioritized as follows:
 //     * <p><b>NOTE: If the returned target size is less than the collection size,
@@ -656,27 +660,6 @@ public class TestUtils {
 //        return retVal;
 //    }
 
-    /**
-     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
-     * prints the test environment for the test associated with <code>driver<code>.
-     * @param driver the initialized <code>WebDriver</code> instance
-     * @param seleniumUrl the Selenium URL
-     */
-    public static void printTestEnvironment(WebDriver driver, String seleniumUrl) {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
-
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
-    }
-
 //    /**
 //     * Given a variable list of strings, returns a single string with each
 //     * original string separated by an underscore ("_"). Null strings are
@@ -754,26 +737,26 @@ public class TestUtils {
 //
 //        return new GridMap(dataOut, input.getTarget());
 //    }
-//
-//    /**
-//     * The baseUrl for testing typically looks like:
-//     *     "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive".
-//     * Typical urls (e.g. graph urls) look like:
-//     *     "http://ves-ebi-d0:8080/data/charts?accession=MGI:xxx...."
-//     * Typical tokenMatch for graph pages looks like "/charts?". For download
-//     * links it looks like "/export?".
-//     *
-//     * @param baseUrl the base url
-//     * @param url the graph (or other page) url
-//     * @param tokenMatch the token matching the start of the good part of the url.
-//     * @return a useable url that starts with the baseUrl followed by
-//     * everything including and after the '/charts?' part of the url.
-//     */
-//    public static String patchUrl(String baseUrl, String url, String tokenMatch) {
-//        int idx = url.indexOf(tokenMatch);
-//        return baseUrl + url.substring(idx);
-//    }
-//
+
+    /**
+     * The baseUrl for testing typically looks like:
+     *     "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive".
+     * Typical urls (e.g. graph urls) look like:
+     *     "http://ves-ebi-d0:8080/data/charts?accession=MGI:xxx...."
+     * Typical tokenMatch for graph pages looks like "/charts?". For download
+     * links it looks like "/export?".
+     *
+     * @param baseUrl the base url
+     * @param url the graph (or other page) url
+     * @param tokenMatch the token matching the start of the good part of the url.
+     * @return a useable url that starts with the baseUrl followed by
+     * everything including and after the '/charts?' part of the url.
+     */
+    public String patchUrl(String baseUrl, String url, String tokenMatch) {
+        int idx = url.indexOf(tokenMatch);
+        return baseUrl + url.substring(idx);
+    }
+
 //    /**
 //     * Given a test name, test start time, error list, exception list, success list,
 //     * and total number of expected records to be processed, writes the given
@@ -834,7 +817,7 @@ public class TestUtils {
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
-    public static void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
+    public void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
@@ -858,6 +841,52 @@ public class TestUtils {
     }
 
     /**
+     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
+     * prints the test environment for the test associated with <code>driver<code>.
+     * @param driver the initialized <code>WebDriver</code> instance
+     * @param seleniumUrl the Selenium URL
+     */
+    public void printTestEnvironment(WebDriver driver, String seleniumUrl) {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (driver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+
+        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+        System.out.println("seleniumUrl: " + seleniumUrl);
+    }
+
+    /**
+     * Given an <code>Object</code> that may be null or may be an Integer, this
+     * method attempts to convert the value to an <code>Integer</code>. If successful,
+     * the <code>Integer</code> value is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     * @param o the object to try to convert
+     * @return the converted value, if <em>o</em> is an <code>Integer</code>; null otherwise
+     */
+    public Integer tryParseInt(Object o) {
+        if (o == null)
+            return null;
+
+        Integer retVal = null;
+        try {
+            retVal = Integer.parseInt(o.toString().trim().replace(",", ""));    // Remove commas. Number strings like '48,123' don't parse.
+        }
+        catch (NumberFormatException nfe ) { }
+
+        return retVal;
+    }
+
+
+    // PRIVATE METHODS
+
+
+    /**
      * Given two dates (in any order), returns a <code>String</code> in the
      * format "xxx days, yyy hours, zzz minutes, nnn seconds" that equals
      * the absolute value of the time difference between the two days.
@@ -866,7 +895,7 @@ public class TestUtils {
      * @return a <code>String</code> in the format "dd:hh:mm:ss" that equals the
      * absolute value of the time difference between the two date.
      */
-    private static String formatDateDifference(Date date1, Date date2) {
+    private String formatDateDifference(Date date1, Date date2) {
         long lower = Math.min(date1.getTime(), date2.getTime());
         long upper = Math.max(date1.getTime(), date2.getTime());
         long diff = upper - lower;
