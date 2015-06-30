@@ -26,12 +26,12 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.dao.GwasDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import uk.ac.ebi.phenotype.dao.GwasDAO;
 import uk.ac.ebi.phenotype.service.dto.*;
 import uk.ac.ebi.phenotype.solr.indexer.beans.AutosuggestBean;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;

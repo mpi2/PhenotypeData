@@ -20,8 +20,9 @@ import joptsimple.HelpFormatter;
 import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.www.testing.model.TestUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,12 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
+
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.*;
-import uk.ac.ebi.phenotype.util.Utils;
+import uk.ac.ebi.generic.util.*;
 
 import javax.annotation.Resource;
+
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -291,7 +294,7 @@ public class IndexerManager {
                     if (i < RETRY_COUNT) {
                         logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
                         logErrors(ie);
-                        TestUtils.sleep(RETRY_SLEEP_IN_MS);
+                        sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw ie;
@@ -300,7 +303,7 @@ public class IndexerManager {
                     if (i < RETRY_COUNT) {
                         logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
                         logErrors(new IndexerException(e));
-                        TestUtils.sleep(RETRY_SLEEP_IN_MS);
+                        sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw new IndexerException(e);
@@ -831,5 +834,10 @@ public class IndexerManager {
         public void setErrorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
         }
+    }
+    
+    private void sleep(Integer threadWaitInMs) {
+        if ((threadWaitInMs != null) && (threadWaitInMs > 0))
+            try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
     }
 }
