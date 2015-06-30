@@ -26,7 +26,7 @@ import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;

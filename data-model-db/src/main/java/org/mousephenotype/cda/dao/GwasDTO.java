@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package uk.ac.ebi.phenotype.service.dto;
+package org.mousephenotype.cda.dao;
 
 import java.util.List;
 import java.util.Objects;

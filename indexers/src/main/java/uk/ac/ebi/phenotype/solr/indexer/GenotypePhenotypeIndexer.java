@@ -18,11 +18,12 @@ package uk.ac.ebi.phenotype.solr.indexer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import uk.ac.ebi.phenotype.pojo.SexType;
+
 import uk.ac.ebi.phenotype.service.MpOntologyService;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
@@ -32,6 +33,7 @@ import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

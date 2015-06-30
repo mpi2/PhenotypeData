@@ -17,7 +17,9 @@
 package uk.ac.ebi.phenotype.solr.indexer.beans;
 
 import java.util.List;
+
 import uk.ac.ebi.phenotype.service.OntologyService;
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
 
 /**
  * This class encapsulates the methods necessary to serve up individual lists of

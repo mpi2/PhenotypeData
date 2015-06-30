@@ -22,10 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.MaOntologyService;
 import uk.ac.ebi.phenotype.service.dto.MaDTO;
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
 import uk.ac.ebi.phenotype.service.dto.SangerImageDTO;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermMaBeanList;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
@@ -33,6 +34,7 @@ import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 import uk.ac.ebi.phenotype.solr.indexer.utils.SolrUtils;
 
 import javax.sql.DataSource;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

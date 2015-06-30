@@ -15,6 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -22,23 +37,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
 import uk.ac.ebi.phenotype.service.MpOntologyService;
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
 import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
-import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBean;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OntologyTermBeanList;
 import uk.ac.ebi.phenotype.solr.indexer.beans.OrganisationBean;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.IndexerException;
 import uk.ac.ebi.phenotype.solr.indexer.exceptions.ValidationException;
 import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Load documents into the statistical-results SOLR core
