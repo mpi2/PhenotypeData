@@ -24,7 +24,12 @@
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model</artifactId>
         </dependency>
-
+        <!-- need this until gwas has a solr core had to put DTO in here for code to compile -->
+         <dependency>
+            <artifactId>solr-solrj</artifactId>
+            <groupId>org.apache.solr</groupId>
+            <version>4.9.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -50,6 +55,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+        
+        <dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.10</version>
+		</dependency>
 
         <dependency>
             <groupId>javax.validation</groupId>

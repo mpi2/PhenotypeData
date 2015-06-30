@@ -28,7 +28,6 @@ package org.mousephenotype.cda.pojo;
  * @see Pipeline
  */
 import javax.persistence.*;
-import javax.persistence.Parameter;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
