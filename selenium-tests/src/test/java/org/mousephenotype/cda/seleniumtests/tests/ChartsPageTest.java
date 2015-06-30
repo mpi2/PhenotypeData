@@ -16,11 +16,14 @@
 
 package org.mousephenotype.cda.seleniumtests.tests;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
+import org.mousephenotype.cda.seleniumtests.support.TestConfig;
+import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-//import org.mousephenotype.cda.seleniumtests.support.TestUtils;
-
 
 /**
  * @author Gautier Koscielny Selenium test for graph query coverage ensuring
@@ -48,7 +49,6 @@ import java.util.concurrent.TimeUnit;
 @TestPropertySource("classpath:testConfig.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
     private SeleniumWrapper wrapper;
@@ -79,16 +79,11 @@ public class ChartsPageTest {
     @Test
     public void testExampleCategorical() throws Exception {
         String testName = "testExampleCategorical";
-        
-        List<String> errorList = new ArrayList<>();
+        PageStatus status = new PageStatus();
         List<String> successList = new ArrayList<>();
-        List<String> exceptionList = new ArrayList<>();
         Date start = new Date();
         int targetCount = 1;
-logger.error("LOGGER ERROR");
-logger.warn("LOGGER WARNING");
-logger.info("LOGGER INFO");
-logger.debug("LOGGER DEBUG");
+
         String mgiGeneAcc = "MGI:2444584";
         String impressParameter = "ESLIM_001_001_004";
         String zygosity = "homozygote";
@@ -99,22 +94,22 @@ logger.debug("LOGGER DEBUG");
         driver.get(target);
         String title = driver.findElement(By.className("title")).getText();
         if ( ! title.contains(geneSymbol)) {
-            errorList.add("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
+            status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
         } else {
             successList.add("OK");
+
         }
-        
-//        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList,  targetCount, 1);
+
+        TestUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
         System.out.println();
     }
 
     @Test
     public void testExampleCategorical2() throws Exception {
         String testName = "testExampleCategorical2";
-        
-        List<String> errorList = new ArrayList<>();
+        PageStatus status = new PageStatus();
+
         List<String> successList = new ArrayList<>();
-        List<String> exceptionList = new ArrayList<>();
         Date start = new Date();
         int targetCount = 1;
 
@@ -127,12 +122,12 @@ logger.debug("LOGGER DEBUG");
         driver.get(tempUrl);
         String title = driver.findElement(By.className("title")).getText();
         if ( ! title.contains(geneSymbol)) {
-            errorList.add("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + tempUrl + "'");
+            status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + tempUrl + "'");
         } else {
             successList.add("OK");
         }
-            
-//        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList,  targetCount, 1);
+
+        TestUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
         System.out.println();
     }
 
