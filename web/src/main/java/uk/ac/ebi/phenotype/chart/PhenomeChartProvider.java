@@ -30,12 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.Procedure;
+import org.mousephenotype.cda.pojo.*;
 
 public class PhenomeChartProvider {
 

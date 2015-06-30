@@ -30,13 +30,13 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.pojo.BiologicalModel;
+import org.mousephenotype.cda.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.pojo.Parameter;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 

@@ -19,7 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import uk.ac.ebi.phenotype.pojo.SexType;
+import org.mousephenotype.cda.enumerations.SexType;
+
+import uk.ac.ebi.phenotype.service.dto.CategoricalDataObject;
+
+
 
 
 /**

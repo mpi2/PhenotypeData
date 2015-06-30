@@ -15,21 +15,22 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+
+
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.mousephenotype.www.testing.model.GraphCatTable.Sex;
+import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.pojo.Procedure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.exception.*;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;

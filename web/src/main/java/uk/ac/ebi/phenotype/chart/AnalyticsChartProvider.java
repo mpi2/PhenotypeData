@@ -28,12 +28,10 @@ import java.util.Map.Entry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.beans.AggregateCountXYBean;
 
-import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.Procedure;
+
 
 
 

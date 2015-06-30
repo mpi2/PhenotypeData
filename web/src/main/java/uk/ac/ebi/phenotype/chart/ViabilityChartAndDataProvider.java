@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.WordUtils;
+import org.mousephenotype.cda.pojo.Parameter;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 

@@ -23,9 +23,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.Procedure;
+import org.mousephenotype.cda.pojo.*;
 
 public class PipelineProcedureData {
 
