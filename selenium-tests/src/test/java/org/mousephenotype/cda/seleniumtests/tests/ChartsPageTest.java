@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
 import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
-import org.mousephenotype.cda.seleniumtests.support.TestConfig;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
