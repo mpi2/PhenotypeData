@@ -13,19 +13,62 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-
-package org.mousephenotype.cda.stats.strategy;
-
-import java.util.List;
-
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+package org.mousephenotype.cda.solr.indexer.beans;
 
 /**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
+ * Class to act as Map value DTO for impress data
  */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+public class ImpressBean {
+	public Integer id;
+	public String stableKey;
+	public String stableId;
+	public String name;
+
+
+	public Integer getId() {
+
+		return id;
+	}
+
+
+	public void setId(Integer id) {
+
+		this.id = id;
+	}
+
+
+	public String getStableKey() {
+
+		return stableKey;
+	}
+
+
+	public void setStableKey(String stableKey) {
+
+		this.stableKey = stableKey;
+	}
+
+
+	public String getStableId() {
+
+		return stableId;
+	}
+
+
+	public void setStableId(String stableId) {
+
+		this.stableId = stableId;
+	}
+
+
+	public String getName() {
+
+		return name;
+	}
+
+
+	public void setName(String name) {
+
+		this.name = name;
+	}
 }

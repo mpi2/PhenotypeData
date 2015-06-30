@@ -13,19 +13,42 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
+package org.mousephenotype.cda.service;
 
-package org.mousephenotype.cda.stats.strategy;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 
-import java.util.List;
+public class ProcedureBean {
 
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+	String stableId;
 
-/**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
- */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+	String name;
+	
+	public ProcedureBean(String name, String stableId) {
+		setName(name);
+		setStableId(stableId);
+	}
+	
+	public String getStableId() {
+		return stableId;
+	}
+	
+	public void setStableId(String stableId) {
+		this.stableId = stableId;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String toString() {
+
+		return "ProcedureBean [stableId=" + stableId + ", name=" + name + "]";
+	}
+	
+	
 }

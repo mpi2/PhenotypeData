@@ -13,19 +13,23 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
+package org.mousephenotype.cda.generic.util;
 
-package org.mousephenotype.cda.stats.strategy;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
-import java.util.List;
+import javax.net.ssl.X509TrustManager;
 
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+public class DefaultTrustManager implements X509TrustManager {
 
-/**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
- */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+    @Override
+    public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+    @Override
+    public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
+        return null;
+    }
 }

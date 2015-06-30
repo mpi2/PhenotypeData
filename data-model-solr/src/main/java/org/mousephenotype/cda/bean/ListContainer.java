@@ -13,19 +13,46 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
+package org.mousephenotype.cda.bean;
 
-package org.mousephenotype.cda.stats.strategy;
+/**
+ * 
+ * This is a list container for jstl.
+ * 
+ * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
+ *  @since February 2012
+ */
 
 import java.util.List;
 
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
- */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+@XmlRootElement(name="listContainer")
+public class ListContainer<X> {
+
+	private int count;
+	private List<X> results;
+
+	public ListContainer() {}
+	
+	public ListContainer(List<X> results) {
+		this.results = results;
+		this.count = results.size();
+	}
+
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	
+	@XmlElement(name="results")
+	public List<X> getResults() {
+		return results;
+	}
+	public void setResults(List<X> results) {
+		this.results = results;
+	}
 }

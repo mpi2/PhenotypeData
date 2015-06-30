@@ -32,15 +32,11 @@
 		<dependency>
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-solr</artifactId>
-
-			<version>${phenotypedata.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-db</artifactId>
-
-			<version>${phenotypedata.version}</version>
 		</dependency>
 
 
@@ -81,11 +77,6 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-jasper</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- in dev mode restart on class changes -->

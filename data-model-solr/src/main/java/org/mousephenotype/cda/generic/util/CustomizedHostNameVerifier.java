@@ -13,19 +13,22 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
+package org.mousephenotype.cda.generic.util;
 
-package org.mousephenotype.cda.stats.strategy;
-
-import java.util.List;
-
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 /**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
+ * Provides an SSL certification implementation that claims all certificates
+ * are valid -- without actually checking them (!).
+ * 
+ * This is required because, for instance, 
+ * dev.mousephenotype.org has an invalid SSL cert
+ * 
  */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+public class CustomizedHostNameVerifier implements HostnameVerifier {
+	@Override
+	public boolean verify(String hostname, SSLSession session) {
+		return true;
+	}
 }
