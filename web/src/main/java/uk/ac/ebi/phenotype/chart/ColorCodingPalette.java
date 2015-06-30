@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
+
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+
 
 /**
  * Generates a color palette given a set of p-values

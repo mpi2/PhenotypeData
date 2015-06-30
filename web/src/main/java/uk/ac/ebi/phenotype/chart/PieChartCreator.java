@@ -20,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
+
 
 
 public class PieChartCreator {

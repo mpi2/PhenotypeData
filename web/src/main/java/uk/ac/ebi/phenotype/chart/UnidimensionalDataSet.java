@@ -17,7 +17,7 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.util.List;
 
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
 /**

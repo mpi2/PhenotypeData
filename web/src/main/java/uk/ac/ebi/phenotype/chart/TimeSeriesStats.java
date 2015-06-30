@@ -22,10 +22,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
+import org.mousephenotype.cda.pojo.DiscreteTimePoint;
 
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
+
 
 public class TimeSeriesStats {
 

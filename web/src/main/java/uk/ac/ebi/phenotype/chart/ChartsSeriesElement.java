@@ -19,9 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+
 
 //to hold a highchart section of data with properties together so we can inject it into highcharts via Java JSON objects
 //name: 'Observation',

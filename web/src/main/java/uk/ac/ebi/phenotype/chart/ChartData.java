@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+
+import org.mousephenotype.cda.pojo.BiologicalModel;
+import org.mousephenotype.cda.pojo.DiscreteTimePoint;
+
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
 public class ChartData {

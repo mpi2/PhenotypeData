@@ -18,9 +18,10 @@ package uk.ac.ebi.phenotype.chart;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import org.mousephenotype.cda.pojo.BiologicalModel;
+import org.mousephenotype.cda.pojo.CategoricalResult;
+import org.mousephenotype.cda.pojo.StatisticalResult;
+
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
 /**
