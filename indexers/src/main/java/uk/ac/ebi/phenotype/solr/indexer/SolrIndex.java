@@ -15,6 +15,22 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.solr.indexer;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -28,16 +44,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.web.util.DrupalHttpProxy;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
+import uk.ac.ebi.generic.util.DrupalHttpProxy;
+import uk.ac.ebi.generic.util.HttpProxy;
 
 @Service
 public class SolrIndex {

@@ -19,6 +19,8 @@ package uk.ac.ebi.phenotype.solr.indexer.beans;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.ebi.phenotype.service.dto.OntologyTermBean;
+
 
 /**
  * This class provides access to the ontology detail:
