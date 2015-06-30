@@ -32,15 +32,11 @@
 		<dependency>
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-solr</artifactId>
-
-			<version>${phenotypedata.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-db</artifactId>
-
-			<version>${phenotypedata.version}</version>
 		</dependency>
 
 

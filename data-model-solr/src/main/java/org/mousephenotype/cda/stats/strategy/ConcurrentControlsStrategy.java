@@ -22,10 +22,10 @@
 package org.mousephenotype.cda.stats.strategy;
 
 import java.util.List;
+
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.service.dto.ExperimentDTO;
 
 /**
  * Implements the concurrent control selection strategy.

@@ -13,19 +13,29 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-
-package org.mousephenotype.cda.stats.strategy;
-
-import java.util.List;
-
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+package org.mousephenotype.cda.solr.indexer.exceptions;
 
 /**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
+ * @author Matt Pearce
  */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+public class MissingRequiredArgumentException extends Exception {
+
+	private static final long serialVersionUID = 1L;
+
+	public MissingRequiredArgumentException() {
+		super();
+	}
+
+	public MissingRequiredArgumentException(String message) {
+		super(message);
+	}
+
+	public MissingRequiredArgumentException(Throwable cause) {
+		super(cause);
+	}
+
+	public MissingRequiredArgumentException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
 }

@@ -13,19 +13,35 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-
-package org.mousephenotype.cda.stats.strategy;
+package org.mousephenotype.cda.service.dto;
 
 import java.util.List;
 
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
 
-/**
- * Strategy pattern interface for swapping in different control selection
- * strategies.
- */
-public interface ControlSelectionStrategy {
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup);
+public class ResponseWrapper<E> {
+	List<E> list;
+	Long totalNumberFound;
+		
+	public ResponseWrapper(List<E> list){
+		this.list=list;
+	}
+	public Long getTotalNumberFound() {
+	
+		return totalNumberFound;
+	}
+	
+	public void setTotalNumberFound(Long totalNumberFound) {
+	
+		this.totalNumberFound = totalNumberFound;
+	}
+	
+	public List<E> getList() {
+	
+		return list;
+	}
+	public void setList(List<E> list) {
+		this.list = list;
+	}
+	
+	
 }
