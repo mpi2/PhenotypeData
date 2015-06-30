@@ -17,6 +17,8 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -653,28 +655,28 @@ public class TestUtils {
 //
 //        return retVal;
 //    }
-//
-//    /**
-//     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
-//     * prints the test environment for the test associated with <code>driver<code>.
-//     * @param driver the initialized <code>WebDriver</code> instance
-//     * @param seleniumUrl the Selenium URL
-//     */
-//    public static void printTestEnvironment(WebDriver driver, String seleniumUrl) {
-//        String browserName = "<Unknown>";
-//        String version = "<Unknown>";
-//        String platform = "<Unknown>";
-//        if (driver instanceof RemoteWebDriver) {
-//            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-//            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-//            version = remoteWebDriver.getCapabilities().getVersion();
-//            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-//        }
-//
-//        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-//        System.out.println("seleniumUrl: " + seleniumUrl);
-//    }
-//
+
+    /**
+     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
+     * prints the test environment for the test associated with <code>driver<code>.
+     * @param driver the initialized <code>WebDriver</code> instance
+     * @param seleniumUrl the Selenium URL
+     */
+    public static void printTestEnvironment(WebDriver driver, String seleniumUrl) {
+        String browserName = "<Unknown>";
+        String version = "<Unknown>";
+        String platform = "<Unknown>";
+        if (driver instanceof RemoteWebDriver) {
+            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
+            browserName = remoteWebDriver.getCapabilities().getBrowserName();
+            version = remoteWebDriver.getCapabilities().getVersion();
+            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+        }
+
+        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
+        System.out.println("seleniumUrl: " + seleniumUrl);
+    }
+
 //    /**
 //     * Given a variable list of strings, returns a single string with each
 //     * original string separated by an underscore ("_"). Null strings are
