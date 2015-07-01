@@ -41,6 +41,12 @@ public class SeleniumWrapper {
     @Value("${browserName}")
     private String browserName;
 
+    @Value("#{'${browserVersion:}'}")
+    private String browserVersion;
+
+    @Value("#{'${browserPlatform:}'}")
+    private String browserPlatform;
+
     public String getSeleniumUrl() {
         return seleniumUrl;
     }
@@ -53,6 +59,15 @@ public class SeleniumWrapper {
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
 
         desiredCapabilities.setBrowserName(browserName);
+
+        if ((browserVersion != null) && ( ! browserVersion.isEmpty())) {
+            desiredCapabilities.setVersion(browserVersion);
+        }
+
+        if ((browserPlatform != null) && ( ! browserPlatform.isEmpty())) {
+            desiredCapabilities.setPlatform(org.openqa.selenium.Platform.valueOf(browserPlatform.toUpperCase()));
+        }
+
         return new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
     }
 }
