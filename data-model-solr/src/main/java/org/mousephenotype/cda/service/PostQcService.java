@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -28,8 +25,12 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.service.dto.GraphTestDTO;
-import org.springframework.stereotype.Repository;
-@Repository
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
 public class PostQcService extends AbstractGenotypePhenotypeService {
 
     public PostQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
@@ -56,7 +57,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
      * @throws SolrServerException
      */
     public List<GraphTestDTO> getGeneAccessionIdsByParameterStableId(List<String> parameterStableIds, int count) throws SolrServerException {
-        List<GraphTestDTO> retVal = new ArrayList();
+        List<GraphTestDTO> retVal = new ArrayList<>();
         
         if (count < 1)
             return retVal;

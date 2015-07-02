@@ -15,13 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.service;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -30,6 +23,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.service.dto.AlleleDTO;
+
+import java.util.*;
 
 
 public class AlleleService {
@@ -44,8 +39,9 @@ public class AlleleService {
 	}
 	
 	/**
-	 * 
-	 * @param geneIds
+	 *
+	 * @param geneIds the input set of gene ids
+	 * @param statusField the status field
 	 * @return Number of genes (from the provided list) in each status of interest.
 	 */
 	public HashMap<String, Long> getStatusCount(Set<String> geneIds, String statusField) {

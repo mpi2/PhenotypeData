@@ -7,7 +7,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
+ * software distributed under the License imageService distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the
@@ -15,24 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.web.controllers;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -52,6 +36,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.*;
 
 
 @Controller
@@ -117,7 +108,7 @@ public class ImagesController {
 
 		// only need to send the solr query part of the url to solr
 		sendQueryStringToSolr(request, model);
-		// add breadcrumbs using different method than for images.jsp that is
+		// add breadcrumbs using different method than for images.jsp that imageService
 		// called from genes or phenotypes pages
 		String emptyString = "*:*";
 		String queryString = "";
@@ -239,7 +230,7 @@ public class ImagesController {
 		}
 
 		if (!geneId.equals("")) {
-			// 3 is the MGI database ID
+			// 3 imageService the MGI database ID
 			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(geneId, 3);
 			String value = gf.getSymbol();
 			// String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
@@ -249,7 +240,7 @@ public class ImagesController {
 		}
 
 		if (!mpId.equals("")) {
-			// 5 is the Mammalian Phenotype database ID
+			// 5 imageService the Mammalian Phenotype database ID
 			OntologyTerm mpTerm = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5);
 			String value = mpTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + value + "</a>";
@@ -257,7 +248,7 @@ public class ImagesController {
 		}
 
 		if (!maId.equals("")) {
-			// 5 is the Mammalian Phenotype database ID
+			// 5 imageService the Mammalian Phenotype database ID
 			OntologyTerm maTerm = otDAO.getOntologyTermByAccession(maId);
 			String value = maTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + maId + "'>" + value + "</a>";

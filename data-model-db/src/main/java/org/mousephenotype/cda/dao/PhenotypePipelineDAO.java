@@ -24,21 +24,22 @@ package org.mousephenotype.cda.dao;
  */
 
 
+import org.mousephenotype.cda.pojo.*;
+import org.springframework.stereotype.Repository;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.mousephenotype.cda.pojo.*;
-
-
+@Repository
 public interface PhenotypePipelineDAO extends HibernateDAO {
 
 	/**
 	 * Get all pipelines in the system
 	 * @return all pipelines
 	 */
-	public List<Pipeline> getAllPhenotypePipelines();
+	List<Pipeline> getAllPhenotypePipelines();
 
 	/**
 	 * Find a pipeline by its id.
@@ -46,23 +47,25 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 * @param id the pipeline id
 	 * @return the pipeline
 	 */
-	public Pipeline getPhenotypePipelineById(Integer id);
+	Pipeline getPhenotypePipelineById(Integer id);
 
 	/**
 	 * Find a pipeline by its stable id.
 	 * It will return the latest version of the pipeline
-	 * @param name the pipeline stable id
+	 * @param stableId the pipeline stable id
 	 * @return the pipeline
 	 */
-	public Pipeline getPhenotypePipelineByStableId(String stableId);
+	Pipeline getPhenotypePipelineByStableId(String stableId);
 
 	/**
 	 * Find a pipeline by its stable id.
 	 * It will return the latest version of the pipeline
-	 * @param name the pipeline stable id
+	 * @param stableId the pipeline stable id
+	 * @param majorVersion the major version
+	 * @param minorVersion the minor version
 	 * @return the pipeline
 	 */
-	public Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
+	Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 
 	/**
 	 * Find a procedure by its stable id
@@ -70,15 +73,17 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 * @param stableId the procedure stable id
 	 * @return the procedure
 	 */
-	public Procedure getProcedureByStableId(String stableId);
+	Procedure getProcedureByStableId(String stableId);
 
 	/**
 	 * Find a procedure by its stable id and versions
 	 * It will return the latest version of the procedure
-	 * @param name the procedure stable id
+	 * @param stableId the pipeline stable id
+	 * @param majorVersion the major version
+	 * @param minorVersion the minor version
 	 * @return the procedure
 	 */
-	public Procedure getProcedureByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
+	Procedure getProcedureByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 
 	/**
 	 * Find multiple procedures matching the string passed
@@ -86,59 +91,59 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 * @param pattern the procedure stable id pattern
 	 * @return a list of procedures matching the string passed as a parameter
 	 */
-	public List<Procedure> getProcedureByMatchingStableId(String pattern);
+	List<Procedure> getProcedureByMatchingStableId(String pattern);
 
 	/**
 	 * Find a parameter by its stable id and versions
 	 * It will return the latest version of the parameter
-	 * @param name the parameter stable id
+	 * @param stableId the pipeline stable id
+	 * @param majorVersion the major version
+	 * @param minorVersion the minor version
 	 * @return the parameter
 	 */
-	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
+	Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 
 	/**
 	 * Find a parameter by stable id only
 	 * It will return the latest version of the parameter
-	 * @param name the parameter stable id
+	 * @param stableId the pipeline stable id
 	 * @return the parameter
 	 */
-	public Parameter getParameterByStableId(String stableId);
+	Parameter getParameterByStableId(String stableId);
 
 
 
-	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
+	List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);
 
-	public Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term);
+	Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term);
 
-	public void save(Object object);
-	public void update(Object object);
-	public void savePipeline(Pipeline pipeline);
-	public void saveProcedure(Procedure procedure);
-	public void saveParameter(Parameter parameter);
-	public void saveParameterOption(ParameterOption parameterOption);
-	public void saveParameterIncrement(ParameterIncrement parameterIncrement);
-	public void saveParameterOntologyAnnotation(ParameterOntologyAnnotation parameterOntologyAnnotation);
+	void save(Object object);
+	void update(Object object);
+	void savePipeline(Pipeline pipeline);
+	void saveProcedure(Procedure procedure);
+	void saveParameter(Parameter parameter);
+	void saveParameterOption(ParameterOption parameterOption);
+	void saveParameterIncrement(ParameterIncrement parameterIncrement);
+	void saveParameterOntologyAnnotation(ParameterOntologyAnnotation parameterOntologyAnnotation);
 	/**
 	 * Delete phenotype pipelines from a specific datasource;
 	 * Status: experimental
 	 * @param datasource
 	 */
-	public void deleteAllPipelinesByDatasource(Datasource datasource);
+	void deleteAllPipelinesByDatasource(Datasource datasource);
 
-	public List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId);
-	public Parameter getParameterById(Integer parameterId);
-	public Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException;
-	public Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException;
-	public List<String> getCategoriesByParameterId(Integer id) throws SQLException;
+	List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId);
+	Parameter getParameterById(Integer parameterId);
+	Set<Parameter> getAllCategoricalParametersForProcessing() throws SQLException;
+	Set<Parameter> getAllUnidimensionalParametersForProcessing() throws SQLException;
+	List<String> getCategoriesByParameterId(Integer id) throws SQLException;
 
-	public String getCategoryDescription (int parameterId, String category) throws SQLException;
+	String getCategoryDescription (int parameterId, String category) throws SQLException;
 
 	/**
 	 * @author tudose
 	 * @return <ProcedureStableID, [Set of all MP ids that can be associated]>
 	 * @throws SQLException
 	 */
-	public Map<String, Set<String>> getMpsForParameters() throws SQLException;
-
-
+	Map<String, Set<String>> getMpsForParameters() throws SQLException;
 }

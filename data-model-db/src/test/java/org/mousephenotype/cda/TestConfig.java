@@ -7,13 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.jdbc.datasource.init.DatabasePopulator;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -47,17 +43,17 @@ public class TestConfig {
 			.setType(EmbeddedDatabaseType.H2)
 			.setName("komp2")
 			.build();
-		DatabasePopulatorUtils.execute(createDatabasePopulator(), dataSource);
+//		DatabasePopulatorUtils.execute(createDatabasePopulator(), dataSource);
 
 		return dataSource;
 	}
 
-	private DatabasePopulator createDatabasePopulator() {
-		ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-		databasePopulator.setContinueOnError(true);
-		databasePopulator.addScript(new ClassPathResource("sql/test-data.sql"));
-		return databasePopulator;
-	}
+//	private DatabasePopulator createDatabasePopulator() {
+//		ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+//		databasePopulator.setContinueOnError(true);
+//		databasePopulator.addScript(new ClassPathResource("sql/test-data.sql"));
+//		return databasePopulator;
+//	}
 
 	@Bean(name = "internalEntityManagerFactory")
 	@Primary
@@ -65,6 +61,7 @@ public class TestConfig {
 
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("hibernate.hbm2ddl.auto", "create");
+		properties.put("hibernate.hbm2ddl.import_files", "sql/test-data.sql");
 
 		return builder.dataSource(dataSource())
 		              .packages("org.mousephenotype.cda.pojo", "org.mousephenotype.cda.dao")
