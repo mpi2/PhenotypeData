@@ -51,6 +51,9 @@ public class ChartsPageTest {
     @Autowired
     private SeleniumWrapper wrapper;
 
+    @Autowired
+    private TestUtils testUtils;
+
     protected WebDriver driver;
 
     @NotNull
@@ -64,7 +67,7 @@ public class ChartsPageTest {
 
     @Before
     public void setUp() throws Exception {
-        TestUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
     }
 
     @After
@@ -98,7 +101,7 @@ public class ChartsPageTest {
 
         }
 
-        TestUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
         System.out.println();
     }
 
@@ -125,7 +128,7 @@ public class ChartsPageTest {
             successList.add("OK");
         }
 
-        TestUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
         System.out.println();
     }
 

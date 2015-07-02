@@ -15,25 +15,17 @@
  */
 package org.mousephenotype.cda.repositories.solr.image;
 
-import java.util.List;
-import java.util.regex.Pattern;
-import jdk.nashorn.internal.runtime.regexp.joni.Config;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.repositories.solr.DataModelSolrApplication;
 import org.mousephenotype.cda.repositories.solr.DataModelSolrTest;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.solr.repository.cdi.SolrRepositoryBean;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
  * @author Christoph Strobl
