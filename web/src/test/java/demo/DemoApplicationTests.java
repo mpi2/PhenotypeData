@@ -1,6 +1,6 @@
 package demo;
 
-import org.mousephenotype.cda.PhentoypeDataApplication;
+import org.mousephenotype.cda.web.config.PhentoypeDataApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.web.WebAppConfiguration;
