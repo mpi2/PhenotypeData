@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.service;
 
+import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -30,22 +31,27 @@ import org.mousephenotype.cda.service.dto.AnatomyPageTableRow;
 import org.mousephenotype.cda.service.dto.DataTableRow;
 import org.mousephenotype.cda.service.dto.ImageDTO;
 import org.mousephenotype.cda.service.dto.ObservationDTO;
-import org.mousephenotype.cda.service.dto.ResponseWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-
-import javax.annotation.Resource;
 
 import java.util.*;
 
+@Service
 public class ImageService {
-
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
 
 	private final HttpSolrServer solr;
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
+
+    @NotNull
+    @Value("${drupalBaseUrl}")
+    private String drupalBaseUrl;
+
+    @NotNull
+    @Value("${baseUrl}")
+    private String baseUrl;
 
 	public ImageService(String solrUrl) {
 
@@ -57,7 +63,7 @@ public class ImageService {
 			List<String> procedure, List<String> paramAssoc)
 			throws SolrServerException {
 
-		Map<String, AnatomyPageTableRow> res = new HashMap();
+		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
@@ -113,7 +119,7 @@ public class ImageService {
 					.getDistinctParameterAssociationsValue()) {
 				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
 					AnatomyPageTableRow row = new AnatomyPageTableRow(image,
-							maId, config.get("baseUrl"), expressionValue);
+							maId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
 						row.addSex(image.getSex());
@@ -124,7 +130,7 @@ public class ImageService {
 			}
 		}
 
-		return new ArrayList(res.values());
+		return new ArrayList<>(res.values());
 	}
 
 	public Map<String, Map<String, Long>> getFacets(String anatomyId)
@@ -164,7 +170,7 @@ public class ImageService {
 	public List<DataTableRow> getImagesForGene(String geneAccession)
 			throws SolrServerException {
 
-		Map<String, AnatomyPageTableRow> res = new HashMap();
+		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
@@ -189,7 +195,7 @@ public class ImageService {
 		for (ImageDTO image : response) {
 			for (String maId : image.getMaTermId()) {
 				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId,
-						config.get("baseUrl"), "expression");
+						baseUrl, "expression");
 				if (res.containsKey(row.getKey())) {
 					row = res.get(row.getKey());
 					row.addSex(image.getSex());
@@ -200,7 +206,7 @@ public class ImageService {
 
 		System.out.println("# rows added : " + res.size());
 
-		return new ArrayList(res.values());
+		return new ArrayList<>(res.values());
 
 	}
 
@@ -233,7 +239,7 @@ public class ImageService {
 	 * @param query
 	 *            the url from the page name onwards e.g
 	 *            q=observation_type:image_record
-	 * @return
+	 * @return query response
 	 * @throws SolrServerException
 	 */
 	public QueryResponse getResponseForSolrQuery(String query)
@@ -410,7 +416,7 @@ public class ImageService {
 				List<String> row = new ArrayList<>();
 				ArrayList<String> params = new ArrayList<>();
 				ArrayList<String> paramValuess = new ArrayList<>();
-				String urlToImagePicker = config.get("drupalBaseUrl")
+				String urlToImagePicker = drupalBaseUrl
 						+ "/data/imagePicker/";
 
 				for (SolrDocument doc : group.getResult()) {
@@ -525,15 +531,8 @@ public class ImageService {
 	}
 	
 	/**
-	 * 
-	 * @param metadataGroup
-	 * @param center
-	 * @param strain
-	 * @param procedure_name
-	 * @param parameter
-	 * @param date
+	 *
 	 * @param numberOfImagesToRetrieve
-	 * @param sex
 	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
 	 * @return
 	 * @throws SolrServerException
@@ -598,8 +597,8 @@ public class ImageService {
 			return;
 		}
 
-		List<Count> filteredCounts = new ArrayList<Count>();
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
+		List<Count> filteredCounts = new ArrayList<>();
+		Map<String, SolrDocumentList> facetToDocs = new HashMap<>();
 
 		for (FacetField procedureFacet : procedures) {
 
