@@ -7,9 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.init.DatabasePopulator;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -17,6 +21,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -36,22 +42,35 @@ public class TestConfig {
 	@Bean(name = "komp2DataSource")
 	@Primary
 	public DataSource dataSource() {
-		return new EmbeddedDatabaseBuilder()
+
+		DataSource dataSource = new EmbeddedDatabaseBuilder()
 			.setType(EmbeddedDatabaseType.H2)
-			.addScript("classpath:sql/schema.sql")
-//			.addScript("classpath:sql/test-data.sql")
+			.setName("komp2")
 			.build();
+		DatabasePopulatorUtils.execute(createDatabasePopulator(), dataSource);
+
+		return dataSource;
+	}
+
+	private DatabasePopulator createDatabasePopulator() {
+		ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+		databasePopulator.setContinueOnError(true);
+		databasePopulator.addScript(new ClassPathResource("sql/test-data.sql"));
+		return databasePopulator;
 	}
 
 	@Bean(name = "internalEntityManagerFactory")
 	@Primary
-	public LocalContainerEntityManagerFactoryBean internalEntityManagerFactory(
-		EntityManagerFactoryBuilder builder) {
-		return builder
-			.dataSource(dataSource())
-			.packages("org.mousephenotype.cda.pojo", "org.mousephenotype.cda.dao")
-			.persistenceUnit(INTERNAL)
-			.build();
+	public LocalContainerEntityManagerFactoryBean internalEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+
+		Map<String, Object> properties = new HashMap<>();
+		properties.put("hibernate.hbm2ddl.auto", "create");
+
+		return builder.dataSource(dataSource())
+		              .packages("org.mousephenotype.cda.pojo", "org.mousephenotype.cda.dao")
+		              .persistenceUnit(INTERNAL)
+		              .properties(properties)
+		              .build();
 	}
 
 	@Bean(name = "internalTransactionManager")
@@ -67,11 +86,11 @@ public class TestConfig {
 	public DataSource admintoolsDataSource() {
 		return new EmbeddedDatabaseBuilder()
 			.setType(EmbeddedDatabaseType.H2)
+				.setName("admin_tools")
 				//			.addScript("classpath:sql/schema.sql")
 				//			.addScript("classpath:sql/test-data.sql")
 			.build();
 	}
-
 
 	@Bean(name = "sessionFactory")
 	public SessionFactory getSessionFactory(DataSource dataSource) {

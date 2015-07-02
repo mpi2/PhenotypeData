@@ -18,10 +18,12 @@
 package org.mousephenotype.cda.dao;
 
 import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.TestConfig;
 import org.mousephenotype.cda.pojo.BiologicalModel;
+import org.mousephenotype.cda.pojo.Datasource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -39,6 +41,16 @@ public class BiologicalModelDAOTest extends TestCase {
 	@NotNull
 	@Autowired
 	BiologicalModelDAO bmDao;
+
+	@Before
+	public void before() {
+		BiologicalModel bm = new BiologicalModel();
+		bm.setGeneticBackground("involves: C57BL/6");
+		bm.setAllelicComposition("");
+		bm.setZygosity("homozygote");
+		bm.setDatasource(new Datasource());
+
+	}
 
 	@Test
 	public void testGetAllBiologicalModels() throws Exception {
