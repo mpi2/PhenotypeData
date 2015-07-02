@@ -19,7 +19,7 @@ package org.mousephenotype.cda.indexers.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mousephenotype.cda.service.dto.OntologyTermBean;
+import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
 
 
 /**

@@ -31,12 +31,12 @@ import javax.sql.DataSource;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.service.MaOntologyService;
-import org.mousephenotype.cda.service.dto.AlleleDTO;
-import org.mousephenotype.cda.service.dto.MpDTO;
-import org.mousephenotype.cda.service.dto.ObservationDTO;
-import org.mousephenotype.cda.service.dto.OntologyTermBean;
-import org.mousephenotype.cda.service.dto.PipelineDTO;
+import org.mousephenotype.cda.solr.service.MaOntologyService;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;

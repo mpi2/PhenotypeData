@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
 import org.mousephenotype.cda.pojo.*;
 
 public class PhenomeChartProvider {

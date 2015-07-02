@@ -42,8 +42,8 @@ import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.generic.util.DrupalHttpProxy;
-import org.mousephenotype.cda.generic.util.HttpProxy;
+import org.mousephenotype.cda.solr.generic.util.DrupalHttpProxy;
+import org.mousephenotype.cda.solr.generic.util.HttpProxy;
 import org.springframework.stereotype.Service;
 
 @Service

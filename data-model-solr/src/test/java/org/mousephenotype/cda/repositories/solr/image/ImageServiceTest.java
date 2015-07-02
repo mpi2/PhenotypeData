@@ -22,6 +22,8 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.repositories.solr.DataModelSolrTest;
+import org.mousephenotype.cda.solr.repositories.image.Image;
+import org.mousephenotype.cda.solr.repositories.image.ImageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;

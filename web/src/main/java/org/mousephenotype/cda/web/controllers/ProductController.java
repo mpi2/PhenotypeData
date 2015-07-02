@@ -15,7 +15,7 @@
  */
 package org.mousephenotype.cda.web.controllers;
 
-import org.mousephenotype.cda.repositories.solr.image.ImageService;
+import org.mousephenotype.cda.solr.repositories.image.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;

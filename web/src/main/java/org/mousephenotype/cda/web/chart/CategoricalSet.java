@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.service.dto.CategoricalDataObject;
+import org.mousephenotype.cda.solr.service.dto.CategoricalDataObject;
 
 
 

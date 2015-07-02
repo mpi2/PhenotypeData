@@ -31,7 +31,7 @@ import org.mousephenotype.cda.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

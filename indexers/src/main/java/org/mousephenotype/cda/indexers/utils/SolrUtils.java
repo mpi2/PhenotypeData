@@ -22,9 +22,9 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.service.dto.AlleleDTO;
-import org.mousephenotype.cda.service.dto.MpDTO;
-import org.mousephenotype.cda.service.dto.SangerImageDTO;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static org.mousephenotype.cda.service.OntologyService.BATCH_SIZE;
+import static org.mousephenotype.cda.solr.service.OntologyService.BATCH_SIZE;
 
 /**
  *

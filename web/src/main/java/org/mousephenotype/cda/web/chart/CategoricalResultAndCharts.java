@@ -21,7 +21,7 @@ import java.util.List;
 import org.mousephenotype.cda.pojo.BiologicalModel;
 import org.mousephenotype.cda.pojo.CategoricalResult;
 import org.mousephenotype.cda.pojo.StatisticalResult;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 /**
  * Class to hold all data, charts and tables pertaining to a Categorical Result Stats set so for male and female data combined

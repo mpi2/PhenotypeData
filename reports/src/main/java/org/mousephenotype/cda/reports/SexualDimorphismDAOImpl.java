@@ -21,8 +21,8 @@ import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.dao.HibernateDAOImpl;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.service.ObservationService;
-import org.mousephenotype.cda.solr.indexer.StatisticalResultIndexer;
+import org.mousephenotype.cda.indexers.StatisticalResultIndexer;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.utils.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ import java.util.List;
 public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualDimorphismDAO {
 
 	@Autowired
-    ObservationService observationService;
+	ObservationService observationService;
 
     @Autowired
     UrlUtils urlUtils;

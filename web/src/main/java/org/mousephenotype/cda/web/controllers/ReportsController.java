@@ -18,7 +18,7 @@ package org.mousephenotype.cda.web.controllers;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.ReportService;
-import org.mousephenotype.cda.service.ImageService;
+import org.mousephenotype.cda.solr.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;

@@ -26,28 +26,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
-import org.hibernate.cfg.annotations.Nullability;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.mousephenotype.cda.dao.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.imits.*;
+import org.mousephenotype.cda.solr.imits.*;
 import org.mousephenotype.cda.pojo.BiologicalModel;
 import org.mousephenotype.cda.pojo.Parameter;
 import org.mousephenotype.cda.pojo.Procedure;
 import org.mousephenotype.cda.pojo.StatisticalResult;
 import org.mousephenotype.cda.pojo.UnidimensionalResult;
-import org.mousephenotype.cda.service.ImpressService;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.service.dto.ObservationDTO;
-import org.mousephenotype.cda.service.dto.StackedBarsData;
+import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.StackedBarsData;
 
 @Service
 public class UnidimensionalChartAndTableProvider {

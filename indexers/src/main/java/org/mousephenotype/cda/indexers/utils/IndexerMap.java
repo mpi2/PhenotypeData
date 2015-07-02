@@ -18,8 +18,8 @@ package org.mousephenotype.cda.indexers.utils;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
-import org.mousephenotype.cda.service.dto.AlleleDTO;
-import org.mousephenotype.cda.service.dto.SangerImageDTO;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.indexers.beans.ImpressBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.slf4j.Logger;

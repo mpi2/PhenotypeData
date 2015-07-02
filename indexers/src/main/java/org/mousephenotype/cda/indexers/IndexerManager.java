@@ -22,8 +22,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.generic.util.*;
 import org.mousephenotype.cda.indexers.exceptions.*;
+import org.mousephenotype.cda.solr.generic.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

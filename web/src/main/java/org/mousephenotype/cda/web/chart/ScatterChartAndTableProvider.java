@@ -37,9 +37,9 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.pojo.*;
-import org.mousephenotype.cda.service.ImpressService;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 @Service
 public class ScatterChartAndTableProvider {
