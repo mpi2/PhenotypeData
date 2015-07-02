@@ -28,6 +28,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.mousephenotype.cda.pojo.Datasource;
 import org.mousephenotype.cda.pojo.OntologyTerm;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -35,7 +36,12 @@ import java.util.HashMap;
 import java.util.List;
 
 
+@Repository
 public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO {
+
+	public OntologyTermDAOImpl() {
+	}
+
 
 	/**
 	 * Creates a new Hibernate ontology term data access manager.

@@ -28,7 +28,9 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.internal.SessionImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
@@ -43,6 +45,7 @@ import java.util.LinkedList;
 */
 
 @Transactional
+@Repository
 public class HibernateDAOImpl implements HibernateDAO {
 
 	protected Logger logger = Logger.getLogger(HibernateDAOImpl.class);
@@ -50,6 +53,7 @@ public class HibernateDAOImpl implements HibernateDAO {
 	/**
 	 * The session factory used to query the database
 	 */
+	@Autowired
 	protected SessionFactory sessionFactory;
 
 

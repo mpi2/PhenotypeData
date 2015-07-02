@@ -24,11 +24,12 @@ package org.mousephenotype.cda.dao;
  */
 
 
+import org.mousephenotype.cda.pojo.OntologyTerm;
+import org.springframework.stereotype.Repository;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
-import org.mousephenotype.cda.pojo.OntologyTerm;
 
 
 public interface OntologyTermDAO extends HibernateDAO {
