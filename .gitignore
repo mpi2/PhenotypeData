@@ -118,9 +118,5 @@ local.properties
 # TeXlipse plugin
 .texlipse
 
-
-/data-model-solr/target/
-/solr-web/target/
-/phenotypedata-dependencies/target/
-/data-model-db/target/
-/loads/target/
+# Ignore maven generated classes
+*/target/**
