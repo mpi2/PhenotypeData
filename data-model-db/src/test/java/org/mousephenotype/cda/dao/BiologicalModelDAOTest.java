@@ -18,16 +18,19 @@
 package org.mousephenotype.cda.dao;
 
 import junit.framework.TestCase;
-import org.junit.Before;
+import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.TestConfig;
 import org.mousephenotype.cda.pojo.BiologicalModel;
-import org.mousephenotype.cda.pojo.Datasource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
 
@@ -35,22 +38,19 @@ import javax.validation.constraints.NotNull;
  * Created by jmason on 16/06/2015.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
 @ContextConfiguration(classes={TestConfig.class})
+@TransactionConfiguration(defaultRollback=true, transactionManager="internalTransactionManager")
+@Transactional
 public class BiologicalModelDAOTest extends TestCase {
 
 	@NotNull
 	@Autowired
 	BiologicalModelDAO bmDao;
 
-	@Before
-	public void before() {
-		BiologicalModel bm = new BiologicalModel();
-		bm.setGeneticBackground("involves: C57BL/6");
-		bm.setAllelicComposition("");
-		bm.setZygosity("homozygote");
-		bm.setDatasource(new Datasource());
-
-	}
+	@NotNull
+	@Autowired
+	SessionFactory sf;
 
 	@Test
 	public void testGetAllBiologicalModels() throws Exception {
