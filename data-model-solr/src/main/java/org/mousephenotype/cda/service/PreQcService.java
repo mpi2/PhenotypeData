@@ -29,7 +29,8 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.service.dto.GraphTestDTO;
-
+import org.springframework.stereotype.Repository;
+@Repository
 public class PreQcService extends AbstractGenotypePhenotypeService {
 
     public PreQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {

@@ -18,7 +18,9 @@
 package org.mousephenotype.cda.dao;
 
 import junit.framework.TestCase;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.TestConfig;
@@ -51,7 +53,7 @@ public class BiologicalModelDAOTest extends TestCase {
 		bm.setDatasource(new Datasource());
 
 	}
-
+	@Ignore
 	@Test
 	public void testGetAllBiologicalModels() throws Exception {
 		BiologicalModel bm=null;

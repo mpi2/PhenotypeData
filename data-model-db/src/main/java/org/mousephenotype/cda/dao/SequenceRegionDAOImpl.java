@@ -25,15 +25,20 @@ package org.mousephenotype.cda.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.pojo.SequenceRegion;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 
-
+@Repository
 public class SequenceRegionDAOImpl extends HibernateDAOImpl implements
 		SequenceRegionDAO {
 
+	public SequenceRegionDAOImpl() {
+		
+	}
+	
 	/**
 	 * Creates a new Hibernate sequence region data access manager.
 	 * @param sessionFactory the Hibernate session factory

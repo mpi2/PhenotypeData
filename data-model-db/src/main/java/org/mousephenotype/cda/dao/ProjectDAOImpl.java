@@ -25,13 +25,18 @@ package org.mousephenotype.cda.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.pojo.Project;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+@Repository
 public class ProjectDAOImpl extends HibernateDAOImpl implements ProjectDAO {
 
+	public ProjectDAOImpl() {
+		
+	}
+	
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory
