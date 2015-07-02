@@ -22,6 +22,9 @@ public class ParameterServiceImplTest {
 	@Test
 	public void testFindByStableId() {
 		List<Parameter> parameters = parameterService.findByStableId("IMPC_BWT_004_001");
+		for(Parameter parameter:parameters){
+			System.out.println("parameter id ="+parameter.getId());
+		}
 		assertTrue(parameters.size()>0);
 	}
 

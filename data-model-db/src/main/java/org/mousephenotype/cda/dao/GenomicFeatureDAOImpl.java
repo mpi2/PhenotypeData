@@ -27,6 +27,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.mousephenotype.cda.pojo.GenomicFeature;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -34,10 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+@Repository
 public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 		GenomicFeatureDAO {
 
+	public GenomicFeatureDAOImpl() {
+		
+	}
 	/**
 	 * Creates a new Hibernate GenomicFeature data access manager.
 	 * @param sessionFactory the Hibernate session factory

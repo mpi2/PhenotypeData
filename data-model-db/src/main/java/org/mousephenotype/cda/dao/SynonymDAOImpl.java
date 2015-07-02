@@ -25,13 +25,18 @@ package org.mousephenotype.cda.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.pojo.Synonym;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+@Repository
 public class SynonymDAOImpl extends HibernateDAOImpl implements SynonymDAO {
 
+	public SynonymDAOImpl() {
+		
+	}
+	
 	/**
 	 * Creates a new Hibernate coordinate system data access manager.
 	 * @param sessionFactory the Hibernate session factory

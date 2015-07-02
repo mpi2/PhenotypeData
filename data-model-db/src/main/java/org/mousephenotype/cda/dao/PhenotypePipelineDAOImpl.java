@@ -28,6 +28,7 @@ import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.pojo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
@@ -36,7 +37,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-
+@Repository
 public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements PhenotypePipelineDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +48,10 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	 */
 	public PhenotypePipelineDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+	
+	public PhenotypePipelineDAOImpl() {
+	
 	}
 
 	@Transactional(readOnly = true)

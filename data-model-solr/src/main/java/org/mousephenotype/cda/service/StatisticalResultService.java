@@ -64,9 +64,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-@Service
+@Repository
 public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     @Autowired
@@ -91,6 +92,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
 
+    public StatisticalResultService() {
+		
+	}
 
 	public StatisticalResultService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
 		solr = new HttpSolrServer(solrUrl);

@@ -25,12 +25,17 @@ package org.mousephenotype.cda.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.pojo.Datasource;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
+@Repository
 public class DatasourceDAOImpl extends HibernateDAOImpl implements DatasourceDAO {
+
+	public DatasourceDAOImpl() {
+	}
+
 
 	/**
 	 * Creates a new Hibernate coordinate system data access manager.

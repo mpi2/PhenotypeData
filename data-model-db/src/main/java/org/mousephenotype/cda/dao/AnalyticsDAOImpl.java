@@ -18,6 +18,7 @@ package org.mousephenotype.cda.dao;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.mousephenotype.cda.beans.AggregateCountXYBean;
 
@@ -30,11 +31,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+@Repository
 public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
+	public AnalyticsDAOImpl() {
+		
+	}
+	
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory
