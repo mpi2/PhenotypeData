@@ -13,8 +13,9 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.service;
+package org.mousephenotype.cda.reports;
 
+import com.sun.istack.internal.NotNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,15 +28,14 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.service.*;
 import org.mousephenotype.cda.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.service.dto.GeneDTO;
 import org.mousephenotype.cda.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,26 +43,25 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
-public class ReportsService {
+public class ReportService {
 
 	@Autowired
-	StatisticalResultService srService;
+    StatisticalResultService srService;
 
     @Autowired
-	ObservationService oService;
+    ObservationService oService;
 
 	@Autowired
-	GeneService geneService;
+    GeneService geneService;
     
     @Autowired
 	ExperimentService experimentService;
     
     @Autowired
-	ImageService iService;
+    ImageService imageService;
 
     @Autowired
-	@Qualifier("postqcService")
-    PostQcService gpService;
+    PostQcService postQcService;
 
     @Autowired
     MpService mpService;
@@ -70,8 +69,12 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
 
-	@Resource(name = "globalConfiguration")
-	Map<String, String> config;
+    @Autowired
+    private SexualDimorphismDAO sexualDimorphismDAO;
+
+	@NotNull
+	@Value("${drupalBaseUrl}")
+	private String drupalBaseUrl;
     
 	private static 
 	ArrayList<String> resources;
@@ -81,7 +84,7 @@ public class ReportsService {
 	public static final String[] EMPTY_ROW = new String[]{""};
 
 
-	public ReportsService(){
+	public ReportService(){
     	resources = new ArrayList<>();
     	resources.add("IMPC");
     	resources.add("3i");
@@ -157,19 +160,19 @@ public class ReportsService {
 			Map<String, Set<String>> femaleGenes = new HashMap<>();
 			Map<String, Set<String>> bothGenes = new HashMap<>();
 
-			maleColonies.put("Fertile", new HashSet<String>());
-			maleColonies.put("Infertile", new HashSet<String>());
-			femaleColonies.put("Fertile", new HashSet<String>());
-			femaleColonies.put("Infertile", new HashSet<String>());
-			bothColonies.put("Fertile", new HashSet<String>());
-			bothColonies.put("Infertile", new HashSet<String>());
+			maleColonies.put("Fertile", new HashSet<>());
+			maleColonies.put("Infertile", new HashSet<>());
+			femaleColonies.put("Fertile", new HashSet<>());
+			femaleColonies.put("Infertile", new HashSet<>());
+			bothColonies.put("Fertile", new HashSet<>());
+			bothColonies.put("Infertile", new HashSet<>());
 
-			maleGenes.put("Fertile", new HashSet<String>());
-			maleGenes.put("Infertile", new HashSet<String>());
-			femaleGenes.put("Fertile", new HashSet<String>());
-			femaleGenes.put("Infertile", new HashSet<String>());
-			bothGenes.put("Fertile", new HashSet<String>());
-			bothGenes.put("Infertile", new HashSet<String>());
+			maleGenes.put("Fertile", new HashSet<>());
+			maleGenes.put("Infertile", new HashSet<>());
+			femaleGenes.put("Fertile", new HashSet<>());
+			femaleGenes.put("Infertile", new HashSet<>());
+			bothGenes.put("Fertile", new HashSet<>());
+			bothGenes.put("Infertile", new HashSet<>());
 
 
 			results = oService.getObservationsByParameterStableId(MALE_FERTILITY_PARAMETER);
@@ -319,7 +322,7 @@ public class ReportsService {
 	    
 	    	row = new ArrayList<>();
 			row.add("# phenotype hits");
-			row.add(Long.toString(gpService.getNumberOfDocuments(resources)));
+			row.add(Long.toString(postQcService.getNumberOfDocuments(resources)));
 	    	overview.add(row.toArray(forArrayType));
 	    	
 	    	row = new ArrayList<>();
@@ -329,7 +332,7 @@ public class ReportsService {
 	    
 	    	row = new ArrayList<>();
 			row.add("# images");
-			row.add(Long.toString(iService.getNumberOfDocuments(resources, false)));
+			row.add(Long.toString(imageService.getNumberOfDocuments(resources, false)));
 	    	overview.add(row.toArray(forArrayType));
 	       	
 		} catch (SolrServerException e) {
@@ -347,9 +350,7 @@ public class ReportsService {
 				linesPerCenter.add(row);
 			}
 			
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (SolrServerException | InterruptedException e) {
 			e.printStackTrace();
 		}
 		   	
@@ -367,8 +368,8 @@ public class ReportsService {
 
 		    // Process top level MP terms
 		    String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-		    Map<String, List<String>> topLevelMpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
-		    Map<String, List<String>> topLevelMpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
+		    Map<String, List<String>> topLevelMpTermByGeneMapAll = postQcService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
+		    Map<String, List<String>> topLevelMpTermByGeneMapComplete = postQcService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
 
 		    String[] headerTopLevel = {"Top Level MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
 		    mpTable.add(headerTopLevel);
@@ -387,8 +388,8 @@ public class ReportsService {
 
 		    // Process granular MP terms
 		    String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-		    Map<String, List<String>> mpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
-		    Map<String, List<String>> mpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
+		    Map<String, List<String>> mpTermByGeneMapAll = postQcService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
+		    Map<String, List<String>> mpTermByGeneMapComplete = postQcService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
 
 		    String[] headerMp = {"MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
 		    mpTable.add(headerMp);
@@ -421,12 +422,12 @@ public class ReportsService {
     		List<String[]> parameters = new ArrayList<>();
     		String [] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
     		parameters.add(headerParams);
-    		parameters.addAll(gpService.getHitsDistributionByParameter(resources));
+    		parameters.addAll(postQcService.getHitsDistributionByParameter(resources));
 
     		List<String[]> procedures = new ArrayList<>();
     		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
     		procedures.add(headerProcedures);
-    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
+    		procedures.addAll(postQcService.getHitsDistributionByProcedure(resources));
     		
 			res.add(parameters);
 			res.add(procedures);
@@ -450,9 +451,9 @@ public class ReportsService {
     		String [] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
     		zygosityTable.add(headerParams);
 
-    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
-    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
-    		Map<String, Long> allMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> homsMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> hetsMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
+    		Map<String, Long> allMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
          		
     		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
     		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
@@ -558,7 +559,7 @@ public class ReportsService {
 
 		try {
 
-			List<GenotypePhenotypeDTO> gps = gpService.getAllGenotypePhenotypes(resources);
+			List<GenotypePhenotypeDTO> gps = postQcService.getAllGenotypePhenotypes(resources);
 
 			Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
 
@@ -570,7 +571,7 @@ public class ReportsService {
 				}
 
 				if( ! geneToPhenotypes.containsKey(gp.getMarkerSymbol())) {
-					geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<String>());
+					geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<>());
 				}
 
 				geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
@@ -618,7 +619,7 @@ public class ReportsService {
 		try {
 
 			// Get the list of phenotype calls
-			List<GenotypePhenotypeDTO> gps = gpService.getAllGenotypePhenotypes(resources);
+			List<GenotypePhenotypeDTO> gps = postQcService.getAllGenotypePhenotypes(resources);
 
 			for (GenotypePhenotypeDTO gp : gps) {
 
@@ -642,7 +643,7 @@ public class ReportsService {
 				for (String mp : topLevelMpTermName) {
 					Pair<String, ZygosityType> k = new ImmutablePair<>(mp, zygosity);
 					if ( ! mps.containsKey(k)) {
-						mps.put(k, new HashSet<String>());
+						mps.put(k, new HashSet<>());
 					}
 					mps.get(k).add(symbol);
 				}
@@ -653,7 +654,7 @@ public class ReportsService {
 				g.setZygosity(ZygosityType.valueOf(gp.getZygosity()));
 				g.setPhenotypeCenter(gp.getPhenotypingCenter());
 				if( ! data.containsKey(g)) {
-					data.put(g, new ArrayList<String>());
+					data.put(g, new ArrayList<>());
 				}
 
 				data.get(g).add(gp.getMpTermName());
@@ -688,7 +689,7 @@ public class ReportsService {
 				g.setZygosity(ZygosityType.valueOf(obs.getZygosity()));
 				g.setPhenotypeCenter(obs.getPhenotypingCenter());
 				if( ! viabilityData.containsKey(g)) {
-					viabilityData.put(g, new ArrayList<String>());
+					viabilityData.put(g, new ArrayList<>());
 				}
 
 				viabilityData.get(g).add(obs.getCategory());
@@ -742,22 +743,18 @@ public class ReportsService {
 
 					String geneLink = "";
 					if (gene!=null) {
-						geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMgiAccessionId();
+						geneLink = drupalBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
 					}
 
 					String[] row = {geneSymbol, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink };
 					if (include) res.add(row);
-
 				}
-
 			}
-
 
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
 		return res;
-
 	}
 
 
@@ -881,7 +878,7 @@ public class ReportsService {
     
     	try {
     		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
-    		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
+    		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfLinesByMPTopLevel(resources, null));
 		
 		   	for (String mp : genesAllMp.keySet()){
@@ -965,6 +962,26 @@ public class ReportsService {
         return res;
     }
 
+    /**
+     * Returns the data for the sexual dimorphism report (no body weight).
+     *
+     * @param baseUrl the base url
+     * @return the data for the sexual dimorphism report (no body weight).
+     */
+	public List<String[]> getSexualDimorphismReportNoBodyWeight(String baseUrl) {
+        return sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(baseUrl);
+	}
+
+    /**
+     * Returns the data for the sexual dimorphism report (with body weight).
+     *
+     * @param baseUrl the base url
+     * @return the data for the sexual dimorphism report (with body weight).
+     */
+    public List<String[]> getSexualDimorphismReportWithBodyWeight(String baseUrl) {
+        return sexualDimorphismDAO.sexualDimorphismReportWithBodyWeight(baseUrl);
+    }
+
     
     class IpGTTStats {
     	
@@ -1000,11 +1017,11 @@ public class ReportsService {
     			String sex = d.getFieldValue(ObservationDTO.SEX).toString();
     			String zyg = d.getFieldValue(ObservationDTO.ZYGOSITY).toString();
     			if (!datapoints.containsKey(sex)) {
-    				datapoints.put(sex, new HashMap<String, ArrayList<Float>>());
-    				stats.put(sex, new HashMap<String, DescriptiveStatistics>());
+    				datapoints.put(sex, new HashMap<>());
+    				stats.put(sex, new HashMap<>());
     			}
     			if (!datapoints.get(sex).containsKey(zyg)){
-    				datapoints.get(sex).put(zyg, new ArrayList<Float>());
+    				datapoints.get(sex).put(zyg, new ArrayList<>());
     				stats.get(sex).put(zyg, new DescriptiveStatistics());
     			}
     			datapoints.get(sex).get(zyg).add((Float)d.getFieldValue(ObservationDTO.DATA_POINT));
@@ -1015,7 +1032,7 @@ public class ReportsService {
     			}
     			if (!sexes.contains(sex)){
     				sexes.add(sex);
-    				datapoints.get(sex).put("WT", new ArrayList<Float>());
+    				datapoints.get(sex).put("WT", new ArrayList<>());
     				stats.get(sex).put("WT", new DescriptiveStatistics());
     			}
     				

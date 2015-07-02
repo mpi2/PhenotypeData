@@ -26,6 +26,7 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.pojo.*;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
@@ -36,9 +37,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
+@Repository
 public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationDAO {
 
+	public ObservationDAOImpl() {
+	}
+	
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory

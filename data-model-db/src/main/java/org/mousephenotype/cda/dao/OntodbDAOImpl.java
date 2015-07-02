@@ -24,6 +24,7 @@ package org.mousephenotype.cda.dao;
  */
 
 import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -32,9 +33,12 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
-
+@Repository
 public class OntodbDAOImpl extends HibernateDAOImpl implements OntodbDAO {
 
+	public OntodbDAOImpl() {
+		
+	}
 	/**
 	 * Creates a new Hibernate ontology db data access manager.
 	 * @param sessionFactory the Hibernate session factory

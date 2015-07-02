@@ -23,6 +23,11 @@
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-db</artifactId>
         </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.phenotype</groupId>
+            <artifactId>PhenotypeArchive</artifactId>
+            <version>2.2.0</version>
+        </dependency>
 
     </dependencies>
 

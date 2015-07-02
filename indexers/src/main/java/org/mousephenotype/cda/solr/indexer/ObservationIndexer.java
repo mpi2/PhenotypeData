@@ -18,6 +18,7 @@ package org.mousephenotype.cda.solr.indexer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -73,19 +73,6 @@ public class ObservationIndexer extends AbstractIndexer {
     Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
     public static final String ipgttWeightParameter = "IMPC_IPG_001_001";
-    public static final List<String> weightParameters = Arrays.asList(
-        "'IMPC_GRS_003_001'", "'IMPC_CAL_001_001'", "'IMPC_DXA_001_001'",
-        "'IMPC_HWT_007_001'", "'IMPC_PAT_049_001'", "'IMPC_BWT_001_001'",
-        "'IMPC_ABR_001_001'", "'IMPC_CHL_001_001'", "'TCP_CHL_001_001'",
-        "'HMGU_ROT_004_001'", "'ESLIM_001_001_001'", "'ESLIM_002_001_001'",
-        "'ESLIM_003_001_001'", "'ESLIM_004_001_001'", "'ESLIM_005_001_001'",
-        "'ESLIM_020_001_001'", "'ESLIM_022_001_001'", "'ESLIM_009_001_003'",
-        "'ESLIM_010_001_003'", "'ESLIM_011_001_011'", "'ESLIM_012_001_005'",
-        "'ESLIM_013_001_018'", "'ESLIM_022_001_001'", "'GMC_916_001_022'",
-        "'GMC_908_001_001'", "'GMC_900_001_001'", "'GMC_926_001_003'",
-        "'GMC_922_001_002'", "'GMC_923_001_001'", "'GMC_921_001_002'",
-        "'GMC_902_001_003'", "'GMC_912_001_018'", "'GMC_917_001_001'",
-        "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'" );
     public static final List<String> maleFertilityParameters = Arrays.asList(
         "IMPC_FER_001_001", "IMPC_FER_006_001", "IMPC_FER_007_001",
         "IMPC_FER_008_001", "IMPC_FER_009_001");
@@ -247,7 +234,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 o.setMetadataGroup(r.getString("metadata_group"));
                 if (r.wasNull()) {
                     o.setMetadataGroup("");
-                    o.setMetadata(new ArrayList<String>());
+                    o.setMetadata(new ArrayList<>());
                 }
 
                 String metadataCombined = r.getString("metadata_combined");
@@ -412,7 +399,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 }
 
                 // Add weight parameters only if this observation isn't for a weight parameter
-                if ( ! weightParameters.contains(o.getParameterStableId()) && ! ipgttWeightParameter.equals(o.getParameterStableId())) {
+                if ( ! Constants.weightParameters.contains(o.getParameterStableId()) && ! ipgttWeightParameter.equals(o.getParameterStableId())) {
 
                     WeightBean b = getNearestWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
 
@@ -606,7 +593,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 String stableId = resultSet.getString("stable_id");
                 if ( ! translateCategoryNames.containsKey(stableId)) {
-                    translateCategoryNames.put(stableId, new HashMap<String, String>());
+                    translateCategoryNames.put(stableId, new HashMap<>());
                 }
 
                 translateCategoryNames.get(stableId).put(resultSet.getString("name"), resultSet.getString("description"));
@@ -639,7 +626,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 pb.dimId = resultSet.getString("dim_id");
 
                 if ( ! parameterAssociationMap.containsKey(obsId)) {
-                    parameterAssociationMap.put(obsId, new ArrayList<ParameterAssociationBean>());
+                    parameterAssociationMap.put(obsId, new ArrayList<>());
                 }
 
                 parameterAssociationMap.get(obsId).add(pb);
@@ -773,7 +760,7 @@ public class ObservationIndexer extends AbstractIndexer {
             "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id \n" +
             "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id \n" +
             "  INNER JOIN experiment e ON e.id = eo.experiment_id \n" +
-            "WHERE parameter_stable_id IN ("+StringUtils.join(weightParameters, ",")+") AND data_point > 0" +
+            "WHERE parameter_stable_id IN ("+StringUtils.join(Constants.weightParameters, ",")+") AND data_point > 0" +
             "  ORDER BY biological_sample_id, date_of_experiment ASC \n" ;
 
         try (PreparedStatement statement = getConnection().prepareStatement(query)) {
@@ -789,7 +776,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 final Integer specimenId = resultSet.getInt("biological_sample_id");
 
                 if( ! weightMap.containsKey(specimenId)) {
-                    weightMap.put(specimenId, new ArrayList<WeightBean>());
+                    weightMap.put(specimenId, new ArrayList<>());
                 }
 
                 weightMap.get(specimenId).add(b);

@@ -23,6 +23,7 @@ import org.mousephenotype.cda.pojo.Parameter;
 import org.mousephenotype.cda.pojo.UnidimensionalResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
@@ -42,11 +43,15 @@ import java.util.List;
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @since May 2014
  */
-
+@Repository
 public class StatisticalResultDAOImpl extends HibernateDAOImpl implements StatisticalResultDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
+	public StatisticalResultDAOImpl() {
+		
+	}
+	
 	/**
 	 * Creates a new Hibernate sequence region data access manager.
 	 * @param sessionFactory the Hibernate session factory

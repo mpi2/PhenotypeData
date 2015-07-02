@@ -31,6 +31,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.pojo.Datasource;
 import org.mousephenotype.cda.pojo.Parameter;
 import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
@@ -38,9 +39,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Repository
 public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements PhenotypeCallSummaryDAO {
 
+	public PhenotypeCallSummaryDAOImpl() {
+		
+	}
+	
 	/**
 	 * Creates a new Hibernate pipeline data access manager.
 	 * @param sessionFactory the Hibernate session factory
