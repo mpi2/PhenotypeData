@@ -28,6 +28,7 @@ import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.PostConstruct;
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * the Solr core
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//       @TestPropertySource("classpath:testConfig.properties")
+@TestPropertySource("classpath:testConfig.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
 
