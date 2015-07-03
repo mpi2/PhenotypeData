@@ -42,7 +42,7 @@ public class TestConfig {
 	@Bean(name = "komp2DataSource")
 	@Primary
 	public DataSource dataSource() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("komp2").build();
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("komp2test").build();
 	}
 
 
@@ -83,7 +83,7 @@ public class TestConfig {
 
 	@Bean(name = "admintoolsDataSource")
 	public DataSource admintoolsDataSource() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("admintools").build();
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("admintoolstest").build();
 	}
 
 }
