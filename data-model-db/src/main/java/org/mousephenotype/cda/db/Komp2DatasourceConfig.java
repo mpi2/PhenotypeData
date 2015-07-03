@@ -47,7 +47,6 @@ public class Komp2DatasourceConfig {
 	}
 
 	@Bean(name = "sessionFactory")
-	@Primary
 	public SessionFactory getSessionFactory(DataSource dataSource) {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
