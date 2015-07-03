@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda")
+@ComponentScan("org.mousephenotype.cda.db")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf")
 public class Komp2DatasourceConfig {
@@ -58,7 +58,7 @@ public class Komp2DatasourceConfig {
 		return sessionBuilder.buildSessionFactory();
 	}
 
-	@Bean
+	@Bean(name = "komp2JpaSessionFactory")
 	@Primary
 	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf) {
 		HibernateJpaSessionFactoryBean factory = new HibernateJpaSessionFactoryBean();

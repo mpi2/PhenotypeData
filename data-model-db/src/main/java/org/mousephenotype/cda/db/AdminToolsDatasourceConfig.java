@@ -11,8 +11,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
@@ -21,18 +23,17 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda")
+@ComponentScan("org.mousephenotype.cda.db")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
 public class AdminToolsDatasourceConfig {
 
-	@Bean
 	@ConfigurationProperties(prefix = "datasource.admintools")
 	public DataSource admintoolsDataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Bean
+	@Bean(name = "emf2")
 	public LocalContainerEntityManagerFactoryBean emf2(EntityManagerFactoryBuilder builder){
 		return builder
 			.dataSource(admintoolsDataSource())
@@ -51,4 +52,12 @@ public class AdminToolsDatasourceConfig {
 
 		return sessionBuilder.buildSessionFactory();
 	}
+
+	@Bean(name = "admintoolsJpaSessionFactory")
+	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf2) {
+		HibernateJpaSessionFactoryBean factory = new HibernateJpaSessionFactoryBean();
+		factory.setEntityManagerFactory(emf2);
+		return factory;
+	}
+
 }
