@@ -33,7 +33,6 @@ import org.json.JSONArray;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.mousephenotype.cda.dao.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.*;
