@@ -28,6 +28,8 @@ datasource.admintools.url=xxxx
 datasource.admintools.username=xxxx
 datasource.admintools.password=xxxx
 
+ * and uncomment the implements CommandLineRunner below.
+ *
  */
 
 @SpringBootApplication
