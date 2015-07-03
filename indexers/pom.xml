@@ -32,7 +32,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- A Java library for parsing command line options - brought in from indexers PA-->
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
@@ -44,13 +44,14 @@
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <version>2.2.3</version>
+			<classifier>jdk15</classifier>
         </dependency>
 
 		<dependency>
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-solr</artifactId>
 		</dependency>
-		
+
 	</dependencies>
 
 </project>
