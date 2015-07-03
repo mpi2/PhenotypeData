@@ -32,7 +32,7 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.repositories.parameter.Parameter;
-import org.mousephenotype.cda.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.repositories.parameter.ParameterService;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;

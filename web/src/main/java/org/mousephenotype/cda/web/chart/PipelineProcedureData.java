@@ -15,15 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.web.chart;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.log4j.Logger;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.Procedure;
 
-import org.mousephenotype.cda.pojo.*;
+import java.util.*;
 
 public class PipelineProcedureData {
 

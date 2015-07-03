@@ -19,7 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.constants.Constants;
-import org.mousephenotype.cda.dao.HibernateDAOImpl;
+import org.mousephenotype.cda.db.dao.HibernateDAOImpl;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.StatisticalResultIndexer;
 import org.mousephenotype.cda.solr.service.ObservationService;

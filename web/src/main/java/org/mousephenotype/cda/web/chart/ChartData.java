@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.mousephenotype.cda.pojo.BiologicalModel;
-import org.mousephenotype.cda.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 public class ChartData {

@@ -17,7 +17,7 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;

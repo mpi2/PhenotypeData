@@ -18,12 +18,12 @@ package org.mousephenotype.cda.solr.service.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mousephenotype.cda.pojo.Allele;
-import org.mousephenotype.cda.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.pojo.GenomicFeature;
-import org.mousephenotype.cda.pojo.OntologyTerm;
-import org.mousephenotype.cda.pojo.Parameter;
-import org.mousephenotype.cda.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.enumerations.*;
 
 

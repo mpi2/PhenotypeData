@@ -18,7 +18,6 @@ package org.mousephenotype.cda.web.chart;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +27,7 @@ import java.util.Map.Entry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.beans.AggregateCountXYBean;
+import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 
 
 

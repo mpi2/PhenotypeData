@@ -17,11 +17,11 @@ package org.mousephenotype.cda.web.chart;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.impress.Utilities;
-import org.mousephenotype.cda.pojo.BiologicalModel;
-import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
