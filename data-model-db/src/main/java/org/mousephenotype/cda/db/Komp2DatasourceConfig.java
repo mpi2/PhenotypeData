@@ -45,7 +45,6 @@ public class Komp2DatasourceConfig {
 	}
 
 	@Bean(name = "sessionFactory")
-	@Primary
 	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf) {
 		HibernateJpaSessionFactoryBean factory = new HibernateJpaSessionFactoryBean();
 		factory.setEntityManagerFactory(emf);

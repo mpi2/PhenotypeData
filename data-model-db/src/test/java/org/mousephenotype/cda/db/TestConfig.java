@@ -47,7 +47,6 @@ public class TestConfig {
 
 
 	@Bean(name = "internalEntityManagerFactory")
-	@Primary
 	public LocalContainerEntityManagerFactoryBean internalEntityManagerFactory(EntityManagerFactoryBuilder builder) {
 
 		Map<String, Object> properties = new HashMap<>();
