@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda")
+@ComponentScan("org.mousephenotype.cda.db")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
 public class AdminToolsDatasourceConfig {
@@ -41,7 +41,7 @@ public class AdminToolsDatasourceConfig {
 			.build();
 	}
 
-	@Bean(name = "sessionFactory")
+	@Bean(name = "admintoolsSessionFactory")
 	public SessionFactory getSessionFactory(DataSource dataSource) {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
