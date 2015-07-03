@@ -26,7 +26,7 @@
         </dependency>
 
         <!-- need this until gwas has a solr core had to put DTO in here for code to compile -->
-         <dependency>
+        <dependency>
             <artifactId>solr-solrj</artifactId>
             <groupId>org.apache.solr</groupId>
             <version>4.9.0</version>
@@ -59,10 +59,16 @@
         </dependency>
 
         <dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.10</version>
-		</dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.26</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.10</version>
+        </dependency>
 
         <!-- Validation dependencies -->
         <dependency>

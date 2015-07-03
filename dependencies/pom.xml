@@ -96,6 +96,12 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>indexers</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
 
 
             <!--  additional external dependencies -->

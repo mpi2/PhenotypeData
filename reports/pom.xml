@@ -24,6 +24,16 @@
             <artifactId>data-model-db</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-solr</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>indexers</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
