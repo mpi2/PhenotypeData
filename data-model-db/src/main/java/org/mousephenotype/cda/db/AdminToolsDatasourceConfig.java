@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 @EnableAutoConfiguration
 @ComponentScan("org.mousephenotype.cda.db")
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
+@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db")
 public class AdminToolsDatasourceConfig {
 
 	@Bean

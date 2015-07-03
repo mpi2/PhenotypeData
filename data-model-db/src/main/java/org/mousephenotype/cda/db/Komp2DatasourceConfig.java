@@ -35,7 +35,6 @@ public class Komp2DatasourceConfig {
 	}
 
 	@Bean
-	@Primary
 	public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
 		return builder
 			.dataSource(komp2DataSource())
