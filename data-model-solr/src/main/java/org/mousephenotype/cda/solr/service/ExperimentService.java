@@ -15,36 +15,29 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.repositories.parameter.Parameter;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.repositories.parameter.ParameterService;
-import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Service
 public class ExperimentService {
@@ -64,6 +57,10 @@ public class ExperimentService {
 
     @Autowired
     private StatisticalResultService statisticalResultService;
+
+
+    public ExperimentService() {
+    }
 
 
     public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {

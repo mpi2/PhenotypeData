@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.solr.service;
 
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -39,7 +38,12 @@ public class MpService {
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
     private HttpSolrServer solr;
 
-    public MpService(String solrUrl) {
+
+	public MpService() {
+	}
+
+
+	public MpService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
 
@@ -81,23 +85,23 @@ public class MpService {
         rsp = solr.query(solrQuery);
         List<MpDTO> mps = rsp.getBeans(MpDTO.class);
         Set<String> allPhenotypes = new HashSet();
-        
+
         for (MpDTO mp : mps) {
             allPhenotypes.add(mp.getMpId());
         }
-        
+
         return allPhenotypes;
     }
-    
+
     public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException{
-    	
+
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField( "top_level_mp_term_id");
 		solrQuery.setRows(0);
 		QueryResponse rsp = solr.query(solrQuery);
 		System.out.println("solr query in basicbean="+solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		
+
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
 			for(Count count: ff.getValues()){
@@ -107,22 +111,22 @@ public class MpService {
 				bean.setId(mpArray[1]);
 				allTopLevelPhenotypes.add(bean);
 			}
-			
+
 		}
 		return allTopLevelPhenotypes;
 	}
 
     public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException{
-    
+
     	SolrQuery solrQuery = new SolrQuery();
     	solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
     	solrQuery.setFields(MpDTO.CHILD_MP_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		
+
 //		System.out.println("Solr URL to getChildrenFor: " + solr.getBaseURL() + "/select?" + solrQuery);
 		ArrayList<String> children = new ArrayList<String>();
-		
+
         for (SolrDocument doc : res) {
         	if (doc.containsKey(MpDTO.CHILD_MP_ID)){
         		for (Object child: doc.getFieldValues(MpDTO.CHILD_MP_ID)){
@@ -132,22 +136,22 @@ public class MpService {
         }
         return children;
     }
-    
+
     // get computationally mapped HP terms of MP from Solr json doc of an MP
     public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
     	// this mapping is computational
     	List<String> hpIds = doc.getJSONArray("hp_id");
     	List<String> hpTerms = doc.getJSONArray("hp_term");
-    	
+
     	Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
-    	
+
     	for ( int i=0; i< hpIds.size(); i++  ){
     		SimpleOntoTerm term = new SimpleOntoTerm();
     		term.setTermId(hpIds.get(i));
     		term.setTermName(hpTerms.get(i));
     		computationalHPTerms.add(term);
 		}
-    	
+
     	return computationalHPTerms;
     }
 }

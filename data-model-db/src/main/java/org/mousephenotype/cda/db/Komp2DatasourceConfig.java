@@ -12,8 +12,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
@@ -55,4 +57,13 @@ public class Komp2DatasourceConfig {
 
 		return sessionBuilder.buildSessionFactory();
 	}
+
+	@Bean
+	@Primary
+	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf) {
+		HibernateJpaSessionFactoryBean factory = new HibernateJpaSessionFactoryBean();
+		factory.setEntityManagerFactory(emf);
+		return factory;
+	}
+
 }

@@ -42,10 +42,20 @@ import java.util.*;
 @Service
 public class ImageService {
 
-	private final HttpSolrServer solr;
+	private HttpSolrServer solr;
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
-    @NotNull
+
+	public ImageService() {
+	}
+
+
+	public ImageService(HttpSolrServer solr) {
+		this.solr = solr;
+	}
+
+
+	@NotNull
     @Value("${drupalBaseUrl}")
     private String drupalBaseUrl;
 

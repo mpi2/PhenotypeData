@@ -23,21 +23,27 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-
+@Service
 public class AlleleService {
 
 
 	private HttpSolrServer solr;
 	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
-	
+
 	public AlleleService(String solrUrl) {
 		solr = new HttpSolrServer(solrUrl);
 
 	}
-	
+
+
+	public AlleleService() {
+	}
+
+
 	/**
 	 *
 	 * @param geneIds the input set of gene ids
@@ -49,7 +55,7 @@ public class AlleleService {
 		HashMap<String, Long> res = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
 		QueryResponse solrResponse;
-		
+
 		if (geneIds != null){
 			String geneQuery = AlleleDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
 			System.out.println("geneQuery: " + geneQuery);
@@ -70,23 +76,23 @@ public class AlleleService {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-		
+
 		return res;
 	}
-	
+
 	public TreeMap<String, Long> getStatusCountByPhenotypingCenter(String center, String statusField) {
 
 		TreeMap<String, Long> res = new TreeMap<>(new PhenotypingStatusComparator());
 		SolrQuery solrQuery = new SolrQuery();
 		QueryResponse solrResponse;
-		
+
 		if (center != null){
 			String geneQuery = AlleleDTO.PHENOTYPING_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
 		}
-		
+
 		solrQuery.setRows(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFacetLimit(-1);
@@ -105,20 +111,20 @@ public class AlleleService {
 		}
 		return res;
 	}
-	
+
 	public TreeMap<String, Long> getStatusCountByProductionCenter(String center, String statusField) {
 
 		TreeMap<String, Long> res = new TreeMap<>(new ProductionStatusComparator());
 		SolrQuery solrQuery = new SolrQuery();
 		QueryResponse solrResponse;
-		
+
 		if (center != null){
 			String geneQuery = AlleleDTO.LATEST_PRODUCTION_CENTRE + ":\"" + center + "\"";
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
 		}
-		
+
 		solrQuery.setRows(1);
 		solrQuery.setFacet(true);
 		solrQuery.setFacetLimit(-1);
@@ -137,7 +143,7 @@ public class AlleleService {
 		}
 		return res;
 	}
-	
+
 	public Set<String> getFacets(String field){
 		SolrQuery solrQuery = new SolrQuery();
 		QueryResponse solrResponse;
@@ -157,13 +163,13 @@ public class AlleleService {
 		}
 		return res;
 	}
-	
-	
+
+
 	public class PhenotypingStatusComparator implements Comparator<String> {
 
 		Map<String, Integer> order = new HashMap<>(); //<string, desiredPosition>
 
-		
+
 		@Override
 		public int compare(String o1, String o2) {
 			order.put("Phenotype Attempt Registered", 1);
@@ -173,15 +179,15 @@ public class AlleleService {
 			if (order.containsKey(o1) && order.containsKey(o2)){
 				return order.get(o1).compareTo(order.get(o2));
 			}
-			
+
 			return 0;
 		}
 
 	}
-	
+
 	public class ProductionStatusComparator  implements Comparator<String> {
 		Map<String, Integer> order = new HashMap<>(); //<string, desiredPosition>
-		
+
 		@Override
 		public int compare(String o1, String o2) {
 			order.put("Micro-injection in progress", 1);
@@ -193,7 +199,7 @@ public class AlleleService {
 			if (order.containsKey(o1) && order.containsKey(o2)){
 				return order.get(o1).compareTo(order.get(o2));
 			}
-			
+
 			return 0;
 		}
 	}

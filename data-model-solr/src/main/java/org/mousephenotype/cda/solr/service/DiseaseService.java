@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -27,11 +24,14 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Service
 public class DiseaseService {
 
-    private final HttpSolrServer solr;
+    private HttpSolrServer solr;
 
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
@@ -43,7 +43,12 @@ public class DiseaseService {
         public final static String DISEASE_SOURCE_OMIM = "OMIM";
         public final static String DISEASE_SOURCE_ORPHANET = "ORPHANET";
     }
-    
+
+
+    public DiseaseService() {
+    }
+
+
     public DiseaseService(String solrUrl) {
         solr = new HttpSolrServer(solrUrl);
     }
@@ -54,12 +59,12 @@ public class DiseaseService {
      */
     public Set<String> getAllDiseases() throws SolrServerException {
         Set<String> results = new HashSet();
-        
+
         String[] diseaseSources = { DiseaseField.DISEASE_SOURCE_DECIPHER, DiseaseField.DISEASE_SOURCE_OMIM, DiseaseField.DISEASE_SOURCE_ORPHANET };
         for (String diseaseSource : diseaseSources) {
             results.addAll(getAllDiseasesInDiseaseSource(diseaseSource));
         }
-        
+
         return results;
     }
 
@@ -68,7 +73,7 @@ public class DiseaseService {
      * public string definitions) from the disease core.
      * @param diseaseSource the desired disease source (e.g. DiseaseService.OMIM,
      * DiseaseSource.ORPHANET, etc.)
-     * 
+     *
      * @throws SolrServerException
      */
     public Set<String> getAllDiseasesInDiseaseSource(String diseaseSource) throws SolrServerException {
@@ -85,5 +90,5 @@ public class DiseaseService {
         }
         return allDiseases;
     }
-    
+
 }

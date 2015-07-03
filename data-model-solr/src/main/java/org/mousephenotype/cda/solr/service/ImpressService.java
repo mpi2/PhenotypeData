@@ -20,8 +20,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,18 +30,22 @@ import java.util.Map;
 
 /**
  * Wrapper around the pipeline core.
- * 
+ *
  * @author tudose
- * 
+ *
  */
 
+@Service
 public class ImpressService {
 
-	@Resource(name = "globalConfiguration")
-	private Map<String, String> config;
+	@Value("${drupalBaseUrl}")
+	public String DRUPAL_BASE_URL;
 
-	private final HttpSolrServer solr; 
+	private final HttpSolrServer solr;
 
+	public ImpressService(HttpSolrServer solr) {
+		this.solr = solr;
+	}
 
 	public ImpressService() {
 
@@ -73,7 +77,7 @@ public class ImpressService {
 		return null;
 	}
 
-	
+
 	public List<Integer> getPipelineStableKey(String pipelineStableId) {
 
 		try {
@@ -95,7 +99,7 @@ public class ImpressService {
 
 	public String getProcedureUrlByKey(String procedureStableKey) {
 
-		return config.get("drupalBaseUrl") + "/impress/impress/displaySOP/" + procedureStableKey;
+		return DRUPAL_BASE_URL + "/impress/impress/displaySOP/" + procedureStableKey;
 	}
 
 
@@ -103,7 +107,7 @@ public class ImpressService {
 	 * Return a string that either contains the name of the procedure if the
 	 * procedure key cannot be found, or a string that has an HTML anchor tag
 	 * ready to be used in a chart.
-	 * 
+	 *
 	 * @param procedureName
 	 *            the name of the procedure
 	 * @param procedureStableId
@@ -111,7 +115,7 @@ public class ImpressService {
 	 * @return a string that either has the name of the procedure or and HTML
 	 *         anchor tag to be used by the chart
 	 */
-	/* Temp comment out as pipeline core does not contian all procedures. 
+	/* Temp comment out as pipeline core does not contian all procedures.
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
@@ -123,15 +127,15 @@ public class ImpressService {
 		return anchor;
 	}
 
-*/	
+*/
 	public String getPipelineUrlByStableId(String stableId){
 		List<Integer> pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null && pipelineKey.size()>0){
-			return config.get("drupalBaseUrl") + "/impress/procedures/" + pipelineKey.get(0);
+			return DRUPAL_BASE_URL + "/impress/procedures/" + pipelineKey.get(0);
 		}
 		else return "#";
 	}
-	
+
 	public Map<String,OntologyBean> getParameterStableIdToAbnormalMaMap(){
 		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/pipeline/select?q=*:*&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(abnormal_ma_id:*)&rows=100
 		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
@@ -156,12 +160,12 @@ public class ImpressService {
 			return idToAbnormalMaId;
 	}
 	public class OntologyBean{
-		
+
 		public OntologyBean(String id, String name){
 			this.maId=id;
 			this.name=name;
 		}
-		
+
 		String maId;
 		public String getMaId() {
 			return maId;

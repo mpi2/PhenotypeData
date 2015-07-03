@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService {
 
     public PostQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
@@ -42,7 +42,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
     public PostQcService() {
         super();
     }
-    
+
     /**
      * Returns a list of <code>count GraphTestDTO</code> instances matching the
      * given parameter stable ids.
@@ -53,15 +53,15 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
      *
      * @return a list of <code>count GraphTestDTO</code> instances matching the
      * given parameter stable ids.
-     * 
+     *
      * @throws SolrServerException
      */
     public List<GraphTestDTO> getGeneAccessionIdsByParameterStableId(List<String> parameterStableIds, int count) throws SolrServerException {
         List<GraphTestDTO> retVal = new ArrayList<>();
-        
+
         if (count < 1)
             return retVal;
-        
+
         String queryString = "";
         for (String parameterStableId : parameterStableIds) {
             if ( ! queryString.isEmpty()) {
@@ -79,14 +79,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
             .add("group.field", "marker_accession_id")
             .add("group.limit", Integer.toString(count))
         ;
-        
+
         QueryResponse response = solr.query(query);
         List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {
             List<Group> groups = groupCommand.getValues();
             for (Group group : groups) {
                 SolrDocumentList docs = group.getResult();
-                
+
                 SolrDocument doc = docs.get(0);                                                    // All elements in this collection have the same mgi_accession_id.
                 GraphTestDTO geneGraph = new GraphTestDTO();
                 geneGraph.setParameterStableId((String)doc.get("parameter_stable_id"));
@@ -100,7 +100,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
                 }
             }
         }
-        
+
         return retVal;
     }
 

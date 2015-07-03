@@ -15,14 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -44,25 +36,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
 @Service
 public class GeneRowForHeatMapResultService {
 
     @Autowired
     BiologicalModelDAO bmDAO;
-    
+
     @Autowired
     DatasourceDAO datasourceDAO;
-    
+
     @Autowired
     OrganisationDAO organisationDAO;
-    
+
     @Autowired
 	@Qualifier("postqcService")
     AbstractGenotypePhenotypeService gpService;
-        
+
     @Autowired
     ProjectDAO projectDAO;
-    
+
 
     private static final Logger LOG = LoggerFactory.getLogger(GeneRowForHeatMapResultService.class);
 
@@ -75,22 +69,26 @@ public class GeneRowForHeatMapResultService {
 	StatisticalResultService stasticalResultsService;
 
 
+	public GeneRowForHeatMapResultService() {
+	}
+
+
 	public GeneRowForHeatMapResultService(String solrUrl) {
 		solr = new HttpSolrServer(solrUrl);
 	}
-	    
+
 
 	    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, Map<String, Set<String>> map, String resourceName) {
-    	
+
         GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
         Map<String, HeatMapCell> paramPValueMap = new HashMap<>();
-        
+
         if (gene != null) {
             row.setSymbol(gene.getSymbol());
         } else {
             System.err.println("error no symbol for gene " + accession);
         }
-        
+
         for (String procedure : map.get(accession)) {
         	paramPValueMap.put(procedure, null);
         }
@@ -106,7 +104,7 @@ public class GeneRowForHeatMapResultService {
         q.add("group", "true");
         q.add("group.field", StatisticalResultDTO.PROCEDURE_STABLE_ID);
         q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
-        
+
         try {
         	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
             for (Group group:  groups.getValues()){
@@ -128,13 +126,13 @@ public class GeneRowForHeatMapResultService {
         }
         return row;
     }
-    
+
     public List<GeneRowForHeatMap> getSecondaryProjectMapForResource(String resourceName) {
-    	
-    	List<GeneRowForHeatMap> res = new ArrayList<>();    	
+
+    	List<GeneRowForHeatMap> res = new ArrayList<>();
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
         List<BasicBean> procedures = stasticalResultsService.getProceduresForDataSource(resourceName);
-        
+
         for (BasicBean procedure : procedures){
 	        SolrQuery q = new SolrQuery()
 	        .setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
@@ -149,17 +147,17 @@ public class GeneRowForHeatMapResultService {
 	        q.add("group", "true");
 	        q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
 	        q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
-	
+
 	        try {
 	        	GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
-		        		        	
+
 		        for (Group group:  groups.getValues()){
 		        	GeneRowForHeatMap row;
 		            HeatMapCell cell = new HeatMapCell();
 		            SolrDocument doc = group.getResult().get(0);
 		        	String geneAcc = doc.get(StatisticalResultDTO.MARKER_ACCESSION_ID).toString();
 		            Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
-		            
+
 		        	if (geneRowMap.containsKey(geneAcc)){
 		        		row = geneRowMap.get(geneAcc);
 		        		xAxisToCellMap = row.getXAxisToCellMap();
@@ -184,15 +182,15 @@ public class GeneRowForHeatMapResultService {
 		            LOG.error(ex.getMessage());
 		        }
         }
-        
+
         res = new ArrayList<>(geneRowMap.values());
         Collections.sort(res, new GeneRowForHeatMap3IComparator());
-     
+
         return res;
     }
-  
-    
-    
+
+
+
     /*
 	 * End of method for PhenotypeCallSummarySolrImpl
 	 */
@@ -234,9 +232,9 @@ public class GeneRowForHeatMapResultService {
 
 		return row;
 	}
-   
 
-	
+
+
 
     public class GeneRowForHeatMap3IComparator implements Comparator<GeneRowForHeatMap> {
 
@@ -264,7 +262,7 @@ public class GeneRowForHeatMapResultService {
     		}
     		return score;
     	}
-    	
+
     }
-    
+
 }
