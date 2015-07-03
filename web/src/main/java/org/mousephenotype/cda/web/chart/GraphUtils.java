@@ -22,8 +22,8 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.impress.Utilities;
 import org.mousephenotype.cda.pojo.BiologicalModel;
 import org.mousephenotype.cda.pojo.Parameter;
-import org.mousephenotype.cda.service.ExperimentService;
-import org.mousephenotype.cda.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.UnsupportedEncodingException;

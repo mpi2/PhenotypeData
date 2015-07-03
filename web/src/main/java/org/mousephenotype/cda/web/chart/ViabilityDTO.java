@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mousephenotype.cda.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 public class ViabilityDTO {
 	final static String totalPups="IMPC_VIA_003_001";

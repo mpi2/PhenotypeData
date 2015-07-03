@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.bean.StatisticalResultBean;
 import org.mousephenotype.cda.beans.AggregateCountXYBean;
 
 

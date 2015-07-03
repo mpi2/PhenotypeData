@@ -18,7 +18,7 @@ package org.mousephenotype.cda.web.chart;
 import java.util.List;
 
 import org.mousephenotype.cda.pojo.UnidimensionalResult;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 /**
  * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table

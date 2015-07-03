@@ -35,8 +35,8 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.pojo.BiologicalModel;
 import org.mousephenotype.cda.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.pojo.Parameter;
-import org.mousephenotype.cda.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.stereotype.Service;
 
 @Service

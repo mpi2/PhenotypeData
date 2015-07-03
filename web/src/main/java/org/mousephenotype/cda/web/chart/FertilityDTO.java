@@ -18,7 +18,7 @@ package org.mousephenotype.cda.web.chart;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mousephenotype.cda.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 
 public class FertilityDTO {

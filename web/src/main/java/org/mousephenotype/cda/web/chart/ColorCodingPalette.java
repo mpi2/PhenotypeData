@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.mousephenotype.cda.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
 import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
 
 
