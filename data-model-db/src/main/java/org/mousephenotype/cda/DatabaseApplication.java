@@ -12,6 +12,24 @@ import org.springframework.context.annotation.ComponentScan;
 
 import javax.validation.constraints.NotNull;
 
+
+/**
+ * DatabaseApplication is a test to ensure that the configuration specified in the user defined
+ * application.properties file is wiring up all the spring managed beans and hibernate correctly.
+ *
+ * In order to run this, you must add a file named application.properties to the classpath and
+ * in that file provide the following database connection details:
+
+datasource.komp2.url=xxxx
+datasource.komp2.username=xxxx
+datasource.komp2.password=xxxx
+
+datasource.admintools.url=xxxx
+datasource.admintools.username=xxxx
+datasource.admintools.password=xxxx
+
+ */
+
 @SpringBootApplication
 @EnableAutoConfiguration
 @ComponentScan
