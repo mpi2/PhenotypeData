@@ -1,18 +1,16 @@
-package org.mousephenotype.cda.repositories.solr.parameter;
-
-import static org.junit.Assert.*;
-
-import java.util.List;
+package org.mousephenotype.cda.solr.repositories.parameter;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.repositories.solr.DataModelSolrTest;
-import org.mousephenotype.cda.solr.repositories.parameter.Parameter;
-import org.mousephenotype.cda.solr.repositories.parameter.ParameterServiceImpl;
+import org.mousephenotype.cda.solr.repositories.DataModelSolrTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DataModelSolrTest.class)

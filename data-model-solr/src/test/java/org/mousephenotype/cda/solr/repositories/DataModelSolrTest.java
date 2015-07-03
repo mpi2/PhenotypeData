@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.repositories.solr;
+package org.mousephenotype.cda.solr.repositories;
 
 
 import org.springframework.boot.SpringApplication;
