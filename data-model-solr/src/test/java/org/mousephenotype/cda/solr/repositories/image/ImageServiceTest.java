@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DataModelSolrTest.class)
-@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
+@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.solr.repositories.image" }, multicoreSupport=true)
 public class ImageServiceTest{
     
     @Autowired

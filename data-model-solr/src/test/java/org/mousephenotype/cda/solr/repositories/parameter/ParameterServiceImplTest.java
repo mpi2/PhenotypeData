@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DataModelSolrTest.class)
-@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.parameter" }, multicoreSupport=true)
+@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.solr.repositories.parameter" }, multicoreSupport=true)
 public class ParameterServiceImplTest {
 	
 	@Autowired

@@ -29,7 +29,7 @@ import org.springframework.data.solr.server.support.MulticoreSolrServerFactory;
  * @author Christoph Strobl
  */
 @Configuration
-@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr" }, multicoreSupport=true)
+@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.solr.repositories" }, multicoreSupport=true)
 public class SolrContext {
 
 	@Bean
