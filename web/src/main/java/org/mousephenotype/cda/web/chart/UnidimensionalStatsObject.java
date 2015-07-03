@@ -17,7 +17,7 @@ package org.mousephenotype.cda.web.chart;
 
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 
 
 

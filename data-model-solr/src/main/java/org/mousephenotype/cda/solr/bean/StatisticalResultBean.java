@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.bean;
 
-import org.mousephenotype.cda.pojo.StatisticalSignificance;
+import org.mousephenotype.cda.db.pojo.StatisticalSignificance;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 

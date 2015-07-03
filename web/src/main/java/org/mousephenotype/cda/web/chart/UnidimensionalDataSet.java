@@ -17,7 +17,7 @@ package org.mousephenotype.cda.web.chart;
 
 import java.util.List;
 
-import org.mousephenotype.cda.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 /**

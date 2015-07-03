@@ -17,14 +17,12 @@ package org.mousephenotype.cda.web.chart;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
-import org.mousephenotype.cda.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 
 
 

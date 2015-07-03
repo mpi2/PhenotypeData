@@ -23,12 +23,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.mousephenotype.cda.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 
 public class ExperimentDTO {
 

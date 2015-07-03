@@ -18,9 +18,9 @@ package org.mousephenotype.cda.web.chart;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mousephenotype.cda.pojo.BiologicalModel;
-import org.mousephenotype.cda.pojo.CategoricalResult;
-import org.mousephenotype.cda.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 /**

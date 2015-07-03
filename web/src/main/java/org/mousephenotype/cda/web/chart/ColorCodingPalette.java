@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
-import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 
 
 /**

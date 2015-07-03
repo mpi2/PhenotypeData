@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.pojo.Allele;
-import org.mousephenotype.cda.pojo.GenomicFeature;
-import org.mousephenotype.cda.pojo.OntologyTerm;
-import org.mousephenotype.cda.pojo.Parameter;
-import org.mousephenotype.cda.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.pojo.Pipeline;
-import org.mousephenotype.cda.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.Pipeline;
+import org.mousephenotype.cda.db.pojo.Procedure;
 
 
 /**

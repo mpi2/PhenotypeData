@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.mousephenotype.cda.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
 
 
 

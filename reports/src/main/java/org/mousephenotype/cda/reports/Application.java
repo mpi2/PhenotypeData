@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.reports;
 
-import org.mousephenotype.cda.repositories.ObservationRepository;
+import org.mousephenotype.cda.db.repositories.ObservationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

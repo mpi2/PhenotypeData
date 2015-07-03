@@ -19,10 +19,8 @@ package org.mousephenotype.cda.solr.service.dto;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Parameter;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 

@@ -16,16 +16,12 @@
 package org.mousephenotype.cda.web.chart;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.WordUtils;
-import org.mousephenotype.cda.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.stereotype.Service;
 
