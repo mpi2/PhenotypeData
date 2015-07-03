@@ -30,7 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
-import org.mousephenotype.cda.pojo.*;
 
 public class PhenomeChartProvider {
 
