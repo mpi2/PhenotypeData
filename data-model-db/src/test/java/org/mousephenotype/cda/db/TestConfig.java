@@ -22,38 +22,29 @@ import java.util.Map;
 
 
 /**
- * Created by jmason on 29/06/2015.
+ * TestConfig sets up the in memory database for supporting the database tests.
+ * <p>
+ * This will also import the data specified in the sql/test-data.sql file.
  */
+
 @Configuration
 @EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda")
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.dao",
+@ComponentScan("org.mousephenotype.cda.db")
+@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.dao",
 	entityManagerFactoryRef = "internalEntityManagerFactory",
 	transactionManagerRef = "internalTransactionManager")
 public class TestConfig {
 
 	public static final String INTERNAL = "internal";
 
+
 	@Bean(name = "komp2DataSource")
 	@Primary
 	public DataSource dataSource() {
-
-		DataSource dataSource = new EmbeddedDatabaseBuilder()
-			.setType(EmbeddedDatabaseType.H2)
-			.setName("komp2")
-			.build();
-//		DatabasePopulatorUtils.execute(createDatabasePopulator(), dataSource);
-
-		return dataSource;
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("komp2").build();
 	}
 
-//	private DatabasePopulator createDatabasePopulator() {
-//		ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-//		databasePopulator.setContinueOnError(true);
-//		databasePopulator.addScript(new ClassPathResource("sql/test-data.sql"));
-//		return databasePopulator;
-//	}
 
 	@Bean(name = "internalEntityManagerFactory")
 	@Primary
@@ -63,12 +54,9 @@ public class TestConfig {
 		properties.put("hibernate.hbm2ddl.auto", "create");
 		properties.put("hibernate.hbm2ddl.import_files", "sql/test-data.sql");
 
-		return builder.dataSource(dataSource())
-		              .packages("org.mousephenotype.cda.pojo", "org.mousephenotype.cda.dao")
-		              .persistenceUnit(INTERNAL)
-		              .properties(properties)
-		              .build();
+		return builder.dataSource(dataSource()).packages("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.dao").persistenceUnit(INTERNAL).properties(properties).build();
 	}
+
 
 	@Bean(name = "internalTransactionManager")
 	@Primary
@@ -79,24 +67,23 @@ public class TestConfig {
 		return jpaTransactionManager;
 	}
 
-	@Bean(name = "admintoolsDataSource")
-	public DataSource admintoolsDataSource() {
-		return new EmbeddedDatabaseBuilder()
-			.setType(EmbeddedDatabaseType.H2)
-				.setName("admin_tools")
-				//			.addScript("classpath:sql/schema.sql")
-				//			.addScript("classpath:sql/test-data.sql")
-			.build();
-	}
 
 	@Bean(name = "sessionFactory")
+	@Primary
 	public SessionFactory getSessionFactory(DataSource dataSource) {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
 
-		sessionBuilder.scanPackages("org.mousephenotype.cda.dao");
-		sessionBuilder.scanPackages("org.mousephenotype.cda.pojo");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.dao");
+		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
 		return sessionBuilder.buildSessionFactory();
 	}
+
+
+	@Bean(name = "admintoolsDataSource")
+	public DataSource admintoolsDataSource() {
+		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).setName("admintools").build();
+	}
+
 }
