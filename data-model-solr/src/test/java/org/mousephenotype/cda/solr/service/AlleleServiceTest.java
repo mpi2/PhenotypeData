@@ -1,9 +1,11 @@
 package org.mousephenotype.cda.solr.service;
 
 import junit.framework.TestCase;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.TestConfig;
+import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,7 @@ import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
-@ContextConfiguration(classes={TestConfig.class})
+@ContextConfiguration(classes={TestConfigSolr.class})
 @PropertySource("classpath:application.properties")
 public class AlleleServiceTest extends TestCase {
 
@@ -31,6 +33,7 @@ public class AlleleServiceTest extends TestCase {
 	AlleleService as;
 
 	@Test
+	@Ignore
 	public void testGetStatusCount() throws Exception {
 
 		logger.debug("Testing the getStatusCount method");

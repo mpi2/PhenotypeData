@@ -12,8 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.List;
 
 @Controller
@@ -26,8 +28,8 @@ public class AnatomyController {
     @Autowired
     ImageService imageService;
     
-    @RequestMapping(value = "/anatomy/{anatomy_id}", method = RequestMethod.GET)
-   public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request) {
+   @RequestMapping(value = "/anatomy", method = RequestMethod.GET)
+   public void anatomy(Model model, HttpServletRequest request) {
 
         // http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
         // right eye
@@ -42,17 +44,18 @@ public class AnatomyController {
 //		model.addAttribute("expressionImages", expressionImageDocs);
 //		model.addAttribute("anatomyTable", anatomyTable);
 //        model.addAttribute("phenoFacets", getFacets(anatomy_id));
+	   String anatomy_id="MA:0000191";
         System.out.println("loading ma page with id=" + anatomy_id);
         List<Image> list;
         try {
             list = imageService.findByMaId(anatomy_id);
             System.out.println("images size=" + list.size());
             model.addAttribute("images", list);
-
+           
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return "anatomy";
+        
+   
     }
 }

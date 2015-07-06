@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ComponentScan("org.mousephenotype.cda")
 @PropertySource("classpath:application.properties")
-public class TestConfig {
+public class TestConfigSolr {
 
 
 }
