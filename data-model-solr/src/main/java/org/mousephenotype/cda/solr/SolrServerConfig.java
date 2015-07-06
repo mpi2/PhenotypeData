@@ -16,12 +16,12 @@ import javax.validation.constraints.NotNull;
 public class SolrServerConfig {
 
 	@NotNull
-	@Value("${solr.host")
+	@Value("${solr.host}")
 	private String solrBaseUrl;
 
 	//Allele
 	@Bean(name = "alleleCore")
-	HttpSolrServer getAlleleCore() {
+	public HttpSolrServer getAlleleCore() {
 		return new HttpSolrServer(solrBaseUrl + "/allele");
 	}
 
