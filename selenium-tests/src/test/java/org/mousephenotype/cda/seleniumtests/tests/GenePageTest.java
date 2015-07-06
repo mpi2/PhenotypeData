@@ -17,10 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
@@ -28,8 +25,10 @@ import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -37,7 +36,7 @@ import javax.validation.constraints.NotNull;
  * @author mrelac
  *
  * These are selenium-based JUnit web tests that are configured (via the pom.xml) not to
- * run with the default profile because they take too long to complete. To run them, 
+ * run with the default profile because they take too long to complete. To run them,
  * use the 'web-tests' profile.
  *
  * These selenium tests use selenium's WebDriver protocol and thus need a hub
@@ -53,11 +52,12 @@ import javax.validation.constraints.NotNull;
  *      desiredCapabilities=firefoxDesiredCapabilities
  *
  * testAkt2() - @author Gautier Koscielny
- * Selenium test for graph query coverage ensuring each graph display works for 
+ * Selenium test for graph query coverage ensuring each graph display works for
  * any given gene accession/parameter/zygosity from the Solr core
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource("classpath:testConfig.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GenePageTest {
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
@@ -73,6 +73,11 @@ public class GenePageTest {
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
+
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
 //    @Autowired
 //    protected GeneService geneService;
@@ -117,6 +122,11 @@ public class GenePageTest {
 
 
     // TESTS
+
+    @Test
+    public void testName() throws Exception {
+        System.out.println("Empty test method placeholder");
+    }
 
 //    /**
 //     * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
