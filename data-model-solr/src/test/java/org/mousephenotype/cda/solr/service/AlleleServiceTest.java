@@ -43,7 +43,7 @@ public class AlleleServiceTest extends TestCase {
 
 		final HashMap<String, Long> statusCount = as.getStatusCount(genes, AlleleDTO.LATEST_PHENOTYPE_STATUS);
 		System.out.println("status count is: " + statusCount);
-		assertTrue(statusCount.get("Phenotyping Complete") > 3);
+		assertTrue(statusCount.get("Phenotyping Complete") >= 3);
 
 
 	}
