@@ -1,11 +1,9 @@
 package org.mousephenotype.cda.db;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -18,10 +16,8 @@ import javax.sql.DataSource;
  */
 
 @Configuration
-@EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda.db")
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db")
+@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
 public class AdminToolsDatasourceConfig {
 
 	@Bean

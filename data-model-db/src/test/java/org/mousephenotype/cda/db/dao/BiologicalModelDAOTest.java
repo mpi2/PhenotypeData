@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.DatabaseApplication;
 import org.mousephenotype.cda.db.TestConfig;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +35,9 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 
 
-/**
- * Created by jmason on 16/06/2015.
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
-@ContextConfiguration(classes={TestConfig.class})
+@ContextConfiguration(classes={DatabaseApplication.class, TestConfig.class})
 @TransactionConfiguration(defaultRollback=true, transactionManager="internalTransactionManager")
 @Transactional
 public class BiologicalModelDAOTest extends TestCase {
@@ -54,7 +52,7 @@ public class BiologicalModelDAOTest extends TestCase {
 
 	@Test
 	public void testGetAllBiologicalModels() throws Exception {
-		BiologicalModel bm=null;
+		BiologicalModel bm;
 
 		bm = bmDao.findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(12, "", "involves: C57BL/6", "homozygote");
 		assert(bm!=null);

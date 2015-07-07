@@ -1,7 +1,6 @@
 package org.mousephenotype.cda.db;
 
 import org.hibernate.SessionFactory;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,12 +27,9 @@ import java.util.Map;
  */
 
 @Configuration
-@EnableAutoConfiguration
-@EnableTransactionManagement
 @ComponentScan("org.mousephenotype.cda.db")
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.dao",
-	entityManagerFactoryRef = "internalEntityManagerFactory",
-	transactionManagerRef = "internalTransactionManager")
+@EnableTransactionManagement
+@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.dao", entityManagerFactoryRef = "internalEntityManagerFactory", transactionManagerRef = "internalTransactionManager")
 public class TestConfig {
 
 	public static final String INTERNAL = "internal";
