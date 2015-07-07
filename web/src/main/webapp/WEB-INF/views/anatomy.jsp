@@ -11,6 +11,7 @@
     </script>
 </head>
 <body>
+Page is here!
 <c:if test="${images!=null}">
 <c:forEach var="image" items="${images}">
     ${image.downloadUrl}

@@ -90,11 +90,11 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
-            <dependency>
+            <!-- <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>reports</artifactId>
                 <version>${phenotypedata.version}</version>
-            </dependency>
+            </dependency> -->
 
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>

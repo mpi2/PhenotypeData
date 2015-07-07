@@ -1,35 +1,23 @@
 package org.mousephenotype.cda.web.controllers;
 
-import org.mousephenotype.cda.solr.repositories.image.Image;
-import org.mousephenotype.cda.solr.repositories.image.ImageService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@Component
-@Scope("prototype")
-@EnableAutoConfiguration
-@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
+//@Scope("prototype")
+//@EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.repositories.solr.image" }, multicoreSupport=true)
 public class AnatomyController {
 
-    @Autowired
-    ImageService imageService;
+    //@Autowired
+    //ImageService imageService;
     
-   @RequestMapping(value = "/anatomy", method = RequestMethod.GET)
-   public void anatomy(Model model, HttpServletRequest request) {
+    @RequestMapping("/anatomy")
+   public String anatomy(Map<String, Object> model) {
 
         // http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
         // right eye
@@ -46,16 +34,16 @@ public class AnatomyController {
 //        model.addAttribute("phenoFacets", getFacets(anatomy_id));
 	   String anatomy_id="MA:0000191";
         System.out.println("loading ma page with id=" + anatomy_id);
-        List<Image> list;
+       
         try {
-            list = imageService.findByMaId(anatomy_id);
-            System.out.println("images size=" + list.size());
-            model.addAttribute("images", list);
+            //list = imageService.findByMaId(anatomy_id);
+            //System.out.println("images size=" + list.size());
+            model.put("images", new ArrayList<>());
            
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+        return "anatomy";
    
     }
 }
