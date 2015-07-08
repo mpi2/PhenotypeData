@@ -88,8 +88,6 @@ public class ObservationService extends BasicService {
         this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
     }
 
-
-
     public ObservationService(String solrUrl) {
         System.out.println("setting observationService solrUrl=" + solrUrl);
         solr = new HttpSolrServer(solrUrl);
