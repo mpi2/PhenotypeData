@@ -1,6 +1,5 @@
 package org.mousephenotype.cda.solr;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 
 @Configuration
-@EnableAutoConfiguration
 @EnableTransactionManagement
 @ComponentScan("org.mousephenotype.cda")
 @PropertySource("classpath:application.properties")
