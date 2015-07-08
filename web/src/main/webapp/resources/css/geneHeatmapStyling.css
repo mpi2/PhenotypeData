@@ -1,0 +1,30 @@
+/* Additional styling written at EBI for gene heatmap for secondary projects*/
+
+td{
+	border:1px solid #efefef;
+	padding: 0.5em 0.7em 0.5em 0.2em; word-wrap: break-word;
+	width: 10px;
+}
+table, tr, td, th {
+ border:1px solid #efefef;
+ word-wrap: break-word;
+ text-align: center;
+}
+
+th {
+    vertical-align: bottom;
+}
+
+th span {
+  margin-bottom: 0px;
+  padding: 0.0em;
+  writing-mode: tb-rl;
+  filter: flipv fliph;
+  -webkit-transform:rotate(-90deg);
+  -moz-transform:rotate(-90deg);
+  white-space:nowrap; 
+  display:block;
+  padding: 0.0em 0.0em 0.0em 0.0em;
+  word-wrap: break-word;
+  font-size:70%; 
+}

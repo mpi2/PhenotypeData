@@ -1,13 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page session="false"%>
+<%@ page session="false" %>
 <html>
 <head>
-	<title>PhenotypeData Project Home Page</title>
-	<link href="<c:url value="/resources/css/styles.css" />" rel="stylesheet"  type="text/css" />
-	<script type="text/javascript" src="<c:url value="/resources/jquery/jquery-1.8.2.js" />"></script>
+	<title>Home</title>
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>        
+ 	<script type="text/javascript">                                         
+   	// we will add our javascript code here                                     
+ </script>                                                
 </head>
 <body>
-	Welcome.<br />
-	Currently the default page
+<h1> 
+	Hello world!
+</h1>
+${controllerMessage}
 </body>
+</html>

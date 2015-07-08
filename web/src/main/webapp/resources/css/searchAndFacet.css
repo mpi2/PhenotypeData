@@ -1,0 +1,442 @@
+/*-------- autosuggest -------*/
+  
+ /* 2 columns: 1 fixed (L), 1 liquid (R) */
+div#wrapper{clear: both;}
+
+/*div#content{margin-left:270px}
+div#leftSideBar{float:left;width:230px;margin-left:-100%; border: 1px solid gray; padding: 10px;}*/
+/* end of 2 columns style */
+
+input#userInput {
+	font-size: 10px;
+	color: gray;
+}
+
+ul.ui-autocomplete {    
+	font-size: 12px;
+	height: auto;
+	max-height: 300px;
+	width: auto;
+	min-width: 250px;
+	overflow: auto;
+	padding: 10px 15px;
+	margin-bottom: 0;
+    z-index: 9999;
+}
+ul.ui-autocomplete li {
+	border-bottom: 1px dashed #D1D1D1;
+	display: block !important; 
+}
+ul.ui-autocomplete li a {
+	float: left !important;
+	text-align: left !important;
+	display: block !important;
+}
+
+div#userKeyword {
+	margin-bottom: 15px;
+	padding-left: 300px;
+	color: #D57C24;
+}
+
+/* left panel */
+div#leftSideBar {
+	/*margin: 0 30px 0 0; */	
+	border: 1px solid gray; 
+	padding: 10px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+div#leftSideBar div {
+	margin-bottom: 5px;	
+}
+div#leftSideBar a {
+	text-decoration: none !important;	
+	color: #104E8B !important;
+}
+div.briefDocCap {
+	padding: 1px;
+	background-color: gray;
+	text-align: center;
+	margin-bottom:5px;	
+	color: white;
+	font-weight: bold;
+}
+div#facetBrowser {
+	margin: 5px;
+	color: gray;
+	font-size: 11px;
+	font-weight: bold;
+	border-bottom: 1px solid #DCDCDC;
+}
+div.facetCatList {
+	display: none;
+	padding: 5px 15px 0 20px;        
+	margin: 0;
+}
+div.facetCat {	
+	cursor: pointer;
+	width: 70%;
+	font-weight: bold;
+	font-size: 12px;
+	color: #333366;
+	float: left;
+	padding: 3px 0 3px 20px;	
+	background-image: url('../img/right.gif');
+    background-repeat: no-repeat;
+    background-position: 2px 50%; /*x,y*/	
+}
+div.facetCatUp {	
+	background-image: url('../img/down.gif');
+}
+span.facetCount {		
+	padding: 3px 15px 3px 0;
+	float: right;
+	font-weight: bold;
+    font-size: 11px !important;
+    cursor: pointer;    
+}
+div#imageFacet span.facetCount a {
+	color: black !important;
+}
+table.facetTable {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0;
+}
+table.facetTable td {
+	border-bottom: 1px solid #CDC8B1;
+    font-size: 11px !important;
+    text-align: left;
+    padding: 0;
+}
+table.facetTable td:nth-child(3){
+	text-align: right !important;
+}
+table#geneGrid th:nth-child(1) {
+	width: 35% !important;
+}
+table#geneGrid th:nth-child(2) {
+	width: 25% !important;
+}
+div.geneCol {
+	font-size: 12px;	
+	font-style:italic;
+	color: gray !important;
+	width: auto;	
+}
+span.gSymbol {
+	display: block;
+	font-weight: bold;	
+	font-size: 14px;
+	font-style: normal;
+}
+span.gNameSyn {
+	font-weight: bold;
+}
+div#imgView {
+	margin-bottom: 10px;
+}
+span#imgViewSubTitle {
+	font-weight: bold;
+	font-size: 12px;
+	color: gray;
+}
+span#imgViewSwitcher {
+	font-size: 10px;
+	color: gray;
+	float: right;
+	margin-right: 10px;
+	padding-right: 10px;
+	cursor: pointer;
+}
+span.imgAnnots {
+	display: block;
+}
+span.annotType {
+	font-weight: bold;	
+}
+table#diseaseGrid th:nth-child(1) {
+	width: 35% !important;
+}
+/*table#geneFacetTbl td.geneSubtypeCount,
+table#geneFacetTbl td.geneStatusCount,
+table#geneFacetTbl td.geneSubfacetCount,
+table#pipelineFacetTbl td[class^=procedure], 
+table#pipelineFacetTbl td a.paramCount,
+table#mpFacetTbl td.mpTopLevelCount,
+table#maFacetTbl td.maTopLevelCount,
+table#imagesFacetTbl td.imgSubfacetCount,
+table#diseaseFacetTbl td.diseaseSubfacetCount
+table#mpFacetTbl td.mpTopLevel
+table#maFacetTbl td.maTopLevelCount, table#maFacetTbl td.maTopLevel {
+	cursor: pointer;	
+}*/
+tr.subFacet td:nth-child(1){
+	width: 20px !important;
+}
+
+table#geneFacetTbl tr.phenoCenterTrCap,
+table#geneFacetTbl tr.prodCenterTrCap,
+table#geneFacetTbl tr.geneSubTypeTrCap,
+table#geneFacetTbl tr.phenoStatusTrCap,
+table#geneFacetTbl tr.prodStatusTrCap,
+table#imagesFacetTbl tr.facetSubCat,
+table#pipelineFacetTbl tr.facetSubCat,
+table#diseaseFacetTbl tr.facetSubCat {
+	cursor: pointer;
+}
+table#geneFacetTbl tr.prodCenterTrCap td,
+table#geneFacetTbl tr.phenoCenterTrCap td, 
+table#geneFacetTbl tr.geneSubTypeTrCap td, 
+table#geneFacetTbl tr.phenoStatusTrCap td,
+table#geneFacetTbl tr.prodStatusTrCap td,
+table#pipelineFacetTbl tr.facetSubCat td,
+table#imagesFacetTbl tr.facetSubCat td,
+table#diseaseFacetTbl tr.facetSubCat td
+{
+	padding-left: 15px !important;
+	background-image: url('../img/right.gif');
+    background-repeat: no-repeat;
+    background-position: 2px 50%; /*x,y*/	
+}
+table#geneFacetTbl tr.prodCenterTrCap td.unCollapse, 
+table#geneFacetTbl tr.phenoCenterTrCap td.unCollapse,  
+table#geneFacetTbl tr.geneSubTypeTrCap td.unCollapse, 
+table#geneFacetTbl tr.prodStatusTrCap td.unCollapse, 
+table#geneFacetTbl tr.phenoStatusTrCap td.unCollapse,
+table#pipelineFacetTbl tr.facetSubCat td.unCollapse, 
+table#imagesFacetTbl tr.facetSubCat td.unCollapse, 
+table#diseaseFacetTbl tr.facetSubCat td.unCollapse {
+	background-image: url('../img/down.gif');
+}
+table#geneFacetTbl tr.phenoCenterTr, 
+table#geneFacetTbl tr.prodCenterTr, 
+table#geneFacetTbl tr.geneSubTypeTr, 
+table#geneFacetTbl tr.prodStatusTr,
+table#geneFacetTbl tr.phenoStatusTr,
+table#diseaseFacetTbl tr.disease_classesTr,
+table#diseaseFacetTbl tr.disease_sourceTr,
+table#diseaseFacetTbl tr.curatedTr,
+table#diseaseFacetTbl tr.predictedTr,
+table#pipelineFacetTbl tr.subFacet,
+tr.trHidden {
+	display: none;
+}
+table#pipelineFacetTbl td[class^=procedure]:nth-child(1) {
+	padding-left: 5px;
+}
+table#pipelineFacetTbl tr[class$=_param] {
+	display: none;
+	font-size: 10px;
+	color: gray;
+	cursor: text !important;
+}
+table tr.facetSubCat td.grayout {
+	color: gray;
+}
+img#maFacetInfo, img#mpFacetInfo {
+	float: right;	
+	margin: 0px 80px 10px 10px;		
+	height: 10px;
+	display: none;
+	position: relative;
+}
+span#maMsg, span#mpMsg {
+	position: absolute;
+	margin-top: 13px;
+	margin-left: 18px;
+	width: 200px;	
+	border: 1px solid gray;
+	display: none;
+	z-index: 9999;
+	background-color: #CCCCCC;
+	padding: 20px;
+	font-size: 11px;
+	font-weight: normal;
+	color: black;
+}
+span#maMsg {
+	margin-left: 40px;
+}
+table#mpTable, table#maTable {
+	float: left;
+	margin: 0;
+}
+
+table[id$=FacetTbl] tr td input {
+	margin: 0 !important;
+	padding: 0 !important;	
+}
+table[id$=FacetTbl] tr td {
+	text-align:center;
+}
+table[id$=FacetTbl] tr td:nth-child(2),  table[id$=FacetTbl] tr.facetSubCat td {
+	text-align:left;
+}
+
+.highlight {
+  color: #D17023;
+}
+
+div[id^=ui-tabs-] span {
+	display: block;
+	border-bottom: 1px solid #CDC8B1;	
+	padding: 1px 0;	
+}
+div[id^=ui-tabs-] span:last-child {
+	border-bottom: none;
+}
+div.ui-tabs-panel {
+	padding: 2px 5px !important;	
+}
+div[id^=mpTab_], div[id^=maTab_] {
+	margin-top: 4px;
+}
+div[id^=mpTab_] ul.ui-tabs-nav,
+div[id^=maTab_] ul.ui-tabs-nav {
+	background: none !important;
+	border: none !important;
+}
+div[id^=mpTab_] ul.ui-tabs-nav li a,
+div[id^=maTab_] ul.ui-tabs-nav li a {
+	padding: 0 6px;
+	font-size: 8px !important;
+}
+
+/* image facet table */
+tr.facetSubCat td {
+	font-weight: bold;
+	font-size: 12px;
+	color: black;
+	background-color: #F4F4F4;
+	padding: 3px;
+}
+
+table#imagesGrid td img {
+	width: 50px !important;
+	margin-left: 3px;
+}
+
+/* end of image facet table */
+
+/* table tool */
+div#tableTool {
+	font-size: 12px;
+	position: absolute;
+	top: -127px;
+	right: 10px;
+}
+div#saveTable {
+	position: relative;
+	top: 100px;
+	float: right;
+	margin-right: 10px;
+	cursor: pointer;	
+	padding: 1px 5px;
+	z-index: 99;	
+	background-color: #F4F4F4;
+	width: 85px;
+}
+div#toolBox {
+	position: relative;
+	top: -30px;
+	right: 10px;	
+	height: 123px;
+	width: 200px;	
+	display: none;
+	padding: 15px;	
+	background-color: #F4F4F4;
+}
+div#toolBox span {
+	display: block;
+}
+div#saveSep {
+	margin: 10px;
+}
+div.dataName {
+	font-weight: bold;
+	height: auto;
+}
+div#exportSpinner {
+	float: left;
+	color: #CC6600;
+}
+/* end of table tool */
+
+span.hiddenId {
+	display: none;
+}
+div.gridSubTitle {
+	display: inline;	
+}
+div#resultMsg, strong.lead {
+	color: gray !important;
+	font-weight: bold !important;
+	font-size: 13px !important;
+}
+div.dataTables_wrapper {
+	margin-top: 30px;
+}
+
+/* ----- start of  facet filter ----- */
+div#filterToggle {
+	display: block;	
+}
+div#filterToggle span {
+	border: 1px solid gray;
+	padding: 2px 4px;
+	font-size: 11px;
+	cursor: pointer;
+}
+div#resetFilter {
+	font-size: 11px;
+}
+ul#facetFilter {
+  width: auto;	
+  margin: -23px 0 0 150px;
+  padding: 3px 10px;
+  background-color: #F4F4F4;
+  border-radius: 1em;
+  font: normal 1em Arial, Helvetica, sans-serif;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  display: block;  
+}
+ul#facetFilter ul {
+  /*z-index: 9999;	
+  display: none;*/
+  margin: 0 0 5px 20px;
+  padding: 2px 5px;
+  width: auto;
+  /*position: absolute;
+  top: 20px;
+  left: 0;*/
+  /*background: #F4F4F4;*/ /*url(overlay.png) repeat-x 0 0;*/
+  /*border: solid 1px #b4b4b4;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;*/ 
+}
+#facetFilter li.has-sub {
+	list-style: none;
+}
+ul#facetFilter li ul li {	
+	list-style: none;
+	/*margin-left: 20px;*/	
+}
+ul#facetFilter li.has-sub {
+	display: none;
+}
+ul#facetFilter li.none {
+	display: block;
+}
+ul#facetFilter li.has-sub img {
+	cursor: pointer;
+}
+ul#facetFilter li li a {
+	font-size: 12px;
+}
+/* ----- end of  facet filter ----- */
+
