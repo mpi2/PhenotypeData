@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotNull;
  */
 
 @Configuration
+@ComponentScan("org.mousephenotype.cda.solr")
 @EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.solr.repositories" }, multicoreSupport=true)
 public class SolrServerConfig {
 
