@@ -21,7 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.SolrUtils;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,10 +77,10 @@ public class GeneIndexer extends AbstractIndexer {
     @Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(geneCore);
-        
+
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual gene document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " gene documents but SOLR reports " + numFound + " documents.");
         else
@@ -161,7 +161,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
                 gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
                 gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
-                
+
                 // GO stuff
                 gene.setGoTermIds(allele.getGoTermIds());
                 gene.setGoTermNames(allele.getGoTermNames());
@@ -171,7 +171,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setEvidCodeRank(allele.getEvidCodeRank());
                 gene.setGoCount(allele.getGoCount());
                 gene.setGoUniprot(allele.getGoUniprot());
-                
+
                 // pfam stuff
                 gene.setUniprotAccs(allele.getUniprotAccs());
                 gene.setScdbIds(allele.getScdbIds());
@@ -442,7 +442,7 @@ public class GeneIndexer extends AbstractIndexer {
 
                 gene.setInferredSelectedTopLevelMaId(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaId())));
                 gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
-                gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym()))); 
+                gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
 
                 documentCount++;
                 geneCore.addBean(gene, 60000);
@@ -485,7 +485,15 @@ public class GeneIndexer extends AbstractIndexer {
 
     private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
 
-        return SolrUtils.populateMgiAccessionToMp(mpCore);
+        Map<String, List<MpDTO>> map= null;
+
+        try {
+            map = SolrUtils.populateMgiAccessionToMp(mpCore);
+        } catch (SolrServerException e) {
+            throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMgiAccessionToMp()", e);
+        }
+
+        return map;
     }
 
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {

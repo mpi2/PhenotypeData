@@ -16,10 +16,11 @@
 
 package uk.ac.ebi.phenotype.stats.strategy;
 
-import java.util.List;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+
+import java.util.List;
 
 /**
  * Strategy pattern interface for swapping in different control selection

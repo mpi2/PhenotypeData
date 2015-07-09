@@ -21,8 +21,8 @@ import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.dao.HibernateDAOImpl;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.indexers.StatisticalResultIndexer;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.utils.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -246,8 +246,8 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 
 	public Double getEffectDifference(String field) {
 
-		Double female = StatisticalResultIndexer.getFemalePercentageChange(field);
-		Double male = StatisticalResultIndexer.getMalePercentageChange(field);
+		Double female = StatisticalResultService.getFemalePercentageChange(field);
+		Double male = StatisticalResultService.getMalePercentageChange(field);
 		return Math.abs(female - male);
 	}
 

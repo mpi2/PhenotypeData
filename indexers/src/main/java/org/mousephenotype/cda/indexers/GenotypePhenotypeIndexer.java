@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.MpOntologyService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.indexers.beans.ImpressBean;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
@@ -63,7 +64,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
     SolrServer gpSolrServer;
-    
+
     @Autowired
     MpOntologyService mpOntologyService;
 
@@ -77,10 +78,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(gpSolrServer);
-        
+
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual genotype-phenotype document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
         else
@@ -189,10 +190,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if ( ! r.wasNull()) {
 
                     // Default female, override if male
-                    Double percentageChange = StatisticalResultIndexer.getFemalePercentageChange(percentageChangeDb);
+                    Double percentageChange = StatisticalResultService.getFemalePercentageChange(percentageChangeDb);
 
                     if (doc.getSex().equals(SexType.male.getName())) {
-                        percentageChange = StatisticalResultIndexer.getMalePercentageChange(percentageChangeDb);
+                        percentageChange = StatisticalResultService.getMalePercentageChange(percentageChangeDb);
                     }
 
                     if (percentageChange != null) {
@@ -244,7 +245,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
                 doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
                 doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
-                
+
                 doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
                 doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
                 doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());

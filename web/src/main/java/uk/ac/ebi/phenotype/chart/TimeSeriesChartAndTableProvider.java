@@ -15,30 +15,23 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.stereotype.Service;
-
 import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
@@ -60,21 +53,21 @@ public class TimeSeriesChartAndTableProvider {
 		return chartsNTablesForParameter;
 	}
 
-	
-	
-	public ChartData doTimeSeriesData(ExperimentDTO experiment,	Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel) 
+
+
+	public ChartData doTimeSeriesData(ExperimentDTO experiment,	Parameter parameter, String experimentNumber, BiologicalModel expBiologicalModel)
 	throws IOException,	URISyntaxException {
-		
+
 		ChartData chartNTableForParameter = null;
 		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
 
 		for (SexType sex : experiment.getSexes()) {
-			
+
 			List<DiscreteTimePoint> controlDataPoints = new ArrayList<>();
-			
+
 			for (ObservationDTO control : experiment.getControls()) {
 				String docGender = control.getSex();
-			
+
 				if (SexType.valueOf(docGender).equals(sex)) {
 					Float dataPoint = control.getDataPoint();
 					logger.debug("data value=" + dataPoint);
@@ -82,18 +75,18 @@ public class TimeSeriesChartAndTableProvider {
 					controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 				}
 			}
-			
+
 			logger.debug("finished putting control to data points");
 			TimeSeriesStats stats = new TimeSeriesStats();
 			String label = ChartUtils.getLabel(null, sex);
 			List<DiscreteTimePoint> controlMeans = stats.getMeanDataPoints(controlDataPoints);
 			lines.put(label, controlMeans);
-			
+
 			for (ZygosityType zType : experiment.getZygosities()) {
-			
+
 				List<DiscreteTimePoint> mutantData = new ArrayList<>();
 				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
-				
+
 				if (zType.equals(ZygosityType.heterozygote)
 						|| zType.equals(ZygosityType.hemizygote)) {
 					expObservationsSet = experiment.getHeterozygoteMutants();
@@ -132,28 +125,28 @@ public class TimeSeriesChartAndTableProvider {
 					experiment.getOrganisation(), parameter);
 			chartNTableForParameter.setExperiment(experiment);
 		}
-		
+
 		chartNTableForParameter.setLines(lines);
-		
+
 		return chartNTableForParameter;
-		
+
 	}
 
-	
+
 	/**
 	 * Creates a single chart and adds it to the chart array that is then added
 	 * to the model by the main method
-	 * 
+	 *
 	 * @param title
 	 * @param lines
 	 * @param xUnitsLabel
 	 * @param yUnitsLabel
 	 * @param organisation
 	 *            TODO
-	 * @param parameter 
+	 * @param parameter
 	 * @param model
 	 * @param timeSeriesCharts
-	 * 
+	 *
 	 * @return
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(String expNumber,
@@ -165,11 +158,11 @@ public class TimeSeriesChartAndTableProvider {
 		Set<Float> categoriesSet = new HashSet<Float>();
 		Float maxForChart = new Float(0);
 		Float minForChart = new Float(1000000000);
-		
+
 
 		String mColor = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 		String wtColor = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
-		
+
 		try {
 			int i = 0;
 			for (String key : lines.keySet()) {// key is control hom or het
@@ -178,17 +171,17 @@ public class TimeSeriesChartAndTableProvider {
 				JSONArray data = new JSONArray();
 				object.put("name", key);
 				SexType sexType = SexType.male;
-				
+
 				if(key.contains("Female")) {
 					sexType = SexType.female;
 				}
-				
+
 				if (key.contains("WT")){
 					color = wtColor;
 				}
 
 				JSONObject errorBarsObject = null;
-				
+
 				try {
 					errorBarsObject = new JSONObject();// "{ name: 'Confidence', type: 'errorbar', color: 'black', data: [ [7.5, 8.5], [2.8, 4], [1.5, 2.5], [3, 4.1], [6.5, 7.5], [3.3, 4.1], [4.8, 5.1], [2.2, 3.0], [5.1, 8] ] } ");
 					errorBarsObject.put("name", "Standard Deviation");
@@ -201,7 +194,7 @@ public class TimeSeriesChartAndTableProvider {
 
 				JSONArray errorsDataJson = new JSONArray();
 				for (DiscreteTimePoint pt : lines.get(key)) {
-										
+
 					JSONArray pair = new JSONArray();
 					pair.put(pt.getDiscreteTime());
 					pair.put(pt.getData());
@@ -266,8 +259,8 @@ public class TimeSeriesChartAndTableProvider {
 				escapedErrorString + "," + errorBarsToolTip);
 		String axisFontSize = "15";
 
-		
-		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
+
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
 		//		+" colors:" + colors + ", "
 				+" chart: {  zoomType: 'x', renderTo: 'timechart"
 				+ expNumber
@@ -310,11 +303,11 @@ public class TimeSeriesChartAndTableProvider {
 		try {
 			int i = 0;
 			for (String key : lines.keySet()) {// key is line name or "Control"
-				
+
 				JSONObject object = new JSONObject();
 				JSONArray data = new JSONArray();
 				object.put("name", key);
-				
+
 				String colorString;
 				if (key.equalsIgnoreCase("Control")){
 					colorString = ChartColors.getDefaultControlColor(ChartColors.alphaTranslucid70);
@@ -323,7 +316,7 @@ public class TimeSeriesChartAndTableProvider {
 					colorString = ChartColors.getRgbaString(SexType.male, i, ChartColors.alphaTranslucid70);
 				}
 				object.put("color", colorString);
-				
+
 				JSONObject errorBarsObject = null;
 				try {
 					errorBarsObject = new JSONObject();
@@ -398,11 +391,11 @@ public class TimeSeriesChartAndTableProvider {
 		seriesString = seriesString.replace(escapedErrorString,
 				escapedErrorString + "," + errorBarsToolTip);
 		String axisFontSize = "15";
-		
+
 		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaTranslucid70);
 //		JSONArray colorArray = new JSONArray(colors);
-		
-		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ " 
+
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
 //				+" colors:"+colorArray
 				+" chart: {  zoomType: 'x', renderTo: 'single-chart-div', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)

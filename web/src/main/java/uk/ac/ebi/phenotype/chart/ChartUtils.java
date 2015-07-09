@@ -16,19 +16,18 @@
 
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 public class ChartUtils {
 
@@ -36,8 +35,8 @@ public class ChartUtils {
     public static final List<String> ESLIM_701 = Arrays.asList("ESLIM_001_001_001", "ESLIM_002_001_001", "ESLIM_003_001_001", "ESLIM_004_001_001", "ESLIM_005_001_001", "ESLIM_020_001_001", "ESLIM_022_001_001");
     public static final List<String> IMPC_BWT = Arrays.asList("IMPC_GRS_003_001", "IMPC_CAL_001_001", "IMPC_DXA_001_001", "IMPC_HWT_007_001", "IMPC_PAT_049_001", "IMPC_BWT_001_001", "IMPC_ABR_001_001", "IMPC_CHL_001_001", "TCP_CHL_001_001", "HMGU_ROT_004_001");
     public static final List<String> IMPC_IPG_002_001 = Arrays.asList("IMPC_IPG_012_001", "IMPC_IPG_011_001", "IMPC_IPG_010_001");
-    
-    
+
+
     private static final Logger logger = Logger.getLogger(ChartUtils.class);
 
     /**
@@ -50,7 +49,7 @@ public class ChartUtils {
      * @return a list of <code>ChartData</code>
      */
     public static List<ChartData> alterMinAndMaxYAxisOfCharts(List<ChartData> chartsAndTablesForParameter, Float min, Float max) {
-    	
+
         for (ChartData chartNTable : chartsAndTablesForParameter) {
             //for each chart replace the strings that set the min and max values
             String chartString = chartNTable.getChart();
@@ -62,12 +61,12 @@ public class ChartUtils {
         return chartsAndTablesForParameter;
     }
 
-    
+
     /**
      * Return decimal places as an int.
-     * 
+     *
      * @param experiment
-     * 
+     *
      * @return decimal places as an int.
      */
     public static int getDecimalPlaces(ExperimentDTO experiment) {
@@ -90,13 +89,13 @@ public class ChartUtils {
         return numberOfDecimalPlaces;
     }
 
-    
+
     /**
      * Return <code>number</code> to specified number of decimals.
-     * 
+     *
      * @param number
      * @param numberOfDecimals
-     * 
+     *
      * @return <code>number</code> to specified number of decimals.
      */
     public static Float getDecimalAdjustedFloat(Float number, int numberOfDecimals) {
@@ -112,7 +111,7 @@ public class ChartUtils {
         return decFloat;
     }
 
-    
+
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
         String url = baseUrl;
         url += "/charts?accession=" + geneAcc;
@@ -132,7 +131,7 @@ public class ChartUtils {
         return url;
     }
 
-    
+
     public static Map<String, Float> getMinMaxXAxis(List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
         Float min = new Float(Integer.MAX_VALUE);
@@ -180,12 +179,12 @@ public class ChartUtils {
         return res;
     }
 
-    
+
     public static String getLabel(ZygosityType zyg, SexType sex) {
 
         return StringUtils.capitalize(sex.getName()) + " " + (zyg == null ? "WT" : StringUtils.capitalize(zyg.getName().substring(0, 3) + "."));
     }
-    
+
 
     public static String getPlotParameter(String parameter) {
 
@@ -197,13 +196,13 @@ public class ChartUtils {
             return "IMPC_BWT_008_001";
         } else if (IMPC_IPG_002_001.contains(parameter)){
         	return "IMPC_IPG_002_001";
-        	
+
         }
 
         return parameter;
     }
 
-    
+
     public static ChartType getPlotType(String parameter) {
 
         if (ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
