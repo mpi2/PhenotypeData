@@ -22,12 +22,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.sql.DataSource;
+
 import org.apache.log4j.Logger;
+import org.mousephenotype.cda.solr.service.dto.ReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import uk.ac.ebi.phenotype.service.dto.ReferenceDTO;
 
 @Repository
 public class ReferenceDAO {

@@ -15,6 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,23 +39,18 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.GeneDTO;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.ExpressionService;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 @Service
 public class ReportsService {
@@ -1023,16 +1033,16 @@ public class ReportsService {
     		
     		for (String sex : sexes){
 	    		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),  
-					doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),  
-					SexType.valueOf(sex),  
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),   
-					zygosities, 
-					doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),    
-					null, 
-					Boolean.FALSE, 
-					doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
+							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
+							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),  
+							doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),  
+							SexType.valueOf(sex),  
+							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),   
+							zygosities, 
+							doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),    
+							null, 
+							Boolean.FALSE, 
+							doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
 	    		for (ExperimentDTO exp: experiments){
 	    			for (ObservationDTO obs: exp.getControls()){
 	    				datapoints.get(sex).get("WT").add((Float)obs.getDataPoint());
@@ -1060,6 +1070,7 @@ public class ReportsService {
     		return null;
     	}
     	
+    	
     	public Integer getN(SexType sex, ZygosityType zyg){
     		
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
@@ -1068,6 +1079,7 @@ public class ReportsService {
     		}
     		return null;
     	}
+    	
     	
     	public Float getMedian(SexType sex, ZygosityType zyg){
     		
@@ -1078,6 +1090,7 @@ public class ReportsService {
     		return null;
     	}    	
 
+    	
     	private Float getMedian(List<Float> list){
     		
     		Float median = (float)0.0;

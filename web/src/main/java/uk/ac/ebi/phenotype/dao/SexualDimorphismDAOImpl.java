@@ -15,21 +15,20 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.dao;
 
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer;
-import uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ebi.phenotype.chart.ChartUtils;
+import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import uk.ac.ebi.phenotype.service.ObservationService;
 
 public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualDimorphismDAO {
 

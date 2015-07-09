@@ -15,16 +15,17 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import uk.ac.ebi.phenotype.service.dto.PipelineDTO;
-
-import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 
 
 /**
