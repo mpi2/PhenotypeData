@@ -44,7 +44,6 @@ public class ImaImageTag implements Serializable {
 	private Float yEnd;
 	private Float yStart;
 	private Set<AnnAnnotation> annAnnotations;
-	@JsonBackReference
 	private ImaImageRecord imaImageRecord;
 
 
@@ -217,8 +216,6 @@ public class ImaImageTag implements Serializable {
 
 
 	//bi-directional many-to-one association to ImaImageRecord
-	//@ManyToOne
-	//@JoinColumn(name="CUST_ID", nullable=false)
 	@ManyToOne
 	@JoinColumn(name = "IMAGE_RECORD_ID", nullable = false)
 	public ImaImageRecord getImaImageRecord() {
