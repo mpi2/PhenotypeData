@@ -313,10 +313,15 @@
                                                         <div class="sprite sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
                                                     </c:if>
                                                 </c:forEach>
-
+                                                
                                             </div>
-
+                                            <div class="floatright" style="clear:both">
+                                          
+                                            <a class="btn" href="https://dev.mousephenotype.org/embryoviewer?gene_symbol=Klf7">Embryo Viewer</a>
+                                            
+                                            </div>
                                             <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
+                                           
                                             <c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">
                                                 <p>In <b>${zyg} :</b></p>
                                                 <ul>
@@ -351,6 +356,7 @@
                                                     </c:if>
                                                 </ul>
                                             </c:forEach>
+                                            
 
                                         </c:when>
                                         <c:when test="${hasPreQcData}">
@@ -422,9 +428,9 @@
                                         </ul>
                                         </p>
                                     </c:if>	
-
                                 </div>
-                            </div>
+                                
+                            </div><!-- end of phenotype associations panel -->
 
                             <c:if test="${phenotypeStarted}">
                                 <div class="section">
