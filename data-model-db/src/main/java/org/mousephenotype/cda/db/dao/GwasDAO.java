@@ -37,11 +37,7 @@ public class GwasDAO {
 
     @Autowired
     @Qualifier("admintoolsDataSource")
-    //@Qualifier("admintoolsDataSourceLocal")
     private DataSource admintoolsDataSource;
-
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
 
     public GwasDAO() {
 
