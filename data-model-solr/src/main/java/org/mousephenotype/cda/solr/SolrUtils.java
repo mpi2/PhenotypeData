@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.indexers.utils;
+package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -25,7 +25,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,9 +127,9 @@ public class SolrUtils {
      * @param imagesCore a valid solr connection
      * @return a map, indexed by child ma id, of all parent terms with
      * associations
-     * @throws IndexerException
+     * @throws SolrServerException
      */
-    public static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore) throws IndexerException {
+    public static Map<String, List<SangerImageDTO>> populateSangerImagesMap(SolrServer imagesCore) throws SolrServerException {
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
@@ -140,11 +139,7 @@ public class SolrUtils {
         while (pos < total) {
             query.setStart(pos);
             QueryResponse response = null;
-            try {
-                response = imagesCore.query(query);
-            } catch (Exception e) {
-                throw new IndexerException("Unable to query images core", e);
-            }
+            response = imagesCore.query(query);
 
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
@@ -182,9 +177,9 @@ public class SolrUtils {
      * @param imagesCore a valid solr connection
      * @return a map, indexed by child ma id, of all parent terms with
      * associations
-     * @throws IndexerException
+     * @throws SolrServerException
      */
-    protected static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+    public static Map<String, List<SangerImageDTO>> populateSangerImagesByMgiAccession(SolrServer imagesCore) throws SolrServerException {
         Map<String, List<SangerImageDTO>> map = new HashMap();
 
         int pos = 0;
@@ -194,11 +189,7 @@ public class SolrUtils {
         while (pos < total) {
             query.setStart(pos);
             QueryResponse response = null;
-            try {
-                response = imagesCore.query(query);
-            } catch (Exception e) {
-                throw new IndexerException("Unable to query images core", e);
-            }
+            response = imagesCore.query(query);
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
             for (SangerImageDTO image : imageList) {
@@ -233,9 +224,9 @@ public class SolrUtils {
      * @param alleleCore a valid solr connection
      * @return a list of all alleles
      *
-     * @throws IndexerException
+     * @throws SolrServerException
      */
-    protected static List<AlleleDTO> getAllAlleles(SolrServer alleleCore) throws IndexerException {
+    public static List<AlleleDTO> getAllAlleles(SolrServer alleleCore) throws SolrServerException {
         List<AlleleDTO> alleleList = new ArrayList<>();
 
         int pos = 0;
@@ -244,11 +235,7 @@ public class SolrUtils {
 
         query.setRows(Integer.MAX_VALUE);
         QueryResponse response = null;
-        try {
-            response = alleleCore.query(query);
-        } catch (SolrServerException sse) {
-            throw new IndexerException(sse);
-        }
+        response = alleleCore.query(query);
         total = response.getResults().getNumFound();
         logger.info("total alleles=" + total);
         alleleList = response.getBeans(AlleleDTO.class);
@@ -264,10 +251,9 @@ public class SolrUtils {
      * @param alleleCore a valid solr connection
      * @return a map, indexed by MGI Accession id, of all alleles
      *
-     * @throws IndexerException
+     * @throws SolrServerException
      */
-    protected static Map<String, List<AlleleDTO>> populateAllelesMap(SolrServer alleleCore)
-            throws IndexerException {
+    public static Map<String, List<AlleleDTO>> populateAllelesMap(SolrServer alleleCore) throws SolrServerException {
 
         Map<String, List<AlleleDTO>> alleles = new HashMap<>();
 
@@ -278,11 +264,7 @@ public class SolrUtils {
         while (pos < total) {
             query.setStart(pos);
             QueryResponse response = null;
-            try {
-                response = alleleCore.query(query);
-            } catch (Exception e) {
-                throw new IndexerException("Unable to query allele core in SolrUtils.populateAllelesMap()", e);
-            }
+            response = alleleCore.query(query);
             total = response.getResults().getNumFound();
             List<AlleleDTO> alleleList = response.getBeans(AlleleDTO.class);
             for (AlleleDTO allele : alleleList) {
@@ -305,10 +287,10 @@ public class SolrUtils {
      * @param phenodigm_core a valid solr connection
      * @return a map, indexed by mp id, of all hp terms
      *
-     * @throws IndexerException
+     * @throws SolrServerException
      */
     public static Map<String, List<Map<String, String>>> populateMpToHpTermsMap(SolrServer phenodigm_core)
-            throws IndexerException {
+            throws SolrServerException {
 
 		// url="q=mp_id:&quot;${nodeIds.term_id}&quot;&amp;rows=999&amp;fq=type:mp_hp&amp;fl=hp_id,hp_term"
         // processor="XPathEntityProcessor" >
@@ -328,11 +310,7 @@ public class SolrUtils {
         while (pos < total) {
             query.setStart(pos);
             QueryResponse response = null;
-            try {
-                response = phenodigm_core.query(query);
-            } catch (Exception e) {
-                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
-            }
+            response = phenodigm_core.query(query);
             total = response.getResults().getNumFound();
             SolrDocumentList solrDocs = response.getResults();
             for (SolrDocument doc : solrDocs) {
@@ -368,10 +346,9 @@ public class SolrUtils {
      *
      * @param mpSolrServer
      * @return the map
-     * @throws IndexerException
+     * @throws SolrServerException
      */
-    public static Map<String, List<MpDTO>> populateMgiAccessionToMp(SolrServer mpSolrServer)
-            throws IndexerException {
+    public static Map<String, List<MpDTO>> populateMgiAccessionToMp(SolrServer mpSolrServer) throws SolrServerException {
 
         Map<String, List<MpDTO>> mps = new HashMap<>();
         int pos = 0;
@@ -382,12 +359,7 @@ public class SolrUtils {
         while (pos < total) {
             query.setStart(pos);
             QueryResponse response = null;
-            try {
-                response = mpSolrServer.query(query);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
-            }
+            response = mpSolrServer.query(query);
             total = response.getResults().getNumFound();
             List<MpDTO> mpBeans = response.getBeans(MpDTO.class);
 
@@ -415,10 +387,9 @@ public class SolrUtils {
      *
      * @param mpSolrServer
      * @return the map
-     * @throws IndexerException
+     * @throws SolrServerException
      */
-    public static Map<String, MpDTO> populateMpTermIdToMp(SolrServer mpSolrServer)
-            throws IndexerException {
+    public static Map<String, MpDTO> populateMpTermIdToMp(SolrServer mpSolrServer) throws SolrServerException {
 
         Map<String, MpDTO> mps = new HashMap<>();
         int pos = 0;
@@ -429,12 +400,7 @@ public class SolrUtils {
         while (pos < total) {
             query.setStart(pos);
             QueryResponse response = null;
-            try {
-                response = mpSolrServer.query(query);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
-            }
+            response = mpSolrServer.query(query);
             total = response.getResults().getNumFound();
             List<MpDTO> mpBeans = response.getBeans(MpDTO.class);
 
@@ -459,7 +425,7 @@ public class SolrUtils {
      * @param maxIterations The maximum number of iterations to dump. Any value
      * not greater than 0 (including null) will dump the entire map.
      */
-    protected static void dumpSangerImagesMap(Map<String, List<SangerImageDTO>> map, String what, Integer maxIterations) {
+    public static void dumpSangerImagesMap(Map<String, List<SangerImageDTO>> map, String what, Integer maxIterations) {
 
         if ((maxIterations == null) || (maxIterations < 1)) {
             maxIterations = map.size();
