@@ -26,10 +26,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.ExpressionService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

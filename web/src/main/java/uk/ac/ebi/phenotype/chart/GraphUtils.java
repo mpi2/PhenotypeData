@@ -24,7 +24,7 @@ import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import java.io.UnsupportedEncodingException;

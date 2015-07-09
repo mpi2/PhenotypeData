@@ -37,9 +37,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 @Service
-public class ExperimentService {
+public class _old_ExperimentService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ExperimentService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(_old_ExperimentService.class);
 
     public static final Integer MIN_CONTROLS = 6;
 

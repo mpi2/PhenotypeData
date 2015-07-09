@@ -34,6 +34,7 @@ import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 
 import javax.annotation.Resource;
 import java.io.IOException;

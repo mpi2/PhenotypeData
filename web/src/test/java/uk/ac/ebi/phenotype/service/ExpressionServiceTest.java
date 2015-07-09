@@ -14,7 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 
-import uk.ac.ebi.phenotype.service.ExpressionService.ExpressionRowBean;
+import org.mousephenotype.cda.solr.service.ExpressionService.ExpressionRowBean;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })

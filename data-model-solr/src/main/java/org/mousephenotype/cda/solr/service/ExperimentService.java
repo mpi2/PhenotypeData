@@ -16,13 +16,13 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.repositories.parameter.Parameter;
-import org.mousephenotype.cda.solr.repositories.parameter.ParameterService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.FertilityDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -37,7 +37,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.*;
+
+/**
+ * Pulled in 2015/07/09
+ * @author tudose
+ *
+ */
 
 @Service
 public class ExperimentService {
@@ -50,17 +57,10 @@ public class ExperimentService {
     ObservationService os;
 
     @Autowired
-    ParameterService parameterDAO;
-
-//    @Autowired
-//    private StatisticalResultDAO statisticalResultDAO;
+    PhenotypePipelineDAO parameterDAO;
 
     @Autowired
     private StatisticalResultService statisticalResultService;
-
-
-    public ExperimentService() {
-    }
 
 
     public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
@@ -180,9 +180,7 @@ public class ExperimentService {
                 ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
                 List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenotypingCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
-                System.out.println("results="+results);
                 experiment.setResults(results);
-
             }
 
             if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
@@ -432,17 +430,17 @@ public class ExperimentService {
     }
 
     public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
-        Parameter p = parameterDAO.findByStableId(parameterStableId).get(0);
+        Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
         return getExperimentDTO(p.getId(), pipelineId, geneAccession);
     }
 
     public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, String strain) throws SolrServerException, IOException, URISyntaxException {
-        Parameter p = parameterDAO.findByStableId(parameterStableId).get(0);
+        Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
         return getExperimentDTO(p.getId(), pipelineId, geneAccession, null, null, null, strain);
     }
 
     public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
-        Parameter p = parameterDAO.findByStableId(parameterStableId).get(0);
+        Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
         LOG.debug("--- getting p for : " + parameterStableId);
         return getExperimentDTO(p.getId(), pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
     }
@@ -541,7 +539,8 @@ public class ExperimentService {
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
-    public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
+    public ExperimentDTO getSpecificExperimentDTO(Integer id, Integer pipelineId, String acc, List<String> genderList, List<String> zyList, Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession) 
+    throws SolrServerException, IOException, URISyntaxException, SpecificExperimentException {
 
     	List<ExperimentDTO> experimentList = new ArrayList<>();
         boolean includeResults = true;
@@ -571,13 +570,21 @@ public class ExperimentService {
         if (experimentList.size() > 1) {
             throw new SpecificExperimentException("Too many experiments returned - should only be one from this method call");
         }
+                
         return experimentList.get(0);
     }
 
-    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) throws SolrServerException {
+    
+    public Map<String, List<String>> getExperimentKeys(String mgiAccession, String parameterStableIds, List<String> pipelineStableIds, List<String> phenotypingCenter, List<String> strain, List<String> metaDataGroup, List<String> alleleAccession) 
+    throws SolrServerException {
         return os.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
     }
 
+    
+    public String getCategoryLabels(int parameterId, String category) 
+    throws SQLException {
+        return parameterDAO.getCategoryDescription(parameterId, category);
+    }
 
     /**
      * Control strategy selection based on phenotyping center and user supplied
