@@ -15,21 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.Pipeline;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -39,6 +30,7 @@ import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,32 +40,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.chart.ChartData;
-import uk.ac.ebi.phenotype.chart.ChartType;
-import uk.ac.ebi.phenotype.chart.FertilityChartAndDataProvider;
-import uk.ac.ebi.phenotype.chart.GraphUtils;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
-import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
-import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
-import uk.ac.ebi.phenotype.dao.BiologicalModelDAO;
-import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
-import uk.ac.ebi.phenotype.dao.OrganisationDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class ChartsController {

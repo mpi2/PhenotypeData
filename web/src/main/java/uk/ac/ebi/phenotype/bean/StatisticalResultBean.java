@@ -17,11 +17,11 @@ package uk.ac.ebi.phenotype.bean;
 
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
-import uk.ac.ebi.phenotype.pojo.StatisticalSignificance;
+import org.mousephenotype.cda.db.pojo.StatisticalSignificance;
 
 
 /**
- * Lightweight representation of a statistical object containing 3 attributes, 
+ * Lightweight representation of a statistical object containing 3 attributes,
  * namely the pvalue, and effect size
  */
 
@@ -42,9 +42,9 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	Integer femaleControls;
 	Integer femaleMutants;
 	String metadataGroup;
-	
+
 	private double colorIndex;
-	
+
 	/**
 	 * @param pValue
 	 * @param effectSize
@@ -54,12 +54,12 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	public StatisticalResultBean(
 			double pValue, double effectSize,
 			String status, String method,
-			String controlSex, 
+			String controlSex,
 			String zygosity,
 			int maleControls, int maleMutants,
 			int femaleControls, int femaleMutants,
 			String metadataGroup) {
-		
+
 		super();
 		this.pValue = pValue;
 		this.effectSize = effectSize;
@@ -72,7 +72,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.femaleControls = femaleControls;
 		this.femaleMutants = femaleMutants;
 		this.metadataGroup = metadataGroup;
-		
+
 	}
 
 	public StatisticalResultBean(StatisticalResultDTO dto) {
@@ -94,7 +94,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.procedureName = dto.getProcedureName();
 	}
 
-	
+
 	@Override
 	public String toString() {
 
@@ -102,47 +102,47 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	}
 
 	public String getProcedureStableId() {
-	
+
 		return procedureStableId;
 	}
 
-	
+
 	public void setProcedureStableId(String procedureStableId) {
-	
+
 		this.procedureStableId = procedureStableId;
 	}
 
-	
+
 	public String getProcedureName() {
-	
+
 		return procedureName;
 	}
 
-	
+
 	public void setProcedureName(String procedureName) {
-	
+
 		this.procedureName = procedureName;
 	}
 
 	public String getParameterName() {
-	
+
 		return parameterName;
 	}
 
-	
+
 	public void setParameterName(String parameterName) {
-	
+
 		this.parameterName = parameterName;
 	}
 
 	public String getParameterStableId() {
-	
+
 		return parameterStableId;
 	}
 
-	
+
 	public void setParameterStableId(String parameterStableId) {
-	
+
 		this.parameterStableId = parameterStableId;
 	}
 
@@ -193,8 +193,8 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	 */
 	public void setStatisticalMethod(String method) {
 		this.statisticalMethod = method;
-	}	
-	
+	}
+
 	/**
 	 * @return the controlSex
 	 */
@@ -207,8 +207,8 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	 */
 	public void setControlSex(String controlSex) {
 		this.controlSex = controlSex;
-	}	
-	
+	}
+
 	/**
 	 * @return the zygosity
 	 */
@@ -277,7 +277,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	public void setColorIndex(double colorIndex) {
 		this.colorIndex = colorIndex;
 	}
-	
+
 	/**
 	 * @return the metadataGroup
 	 */
@@ -302,7 +302,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		}
 		return -Math.log10(pValue);
 	}
-	
+
 	/**
 	 * Check whether the statistical call worked or failed.
 	 * @return a boolean indicated whether the status is equal to 'Success'
@@ -310,7 +310,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	public boolean getIsSuccessful() {
 		return status!=null && status.equals("Success");
 	}
-	
+
 	/**
 	 * Effect size
 	 * if both sex are affected equally, use genotype_parameter_estimate for effect size

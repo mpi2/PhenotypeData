@@ -4,12 +4,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;

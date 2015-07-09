@@ -53,7 +53,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.dao.GwasDAO;
+import org.mousephenotype.cda.db.dao.GwasDAO;
 
 @Controller
 public class ExternalAnnotsController {

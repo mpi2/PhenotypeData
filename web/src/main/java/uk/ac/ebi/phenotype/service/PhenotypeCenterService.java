@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 
 @Service
 public class PhenotypeCenterService {

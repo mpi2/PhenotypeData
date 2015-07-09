@@ -19,25 +19,33 @@
  * and open the template in the editor.
  */
 
-package uk.ac.ebi.phenotype.stats.strategy;
+package uk.ac.ebi.phenotype.web.dao;
 
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.apache.solr.client.solrj.SolrServerException;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
+import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
+import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
+
 
 /**
- * Implements the concomitant control selection strategy.
  *
- * Concomitant controls means control data that were collected during the same
- * week as the mutant data.
+ * @author jwarren
  */
-public class ConcomitantControlsStrategy implements ControlSelectionStrategy {
+public interface SecondaryProjectDAO {
 
-    @Override
-    public List<ExperimentDTO> execute(String geneAcc, ZygosityType zygosity, List<SexType> sexes, String parameterId, String metadataGroup) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	public enum SecondaryProjectIds {
+        IDG,
+        threeI
     }
+
+    Set<String> getAccessionsBySecondaryProjectId(String projectId)throws SQLException;
+
+    List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException;
+
+    List<BasicBean> getXAxisForHeatMap();
 
 }

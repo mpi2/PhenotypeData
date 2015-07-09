@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
 

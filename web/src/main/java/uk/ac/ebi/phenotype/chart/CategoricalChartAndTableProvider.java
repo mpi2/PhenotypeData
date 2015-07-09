@@ -41,12 +41,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import uk.ac.ebi.phenotype.service.ImpressService;
 
 @Service

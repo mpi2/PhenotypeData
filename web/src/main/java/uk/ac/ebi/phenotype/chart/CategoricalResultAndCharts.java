@@ -20,9 +20,9 @@ import java.util.List;
 
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 
 /**
  * Class to hold all data, charts and tables pertaining to a Categorical Result Stats set so for male and female data combined
@@ -30,13 +30,13 @@ import uk.ac.ebi.phenotype.pojo.StatisticalResult;
  *
  */
 public class CategoricalResultAndCharts {
-	
+
 	List<CategoricalChartDataObject> maleAndFemale=new ArrayList<CategoricalChartDataObject>();
 	ExperimentDTO experiment;
 	List<BiologicalModel> biologicalModels=new ArrayList<BiologicalModel>();
-	private List<CategoricalResult> statsResults; 
+	private List<CategoricalResult> statsResults;
 	private String organisation="placeHolder";
-	
+
 	public List<CategoricalResult> getStatsResults() {
 		return statsResults;
 	}
@@ -67,7 +67,7 @@ public class CategoricalResultAndCharts {
 
 	public void add(CategoricalChartDataObject chartData) {
 		this.maleAndFemale.add(chartData);
-		
+
 	}
 
 	public String getOrganisation() {
@@ -76,7 +76,7 @@ public class CategoricalResultAndCharts {
 
 	public void setOrganisation(String organisation) {
 		this.organisation=organisation;
-		
+
 	}
 
 	/**

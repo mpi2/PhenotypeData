@@ -10,8 +10,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.dao.OrganisationDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.OrganisationDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 
 import java.util.Arrays;
 import java.util.List;

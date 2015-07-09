@@ -34,29 +34,29 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
-import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
 
 
 @Entity
 @Table(name="allele")
 public class AlleleMpi implements Serializable {
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
 	@Column(name = "name")
 	private String name;
-	
+
 	@Column(name = "symbol")
 	private String symbol;
-	
+
 	DatasourceEntityId id;
-	
+
 	String gfAcc;
-	
+
 //	@Column(name="gf_acc")
 //	public String getGfAcc() {
 //		return gfAcc;
@@ -67,11 +67,11 @@ public class AlleleMpi implements Serializable {
 	public AlleleMpi() {
 		super();
 	}
-	
+
 
 
 	private GenomicFeature genomicFeature;
-	
+
 	@ManyToOne
 	@JoinColumns({
 	@JoinColumn(name = "gf_acc"),
@@ -85,15 +85,15 @@ public class AlleleMpi implements Serializable {
 	}
 
 
-	
-	
+
+
 	//@JsonIgnore
 	@Id
 	@EmbeddedId
 	@AttributeOverrides({
-	@AttributeOverride(name="accession", 
+	@AttributeOverride(name="accession",
 					   column=@Column(name="acc")),
-	@AttributeOverride(name="databaseId", 
+	@AttributeOverride(name="databaseId",
 	   column=@Column(name="db_id"))
 	})
 	/**
@@ -137,6 +137,6 @@ public class AlleleMpi implements Serializable {
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
 	}
-	
-	
+
+
 }

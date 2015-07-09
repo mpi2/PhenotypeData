@@ -66,8 +66,8 @@ import net.sf.json.JSONObject;
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.chart.CategoricalDataObject;
 import uk.ac.ebi.phenotype.chart.CategoricalSet;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.cda.DataBatchesBySex;
 import uk.ac.ebi.phenotype.web.controller.OverviewChartsController;
 

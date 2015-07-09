@@ -20,7 +20,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
-import uk.ac.ebi.phenotype.pojo.Organisation;
+import org.mousephenotype.cda.db.pojo.Organisation;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

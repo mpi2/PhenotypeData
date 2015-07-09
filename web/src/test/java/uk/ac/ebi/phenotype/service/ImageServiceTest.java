@@ -7,10 +7,10 @@ import org.apache.solr.common.SolrDocument;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import java.util.ArrayList;
 import java.util.List;

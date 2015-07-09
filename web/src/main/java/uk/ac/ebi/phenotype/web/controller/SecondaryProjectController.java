@@ -15,25 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
@@ -52,17 +39,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.AlleleService;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.MpService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.*;
+import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
+
 
 @Controller
 public class SecondaryProjectController {
@@ -78,7 +67,6 @@ public class SecondaryProjectController {
     @Autowired
     @Qualifier("postqcService")
     PostQcService genotypePhenotypeService;
-
     @Autowired
     @Qualifier("preqcService")
     PreQcService preQcService;

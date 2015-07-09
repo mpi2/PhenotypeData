@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.chart;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
 
 
 public class CategoricalChartDataObject {

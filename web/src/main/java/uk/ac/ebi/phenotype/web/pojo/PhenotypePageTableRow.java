@@ -16,7 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.pojo;
 
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 
 import java.util.Map;
 
@@ -32,11 +32,11 @@ public class PhenotypePageTableRow extends DataTableRow {
     public PhenotypePageTableRow() {
         super();
     }
-    
+
     public PhenotypePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
         super(pcs, baseUrl, config);
     }
-    
+
     /**
      * Sort by:
      * <ul>
@@ -47,9 +47,9 @@ public class PhenotypePageTableRow extends DataTableRow {
      * <li>phenotyping center</li>
      * <li>source</li>
      * </ul>
-     * 
+     *
      * @param o operand to compare against
-     * @return 
+     * @return
      */
     @Override
     public int compareTo(DataTableRow o) {

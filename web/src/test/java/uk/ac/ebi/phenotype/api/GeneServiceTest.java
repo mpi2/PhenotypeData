@@ -2,11 +2,11 @@ package uk.ac.ebi.phenotype.api;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 
 import static org.junit.Assert.assertTrue;
 

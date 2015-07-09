@@ -15,16 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.AlleleDAO;
+import org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAO;
+import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -33,42 +27,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
-import uk.ac.ebi.phenotype.dao.AlleleDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAO;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
-import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.Map;
+
 
 @Controller
 public class PhenomeStatsController {
 
 	@Autowired
 	private AlleleDAO alleleDao;
-	
+
 	@Autowired
 	private PhenotypeCallSummaryDAO phenotypeCallSummaryDao;
-	
+
 	@Autowired
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
-	
+
 
 	@Autowired
 	StatisticalResultService srService;
-	
+
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
-	
-	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();	
-	
+
+	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
+
 	@RequestMapping(value="/phenome", method=RequestMethod.GET)
 	public String getGraph(
-		//@PathVariable String phenotype_id, 
+		//@PathVariable String phenotype_id,
 		@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
 		@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
 		Model model,
@@ -76,25 +73,25 @@ public class PhenomeStatsController {
 		RedirectAttributes attributes) throws SolrServerException, IOException, URISyntaxException, SQLException{
 
 		PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
-			
+
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
 
 		colorCoding.generatePhenotypeCallSummaryColors(
 				results.getPhenotypeCallSummaries(),
-				ColorCodingPalette.NB_COLOR_MAX, 
-				1, 
+				ColorCodingPalette.NB_COLOR_MAX,
+				1,
 				Constants.SIGNIFICANT_P_VALUE);
-		
+
 		// generate a chart
 		String chart = phenomeChartProvider.generatePhenomeChartByPhenotype(
 				results.getPhenotypeCallSummaries(),
 				phenotypingCenter,
 				Constants.SIGNIFICANT_P_VALUE);
-		
+
 		model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
 		model.addAttribute("palette", colorCoding.getPalette());
 		model.addAttribute("chart", chart);
-		
+
 		return null;
 	}
 }

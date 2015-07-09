@@ -29,10 +29,10 @@ import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 public class GraphUtils {
 
