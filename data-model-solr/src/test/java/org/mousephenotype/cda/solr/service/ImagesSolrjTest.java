@@ -1,7 +1,14 @@
-package uk.ac.ebi.phenotype.imaging.springrest.images.dao;
+package org.mousephenotype.cda.solr.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.junit.Test;
+import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
+import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -9,17 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 
 @ContextConfiguration( locations={ "classpath:test-config.xml" })
 public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests{
-	
+
 	@Autowired
 	ImagesSolrDao imagesSolrDao;
 
@@ -58,15 +61,15 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 		}
 	}
 
-	
+
 	@Test
 	public void testGetExpressionFacetForGeneAccession() throws SolrServerException {
 		QueryResponse solrR = null;
 		solrR = imagesSolrDao.getExpressionFacetForGeneAccession("MGI:104874");
 		assertTrue(solrR.getFacetFields().size() > 0);
 	}
-	
-	
+
+
 	@Test
 	public void testgetFilteredDocsForQuery() throws SolrServerException{
 		String filter="expName:Wholemount Expression";
@@ -75,12 +78,12 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 
 		QueryResponse solrR=imagesSolrDao.getFilteredDocsForQuery("accession:MGI\\:1933365",filters,"","", 0, 10);
 		assertTrue(solrR.getResults().size()>0);
-		
+
 		QueryResponse solrR3=imagesSolrDao.getFilteredDocsForQuery("accession:MGI\\:1933365",filters,"auto_suggest","",  0, 10);
 		assertTrue(solrR3.getResults().size()>0);
 	}
 
-	
+
 	@Test
 	public void testProcessSpacesForSolr() throws MalformedURLException {
 
@@ -93,13 +96,13 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 		testcases.put("test: test", "\"test: test\"");
 		testcases.put("\"te st", "\"\\\"te st\"");
 		testcases.put("\"te st\"", "\"te st\"");
-		
+
         for(Map.Entry<String, String> testcase : testcases.entrySet()) {
             String key = testcase.getKey();
             String expected = testcase.getValue();
             String processed = imgJ.processValueForSolr(key);
             assertEquals(expected, processed);
         }
-		
+
 	}
 }

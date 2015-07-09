@@ -62,7 +62,7 @@
         <constructor-arg value="${internalSolrUrl}/pipeline" />
     </bean>
 
-    <bean id="releaseDAO" class="uk.ac.ebi.phenotype.dao.AnalyticsDAOImpl">
+    <bean id="releaseDAO" class="org.mousephenotype.cda.db.dao.AnalyticsDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
@@ -82,11 +82,11 @@
         <constructor-arg value="${internalSolrUrl}/allele" />
     </bean>
 
-    <bean id="unidimensionalStatisticsDAO" class="uk.ac.ebi.phenotype.dao.UnidimensionalStatisticsDAOImpl">
+    <bean id="unidimensionalStatisticsDAO" class="org.mousephenotype.cda.db.dao.UnidimensionalStatisticsDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="statisticalResultDAO" class="uk.ac.ebi.phenotype.dao.StatisticalResultDAOImpl">
+    <bean id="statisticalResultDAO" class="org.mousephenotype.cda.db.dao.StatisticalResultDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
@@ -116,7 +116,7 @@
         <constructor-arg value="${internalSolrUrl}/disease" />
     </bean>
 
-    <bean id="sexualDimorphismDAO" class="uk.ac.ebi.phenotype.dao.SexualDimorphismDAOImpl" >
+    <bean id="sexualDimorphismDAO" class="org.mousephenotype.cda.db.dao.SexualDimorphismDAOImpl" >
         <constructor-arg ref="sessionFactory" />
     </bean>
 
@@ -128,16 +128,16 @@
     <!-- Weaves in transactional advice around @Transactional methods -->
     <tx:annotation-driven transaction-manager="transactionManager" />
 
-    <bean id="biologicalModelDAO" class="uk.ac.ebi.phenotype.dao.BiologicalModelDAOImpl">
+    <bean id="biologicalModelDAO" class="org.mousephenotype.cda.db.dao.BiologicalModelDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <!--  <bean id="secondaryProjectDAO" class="uk.ac.ebi.phenotype.dao.SecondaryProjectDAOImpl">
+    <!--  <bean id="secondaryProjectDAO" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
                    <constructor-arg ref="sessionFactory" />
        </bean>
     -->
 
-    <bean id="idg" class="uk.ac.ebi.phenotype.dao.SecondaryProjectIdgImpl">
+    <bean id="idg" class="uk.ac.ebi.phenotype.web.dao.SecondaryProjectIdgImpl">
         <constructor-arg ref="sessionFactory" />
         <!-- <constructor-arg ref="geneService" />
         <constructor-arg ref="genomicFeatureDAO" />
@@ -146,69 +146,53 @@
 
     </bean>
 
-    <bean id="threeI" class="uk.ac.ebi.phenotype.dao.SecondaryProject3iImpl">
+    <bean id="threeI" class="uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl">
     </bean>
-    <bean id="observationDAO" class="uk.ac.ebi.phenotype.dao.ObservationDAOImpl">
+    <bean id="observationDAO" class="org.mousephenotype.cda.db.dao.ObservationDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="phenotypeCallSummaryDAO" class="uk.ac.ebi.phenotype.dao.PhenotypeCallSummaryDAOImpl">
+    <bean id="phenotypeCallSummaryDAO" class="org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="phenotypeCallSummaryDAOSolr" class="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
-    </bean>
-
-    <bean id="phenotypePipelineDAO" class="uk.ac.ebi.phenotype.dao.PhenotypePipelineDAOImpl">
+    <bean id="phenotypePipelineDAO" class="org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="alleleDAO" class="uk.ac.ebi.phenotype.dao.AlleleDAOImpl">
+    <bean id="alleleDAO" class="org.mousephenotype.cda.db.dao.AlleleDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="genomicFeatureDAO" class="uk.ac.ebi.phenotype.dao.GenomicFeatureDAOImpl">
+    <bean id="genomicFeatureDAO" class="org.mousephenotype.cda.db.dao.GenomicFeatureDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="ontologyTermDAO" class="uk.ac.ebi.phenotype.dao.OntologyTermDAOImpl">
+    <bean id="ontologyTermDAO" class="org.mousephenotype.cda.db.dao.OntologyTermDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="sequenceRegionDAO" class="uk.ac.ebi.phenotype.dao.SequenceRegionDAOImpl">
+    <bean id="sequenceRegionDAO" class="org.mousephenotype.cda.db.dao.SequenceRegionDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="coordinateSystemDAO" class="uk.ac.ebi.phenotype.dao.CoordinateSystemDAOImpl">
+    <bean id="strainDAO" class="org.mousephenotype.cda.db.dao.StrainDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="strainDAO" class="uk.ac.ebi.phenotype.dao.StrainDAOImpl">
+    <bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="datasourceDAO" class="uk.ac.ebi.phenotype.dao.DatasourceDAOImpl">
+    <bean id="projectDAO" class="org.mousephenotype.cda.db.dao.ProjectDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="projectDAO" class="uk.ac.ebi.phenotype.dao.ProjectDAOImpl">
+    <bean id="organisationDAO" class="org.mousephenotype.cda.db.dao.OrganisationDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="organisationDAO" class="uk.ac.ebi.phenotype.dao.OrganisationDAOImpl">
-        <constructor-arg ref="sessionFactory" />
-    </bean>
-
-    <bean id="imagingSourceManager" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.HibernateImagesDao">
-        <constructor-arg ref="sessionFactory" />
-        <constructor-arg ref="imagesSolrDao" />
-    </bean>
-
-    <bean id="imagesSolrDao" class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
-        <constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
-    </bean>
-
-    <bean id="referenceDAO" class="uk.ac.ebi.phenotype.dao.ReferenceDAO" />
+    <bean id="referenceDAO" class="org.mousephenotype.cda.db.dao.ReferenceDAO" />
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="komp2DataSource"/>

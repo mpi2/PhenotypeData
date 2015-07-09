@@ -82,10 +82,6 @@
         <constructor-arg value="${internalSolrUrl}/allele" />
     </bean>
 
-    <bean id="unidimensionalStatisticsDAO" class="org.mousephenotype.cda.db.dao.UnidimensionalStatisticsDAOImpl">
-        <constructor-arg ref="sessionFactory" />
-    </bean>
-
     <bean id="statisticalResultDAO" class="org.mousephenotype.cda.db.dao.StatisticalResultDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
