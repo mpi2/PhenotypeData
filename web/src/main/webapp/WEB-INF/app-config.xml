@@ -94,7 +94,7 @@
 		<constructor-arg ref="phenotypePipelineDAO" />
 	</bean>
 
-	<bean id="experimentService" class="uk.ac.ebi.phenotype.service._old_ExperimentService">
+	<bean id="expressionService" class="org.mousephenotype.cda.solr.service.ExpressionService">
 	</bean>
 	
 	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
@@ -110,7 +110,7 @@
 		<constructor-arg value="${internalSolrUrl}/impc_images" />
 	</bean>
 	
-	<bean id="expressionService" class="uk.ac.ebi.phenotype.service._old_ExpressionService">
+	<bean id="experimentService" class="org.mousephenotype.cda.solr.service.ExperimentService">
 	<constructor-arg value="${internalSolrUrl}/experiment" />
 		<constructor-arg value="${internalSolrUrl}/impc_images" />
 	</bean>
