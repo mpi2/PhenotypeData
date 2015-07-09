@@ -15,37 +15,31 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.MpOntologyService;
-import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.indexers.beans.ImpressBean;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.solr.service.MpOntologyService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -68,7 +62,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("statisticalResultsIndexing")
     SolrServer statResultCore;
-    
+
     @Autowired
     MpOntologyService mpOntologyService;
 
@@ -105,7 +99,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         try {
 
             connection = komp2DataSource.getConnection();
-            
+
             logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
@@ -355,12 +349,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         String percentageChange = r.getString("genotype_percentage_change");
         if ( ! r.wasNull()) {
-            Double femalePercentageChange = getFemalePercentageChange(percentageChange);
+            Double femalePercentageChange = StatisticalResultService.getFemalePercentageChange(percentageChange);
             if (femalePercentageChange != null) {
                 doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
             }
 
-            Double malePercentageChange = getMalePercentageChange(percentageChange);
+            Double malePercentageChange = StatisticalResultService.getMalePercentageChange(percentageChange);
             if (malePercentageChange != null) {
                 doc.setMalePercentageChange(malePercentageChange.toString() + "%");
             }
@@ -397,43 +391,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     }
 
-    public static Double getFemalePercentageChange(String token) {
-        Double retVal = null;
-
-        List<String> sexes = Arrays.asList(token.split(","));
-        for (String sex : sexes) {
-            if (sex.contains("Female")) {
-                try {
-                    String[] pieces = sex.split(":");
-                    retVal = Double.parseDouble(pieces[1].replaceAll("%", ""));
-                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    // null statement;
-                }
-                break;
-            }
-        }
-
-        return retVal;
-    }
-
-    public static Double getMalePercentageChange(String token) {
-        Double retVal = null;
-
-        List<String> sexes = Arrays.asList(token.split(","));
-        for (String sex : sexes) {
-            if (sex.contains("Male")) {
-                try {
-                    String[] pieces = sex.split(":");
-                    retVal = Double.parseDouble(pieces[1].replaceAll("%", ""));
-                } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    // null statement;
-                }
-                break;
-            }
-        }
-
-        return retVal;
-    }
 
     private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
 

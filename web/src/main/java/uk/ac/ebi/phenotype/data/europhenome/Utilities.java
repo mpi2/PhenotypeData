@@ -15,10 +15,11 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.data.europhenome;
 
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
 
 /**
- * 
+ *
  * Utilities to handle EuroPhenome data
  * @author Gautier Koscielny
  * @see uk.ac.ebi.phenotype.web.controller.GenesController
@@ -27,7 +28,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 public class Utilities {
 
 	public String getZygosity(ZygosityType zygosity) {
-		
+
 	  switch (zygosity) {
 	  	case homozygote: return "Hom";
 	  	case heterozygote: return "Het";

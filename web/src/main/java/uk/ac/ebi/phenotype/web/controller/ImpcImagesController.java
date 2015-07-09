@@ -30,6 +30,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.ImageService;
 
@@ -50,10 +50,10 @@ public class ImpcImagesController {
 
 	@Autowired
 	ImageService imageService;
-	
+
 	@Autowired
 	ExpressionService expressionService;
-	
+
 	@Autowired
 	GeneService geneService;
 
@@ -70,7 +70,7 @@ public class ImpcImagesController {
 
 		return "laczImages";
 	}
-	
+
 	@RequestMapping("/impcImages/laczimages/{acc}")
 	public String laczImages(@PathVariable String acc, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
@@ -87,7 +87,7 @@ public class ImpcImagesController {
 		model.addAttribute("symbol", gene.getMarkerSymbol());
 	}
 
-	
+
 	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
 	public String imagePicker(@PathVariable String acc,
 			@PathVariable String parameter_stable_id, Model model)
@@ -108,7 +108,7 @@ public class ImpcImagesController {
 			experimental.addAll(responseExperimental2.getResults());
 		}
 		System.out.println("list size=" + experimental.size());
-		
+
 		// QueryResponse responseControl =
 		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
 		// "control", 6, null, null, null);
@@ -117,7 +117,7 @@ public class ImpcImagesController {
 		// int daysEitherSide = 30;// get a month either side
 		SolrDocumentList controls=new SolrDocumentList();
 		for (SexType sex : SexType.values()) {
-			
+
 			SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 			controls.addAll(controlsTemp);
 		}
@@ -128,7 +128,7 @@ public class ImpcImagesController {
 		model.addAttribute("controls", controls);
 		return "imagePicker";
 	}
-	
+
 	@RequestMapping("/expressionImagePicker/{acc}/{anatomy}")
 	public String expressionImagePicker(@PathVariable String acc,
 			@PathVariable String anatomy, Model model)

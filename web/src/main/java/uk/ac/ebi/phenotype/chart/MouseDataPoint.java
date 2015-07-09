@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import uk.ac.ebi.phenotype.pojo.SexType;
+import org.mousephenotype.cda.enumerations.SexType;
 
 import java.util.Date;
 

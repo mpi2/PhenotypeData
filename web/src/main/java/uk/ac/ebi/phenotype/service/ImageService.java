@@ -35,11 +35,10 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
-
-import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.web.pojo.AnatomyPageTableRow;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 
@@ -233,7 +232,7 @@ public class ImageService {
 
 
 	/**
-	 * 
+	 *
 	 * @param query
 	 *            the url from the page name onwards e.g
 	 *            q=observation_type:image_record
@@ -472,7 +471,7 @@ public class ImageService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param metadataGroup
 	 * @param center
 	 * @param strain
@@ -503,7 +502,7 @@ public class ImageService {
 				ObservationDTO.STRAIN_NAME + ":" + strain,
 				ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
 				ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
-		
+
 
 			solrQuery.setSort("abs(ms(date_of_experiment,"
 					+ org.apache.solr.common.util.DateUtil
@@ -527,9 +526,9 @@ public class ImageService {
 
 		return response;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param metadataGroup
 	 * @param center
 	 * @param strain
@@ -568,7 +567,7 @@ public class ImageService {
 	 * Get the first control and then experimental images if available for the
 	 * all procedures for a gene and then the first parameter for the procedure
 	 * that we come across
-	 * 
+	 *
 	 * @param acc
 	 *            the gene to get the images for
 	 * @param model
@@ -672,14 +671,14 @@ public class ImageService {
 				.get(ObservationDTO.PARAMETER_STABLE_ID);
 		final Date date = (Date) imgDoc.get(ObservationDTO.DATE_OF_EXPERIMENT);
 
-		
+
 		QueryResponse responseControl =null;
 		if(StringUtils.isNotEmpty(anatomy)){
 			responseControl=this.getControlImagesForExpressionData(numberOfControls, anatomy);
 		}else{
 			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
 		}
-				
+
 		logger.info("Found {} controls. Adding to list", responseControl
 				.getResults().getNumFound());
 		list.addAll(responseControl.getResults());
@@ -688,7 +687,7 @@ public class ImageService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param acc
 	 *            gene accession mandatory
 	 * @param model
@@ -755,7 +754,7 @@ public class ImageService {
 										count.getName(), "experimental", 1,
 										null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
-							
+
 							SolrDocument imgDoc = responseExperimental
 									.getResults().get(0);
 							QueryResponse responseExperimental2 = this
@@ -777,11 +776,11 @@ public class ImageService {
 							if (responseExperimental2 != null) {
 								list.addAll(responseExperimental2.getResults());
 							}
-							
+
 						}
 
 						facetToDocs.put(count.getName(), list);
-						
+
 					}
 				}
 

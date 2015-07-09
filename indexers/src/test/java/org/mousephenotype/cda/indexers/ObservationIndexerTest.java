@@ -1,17 +1,17 @@
-package uk.ac.ebi.phenotype.solr.indexer;
+package org.mousephenotype.cda.indexers;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.indexers.beans.ImpressBean;
+import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.solr.indexer.beans.ImpressBean;
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -25,7 +25,7 @@ public class ObservationIndexerTest {
 
     @Autowired
     private ObservationIndexer observationIndexer;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired

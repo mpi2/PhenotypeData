@@ -18,6 +18,7 @@
 
 package org.mousephenotype.www.testing.model;
 
+<<<<<<< HEAD
 import static com.thoughtworks.selenium.SeleneseTestBase.fail;
 
 import java.net.URL;
@@ -38,6 +39,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+=======
+>>>>>>> refs/remotes/origin/master
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -47,13 +50,13 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+<<<<<<< HEAD
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
+=======
+import org.mousephenotype.cda.enumerations.ObservationType;
+>>>>>>> refs/remotes/origin/master
 import org.mousephenotype.www.testing.exception.GraphTestException;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.Point;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -61,16 +64,27 @@ import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.PreQcService;
+import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import uk.ac.ebi.phenotype.util.Utils;
+
+import javax.annotation.Resource;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
+
+import static com.thoughtworks.selenium.SeleneseTestBase.fail;
 
 /**
  *
  * @author mrelac
- * 
+ *
  * Returns an iteration count. The count may be specified in one of three ways.
  * In order of priority:
  * <ul>
@@ -84,63 +98,63 @@ public class TestUtils {
     public final int DEFAULT_COUNT = 10;
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private static final Logger logger = Logger.getLogger("TestUtils");
-    
+
     @Resource(name="testIterationsHash")
     Map<String, String> testIterationsHash;
-    
+
     @Autowired
     ObservationService observationService;
-    
+
     @Autowired
     PostQcService postQcService;
-    
+
     @Autowired
     PreQcService preQcService;
-    
+
     /**
      * Defines the group: experimental or control.
      */
     public enum ExperimentGroup {
         CONTROL("control")
       , MUTANT("experimental");
-      
+
       private final String name;
       ExperimentGroup(String name) {
           this.name = name;
       }
-      
+
       public String getName() {
           return name;
       }
-      
+
       @Override
       public String toString() {
           return getName();
       }
     }
-    
+
     /**
      * Defines the download types.
      */
     public enum DownloadType {
         TSV("tsv")
       , XLS("xls");
-      
+
       private final String name;
       DownloadType(String name) {
           this.name = name;
       }
-      
+
       public String getName() {
           return name;
       }
-      
+
       @Override
       public String toString() {
           return getName();
       }
     }
-    
+
     /**
      * Adds <code>snippet</code> to <code>source</code>, delmited by <code>
      * delimiter</code> if <code>source</code> is not empty.
@@ -153,10 +167,10 @@ public class TestUtils {
     public static String addTo(String source, String snippet, String delimiter) {
         if ( ! source.isEmpty())
             source += delimiter;
-        
+
         return source + snippet;
     }
-    
+
     /**
      * Counts and returns the number of sex icons in <code>table</code>
      * @param table the data store
@@ -168,7 +182,7 @@ public class TestUtils {
      */
     public static int getSexIconCount(GridMap table, int sexColumnIndex, Integer graphColumnIndex) {
         int retVal = 0;
-        
+
         for (String[] sA : table.getBody()) {
             // If this is a preqc row, skip it.
             if (graphColumnIndex != null) {
@@ -176,7 +190,7 @@ public class TestUtils {
                     continue;
                 }
             }
-            
+
             if (sA[sexColumnIndex].equalsIgnoreCase("female"))
                 retVal++;
             else if (sA[sexColumnIndex].equalsIgnoreCase("male"))
@@ -184,10 +198,10 @@ public class TestUtils {
             else if (sA[sexColumnIndex].equalsIgnoreCase("both"))
                 retVal += 2;
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Return target count prioritized as follows:
      * <p><b>NOTE: If the returned target size is less than the collection size,
@@ -206,10 +220,10 @@ public class TestUtils {
      */
     public int getTargetCount(String testMethodName, List collection, Integer defaultCount) {
         Integer targetCount = null;
-        
+
         if (defaultCount != null)
             targetCount = defaultCount;
-        
+
         if (testIterationsHash.containsKey(testMethodName)) {
             if (Utils.tryParseInt(testIterationsHash.get(testMethodName)) != null) {
                 targetCount = Utils.tryParseInt(testIterationsHash.get(testMethodName));
@@ -218,23 +232,23 @@ public class TestUtils {
         if (Utils.tryParseInt(System.getProperty(testMethodName)) != null) {
             targetCount = Utils.tryParseInt(System.getProperty(testMethodName));
         }
-        
+
         if (targetCount == null) {
             targetCount = DEFAULT_COUNT;
         }
-        
+
         if (targetCount == -1)
             targetCount = collection.size();
-        
+
         // If targetCount is less than the collection, randomize the collection.
         if (targetCount < collection.size()) {
             Collections.shuffle(collection);
             System.out.println("Randomizing collection.");
         }
-        
+
         return Math.min(targetCount, collection.size());
     }
-    
+
     /**
      * Return target count prioritized as follows:
      * <p><b>NOTE: If the returned target size is less than the collection size,
@@ -252,10 +266,10 @@ public class TestUtils {
      */
     public int getTargetCount(String testMethodName, Integer defaultCount) {
         Integer targetCount = null;
-        
+
         if (defaultCount != null)
             targetCount = defaultCount;
-        
+
         if (testIterationsHash.containsKey(testMethodName)) {
             if (Utils.tryParseInt(testIterationsHash.get(testMethodName)) != null) {
                 targetCount = Utils.tryParseInt(testIterationsHash.get(testMethodName));
@@ -264,11 +278,11 @@ public class TestUtils {
         if (Utils.tryParseInt(System.getProperty(testMethodName)) != null) {
             targetCount = Utils.tryParseInt(System.getProperty(testMethodName));
         }
-        
+
         if (targetCount == null) {
             targetCount = DEFAULT_COUNT;
         }
-        
+
         return targetCount;
     }
 
@@ -276,12 +290,12 @@ public class TestUtils {
      * Compares two strings, each delimited by <code>delimiter</code> by count
      * and value: if each has the same number of delimited segments, and each
      * delimited segment's value is equal, returns true. If <code>
-     * ignoreNoInfoAvailable</code> is true, any string values equaling 
+     * ignoreNoInfoAvailable</code> is true, any string values equaling
      * 'No information available' are first removed from each string before the
      * comparison is performed.
      * NOTE: null/empty strings are treated equally and, if both are either null
      * or empty, return true.
-     * 
+     *
      * @param string1 the first string operand
      * @param string2 the second string operand
      * @param delimiter string segment delimiter
@@ -293,12 +307,12 @@ public class TestUtils {
         boolean retVal;
         Set<String> string1Set = new HashSet();
         Set<String> string2Set = new HashSet();
-        
+
         if (string1 == null)
             string1 = "";
         if (string2 == null)
             string2 = "";
-        
+
         String[] parts = string1.split(delimiter);
         for (String part : parts) {
             if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.NO_INFO_AVAILABLE))) {
@@ -315,14 +329,14 @@ public class TestUtils {
                 string2Set.add(part);
             }
         }
-        
+
         if (string1Set.size() == string2Set.size()) {
             string1Set.removeAll(string2Set);
             retVal = string1Set.isEmpty();
         } else {
             retVal = false;
         }
-        
+
         return retVal;
     }
 
@@ -336,15 +350,15 @@ public class TestUtils {
     public static boolean contains(List<WebElement> list, String searchToken) {
         if ((list == null) || (list.isEmpty()))
             return false;
-        
+
         for (WebElement e : list) {
             if (e.getText().contains(searchToken))
                 return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Searches <code>list</code> for <code>searchToken</code>, returning the
      * number of times <code>searchToken</code> appears in <code>list</code>.
@@ -355,18 +369,18 @@ public class TestUtils {
      */
     public static int count(List<String> list, String searchToken) {
         int retVal = 0;
-        
+
         if ((list == null) || (list.isEmpty()))
             return retVal;
-        
+
         for (String s : list) {
             if (s.contains(searchToken))
                 retVal++;
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Clones an existing set.
      * @param input set to be cloned
@@ -375,7 +389,7 @@ public class TestUtils {
     public static Set cloneStringSet(Set<String> input) {
         return cloneStringSet(input, false);
     }
-    
+
     /**
      * Clones an existing set, lowercasing each string if directed.
      * @param input set to be cloned
@@ -385,7 +399,7 @@ public class TestUtils {
      */
     public static Set cloneStringSet(Set<String> input, boolean setToLowercase) {
         HashSet resultSet = new HashSet();
-        
+
         for (String s : input) {
             if (setToLowercase) {
                resultSet.add(s.toLowerCase());
@@ -393,18 +407,18 @@ public class TestUtils {
                resultSet.add(s);
             }
         }
-        
+
         return resultSet;
     }
-    
+
     /**
      * Returns the closest match to <code>stringToMatch</code> in
      * <code>set</code>
      *
      * @param set the set to search
-     * 
+     *
      * @param stringToMatch the string to match
-     * 
+     *
      * @return the closest match to <code>stringToMatch</code> in <code>set</code>
      */
     public static String closestMatch(Set<String> set, String stringToMatch) {
@@ -412,7 +426,7 @@ public class TestUtils {
         Integer matchedScore = null;
         if ((set == null) || (stringToMatch == null))
             return matchedString;
-        
+
         Iterator<String> it = set.iterator();
         while (it.hasNext()) {
             String candidate = it.next();
@@ -427,20 +441,20 @@ public class TestUtils {
                 }
             }
         }
-        
+
         return matchedString;
     }
-    
+
     /**
      * Creates a set from <code>input</code> using <code>colIndexes</code>, using
      * the underscore character as a column delimiter. Each value is first trimmed,
      * then lowercased.
-     * 
+     *
      * Example: input.body[][] = "a", "b", "c", "d", "e"
      *                           "f", "g", "h", "i", "j"
-     * 
+     *
      * colIndexes = 1, 3, 4
-     * 
+     *
      * produces a set that looks like:  "b_d_e_"
      *                                  "g_i_j_"
      * @param input Input object
@@ -449,7 +463,7 @@ public class TestUtils {
      */
     public static Set<String> createSet(GridMap input, Integer[] colIndexes) {
         HashSet resultSet = new HashSet();
-        
+
         String[][] body = input.getBody();
         for (int rowIndex = 0; rowIndex < body.length; rowIndex++) {
             String[] row = body[rowIndex];
@@ -459,13 +473,13 @@ public class TestUtils {
             }
             resultSet.add(resultString);
         }
-        
+
         return resultSet;
     }
-    
+
     /**
      * Dump <code>set</code> using logger ('info' level)
-     * 
+     *
      * @param name the set name (for display purposes)
      * @param set the set to be dumped
      */
@@ -473,26 +487,26 @@ public class TestUtils {
         System.out.println("\nDumping set '" + name + "'. Contains " + set.size() + " records:");
         if (set.size() <= 0)
             return;
-        
+
         String[] data = set.toArray(new String[0]);
         for (int i = 0; i < set.size(); i++) {
             System.out.println("[" + i + "]: " + data[i] + "\n");
         }
         System.out.println();
     }
-    
+
     /**
      * Dump <code>set</code> as a string.
-     * 
+     *
      * @param set the set to be dumped
-     * 
+     *
      * @return the set, as a <code>String</code> with embedded newlines.
      */
     public static String dumpSet(Set<String> set) {
         StringBuilder retVal = new StringBuilder();
         if (set.size() <= 0)
             return retVal.toString();
-        
+
         String[] data = set.toArray(new String[0]);
         for (Integer i = 0; i < set.size(); i++) {
             retVal.append("[")
@@ -501,20 +515,20 @@ public class TestUtils {
                   .append(data[i])
                   .append("'\n");
         }
-        
+
         return retVal.toString();
     }
-    
+
     /**
      * Creates a set from <code>input</code> using <code>colIndexes</code>, using
      * the underscore character as a column delimiter. Each value is first trimmed,
      * then lowercased.
-     * 
+     *
      * Example: input.body[][] = "a", "b", "c", "d", "e"
      *                           "f", "g", "h", "i", "j"
-     * 
+     *
      * colIndexes = 1, 3, 4
-     * 
+     *
      * produces a set that looks like:  "b_d_e_"
      *                                  "g_i_j_"
      * @param input Input object
@@ -523,7 +537,7 @@ public class TestUtils {
      */
     public static Set<String> createSet(GridMap input, List<Integer> colIndexes) {
         HashSet resultSet = new HashSet();
-        
+
         String[][] body = input.getBody();
         for (int rowIndex = 0; rowIndex < body.length; rowIndex++) {
             String[] row = body[rowIndex];
@@ -533,10 +547,10 @@ public class TestUtils {
             }
             resultSet.add(resultString);
         }
-        
+
         return resultSet;
     }
-    
+
     /**
      * Given a source array of 'array of String' and a starting index in that
      * array, copies <code>count</code> 'array of String' elements into a new
@@ -551,18 +565,18 @@ public class TestUtils {
             return null;
         if ((src.length == 0) || (src[0].length == 0))
             return new String[0][0];
-        
+
         String[][] retVal = new String[src.length - 1][src[0].length];
         for (int i = 0; i < count; i++) {
             retVal[i] = src[i + startIndex];
         }
-        
+
         return retVal;
     }
-    
+
     private final static double EPSILON = 0.000000001;
     /**
-     * Performs an approximate match between two doubles. Returns true if 
+     * Performs an approximate match between two doubles. Returns true if
      * the two values are within a difference of 0.000000001; false otherwise
      * @param a first operand
      * @param b second operand
@@ -572,9 +586,9 @@ public class TestUtils {
     public static boolean equals(double a, double b) {
         return (a == b ? true : Math.abs(a - b) < EPSILON);
     }
-    
+
     /**
-     * Performs an approximate match between two doubles. Returns true if 
+     * Performs an approximate match between two doubles. Returns true if
      * the two values are within <code>epsilon</code>; false otherwise
      * @param a first operand
      * @param b second operand
@@ -585,7 +599,7 @@ public class TestUtils {
     public static boolean equals(double a, double b, double epsilon) {
         return (a == b ? true : Math.abs(a - b) < epsilon);
     }
-    
+
     /**
      * Decodes <code>url</code>, into UTF-8, making it suitable to use as a link.
      * Invalid url strings are ignored and the original string is returned.
@@ -600,22 +614,22 @@ public class TestUtils {
         } catch (Exception e) {
             System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed: " + e.getLocalizedMessage());
         }
-        
+
         return retVal;
     }
-    
+
     public static WebElement find(List<WebElement> list, String searchToken) {
         if ((list == null) || (list.isEmpty()))
             return null;
-        
+
         for (WebElement e : list) {
             if (e.getText().contains(searchToken))
                 return e;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Searches each <code>WebElement</code>'s String value in <i>list</i> and,
      * if no strings are found, returns true; else returns false.
@@ -625,39 +639,39 @@ public class TestUtils {
     public static boolean isEmpty(List<WebElement> list) {
         if ((list == null) || (list.isEmpty()))
             return true;
-        
+
         for (WebElement e : list) {
             if ( ! e.getText().isEmpty())
                 return false;
         }
-        
+
         return true;
     }
-    
+
     /**
-     * 
+     *
      * @param graphUrl The graph URL being tested
      * @return true if this is a preQC link; false otherwise.
      */
     public static boolean isPreQcLink(String graphUrl) {
         if (graphUrl == null)
             return false;
-        
+
         return graphUrl.contains("/phenoview/");
     }
-    
+
     /**
      * Converts a <code>List&lt;List&lt;String&gt;&gt;&gt;</code> to a two-
      * dimensional array of strings.
-     * 
+     *
      * @param list the list to be converted
-     * 
+     *
      * @return a <code>List&lt;List&lt;String&gt;&gt;&gt;</code> to a two-
      * dimensional array of strings.
      */
     public static String[][] listToArray(List<List<String>> list) {
         String[][] retVal = new String[list.size()][];
-        
+
         for (int rowIndex = 0; rowIndex < list.size(); rowIndex++) {
             List<String> row = list.get(rowIndex);
             retVal[rowIndex] = new String[row.size()];
@@ -665,10 +679,10 @@ public class TestUtils {
                 retVal[rowIndex][colIndex] = row.get(colIndex);
             }
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Given an initialized <code>WebDriver</code> instance and a selenium URL,
      * prints the test environment for the test associated with <code>driver<code>.
@@ -685,65 +699,65 @@ public class TestUtils {
             version = remoteWebDriver.getCapabilities().getVersion();
             platform = remoteWebDriver.getCapabilities().getPlatform().name();
         }
-        
+
         System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
         System.out.println("seleniumUrl: " + seleniumUrl);
     }
-    
+
     /**
      * Given a variable list of strings, returns a single string with each
      * original string separated by an underscore ("_"). Null strings are
      * replaced with an empty string.
-     * 
+     *
      * NOTE: values are trimmed and set to lowercase.
-     * 
+     *
      * @param values the values used to create the resulting string
-     * 
+     *
      * @return a single string with each
      * original string separated by an underscore ("_"). Null strings are
      * replaced with an empty string.
      */
     public static String makeKey(String... values) {
         String retVal = "";
-        
+
         for (String name : values) {
             if ( ! retVal.isEmpty())
                 retVal += "_";
             retVal += (name == null ? "" : name.trim().toLowerCase());
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Given a list of ints describing 0-relative offsets into a full set of
      * row values, returns a single string with each value separated by an
      * underscore("_"). Null strings are replaced with an empty string.
-     * 
+     *
      * NOTE: values are trimmed and set to lowercase.
-     * 
+     *
      * @param columnIndexes The 0-relative column indexes for <code>columns
      * </code>.
-     * 
+     *
      * @param values the column data. Null strings are replaced with an empty\
      *                string.
-     * 
+     *
      * @return a single string with each input string separated by
      * an underscore("_"). Null strings are replaced with an empty string.
-     * 
+     *
      * @throws IndexOutOfBoundsException if columnIndexes is out of bounds.
      */
     public static String makeKey(int[] columnIndexes, List<String> values) throws IndexOutOfBoundsException {
         String[] retVal = new String[columnIndexes.length];
-        
+
         for (int i = 0; i < columnIndexes.length; i++) {
             String s = values.get(columnIndexes[i]).trim().toLowerCase();
             retVal[i] = (s == null ? "" : s);
         }
-        
+
         return makeKey(retVal);
     }
-    
+
     /**
      * Patches any non-heading <code>input</code> string values that are empty
      * with the string 'No information available', returning a new <code>
@@ -764,10 +778,10 @@ public class TestUtils {
                 dataOut[rowIndex][colIndex] = ((row[colIndex] == null) || (row[colIndex].isEmpty()) ? "No information available" : row[colIndex]);
             }
         }
-        
+
         return new GridMap(dataOut, input.getTarget());
     }
-    
+
     /**
      * The baseUrl for testing typically looks like:
      *     "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive".
@@ -775,7 +789,7 @@ public class TestUtils {
      *     "http://ves-ebi-d0:8080/data/charts?accession=MGI:xxx...."
      * Typical tokenMatch for graph pages looks like "/charts?". For download
      * links it looks like "/export?".
-     * 
+     *
      * @param baseUrl the base url
      * @param url the graph (or other page) url
      * @param tokenMatch the token matching the start of the good part of the url.
@@ -786,12 +800,12 @@ public class TestUtils {
         int idx = url.indexOf(tokenMatch);
         return baseUrl + url.substring(idx);
     }
-    
+
     /**
      * Given a test name, test start time, error list, exception list, success list,
      * and total number of expected records to be processed, writes the given
      * information to stdout.
-     * 
+     *
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
      * @param errorList the error list
@@ -806,40 +820,40 @@ public class TestUtils {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
-        
+
         if (errorList == null) errorList = new ArrayList();
         if (exceptionList == null) exceptionList = new ArrayList();
         if (successList == null) successList = new ArrayList();
-        
+
         if ( ! errorList.isEmpty()) {
             System.out.println(errorList.size() + " errors:");
             for (String s : errorList) {
                 System.out.println("\t" + s);
             }
         }
-        
+
         if ( ! exceptionList.isEmpty()) {
             System.out.println(exceptionList.size() + " records caused exceptions to be thrown:");
             for (String s : exceptionList) {
                 System.out.println("\t" + s);
             }
         }
-        
+
         stop = new Date();
         System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " (" + totalPossible + ") records successfully processed in " + Tools.dateDiff(start, stop) + ".");
-        
+
         if (errorList.size() + exceptionList.size() > 0) {
             fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
         }
-        
+
         System.out.println();
     }
-    
+
     /**
      * Given a test name, test start time, error list, exception list, success list,
      * and total number of expected records to be processed, writes the given
      * information to stdout.
-     * 
+     *
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
      * @param status the <code>PageStatus</code> instance
@@ -851,17 +865,17 @@ public class TestUtils {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
-        
+
         if (status.hasWarnings()) {
             System.out.println(status.getWarningMessages().size() + " records had warnings:");
             System.out.println(status.toStringWarningMessages());
         }
-        
+
         if (status.hasErrors()) {
             System.out.println(status.getErrorMessages().size() + " errors:");
             System.out.println(status.toStringErrorMessages());
         }
-        
+
         stop = new Date();
         String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
         System.out.println(dateFormat.format(stop) + ": " + successRecords + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + Tools.dateDiff(start, stop) + ".");
@@ -869,7 +883,7 @@ public class TestUtils {
             fail("ERRORS: " + status.getErrorMessages().size());
         }
     }
-    
+
     /**
      * Removes the protocol and double slashes from the url string
      * @param url url string which may or may not contain a protocol
@@ -878,12 +892,12 @@ public class TestUtils {
     public static String removeProtocol(String url) {
         return (url.replace("https://", "").replace("http://", ""));
     }
-    
+
     public enum HTTP_PROTOCOL {
         http
       , https
     };
-    
+
     /**
      * Sets the protocol (http or https).
      * @param url url string which may or may not contain a protocol
@@ -893,7 +907,7 @@ public class TestUtils {
     public static String setProtocol(String url, HTTP_PROTOCOL protocol) {
         return (url.replace("https://", protocol.name() + "://").replace("http://", protocol.name() + "://"));
     }
-    
+
     /**
      * Scrolls <code>element</code> to the top
      * @param driver <code>WebDriver</code> instance
@@ -902,13 +916,13 @@ public class TestUtils {
     public static void scrollToTop(WebDriver driver, WebElement element) {
         scrollToTop(driver, element, null);
     }
-    
+
     /**
      * There is a selenium bug that silently removes opening parentheses from
      * a sendkeys string. See http://stackoverflow.com/questions/19704559/selenium-sendkeys-not-working-for-open-brackets-and-harsh-keys-when-using-java
-     * 
+     *
      * This is the workaround.
-     * 
+     *
      * @param element <code>WebElement</code> against which to use the sendKeys
      * @param text the text to send (may contain open parenthesis)
      */
@@ -923,7 +937,7 @@ public class TestUtils {
             }
         }
     }
-    
+
     /**
      * Scrolls <code>element</code> to the top
      * @param driver <code>WebDriver</code> instance
@@ -936,42 +950,42 @@ public class TestUtils {
     public static void scrollToTop(WebDriver driver, WebElement element, Integer yOffsetInPixels) {
         Point p = element.getLocation();
         ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView(true);", element);
-        
+
         if ((yOffsetInPixels != null) && (yOffsetInPixels != 0)) {
             ((JavascriptExecutor)driver).executeScript("window.scroll(" + p.getX() + "," + (p.getY() + yOffsetInPixels) + ");");
         }
-        
+
         sleep(100);
     }
-    
+
     /**
      * Sleeps the thread for <code>thread_wait_in_ms</code> milliseconds.
      * If <code>threadWaitInMs</code> is null or 0, no sleep is executed.
-     * 
+     *
      * @param threadWaitInMs length of time, in milliseconds, to sleep.
      */
     public static void sleep(Integer threadWaitInMs) {
         if ((threadWaitInMs != null) && (threadWaitInMs > 0))
             try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
     }
-    
+
     /**
      * Sorts <code>delimitedString</code> alphabetically, first splitting the
      * string into separate segments, delimited by <code>delimiter</code>.
-     * 
+     *
      * @param delimitedString the delimited string to sort
      * @param delimiter the delimiter
-     * 
+     *
      * @return the sorted string
      */
     public static String sortDelimitedArray(String delimitedString, String delimiter) {
         if (( delimitedString == null) || (delimitedString.isEmpty()))
             return delimitedString;
-        
+
         String[] partsArray = delimitedString.split(Pattern.quote(delimiter));
         List<String> partsList = Arrays.asList(partsArray);
         Collections.sort(partsList);
-        
+
         String retVal = "";
         for (String part : partsList) {
             if ( ! retVal.isEmpty()) {
@@ -979,34 +993,34 @@ public class TestUtils {
             }
             retVal += part;
         }
-            
+
 //        logger.debug("retVal: '" + retVal + "'");
-        
+
         return retVal;
     }
-    
+
     /**
      * Sorts the delimited cells in the specified columns of each row in <code>delimitedArray</code> alphabetically
      * For example, given:
      *      [0]           [1]           [2]
      *      "abc"         "f|e|d"       "ghi"
      *      "l|k|j"       "klm"         "o|p|n"
-     * 
+     *
      * and a 'columns' specification of [1, 2], the resulting returned array will be:
      *      [0]           [1]           [2]
      *      "abc"         "d|e|f"       "ghi"
      *      "l|k|j"       "klm"         "n|o|p"
-     *                    
+     *
      * @param delimitedArray the input data set
      * @param delimiter the delimiter
      * @param columns the list of columns to sort
-     * 
+     *
      * @return the sorted list
      */
     public static String[][] sortDelimitedArray(String[][] delimitedArray, String delimiter, List<Integer> columns) {
         if ((delimitedArray == null) || (delimitedArray.length == 0))
             return delimitedArray;
-            
+
         String[][] retVal = new String[delimitedArray.length][delimitedArray[0].length];
         for (int rowIndex = 0; rowIndex < delimitedArray.length; rowIndex++) {
             String[] row = delimitedArray[rowIndex];
@@ -1019,14 +1033,14 @@ public class TestUtils {
                 }
             }
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
      * file is separated by a newline.
-     * 
+     *
      * @return the classpath, prefaced by the string 'Classpath:\n'. Each
      * file is separated by a newline.
      */
@@ -1034,14 +1048,14 @@ public class TestUtils {
         StringBuilder sb = new StringBuilder("Classpath:\n");
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         URL[] urls = ((URLClassLoader) cl).getURLs();
-        
+
         for (URL url : urls) {
             sb.append(url.getFile()).append("\n");
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * Queries the preqc core for <code>count</code> mpIds of phenotype pages that
      * contain preqc links.
@@ -1054,11 +1068,11 @@ public class TestUtils {
         Set<String> geneIds = new HashSet();
         if ((count != null) && (count < 1))
             count = 1000000;           // Null/0 indicates fetch all gene IDs (well, many, at least).
-        
+
         try {
             PreQcService preqcService = new PreQcService(solrUrl, phenotypePipelineDAO);
             SolrServer server = preqcService.getSolrServer();
-            
+
             /*logger.debug*/System.out.println("TestUtils.getPreqcIds(): querying preqc core for " + (count == null ? "all" : count) + " gene ids.");
 
             SolrQuery solrQuery = new SolrQuery();
@@ -1071,18 +1085,18 @@ public class TestUtils {
                     .add("group.limit", "0")
 //                    .add("rows", "0")
                     ;
-            
+
             System.out.println("solrQuery = " + solrQuery.toString());
-            
+
             QueryResponse response = server.query(solrQuery);
-            
+
             List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
             for (GroupCommand groupCommand : groupResponse) {
                 List<Group> groups = groupCommand.getValues();
                 for (Group group : groups) {
                     geneIds.add(group.getGroupValue());
-                    
-                    
+
+
                     SolrDocumentList docs = group.getResult();
                     Iterator<SolrDocument> it = docs.iterator();
                     while (it.hasNext()) {
@@ -1097,29 +1111,29 @@ public class TestUtils {
             System.out.println(errMsg);
             throw new RuntimeException(errMsg, e);
         }
-        
+
         return new ArrayList(geneIds);
     }
-    
+
     /**
      * Returns <em>count</em> <code>GraphTestDTO</code> instances matching genes
      * with graph links of type <code>chartType</code>.
-     * 
+     *
      * @param chartType the desired chart type
      * @param count the desired number of instances to be returned. If -1,
      * MAX_INT instances will be returned.
-     * 
+     *
      * @return <em>count</em> <code>GraphTestDTO</code> instances matching genes
      * with graph links of type <code>chartType</code>.
-     * 
+     *
      * @throws GraphTestException
      */
     public List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws GraphTestException {
         List<GraphTestDTO> geneGraphs = new ArrayList();
-        
+
         if (count == -1)
             count = Integer.MAX_VALUE;
-        
+
         switch (chartType) {
             case CATEGORICAL_STACKED_COLUMN:
                 try {
@@ -1130,7 +1144,7 @@ public class TestUtils {
                     throw new GraphTestException("TestUtils.getGeneGraphs() CATEGORICAL_STACKED_COLUMN EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
-                
+
             case PIE:
                 try {
                     List<String> parameterStableIds = Arrays.asList(new String[] { "*_VIA_*" });
@@ -1140,7 +1154,7 @@ public class TestUtils {
                     throw new GraphTestException("TestUtils.getGeneGraphs() PIE EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
-                
+
             case UNIDIMENSIONAL_ABR_PLOT:
                 try {
                     List<String> parameterStableIds = Arrays.asList(new String[] { "*_ABR_*" });
@@ -1150,7 +1164,7 @@ public class TestUtils {
                     throw new GraphTestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_ABR_PLOT EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
-                
+
             case UNIDIMENSIONAL_BOX_PLOT:
             case UNIDIMENSIONAL_SCATTER_PLOT:
                 try {
@@ -1161,7 +1175,7 @@ public class TestUtils {
                     throw new GraphTestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
-                
+
             case PREQC:
                 try {
                     geneGraphs = preQcService.getGeneAccessionIds(count);
@@ -1170,7 +1184,7 @@ public class TestUtils {
                     throw new GraphTestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
                 }
             break;
-                
+
             case TIME_SERIES_LINE:
             case TIME_SERIES_LINE_BODYWEIGHT:
                 try {
@@ -1184,7 +1198,7 @@ public class TestUtils {
                     throw new GraphTestException("TestUtils.getGeneGraphs() TIME_SERIES_XXX EXCEPTION: " + e.getLocalizedMessage());
                 }
             break;
-                
+
         }
 
         return geneGraphs;

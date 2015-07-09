@@ -16,21 +16,22 @@
 package uk.ac.ebi.phenotype.dao;
 
 /**
- * 
+ *
  * Phenotype call manager interface
- * 
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @since May 2012
  */
 
-import java.sql.SQLException;
-import java.util.List;
-
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.phenotype.pojo.Datasource;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+
+import java.sql.SQLException;
+import java.util.List;
+
 
 public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 
@@ -47,7 +48,7 @@ public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 	 * @return a list of matching phenotype calls
 	 */
 	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId, int dbId);
-	
+
 	public List<PhenotypeCallSummary> getPhenotypeCallByAccession(String accId);
 
 	public List<PhenotypeCallSummary> getPhenotypeCallByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId);
@@ -62,11 +63,11 @@ public interface PhenotypeCallSummaryDAO extends HibernateDAO {
 
 	/**
 	 * Delete all Phenotype call summaries by project
-	 * @param parameter 
-	 * 
+	 * @param parameter
+	 *
 	 * @param project
 	 * @return the count of rows deleted
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource, Parameter parameter) throws SQLException;
 

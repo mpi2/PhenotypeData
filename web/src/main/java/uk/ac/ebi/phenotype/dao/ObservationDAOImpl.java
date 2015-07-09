@@ -24,6 +24,7 @@ package uk.ac.ebi.phenotype.dao;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.pojo.*;
 

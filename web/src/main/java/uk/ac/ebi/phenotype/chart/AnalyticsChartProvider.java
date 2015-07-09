@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.chart;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.enumerations.SignificantType;
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 
 import java.io.IOException;
