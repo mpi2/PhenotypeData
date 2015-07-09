@@ -17,10 +17,10 @@ package uk.ac.ebi.phenotype.ontology;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.PostQcService;
 
 import javax.annotation.Resource;
@@ -31,20 +31,20 @@ import java.util.Map;
 
 @Service
 public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
-	
+
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
 	@Autowired
 	@Qualifier("postqcService")
 	private PostQcService gpService;
-	
+
 	public PhenotypeSummaryDAOImpl() throws MalformedURLException {
 	}
-	
+
 	@Override
 	public String getSexesRepresentationForPhenotypesSet(SolrDocumentList resp) {
-		String resume = ""; 
+		String resume = "";
 		if (resp.size() > 0) {
 
 			for (int i = 0; i < resp.size(); i++) {
@@ -64,7 +64,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 
 			if (resume.contains("f") && !resume.contains("m"))
 				return "female";
-		}	
+		}
 		return null;
 	}
 
@@ -76,10 +76,10 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 				SolrDocument doc = resp.get(i);
 				data.add((String) doc.getFieldValue("resource_name"));
 			}
-		}	
+		}
 		return data;
 	}
-	
+
 
 	@Override
 	public PhenotypeSummaryBySex getSummaryObjects(String gene)
@@ -97,14 +97,14 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		}
 		return resSummary;
 	}
-	
+
 
 	@Override
 	public HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
 		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();
 		for (ZygosityType zyg : ZygosityType.values()){
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, zyg);	
+			HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, zyg);
 			for (String id: summary.keySet()){
 				SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, zyg);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);

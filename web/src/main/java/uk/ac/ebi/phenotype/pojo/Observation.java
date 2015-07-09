@@ -16,13 +16,13 @@
 package uk.ac.ebi.phenotype.pojo;
 
 /**
- * 
+ *
  * An experimental observation on a sample.
  * The observation is defined in a procedure and the unit and value
- * of the observation is defined by a parameter. The observation can be 
+ * of the observation is defined by a parameter. The observation can be
  * empty (missing flag). Different types of observation coexists.
- * 
- * 
+ *
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  *  @since February 2012
  *  @see BiologicalSample
@@ -31,18 +31,9 @@ package uk.ac.ebi.phenotype.pojo;
  *  @see Parameter
  */
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import org.mousephenotype.cda.enumerations.ObservationType;
+
+import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
@@ -52,31 +43,31 @@ public class Observation extends SourcedEntry {
 	@OneToOne
 	@JoinColumn(name = "biological_sample_id")
 	private BiologicalSample sample;
-	
+
 	@OneToOne
 	@JoinColumn(name = "parameter_id")
 	private Parameter parameter;
-	
-	@Column(name = "parameter_stable_id")	
+
+	@Column(name = "parameter_stable_id")
 	private String parameterStableId;
-	
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "observation_type")
 	private ObservationType type;
-	
+
 	@Column(name = "missing")
 	private boolean missingFlag;
 
 	@Column(name = "population_id")
 	private int populationId;
-	
+
     @Column(name = "parameter_status")
     private String parameterStatus;
-    
+
     @Column(name = "parameter_status_message")
     private String parameterStatusMessage;
-    
-	
+
+
 	public String getParameterStatus() {
 		return parameterStatus;
 	}
@@ -93,8 +84,8 @@ public class Observation extends SourcedEntry {
         joinColumns = @JoinColumn(name="observation_id"),
         inverseJoinColumns = @JoinColumn(name="experiment_id")
     )
-    private Experiment experiment;	
-	
+    private Experiment experiment;
+
 	/**
 	 * @return the sample
 	 */
@@ -187,16 +178,16 @@ public class Observation extends SourcedEntry {
 		this.parameterStableId = parameterStableId;
 	}
 
-    
+
     public String getParameterStatusMessage() {
         return parameterStatusMessage;
     }
 
-    
+
     public void setParameterStatusMessage(String parameterStatusMessage) {
         this.parameterStatusMessage = parameterStatusMessage;
     }
-	
-	
-	
+
+
+
 }

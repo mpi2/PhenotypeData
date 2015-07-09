@@ -30,7 +30,7 @@ package uk.ac.ebi.phenotype.pojo;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import uk.ac.ebi.phenotype.chart.CategoriesExclude;
+import org.mousephenotype.cda.enumerations.CategoriesExclude;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -690,7 +690,7 @@ public class Parameter extends PipelineEntry {
 			categories.add(label);
 		}
 		//exclude - "no data", "not defined" etc
-		List<String>okCategoriesList=CategoriesExclude.getInterfaceFreindlyCategories(categories);
+		List<String>okCategoriesList= CategoriesExclude.getInterfaceFreindlyCategories(categories);
 		return okCategoriesList;
 	}
 

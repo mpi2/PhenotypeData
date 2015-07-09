@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.pojo;
 
 import org.apache.log4j.Logger;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.phenotype.service.PostQcService;

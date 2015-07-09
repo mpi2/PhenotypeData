@@ -51,7 +51,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
-import uk.ac.ebi.phenotype.solr.indexer.utils.IndexerMap;
 
 @Controller
 public class SecondaryProjectController {
@@ -115,7 +114,7 @@ public class SecondaryProjectController {
         try {
             Set<String> accessions = idg.getAccessionsBySecondaryProjectId(id);
 
-            Map<String, List<Map<String, String>>> getMpToHpTerms = IndexerMap.getMpToHpTerms(phenodigmCore);
+            Map<String, List<Map<String, String>>> getMpToHpTerms = org.mousephenotype.cda.solr.SolrUtils.populateMpToHpTermsMap(phenodigmCore);
             Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
 
             // Gather all the phenotype calls by gene id

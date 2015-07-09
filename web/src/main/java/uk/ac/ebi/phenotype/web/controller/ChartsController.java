@@ -18,6 +18,9 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,38 +30,25 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.chart.ChartData;
-import uk.ac.ebi.phenotype.chart.ChartType;
-import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.chart.FertilityChartAndDataProvider;
-import uk.ac.ebi.phenotype.chart.GraphUtils;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
-import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
-import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
-import uk.ac.ebi.phenotype.chart.ViabilityDTO;
+import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.error.SpecificExperimentException;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.GenomicFeature;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Pipeline;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.ImpressService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
-import javax.annotation.Resource;
 
 @Controller
 public class ChartsController {
@@ -157,7 +147,7 @@ public class ChartsController {
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
                          Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException {
-        
+
         if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
             for (String parameterStableId : parameterIds) {
                 if (parameterStableId.contains("_FER_")) {
@@ -166,7 +156,7 @@ public class ChartsController {
                 }
             }
         }
-        
+
         return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
     }
 
@@ -204,7 +194,7 @@ public class ChartsController {
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
             throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
-   	
+
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
@@ -235,7 +225,7 @@ public class ChartsController {
         if (parameterUnits.length > 1) {
             yUnits = parameterUnits[1];
         }
-        
+
         ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
         log.info("param=" + parameter.getName() + " Description=" + parameter.getDescription() + " xUnits=" + xUnits + " yUnits=" + yUnits + " chartType=" + chartType + " dataType=" + observationTypeForParam);
 
@@ -287,7 +277,7 @@ public class ChartsController {
 
         // 29-Apr-2015 (mrelac) The team has determined that we don't display fertility graphs because Impress does not require all the supporting
         // data to be uploaded, and some centers don't upload it, so we don't know if the data is valid or not.
-        
+
 //        if (parameterStableId.startsWith("IMPC_FER_")) {
 //			// Its a fertility outcome param which means its a line level query
 //            // so we don't use the normal experiment query in experiment service
@@ -311,15 +301,15 @@ public class ChartsController {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
             }
-            
+
             if (experiment.getMetadataGroup() != null){
             	metadata = experiment.getMetadataHtml();
             }
-            
+
             String xAxisTitle = xUnits;
             BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(experiment.getExperimentalBiologicalModelId());
             setTitlesForGraph(model, expBiologicalModel);
-           
+
             try {
 				// if (chartType == null){
                 // chartType = GraphUtils.getDefaultChartType(parameter);
@@ -421,7 +411,7 @@ public class ChartsController {
         }
     }
 
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter, 
+    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
     throws SolrServerException, GenomicFeatureNotFoundException, ParameterNotFoundException {
 
@@ -476,7 +466,7 @@ public class ChartsController {
 
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList, 
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, genderList, zyList, phenotypingCentersList,
                 								strainsList, metadataGroups, chartType, alleleAccessions);
                 allGraphUrlSet.addAll(graphUrlsForParam);
 

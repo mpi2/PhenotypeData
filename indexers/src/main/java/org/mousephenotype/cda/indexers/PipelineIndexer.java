@@ -15,37 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.MaOntologyService;
+import org.mousephenotype.cda.solr.service.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.MaOntologyService;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
-import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
-import org.mousephenotype.cda.indexers.utils.SolrUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.*;
 
 /**
  * Populate the MA core
@@ -71,7 +61,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
-	
+
 	@Autowired
 	MaOntologyService maOntologyService;
 
@@ -172,7 +162,7 @@ public class PipelineIndexer extends AbstractIndexer {
 						OntologyTermBean term = maOntologyService.getTerm(parameterStableIdToAbnormalMaMap.get(paramStableId));
 						pipe.setAbnormalMaName(term.getName());
 					}
-					
+
 					//System.out.println("parameterStableId="+paramStableId);
 					pipe.setParameterStableKey(row.get("stable_key"));
 					// where="pproc_id=phenotype_procedure_parameter.procedure_id">
@@ -219,7 +209,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					pipe.addPipelineStableKey(pipeline.pipelineStableKey);
 					pipe.addPipeProcId(pipeline.pipeProcSid);
 
-					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr					
+					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr
 					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId
 							+ "_" + paramStableId;
 					String idididKey = paramDbId + "_" + pipeline.pipeProcSid
@@ -666,7 +656,7 @@ public class PipelineIndexer extends AbstractIndexer {
 				+ procIdToPipelineMap.size());
 		return procIdToPipelineMap;
 	}
-	
+
 	private Map<String,String> populateParameterStableIdToAbnormalOntologyMap(){
 		Map<String,String> parameterStableIdToOntology=new HashMap<>();
 		String sqlQuery="SELECT stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 10000";
@@ -675,7 +665,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
-				
+
 				String parameterId = resultSet.getString("stable_id");
 				String maId = resultSet.getString("ontology_acc");
 				parameterStableIdToOntology.put(parameterId,maId);
@@ -684,10 +674,9 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("547+ should be and is in procIdToPipelineMap "
-				+ parameterStableIdToOntology.size());
-		
-		
+		System.out.println("547+ should be and is in procIdToPipelineMap " + parameterStableIdToOntology.size());
+
+
 		return parameterStableIdToOntology;
 	}
 
@@ -746,7 +735,14 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	private Map<String, MpDTO> populateMpIdToMp() throws IndexerException {
-		return SolrUtils.populateMpTermIdToMp(mpCore);
+
+		Map<String, MpDTO> map = null;
+		try {
+			map = SolrUtils.populateMpTermIdToMp(mpCore);
+		} catch (SolrServerException e) {
+			throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpTermIdToMp()", e);
+		}
+		return map;
 	}
 
 	public static void main(String[] args) throws IndexerException {

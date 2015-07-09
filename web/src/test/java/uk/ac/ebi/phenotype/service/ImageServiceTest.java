@@ -6,13 +6,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-import uk.ac.ebi.phenotype.service.dto.ResponseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +82,7 @@ public class ImageServiceTest {
 		}
 
 	}
-	
+
 	@Test
 	public void testFailingGetControlImagesForProcedure() {
 //http://localhost:8080/phenotype-archive/imagePicker/MGI:1913452/IMPC_XRY_034_001
@@ -135,7 +133,7 @@ public class ImageServiceTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testGetParameterFacetsForGeneByProcedure(){
 		QueryResponse imagesResponse;
@@ -156,7 +154,7 @@ public class ImageServiceTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testGetImagesAnnotationsDetailsByOmeroId(){
 		QueryResponse imagesResponse;
@@ -164,7 +162,7 @@ public class ImageServiceTest {
 		List<String>omeroIds=new ArrayList<String>();
 		omeroIds.add("5814");
 		omeroIds.add("5815");
-		
+
 		try {
 			imagesResponse = imageService.getImagesAnnotationsDetailsByOmeroId(omeroIds);
 			for (SolrDocument doc : imagesResponse.getResults()) {
@@ -173,7 +171,7 @@ public class ImageServiceTest {
 				assertTrue((int)doc.get("omero_id")==5814 || (int)doc.get("omero_id")==5815);
 
 			}
-			
+
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

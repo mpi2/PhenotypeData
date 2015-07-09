@@ -15,11 +15,11 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.mousephenotype.cda.enumerations.SexType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import uk.ac.ebi.phenotype.pojo.SexType;
 
 
 /**
@@ -48,13 +48,13 @@ public class CategoricalSet {
 		public void setName(String name) {
 			this.name=name;
 		}
-		
+
 		public CategoricalDataObject getCategoryByLabel(String label){
 			if (!catObjMap.containsKey(label))
 				return null;
 			return catObjMap.get(label);
 		}
-		
+
 		public void addToCategory(String categoryLabel){
 			if (catObjMap.containsKey(categoryLabel)){
 				long count = catObjMap.get(categoryLabel).getCount() + 1;
@@ -72,7 +72,7 @@ public class CategoricalSet {
 		public long getCount(){
 			return count;
 		}
-		
+
 		/**
 		 * Name of set e.g. Control, Homozygote, Heterozygote
 		 * @return
@@ -86,7 +86,7 @@ public class CategoricalSet {
 			this.catObjMap.put(controlCatData.getCategory(), controlCatData);
 			this.count += controlCatData.getCount();
 		}
-		
+
 		public SexType getSexType() {
 			return sexType;
 		}
@@ -94,14 +94,14 @@ public class CategoricalSet {
 		public void setSexType(SexType sexType) {
 			this.sexType = sexType;
 		}
-		
+
 		public String toString(){
 			String string="Categorical Set name="+this.name+" CategroicalDataObjects=";
 			for(CategoricalDataObject cat:catObjects){
 				string+=cat.toString();
 			}
 			return string;
-			
+
 		}
 
 }

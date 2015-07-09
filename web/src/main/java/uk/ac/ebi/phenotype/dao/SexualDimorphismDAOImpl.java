@@ -17,13 +17,13 @@ package uk.ac.ebi.phenotype.dao;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer;
-import uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -192,7 +192,7 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 			+ " INNER JOIN " + database + "organisation org on sur.organisation_id = org.id "
 			+ " WHERE sur.status like \"SUCCESS\" AND classification_tag not in (\"Both genders equally\", \"No significant change\", \"If phenotype is significant - can not classify effect\", \"If phenotype is significant it is for the one sex tested\")"
 			+ "	AND statistical_method not in (\"Wilcoxon rank sum test with continuity correction\") AND interaction_significance = 1 AND project_id not in (1,8)"
-			+ " AND pp.stable_id NOT IN (" + StringUtils.join(ObservationIndexer.weightParameters, ",") + ")"
+			+ " AND pp.stable_id NOT IN (" + StringUtils.join(Constants.weightParameters, ",") + ")"
 			+ " AND null_test_significance < 0.0001 LIMIT 100000" ;
 
 		System.out.println(command);
@@ -239,8 +239,8 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 
 	public Double getEffectDifference(String field) {
 
-		Double female = StatisticalResultIndexer.getFemalePercentageChange(field);
-		Double male = StatisticalResultIndexer.getMalePercentageChange(field);
+		Double female = StatisticalResultService.getFemalePercentageChange(field);
+		Double male = StatisticalResultService.getMalePercentageChange(field);
 		return Math.abs(female - male);
 	}
 

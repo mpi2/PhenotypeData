@@ -16,13 +16,17 @@
 package uk.ac.ebi.phenotype.data.impress;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.phenotype.dao.DatasourceDAO;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
+import uk.ac.ebi.phenotype.pojo.OntologyTerm;
+import uk.ac.ebi.phenotype.pojo.Parameter;
 
 import java.util.*;
 

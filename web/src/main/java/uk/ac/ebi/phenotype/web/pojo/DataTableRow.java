@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.pojo;
 
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.pojo.*;
 
@@ -34,7 +35,7 @@ import java.util.Map;
  * a subclass that extends this class, such as GenePageTableRow or
  * PhenotypePageTableRow. Should more flavours of the "phenotypes" HTML table
  * be needed, simply extend this class and write a compareTo method.
- * 
+ *
  * This class used to be called PhenotypeRow serving gene and phenotype pages
  * but was broken out into this abstract class and two concrete classes to
  * architect correct "phenotypes" HTML page row ordering.
@@ -108,16 +109,16 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	 * @return the gid
 	 */
 	public String getGid() {
-	
+
 		return gid;
 	}
 
-	
+
 	/**
 	 * @param gid the gid to set
 	 */
 	public void setGid(String gid) {
-	
+
 		this.gid = gid;
 	}
 
@@ -126,31 +127,31 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	 * @return the pValue
 	 */
 	public Double getpValue() {
-	
+
 		return pValue;
 	}
-	
+
 	/**
 	 * @param pValue the pValue to set
 	 */
 	public void setpValue(Double pValue) {
-	
+
 		this.pValue = pValue;
 	}
-	
+
 	/**
 	 * @return the isPreQc
 	 */
 	public boolean isPreQc() {
-	
+
 		return isPreQc;
 	}
-	
+
 	/**
 	 * @param isPreQc the isPreQc to set
 	 */
 	public void setPreQc(boolean isPreQc) {
-	
+
 		this.isPreQc = isPreQc;
 	}
 
@@ -379,7 +380,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                 + dataSourceName + ", phenotypingCenter=" + phenotypingCenter + "]";
     }
 
-    
+
     public String toTabbedString(String targetPage) {
 
         String res = "";
