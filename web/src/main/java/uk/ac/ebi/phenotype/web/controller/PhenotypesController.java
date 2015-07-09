@@ -50,6 +50,7 @@ import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.util.ProcedureComparator;
 import uk.ac.ebi.phenotype.web.pojo.DataTableRow;
 import uk.ac.ebi.phenotype.web.pojo.PhenotypePageTableRow;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

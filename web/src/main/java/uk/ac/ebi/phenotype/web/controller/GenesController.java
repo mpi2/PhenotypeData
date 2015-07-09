@@ -62,6 +62,7 @@ import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

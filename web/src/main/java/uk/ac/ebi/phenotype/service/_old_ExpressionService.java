@@ -38,18 +38,18 @@ import java.util.*;
 
 import javax.annotation.PostConstruct;
 
-public class ExpressionService {
+public class _old_ExpressionService {
 
 	private final HttpSolrServer experimentSolr;
 	private final HttpSolrServer imagesSolr;
 	@Autowired
-	ExperimentService experimentService;
+	_old_ExperimentService experimentService;
 	@Autowired
 	ImpressService impressService;
 
 	Map<String, OntologyBean> abnormalMaFromImpress = null;
 
-	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl) {
+	public _old_ExpressionService(String experimentSolrUrl, String imagesSolrUrl) {
 
 		experimentSolr = new HttpSolrServer(experimentSolrUrl);
 		imagesSolr = new HttpSolrServer(imagesSolrUrl);

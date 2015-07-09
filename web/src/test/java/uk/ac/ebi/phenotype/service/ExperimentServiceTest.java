@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 public class ExperimentServiceTest {
 
 	@Autowired
-	private ExperimentService es;
+	private _old_ExperimentService es;
 
 	@Autowired
 	private PhenotypePipelineDAO pDAO;

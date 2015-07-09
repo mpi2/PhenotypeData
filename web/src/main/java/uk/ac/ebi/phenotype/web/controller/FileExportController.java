@@ -40,7 +40,7 @@ import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.dao.*;
 import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
 import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.ExpressionService;
 import uk.ac.ebi.phenotype.service.GeneService;
 import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
