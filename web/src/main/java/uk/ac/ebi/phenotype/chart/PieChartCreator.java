@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 
 import java.util.ArrayList;
 import java.util.List;

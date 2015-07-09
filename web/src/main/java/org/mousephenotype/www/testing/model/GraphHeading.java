@@ -16,6 +16,7 @@
 
 package org.mousephenotype.www.testing.model;
 
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -25,7 +26,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 
 import java.util.List;

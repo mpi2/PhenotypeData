@@ -16,22 +16,21 @@
 package uk.ac.ebi.phenotype.chart;
 
 import uk.ac.ebi.phenotype.pojo.CategoricalResult;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+
 
 /**
  * class to hold the categorical data with associated meta data and stats so we
  * keep things neat and tidy and don't have long list of parameters and or
  * arrays that can get mixed up
- * 
+ *
  * @author jwarren
- * 
+ *
  */
 public class CategoricalDataObject {
 	private String name = "";
-	
+
 	private CategoricalResult result;
-	
+
 
 	public CategoricalResult getResult() {
 		return result;
@@ -89,9 +88,9 @@ public class CategoricalDataObject {
 	}
 
 	public CategoricalDataObject(){
-		
+
 	}
-	
+
 	public String toString(){
 		String name=this.getName();
 		String count="";
@@ -106,14 +105,14 @@ public class CategoricalDataObject {
 		if(this.maxEffect!=null){
 			maxEffect=Double.toString(this.maxEffect);
 		}
-	
+
 		String string="name="+name+" category="+category+" count="+count+" pValue="+pValue+" maxEffect="+maxEffect;
 		return string;
 	}
 
 	public void setCategory(String category) {
 		this.category=category;
-		
+
 	}
-	
+
 }

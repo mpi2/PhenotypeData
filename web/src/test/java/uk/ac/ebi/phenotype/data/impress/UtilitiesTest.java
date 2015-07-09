@@ -2,6 +2,8 @@ package uk.ac.ebi.phenotype.data.impress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -9,10 +11,8 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.StageUnitType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,14 +32,14 @@ public class UtilitiesTest {
 
     @Autowired
     Utilities impressUtilities;
-    
+
 
     @Test
     public void testCheckTypeParameterString() {
         Parameter p = pDAO.getParameterByStableId("ESLIM_003_001_006");
         String value= "2.092";
         ObservationType oType = impressUtilities.checkType(p, value);
-   
+
         System.out.println(oType);
         assert(oType.equals(ObservationType.time_series));
     }

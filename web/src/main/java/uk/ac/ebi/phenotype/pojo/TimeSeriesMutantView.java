@@ -15,6 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.pojo;
 
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;

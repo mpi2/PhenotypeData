@@ -15,23 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.pojo;
 
-import java.io.Serializable;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.io.Serializable;
 
 
 
 /**
- * 
+ *
  * A representation of a mutant mouse for a categorical value.
- * 
+ *
  */
 @Entity
 @Table(name = "stats_mv_experimental_categorical_values")
@@ -58,7 +53,7 @@ public class CategoricalMutantView implements Serializable {
 
 	@Column(name = "colony_id")
 	private String colony;
-	
+
 	@Column(name = "population_id")
 	private Integer populationId;
 
@@ -69,7 +64,7 @@ public class CategoricalMutantView implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "zygosity")
 	private ZygosityType zygosity;
-	
+
 	@Column(name = "category")
 	private String category;
 
@@ -293,7 +288,7 @@ public class CategoricalMutantView implements Serializable {
 		return true;
 	}
 
-	
+
 
 }
 
