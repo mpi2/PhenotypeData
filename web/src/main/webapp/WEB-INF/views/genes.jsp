@@ -316,9 +316,9 @@
                                                 
                                             </div>
                                             <div class="floatright" style="clear:both">
-                                          
-                                            <a class="btn" href="https://dev.mousephenotype.org/embryoviewer?gene_symbol=Klf7">Embryo Viewer</a>
-                                            
+                                          	<p>
+                                            <a class="btn" href="https://dev.mousephenotype.org/embryoviewer?gene_symbol=Klf7" style="margin:10px">Embryo Viewer</a>
+                                            </p>
                                             </div>
                                             <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
                                            
