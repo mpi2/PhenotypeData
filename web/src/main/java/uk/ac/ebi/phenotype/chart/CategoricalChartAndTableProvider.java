@@ -15,34 +15,39 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.WordUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-<<<<<<< HEAD
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-=======
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
->>>>>>> refs/remotes/origin/master
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.*;
-import uk.ac.ebi.phenotype.service.ImpressService;
-<<<<<<< HEAD
-=======
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
->>>>>>> refs/remotes/origin/master
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.CategoricalResult;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.Procedure;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
+import uk.ac.ebi.phenotype.service.ImpressService;
 
 @Service
 public class CategoricalChartAndTableProvider {
