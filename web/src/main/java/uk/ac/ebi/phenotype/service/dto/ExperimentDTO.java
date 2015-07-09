@@ -15,8 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service.dto;
 
+import org.mousephenotype.cda.enumerations.ControlStrategy;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.pojo.StatisticalResult;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -115,7 +119,7 @@ public class ExperimentDTO {
     public void setControlSelectionStrategy(ControlStrategy controlSelectionStrategy) {
 		this.controlSelectionStrategy = controlSelectionStrategy;
 	}
-    
+
     public int getControlSampleSizeFemale() {
         return this.getFemaleControls().size();
     }
@@ -234,20 +238,20 @@ public class ExperimentDTO {
     public String getParameterStableId() {
         return parameterStableId;
     }
-    
+
 	/**
 	 * @return the procedureName
 	 */
 	public String getProcedureName() {
-	
+
 		return procedureName;
 	}
-	
+
 	/**
 	 * @param procedureName the procedureName to set
 	 */
 	public void setProcedureName(String procedureName) {
-	
+
 		this.procedureName = procedureName;
 	}
 
@@ -453,7 +457,7 @@ public class ExperimentDTO {
     public void setFemaleControls(Set<ObservationDTO> femaleControls) {
         this.femaleControls = femaleControls;
     }
-    
+
     public String getAlleleAccession() {
         return this.alleleAccession;
     }
@@ -461,20 +465,20 @@ public class ExperimentDTO {
     public void setAlleleAccession(String alleleAccession) {
         this.alleleAccession=alleleAccession;
     }
-    
+
 	/**
 	 * @return the procedureStableId
 	 */
 	public String getProcedureStableId() {
-	
+
 		return procedureStableId;
 	}
-	
+
 	/**
 	 * @param procedureStableId the procedureStableId to set
 	 */
 	public void setProcedureStableId(String procedureStableId) {
-	
+
 		this.procedureStableId = procedureStableId;
 	}
 

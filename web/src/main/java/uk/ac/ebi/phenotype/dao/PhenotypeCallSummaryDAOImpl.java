@@ -26,8 +26,12 @@ package uk.ac.ebi.phenotype.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.pojo.Datasource;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

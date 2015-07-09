@@ -22,6 +22,7 @@ package uk.ac.ebi.phenotype.dao;
  * @since May 2012
  */
 
+import org.mousephenotype.cda.enumerations.ObservationType;
 import uk.ac.ebi.phenotype.pojo.*;
 
 import java.sql.SQLException;

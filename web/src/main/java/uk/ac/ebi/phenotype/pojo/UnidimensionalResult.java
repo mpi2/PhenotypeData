@@ -15,7 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.pojo;
 
-import uk.ac.ebi.phenotype.chart.SignificantType;
+import org.mousephenotype.cda.enumerations.SignificantType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 
 import javax.persistence.*;
 import java.io.Serializable;

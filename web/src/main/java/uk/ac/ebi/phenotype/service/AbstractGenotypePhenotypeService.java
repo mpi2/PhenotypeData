@@ -28,6 +28,9 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.generic.util.JSONRestUtil;
 import uk.ac.ebi.phenotype.analytics.bean.AggregateCountXYBean;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -54,7 +57,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
     protected Boolean isPreQc;
 
     public static final double P_VALUE_THRESHOLD = 0.0001;
-    
+
     /**
      * @param zygosity - optional (pass null if not needed)
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
@@ -88,8 +91,8 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         }
         return null;
     }
-    
-    public long getNumberOfDocuments(List<String> resourceName ) 
+
+    public long getNumberOfDocuments(List<String> resourceName )
 	throws SolrServerException{
 
 		SolrQuery query = new SolrQuery();
@@ -98,64 +101,64 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 			query.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
         }else {
         	query.setQuery("*:*");
-        }                      
-		
-		return solr.query(query).getResults().getNumFound();	
+        }
+
+		return solr.query(query).getResults().getNumFound();
 	}
-    
+
     public List<String[]> getHitsDistributionByProcedure(ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
-    	
+
     	return getHitsDistributionBySomething(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID, resourceName);
     }
 
     public List<String[]> getHitsDistributionByParameter(ArrayList<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
-    	
+
     	return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
     }
-    
-    
-    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity, 
+
+
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity,
     	int facetMincount, Double maxPValue)
     throws SolrServerException, InterruptedException, ExecutionException {
 
     		Map<String, Long>  res = new HashMap<>();
         	Long time = System.currentTimeMillis();
         	SolrQuery q = new SolrQuery();
-        	            
+
         	if (resourceName != null){
                 q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
             }else {
                 q.setQuery("*:*");
-            }    
-        	
+            }
+
         	if (zygosity != null){
         		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
         	}
-        	
+
         	if (maxPValue != null){
         		q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[0 TO " + maxPValue + "]");
         	}
-        	
+
         	q.addFacetField(fieldToDistributeBy);
         	q.setFacetMinCount(facetMincount);
         	q.setFacet(true);
         	q.setRows(1);
-        	q.set("facet.limit", -1); 
+        	q.set("facet.limit", -1);
 
         	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
         	QueryResponse response = solr.query(q);
-        	
+
         	for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
         		String value = facet.getName();
         		long count = facet.getCount();
         		res.put(value,count);
         	}
-        		
+
         	System.out.println("Done in " + (System.currentTimeMillis() - time));
         	return res;
-        
+
     }
 
 
@@ -206,26 +209,26 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         	Long time = System.currentTimeMillis();
         	String pivotFacet = "";
         	SolrQuery q = new SolrQuery();
-        	
-        	if (field.equals(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)){	
+
+        	if (field.equals(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)){
             	pivotFacet =  GenotypePhenotypeDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.PARAMETER_NAME;
-        	} else if (field.equals(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)){	
+        	} else if (field.equals(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)){
             	pivotFacet =  GenotypePhenotypeDTO.PROCEDURE_STABLE_ID + "," + StatisticalResultDTO.PROCEDURE_NAME;
-        	} 
-            
+        	}
+
         	if (resourceName != null){
                 q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
             }else {
                 q.setQuery("*:*");
-            }               
+            }
         	q.set("facet.pivot", pivotFacet);
         	q.setFacet(true);
         	q.setRows(1);
-        	q.set("facet.limit", -1); 
+        	q.set("facet.limit", -1);
 
         	System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
         	QueryResponse response = solr.query(q);
-        	
+
         	for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
         		String id = pivot.getValue().toString();
         		String name = pivot.getPivot().get(0).getValue().toString();
@@ -233,12 +236,12 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
         		String[] row = {id, name, Integer.toString(count)};
         		res.add(row);
         	}
-        		
+
         	System.out.println("Done in " + (System.currentTimeMillis() - time));
         	return res;
-        
+
     }
-    
+
     public List<AggregateCountXYBean> getAggregateCountXYBean(TreeMap<String, TreeMap<String, Long>> map) {
         List<AggregateCountXYBean> res = new ArrayList<>();
 
@@ -312,7 +315,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
             GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")");
         if (onlyB6N){
-        	q.setFilterQueries("(" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " + 
+        	q.setFilterQueries("(" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsController.OVERVIEW_STRAINS, "\" OR " +
         	GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")");
         }
         q.setRows(10000000);
@@ -695,7 +698,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
             solrUrl += "&" + queryString;
         }
         solrUrl += "&sort=p_value%20asc";
-        
+
         System.out.println("SOLR UR ABSTRACT GENOTYPE PHENOTYPE L 702 " + solrUrl);
         return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 
@@ -774,14 +777,14 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
         JSONObject results = new JSONObject();
         results = JSONRestUtil.getResults(url);
- 
+
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
         for (Object doc : docs) {
 
             list.add(createSummaryCall(doc, isPreQc));
         }
-        
-          
+
+
 		// get the facet information that we can use to create the buttons /
         // dropdowns/ checkboxes
         JSONObject facets = results.getJSONObject("facet_counts").getJSONObject("facet_fields");
@@ -922,7 +925,7 @@ public abstract class AbstractGenotypePhenotypeService extends BasicService {
 
         Project project = new Project();
         project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
-//TODO remove comment out//		project.setDescription(phen.getString(GenotypePhenotypeDTO.PROJECT_FULLNAME)); 
+//TODO remove comment out//		project.setDescription(phen.getString(GenotypePhenotypeDTO.PROJECT_FULLNAME));
         if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
             sum.setExternalId(phen.getInt(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
         }

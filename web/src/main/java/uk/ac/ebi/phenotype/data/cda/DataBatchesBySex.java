@@ -18,9 +18,9 @@ package uk.ac.ebi.phenotype.data.cda;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.enumerations.BatchClassification;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 import java.util.HashSet;

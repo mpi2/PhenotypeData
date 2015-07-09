@@ -16,32 +16,23 @@
 package uk.ac.ebi.phenotype.pojo;
 
 /**
- * 
+ *
  * Store phenotype calls from diverse statistical pipeline on multiple datasets.
- * 
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @since February 2012
  */
-
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
+import javax.persistence.*;
+import java.util.List;
+
 
 @Entity
 @Table(name = "phenotype_call_summary")
@@ -51,7 +42,7 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@GeneratedValue
 	@Column(name = "id")
 	protected Integer id;
-	
+
 	@Column(name = "external_id")
 	Integer externalId;
 
@@ -65,16 +56,16 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 
 	@OneToOne
 	@JoinColumn(name = "external_db_id")
-	protected Datasource datasource;	
-	
+	protected Datasource datasource;
+
 	@OneToOne
 	@JoinColumn(name = "project_id")
-	protected Project project;	
-	
+	protected Project project;
+
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
-	protected Organisation organisation;	
-	
+	protected Organisation organisation;
+
 	@NotFound(action=NotFoundAction.IGNORE) // phenotype_call_summary.gf_acc maybe null
 	@OneToOne
 	@JoinColumns({
@@ -82,7 +73,7 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@JoinColumn(name = "gf_db_id"),
 	})
 	protected GenomicFeature gene;
-	
+
 	@NotFound(action=NotFoundAction.IGNORE)
 	@OneToOne
 	@JoinColumns({
@@ -90,13 +81,13 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@JoinColumn(name = "mp_db_id"),
 	})
 	protected OntologyTerm phenotypeTerm;
-	
+
 	@Column(name = "p_value")
 	protected double pValue = 0;
 
 	@Column(name = "effect_size")
 	protected double effectSize = 0;
-	
+
 	@NotFound(action=NotFoundAction.IGNORE)
 	@OneToOne
 	@JoinColumns({
@@ -104,14 +95,14 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@JoinColumn(name = "strain_db_id"),
 	})
 	protected Strain strain;
-	
+
 	@OneToOne
 	@JoinColumns({
 	@JoinColumn(name = "allele_acc"),
 	@JoinColumn(name = "allele_db_id"),
 	})
 	protected Allele allele;
-	
+
 	@OneToOne
 	@JoinColumn(name = "pipeline_id")
 	protected Pipeline pipeline;
@@ -121,7 +112,7 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name = "procedure_id")
 	protected Procedure procedure;
-	
+
 	@OneToOne(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.SELECT)
 	@NotFound(action=NotFoundAction.IGNORE)
@@ -133,20 +124,20 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 
 	@Transient
 	private double colorIndex;
-	
+
 	@Transient
 	private List<OntologyTerm> topLevelPhenotypeTerms;
-	
+
 	protected boolean isPreQC;
-	
+
 	protected String gId; // pre qc only, param needed for phenoview graph links
-	
-	
+
+
 	/**
 	 * @return the gId
 	 */
 	public String getgId() {
-	
+
 		return gId;
 	}
 
@@ -154,7 +145,7 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	 * @param gId the gId to set
 	 */
 	public void setgId(String gId) {
-	
+
 		this.gId = gId;
 	}
 
@@ -162,30 +153,30 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	 * @return the isPreQC
 	 */
 	public boolean isPreQC() {
-	
+
 		return isPreQC;
 	}
-	
+
 	/**
 	 * @param isPreQC the isPreQC to set
 	 */
 	public void setPreQC(boolean isPreQC) {
-	
+
 		this.isPreQC = isPreQC;
 	}
 
 	public PhenotypeCallSummary() {
-		
+
 	}
 
 	public String getPhenotypingCenter(){
 		return phenotypingCenter;
 	}
-	
+
 	public void setPhenotypingCenter(String phenotypingCenter){
 		this.phenotypingCenter = phenotypingCenter;
 	}
-	
+
 	/**
 	 * @return the id
 	 */
@@ -240,8 +231,8 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	 */
 	public void setProject(Project project) {
 		this.project = project;
-	}	
-	
+	}
+
 	/**
 	 * @return the organisation
 	 */
@@ -408,8 +399,8 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	 */
 	public void setEffectSize(double effectSize) {
 		this.effectSize = effectSize;
-	}	
-	
+	}
+
 	/**
 	 * @return the topLevelPhenotypeTerms
 	 */
@@ -437,7 +428,7 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 	public void setColorIndex(double colorIndex) {
 		this.colorIndex = colorIndex;
 	}
-	
+
 	/**
 	 * Return a -Log10 value to generate a scale
 	 * @return -Math.log10(pValue)
@@ -447,6 +438,6 @@ public class PhenotypeCallSummary implements StatisticalSignificance {
 			return -Math.log10(1E-20);
 		}
 		return -Math.log10(pValue);
-	}	
+	}
 
 }

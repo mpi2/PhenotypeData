@@ -15,22 +15,22 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.dao;
 
+import org.hibernate.HibernateException;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import uk.ac.ebi.phenotype.pojo.BiologicalModel;
+import uk.ac.ebi.phenotype.pojo.Organisation;
+import uk.ac.ebi.phenotype.pojo.Parameter;
+import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.HibernateException;
-
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.Organisation;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalRecordDTO;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
-        
+
 	public List<Float> getControlDataPointsForPopulation(Integer populationId) throws SQLException;
 
 	public List<Float> getMutantDataPoints(SexType sex, ZygosityType zygosity, Parameter parameter, Integer populationId) throws SQLException;
@@ -60,9 +60,9 @@ public interface UnidimensionalStatisticsDAO extends StatisticsDAO {
 	public List<Organisation> getOrganisationsByColonyAndParameter(String colony, Parameter parameter);
 
 	public  List<Map<String,String>>  getListOfUniqueParametersAndGenes(int start, int length) throws SQLException;
-	
+
 	public List<Map<String,String>> getListOfUniqueParametersAndGenes(int start, int length, String parameterId)throws SQLException;
-	
+
 	public Map<String, Float> getMinAndMaxForParameter(String paramStableId) throws SQLException;
 
 

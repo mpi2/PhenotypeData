@@ -15,9 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import uk.ac.ebi.phenotype.pojo.SexType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
+
 
 public class UnidimensionalStatsObject {
 
@@ -68,12 +69,12 @@ public class UnidimensionalStatsObject {
 	}
 
 	public String getLabel() {
-	
+
 		return label;
 	}
 
 	public void setLabel(String label) {
-	
+
 		this.label = label;
 	}
 
