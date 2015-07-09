@@ -15,39 +15,26 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.lang.WordUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import uk.ac.ebi.phenotype.data.imits.StatusConstants;
+import uk.ac.ebi.phenotype.pojo.*;
+import uk.ac.ebi.phenotype.service.ImpressService;
+import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
+import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.WordUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.log4j.Logger;
-import org.hibernate.cfg.annotations.Nullability;
-import org.json.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.imits.StatusConstants;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.ImpressService;
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import java.util.*;
 
 @Service
 public class UnidimensionalChartAndTableProvider {
@@ -57,7 +44,7 @@ public class UnidimensionalChartAndTableProvider {
 	private String axisFontSize = "15";
 	@Autowired
 	PhenotypePipelineDAO ppDAO;
-	
+
 	@Autowired
 	ImpressService impressService;
 
@@ -65,22 +52,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * return one unidimensional data set per experiment - one experiment should
 	 * have one or two graphs corresponding to sex and a stats result for one
 	 * table at the bottom
-	 * 
-	 * @param chartId
-	 * @param zyList
-	 * @param boxOrScatter
-	 * @param byMouseId
-	 * @param symbol
-	 * @param allelicCompositionString
-	 * @param geneticBackgroundString
-	 * @param parameter
-	 * @param acc
-	 * @param model
-	 * @param experimentList
-	 * @return
-	 * @throws SQLException
-	 * @throws IOException
-	 * @throws URISyntaxException
+	 *
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, Parameter parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle, BiologicalModel expBiologicalModel)
 	throws SQLException, IOException, URISyntaxException {
@@ -119,7 +91,7 @@ public class UnidimensionalChartAndTableProvider {
 				List<Float> mutantCounts = new ArrayList<Float>();
 				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
 				expObservationsSet = experiment.getMutants(sexType, zType);
-				
+
 				for (ObservationDTO expDto : expObservationsSet) {
 					Float dataPoint = expDto.getDataPoint();
 					mutantCounts.add(dataPoint);
@@ -133,7 +105,7 @@ public class UnidimensionalChartAndTableProvider {
 
 			genderAndRawDataMap.put(sexType, rawData);
 		}
-		
+
 		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
 
 		unidimensionalStatsObjects.addAll(unidimensionalStatsObject);
@@ -145,7 +117,7 @@ public class UnidimensionalChartAndTableProvider {
 		if (proc != null) {
 			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
 		}
-		
+
 		unidimensionalDataSet.setChartData(chartAndTable);
 		unidimensionalDataSet.setAllUnidimensionalResults(allUnidimensionalResults);
 		unidimensionalDataSet.setStatsObjects(unidimensionalStatsObjects);
@@ -168,12 +140,15 @@ public class UnidimensionalChartAndTableProvider {
 
 
 	/**
-	 * 
+	 *
+	 * @param chartId
+	 * @param yMin
+	 * @param yMax
+	 * @param parameter
+	 * @param experiment
+	 * @param yAxisTitle
 	 * @param chartsSeriesElementsList
-	 * @param parameterUnit
-	 * @param xAxisCategoriesList
-	 *            - bare categories from database e.g. WT, HOM
-	 * @param continuousBarCharts
+	 * @return
 	 */
 	private ChartData processChartData(String chartId, Float yMin, Float yMax,Parameter parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) {
 
@@ -185,18 +160,17 @@ public class UnidimensionalChartAndTableProvider {
 
 
 	/**
-	 * 
+	 *
+	 * @param experimentNumber
+	 * @param yMin
+	 * @param yMax
 	 * @param parameter
-	 *            .getStableId() main title of the graph
 	 * @param yAxisTitle
-	 *            - unit of measurement - how to get this from the db?
-	 * @param sexAndScatterMap
 	 * @param chartsSeriesElementsList
-	 * @param xAisxCcategoriesList
-	 *            e.g. WT, WT, HOM, HOM for each column to be displayed
+	 * @param experiment
 	 * @return
 	 */
-	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,Parameter parameter, String yAxisTitle, 
+	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,Parameter parameter, String yAxisTitle,
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) {
 
 		JSONArray categories = new JSONArray();
@@ -206,13 +180,13 @@ public class UnidimensionalChartAndTableProvider {
 		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 		int column = 0;
 
-		
+
 		Procedure proc = ppDAO.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
 			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
 		}
-		
+
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data
 			// set at the moment as we will create both the scatter and boxplots
@@ -220,7 +194,7 @@ public class UnidimensionalChartAndTableProvider {
 			String categoryString = WordUtils.capitalize(chartsSeriesElement.getSexType().toString()) + " " + WordUtils.capitalize(chartsSeriesElement.getControlOrZygosityString());
 			categories.put(categoryString);
 			List<Float> listOfFloats = chartsSeriesElement.getOriginalData();
-			
+
 			PercentileComputation pc = new PercentileComputation(listOfFloats);
 
 			List<Float> wt1 = new ArrayList<Float>();
@@ -253,7 +227,7 @@ public class UnidimensionalChartAndTableProvider {
 			for (int i = 0; i < column; i++) {
 				columnPadding += "[], ";
 			}
-			
+
 			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";
 			String color = ChartColors.getMutantColor(ChartColors.alphaOpaque);
 			if (chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
@@ -283,10 +257,10 @@ public class UnidimensionalChartAndTableProvider {
 				array.put(column);
 				array.put(data);
 				scatterJArray.put(array);
-			}			
+			}
 			column++;
 		}
-		
+
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "'},  "
@@ -311,9 +285,9 @@ public class UnidimensionalChartAndTableProvider {
 			+ "              fontFamily: 'Verdana, sans-serif'"
 			+ "         } "
 			+ "     }, "
-			+ " }, \n" 
-			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "}," 
-			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, " 
+			+ " }, \n"
+			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "},"
+			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
 			+ "\n series: [" + seriesData + "] }); });";
 
 		return chartString;
@@ -335,7 +309,7 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 	public ChartData getStatusColumnChart(HashMap<String , Long> values, String title, String divId){
-		
+
 		String data = "[";
 		// custom order & selection from Terry
 		if (divId.equalsIgnoreCase("genotypeStatusChart")){
@@ -350,7 +324,7 @@ public class UnidimensionalChartAndTableProvider {
 			// custom statuses to show + custom order
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED) + "], ";
 			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) + "], ";
-			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";	
+			data += "['" + StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE + "', " +  values.get(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) + "], ";
 		}
 		else {
 			for (String key: values.keySet()){
@@ -358,13 +332,13 @@ public class UnidimensionalChartAndTableProvider {
 			}
 		}
 		data += "]";
-		
+
 		String javascript = "$(function () { $('#" + divId + "').highcharts({" +
-        	" chart: {type: 'column' }," + 
-        	" title: {text: '" + title + "'}," +	
+        	" chart: {type: 'column' }," +
+        	" title: {text: '" + title + "'}," +
         	" credits: { enabled: false },  " +
         	" xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }," +
-        	" yAxis: { min: 0, title: { text: 'Number of genes' } }," + 
+        	" yAxis: { min: 0, title: { text: 'Number of genes' } }," +
         	" legend: { enabled: false }," +
         	" tooltip: { pointFormat: '<b>{point.y}</b>' }," +
         	" series: [{ name: 'Population',  data: " + data + "," +
@@ -375,8 +349,8 @@ public class UnidimensionalChartAndTableProvider {
 		chartAndTable.setId("statusChart");
 		return chartAndTable;
 	}
-	
-	
+
+
 	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String procedureName) {
 
 		if (map == null) { return new ChartData(); }
@@ -390,7 +364,7 @@ public class UnidimensionalChartAndTableProvider {
 		ArrayList<String> mutantGenes = map.getMutantGenes();
 		ArrayList<String> controlGenesUrl = map.getControlGeneAccesionIds();
 		ArrayList<String> mutantGenesUrl = map.getMutantGeneAccesionIds();
-		DecimalFormat df;		
+		DecimalFormat df;
 		ArrayList<Double> upperBounds = map.getUpperBounds();
 		// We need to set the number of decimals according to the difference between the lowest and highest, so that the bin labels will be distinct
 		// Here's an example where 2 decimals are not enogh https://www.mousephenotype.org/data/phenotypes/MP:0000063
@@ -398,13 +372,13 @@ public class UnidimensionalChartAndTableProvider {
 			df = new DecimalFormat("#.##");
 		}
 		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.01){
-			df = new DecimalFormat("#.####");			
+			df = new DecimalFormat("#.####");
 		}
 		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.001){
-			df = new DecimalFormat("#.#####");			
+			df = new DecimalFormat("#.#####");
 		}
 		else{
-			df = new DecimalFormat("#.########ß");			
+			df = new DecimalFormat("#.########ß");
 		}
 		for (int i = 0; i < upperBounds.size(); i++) {
 			String c = controlGenes.get(i);
@@ -427,18 +401,18 @@ public class UnidimensionalChartAndTableProvider {
 			if (val < min) min = val;
 		for (double val : control)
 			if (val < min) min = val;
-	
+
 		String chartId = parameter.getStableId();
 		String yTitle = "Number of lines";
 		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
 		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
-		+ " chart: {  type: 'column' , renderTo: 'single-chart-div'}," + 
-		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," + 
-		" subtitle: { text: '" + subtitle + "'}," + 
-		" credits: { enabled: false }," + 
-		" xAxis: { categories: " + labels + ", " + 
+		+ " chart: {  type: 'column' , renderTo: 'single-chart-div'}," +
+		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," +
+		" subtitle: { text: '" + subtitle + "'}," +
+		" credits: { enabled: false }," +
+		" xAxis: { categories: " + labels + ", " +
 			"labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , "
-			+ "title: { text: '" + xLabel + "'} }," + 
+			+ "title: { text: '" + xLabel + "'} }," +
 		" yAxis: { min: " + min + ",  "
 			+ "	title: {  text: '" + yTitle + "'  }, "
 			+ "stackLabels: { enabled: false}  }," + " "
@@ -447,27 +421,19 @@ public class UnidimensionalChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setId(chartId);
-	
+
 		return chartAndTable;
 	}
 
 
 	/**
-	 * 
-	 * @param sexType
-	 * @param rawData
-	 *            - list of floats for WT then hom or het
+	 *
+ 	 * @param parameter
 	 * @param experiment
-	 *            TODO
-	 * @param symbol
 	 * @param allelicCompositionString
-	 * @param biologicalModel
-	 * @param parameterUnit
-	 * @param xAxisCategoriesList
-	 *            - bare categories from database e.g. WT, HOM
-	 * @param continuousBarCharts
-	 * @param max
-	 * @return map containing min and max values
+	 * @param symbol
+	 * @param geneticBackground
+	 * @return
 	 */
 	private static List<UnidimensionalStatsObject> produceUnidimensionalStatsData(Parameter parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 

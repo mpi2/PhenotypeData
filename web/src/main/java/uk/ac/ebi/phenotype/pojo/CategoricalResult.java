@@ -15,15 +15,17 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.pojo;
 
-import javax.persistence.*;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
- * 
+ *
  * A representation of the outcome of a statistical test done using a control
  * set of mice and a mutant strain, including the calculated p-value.
- * 
+ *
  */
 @Entity
 @Table(name = "stats_categorical_results")
@@ -56,7 +58,7 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     private Double categoricalEffectSize;
 
 	private String mpTermId;
-	
+
 	private String mpTermName;
 
     public String getMpTermName() {
@@ -292,8 +294,8 @@ public class CategoricalResult extends StatisticalResult implements Serializable
 
 	public void setMpTermId(String mpTermId) {
 		this.mpTermId=mpTermId;
-		
+
 	}
 
-    
+
 }

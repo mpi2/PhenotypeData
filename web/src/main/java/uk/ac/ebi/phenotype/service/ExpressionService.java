@@ -24,18 +24,16 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
-
 import uk.ac.ebi.phenotype.imaging.utils.ImageServiceUtil;
-import uk.ac.ebi.phenotype.pojo.SexType;
 import uk.ac.ebi.phenotype.service.ImpressService.OntologyBean;
 import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
-import java.util.*;
-
 import javax.annotation.PostConstruct;
+import java.util.*;
 
 public class ExpressionService {
 

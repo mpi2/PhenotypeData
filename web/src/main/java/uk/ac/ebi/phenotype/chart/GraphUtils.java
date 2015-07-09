@@ -17,12 +17,11 @@ package uk.ac.ebi.phenotype.chart;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.service.ExperimentService;
 import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
@@ -88,12 +87,12 @@ public class GraphUtils {
 				urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
 				return urls;
 			}
-			
+
 		} else {
 			// default chart type
-			chartType = getDefaultChartType(parameter);			
+			chartType = getDefaultChartType(parameter);
 		}
-		
+
 		if ( ! ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
             chartType = ChartUtils.getPlotType(parameterStableId);
@@ -103,7 +102,7 @@ public class GraphUtils {
         }
 		accessionAndParam += seperator + "parameter_stable_id=" + parameterStableId;
 		accessionAndParam += seperator + "chart_type=" + chartType;
-		
+
 		// if not a phenotyping center returned in the keys for this gene and
 		// param then don't return a url
 		if (centersList == null || centersList.isEmpty()) {
@@ -127,14 +126,14 @@ public class GraphUtils {
 							String alleleAccessionString = "&" + ObservationDTO.ALLELE_ACCESSION_ID + "=" + alleleAcc;
 							if (metaDataGroupStrings != null) {
 								for (String metaGroup : metaDataGroupStrings) {
-									urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER 
-										+ "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" 
+									urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER
+										+ "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "="
 										+ pipeStableId + seperator + ObservationDTO.METADATA_GROUP + "=" + metaGroup);
 								}
 							}
 							else {
 								// if metadataGroup is null then don't add it to the request
-								urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "=" 
+								urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "="
 								+ center + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
 							}
 						}
@@ -149,21 +148,21 @@ public class GraphUtils {
 		return urls;
 	}
 
-	
+
 	public static ChartType getDefaultChartType(Parameter parameter){
-		
+
 		if (Constants.ABR_PARAMETERS.contains(parameter.getStableId())){
-			
+
 			return ChartType.UNIDIMENSIONAL_ABR_PLOT;
-			
+
 		}else if(parameter.getStableId().equals("IMPC_VIA_001_001")){
 			return ChartType.PIE;
-			
+
 		}else{
 
 			Utilities impressUtilities = new Utilities();
 	        ObservationType observationTypeForParam = impressUtilities.checkType(parameter);
-	        
+
 	        switch (observationTypeForParam) {
 
                 case unidimensional:

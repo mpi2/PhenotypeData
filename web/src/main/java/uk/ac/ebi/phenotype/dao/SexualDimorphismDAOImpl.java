@@ -18,11 +18,11 @@ package uk.ac.ebi.phenotype.dao;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.ObservationService;
 
 import java.sql.Connection;

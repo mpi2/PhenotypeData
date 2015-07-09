@@ -24,12 +24,12 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
 import uk.ac.ebi.phenotype.service.dto.GeneDTO;
 import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
@@ -52,10 +52,10 @@ public class ReportsService {
 
 	@Autowired
 	GeneService geneService;
-    
+
     @Autowired
 	ExperimentService experimentService;
-    
+
     @Autowired
 	ImageService iService;
 
@@ -65,14 +65,14 @@ public class ReportsService {
 
     @Autowired
     MpService mpService;
-    
+
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
 
 	@Resource(name = "globalConfiguration")
 	Map<String, String> config;
-    
-	private static 
+
+	private static
 	ArrayList<String> resources;
 
 	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
@@ -85,37 +85,37 @@ public class ReportsService {
     	resources.add("IMPC");
     	resources.add("3i");
     }
-		
+
 	public List<String[]> getBmdIpdttReport(String parameter)
 	throws SolrServerException {
 
 		Long time = System.currentTimeMillis();
 		List<String[]> report = new ArrayList<>();
-		String[] header = { "Gene", "Allele" , "Colony", "Phenotyping Center", "First date", "Last date", 
-							"Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male", 
-							"Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male", 
-							"Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male", 
-							"Mean HEM Male", "Median HEM Male", "SD HEM Male", "N HEM Male", 
-							"Mean WT Female", "Median WT Female", "SD WT Female", "N WT Female", 
+		String[] header = { "Gene", "Allele" , "Colony", "Phenotyping Center", "First date", "Last date",
+							"Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male",
+							"Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male",
+							"Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male",
+							"Mean HEM Male", "Median HEM Male", "SD HEM Male", "N HEM Male",
+							"Mean WT Female", "Median WT Female", "SD WT Female", "N WT Female",
 							"Mean HOM Female", "Median HOM Female", "SD HOM Female", "N HOM Female",
-							"Mean HET Female", "Median HET Female", "SD HET Female", "N HET Female" 
+							"Mean HET Female", "Median HET Female", "SD HET Female", "N HET Female"
 							};
 		report.add(header);
 		report.addAll(getBmpIpgttStats(oService.getDatapointsByColony(resources, parameter, "experimental")));
 		System.out.println("Report generation took " + (System.currentTimeMillis() - time));
 		return report;
 	}
-	
+
 
 	public List<String[]> getBmpIpgttStats(List<Group> groups){
-		
+
 		List<String[]> rows = new ArrayList<>();
 
 		try {
 			for (Group group: groups) {
 				IpGTTStats stats;
 				stats = new IpGTTStats(group);
-				
+
 				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
 						"" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
 						"" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
@@ -125,16 +125,16 @@ public class ReportsService {
 						"" + stats.getMean(SexType.female, ZygosityType.homozygote), "" + stats.getMedian(SexType.female, ZygosityType.homozygote), "" + stats.getSD(SexType.female, ZygosityType.homozygote), "" + stats.getN(SexType.female, ZygosityType.homozygote),
 						"" + stats.getMean(SexType.female, ZygosityType.heterozygote), "" + stats.getMedian(SexType.female, ZygosityType.heterozygote), "" + stats.getSD(SexType.female, ZygosityType.heterozygote), "" + stats.getN(SexType.female, ZygosityType.heterozygote),
 				};
-				rows.add(row);	
+				rows.add(row);
 			}
         }catch (Exception e) {
         	e.printStackTrace();
 		}
-				
+
 		return rows;
 	}
-	
-	
+
+
 	/**
 	 * Generate the report for fertility data
 	 *   Fertile, Infertile, male & female infertiliy
@@ -146,7 +146,7 @@ public class ReportsService {
 		List<String[]> report = new ArrayList<>();
 
 		try {
-			
+
 			List<ObservationDTO> results;
 			Map<String, Set<String>> maleColonies = new HashMap<>();
 			Map<String, Set<String>> femaleColonies = new HashMap<>();
@@ -225,7 +225,7 @@ public class ReportsService {
     	List<String[]> genesTable = new ArrayList<>();
     	HashMap<String, Integer> countsByCategory = new HashMap<>();
     	HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
-    	
+
     	try {
     		QueryResponse response = oService.getViabilityData(resources);
     		String[] header = {"Gene", "Colony", "Category"};
@@ -252,19 +252,19 @@ public class ReportsService {
 			    }
 				genesByVia.put(category, genes);
     		}
-      		
+
       		for (String cat: countsByCategory.keySet()){
       			String[] row = {cat, countsByCategory.get(cat).toString()};
       			countsTable.add(row);
       		}
-      		
+
       		String[] genesHeader = {"Category", "# genes", "Genes"};
     		genesTable.add(genesHeader);
     		for (String cat : genesByVia.keySet()){
     			String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesByVia.get(cat), ", ")};
     			genesTable.add(row);
     		}
-      		
+
       		HashSet<String> conflicts = new HashSet<>();
       		for (String cat : genesByVia.keySet()){
       			for (String otherCat : genesByVia.keySet()){
@@ -278,14 +278,14 @@ public class ReportsService {
 
 		    genesTable.add(EMPTY_ROW);
       		String[] row = {"Conflicting", "" + conflicts.size(), StringUtils.join(conflicts, ", ")};
-    		genesTable.add(row); 
+    		genesTable.add(row);
     		String[] note = {"NOTE: Symbols in the conflicting list represent genes that are included in more than one viability category."};
-    		genesTable.add(note);    		
-    		
+    		genesTable.add(note);
+
       		res.add(countsTable);
       		res.add(genesTable);
       		res.add(allTable);
-		
+
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -299,45 +299,45 @@ public class ReportsService {
 		// Phenotype hits	+
 		// Datapoints
 		// Images
-      	
+
     	List<List<String[]>> res = new ArrayList<>();
     	List<String[]> overview = new ArrayList<>();
 		String[] forArrayType = new String[0];
-    
+
 		try {
-		
+
 			List<String> row = new ArrayList<>();
 			row.add("# phenotyped genes");
 			row.add(Integer.toString(oService.getAllGeneIdsByResource(resources, false).size()));
     		overview.add(row.toArray(forArrayType));
-			
+
 	    	row = new ArrayList<>();
 			row.add("# phenotyped mutant lines");
 			row.add(Integer.toString(oService.getAllColonyIdsByResource(resources, true).size()));
 	    	overview.add(row.toArray(forArrayType));
-	    
+
 	    	row = new ArrayList<>();
 			row.add("# phenotype hits");
 			row.add(Long.toString(gpService.getNumberOfDocuments(resources)));
 	    	overview.add(row.toArray(forArrayType));
-	    	
+
 	    	row = new ArrayList<>();
 			row.add("# data points");
 			row.add(Long.toString(oService.getNumberOfDocuments(resources, false)));
 	    	overview.add(row.toArray(forArrayType));
-	    
+
 	    	row = new ArrayList<>();
 			row.add("# images");
 			row.add(Long.toString(iService.getNumberOfDocuments(resources, false)));
 	    	overview.add(row.toArray(forArrayType));
-	       	
+
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
 
-		
+
     	res.add(overview);
-    	
+
     	List<String[]> linesPerCenter = new ArrayList<>();
 		try {
 			Map<String, Set<String>> result = oService.getColoniesByPhenotypingCenter(resources, null);
@@ -345,13 +345,13 @@ public class ReportsService {
 				String[] row= {"# mutant lines phenotyped at " + center, Integer.toString(result.get(center).size())};
 				linesPerCenter.add(row);
 			}
-			
+
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		   	
+
     	res.add(linesPerCenter);
 
 
@@ -404,13 +404,13 @@ public class ReportsService {
 		} catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-    	
+
 		res.add(mpTable);
 
 		return res;
     }
-    
-    
+
+
     public List<List<String[]>> getHitsPerParamProcedure(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
@@ -426,20 +426,20 @@ public class ReportsService {
     		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
     		procedures.add(headerProcedures);
     		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
-    		
+
 			res.add(parameters);
 			res.add(procedures);
-			
+
 		} catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
     	return res;
-    	
+
     }
-        
-	
+
+
     public List<List<String[]>> getHitsPerLine(){
-   
+
     	// TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
       	//Columns:		parameter name | parameter stable id | number of significant hits
 
@@ -452,17 +452,17 @@ public class ReportsService {
     		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
     		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
     		Map<String, Long> allMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
-         		
+
     		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
     		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
     		Map<String, Long> allNoHits = srService.getColoniesNoMPHit(resources, null);
-    		
+
     		HashMap<Long, Integer> homRes = new HashMap<>();
-    		HashMap<Long, Integer> hetRes = new HashMap<>();   
-    		HashMap<Long, Integer> allRes = new HashMap<>();   
-    		
+    		HashMap<Long, Integer> hetRes = new HashMap<>();
+    		HashMap<Long, Integer> allRes = new HashMap<>();
+
     		long maxHitsPerColony = 0;
-    		
+
     		for (String colony: homsMap.keySet()){
     			if (homsNoHits.containsKey(colony)){
     				homsNoHits.remove(colony);
@@ -518,16 +518,16 @@ public class ReportsService {
     		homRes.put(Long.parseLong("0"), homsNoHits.size());
     		hetRes.put(Long.parseLong("0"), hetsNoHits.size());
     		allRes.put(Long.parseLong("0"), allNoHits.size());
-    		
+
     		long iterator = 0;
-    		
+
     		while (iterator <= maxHitsPerColony){
-    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),  
+    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),
     				Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator)? allRes.get(iterator) : 0)};
     			zygosityTable.add(row);
     			iterator += 1;
     		}
-    		
+
 			res.add(zygosityTable);
 
 	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
@@ -535,7 +535,7 @@ public class ReportsService {
 		}
 
     	return res;
-    	
+
     }
 
 
@@ -836,7 +836,7 @@ public class ReportsService {
 	}
 
 	public List<List<String[]>> getMpCallDistribution(){
-    	
+
     	Float pVal = (float) 0.0001;
     	TreeMap<String, Long> significant = srService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
     	TreeMap<String, Long> all = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -846,11 +846,11 @@ public class ReportsService {
     	List<String[]> table = new ArrayList<>();
     	String[] header = new String[4];
     	header[0] = "Top Level MP Term";
-    	header[1] = "No. Significant Calls"; 
-    	header[2] = "No. Not Significant Calls";  
-    	header[3] = "% Significant Calls";   	
+    	header[1] = "No. Significant Calls";
+    	header[2] = "No. Not Significant Calls";
+    	header[3] = "% Significant Calls";
     	table.add(header);
-    	
+
     	for (String mp : all.keySet()){
 	   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){ // line data is not in statistical result core yet
 	    		String[] row = new String[4];
@@ -862,27 +862,27 @@ public class ReportsService {
 	    		row[1] = sign.toString();
 	    		Long notSignificant = all.get(mp) - sign;
 	    		row[2] = notSignificant.toString();
-	    		Float percentage =  100 * ((float)sign / (float)all.get(mp)); 
+	    		Float percentage =  100 * ((float)sign / (float)all.get(mp));
 	    		row[3] = (percentage.toString());
 	    		table.add(row);
 	   		}
     	}
 
     	res.add(new ArrayList<>(table));
-    	
+
     	table = new ArrayList<>();
     	String[] headerLines = new String[4];
     	headerLines[0] = "Top Level MP Term";
-    	headerLines[1] = "Lines Associated"; 
-    	headerLines[2] = "Lines Tested";    
-    	headerLines[3] = "% Lines Associated";    	
-    	table.add(headerLines); 	
-    
+    	headerLines[1] = "Lines Associated";
+    	headerLines[2] = "Lines Tested";
+    	headerLines[3] = "% Lines Associated";
+    	table.add(headerLines);
+
     	try {
     		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
     		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfLinesByMPTopLevel(resources, null));
-		
+
 		   	for (String mp : genesAllMp.keySet()){
 		   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){
 			   		String[] row = new String[4];
@@ -893,7 +893,7 @@ public class ReportsService {
 		    		}
 		    		row[1] = Integer.toString(sign);
 		    		row[2] = Integer.toString(genesAllMp.get(mp).size());
-		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size()); 
+		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
 		    		row[3] = (percentage.toString());
 		    		table.add(row);
 		   		}
@@ -903,20 +903,20 @@ public class ReportsService {
 	    }
 
 	    res.add(new ArrayList<>(table));
-    	
+
     	table = new ArrayList<>();
     	String[] headerGenes = new String[4];
     	headerGenes[0] = "Top Level MP Term";
-    	headerGenes[1] = "Genes Associated"; 
-    	headerGenes[2] = "Genes Tested";    
-    	headerGenes[3] = "% Associated";    	
-    	table.add(headerGenes); 	
-    
+    	headerGenes[1] = "Genes Associated";
+    	headerGenes[2] = "Genes Tested";
+    	headerGenes[3] = "% Associated";
+    	table.add(headerGenes);
+
     	try {
     		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
     		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfGenesByMPTopLevel(resources, null));
-		
+
 		   	for (String mp : genesAllMp.keySet()){
 		   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){
 			   		String[] row = new String[4];
@@ -927,7 +927,7 @@ public class ReportsService {
 		    		}
 		    		row[1] = Integer.toString(sign);
 		    		row[2] = Integer.toString(genesAllMp.get(mp).size());
-		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size()); 
+		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
 		    		row[3] = (percentage.toString());
 		    		table.add(row);
 		   		}
@@ -935,13 +935,13 @@ public class ReportsService {
 	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-    	
+
     	res.add(new ArrayList<>(table));
-    	
+
     	return res;
     }
-    	
-    
+
+
 
     /**
      *
@@ -964,9 +964,9 @@ public class ReportsService {
         return res;
     }
 
-    
+
     class IpGTTStats {
-    	
+
     	String geneSymbol;
     	String alleleSymbol;
     	String colony;
@@ -976,10 +976,10 @@ public class ReportsService {
     	// < sex, <zygosity, <datapoints>>>
     	HashMap<String, HashMap<String, ArrayList<Float>>> datapoints;
     	HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
-            	
-    	
+
+
     	public IpGTTStats(Group group) throws NumberFormatException, SolrServerException, IOException, URISyntaxException{
-    		
+
     		SolrDocumentList docList = group.getResult();
     		colony = group.getGroupValue();
     		SolrDocument doc = docList.get(0);
@@ -991,10 +991,10 @@ public class ReportsService {
     		datapoints = new HashMap<>();
     		stats = new HashMap<>();
 
-    		
-    		List<String> zygosities = new ArrayList<>();  
-    		List<String> sexes = new ArrayList<>();    		
-    		
+
+    		List<String> zygosities = new ArrayList<>();
+    		List<String> sexes = new ArrayList<>();
+
     		for (SolrDocument d : docList){
     			String sex = d.getFieldValue(ObservationDTO.SEX).toString();
     			String zyg = d.getFieldValue(ObservationDTO.ZYGOSITY).toString();
@@ -1008,7 +1008,7 @@ public class ReportsService {
     			}
     			datapoints.get(sex).get(zyg).add((Float)d.getFieldValue(ObservationDTO.DATA_POINT));
     			stats.get(sex).get(zyg).addValue(Double.parseDouble("" + d.getFieldValue(ObservationDTO.DATA_POINT)));
-    			
+
     			if (!zygosities.contains(zyg)){
     				zygosities.add(zyg);
     			}
@@ -1017,20 +1017,20 @@ public class ReportsService {
     				datapoints.get(sex).put("WT", new ArrayList<Float>());
     				stats.get(sex).put("WT", new DescriptiveStatistics());
     			}
-    				
+
     		}
-    		
+
     		for (String sex : sexes){
 	    		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
 					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),  
-					doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),  
-					SexType.valueOf(sex),  
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),   
-					zygosities, 
-					doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),    
-					null, 
-					Boolean.FALSE, 
+					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),
+					doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
+					SexType.valueOf(sex),
+					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),
+					zygosities,
+					doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),
+					null,
+					Boolean.FALSE,
 					doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
 	    		for (ExperimentDTO exp: experiments){
 	    			for (ObservationDTO obs: exp.getControls()){
@@ -1040,49 +1040,49 @@ public class ReportsService {
 	    		}
     		}
     	}
-    	
+
     	public Double getMean(SexType sex, ZygosityType zyg){
-    		
+
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
     		if (stats.containsKey(sex.getName()) && stats.get(sex.getName()).containsKey(zygosity)){
     			return stats.get(sex.getName()).get(zygosity).getMean();
     		}
     		return null;
     	}
-    	
+
     	public Double getSD(SexType sex, ZygosityType zyg){
-    		
+
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
     		if (stats.containsKey(sex.getName()) && stats.get(sex.getName()).containsKey(zygosity)){
     			return stats.get(sex.getName()).get(zygosity).getStandardDeviation();
     		}
     		return null;
     	}
-    	
+
     	public Integer getN(SexType sex, ZygosityType zyg){
-    		
+
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
     		if (datapoints.containsKey(sex.getName()) && datapoints.get(sex.getName()).containsKey(zygosity)){
     			return datapoints.get(sex.getName()).get(zygosity).size();
     		}
     		return null;
     	}
-    	
+
     	public Float getMedian(SexType sex, ZygosityType zyg){
-    		
+
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
     		if (datapoints.containsKey(sex.getName()) && datapoints.get(sex.getName()).containsKey(zygosity)){
     			return getMedian(datapoints.get(sex.getName()).get(zygosity));
     		}
     		return null;
-    	}    	
+    	}
 
     	private Float getMedian(List<Float> list){
-    		
+
     		Float median = (float)0.0;
     		int middle = list.size()/2;
     		Collections.sort(list);
-    		
+
     		if ( list.size() == 0){
     			return null;
     		}
@@ -1091,7 +1091,7 @@ public class ReportsService {
     		}else {
     			median = list.get(middle);
     		}
-    		
+
     		return median;
     	}
     }

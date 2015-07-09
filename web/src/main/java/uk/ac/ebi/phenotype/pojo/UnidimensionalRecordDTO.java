@@ -16,6 +16,8 @@
 package uk.ac.ebi.phenotype.pojo;
 
 
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
 
 public class UnidimensionalRecordDTO {
 
@@ -31,15 +33,15 @@ public class UnidimensionalRecordDTO {
 	private String gender;
 	private String value;
 	private String experimentDate;
-	
+
 	public String getExperimentDate() {
 		return experimentDate;
 	}
 	public void setExperimentDate(String experimentDate) {
 		this.experimentDate = experimentDate;
 	}
-	
-	
+
+
 	public Boolean isMutant() {
 		return mutant;
 	}
@@ -220,5 +222,5 @@ public class UnidimensionalRecordDTO {
 		return true;
 	}
 
-	
+
 }

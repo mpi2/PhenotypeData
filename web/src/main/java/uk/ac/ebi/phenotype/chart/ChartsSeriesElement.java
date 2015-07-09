@@ -15,17 +15,17 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.json.JSONArray;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
-
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.pojo.ZygosityType;
 
 //to hold a highchart section of data with properties together so we can inject it into highcharts via Java JSON objects
 //name: 'Observation',
-//color: 'rgba(30, 151, 50,0.7)', 
+//color: 'rgba(30, 151, 50,0.7)',
 //type: 'scatter',
 //data: [
 //[2, 3.26],
@@ -37,7 +37,7 @@ import uk.ac.ebi.phenotype.pojo.ZygosityType;
 //[3, 2.92]
 //]
 public class ChartsSeriesElement {
-	
+
 	List<Float>originalData=new ArrayList<>();//to hold original data before being processsed to chart objects
 	public List<Float> getOriginalData() {
 		return originalData;
@@ -56,7 +56,7 @@ public class ChartsSeriesElement {
 	int column;//to record the column of this data if say for boxplots we need this to determine how many other [] arrays to add before us
 	SexType sexType;
 	ZygosityType zygosityType;
-	
+
 	/**
 	 * if zygosity type is null then it must be wildtype
 	 * @return
@@ -67,14 +67,14 @@ public class ChartsSeriesElement {
 	public void setZygosityType(ZygosityType zygosityType) {
 		this.zygosityType = zygosityType;
 	}
-	
+
 	String getControlOrZygosityString() {
 		if(zygosityType==null) {
 			return "WT";
 		}else {
 			return zygosityType.getShortName();
 		}
-		
+
 	}
 	public int getColumn() {
 		return column;
@@ -82,7 +82,7 @@ public class ChartsSeriesElement {
 	public void setColumn(int column) {
 		this.column = column;
 	}
-	
+
 	public SexType getSexType() {
 		return sexType;
 	}

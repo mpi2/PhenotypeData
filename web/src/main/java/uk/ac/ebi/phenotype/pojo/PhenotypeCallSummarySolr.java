@@ -15,11 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.pojo;
 
+import org.mousephenotype.cda.enumerations.ObservationType;
+import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
-
-import uk.ac.ebi.phenotype.util.PhenotypeFacetResult;
 
 
 
