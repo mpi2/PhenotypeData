@@ -16,12 +16,11 @@
 package org.mousephenotype.cda.enumerations;
 
 /**
- * 
+ *
  * Type of observation represented in the database.
- * 
+ *
  * @author Gautier Koscielny (EMBL-EBI) <koscieln@ebi.ac.uk>
  * @since February 2012
- * @see Observation
  */
 
 public enum ObservationType {
