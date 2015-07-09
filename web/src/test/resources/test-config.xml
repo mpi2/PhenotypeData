@@ -210,11 +210,6 @@
 
     <bean id="referenceDAO" class="uk.ac.ebi.phenotype.dao.ReferenceDAO" />
 
-    <bean id="hpOntologyService" class="uk.ac.ebi.phenotype.service.HpOntologyService" />
-    <bean id="maOntologyService" class="uk.ac.ebi.phenotype.service.MaOntologyService" />
-    <bean id="mpOntologyService" class="uk.ac.ebi.phenotype.service.MpOntologyService" />
-    <bean id="mpathOntologyService" class="uk.ac.ebi.phenotype.service.MpathOntologyService" />
-
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="komp2DataSource"/>
         <property name="packagesToScan" value="uk.ac.ebi.phenotype"/>
