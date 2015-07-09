@@ -29,11 +29,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.generic.util.JSONRestUtil;
-import uk.ac.ebi.phenotype.dao.GenomicFeatureDAO;
-import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrDao;
-import uk.ac.ebi.phenotype.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

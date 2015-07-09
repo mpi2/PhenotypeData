@@ -16,7 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 
 import java.util.ArrayList;
 import java.util.List;

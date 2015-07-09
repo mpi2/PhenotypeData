@@ -4,9 +4,9 @@
  * and open the template in the editor.
 /**
  * Copyright © 2014 EMBL - European Bioinformatics Institute
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License.  
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -16,7 +16,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * This test class is intended to run healthchecks against the observation table.
  */
 
@@ -42,7 +42,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.dao.ObservationDAO;
+import org.mousephenotype.cda.db.dao.ObservationDAO;
 
 /**
  * Mouseinformatics fetches an xml file nightly that contains all of the
@@ -93,9 +93,9 @@ public class ObservationHealthcheck {
     @Autowired
     ObservationDAO observationDAO;
 
-    
+
     /**
-     * When <code>missing</code> is zero, <code>parameter_status</code> and 
+     * When <code>missing</code> is zero, <code>parameter_status</code> and
      * <code>parameter_status_message</code> should both be null/empty. Issue
      * a warning if they are not, and display some useful debugging information.
      * @throws SQLException
@@ -119,9 +119,9 @@ public class ObservationHealthcheck {
             System.out.println("SUCCESS: " + testName);
         }
     }
-    
+
     /**
-     * When <code>missing</code> is one, <code>parameter_status</code> should 
+     * When <code>missing</code> is one, <code>parameter_status</code> should
      * contain a controlled vocabulary message, taken from the <code>ontology_term</code>
      * table, describing the reason the data is missing. This field must not be
      * null/empty. Issue a warning if it is. The <code>parameter_status_message</code>
@@ -147,7 +147,7 @@ public class ObservationHealthcheck {
             System.out.println("SUCCESS: " + testName);
         }
     }
-    
+
     /**
      * This test fetches the list of observation.parameter_status that is not in
      * IMPC ontology_term.acc and prints out the information necessary to resolve

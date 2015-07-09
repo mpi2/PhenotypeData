@@ -25,12 +25,12 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 
 public class TimeSeriesStats {
 
-	
-	
+
+
 	private static final Logger log = Logger.getLogger(TimeSeriesStats.class);
 
 	public List<DiscreteTimePoint> getMeanDataPoints(

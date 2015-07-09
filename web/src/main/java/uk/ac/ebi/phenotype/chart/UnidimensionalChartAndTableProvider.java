@@ -23,9 +23,9 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.imits.StatusConstants;
-import uk.ac.ebi.phenotype.pojo.*;
+import org.mousephenotype.cda.db.pojo.*;
 import uk.ac.ebi.phenotype.service.ImpressService;
 
 import java.io.IOException;
@@ -48,13 +48,13 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.data.imits.StatusConstants;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.pojo.StatisticalResult;
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import uk.ac.ebi.phenotype.service.ImpressService;
 
 import java.util.*;

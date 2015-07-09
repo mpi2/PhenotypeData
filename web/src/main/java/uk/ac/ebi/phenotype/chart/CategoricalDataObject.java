@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import uk.ac.ebi.phenotype.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
 
 
 /**

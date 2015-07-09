@@ -18,30 +18,7 @@
 
 package org.mousephenotype.www.testing.model;
 
-<<<<<<< HEAD
-import static com.thoughtworks.selenium.SeleneseTestBase.fail;
-
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLDecoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.annotation.Resource;
-
-=======
->>>>>>> refs/remotes/origin/master
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -50,24 +27,19 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-<<<<<<< HEAD
-import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
-=======
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
->>>>>>> refs/remotes/origin/master
+import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.service.ObservationService;
 import uk.ac.ebi.phenotype.service.PostQcService;
 import uk.ac.ebi.phenotype.service.PreQcService;
-import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
 import uk.ac.ebi.phenotype.util.Utils;
 
 import javax.annotation.Resource;

@@ -16,28 +16,22 @@
 
 package org.mousephenotype.www.testing.model;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.openqa.selenium.By;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.util.Utils;
+
+import java.net.URL;
+import java.util.*;
 
 /**
  *
  * @author mrelac
- 
+
  * This class encapsulates the code and data necessary to represent a Phenotype
  * Archive gene page for Selenium testing.
  */
@@ -49,13 +43,13 @@ public class GenePage {
     private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String baseUrl;
     private final GeneTable geneTable;
-    
+
     private boolean hasImages;
     private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
     private int resultsCount;
-    
+
     /**
      * Creates a new <code>GenePage</code> instance
      * @param driver A valid <code>WebDriver</code> instance
@@ -74,12 +68,12 @@ public class GenePage {
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
         this.geneTable = new GeneTable(driver, wait, target);
-        
+
         load();
     }
-    
+
     /**
-     * 
+     *
      * @return A list of top level MP terms.
      */
     public List<String> getAssociatedImageSections() {
@@ -88,12 +82,12 @@ public class GenePage {
         for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
             associatedImageSections.add(associatedImageSectionElement.getText());
         }
-        
-        return associatedImageSections;      
+
+        return associatedImageSections;
     }
-    
+
     /**
-     * 
+     *
      * @return A list of Impc Images parameters.
      */
     public List<String> getAssociatedImpcImageSections() {
@@ -102,31 +96,31 @@ public class GenePage {
         for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
             associatedImageSections.add(associatedImageSectionElement.getText());
         }
-        
-        return associatedImageSections;      
+
+        return associatedImageSections;
     }
-    
+
     /**
-     * 
+     *
      * @return All of the enabled abnormality strings (those that start with the
      * class name 'sprite').
      */
     public List<String> getEnabledAbnormalities() {
         List<String> abnormalityStrings = new ArrayList();
-        
+
         List<WebElement> enabledAbnormalityElementList = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[ not(contains(@class, 'no-sprite'))]"));
-     
+
         for (WebElement enabledAbnormalityElement : enabledAbnormalityElementList) {
             String abnormality = enabledAbnormalityElement.getAttribute("oldtitle");
             if ((abnormality != null) && ( ! abnormality.isEmpty()))
                 abnormalityStrings.add(abnormality);
         }
-        
+
         return abnormalityStrings;
     }
-    
+
     /**
-     * 
+     *
      * @return the base url
      */
     public String getBaseUrl() {
@@ -134,7 +128,7 @@ public class GenePage {
     }
 
     /**
-     * 
+     *
      * @return all button labels in a <code>List</code>.
      */
     public List<String> getButtonLabels() {
@@ -143,26 +137,26 @@ public class GenePage {
         for (WebElement button : buttons) {
             buttonLabels.add(button.getText());
         }
-        
+
         return buttonLabels;
     }
 
     /**
-     * 
+     *
      * @return the gene ID
      */
     public String getGeneId() {
         return geneId;
     }
-    
+
     /**
-     * 
+     *
      * @return a <code>List&lt;String&gt;</code> of this page's graph urls. The
      * list will be empty if this page doesn't have any graph urls.
      */
     public List<String> getGraphUrls() {
         List<String> urls = new ArrayList();
-        
+
         if (hasGraphs) {
             if (geneTable.genesTableIsNotEmpty()) {
                 geneTable.load();
@@ -172,23 +166,23 @@ public class GenePage {
                 }
             }
         }
-        
+
         return urls;
     }
-    
+
     /**
-     * Return a list of this page's graph urls matching the given procedure and 
+     * Return a list of this page's graph urls matching the given procedure and
      * parameter names.
-     * 
+     *
      * @param procedureName desired procedure name
      * @param parameterName desired parametr name
-     * 
-     * @return a list of this page's graph urls matching the given procedure and 
+     *
+     * @return a list of this page's graph urls matching the given procedure and
      * parameter names.
      */
     public List<String> getGraphUrls(String procedureName, String parameterName) {
         List<String> urls = new ArrayList();
-        
+
         if (hasGraphs()) {
             if (geneTable.genesTableIsNotEmpty()) {
                 geneTable.load();
@@ -201,18 +195,18 @@ public class GenePage {
             }
         }
         return urls;
-    }    
-    
+    }
+
     /**
-     * Returns the production status order button elements (e.g. 'ES Cells', 
+     * Returns the production status order button elements (e.g. 'ES Cells',
      * 'Mice', etc.)
-     * 
-     * @return the production status order button elements (e.g. 'ES Cells', 
+     *
+     * @return the production status order button elements (e.g. 'ES Cells',
      * 'Mice', etc.)
      */
     public List<WebElement> getProductionStatusOrderButtons() {
         List<WebElement> retVal = new ArrayList();
-        
+
         List<WebElement> elements = driver.findElements(By.xpath("//span[text()='Status']"));
         if ( ! elements.isEmpty()) {
             try {
@@ -223,10 +217,10 @@ public class GenePage {
                     retVal.add(element);
             }
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * @return the number at the end of the gene page string 'Total number of results: xxxx'
      */
@@ -235,41 +229,41 @@ public class GenePage {
     }
 
     /**
-     * 
+     *
      * @return all section titles in a <code>List</code>.
      */
     public List<String> getSectionTitles() {
         List<String> sectionTitles = new ArrayList();
         List<WebElement> sections = driver.findElements(By.cssSelector(".title"));
-        
+
         for (WebElement sectionElement : sections) {
             String text = sectionElement.getText().trim();
             if ((text != null) && ( ! text.isEmpty()))
                 sectionTitles.add(sectionElement.getText());
         }
-        
+
         return sectionTitles;
     }
-    
+
     /**
-     * 
+     *
      * @return The target URL
      */
     public String getTarget() {
         return target;
     }
-    
+
     /**
-     * 
+     *
      * @return the title ('Gene: Akt2')
      */
     public String getTitle() {
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("top")));
         return element.getText();
     }
-    
+
     /**
-     * 
+     *
      * @return A list of top level MP terms.
      */
     public List<String> getTopLevelMPs() {
@@ -278,43 +272,43 @@ public class GenePage {
         for (WebElement option : selectTopLevel.getOptions()) {
             topLevelMPs.add(option.getAttribute("value"));
         }
-        
-        return topLevelMPs;      
+
+        return topLevelMPs;
     }
-    
+
     /**
-     * 
+     *
      * @return true if this page has graphs; false otherwise.
      */
     public boolean hasGraphs() {
         return hasGraphs;
     }
-    
+
     /**
-     * 
+     *
      * @return true if this page has images; false otherwise.
      */
     public boolean hasImages() {
         return hasImages;
     }
-    
+
     /**
-     * 
+     *
      * @return true if this page has images; false otherwise.
      */
     public boolean hasImpcImages() {
         return hasImpcImages;
     }
-    
+
     /**
-     * 
+     *
      * @return true if this page has a <b><i>genes</i></b> HTML table;
      * false otherwise.
      */
     public boolean hasGenesTable() {
         return hasGenesTable;
     }
-    
+
     /**
      * Validates that:
      * <ul>
@@ -345,20 +339,20 @@ public class GenePage {
      */
     public PageStatus validate(boolean genesTableRequired) {
         PageStatus status = new PageStatus();
-        
+
         // Validate title starts with 'Gene:'
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@id='top']")));
         if ( ! element.getText().startsWith("Gene:")) {
             status.addError("Expected gene page title to start with 'Gene:'.");
         }
-        
+
         // Validate there is a 'Phenotype Association' section.
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='section-associations']")));
         } catch (Exception e) {
             status.addError("Expected 'Phenotype Association' section.");
         }
-        
+
         // If there is a 'genes' HTML table, validate it.
         if (hasGenesTable) {
             geneTable.load();                                                   // Load all of the genes table pageMap data. Use preAndPostQcList.
@@ -388,7 +382,7 @@ public class GenePage {
                 status.addError("Expected genes HTML table but found none.");
             }
         }
-        
+
         // Buttons
         List<WebElement> buttons = driver.findElements(By.className("btn"));
         // ... count
@@ -404,24 +398,24 @@ public class GenePage {
                 status.addError("Expected button with title '" + buttonText + "' but none was found.");
             }
         }
-        
+
         return status;
     }
-    
+
     public int getGenesLength() {
         Select select = new Select(driver.findElement(By.xpath("//select[@name='genes_length']")));
         return Utils.tryParseInt(select.getFirstSelectedOption());
     }
-    
+
     public void selectGenesLength(Integer resultCount) {
         Select select = new Select(driver.findElement(By.xpath("//select[@name='genes_length']")));
         select.selectByValue(resultCount.toString());
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
+
     /**
      * Waits for the gene page to load.
      */
@@ -433,10 +427,10 @@ public class GenePage {
         // Determine if this page has images.
         elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
         hasImages = ! elements.isEmpty();
-        
+
         List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
         hasImpcImages= ! impcElements.isEmpty();
- 
+
         // Determine if this page has phenotype associations. If it does, get the results count.
         try {
             elements = driver.findElements(By.xpath("//table[@id='genes']"));
@@ -451,10 +445,10 @@ public class GenePage {
         } catch (Exception e) {
             throw new RuntimeException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
         }
-        
+
         hasGraphs = (resultsCount > 0);
     }
-    
+
     /**
      * Compares a single row of a pageMap grid selected by pageMapIndex to a
      * single row of a downloadData grid selected by downloadIndex.
@@ -462,10 +456,10 @@ public class GenePage {
      * @param downloadData download data store
      * @param pageMapIndex pageMap row index
      * @param downloadIndex download row index
-     * @return 
+     * @return
      */
     private int compareRowData(GridMap pageMap, GridMap downloadData, int pageMapIndex, int downloadIndex) {
-        
+
         // Validate the page's genes HTML table values against the first row of the download values.
         // If sex = "both", validate against the second download row as well.
         int errorCount = 0;
@@ -518,7 +512,7 @@ public class GenePage {
         // When testing using http, the download link compare fails because the page url uses http
         // but the download graph link uses https. Ignore the protocol (but not the hostname).
         pageCell = TestUtils.removeProtocol(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_GRAPH_LINK).trim());
-        
+
         downloadCell = TestUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH_LINK).trim());
         if ( ! pageCell.equals(downloadCell))
             colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
@@ -531,10 +525,10 @@ public class GenePage {
 
             errorCount++;
         }
-        
+
         return errorCount;
     }
-    
+
     /**
      * Get the full TSV data store
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
@@ -545,7 +539,7 @@ public class GenePage {
     private GridMap getDownloadTsv(String baseUrl, PageStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
-        
+
         try {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
             // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
@@ -557,7 +551,7 @@ public class GenePage {
             // Get the download stream and statistics for the TSV stream.
             URL url = new URL(downloadTarget);
             DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-            
+
             data = dataReaderTsv.getData();
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + geneId + "(" + target + ") but found none.";
@@ -566,10 +560,10 @@ public class GenePage {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
-        
+
         return new GridMap(data, target);
     }
-    
+
     /**
      * Return the download url base
      * @return the download url base embedded in div.
@@ -577,7 +571,7 @@ public class GenePage {
     private String getDownloadUrlBase() {
         return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
     }
-    
+
     /**
      * Get the full XLS data store
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
@@ -588,7 +582,7 @@ public class GenePage {
     private GridMap getDownloadXls(String baseUrl, PageStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
-        
+
         try {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
             // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
@@ -600,7 +594,7 @@ public class GenePage {
             // Get the download stream and statistics for the XLS stream.
             URL url = new URL(downloadTarget);
             DataReaderXls dataReaderXls = new DataReaderXls(url);
-            
+
             data = dataReaderXls.getData();
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + geneId + "(" + target + ") but found none.";
@@ -609,10 +603,10 @@ public class GenePage {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
-        
+
         return new GridMap(data, target);
     }
-    
+
     /**
      * Validate the page data against the download data. This is a difficult task,
      * as there is more detail data in the download file that simply doesn't exist
@@ -620,42 +614,42 @@ public class GenePage {
      * a single row for male and female; in the download, there are always two such
      * rows - one for each sex. Then there is the newly added pagination that
      * does not serve up all of the page data in a single gulp any more.
-     * 
+     *
      * So validation will be simple:
      * <li>Check that the number of rows in the download file is at least as
      *     many rows as the number of [non-preqc] sex icons shown on the first page.</li>
      * <li>Do a set difference between the rows on the first displayed page
      *     and the rows in the download file. The difference should be empty.</li></ul>
      * Any errors are returned in the <code>PageStatus</code> instance.
-     * 
+     *
      * @return page status instance
      */
     private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
         GridMap pageMap = geneTable.load();                                        // Load all of the genes table pageMap data.
-        
+
         // Test the TSV.
         GridMap downloadData = getDownloadTsv(baseUrl, status);
         if (status.hasErrors()) {
             return status;
         }
-        
+
         status = validateDownload(pageMap, downloadData);
         if (status.hasErrors()) {
             return status;
         }
-        
+
         // Test the XLS.
         downloadData = getDownloadXls(baseUrl, status);
         if (status.hasErrors()) {
             return status;
         }
-        
+
         status = validateDownload(pageMap, downloadData);
         if (status.hasErrors()) {
             return status;
         }
-        
+
         return status;
     }
 
@@ -669,7 +663,7 @@ public class GenePage {
     private PageStatus validateDownload(GridMap pageData, GridMap downloadData) {
         PageStatus status = new PageStatus();
         int downloadDataLineCount = downloadData.getBody().length;
-        
+
         // Check that the number of rows in the download file is at least as
         // many rows as the number of [non-preqc] sex icons shown on the first page.
         int sexIconCount = TestUtils.getSexIconCount(pageData, GeneTable.COL_INDEX_GENES_SEX,
@@ -678,7 +672,7 @@ public class GenePage {
             status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
                     sexIconCount + ").");
         }
-        
+
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
@@ -704,11 +698,11 @@ public class GenePage {
         final Integer[] decodeColumns = {
             DownloadGeneMap.COL_INDEX_GRAPH_LINK
         };
-        
+
         // Create a pair of sets: one from the page, the other from the download.
         Set<String> pageSet = TestUtils.createSet(pageData, pageColumns);
         Set<String> downloadSet = downloadData.urlDecode(Arrays.asList(decodeColumns)).createSet(downloadColumns);
-        
+
         Set difference = TestUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
@@ -725,8 +719,8 @@ public class GenePage {
         if (errorCount > 0) {
             status.addError("Mismatch.");
         }
-        
+
         return status;
     }
-    
+
 }

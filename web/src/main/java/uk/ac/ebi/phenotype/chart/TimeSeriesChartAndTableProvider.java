@@ -25,9 +25,9 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

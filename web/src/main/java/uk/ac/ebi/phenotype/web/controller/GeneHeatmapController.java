@@ -24,9 +24,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.dao.SecondaryProject3iImpl;
-import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.service.StatisticalResultService;
+import uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl;
+import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
 import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 

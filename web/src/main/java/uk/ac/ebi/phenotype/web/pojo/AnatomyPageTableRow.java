@@ -16,7 +16,7 @@
 package uk.ac.ebi.phenotype.web.pojo;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import uk.ac.ebi.phenotype.pojo.*;
+import org.mousephenotype.cda.db.pojo.*;
 
 import java.util.ArrayList;
 import java.util.List;

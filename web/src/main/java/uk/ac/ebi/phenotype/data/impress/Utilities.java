@@ -22,11 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.phenotype.dao.DatasourceDAO;
-import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
-import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 import java.util.*;
 

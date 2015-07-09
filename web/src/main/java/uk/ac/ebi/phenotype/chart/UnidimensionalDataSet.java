@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
-import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 
 /**
  * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table
@@ -28,15 +28,15 @@ import uk.ac.ebi.phenotype.pojo.UnidimensionalResult;
  */
 public class UnidimensionalDataSet {
 
-	private String experimentId = ""; 
+	private String experimentId = "";
 	private String title;
 	private String subtitle;
 	private ExperimentDTO experiment;
 	private String organisation = "";
 	private Float min;
 	private Float max;
-	
-	
+
+
 
 	public String getOrganisation() {
 
@@ -57,7 +57,7 @@ public class UnidimensionalDataSet {
 
 	private ChartData chartData;
 
-	
+
 	public ChartData getChartData() {
 		return chartData;
 	}
@@ -94,43 +94,43 @@ public class UnidimensionalDataSet {
 	}
 
 	public Float getMin() {
-	
+
 		return min;
 	}
-	
+
 	public void setMin(Float min) {
-	
+
 		this.min = min;
 	}
 
 	public Float getMax() {
-	
+
 		return max;
 	}
-	
+
 	public void setMax(Float max) {
-	
+
 		this.max = max;
 	}
 
 	public String getTitle() {
-	
+
 		return title;
 	}
-	
+
 	public void setTitle(String title) {
-	
+
 		this.title = title;
 	}
-	
+
 	public String getSubtitle() {
-	
+
 		return subtitle;
 	}
-	
+
 	public void setSubtitle(String subtitle) {
-	
+
 		this.subtitle = subtitle;
 	}
-	
+
 }

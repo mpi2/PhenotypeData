@@ -29,7 +29,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 
 public class PreQcService extends AbstractGenotypePhenotypeService {
 
@@ -42,22 +42,22 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
     public PreQcService() {
         super();
     }
-    
+
     /**
      * Returns a list of <code>count GraphTestDTO</code> instances.
      *
      * @param count the number of <code>GraphTestDTO</code> instances to return
      *
      * @return a list of <code>count GraphTestDTO</code> instances.
-     * 
+     *
      * @throws SolrServerException
      */
     public List<GraphTestDTO> getGeneAccessionIds(int count) throws SolrServerException {
         List<GraphTestDTO> retVal = new ArrayList();
-        
+
         if (count < 1)
             return retVal;
-        
+
         SolrQuery query = new SolrQuery();
         query
             .setQuery("*:*")
@@ -67,14 +67,14 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
             .add("group.field", "marker_accession_id")
             .add("group.limit", Integer.toString(count))
         ;
-        
+
         QueryResponse response = solr.query(query);
         List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {
             List<Group> groups = groupCommand.getValues();
             for (Group group : groups) {
                 SolrDocumentList docs = group.getResult();
-                
+
                 SolrDocument doc = docs.get(0);                                 // All elements in this collection have the same mgi_accession_id.
                 GraphTestDTO geneGraph = new GraphTestDTO();
                 geneGraph.setParameterStableId((String)doc.get("parameter_stable_id"));
@@ -88,7 +88,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
                 }
             }
         }
-        
+
         return retVal;
     }
 }

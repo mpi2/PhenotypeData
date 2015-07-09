@@ -16,7 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.pojo;
 
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 
 import java.util.Map;
 
@@ -32,11 +32,11 @@ public class GenePageTableRow extends DataTableRow {
     public GenePageTableRow() {
         super();
     }
-    
+
     public GenePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
         super(pcs, baseUrl, config);
     }
-    
+
     /**
      * Sort by:
      * <ul>
@@ -48,16 +48,16 @@ public class GenePageTableRow extends DataTableRow {
      * <li>phenotyping center</li>
      * <li>source</li>
      * </ul>
-     * 
+     *
      * @param o operand to compare against
-     * @return 
+     * @return
      */
     @Override
     public int compareTo(DataTableRow o) {
         if (o.phenotypeTerm == null || this.phenotypeTerm == null) {
             return -1;
         }
-              
+
         // Gene Page sorting
         int pvalueOp = this.pValue.compareTo(o.pValue);
         if (pvalueOp == 0) {

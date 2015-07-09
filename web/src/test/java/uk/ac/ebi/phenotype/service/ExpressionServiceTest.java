@@ -1,20 +1,21 @@
 package uk.ac.ebi.phenotype.service;
 
-import static org.junit.Assert.*;
-
-import java.util.Map;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.solr.service.ExpressionService;
+import org.mousephenotype.cda.solr.service.ExpressionService.ExpressionRowBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 
-import org.mousephenotype.cda.solr.service.ExpressionService.ExpressionRowBean;
+import java.util.Map;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:test-config.xml" })
@@ -40,18 +41,18 @@ public class ExpressionServiceTest {
 			 expressionAnatomyToRow=(Map<String, ExpressionRowBean>)map.get("expressionAnatomyToRow");
 			 mutantImagesAnatomyToRow=(Map<String, ExpressionRowBean>)map.get("mutantImagesAnatomyToRow");
 			 wtAnatomyToRow=(Map<String, ExpressionRowBean>)map.get("wtAnatomyToRow");
-			
-			
+
+
 //			model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
 //			model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
 //			model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
-			
+
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void imagesTest(){
 		System.out.println("expression="+expressionAnatomyToRow.get(anatomy));
@@ -59,26 +60,26 @@ public class ExpressionServiceTest {
 		assertTrue(imagesRow.isHomImages());
 		assertTrue(imagesRow.isImagesAvailable());
 		assertTrue(imagesRow.getNumberOfImages()>=11);//currently 11 images for Bladder/urinary bladder
-		
+
 		System.out.println("expression="+expressionAnatomyToRow.get(anatomy2));
 		ExpressionRowBean imagesRow2=mutantImagesAnatomyToRow.get(anatomy2);
 		assertTrue(imagesRow2.isHomImages());
 		assertTrue(imagesRow2.isImagesAvailable());
 		assertTrue(imagesRow2.getNumberOfImages()>=11);//currently 11 images for Bladder/urinary bladder
-		
+
 	}
-	
+
 	@Test
 	public void numberOfHetsTest(){
-		
+
 		System.out.println("expression="+expressionAnatomyToRow.get(anatomy));
 		ExpressionRowBean expRow=expressionAnatomyToRow.get(anatomy);
 		assertTrue(expRow.getNumberOfHetSpecimens()==4);
 	}
-	
+
 	@Test
 	public void mutantExpressionTest(){
-		
+
 		System.out.println("expression="+expressionAnatomyToRow.get(anatomy));
 		ExpressionRowBean expRow=expressionAnatomyToRow.get(anatomy);
 		assertFalse(expRow.isExpression());
@@ -88,12 +89,12 @@ public class ExpressionServiceTest {
 		assertFalse(expRow.isNoTissueAvailable());
 		assertTrue(expRow.getSpecimenNoTissueAvailable().size()==0);
 		//falls back to ambiguous if no numbers for above and displays ambiguous like for this example currently
-		
+
 	}
-	
+
 	@Test
 	public void wtExpressionTest(){
-		
+
 		System.out.println("expression="+wtAnatomyToRow.get(anatomy));
 		ExpressionRowBean wtRow=wtAnatomyToRow.get(anatomy);
 		assertFalse(wtRow.isExpression());
@@ -103,7 +104,7 @@ public class ExpressionServiceTest {
 		assertFalse(wtRow.isNoTissueAvailable());
 		assertTrue(wtRow.getSpecimenNoTissueAvailable().size()==0);
 		//falls back to ambiguous
-		
+
 	}
-	
+
 }

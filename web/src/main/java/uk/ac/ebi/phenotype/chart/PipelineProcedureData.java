@@ -23,13 +23,13 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
-import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.Procedure;
 
 public class PipelineProcedureData {
 
-	
+
 	private static final Logger log = Logger
 			.getLogger(PipelineProcedureData.class);
 
@@ -62,8 +62,8 @@ public class PipelineProcedureData {
 	private Map<Integer, List<Procedure>> proceduresByWeek;
 
 	// includes or excludes the weeks row n the bottom
-	int highestNumberOfProceduresPerWeek = 0; 
-	
+	int highestNumberOfProceduresPerWeek = 0;
+
 	// max number of processes/rows height we want minus the weeks/chevrons
 	private int MAXHeight = 3;
 
@@ -76,7 +76,7 @@ public class PipelineProcedureData {
 	/**
 	 * Add a procedure identified by each age in weeks to this object so we can
 	 * then order those objects
-	 * 
+	 *
 	 * @param week
 	 * @param proc
 	 */
@@ -152,7 +152,7 @@ public class PipelineProcedureData {
 
 					List<Procedure> smallerWeekData = weekData.subList(indexFrom, indexTo);
 					columnSmaller = addExtraRowsIfNeeded(columnSmaller,smallerWeekData);
-					
+
 					// if first column of a new set that is split over multiple
 					// columns for one week then tell the column creator how
 					// many colspans the bottom cell representing weeks should
@@ -184,7 +184,7 @@ public class PipelineProcedureData {
 
 	/**
 	 * make Data with string and colspan for a column of procedures
-	 * 
+	 *
 	 * @param columns
 	 * @param week
 	 * @param columnSmaller
@@ -204,7 +204,7 @@ public class PipelineProcedureData {
 			}else{
 				columnSmaller.add(new Data(proc.getName()));
 			}
-			
+
 		}
 
 		// if week is the no weeks static integer then there is no week assigned
@@ -219,7 +219,7 @@ public class PipelineProcedureData {
 
 	/**
 	 * return the parameter id of the any pheno call that matches this procedure
-	 * 
+	 *
 	 * @param proc
 	 * @return
 	 */
@@ -242,7 +242,7 @@ public class PipelineProcedureData {
 	/**
 	 * transform the week data into a form we can use to write the html rows -
 	 * splits data up into tables for seperate rows in page if needs be
-	 * 
+	 *
 	 * @param columns
 	 * @return
 	 */
@@ -302,7 +302,7 @@ public class PipelineProcedureData {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param smallerTableData
 	 *            - data for sub table
 	 * @param tables

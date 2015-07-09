@@ -17,7 +17,7 @@ package uk.ac.ebi.phenotype.web.pojo;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.pojo.*;
+import org.mousephenotype.cda.db.pojo.*;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
