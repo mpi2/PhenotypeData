@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -13,35 +13,26 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.imaging.persistence;
+package org.mousephenotype.cda.db.pojo;
 
-import java.io.Serializable;
-import javax.persistence.*;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
-
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 
-/**
- * The persistent class for the IMA_IMAGE_TAG_TYPE database table.
- * 
- */
 @Entity
-@Table(name="IMA_IMAGE_TAG_TYPE")
-public class ImaImageTagType implements Serializable {
-	private static final long serialVersionUID = 1L;
+@Table(name = "MTS_GENOTYPE_DICT")
+public class MtsGenotypeDict {
+	@Id
 	private int id;
 	private String name;
+	private String description;
 
-    public ImaImageTagType() {
-    }
 
-    @JsonIgnore 
-	@Id
 	public int getId() {
-		return this.id;
+		return id;
 	}
+
 
 	public void setId(int id) {
 		this.id = id;
@@ -49,12 +40,22 @@ public class ImaImageTagType implements Serializable {
 
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
+
 
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	
+
+	public String getDescription() {
+		return description;
+	}
+
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 }

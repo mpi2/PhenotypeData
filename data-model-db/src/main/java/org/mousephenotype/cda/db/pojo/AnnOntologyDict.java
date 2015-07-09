@@ -13,56 +13,80 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.imaging.persistence;
+package org.mousephenotype.cda.db.pojo;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
 
+
+/**
+ * The persistent class for the ANN_ONTOLOGY_DICT database table.
+ *
+ */
 @Entity
-@Table(name="MTS_MOUSE_ALLELE")
-public class MtsMouseAllele {
+@Table(name="ANN_ONTOLOGY_DICT")
+public class AnnOntologyDict implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private byte active;
+	private String description;
 	private int id;
-	private int mouseId;
-	//private int alleleId;
-	
-	private MtsGenotypeDict mtsGenotypeDict;
+	private String name;
+	private int orderBy;
 
-	@ManyToOne
-	@JoinColumn(name="GENOTYPE_DICT_ID", referencedColumnName="ID")
-	public MtsGenotypeDict getMtsGenotypeDict() {
-		return mtsGenotypeDict;
+
+    public AnnOntologyDict() {
+    }
+
+
+	public byte getActive() {
+		return this.active;
 	}
 
-	public void setMtsGenotypeDict(MtsGenotypeDict mtsGenotypeDict) {
-		this.mtsGenotypeDict = mtsGenotypeDict;
+	public void setActive(byte active) {
+		this.active = active;
+	}
+
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Id
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public void setId(int id) {
 		this.id = id;
 	}
-	@Column(name="MOUSE_ID")
-	public int getMouseId() {
-		return mouseId;
+
+
+	public String getName() {
+		return this.name;
 	}
 
-	public void setMouseId(int mouseId) {
-		this.mouseId = mouseId;
+	public void setName(String name) {
+		this.name = name;
 	}
-	
+
+
+	@Column(name="ORDER_BY")
+	public int getOrderBy() {
+		return this.orderBy;
+	}
+
+	public void setOrderBy(int orderBy) {
+		this.orderBy = orderBy;
+	}
+
+
+
 }

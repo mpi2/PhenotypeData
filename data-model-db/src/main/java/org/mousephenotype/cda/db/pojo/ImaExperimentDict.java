@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.imaging.persistence;
+package org.mousephenotype.cda.db.pojo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,22 +23,22 @@ import java.io.Serializable;
 
 
 /**
- * The persistent class for the IMA_PUBLISHED_DICT database table.
+ * The persistent class for the IMA_EXPERIMENT_DICT database table.
  *
  */
 @Entity
-@Table(name="IMA_PUBLISHED_DICT")
-public class ImaPublishedDict implements Serializable {
+@Table(name="IMA_EXPERIMENT_DICT")
+public class ImaExperimentDict implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int id;
+	private byte active;
 	private String description;
 	private String name;
 	private int orderBy;
-	//private Set<ImaImageRecord> imaImageRecords;
+	//private List<ImaSubcontext> imaSubcontexts;
 
-    public ImaPublishedDict() {
+    public ImaExperimentDict() {
     }
-
 
 	@Id
 	public int getId() {
@@ -47,6 +47,15 @@ public class ImaPublishedDict implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+
+	public byte getActive() {
+		return this.active;
+	}
+
+	public void setActive(byte active) {
+		this.active = active;
 	}
 
 
@@ -78,14 +87,14 @@ public class ImaPublishedDict implements Serializable {
 	}
 
 
-	//bi-directional many-to-one association to ImaImageRecord
-//	@OneToMany(mappedBy="imaPublishedDict", fetch=FetchType.EAGER)
-//	public Set<ImaImageRecord> getImaImageRecords() {
-//		return this.imaImageRecords;
+	//bi-directional many-to-one association to ImaSubcontext
+//	@OneToMany(mappedBy="imaExperimentDict")
+//	public List<ImaSubcontext> getImaSubcontexts() {
+//		return this.imaSubcontexts;
 //	}
 //
-//	public void setImaImageRecords(Set<ImaImageRecord> imaImageRecords) {
-//		this.imaImageRecords = imaImageRecords;
+//	public void setImaSubcontexts(List<ImaSubcontext> imaSubcontexts) {
+//		this.imaSubcontexts = imaSubcontexts;
 //	}
 
 }

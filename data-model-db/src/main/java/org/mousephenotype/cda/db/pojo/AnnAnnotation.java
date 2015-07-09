@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.imaging.persistence;
+package org.mousephenotype.cda.db.pojo;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -30,7 +30,7 @@ import javax.persistence.TemporalType;
 
 /**
  * The persistent class for the ANN_ANNOTATION database table.
- * 
+ *
  */
 @Entity
 @Table(name="ANN_ANNOTATION")
@@ -164,6 +164,6 @@ public class AnnAnnotation implements Serializable {
 		this.termName = termName;
 	}
 
-	
-	
+
+
 }
