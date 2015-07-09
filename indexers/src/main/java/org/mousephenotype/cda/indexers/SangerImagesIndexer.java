@@ -54,7 +54,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
-    
+
     @Autowired
     @Qualifier("solrServer")
     SolrServer phenodigmServer;
@@ -106,10 +106,10 @@ public class SangerImagesIndexer extends AbstractIndexer {
     @Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(sangerImagesCore);
-        
+
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual images document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound + " documents.");
         else
@@ -186,7 +186,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
             e.printStackTrace();
             throw new IndexerException(e);
         }
-        
+
         logger.info("Populating experiment solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
     }
 
@@ -331,10 +331,10 @@ public class SangerImagesIndexer extends AbstractIndexer {
                             for (Annotation annotation : annotations) {
                                 annotationTermIds.add(annotation.annotationTermId);
                                 //if ma term
-                                
+
                                 //if mp term
-                                
-                                
+
+
                                 if (annotation.ma_id != null) {
                                 	//System.out.println("ma id not null");
                                 	//System.out.println("uptodatemap result="+uptoDateMaMap.get(annotation.ma_id));
@@ -1299,31 +1299,4 @@ public class SangerImagesIndexer extends AbstractIndexer {
         mpToHpMap = IndexerMap.getMpToHpTerms(phenodigmServer);
     }
 
-    private void populateMpToNode() {
-
-		// select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt
-        // where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'
-        logger.info("populating mpTermToNode");
-        // <field column="syn_name" name="mp_term_synonym" />
-        String query = "select nt.node_id, ti.term_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
-
-        try (PreparedStatement p = ontoDbConnection.prepareStatement(query)) {
-            ResultSet resultSet = p.executeQuery();
-
-            while (resultSet.next()) {
-                int nodeId = resultSet.getInt("node_id");
-                String termId = resultSet.getString("term_id");
-
-                if ( ! nodeToMp.containsKey(nodeId)) {
-                    nodeToMp.put(nodeId, nodeToMp.get(termId));
-					// System.out.println("adding to mpNode2termTopLevel" +
-                    // nodeId + " " +
-                    // termId);
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

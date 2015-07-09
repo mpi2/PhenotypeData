@@ -17,11 +17,13 @@
 package org.mousephenotype.cda.indexers.utils;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.beans.ImpressBean;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.indexers.beans.ImpressBean;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,56 +55,68 @@ public class IndexerMap {
 
 
     // PUBLIC METHODS
-    
-    
+
+
     /**
      * Fetch a map of AlleleDTOs terms indexed by mgi_accession_id
      *
      * @param alleleCore a valid solr connection
      * @return a map, indexed by MGI Accession id, of all alleles
-     * 
+     *
      * @throws IndexerException
      */
     public static Map<String, List<AlleleDTO>> getGeneToAlleles(SolrServer alleleCore) throws IndexerException {
         if (allelesMap == null) {
-            allelesMap = SolrUtils.populateAllelesMap(alleleCore);
+            try {
+                allelesMap = SolrUtils.populateAllelesMap(alleleCore);
+            } catch (SolrServerException e) {
+                throw new IndexerException("Unable to query allele core in SolrUtils.populateAllelesMap()", e);
+            }
         }
-        
+
         return allelesMap;
     }
-    
+
     /**
      * Returns a cached map of all mp terms to hp terms, indexed by mp id.
      *
      * @param phenodigm_core a valid solr connection
      * @return a cached map of all mp terms to hp terms, indexed by mp id.
-     * 
+     *
      * @throws IndexerException
      */
     public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrServer phenodigm_core) throws IndexerException {
         if (mpToHpTermsMap == null) {
-            mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
+            try {
+                mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
+            }catch (SolrServerException e) {
+                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
+            }
         }
         logger.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
-    
+
     /**
      * Fetch a map of AlleleDTOs terms indexed by mgi_accession_id
      *
      * @param alleleCore a valid solr connection
      * @return a map, indexed by MGI Accession id, of all alleles
-     * 
+     *
      * @throws IndexerException
      */
     public static List<AlleleDTO> getAlleles(SolrServer alleleCore) throws IndexerException {
         if (alleles== null) {
-            alleles = SolrUtils.getAllAlleles(alleleCore);
+            try {
+                alleles = SolrUtils.getAllAlleles(alleleCore);
+            } catch (SolrServerException e) {
+                throw new IndexerException("Unable to query allele core in SolrUtils.getAllAlleles()", e);
+            }
         }
-        
+
         return alleles;
     }
-    
+
     /**
      * Returns a cached map of all sanger image terms associated to all ma ids,
      * indexed by ma term id.
@@ -114,9 +128,13 @@ public class IndexerMap {
      */
     public static Map<String, List<SangerImageDTO>> getSangerImagesByMA(SolrServer imagesCore) throws IndexerException {
         if (sangerImagesMap == null) {
-            sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
+            try {
+                sangerImagesMap = SolrUtils.populateSangerImagesMap(imagesCore);
+            } catch (SolrServerException e) {
+                throw new IndexerException("Unable to query images_core in SolrUtils.populateSangerImagesMap()", e);
+            }
         }
-        
+
         return sangerImagesMap;
     }
 
@@ -182,8 +200,8 @@ public class IndexerMap {
 
 
     // UTILITY METHODS
-    
-    
+
+
     /**
      * Dumps out the list of <code>SangerImageDTO</code>, prepending the <code>
      * what</code> string for map identification.
@@ -196,8 +214,14 @@ public class IndexerMap {
         SolrUtils.dumpSangerImagesMap(map, what, maxIterations);
     }
 
-    public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
-            Map<String, List<SangerImageDTO>> map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
-            return map;
-    }
+
+	public static Map<String, List<SangerImageDTO>> getSangerImagesByMgiAccession(SolrServer imagesCore) throws IndexerException {
+		Map<String, List<SangerImageDTO>> map = null;
+		try {
+			map = SolrUtils.populateSangerImagesByMgiAccession(imagesCore);
+		} catch (SolrServerException e) {
+			throw new IndexerException("Unable to query images core", e);
+		}
+		return map;
+	}
 }
