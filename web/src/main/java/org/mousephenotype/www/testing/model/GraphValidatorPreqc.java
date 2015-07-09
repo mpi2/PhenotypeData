@@ -16,13 +16,13 @@
 
 package org.mousephenotype.www.testing.model;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
+import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
-
-import java.util.List;
 
 /**
  *

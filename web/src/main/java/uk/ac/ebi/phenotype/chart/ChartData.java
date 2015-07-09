@@ -15,14 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+
+import uk.ac.ebi.phenotype.dao.DiscreteTimePoint;
+import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 
 public class ChartData {
 	BiologicalModel expBiologicalModel;

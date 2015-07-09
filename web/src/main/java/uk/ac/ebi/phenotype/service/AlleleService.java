@@ -27,8 +27,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 
-import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
 import uk.ac.ebi.phenotype.util.PhenotypingStatusComparator;
 import uk.ac.ebi.phenotype.util.ProductionStatusComparator;
 

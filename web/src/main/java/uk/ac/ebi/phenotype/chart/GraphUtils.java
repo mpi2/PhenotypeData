@@ -15,8 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
@@ -24,12 +34,6 @@ import uk.ac.ebi.phenotype.data.impress.Utilities;
 import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 import uk.ac.ebi.phenotype.pojo.ObservationType;
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import org.mousephenotype.cda.solr.service.ExpressionService;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
 
 public class GraphUtils {
 

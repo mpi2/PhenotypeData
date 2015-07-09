@@ -15,10 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 public class ViabilityDTO {
 	final static String totalPups="IMPC_VIA_003_001";

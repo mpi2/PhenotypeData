@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.web.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 
 import uk.ac.ebi.phenotype.pojo.Allele;
 import uk.ac.ebi.phenotype.pojo.DatasourceEntityId;
@@ -27,7 +27,6 @@ import uk.ac.ebi.phenotype.pojo.OntologyTerm;
 import uk.ac.ebi.phenotype.pojo.Parameter;
 import uk.ac.ebi.phenotype.pojo.Procedure;
 import uk.ac.ebi.phenotype.pojo.ZygosityType;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
 
 
 public class AnatomyPageTableRow extends DataTableRow{

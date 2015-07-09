@@ -15,8 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.bean;
 
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+
 import uk.ac.ebi.phenotype.pojo.StatisticalSignificance;
-import uk.ac.ebi.phenotype.service.dto.StatisticalResultDTO;
 
 
 /**

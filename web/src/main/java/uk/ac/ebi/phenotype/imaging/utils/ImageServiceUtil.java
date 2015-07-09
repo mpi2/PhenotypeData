@@ -15,15 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.imaging.utils;
 
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import uk.ac.ebi.phenotype.service.dto.ImageDTO;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 
 public class ImageServiceUtil {
 

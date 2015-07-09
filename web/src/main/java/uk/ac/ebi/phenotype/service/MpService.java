@@ -15,7 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.service;
 
-import net.sf.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -25,12 +30,12 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
-import uk.ac.ebi.phenotype.service.dto.MpDTO;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 
-import java.util.*;
+import net.sf.json.JSONObject;
+import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
+import uk.ac.ebi.phenotype.web.pojo.BasicBean;
 
 @Service
 public class MpService {

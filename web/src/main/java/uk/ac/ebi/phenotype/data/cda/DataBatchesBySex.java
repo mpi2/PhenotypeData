@@ -15,17 +15,19 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.data.cda;
 
-import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.enumerations.BatchClassification;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ebi.phenotype.pojo.SexType;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.enumerations.BatchClassification;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
+
+import uk.ac.ebi.phenotype.pojo.SexType;
 
 /**
  * Created by jmason on 30/03/2015.

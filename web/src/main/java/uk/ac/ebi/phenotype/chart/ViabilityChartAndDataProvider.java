@@ -16,20 +16,15 @@
 package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.WordUtils;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
 
 @Service
 public class ViabilityChartAndDataProvider {
