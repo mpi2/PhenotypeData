@@ -1033,7 +1033,6 @@ public class ReportsService {
 
     		for (String sex : sexes){
 	    		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
-<<<<<<< HEAD
 							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
 							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),  
 							doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),  
@@ -1044,18 +1043,7 @@ public class ReportsService {
 							null, 
 							Boolean.FALSE, 
 							doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
-=======
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),
-					doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
-					SexType.valueOf(sex),
-					(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),
-					zygosities,
-					doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),
-					null,
-					Boolean.FALSE,
-					doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
->>>>>>> refs/remotes/origin/master
+
 	    		for (ExperimentDTO exp: experiments){
 	    			for (ObservationDTO obs: exp.getControls()){
 	    				datapoints.get(sex).get("WT").add((Float)obs.getDataPoint());
@@ -1082,12 +1070,7 @@ public class ReportsService {
     		}
     		return null;
     	}
-<<<<<<< HEAD
     	
-    	
-=======
-
->>>>>>> refs/remotes/origin/master
     	public Integer getN(SexType sex, ZygosityType zyg){
 
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
@@ -1096,12 +1079,6 @@ public class ReportsService {
     		}
     		return null;
     	}
-<<<<<<< HEAD
-    	
-    	
-=======
-
->>>>>>> refs/remotes/origin/master
     	public Float getMedian(SexType sex, ZygosityType zyg){
 
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
