@@ -315,11 +315,29 @@
                                                 </c:forEach>
                                                 
                                             </div>
-                                            <div class="floatright" style="clear:both">
-                                          	<p>
-                                            <a class="btn" href="https://dev.mousephenotype.org/embryoviewer?gene_symbol=Klf7" style="margin:10px">Embryo Viewer</a>
-                                            </p>
+                                            
+                                            <%-- <c:if test="${!(empty dataMapList)}">
+                                        <p class="with-label no-margin">
+                                        <p class="no-margin">Browse all phenotype data for:</p>
+                                        <ul>				
+                                            <c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
+                                                <li><a href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} using ${dataMap["pipeline_name"]} SOPs (<a href='${baseUrl}/phenome?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>MP calls for all strains</a>).</li>					
+                                            </c:forEach>
+                                        </ul>
+                                        </p>
+                                    </c:if>	 --%>
+                                          <c:if test="${!(empty dataMapList)}">
+                                          
+                                          <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+	                                        <div class="floatright" style="clear:both">
+	                                         	<a class="btn" href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}' style="margin:10px">All Adult Data</a>
                                             </div>
+                                          </c:if>
+                                          <c:if test="${showEmbryoViewer}">
+                                            <div class="floatright" style="clear:both">
+                                            	<a class="btn" href="${baseUrl}/embryoviewer?gene_symbol=${gene.symbol}" style="margin:10px">Embryo IEV Viewer</a>
+                                            </div>
+                                          </c:if>
                                             <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
                                            
                                             <c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">

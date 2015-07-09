@@ -308,6 +308,14 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+		
+		model.addAttribute("showEmbryoViewer",this.displayEmbryoViewer());
+	}
+
+
+	private boolean displayEmbryoViewer() {
+		return true;
+		
 	}
 
 
@@ -748,5 +756,7 @@ public class GenesController {
 
 		log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
 	}
+	
+	
 
 }
