@@ -21,8 +21,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.phenotype.service.ImageService;
-import uk.ac.ebi.phenotype.service.ReportsService;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ReportsService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

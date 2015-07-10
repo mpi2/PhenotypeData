@@ -22,8 +22,8 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GeneRowForHeatMap;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;

@@ -33,7 +33,7 @@
     </bean>
 
 
-    <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService" />
+    <bean id="observationService" class="org.mousephenotype.cda.solr.service.ObservationService" />
 
     <!--import resource="index-beans.xml"/-->
     <!-- Drives transactions using Hibernate APIs when requested -->

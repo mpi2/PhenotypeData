@@ -87,7 +87,7 @@
         <constructor-arg index="2" value="5"/> <!--Num threads-->
     </bean>
 
-    <bean id="mapService" class="uk.ac.ebi.phenotype.service.ParameterMapService">
+    <bean id="mapService" class="org.mousephenotype.cda.solr.service.ParameterMapService">
         <constructor-arg value="IMPC_SOLRURL/experiment" />
     </bean>
 

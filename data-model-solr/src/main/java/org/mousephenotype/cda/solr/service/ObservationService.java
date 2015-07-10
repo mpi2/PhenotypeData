@@ -55,6 +55,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
+import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -177,7 +178,7 @@ public class ObservationService extends BasicService {
     	}
 
     	row = addDefaultMean(row, parameterNames);
-    	
+
 		String res = "[";
 		String defaultMeans = "";
 		i = 0;
@@ -199,28 +200,28 @@ public class ObservationService extends BasicService {
     		}
     	}
     	res += "]";
-    	
+
     	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
 
     }
 
-    
+
     private HashMap<String, ParallelCoordinatesDTO> addDefaultMean(HashMap<String, ParallelCoordinatesDTO> beans, ArrayList<Parameter> allParameterNames) {
 
     	ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
-        
+
     	HashMap<String, ArrayList<Double>> defaultData = new HashMap(); // <parameter name, <mean values>>
     	for (Parameter param : allParameterNames){
     		defaultData.put(param.getName(), new ArrayList<Double>());
     	}
-    	
+
     	for (String key : beans.keySet()){
     		ParallelCoordinatesDTO pc = beans.get(key);
     		for ( String meanKey : pc.getMeans().keySet()){
     			defaultData.get(meanKey).add(pc.getMeans().get(meanKey).getMean());
     		}
     	}
-    	
+
     	for (String key : defaultData.keySet()){
     		Double mean = new Double(0);
     		int sum = 0;
@@ -233,13 +234,13 @@ public class ObservationService extends BasicService {
     		mean = mean / sum;
             currentBean.addMean(null, null, key, null, mean);
     	}
-    	
+
         beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
-    	
+
     	return beans;
-    	
+
     }
-    	  
+
 
     private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
 
@@ -1444,7 +1445,7 @@ public class ObservationService extends BasicService {
             query += ")";
 
             SolrQuery q = new SolrQuery().setQuery(query).addField(ObservationDTO.GENE_ACCESSION_ID)
-                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(AbstractGenotypePhenotypeService.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
+                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
             q.set("group.field", ObservationDTO.GENE_ACCESSION_ID);
             q.set("group", true);
             if (sex != null) {
@@ -1705,10 +1706,10 @@ public class ObservationService extends BasicService {
 
         return retVal;
     }
-    
+
     public class DataBatchesBySex {
 
-    	
+
 
 
     	private Set<String> maleBatches = new HashSet<>();

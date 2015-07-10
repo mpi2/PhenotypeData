@@ -42,7 +42,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.service.*;
+import org.mousephenotype.cda.solr.service.*;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
 
 import javax.annotation.Resource;

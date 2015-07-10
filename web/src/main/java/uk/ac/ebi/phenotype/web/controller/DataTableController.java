@@ -15,28 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -45,8 +26,14 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
+import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -55,29 +42,27 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
 import uk.ac.ebi.generic.util.Tools;
-import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import uk.ac.ebi.phenotype.ontology.SimpleOntoTerm;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.MpService;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 
 @Controller

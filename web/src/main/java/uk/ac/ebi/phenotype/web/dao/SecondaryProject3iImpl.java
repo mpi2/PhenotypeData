@@ -17,14 +17,14 @@ package uk.ac.ebi.phenotype.web.dao;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GeneRowForHeatMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.MpService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;

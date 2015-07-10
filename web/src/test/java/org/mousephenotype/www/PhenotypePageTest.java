@@ -47,8 +47,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.MpService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.MpService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 /**

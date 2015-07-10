@@ -16,7 +16,16 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.service.dto.StackedBarsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,14 +34,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.chart.*;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
+import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.ChartData;
+import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

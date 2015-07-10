@@ -30,8 +30,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

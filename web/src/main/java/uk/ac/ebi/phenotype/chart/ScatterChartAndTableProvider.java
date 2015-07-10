@@ -32,7 +32,7 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.Procedure;
-import uk.ac.ebi.phenotype.service.ImpressService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

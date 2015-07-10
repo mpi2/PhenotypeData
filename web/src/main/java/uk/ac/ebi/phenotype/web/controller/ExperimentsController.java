@@ -18,6 +18,14 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.exception.JDBCConnectionException;
+import org.mousephenotype.cda.db.dao.AlleleDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.Pipeline;
+import org.mousephenotype.cda.db.pojo.Procedure;
+import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +37,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
-import org.mousephenotype.cda.db.dao.AlleleDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.Pipeline;
-import org.mousephenotype.cda.db.pojo.Procedure;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
