@@ -26,7 +26,7 @@
         <junit.version>4.11</junit.version>
         <hibernate.show_sql>true</hibernate.show_sql>
         <hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
-        <hibernate.version>3.6.10.Final</hibernate.version>
+        <hibernate.version>4.3.4.Final</hibernate.version>
 
         <servlet.api.version>2.3</servlet.api.version>
 
@@ -45,6 +45,12 @@
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-db</artifactId>
             <version>0.0.1</version>
         </dependency>
 
@@ -159,19 +165,19 @@
 
         <!-- Bean Validation Dependencies -->
 
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>javax.validation</groupId>-->
+            <!--<artifactId>validation-api</artifactId>-->
+            <!--<version>1.0.0.GA</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>4.0.0.GA</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.hibernate</groupId>-->
+            <!--<artifactId>hibernate-validator</artifactId>-->
+            <!--<version>4.0.0.GA</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <!-- JPA Persistence Dependencies -->
 
@@ -189,12 +195,12 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.1.Final</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.hibernate.javax.persistence</groupId>-->
+            <!--<artifactId>hibernate-jpa-2.0-api</artifactId>-->
+            <!--<version>1.0.1.Final</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <!-- JSON Dependencies -->
     	<dependency>

@@ -31,12 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
+@Transactional
 public class SynonymDAOImpl extends HibernateDAOImpl implements SynonymDAO {
 
 	public SynonymDAOImpl() {
-		
+
 	}
-	
+
 	/**
 	 * Creates a new Hibernate coordinate system data access manager.
 	 * @param sessionFactory the Hibernate session factory

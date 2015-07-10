@@ -32,6 +32,7 @@ import java.util.List;
 
 
 @Repository
+@Transactional
 public class StrainDAOImpl extends HibernateDAOImpl implements StrainDAO {
 
 	public StrainDAOImpl() {

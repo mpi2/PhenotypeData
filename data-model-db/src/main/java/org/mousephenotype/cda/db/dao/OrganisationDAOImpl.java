@@ -31,11 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
+@Transactional
 public class OrganisationDAOImpl extends HibernateDAOImpl implements OrganisationDAO {
 
 	public OrganisationDAOImpl() {
 	}
-	
+
 	/**
 	 * Creates a new Hibernate organisation data access manager.
 	 * @param sessionFactory the Hibernate session factory

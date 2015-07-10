@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@Transactional
 public class GwasDAO {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());

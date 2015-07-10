@@ -44,14 +44,15 @@ import java.util.List;
  * @since May 2014
  */
 @Repository
+@Transactional
 public class StatisticalResultDAOImpl extends HibernateDAOImpl implements StatisticalResultDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public StatisticalResultDAOImpl() {
-		
+
 	}
-	
+
 	/**
 	 * Creates a new Hibernate sequence region data access manager.
 	 * @param sessionFactory the Hibernate session factory

@@ -35,6 +35,7 @@ import java.util.TreeSet;
 
 
 @Repository
+@Transactional
 public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements SecondaryProjectDAO {
 
 	public SecondaryProjectDAOImpl() {

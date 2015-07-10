@@ -33,6 +33,7 @@ import java.util.List;
 
 
 @Repository
+@Transactional
 public class AlleleDAOImpl extends HibernateDAOImpl implements AlleleDAO {
 
 	public AlleleDAOImpl() {

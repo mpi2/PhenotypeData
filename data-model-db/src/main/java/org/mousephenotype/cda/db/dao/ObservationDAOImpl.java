@@ -38,11 +38,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Repository
+@Transactional
 public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationDAO {
 
 	public ObservationDAOImpl() {
 	}
-	
+
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory
