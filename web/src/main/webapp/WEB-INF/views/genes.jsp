@@ -335,7 +335,7 @@
                                           </c:if>
                                           <c:if test="${showEmbryoViewer}">
                                             <div class="floatright" style="clear:both">
-                                            	<a class="btn" href="${baseUrl}/embryoviewer?gene_symbol=${gene.symbol}" style="margin:10px">Embryo IEV Viewer</a>
+                                            	<a class="btn" href="${baseUrl}/embryoviewer?gene_symbol=${gene.symbol}" style="margin:10px">Embryo Viewer</a>
                                             </div>
                                           </c:if>
                                             <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
