@@ -19,6 +19,7 @@ package org.mousephenotype.cda.solr.service;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.db.dao.OntologyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

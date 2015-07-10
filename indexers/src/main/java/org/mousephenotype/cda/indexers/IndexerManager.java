@@ -16,14 +16,28 @@
 
 package org.mousephenotype.cda.indexers;
 
-import joptsimple.HelpFormatter;
-import joptsimple.OptionDescriptor;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
+
+import java.io.File;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.indexers.exceptions.*;
-import org.mousephenotype.cda.solr.generic.util.Utils;
+import org.mousephenotype.cda.db.utilities.Utils;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.exceptions.InvalidCoreNameException;
+import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentException;
+import org.mousephenotype.cda.indexers.exceptions.NoDepsException;
+import org.mousephenotype.cda.indexers.exceptions.UnrecognizedOptionException;
+import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +49,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
-import javax.annotation.Resource;
-
-import java.io.File;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
+import joptsimple.HelpFormatter;
+import joptsimple.OptionDescriptor;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 
 /**
  * This class encapsulates the code and data necessary to represent an index

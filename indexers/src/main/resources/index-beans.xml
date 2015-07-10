@@ -10,7 +10,7 @@
     <context:annotation-config />
 
 
-    <bean id="dccConvertMap" class="uk.ac.ebi.phenotype.data.imits.EncodedOrganisationConversionMap" />
+    <bean id="dccConvertMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" />
 
     <!-- Get the datasources from the filesystem overrides -->
     <!-- Creates a MySQL Datasource -->
@@ -63,7 +63,7 @@
 
     <!-- Drives transactions using Hibernate APIs when requested -->
     <bean id="transactionManager"
-          class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
 
@@ -72,7 +72,7 @@
 
     <!-- Spring annotated objects -->
     <bean id="sessionFactory"
-          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="komp2DataSource" />
         <property name="packagesToScan" value="uk.ac.ebi.phenotype" />
         <property name="hibernateProperties">
@@ -222,21 +222,22 @@
     <!-- core indexer beans -->
 
     <!-- used for concurrently loading the impc_images core -->
-    <bean id="observationIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer" />
-    <bean id="genotypePhenotypeIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GenotypePhenotypeIndexer" />
-    <bean id="statisticalResultIndexer" class="uk.ac.ebi.phenotype.solr.indexer.StatisticalResultIndexer" />
-    <bean id="preqcIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PreqcIndexer" />
-    <bean id="alleleIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AlleleIndexer" />
-    <bean id="imagesIndexer" class="uk.ac.ebi.phenotype.solr.indexer.SangerImagesIndexer" />
-    <bean id="impcImagesIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ImpcImagesIndexer" />
-    <bean id="mpIndexer" class="uk.ac.ebi.phenotype.solr.indexer.MPIndexer" />
-    <bean id="maIndexer" class="uk.ac.ebi.phenotype.solr.indexer.MAIndexer" />
-    <bean id="pipelineIndexer" class="uk.ac.ebi.phenotype.solr.indexer.PipelineIndexer" />
-    <bean id="geneIndexer" class="uk.ac.ebi.phenotype.solr.indexer.GeneIndexer" />
-    <bean id="diseaseIndexer" class="uk.ac.ebi.phenotype.solr.indexer.DiseaseIndexer" />
-    <bean id="autosuggestIndexer" class="uk.ac.ebi.phenotype.solr.indexer.AutosuggestIndexer" />
+    <bean id="observationIndexer" class="org.mousephenotype.cda.indexers.ObservationIndexer" />
+    <bean id="genotypePhenotypeIndexer" class="org.mousephenotype.cda.indexers.GenotypePhenotypeIndexer" />
+    <bean id="mpOntologyService" class="org.mousephenotype.cda.indexers.MpOntologyService" />
+    <bean id="statisticalResultIndexer" class="org.mousephenotype.cda.indexers.StatisticalResultIndexer" />
+    <bean id="preqcIndexer" class="org.mousephenotype.cda.indexers.PreqcIndexer" />
+    <bean id="alleleIndexer" class="org.mousephenotype.cda.indexers.AlleleIndexer" />
+    <bean id="imagesIndexer" class="org.mousephenotype.cda.indexers.SangerImagesIndexer" />
+    <bean id="impcImagesIndexer" class="org.mousephenotype.cda.indexers.ImpcImagesIndexer" />
+    <bean id="mpIndexer" class="org.mousephenotype.cda.indexers.MPIndexer" />
+    <bean id="maIndexer" class="org.mousephenotype.cda.indexers.MAIndexer" />
+    <bean id="pipelineIndexer" class="org.mousephenotype.cda.indexers.PipelineIndexer" />
+    <bean id="geneIndexer" class="org.mousephenotype.cda.indexers.GeneIndexer" />
+    <bean id="diseaseIndexer" class="org.mousephenotype.cda.indexers.DiseaseIndexer" />
+    <bean id="autosuggestIndexer" class="org.mousephenotype.cda.indexers.AutosuggestIndexer" />
 
-	<bean id="gwasDao" class="uk.ac.ebi.phenotype.dao.GwasDAO" />
+	<bean id="gwasDao" class="org.mousephenotype.cda.db.dao.GwasDAO" />
 </beans>
 
 

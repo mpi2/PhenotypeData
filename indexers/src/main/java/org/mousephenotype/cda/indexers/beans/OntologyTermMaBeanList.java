@@ -19,7 +19,7 @@ package org.mousephenotype.cda.indexers.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mousephenotype.cda.solr.service.MaOntologyService;
+import org.mousephenotype.cda.db.dao.MaOntologyService;
 
 /**
  * This class encapsulates the methods necessary to serve up individual lists of

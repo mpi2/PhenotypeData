@@ -18,8 +18,8 @@ package org.mousephenotype.cda.indexers.beans;
 
 import java.util.List;
 
-import org.mousephenotype.cda.solr.service.OntologyService;
-import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
+import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.OntologyService;
 
 /**
  * This class encapsulates the methods necessary to serve up individual lists of
