@@ -25,6 +25,8 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,14 +35,16 @@ import java.util.List;
 @Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService {
 
-    public PostQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
-        solr = new HttpSolrServer(solrUrl);
-        pipelineDAO = pipelineDao;
-        isPreQc = false;
-    }
+    @Autowired
+    @Qualifier("genotypePhenotypeCore")
+    HttpSolrServer solr;
+
+    @Autowired
+    PhenotypePipelineDAO pipelineDAO;
 
     public PostQcService() {
         super();
+        isPreQc = false;
     }
 
     /**
