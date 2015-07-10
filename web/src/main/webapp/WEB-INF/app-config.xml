@@ -25,16 +25,42 @@
 	</bean>
 
 	<context:component-scan base-package="uk.ac.ebi" />
-	<context:component-scan base-package="org.mousephenotype.cda.db" />
+
+	<context:component-scan base-package="org.mousephenotype.cda.db">
+		<context:exclude-filter type="annotation" expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant"/>
+	</context:component-scan>
+
 	<context:component-scan base-package="org.mousephenotype.cda.solr" />
 
 	<context:annotation-config />
 
+	<!-- Get the datasources from the JNDI container -->
+	<jee:jndi-lookup id="komp2DataSource"
+					 jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
+
+	<jee:jndi-lookup id="admintoolsDataSource"
+					 jndi-name="java:comp/env/jdbc/admintoolsDataSource" expected-type="javax.sql.DataSource" />
+
+	<!-- Spring annotated objects -->
+	<bean id="sessionFactory"
+		  class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="komp2DataSource" />
+		<property name="packagesToScan" value="org.mousephenotype.cda.db" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.connection.useUnicode">true</prop>
+				<prop key="hibernate.connection.charSet">UTF8</prop>
+			</props>
+		</property>
+	</bean>
+
 	<!-- Drives transactions using Hibernate APIs when requested -->
-	<!--<bean id="transactionManager"-->
-		<!--class="org.springframework.orm.hibernate3.HibernateTransactionManager">-->
-		<!--<property name="sessionFactory" ref="sessionFactory" />-->
-	<!--</bean>-->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
 
 	<!--<bean id="obsSer" class="org.mousephenotype.cda.solr.service.ObservationService" />-->
 	<!--<bean id="srSer" class="org.mousephenotype.cda.solr.service.StatisticalResultService">-->
@@ -51,12 +77,6 @@
 	<!--<bean-->
 		<!--class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />-->
 
-	<!-- Get the datasources from the JNDI container -->
-	<jee:jndi-lookup id="komp2DataSource"
-		jndi-name="java:comp/env/jdbc/komp2DataSource" expected-type="javax.sql.DataSource" />
-
-	<jee:jndi-lookup id="admintoolsDataSource"
-		jndi-name="java:comp/env/jdbc/admintoolsDataSource" expected-type="javax.sql.DataSource" />
 
 	<!-- phenodigm external solr server via HTTP -->
 	<!--<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">-->
@@ -150,7 +170,7 @@
 		<!--<constructor-arg ref="sessionFactory" />-->
 	<!--</bean>-->
 
-	<!-- <bean id="secondaryProjectDAO" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
+	<!-- <bean id="secondaryProjectService" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
 		<constructor-arg ref="sessionFactory" /> </bean> -->
 
 	<!--<bean id="phenotypeCallSummaryDAO" class="org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAOImpl">-->
@@ -206,27 +226,14 @@
 		<!--<constructor-arg ref="sessionFactory" />-->
 	<!--</bean>-->
 
-	<!--<bean id="idg" class="uk.ac.ebi.phenotype.web.dao.SecondaryProjectIdgImpl">-->
+	<!--<bean id="idg" class="SecondaryProjectService">-->
 		<!--<constructor-arg ref="sessionFactory" />-->
 	<!--</bean>-->
 
 	<!--<bean id="threeI" class="uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl">-->
 	<!--</bean>-->
 
-	<!-- Spring annotated objects -->
-	<!--<bean id="sessionFactory"-->
-		<!--class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">-->
-		<!--<property name="dataSource" ref="komp2DataSource" />-->
-		<!--<property name="packagesToScan" value="uk.ac.ebi.phenotype" />-->
-		<!--<property name="hibernateProperties">-->
-			<!--<props>-->
-				<!--<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>-->
-				<!--<prop key="hibernate.show_sql">false</prop>-->
-				<!--<prop key="hibernate.connection.useUnicode">true</prop>-->
-				<!--<prop key="hibernate.connection.charSet">UTF8</prop>-->
-			<!--</props>-->
-		<!--</property>-->
-	<!--</bean>-->
+
 
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">

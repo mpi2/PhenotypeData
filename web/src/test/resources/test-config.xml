@@ -124,7 +124,7 @@
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <!--  <bean id="secondaryProjectDAO" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
+    <!--  <bean id="secondaryProjectService" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
                    <constructor-arg ref="sessionFactory" />
        </bean>
     -->

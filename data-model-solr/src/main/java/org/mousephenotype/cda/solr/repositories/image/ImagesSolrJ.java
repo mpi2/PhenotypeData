@@ -15,50 +15,52 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.repositories.image;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.http.HttpHost;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 
 /**
  * Class that gets image data from the solr images index
  * @author jwarren
  */
+@Service
 public class ImagesSolrJ implements ImagesSolrDao {
 	private static Logger log = Logger.getLogger(ImagesSolrJ.class);
 	private long numberFound;
-	public static SolrServer server = null;
-	
-	public ImagesSolrJ(String solrBaseUrl) throws MalformedURLException {
-		
-		// Use system proxy if set
-		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
 
-			String PROXY_HOST = System.getProperty("http.proxyHost");
-			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
-			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
-			DefaultHttpClient client = new DefaultHttpClient();
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-			server = new HttpSolrServer(solrBaseUrl, client);
+	@Autowired
+	@Qualifier("impcImagesCore")
+	public SolrServer server;
 
-			log.debug("Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
-		} else {
-			server = new HttpSolrServer(solrBaseUrl);
-		}
-	}
+//	public ImagesSolrJ(String solrBaseUrl) throws MalformedURLException {
+//
+//		// Use system proxy if set
+//		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
+//
+//			String PROXY_HOST = System.getProperty("http.proxyHost");
+//			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
+//			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
+//			DefaultHttpClient client = new DefaultHttpClient();
+//			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+//			server = new HttpSolrServer(solrBaseUrl, client);
+//
+//			log.debug("Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
+//		} else {
+//			server = new HttpSolrServer(solrBaseUrl);
+//		}
+//	}
 
 
 	public long getNumberFound() {
@@ -69,7 +71,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		this.numberFound = numberFound;
 	}
 
-	
+
 	public List<String> getIdsForKeywordsSearch(String query, int start, int length) throws SolrServerException {
 		return this.getIds(query, start, length);
 	}
@@ -108,7 +110,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 
 		return rsp.getResults();
 	}
-	
+
 	private QueryResponse runFacetQuery(String query, String facetField, int start, int length, String filterQuery) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
@@ -133,7 +135,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 //		System.out.println("images solr expression response number docs="+solrResp.getResults().size());
 		return solrResp;
 	}
-	
+
 	@Override
 	public QueryResponse getExpressionFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = processQuery(geneId);
@@ -143,7 +145,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","selected_top_level_ma_term", 0,5, "accession:"+processedGeneId);
 		return solrResp;
 	}
-	
+
 	//TODO cleanup this method
 	public QueryResponse getDocsForGeneWithFacetField(String geneId, String facetName, String facetValue, String filterQuery, int start, int length) throws SolrServerException{
 
@@ -173,10 +175,10 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	/**
 	 * Put quotes around any query that contains spaces with the following
 	 * restrictions
-	 *  
+	 *
 	 * 1) Not the wildcard character
-	 * 2) Not already quoted 
-	 * 
+	 * 2) Not already quoted
+	 *
 	 * @param value the string to be quoted if necessary
 	 * @return the processed string
 	 */
@@ -188,14 +190,14 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		}
 
 		// If the string is already quoted, return it
-		if ((value.contains(" ") && // Contains space and 
-			value.startsWith("\"") && 
+		if ((value.contains(" ") && // Contains space and
+			value.startsWith("\"") &&
 			value.endsWith("\"") // is already quoted
 			)) {
 			return value;
 		}
 
-		// If the string contains spaces, and it's not already quoted, 
+		// If the string contains spaces, and it's not already quoted,
 		// quote the string, escape all the double quotes, and return it
 		if (value.contains(" ") && // Contains space and
 			value.contains("\"") && // Contains quote and is
@@ -210,7 +212,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		// If we're here, all special cases should be dealt with already
 		// If the value contains a space, quote and return it
 		if (value.contains(" ")) {
-			return "\"" + value + "\"";			
+			return "\"" + value + "\"";
 		}
 
 		return value;
@@ -218,7 +220,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 
 	/**
 	 * Get all SOLR documents for a mammalian phenotype ontology term
-	 * 
+	 *
 	 * @param mpId the phenotype term to query for
 	 * @param start offset from zero
 	 * @param length how many docs to return
@@ -227,9 +229,9 @@ public class ImagesSolrJ implements ImagesSolrDao {
 
 		String id = processQuery(mpId);
 		String query = "annotationTermId:" + id;
-		
+
 		log.debug("solr query=" + query);
-		
+
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
@@ -241,9 +243,9 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	/**
 	 * Returns documents from Solr Index filtered by the passed in query
 	 * filterField e.g. annotationTerm:large ear
-	 * @throws SolrServerException 
-	 * 
-	 * 
+	 * @throws SolrServerException
+	 *
+	 *
 	 */
 	public QueryResponse getFilteredDocsForQuery(String query, List<String> filterFields, String qf, String defType, int start, int length) throws SolrServerException {
 
@@ -264,19 +266,19 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
 		solrQuery.setRows(length);
-		
+
 		for(String fieldNValue : filterFields){
 			String [] colonStrings = fieldNValue.split(":");
 			String filterField = colonStrings[0];
 			String filterParam = fieldNValue.substring(
-				fieldNValue.indexOf(":")+1, 
+				fieldNValue.indexOf(":")+1,
 				fieldNValue.length());
 
 			filterParam = processValueForSolr(filterParam);
 			String fq = filterField + ":" + filterParam;
 
 			log.debug("adding filter fieldNValue=" + fq);
-			
+
 			solrQuery.addFilterQuery(fq);
 		}
 
@@ -284,7 +286,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 
 		return server.query(solrQuery);
 	}
-	
+
 	public static String processQuery(String id) {
 
 		String processedId = id;

@@ -26,6 +26,8 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	@Autowired
 	ImagesSolrDao imagesSolrDao;
 
+	@Autowired
+	ImagesSolrJ imgJ;
 
 	@Test
 	public void testGetIdsForKeywordsSearch() throws SolrServerException {
@@ -87,7 +89,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	@Test
 	public void testProcessSpacesForSolr() throws MalformedURLException {
 
-		ImagesSolrJ imgJ = new ImagesSolrJ("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr");
+//		ImagesSolrJ imgJ = new ImagesSolrJ("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr");
 		Map<String,String> testcases = new HashMap<String,String>();
 		testcases.put("test \"1", "\"test \\\"1\"");
 		testcases.put("test 1", "\"test 1\"");

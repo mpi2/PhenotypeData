@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * @author jwarren
  */
-public interface SecondaryProjectDAO {
+public interface SecondaryProjectService {
 
 	public enum SecondaryProjectIds {
         IDG,
