@@ -19,7 +19,7 @@ package org.mousephenotype.cda.solr.service;
 import java.sql.SQLException;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.dao.OntologyService;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author mrelac
  */
-public class HpOntologyService extends OntologyService {
+public class HpOntologyService extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

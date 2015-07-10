@@ -18,7 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.MpOntologyService;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
@@ -66,7 +66,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     SolrServer gpSolrServer;
 
     @Autowired
-    MpOntologyService mpOntologyService;
+    MpOntologyDAO mpOntologyService;
 
     Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBean> procedureMap = new HashMap<>();

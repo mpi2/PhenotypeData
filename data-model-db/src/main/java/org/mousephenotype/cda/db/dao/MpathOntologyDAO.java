@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author mrelac
  */
-public class MpathOntologyService extends OntologyService {
+public class MpathOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public MpathOntologyService() throws SQLException {
+    public MpathOntologyDAO() throws SQLException {
         
     }
     

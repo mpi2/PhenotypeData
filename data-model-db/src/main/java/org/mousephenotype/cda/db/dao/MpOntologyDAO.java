@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author mrelac
  */
-public class MpOntologyService extends OntologyService {
+public class MpOntologyDAO extends OntologyDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    public MpOntologyService() throws SQLException {
+    public MpOntologyDAO() throws SQLException {
         
     }
     
