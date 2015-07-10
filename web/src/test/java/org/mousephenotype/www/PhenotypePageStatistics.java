@@ -39,7 +39,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.service.MpService;
+import org.mousephenotype.cda.solr.service.MpService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 import java.text.DateFormat;

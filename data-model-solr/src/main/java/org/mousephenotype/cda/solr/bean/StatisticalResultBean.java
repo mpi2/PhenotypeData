@@ -20,7 +20,7 @@ import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 
 /**
- * Lightweight representation of a statistical object containing 3 attributes, 
+ * Lightweight representation of a statistical object containing 3 attributes,
  * namely the pvalue, and effect size
  */
 
@@ -32,14 +32,18 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	private String statisticalMethod;
 	private String controlSex; // if relevant
 	private String zygosity;
+	private String parameterStableId;
+	private String parameterName;
+	private String procedureStableId;
+	private String procedureName;
 	Integer maleControls;
 	Integer maleMutants;
 	Integer femaleControls;
 	Integer femaleMutants;
 	String metadataGroup;
-	
+
 	private double colorIndex;
-	
+
 	/**
 	 * @param pValue
 	 * @param effectSize
@@ -47,14 +51,14 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	 * @param statisticalMethod
 	 */
 	public StatisticalResultBean(
-			double pValue, double effectSize,
-			String status, String method,
-			String controlSex, 
-			String zygosity,
-			int maleControls, int maleMutants,
-			int femaleControls, int femaleMutants,
-			String metadataGroup) {
-		
+		double pValue, double effectSize,
+		String status, String method,
+		String controlSex,
+		String zygosity,
+		int maleControls, int maleMutants,
+		int femaleControls, int femaleMutants,
+		String metadataGroup) {
+
 		super();
 		this.pValue = pValue;
 		this.effectSize = effectSize;
@@ -67,7 +71,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.femaleControls = femaleControls;
 		this.femaleMutants = femaleMutants;
 		this.metadataGroup = metadataGroup;
-		
+
 	}
 
 	public StatisticalResultBean(StatisticalResultDTO dto) {
@@ -83,20 +87,63 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		this.femaleControls = dto.getFemaleControlCount();
 		this.femaleMutants = dto.getFemaleMutantCount();
 		this.metadataGroup = dto.getMetadataGroup();
-
+		this.parameterStableId = dto.getParameterStableId();
+		this.parameterName = dto.getParameterName();
+		this.procedureStableId = dto.getProcedureStableId();
+		this.procedureName = dto.getProcedureName();
 	}
 
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 
-		return "StatisticalResultBean [pValue=" + pValue + ", effectSize=" + effectSize + ", status=" + status + ", statisticalMethod=" + statisticalMethod + ", controlSex=" + controlSex + ", zygosity=" + zygosity + ", maleControls=" + maleControls + ", maleMutants=" + maleMutants + ", femaleControls=" + femaleControls + ", femaleMutants=" + femaleMutants + ", metadataGroup=" + metadataGroup + ", colorIndex=" + colorIndex + "]";
+		return "StatisticalResultBean [pValue=" + pValue + ", effectSize=" + effectSize + ", status=" + status + ", statisticalMethod=" + statisticalMethod + ", controlSex=" + controlSex + ", zygosity=" + zygosity + ", parameterStableId=" + parameterStableId + ", parameterName=" + parameterName + ", procedureStableId=" + procedureStableId + ", procedureName=" + procedureName + ", maleControls=" + maleControls + ", maleMutants=" + maleMutants + ", femaleControls=" + femaleControls + ", femaleMutants=" + femaleMutants + ", metadataGroup=" + metadataGroup + ", colorIndex=" + colorIndex + "]";
+	}
+
+	public String getProcedureStableId() {
+
+		return procedureStableId;
 	}
 
 
+	public void setProcedureStableId(String procedureStableId) {
+
+		this.procedureStableId = procedureStableId;
+	}
+
+
+	public String getProcedureName() {
+
+		return procedureName;
+	}
+
+
+	public void setProcedureName(String procedureName) {
+
+		this.procedureName = procedureName;
+	}
+
+	public String getParameterName() {
+
+		return parameterName;
+	}
+
+
+	public void setParameterName(String parameterName) {
+
+		this.parameterName = parameterName;
+	}
+
+	public String getParameterStableId() {
+
+		return parameterStableId;
+	}
+
+
+	public void setParameterStableId(String parameterStableId) {
+
+		this.parameterStableId = parameterStableId;
+	}
 
 	/**
 	 * @return the pValue
@@ -145,8 +192,8 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	 */
 	public void setStatisticalMethod(String method) {
 		this.statisticalMethod = method;
-	}	
-	
+	}
+
 	/**
 	 * @return the controlSex
 	 */
@@ -159,8 +206,8 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	 */
 	public void setControlSex(String controlSex) {
 		this.controlSex = controlSex;
-	}	
-	
+	}
+
 	/**
 	 * @return the zygosity
 	 */
@@ -229,7 +276,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	public void setColorIndex(double colorIndex) {
 		this.colorIndex = colorIndex;
 	}
-	
+
 	/**
 	 * @return the metadataGroup
 	 */
@@ -254,7 +301,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 		}
 		return -Math.log10(pValue);
 	}
-	
+
 	/**
 	 * Check whether the statistical call worked or failed.
 	 * @return a boolean indicated whether the status is equal to 'Success'
@@ -262,7 +309,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	public boolean getIsSuccessful() {
 		return status!=null && status.equals("Success");
 	}
-	
+
 	/**
 	 * Effect size
 	 * if both sex are affected equally, use genotype_parameter_estimate for effect size

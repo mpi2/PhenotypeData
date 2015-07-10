@@ -20,7 +20,7 @@
 	<!-- <logger name="org.springframework.beans">
 		<level value="warn" />
 	</logger>
-	
+
 	<logger name="org.springframework.jdbc">
 		<level value="warn" />
 	</logger>
@@ -44,22 +44,22 @@
 	<logger name="uk.ac.ebi.phenotype.web.controller">
 		<level value="warn" />
 	</logger>
-	
+
         <logger name="uk.ac.sanger.phenodigm2">
 		<level value="info" />
 	</logger>
-        	
+
 	<logger name="uk.ac.ebi.phenotype.stats.unidimensional">
 		<level value="info" />
 	</logger> -->
-	
-	<!-- <logger name="uk.ac.ebi.phenotype.pojo.StatisticalResult">
+
+	<!-- <logger name="org.mousephenotype.cda.db.pojo.StatisticalResult">
 		<level value="debug" />
 	</logger> -->
-	<!-- <logger name="uk.ac.ebi.phenotype.pojo.PhenotypeCallSummarySolrImpl">
+	<!-- <logger name="org.mousephenotype.cda.db.pojo.PhenotypeCallSummarySolrImpl">
 		<level value="debug" />
 	</logger> -->
-	 
+
 	<!--  <logger name="uk.ac.ebi.phenotype.stats.ExperimentService">
 		<level value="debug" />
 	</logger>
@@ -67,7 +67,7 @@
 		<level value="debug" />
 	</logger> -->
 	<!-- Root Logger -->
-	<!-- <logger name="uk.ac.ebi.phenotype.service.ImageService">
+	<!-- <logger name="org.mousephenotype.cda.solr.service.ImageService">
 		<level value="debug" />
 	</logger>
     <logger name="uk.ac.ebi.phenotype.solr.indexer">
@@ -77,5 +77,5 @@
 		<priority value="warn" />
 		<appender-ref ref="console" />
 	</root>
-	
+
 </log4j:configuration>

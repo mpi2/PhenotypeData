@@ -17,7 +17,7 @@ package uk.ac.ebi.phenotype.web.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.phenotype.dao.AnalyticsDAO;
+import org.mousephenotype.cda.db.dao.AnalyticsDAO;
 
 
 /**
