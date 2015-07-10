@@ -3,7 +3,7 @@
 
     <logger name="org.mousephenotype" level="DEBUG"/>
 
-    <logger name="org.springframework" level="ALL"/>
+    <logger name="org.springframework" level="WARN"/>
     <logger name="org.hibernate" level="WARN"/>
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
