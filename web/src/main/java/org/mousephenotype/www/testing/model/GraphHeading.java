@@ -24,9 +24,9 @@ import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import uk.ac.ebi.phenotype.chart.ChartType;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.data.impress.Utilities;
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 import java.util.List;
 

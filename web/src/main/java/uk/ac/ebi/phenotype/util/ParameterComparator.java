@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.util;
 
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 import java.util.Comparator;
 

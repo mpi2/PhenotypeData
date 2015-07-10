@@ -55,11 +55,6 @@ public class GeneService {
 
 	}
 
-
-	public GeneService() {
-	}
-
-
 	/**
 	 * Return all genes in the gene core matching latestPhenotypeStatus and
 	 * latestProductionCentre.
@@ -73,15 +68,15 @@ public class GeneService {
 	 * @throws SolrServerException
 	 */
 	public Set<String> getGenesByLatestPhenotypeStatusAndProductionCentre(
-			String latestPhenotypeStatus,
-                        String latestProductionCentre)
-			throws SolrServerException {
+		String latestPhenotypeStatus,
+		String latestProductionCentre)
+		throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		String queryString = "(" + GeneDTO.LATEST_PHENOTYPE_STATUS + ":\""
-				+ latestPhenotypeStatus + "\") AND ("
-				+ GeneDTO.LATEST_PRODUCTION_CENTRE + ":\""
-				+ latestProductionCentre + "\")";
+			+ latestPhenotypeStatus + "\") AND ("
+			+ GeneDTO.LATEST_PRODUCTION_CENTRE + ":\""
+			+ latestProductionCentre + "\")";
 		solrQuery.setQuery(queryString);
 		solrQuery.setRows(1000000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
@@ -94,7 +89,7 @@ public class GeneService {
 		}
 
 		log.debug("getGenesByLatestPhenotypeStatusAndProductionCentre: solrQuery = "
-				+ queryString);
+			+ queryString);
 		return allGenes;
 	}
 
@@ -111,15 +106,15 @@ public class GeneService {
 	 * @throws SolrServerException
 	 */
 	public Set<String> getGenesByLatestPhenotypeStatusAndPhenotypeCentre(
-			String latestPhenotypeStatus,
-                        String latestPhenotypeCentre)
-			throws SolrServerException {
+		String latestPhenotypeStatus,
+		String latestPhenotypeCentre)
+		throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
 		String queryString = "(" + GeneDTO.LATEST_PHENOTYPE_STATUS + ":\""
-				+ latestPhenotypeStatus + "\") AND ("
-				+ GeneDTO.LATEST_PHENOTYPING_CENTRE + ":\""
-				+ latestPhenotypeCentre + "\")";
+			+ latestPhenotypeStatus + "\") AND ("
+			+ GeneDTO.LATEST_PHENOTYPING_CENTRE + ":\""
+			+ latestPhenotypeCentre + "\")";
 		solrQuery.setQuery(queryString);
 		solrQuery.setRows(1000000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
@@ -132,7 +127,7 @@ public class GeneService {
 		}
 
 		log.debug("getGenesByLatestPhenotypeStatusAndPhenotypeCentre: solrQuery = "
-				+ queryString);
+			+ queryString);
 		return allGenes;
 	}
 
@@ -201,7 +196,7 @@ public class GeneService {
 
 	// returns ready formatted icons
 	public Map<String, String> getProductionStatus(String geneId, HttpServletRequest request)
-	throws SolrServerException{
+		throws SolrServerException{
 
 		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + geneId;
 		SolrQuery query = new SolrQuery();
@@ -259,7 +254,7 @@ public class GeneService {
 					String val = doc.getString(statusField);
 
 					if ( val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) ||
-						 val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ){
+						val.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ){
 
 						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
 
@@ -346,18 +341,18 @@ public class GeneService {
 				// blue es cell status
 				status = doc.getString(field);
 				if ( status.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
-									 + " <span>ES Cells</span>"
-									 + "</a>";
+					esCellStatus = "<a class='status done' href='" + geneUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
+						+ " <span>ES Cells</span>"
+						+ "</a>";
 
-						exportEsCellStatus += StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE;
+					exportEsCellStatus += StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE;
 				}
 				else if ( esCellStatus.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS) ){
-						esCellStatus = "<span class='status inprogress' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS+"'>"
-						   	 		 +  "	<span>ES Cells</span>"
-						   	 		 +  "</span>";
+					esCellStatus = "<span class='status inprogress' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS+"'>"
+						+  "	<span>ES Cells</span>"
+						+  "</span>";
 
-						exportEsCellStatus += StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS;
+					exportEsCellStatus += StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_IN_PROGRESS;
 				}
 				else {
 					esCellStatus = "";
@@ -421,21 +416,21 @@ public class GeneService {
 
 				if ( sh.containsKey("Mice Produced") ){
 					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
-							   +  "<span>Mice</span>"
-							   +  "</a>";
+						+  "<span>Mice</span>"
+						+  "</a>";
 
 					exportMiceStatus.add("mice produced");
 				}
 				else if ( sh.containsKey("Assigned for Mouse Production and Phenotyping") ){
 					miceStatus = "<a class='status inprogress' oldtitle='Mice production in progress' title=''>"
-							   +  "<span>Mice</span>"
-							   +  "</a>";
+						+  "<span>Mice</span>"
+						+  "</a>";
 					exportMiceStatus.add("mice production in progress");
 				}
 				else if ( sh.containsKey("mice production planned") ){
 					miceStatus = "<a class='status none' oldtitle='Mice production planned' title=''>"
-							   +  "<span>Mice</span>"
-							   +  "</a>";
+						+  "<span>Mice</span>"
+						+  "</a>";
 					exportMiceStatus.add("mice production in progress");
 				}
 			}
@@ -562,9 +557,9 @@ public class GeneService {
 		if (doc.containsKey(GeneDTO.MOUSE_STATUS)) {
 
 			ArrayList<String> alleleNames = (ArrayList<String>) doc
-					.getFieldValue(GeneDTO.ALLELE_NAME);
+				.getFieldValue(GeneDTO.ALLELE_NAME);
 			ArrayList<String> mouseStatus = (ArrayList<String>) doc
-					.getFieldValue(GeneDTO.MOUSE_STATUS);
+				.getFieldValue(GeneDTO.MOUSE_STATUS);
 
 			for (int i = 0; i < mouseStatus.size(); i++) {
 				String mouseStatusStr = mouseStatus.get(i).toString();
@@ -590,13 +585,13 @@ public class GeneService {
 		try {
 			response = solr.query(query);
 			if (response.getResults().size() > 0) {// check we have results
-													// before we try and access
-													// them
+				// before we try and access
+				// them
 				SolrDocument doc = response.getResults().get(0);
 				// phenotype_status
 				if (doc.containsKey("phenotype_status")) {
 					ArrayList<String> statuses = (ArrayList<String>) doc
-							.getFieldValue("phenotype_status");
+						.getFieldValue("phenotype_status");
 					for (String status : statuses) {
 						if (status.equalsIgnoreCase("Phenotyping Started") || status.equalsIgnoreCase("Phenotyping Complete")) {
 							return true;
@@ -647,8 +642,8 @@ public class GeneService {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
 							miceStatus += "<a class='status done' oldtitle='" + mouseStatusStr + "' title='' href='#order2'>"
-									+  "<span>Mice<br>" + alleleType + "</span>"
-									+  "</a>";
+								+  "<span>Mice<br>" + alleleType + "</span>"
+								+  "</a>";
 
 							exportMiceStatus.add(alleleType + " mice produced");
 						}
@@ -661,8 +656,8 @@ public class GeneService {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
 							miceStatus += "<span class='status inprogress' oldtitle='Mice production in progress' title=''>"
-									+  "<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
+								+  "<span>Mice<br>" + alleleType + "</span>"
+								+  "</span>";
 							exportMiceStatus.add(alleleType + " mice production in progress");
 						}
 					}
@@ -677,8 +672,8 @@ public class GeneService {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
 							miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
-									+  "<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
+								+  "<span>Mice<br>" + alleleType + "</span>"
+								+  "</span>";
 
 							exportMiceStatus.add(alleleType + " mice production planned");
 						}
@@ -707,7 +702,7 @@ public class GeneService {
 	 * @throws SolrServerException
 	 */
 	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, HttpServletRequest request)
-			throws SolrServerException {
+		throws SolrServerException {
 
 		Map<String, String> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
@@ -748,7 +743,7 @@ public class GeneService {
 	 * @throws SolrServerException
 	 */
 	public Map<String, List<String>> getTopLevelMpForGeneSet(Set<String> geneIds)
-			throws SolrServerException {
+		throws SolrServerException {
 		Map<String, List<String>> geneToStatusMap = new HashMap<>();
 		SolrQuery solrQuery = new SolrQuery();
 		String query="*:*";
@@ -761,8 +756,8 @@ public class GeneService {
 		System.out.println("solr query in basicbean=" + solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		for (SolrDocument doc : res) {
-		String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
-		List<String> topLevelMpIds=Collections.emptyList();
+			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
+			List<String> topLevelMpIds=Collections.emptyList();
 			if (doc.containsKey("top_level_mp_id")) {
 				Collection<Object> topLevels = doc.getFieldValues(GeneDTO.TOP_LEVEL_MP_ID);
 				topLevelMpIds=new ArrayList(topLevels);
@@ -781,23 +776,23 @@ public class GeneService {
 		//logic taken from allele core which has latest meaning gene level not allele
 		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/gene/select?q=*:*&facet.field=latest_mouse_status&facet=true&rows=0
 
-		 if ( latestMouseStatus .equals( "Chimeras obtained")
-		 || latestMouseStatus .equals( "Micro-injection in progress")
-		 || latestMouseStatus .equals( "Cre Excision Started")
-		 || latestMouseStatus .equals( "Rederivation Complete")
-		 || latestMouseStatus .equals( "Rederivation Started" )){
-			 //latestMouseStatus = "Assigned for Mouse Production and Phenotyping"; // orange
-			 latestMouseStatus = "In Progress";
-		 }
-		 else if (latestMouseStatus .equals( "Genotype confirmed")
-		 || latestMouseStatus .equals( "Cre Excision Complete")
-		 || latestMouseStatus .equals( "Phenotype Attempt Registered") ){
-			 //latestMouseStatus = "Mice Produced"; // blue
-			 latestMouseStatus = "Yes";
-		 }else{
-			 latestMouseStatus="No";
-		 }
-		 return  latestMouseStatus;
+		if ( latestMouseStatus .equals( "Chimeras obtained")
+			|| latestMouseStatus .equals( "Micro-injection in progress")
+			|| latestMouseStatus .equals( "Cre Excision Started")
+			|| latestMouseStatus .equals( "Rederivation Complete")
+			|| latestMouseStatus .equals( "Rederivation Started" )){
+			//latestMouseStatus = "Assigned for Mouse Production and Phenotyping"; // orange
+			latestMouseStatus = "In Progress";
+		}
+		else if (latestMouseStatus .equals( "Genotype confirmed")
+			|| latestMouseStatus .equals( "Cre Excision Complete")
+			|| latestMouseStatus .equals( "Phenotype Attempt Registered") ){
+			//latestMouseStatus = "Mice Produced"; // blue
+			latestMouseStatus = "Yes";
+		}else{
+			latestMouseStatus="No";
+		}
+		return  latestMouseStatus;
 
 	}
 
@@ -813,6 +808,19 @@ public class GeneService {
 		}
 		return null;
 	}
+
+	public GeneDTO getGeneByEnsemblId(String ensemble_gene_id) throws SolrServerException {
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(GeneDTO.ENSEMBL_GENE_ID + ":\"" + ensemble_gene_id + "\"")
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.ENSEMBL_GENE_ID, GeneDTO.MARKER_SYMBOL);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		if (rsp.getResults().getNumFound() > 0) {
+			return rsp.getBeans(GeneDTO.class).get(0);
+		}
+		return null;
+	}
+
 
 	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery()
@@ -841,8 +849,8 @@ public class GeneService {
 		System.out.println("geneQuery: " + geneQuery);
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(geneQuery)
-			.setRows(1)
-			.setFacet(true);
+		         .setRows(1)
+		         .setFacet(true);
 		QueryResponse solrResponse;
 		try {
 			// add facet for latest_project_status

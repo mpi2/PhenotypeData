@@ -22,8 +22,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.phenotype.service.PhenotypeCenterService;
-import uk.ac.ebi.phenotype.service.ProcedureBean;
+import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
+import org.mousephenotype.cda.solr.service.ProcedureBean;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

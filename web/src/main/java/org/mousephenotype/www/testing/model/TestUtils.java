@@ -18,7 +18,7 @@
 
 package org.mousephenotype.www.testing.model;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -27,7 +27,9 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -35,11 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.PreQcService;
-import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 import javax.annotation.Resource;

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.util;
 
-import uk.ac.ebi.phenotype.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.Procedure;
 
 import java.util.Comparator;
 

@@ -9,8 +9,11 @@
 	<configs>
 	</configs>
 	<autoconfigs>
+<<<<<<< HEAD
 		<config>src/main/webapp/WEB-INF/mvc-config.xml</config>
 		<config>src/main/webapp/WEB-INF/app-config.xml</config>
+=======
+>>>>>>> branch 'master' of https://jwgwarren@github.com/mpi2/PhenotypeData
 	</autoconfigs>
 	<configSets>
 	</configSets>

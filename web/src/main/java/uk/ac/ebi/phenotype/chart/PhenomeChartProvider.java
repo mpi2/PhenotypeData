@@ -19,10 +19,10 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
-import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
