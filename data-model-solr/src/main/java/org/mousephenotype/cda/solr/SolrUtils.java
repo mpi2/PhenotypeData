@@ -28,11 +28,11 @@ import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.mousephenotype.cda.db.dao.OntologyService.BATCH_SIZE;
+
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
-
-import static org.mousephenotype.cda.solr.service.OntologyService.BATCH_SIZE;
 
 /**
  *

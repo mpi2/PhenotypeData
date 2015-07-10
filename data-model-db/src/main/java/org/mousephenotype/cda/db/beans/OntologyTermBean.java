@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.db.beans;
 
 import java.util.ArrayList;
 import java.util.List;

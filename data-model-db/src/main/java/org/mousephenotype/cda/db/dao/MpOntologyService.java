@@ -14,31 +14,32 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.db.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class encapsulates the code and data necessary to represent a Mouse
- * Pathology ontology.
+ * This class encapsulates the code and data necessary to serve a Mammalian
+ * Phenotype ontology.
  * 
  * @author mrelac
  */
-public class MpathOntologyService extends OntologyService {
-    
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class MpOntologyService extends OntologyService {
 
-    public MpathOntologyService() throws SQLException {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    public MpOntologyService() throws SQLException {
         
     }
     
     /**
      * Returns the set of descendent graphs for the given id.
-     * @param id the mpath id to query
+     * @param id the mp id to query
      * @return the set of descendent graphs for the given id.
      */
     @Override
@@ -46,7 +47,7 @@ public class MpathOntologyService extends OntologyService {
         String nodeIds = StringUtils.join(id2nodesMap.get(id), ",");
         String query =
             "SELECT *\n"
-          + "FROM mpath_node_subsumption_fullpath_concat\n"
+          + "FROM mp_node_subsumption_fullpath_concat\n"
           + "WHERE node_id IN (" + nodeIds + ")\n";
         
         return getDescendentGraphsInternal(query);
@@ -72,9 +73,9 @@ public class MpathOntologyService extends OntologyService {
           + ", GROUP_CONCAT(n2t.node_id) AS nodes\n"
           + ", ti.name                   AS termName\n"
           + ", ti.definition             AS termDefinition\n"
-          + "FROM mpath_node2term n2t\n"
-          + "LEFT OUTER JOIN mpath_term_infos ti ON ti.term_id = n2t.term_id\n"
-          + "WHERE n2t.term_id != 'MPATH:0'\n"
+          + "FROM mp_node2term n2t\n"
+          + "LEFT OUTER JOIN mp_term_infos ti ON ti.term_id = n2t.term_id\n"
+          + "WHERE n2t.term_id != 'MP:0000001'\n"
           + "GROUP BY n2t.term_id\n"
           + "ORDER BY n2t.term_id, n2t.node_id\n";
         
@@ -90,7 +91,7 @@ public class MpathOntologyService extends OntologyService {
     protected void populateAncestorMap() throws SQLException {
         String query =
             "SELECT *\n"
-          + "FROM mpath_node_backtrace_fullpath\n";
+          + "FROM mp_node_backtrace_fullpath\n";
         
         populateAncestorMap(query);
     }
@@ -104,7 +105,7 @@ public class MpathOntologyService extends OntologyService {
     protected void populateNode2TermMap() throws SQLException {
         String query =
             "SELECT *\n"
-          + "FROM mpath_node2term\n"
+          + "FROM mp_node2term\n"
           + "ORDER BY term_id\n";
         
         populateNode2TermMap(query);
@@ -121,7 +122,7 @@ public class MpathOntologyService extends OntologyService {
             "SELECT\n"
           + "  term_id\n"
           + ", syn_name\n"
-          + "FROM mpath_synonyms";
+          + "FROM mp_synonyms";
         
         populateSynonyms(query);
     }

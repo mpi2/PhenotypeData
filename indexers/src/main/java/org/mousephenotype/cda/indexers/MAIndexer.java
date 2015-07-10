@@ -19,10 +19,10 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.MaOntologyService;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.OntologyTermBean;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
+import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.MaOntologyService;
 import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
@@ -34,13 +34,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
 
+import static org.mousephenotype.cda.db.dao.OntologyService.BATCH_SIZE;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.mousephenotype.cda.solr.service.OntologyService.BATCH_SIZE;
 
 /**
  * Populate the MA core
