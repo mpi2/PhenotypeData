@@ -14,7 +14,8 @@
  * License.
  *******************************************************************************/
 
-package uk.ac.ebi.phenotype.web.pojo;
+package org.mousephenotype.cda.solr.service.dto;
+
 
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 
@@ -25,23 +26,24 @@ import java.util.Map;
  *
  * @author mrelac
  * This class encapsulates the code and data necessary to represent a row in the
- * Phenotype page's 'phenotypes' HTML table.
+ * Gene page's 'phenotypes' HTML table.
  */
-public class PhenotypePageTableRow extends DataTableRow {
+public class GenePageTableRow extends DataTableRow {
 
-    public PhenotypePageTableRow() {
+    public GenePageTableRow() {
         super();
     }
 
-    public PhenotypePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+    public GenePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
         super(pcs, baseUrl, config);
     }
 
     /**
      * Sort by:
      * <ul>
+     * <li>sex</li>
      * <li>p-value</li>
-     * <li>allele</li>
+     * <li>phenotype</li>
      * <li>procedure</li>
      * <li>parameter</li>
      * <li>phenotyping center</li>
@@ -57,16 +59,12 @@ public class PhenotypePageTableRow extends DataTableRow {
             return -1;
         }
 
-	    if (allele == null || o.allele == null) {
-		    return -1;
-	    }
-
-        // Phenotype Page sorting
+        // Gene Page sorting
         int pvalueOp = this.pValue.compareTo(o.pValue);
         if (pvalueOp == 0) {
-            int alleleSymbolOp = this.allele.getSymbol().compareTo(o.allele.getSymbol());
-            if (alleleSymbolOp == 0) {
-                int procedureOp = this.procedure.getName().compareTo(o.procedure.getName());
+            int phenotypeOp = this.phenotypeTerm.getName().compareTo(o.phenotypeTerm.getName());
+            if (phenotypeOp == 0) {
+             	int procedureOp = this.procedure.getName().compareTo(o.procedure.getName());
                 if (procedureOp == 0) {
                     int parameterOp = this.parameter.getName().compareTo(o.parameter.getName());
                     if (parameterOp == 0) {
@@ -83,7 +81,7 @@ public class PhenotypePageTableRow extends DataTableRow {
                     return procedureOp;
                 }
             } else {
-                return alleleSymbolOp;
+                return phenotypeOp;
             }
         } else {
             return pvalueOp;

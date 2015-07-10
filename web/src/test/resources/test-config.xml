@@ -46,19 +46,19 @@
     <!--this is the phenodigm DAO implementation we are looking for... -->
     <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
-    <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
+    <bean id="observationService" class="org.mousephenotype.cda.solr.service.ObservationService">
         <constructor-arg  value="${solrUrl}/experiment" />
     </bean>
 
-    <bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
+    <bean id="phenotypeCenterService" class="org.mousephenotype.cda.solr.service.PhenotypeCenterService">
         <constructor-arg value="${internalSolrUrl}/experiment" />
     </bean>
 
-    <bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
+    <bean id="preQcPhenotypeCenterService" class="org.mousephenotype.cda.solr.service.PhenotypeCenterService">
         <constructor-arg value="${internalSolrUrl}/preqc" />
     </bean>
 
-    <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
+    <bean id="impressService" class="org.mousephenotype.cda.solr.service.ImpressService">
         <constructor-arg value="${internalSolrUrl}/pipeline" />
     </bean>
 
@@ -66,19 +66,19 @@
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
+    <bean id="experimentService" class="org.mousephenotype.cda.solr.service.ExperimentService">
     </bean>
 
-    <bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
+    <bean id="imageService" class="org.mousephenotype.cda.solr.service.ImageService">
         <constructor-arg value="${internalSolrUrl}/impc_images" />
     </bean>
 
-    <bean id="expressionService" class="uk.ac.ebi.phenotype.service.ExpressionService">
+    <bean id="expressionService" class="org.mousephenotype.cda.solr.service.ExpressionService">
         <constructor-arg value="${internalSolrUrl}/experiment" />
         <constructor-arg value="${internalSolrUrl}/impc_images" />
     </bean>
 
-    <bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
+    <bean id="alleleService" class="org.mousephenotype.cda.solr.service.AlleleService">
         <constructor-arg value="${internalSolrUrl}/allele" />
     </bean>
 
@@ -86,34 +86,30 @@
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
+    <bean id="geneService" class="org.mousephenotype.cda.solr.service.GeneService">
         <constructor-arg  value="${solrUrl}/gene" />
     </bean>
-    <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
+    <bean id="preqcService" class="org.mousephenotype.cda.solr.service.PreQcService">
         <constructor-arg value="${internalSolrUrl}/preqc" />
         <constructor-arg ref="phenotypePipelineDAO" />
     </bean>
 
-    <bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
+    <bean id="postqcService" class="org.mousephenotype.cda.solr.service.PostQcService">
         <constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
         <constructor-arg ref="phenotypePipelineDAO" />
     </bean>
 
-    <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
+    <bean id="statisticalResultService" class="org.mousephenotype.cda.solr.service.StatisticalResultService">
         <constructor-arg  value="${solrUrl}/statistical-result" />
 	<constructor-arg ref="phenotypePipelineDAO" />
     </bean>
 
-    <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
+    <bean id="mpService" class="org.mousephenotype.cda.solr.service.MpService">
         <constructor-arg  value="${solrUrl}/mp" />
     </bean>
 
-    <bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
+    <bean id="diseaseService" class="org.mousephenotype.cda.solr.service.DiseaseService">
         <constructor-arg value="${internalSolrUrl}/disease" />
-    </bean>
-
-    <bean id="sexualDimorphismDAO" class="org.mousephenotype.cda.db.dao.SexualDimorphismDAOImpl" >
-        <constructor-arg ref="sessionFactory" />
     </bean>
 
     <context:component-scan base-package="uk.ac.ebi" />
@@ -172,10 +168,6 @@
     </bean>
 
     <bean id="sequenceRegionDAO" class="org.mousephenotype.cda.db.dao.SequenceRegionDAOImpl">
-        <constructor-arg ref="sessionFactory" />
-    </bean>
-
-    <bean id="coordinateSystemDAO" class="org.mousephenotype.cda.db.dao.CoordinateSystemDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 

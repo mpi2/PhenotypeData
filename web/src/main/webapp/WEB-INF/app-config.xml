@@ -13,12 +13,6 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		">
 
-	<bean id="executorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
-		<constructor-arg value="20" />
-	</bean>
-
-	<task:annotation-driven mode="proxy" executor="executorService" />
-	<task:executor id="threadPoolTaskExecutor" />
 
 
 	<!-- Define the global parameters used when deploying without maven -->
@@ -31,18 +25,31 @@
 	</bean>
 
 	<context:component-scan base-package="uk.ac.ebi" />
+	<context:component-scan base-package="org.mousephenotype.cda.db" />
+	<context:component-scan base-package="org.mousephenotype.cda.solr" />
 
 	<context:annotation-config />
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
-	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>
+	<!--<bean id="transactionManager"-->
+		<!--class="org.springframework.orm.hibernate3.HibernateTransactionManager">-->
+		<!--<property name="sessionFactory" ref="sessionFactory" />-->
+	<!--</bean>-->
+
+	<!--<bean id="obsSer" class="org.mousephenotype.cda.solr.service.ObservationService" />-->
+	<!--<bean id="srSer" class="org.mousephenotype.cda.solr.service.StatisticalResultService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/statistical-result" />-->
+		<!--<constructor-arg ref="phenotypePipelineDAO" />-->
+	<!--</bean>-->
+
+	<!--<bean id="postqcService_new" class="org.mousephenotype.cda.solr.service.PostQcService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />-->
+		<!--<constructor-arg ref="phenotypePipelineDAO" />-->
+	<!--</bean>-->
 
 	<!-- Translates Hibernate exceptions to Spring Data Access Exceptions -->
-	<bean
-		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	<!--<bean-->
+		<!--class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />-->
 
 	<!-- Get the datasources from the JNDI container -->
 	<jee:jndi-lookup id="komp2DataSource"
@@ -52,201 +59,174 @@
 		jndi-name="java:comp/env/jdbc/admintoolsDataSource" expected-type="javax.sql.DataSource" />
 
 	<!-- phenodigm external solr server via HTTP -->
-	<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${phenodigm.solrserver}" />
-   	<property name="soTimeout" value="5000" />
-	</bean>
+	<!--<bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">-->
+		<!--<constructor-arg index="0" value="${phenodigm.solrserver}" />-->
+   	<!--<property name="soTimeout" value="5000" />-->
+	<!--</bean>-->
 
     <!-- used for concurrently loading the solr server -->
-  <bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-     <constructor-arg index="0" value="${internalSolrUrl}/experiment"/>
-     <constructor-arg index="1" value="100000"/> <!--Queue size-->
-     <constructor-arg index="2" value="5"/> <!--Num threads-->
-  </bean>
+  <!--<bean id="observationSolrServer" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">-->
+     <!--<constructor-arg index="0" value="${internalSolrUrl}/experiment"/>-->
+     <!--<constructor-arg index="1" value="100000"/> &lt;!&ndash;Queue size&ndash;&gt;-->
+     <!--<constructor-arg index="2" value="5"/> &lt;!&ndash;Num threads&ndash;&gt;-->
+  <!--</bean>-->
 
 
 	<!-- ======= Service BEANS ======= -->
 
 
-	<bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-		<constructor-arg value="${internalSolrUrl}/experiment" />
-	</bean>
+	<!--<bean id="observationService" class="org.mousephenotype.cda.solr.service.ObservationService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/experiment" />-->
+	<!--</bean>-->
 
-	<bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-		<constructor-arg value="${internalSolrUrl}/experiment" />
-	</bean>
+	<!--<bean id="phenotypeCenterService" class="org.mousephenotype.cda.solr.service.PhenotypeCenterService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/experiment" />-->
+	<!--</bean>-->
 
-	<bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-		<constructor-arg value="${internalSolrUrl}/preqc" />
-	</bean>
+	<!--<bean id="preQcPhenotypeCenterService" class="org.mousephenotype.cda.solr.service.PhenotypeCenterService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/preqc" />-->
+	<!--</bean>-->
 
-  <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
-		<constructor-arg value="${internalSolrUrl}/preqc" />
-		<constructor-arg ref="phenotypePipelineDAO" />
-	</bean>
+  <!--<bean id="preqcService" class="org.mousephenotype.cda.solr.service.PreQcService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/preqc" />-->
+		<!--<constructor-arg ref="phenotypePipelineDAO" />-->
+	<!--</bean>-->
 
-	<bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
-		<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
-		<constructor-arg ref="phenotypePipelineDAO" />
-	</bean>
+	<!--<bean id="postqcService" class="org.mousephenotype.cda.solr.service.PostQcService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/genotype-phenotype" />-->
+		<!--<constructor-arg ref="phenotypePipelineDAO" />-->
+	<!--</bean>-->
 
-	<bean id="experimentService" class="org.mousephenotype.cda.solr.service.ExperimentService">	</bean>
+	<!--<bean id="experimentService" class="org.mousephenotype.cda.solr.service.ExperimentService">	</bean>-->
 
-	<bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
-		<constructor-arg value="${internalSolrUrl}/statistical-result" />
-		<constructor-arg ref="phenotypePipelineDAO" />
-	</bean>
+	<!--<bean id="statisticalResultService" class="org.mousephenotype.cda.solr.service.StatisticalResultService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/statistical-result" />-->
+		<!--<constructor-arg ref="phenotypePipelineDAO" />-->
+	<!--</bean>-->
 
-	<bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
-		<constructor-arg value="${internalSolrUrl}/pipeline" />
-	</bean>
 
-	<bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
-		<constructor-arg value="${internalSolrUrl}/impc_images" />
-	</bean>
+	<!--<bean id="impressService" class="org.mousephenotype.cda.solr.service.ImpressService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/pipeline" />-->
+	<!--</bean>-->
 
-	<bean id="expressionService" class="org.mousephenotype.cda.solr.service.ExpressionService">
-		<constructor-arg value="${internalSolrUrl}/experiment" />
-		<constructor-arg value="${internalSolrUrl}/impc_images" />
-	</bean>
+	<!--<bean id="imageService" class="org.mousephenotype.cda.solr.service.ImageService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/impc_images" />-->
+	<!--</bean>-->
 
-	<bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
-		<constructor-arg value="${internalSolrUrl}/allele" />
-	</bean>
+	<!--<bean id="expressionService" class="org.mousephenotype.cda.solr.service.ExpressionService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/experiment" />-->
+		<!--<constructor-arg value="${internalSolrUrl}/impc_images" />-->
+	<!--</bean>-->
 
-	<bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
-		<constructor-arg value="${internalSolrUrl}/gene" />
-	</bean>
+	<!--<bean id="alleleService" class="org.mousephenotype.cda.solr.service.AlleleService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/allele" />-->
+	<!--</bean>-->
 
-	<bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
-		<constructor-arg value="${internalSolrUrl}/mp" />
-	</bean>
+	<!--<bean id="geneService" class="org.mousephenotype.cda.solr.service.GeneService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/gene" />-->
+	<!--</bean>-->
 
-	<bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
-		<constructor-arg value="${internalSolrUrl}/disease" />
-	</bean>
+	<!--<bean id="mpService" class="org.mousephenotype.cda.solr.service.MpService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/mp" />-->
+	<!--</bean>-->
+
+	<!--<bean id="diseaseService" class="org.mousephenotype.cda.solr.service.DiseaseService">-->
+		<!--<constructor-arg value="${internalSolrUrl}/disease" />-->
+	<!--</bean>-->
 
 
 	<!-- ======= DAO BEANS ======= -->
 
 
-	<bean id="statisticalResultDAO" class="org.mousephenotype.cda.db.dao.StatisticalResultDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="statisticalResultDAO" class="org.mousephenotype.cda.db.dao.StatisticalResultDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="releaseDAO" class="org.mousephenotype.cda.db.dao.AnalyticsDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="releaseDAO" class="org.mousephenotype.cda.db.dao.AnalyticsDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="sexualDimorphismDAO" class="org.mousephenotype.cda.db.dao.SexualDimorphismDAOImpl" >
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
-	<bean id="biologicalModelDAO" class="org.mousephenotype.cda.db.dao.BiologicalModelDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="biologicalModelDAO" class="org.mousephenotype.cda.db.dao.BiologicalModelDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
 	<!-- <bean id="secondaryProjectDAO" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
 		<constructor-arg ref="sessionFactory" /> </bean> -->
 
-	<bean id="phenotypeCallSummaryDAO" class="org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="phenotypeCallSummaryDAO" class="org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
 	<!--this is the phenodigm DAO implementation we are looking for... -->
 	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
 	<!-- Weaves in transactional advice around annotated Transactional methods -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!--<tx:annotation-driven transaction-manager="transactionManager" />-->
 
 
-  <bean id="phenotypePipelineDAO" class="org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl">
-       <constructor-arg ref="sessionFactory" />
-  </bean>
+  <!--<bean id="phenotypePipelineDAO" class="org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl">-->
+       <!--<constructor-arg ref="sessionFactory" />-->
+  <!--</bean>-->
 
-	<bean id="phenSummary" class="uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl">
-	</bean>
+	<!--<bean id="phenSummary" class="uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAOImpl">-->
+	<!--</bean>-->
 
-	<bean id="phenotypeCallSummaryDAOSolr" class="org.mousephenotype.cda.db.pojo.PhenotypeCallSummarySolrImpl">
-	</bean>
+	<!--<bean id="phenotypeCallSummaryDAOSolr" class="org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr">-->
+	<!--</bean>-->
 
-	<bean id="alleleDAO" class="org.mousephenotype.cda.db.dao.AlleleDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="alleleDAO" class="org.mousephenotype.cda.db.dao.AlleleDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="genomicFeatureDAO" class="org.mousephenotype.cda.db.dao.GenomicFeatureDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="genomicFeatureDAO" class="org.mousephenotype.cda.db.dao.GenomicFeatureDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="ontologyTermDAO" class="org.mousephenotype.cda.db.dao.OntologyTermDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="ontologyTermDAO" class="org.mousephenotype.cda.db.dao.OntologyTermDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="sequenceRegionDAO" class="org.mousephenotype.cda.db.dao.SequenceRegionDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="sequenceRegionDAO" class="org.mousephenotype.cda.db.dao.SequenceRegionDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="coordinateSystemDAO" class="org.mousephenotype.cda.db.dao.CoordinateSystemDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="strainDAO" class="org.mousephenotype.cda.db.dao.StrainDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="strainDAO" class="org.mousephenotype.cda.db.dao.StrainDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="projectDAO" class="org.mousephenotype.cda.db.dao.ProjectDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="projectDAO" class="org.mousephenotype.cda.db.dao.ProjectDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="organisationDAO" class="org.mousephenotype.cda.db.dao.OrganisationDAOImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="organisationDAO" class="org.mousephenotype.cda.db.dao.OrganisationDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
+	<!--<bean id="idg" class="uk.ac.ebi.phenotype.web.dao.SecondaryProjectIdgImpl">-->
+		<!--<constructor-arg ref="sessionFactory" />-->
+	<!--</bean>-->
 
-	<bean id="idg" class="org.mousephenotype.cda.db.dao.SecondaryProjectIdgImpl">
-		<constructor-arg ref="sessionFactory" />
-		<!-- <constructor-arg ref="geneService" /> <constructor-arg ref="genomicFeatureDAO"
-			/> <constructor-arg ref="genotypePhenotypeService"/> <constructor-arg ref="phenotypePipelineDAO"/> -->
-
-	</bean>
-
-	<bean id="threeI" class="org.mousephenotype.cda.db.dao.SecondaryProject3iImpl">
-	</bean>
+	<!--<bean id="threeI" class="uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl">-->
+	<!--</bean>-->
 
 	<!-- Spring annotated objects -->
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-		<property name="dataSource" ref="komp2DataSource" />
-		<property name="packagesToScan" value="uk.ac.ebi.phenotype" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
-				<prop key="hibernate.show_sql">false</prop>
-				<prop key="hibernate.connection.useUnicode">true</prop>
-				<prop key="hibernate.connection.charSet">UTF8</prop>
-			</props>
-		</property>
-	</bean>
-
-	<bean id="imagingSourceManager"
-		class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.HibernateImagesDao">
-		<constructor-arg ref="sessionFactory" />
-		<constructor-arg ref="imagesSolrDao" />
-	</bean>
-
-	<!-- If deploying without maven, the solrUrl variable is replaced by Spring's
-		PropertyPlaceholder configuration. If deploying with maven, the maven filter
-		replaces the solrUrl variable with the value specified in the pom.xml file.
-		If deploying using a profile (e.g. mvn tomcat:deploy -Pexternal_beta) the
-		solrUrl variable is replaced with the appropriate value from the profile
-		in the pom.xml file. -->
-	<bean id="imagesSolrDao"
-		class="uk.ac.ebi.phenotype.imaging.springrest.images.dao.ImagesSolrJ">
-		<constructor-arg name="solrBaseUrl" value="${solrUrl}/images" />
-	</bean>
+	<!--<bean id="sessionFactory"-->
+		<!--class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">-->
+		<!--<property name="dataSource" ref="komp2DataSource" />-->
+		<!--<property name="packagesToScan" value="uk.ac.ebi.phenotype" />-->
+		<!--<property name="hibernateProperties">-->
+			<!--<props>-->
+				<!--<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>-->
+				<!--<prop key="hibernate.show_sql">false</prop>-->
+				<!--<prop key="hibernate.connection.useUnicode">true</prop>-->
+				<!--<prop key="hibernate.connection.charSet">UTF8</prop>-->
+			<!--</props>-->
+		<!--</property>-->
+	<!--</bean>-->
 
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
 		<property name="targetMapClass">

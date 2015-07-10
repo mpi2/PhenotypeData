@@ -37,9 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.PostQcService;
-import uk.ac.ebi.phenotype.service.PreQcService;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 import javax.annotation.Resource;

@@ -13,6 +13,7 @@ import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.impress.Utilities;
 
 import java.util.Arrays;
 import java.util.List;

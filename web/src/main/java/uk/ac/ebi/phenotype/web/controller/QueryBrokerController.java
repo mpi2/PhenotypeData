@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.service.GeneService;
+import org.mousephenotype.cda.solr.service.GeneService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -49,18 +49,18 @@ public class QueryBrokerController {
 
 	@Autowired
 	private SolrIndex solrIndex;
-	
+
 	@Autowired
 	private GeneService geneService;
-	
+
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
-	
+
 	private String internalSolrUrl;
 
 	// Use cache to manage queries for minimizing network traffic
 	final int MAX_ENTRIES = 600;
-	
+
 	@SuppressWarnings("unchecked")
 	Map<String, Object> cache = (Map<String, Object>) Collections.synchronizedMap(new LinkedHashMap<String, Object>(MAX_ENTRIES+1, .75F, true) {
 		private static final long serialVersionUID = 1L;
@@ -114,41 +114,41 @@ public class QueryBrokerController {
 			Model model) throws IOException, URISyntaxException  {
 
 		internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
-		
+
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 
 		JSONObject jsonResponse = createJsonResponse(subfacet, jParams);
-		
+
 		return new ResponseEntity<JSONObject>(jsonResponse, createResponseHeaders(), HttpStatus.CREATED);
 	}
-	
+
 	private HttpHeaders createResponseHeaders(){
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
 		return responseHeaders;
 	}
-	
+
 	public JSONObject createJsonResponse(String subfacet, JSONObject jParams) throws IOException, URISyntaxException {
 
 		JSONObject jsonResponse = new JSONObject();
 
 		Iterator cores = jParams.keys();
-		
+
 		while(cores.hasNext()) {
-			
+
 			String core  = (String) cores.next();
-			
+
 			String param = jParams.getString(core);
 			//System.out.println(core + " -- " + param);
-			
-			// gene2 is a pseudo core to get only protein coding genes count for 
-			// Genes main facet count on default search page 
-			String solrCore = core.equals("gene2") ? "gene" : core; 
-			String url = internalSolrUrl + "/" + solrCore + "/select?" + param; 
-			
+
+			// gene2 is a pseudo core to get only protein coding genes count for
+			// Genes main facet count on default search page
+			String solrCore = core.equals("gene2") ? "gene" : core;
+			String url = internalSolrUrl + "/" + solrCore + "/select?" + param;
+
 			String key = core+param;
 			Object o = cache.get(key);
-			
+
 			if (o == null && !cache.containsKey(key)) {
 			    // Object not in cache. If null is not a possible value in the cache,
 			    // the call to cache.contains(key) is not needed
@@ -157,7 +157,7 @@ public class QueryBrokerController {
 				if ( subfacet == null ){
 					int numFound = json.getJSONObject("response").getInt("numFound");
 					jsonResponse.put(core, numFound);
-					
+
 					cache.put(key, numFound);
 					//System.out.println("####### Cache for main facet added");
 				}
@@ -166,7 +166,7 @@ public class QueryBrokerController {
 					j.put("response", json.getJSONObject("response"));
 					j.put("facet_counts", json.getJSONObject("facet_counts"));
 					jsonResponse.put(core, j);
-					
+
 					cache.put(key, j);
 					//System.out.println("****** Cache for subfacet added");
 				}
@@ -179,5 +179,5 @@ public class QueryBrokerController {
 
 		return jsonResponse;
 	}
-		
-}	
+
+}

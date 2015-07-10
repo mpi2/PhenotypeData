@@ -13,44 +13,34 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.service;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
-import javax.annotation.Resource;
+package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
 
 @Service
 public class ReportsService {
@@ -83,8 +73,7 @@ public class ReportsService {
 	@Resource(name = "globalConfiguration")
 	Map<String, String> config;
 
-	private static
-	ArrayList<String> resources;
+	private static ArrayList<String> resources;
 
 	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
 	public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
@@ -368,7 +357,7 @@ public class ReportsService {
 
     	List<String> genesAll;
 		List<String> genesComplete;
-		List<String[]>  mpTable = new ArrayList<>();
+		List<String[]> mpTable = new ArrayList<>();
 
     	try {
 
@@ -429,12 +418,12 @@ public class ReportsService {
     	List<List<String[]>> res = new ArrayList<>();
     	try {
     		List<String[]> parameters = new ArrayList<>();
-    		String [] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
+    		String[] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
     		parameters.add(headerParams);
     		parameters.addAll(gpService.getHitsDistributionByParameter(resources));
 
     		List<String[]> procedures = new ArrayList<>();
-    		String [] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
+    		String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
     		procedures.add(headerProcedures);
     		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
 
@@ -457,7 +446,7 @@ public class ReportsService {
     	List<List<String[]>> res = new ArrayList<>();
     	try {
     		List<String[]> zygosityTable = new ArrayList<>();
-    		String [] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
+    		String[] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
     		zygosityTable.add(headerParams);
 
     		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
@@ -533,8 +522,8 @@ public class ReportsService {
     		long iterator = 0;
 
     		while (iterator <= maxHitsPerColony){
-    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator)? homRes.get(iterator) : 0),
-    				Long.toString(hetRes.containsKey(iterator)? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator)? allRes.get(iterator) : 0)};
+    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator) ? homRes.get(iterator) : 0),
+    				Long.toString(hetRes.containsKey(iterator) ? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator) ? allRes.get(iterator) : 0)};
     			zygosityTable.add(row);
     			iterator += 1;
     		}
@@ -563,7 +552,7 @@ public class ReportsService {
 	public List<String[]> getHitsPerGene(){
 
 		List<String[]> res = new ArrayList<>();
-		String [] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
+		String[] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
 		res.add(headerParams);
 
 		try {
@@ -590,12 +579,12 @@ public class ReportsService {
 			allGenes.removeAll(geneToPhenotypes.keySet());
 
 			for (String geneSymbol : geneToPhenotypes.keySet()) {
-				String [] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol),": ")};
+				String[] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol),": ")};
 				res.add(row);
 			}
 
 			for (String geneSymbol : allGenes) {
-				String [] row = {geneSymbol, "0", ""};
+				String[] row = {geneSymbol, "0", ""};
 				res.add(row);
 			}
 
@@ -622,7 +611,7 @@ public class ReportsService {
 		Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
 		Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
 
-		String [] headerParams  ={"MP Term", "Zygosity", "# Genes", "Genes" };
+		String[] headerParams  ={"MP Term", "Zygosity", "# Genes", "Genes" };
 		res.add(headerParams);
 
 		try {
@@ -706,7 +695,7 @@ public class ReportsService {
 			}
 
 
-			String [] resetHeaderParams = {"Marker symbol", "Center", "Viability", "Hom", "Het", "Hemi", "Link to Gene page" };
+			String[] resetHeaderParams = {"Marker symbol", "Center", "Viability", "Hom", "Het", "Hemi", "Link to Gene page" };
 			res.add(resetHeaderParams);
 
 			Set<String> geneSymbols = new HashSet<>();
@@ -989,7 +978,7 @@ public class ReportsService {
     	HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
 
 
-    	public IpGTTStats(Group group) throws NumberFormatException, SolrServerException, IOException, URISyntaxException{
+    	public IpGTTStats(Group group) throws NumberFormatException, SolrServerException, IOException, URISyntaxException {
 
     		SolrDocumentList docList = group.getResult();
     		colony = group.getGroupValue();
@@ -1033,17 +1022,16 @@ public class ReportsService {
 
     		for (String sex : sexes){
 	    		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
-							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
-							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),
-							doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
-							SexType.valueOf(sex),
-							(Integer)Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),
-							zygosities,
-							doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),
-							null,
-							Boolean.FALSE,
-							doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
-
+					(Integer) Integer.parseInt(doc.getFieldValue(ObservationDTO.PARAMETER_ID).toString()),
+					(Integer) Integer.parseInt(doc.getFieldValue(ObservationDTO.PIPELINE_ID).toString()),
+					doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
+					SexType.valueOf(sex),
+					(Integer) Integer.parseInt(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER_ID).toString()),
+					zygosities,
+					doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),
+					null,
+					Boolean.FALSE,
+					doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
 	    		for (ExperimentDTO exp: experiments){
 	    			for (ObservationDTO obs: exp.getControls()){
 	    				datapoints.get(sex).get("WT").add((Float)obs.getDataPoint());
@@ -1079,6 +1067,7 @@ public class ReportsService {
     		}
     		return null;
     	}
+
     	public Float getMedian(SexType sex, ZygosityType zyg){
 
     		String zygosity = (zyg != null) ? zyg.getName() : "WT";
@@ -1087,7 +1076,6 @@ public class ReportsService {
     		}
     		return null;
     	}
-
 
     	private Float getMedian(List<Float> list){
 

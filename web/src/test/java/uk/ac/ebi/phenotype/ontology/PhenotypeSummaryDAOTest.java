@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAO;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PostQcService;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

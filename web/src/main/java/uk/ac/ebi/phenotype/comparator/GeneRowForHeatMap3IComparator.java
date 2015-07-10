@@ -15,8 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.comparator;
 
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
-import uk.ac.ebi.phenotype.web.pojo.HeatMapCell;
+import org.mousephenotype.cda.solr.service.dto.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.service.dto.HeatMapCell;
 
 import java.util.Comparator;
 import java.util.Map;

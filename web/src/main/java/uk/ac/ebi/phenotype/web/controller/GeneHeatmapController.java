@@ -17,6 +17,9 @@ package uk.ac.ebi.phenotype.web.controller;
 
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.GeneRowForHeatMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -24,11 +27,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
-import uk.ac.ebi.phenotype.web.pojo.BasicBean;
-import uk.ac.ebi.phenotype.web.pojo.GeneRowForHeatMap;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

@@ -6,7 +6,7 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import uk.ac.ebi.phenotype.service.GeneService;
+import org.mousephenotype.cda.solr.service.GeneService;
 
 import static org.junit.Assert.assertTrue;
 
