@@ -32,13 +32,14 @@ import java.util.HashMap;
 import java.util.List;
 
 @Repository
+@Transactional
 public class SequenceRegionDAOImpl extends HibernateDAOImpl implements
 		SequenceRegionDAO {
 
 	public SequenceRegionDAOImpl() {
-		
+
 	}
-	
+
 	/**
 	 * Creates a new Hibernate sequence region data access manager.
 	 * @param sessionFactory the Hibernate session factory

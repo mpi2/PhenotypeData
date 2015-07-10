@@ -31,12 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
+@Transactional
 public class ProjectDAOImpl extends HibernateDAOImpl implements ProjectDAO {
 
 	public ProjectDAOImpl() {
-		
+
 	}
-	
+
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory

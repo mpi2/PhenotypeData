@@ -16,9 +16,6 @@
 
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -29,9 +26,13 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-@Repository
+import java.util.ArrayList;
+import java.util.List;
+
+
+@Service("preqcService")
 public class PreQcService extends AbstractGenotypePhenotypeService {
 
     public PreQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
@@ -43,22 +44,22 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
     public PreQcService() {
         super();
     }
-    
+
     /**
      * Returns a list of <code>count GraphTestDTO</code> instances.
      *
      * @param count the number of <code>GraphTestDTO</code> instances to return
      *
      * @return a list of <code>count GraphTestDTO</code> instances.
-     * 
+     *
      * @throws SolrServerException
      */
     public List<GraphTestDTO> getGeneAccessionIds(int count) throws SolrServerException {
         List<GraphTestDTO> retVal = new ArrayList();
-        
+
         if (count < 1)
             return retVal;
-        
+
         SolrQuery query = new SolrQuery();
         query
             .setQuery("*:*")
@@ -68,14 +69,14 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
             .add("group.field", "marker_accession_id")
             .add("group.limit", Integer.toString(count))
         ;
-        
+
         QueryResponse response = solr.query(query);
         List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {
             List<Group> groups = groupCommand.getValues();
             for (Group group : groups) {
                 SolrDocumentList docs = group.getResult();
-                
+
                 SolrDocument doc = docs.get(0);                                 // All elements in this collection have the same mgi_accession_id.
                 GraphTestDTO geneGraph = new GraphTestDTO();
                 geneGraph.setParameterStableId((String)doc.get("parameter_stable_id"));
@@ -89,7 +90,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
                 }
             }
         }
-        
+
         return retVal;
     }
 }

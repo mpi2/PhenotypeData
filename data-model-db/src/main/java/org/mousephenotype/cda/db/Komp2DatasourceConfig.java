@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.db;
 
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,6 +15,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 /**
@@ -23,6 +25,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf")
+@ComponentScanNonParticipant
 public class Komp2DatasourceConfig {
 
 	@Bean
@@ -34,6 +37,7 @@ public class Komp2DatasourceConfig {
 
 	@Bean
 	@Primary
+	@PersistenceContext(name="komp2Context")
 	public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
 		return builder
 			.dataSource(komp2DataSource())

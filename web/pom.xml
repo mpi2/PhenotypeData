@@ -8,18 +8,25 @@
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
 
+    <parent>
+        <groupId>org.mousephenotype.cda</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.0.1</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
     <properties>
         <java.version>1.8</java.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <spring.version>3.2.14.RELEASE</spring.version>
+        <spring.version>4.1.7.RELEASE</spring.version>
         <slf4j.version>1.7.7</slf4j.version>
         <junit.version>4.11</junit.version>
         <hibernate.show_sql>true</hibernate.show_sql>
         <hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
-        <hibernate.version>3.6.10.Final</hibernate.version>
+        <hibernate.version>4.3.4.Final</hibernate.version>
 
         <servlet.api.version>2.3</servlet.api.version>
 
@@ -31,8 +38,19 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-db</artifactId>
             <version>0.0.1</version>
         </dependency>
 
@@ -147,19 +165,19 @@
 
         <!-- Bean Validation Dependencies -->
 
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-            <version>1.0.0.GA</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>javax.validation</groupId>-->
+            <!--<artifactId>validation-api</artifactId>-->
+            <!--<version>1.0.0.GA</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>4.0.0.GA</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.hibernate</groupId>-->
+            <!--<artifactId>hibernate-validator</artifactId>-->
+            <!--<version>4.0.0.GA</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <!-- JPA Persistence Dependencies -->
 
@@ -177,12 +195,12 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.1.Final</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.hibernate.javax.persistence</groupId>-->
+            <!--<artifactId>hibernate-jpa-2.0-api</artifactId>-->
+            <!--<version>1.0.1.Final</version>-->
+            <!--<scope>compile</scope>-->
+        <!--</dependency>-->
 
         <!-- JSON Dependencies -->
     	<dependency>
@@ -242,12 +260,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-oxm</artifactId>
             <version>${spring.version}</version>
         </dependency>
 

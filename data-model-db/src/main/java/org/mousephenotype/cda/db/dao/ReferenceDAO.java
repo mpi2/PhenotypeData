@@ -20,6 +20,7 @@ import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -33,6 +34,7 @@ import java.util.List;
 
 
 @Repository
+@Transactional
 public class ReferenceDAO {
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 

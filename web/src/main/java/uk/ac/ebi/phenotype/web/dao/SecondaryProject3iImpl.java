@@ -25,6 +25,7 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneRowForHeatMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
@@ -39,7 +40,8 @@ import java.util.Set;
  *
  */
 
-public class SecondaryProject3iImpl implements SecondaryProjectDAO {
+@Service("threeI")
+public class SecondaryProject3iImpl implements SecondaryProjectService {
 
 
 	@Autowired
@@ -59,11 +61,10 @@ public class SecondaryProject3iImpl implements SecondaryProjectDAO {
 	@Autowired
 	private MpService mpService;
 
-	@Override
 	public Set<String> getAccessionsBySecondaryProjectId(String projectId)
 	throws SQLException {
 
-		if (projectId.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())){
+		if (projectId.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())){
 			return srs.getAccessionsByResourceName("3i");
 		}
 		return null;

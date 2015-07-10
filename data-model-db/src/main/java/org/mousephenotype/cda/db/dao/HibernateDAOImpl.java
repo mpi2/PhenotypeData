@@ -29,7 +29,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.internal.SessionImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,8 +43,8 @@ import java.util.LinkedList;
 * Implementation of the HibernateDAO interface
 */
 
-@Transactional
 @Repository
+@Transactional
 public class HibernateDAOImpl implements HibernateDAO {
 
 	protected Logger logger = Logger.getLogger(HibernateDAOImpl.class);
@@ -65,7 +64,7 @@ public class HibernateDAOImpl implements HibernateDAO {
 	 */
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() {
-		Session session = SessionFactoryUtils.doGetSession(sessionFactory, false);
+		Session session = sessionFactory.getCurrentSession();
 		Connection connection = ((SessionImpl)session).connection();
 		return connection;
 	}
@@ -75,7 +74,7 @@ public class HibernateDAOImpl implements HibernateDAO {
 	 * @return
 	 */
 	public Session getSession() {
-		Session session = SessionFactoryUtils.doGetSession(sessionFactory, false);
+		Session session = sessionFactory.getCurrentSession();
 		return session;
 	}
 

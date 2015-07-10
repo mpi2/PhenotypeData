@@ -30,6 +30,8 @@ import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +42,8 @@ import java.util.regex.Pattern;
 @Service
 public class GeneService {
 
+	@Autowired
+	@Qualifier("geneCore")
 	private HttpSolrServer solr;
 
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
@@ -48,11 +52,6 @@ public class GeneService {
 		public final static String CENTRE_WTSI = "WTSI";
 		public final static String PHENOTYPE_STATUS_COMPLETE = "Phenotyping Complete";
 		public final static String PHENOTYPE_STATUS_STARTED = "Phenotyping Started";
-	}
-
-	public GeneService(String solrUrl) {
-		solr = new HttpSolrServer(solrUrl);
-
 	}
 
 	/**

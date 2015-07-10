@@ -38,6 +38,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 @Repository
+@Transactional
 public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements PhenotypePipelineDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -49,9 +50,9 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public PhenotypePipelineDAOImpl(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-	
+
 	public PhenotypePipelineDAOImpl() {
-	
+
 	}
 
 	@Transactional(readOnly = true)

@@ -34,6 +34,7 @@ import java.util.List;
 
 
 @Repository
+@Transactional
 public class BiologicalModelDAOImpl extends HibernateDAOImpl implements BiologicalModelDAO {
 
 	/**
