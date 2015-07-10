@@ -12,69 +12,16 @@
 	</appender>
 
 	<!-- Application logger -->
-	<logger name="komp2">
+	<logger name="org.mousephenotype.cda">
+		<level value="warn" />
+	</logger>
+	<logger name="uk.ac.ebi">
 		<level value="warn" />
 	</logger>
 
-	<!-- 3rdparty Loggers -->
-	<!-- <logger name="org.springframework.beans">
-		<level value="warn" />
-	</logger>
 
-	<logger name="org.springframework.jdbc">
-		<level value="warn" />
-	</logger>
-
-	<logger name="org.springframework.transaction">
-		<level value="warn" />
-	</logger>
-
-	<logger name="org.springframework.orm">
-		<level value="warn" />
-	</logger>
-
-	<logger name="org.springframework.web">
-		<level value="warn" />
-	</logger>
-
-	<logger name="uk.ac.ebi.generic.util">
-		<level value="info" />
-	</logger>
-
-	<logger name="uk.ac.ebi.phenotype.web.controller">
-		<level value="warn" />
-	</logger>
-
-        <logger name="uk.ac.sanger.phenodigm2">
-		<level value="info" />
-	</logger>
-
-	<logger name="uk.ac.ebi.phenotype.stats.unidimensional">
-		<level value="info" />
-	</logger> -->
-
-	<!-- <logger name="org.mousephenotype.cda.db.pojo.StatisticalResult">
-		<level value="debug" />
-	</logger> -->
-	<!-- <logger name="org.mousephenotype.cda.db.pojo.PhenotypeCallSummarySolrImpl">
-		<level value="debug" />
-	</logger> -->
-
-	<!--  <logger name="uk.ac.ebi.phenotype.stats.ExperimentService">
-		<level value="debug" />
-	</logger>
-	<logger name="uk.ac.ebi.phenotype.stats.ObservationService">
-		<level value="debug" />
-	</logger> -->
-	<!-- Root Logger -->
-	<!-- <logger name="org.mousephenotype.cda.solr.service.ImageService">
-		<level value="debug" />
-	</logger>
-    <logger name="uk.ac.ebi.phenotype.solr.indexer">
-        <level value="info" />
-    </logger> -->
 	<root>
-		<priority value="all" />
+		<priority value="warn" />
 		<appender-ref ref="console" />
 	</root>
 
