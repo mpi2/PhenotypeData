@@ -32,6 +32,8 @@ import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -42,6 +44,8 @@ import java.util.*;
 @Service
 public class ImageService {
 
+	@Autowired
+	@Qualifier("impcImagesCore")
 	private HttpSolrServer solr;
 	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
@@ -49,10 +53,6 @@ public class ImageService {
 	public ImageService() {
 	}
 
-
-	public ImageService(HttpSolrServer solr) {
-		this.solr = solr;
-	}
 
 
 	@NotNull
@@ -63,10 +63,6 @@ public class ImageService {
     @Value("${baseUrl}")
     private String baseUrl;
 
-	public ImageService(String solrUrl) {
-
-		solr = new HttpSolrServer(solrUrl);
-	}
 
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
