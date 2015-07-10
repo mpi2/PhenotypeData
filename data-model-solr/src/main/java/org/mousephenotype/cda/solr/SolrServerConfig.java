@@ -24,6 +24,10 @@ import javax.validation.constraints.NotNull;
 public class SolrServerConfig {
 
 	@NotNull
+	@Value("${phenodigm.solrserver}")
+	private String phenodigmSolrUrl;
+
+	@NotNull
 	@Value("${solr.host}")
 	private String solrBaseUrl;
 
@@ -33,6 +37,12 @@ public class SolrServerConfig {
 	@Bean
 	public SolrServer solrServer(@Value("${solr.host}") String solrHost) {
 		return new HttpSolrServer(solrHost);
+	}
+
+	// PhenoDigm solr server configuration
+	@Bean(name = "solrServer")
+	HttpSolrServer getSolServerPhenodigm() {
+		return new HttpSolrServer(phenodigmSolrUrl);
 	}
 
 
@@ -137,5 +147,6 @@ public class SolrServerConfig {
 	PhenotypeCenterService preQcPhenotypeCenterService() {
 		return new PhenotypeCenterService(solrBaseUrl + "/preqc", ppDao);
 	}
+
 
 }

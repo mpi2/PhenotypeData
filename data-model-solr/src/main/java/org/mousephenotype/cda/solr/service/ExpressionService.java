@@ -47,10 +47,10 @@ import java.util.*;
 public class ExpressionService {
 
 	@Autowired @Qualifier("experimentCore")
-	private SolrServer experimentSolr;
+	private HttpSolrServer experimentSolr;
 
-	@Autowired @Qualifier("imagesCore")
-	private SolrServer imagesSolr;
+	@Autowired @Qualifier("impcImagesCore")
+	private HttpSolrServer imagesSolr;
 
 	@Autowired
 	ExperimentService experimentService;

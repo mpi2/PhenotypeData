@@ -291,6 +291,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	}
 
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<String> getParameterStableIdsByPhenotypeTerm(String mpTermId) {
 
@@ -313,7 +314,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	}
 
 
-//	@Transactional(readOnly = true)
+	@Transactional(readOnly = true)
 	@Override
 	public String getCategoryDescription(int parameterId, String category) throws SQLException {
 
