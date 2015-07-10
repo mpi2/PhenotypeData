@@ -21,9 +21,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.phenotype.dao.SexualDimorphismDAO;
-import uk.ac.ebi.phenotype.service.ImageService;
-import uk.ac.ebi.phenotype.service.ReportsService;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ReportsService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +44,8 @@ public class ReportsController {
 	@Autowired
 	ImageService is;
 
-	@Autowired
-	SexualDimorphismDAO sdDAO;
+//	@Autowired
+//	SexualDimorphismDAO sdDAO;
 
 	@Resource(name = "globalConfiguration")
 	Map<String, String> config;
@@ -61,21 +60,21 @@ public class ReportsController {
 		List<String[]> result = is.getLaczExpressionSpreadsheet();
 		ControllerUtils.writeAsCSV(result, "impc_lacz_expression.csv", response);
 	}
-	
-	
+
+
 	@RequestMapping(value = "/reports/getBmdIpdtt", method = RequestMethod.GET)
 	public void getBmdIpdtt(@RequestParam(required = false, value = "param") String parameter,HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException, SolrServerException {
 
 		List<String[]> result = rService.getBmdIpdttReport(parameter);
 		ControllerUtils.writeAsCSV(result, "stats_" + parameter + ".csv", response);
 	}
-	
-	
+
+
 	@RequestMapping(value = "/reports/sexualDimorphism", method = RequestMethod.GET)
 	public void getSexualDimorphismReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight(config.get("drupalBaseUrl") + "/data");
-		ControllerUtils.writeAsCSV(result, "sexual_dimorphism_no_body_weight_IMPC.csv", response);
+//		List<String[]> result = sdDAO.sexualDimorphismReportNoBodyWeight(config.get("drupalBaseUrl") + "/data");
+//		ControllerUtils.writeAsCSV(result, "sexual_dimorphism_no_body_weight_IMPC.csv", response);
 	}
 
 
@@ -83,8 +82,8 @@ public class ReportsController {
 	public void getSexualDimorphismWithBodyWeightReport(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		try {
-			List<String[]> result = sdDAO.sexualDimorphismReportWithBodyWeight(config.get("drupalBaseUrl") + "/data");
-			ControllerUtils.writeAsCSV(result, "sexual_dimorphism_with_body_weight_IMPC.csv", response);
+//			List<String[]> result = sdDAO.sexualDimorphismReportWithBodyWeight(config.get("drupalBaseUrl") + "/data");
+//			ControllerUtils.writeAsCSV(result, "sexual_dimorphism_with_body_weight_IMPC.csv", response);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

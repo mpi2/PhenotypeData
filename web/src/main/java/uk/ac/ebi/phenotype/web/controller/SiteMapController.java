@@ -22,9 +22,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.phenotype.service.DiseaseService;
-import uk.ac.ebi.phenotype.service.GeneService;
-import uk.ac.ebi.phenotype.service.MpService;
+import org.mousephenotype.cda.solr.service.DiseaseService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.MpService;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemap;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemapIndex;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrl;
@@ -42,7 +42,7 @@ import java.util.List;
 /**
  *
  * @author mrelac
- * 
+ *
  * This controller creates sitemap files conforming to http://www.sitemap.org
  * for google crawlers for genes, phenotypes, and diseases. Each sitemap file
  * contains a link to every gene, phenotype, and disease page that phenotypeArchive
@@ -51,25 +51,25 @@ import java.util.List;
  */
 @Controller
 public class SiteMapController {
-    
+
     @Autowired
     private GeneService geneService;
-    
+
     @Autowired
     private MpService mpService;
-    
+
     @Autowired
     private DiseaseService diseaseService;
-    
+
     /**
      * Create a gene sitemap XML file
-     * 
+     *
      * Side Effects: Creates a physical file <code>gene_sitemap.xml</code> in the
      * web deployment root directory containing every gene web page we offer.
-     * 
+     *
      * @param request <code>HttpServletRequest</code> instance
      * @return an XML object containing a gene sitemap
-     * @throws SolrServerException 
+     * @throws SolrServerException
      */
     @RequestMapping(value = "/sitemap_genes.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
@@ -89,16 +89,16 @@ public class SiteMapController {
 
         return getSitemapFile(xmlUrlSet);
     }
-    
+
     /**
      * Create a phenotype sitemap XML file
-     * 
+     *
      * Side Effects: Creates a physical file <code>phenotype_sitemap.xml</code> in the
      * web deployment root directory containing every phenotype web page we offer.
-     * 
+     *
      * @param request <code>HttpServletRequest</code> instance
      * @return an XML object containing a phenotype sitemap
-     * @throws SolrServerException 
+     * @throws SolrServerException
      */
     @RequestMapping(value = "/sitemap_phenotypes.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
@@ -117,16 +117,16 @@ public class SiteMapController {
 
         return getSitemapFile(xmlUrlSet);
     }
-    
+
     /**
      * Create a disease sitemap XML file
-     * 
+     *
      * Side Effects: Creates a physical file <code>disease_sitemap.xml</code> in the
      * web deployment root directory containing every disease web page we offer.
-     * 
+     *
      * @param request <code>HttpServletRequest</code> instance
      * @return an XML object containing a disease sitemap
-     * @throws SolrServerException 
+     * @throws SolrServerException
      */
     @RequestMapping(value = "/sitemap_diseases.xml", method = RequestMethod.GET, produces = "application/xml; charset=utf-8")
     @ResponseBody
@@ -144,13 +144,13 @@ public class SiteMapController {
 
         return getSitemapFile(xmlUrlSet);
     }
-    
+
     /**
      * Create a sitemap index XML file for all of our sitemap xml files
-     * 
+     *
      * Side Effects: Creates a physical file <code>sitemap_index.xml</code> in the
      * web deployment root directory containing pointers to all of our sitemap files
-     * 
+     *
      * @param request <code>HttpServletRequest</code> instance
      * @return an XML object containing a sitemap index
      */
@@ -161,7 +161,7 @@ public class SiteMapController {
         String mappedHostname = (String)request.getAttribute("mappedHostname");
         String baseUrl = (String)request.getAttribute("baseUrl");
         XmlSitemapIndex xmlSitemapIndex = new XmlSitemapIndex();
-        
+
         String[] sitemapUrls = { "/sitemap_genes.xml", "/sitemap_phenotypes.xml", "/sitemap_diseases.xml" };
 
         for (String sitemapUrl : sitemapUrls) {
@@ -172,11 +172,11 @@ public class SiteMapController {
 
         return getSitemapFile(xmlSitemapIndex);
     }
-    
+
 
     // PRIVATE METHODS
-    
-    
+
+
     private void create(XmlUrlSet xmlUrlSet, String link, XmlUrl.Priority priority) {
         xmlUrlSet.addUrl(new XmlUrl(link, priority));
     }
@@ -211,24 +211,24 @@ public class SiteMapController {
      * root directory
      * @param filename The name of the xml file to create
      * @param xmlObject The xml object details to store in the xml file
-     * 
+     *
      * PHYSICAL FILE GENERATION IS NOT NEEDED. LEAVE THE METHOD IN CASE WE NEED PHYSICAL FILE GENERATION IN THE FUTURE
      * BUT REMOVE THE PART THAT CREATES THE FILE.
      */
     private void createSitemapFile(String filename, Object xmlObject) {
 
 //        File file = new File(filename);
-//        
+//
 //        try {
 //            JAXBContext jaxbContext = JAXBContext.newInstance(xmlObject.getClass());
 //            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-//            
+//
 //            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-//            
+//
 //            jaxbMarshaller.marshal(xmlObject, file);
 //        } catch (JAXBException e) {
 //            e.printStackTrace();
 //        }
     }
-    
+
 }

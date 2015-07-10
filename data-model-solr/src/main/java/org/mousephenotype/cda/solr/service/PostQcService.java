@@ -57,7 +57,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
      * @throws SolrServerException
      */
     public List<GraphTestDTO> getGeneAccessionIdsByParameterStableId(List<String> parameterStableIds, int count) throws SolrServerException {
-        List<GraphTestDTO> retVal = new ArrayList<>();
+        List<GraphTestDTO> retVal = new ArrayList();
 
         if (count < 1)
             return retVal;

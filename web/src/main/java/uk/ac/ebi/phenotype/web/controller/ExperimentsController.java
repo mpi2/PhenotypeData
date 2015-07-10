@@ -18,6 +18,14 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.exception.JDBCConnectionException;
+import org.mousephenotype.cda.db.dao.AlleleDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.Allele;
+import org.mousephenotype.cda.db.pojo.Pipeline;
+import org.mousephenotype.cda.db.pojo.Procedure;
+import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +37,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.phenotype.bean.StatisticalResultBean;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
-import uk.ac.ebi.phenotype.dao.AlleleDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.pojo.Allele;
-import uk.ac.ebi.phenotype.pojo.Pipeline;
-import uk.ac.ebi.phenotype.pojo.Procedure;
-import uk.ac.ebi.phenotype.service.ObservationService;
-import uk.ac.ebi.phenotype.service.StatisticalResultService;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -59,13 +57,13 @@ import java.util.Map;
 public class ExperimentsController {
 
 	private final Logger log = LoggerFactory.getLogger(ExperimentsController.class);
-	
+
 	@Autowired
 	private AlleleDAO alleleDao;
 
 	@Autowired
 	private PhenotypePipelineDAO pipelineDao;
-	
+
 	@Autowired
 	SolrIndex solrIndex;
 
@@ -74,7 +72,7 @@ public class ExperimentsController {
 
 	@Autowired
 	private ObservationService observationService;
-	
+
 	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
 	/**
@@ -95,7 +93,7 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes) 
+			RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
 
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
@@ -103,10 +101,10 @@ public class ExperimentsController {
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
-		
+
 		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
 		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
-		
+
 		// check whether there is a procedure id, and if so if it's truncated or not
 		// The reason is a procedure can have multiple versions.
 		List<String> procedureStableIds = null;
@@ -129,29 +127,29 @@ public class ExperimentsController {
 			colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
 			Map<String, List<String>> parametersByProcedure = srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId());
 			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter, pipeline.getStableId());
-			
+
 			model.addAttribute("palette", colorCoding.getPalette());
 			model.addAttribute("chart", chart);
-		
+
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-	
+
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("request", request);
-		
+
 		return "experiments";
 	}
-		
+
 	/**
 	 * Error handler for gene not found
-	 * 
+	 *
 	 * @param exception
 	 * @return redirect to error page
-	 * 
+	 *
 	 */
 	@ExceptionHandler(GenomicFeatureNotFoundException.class)
 	public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
@@ -178,5 +176,5 @@ public class ExperimentsController {
         return mv;
     }
 
-    
+
 }

@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
-import uk.ac.ebi.phenotype.service.ObservationService;
+import org.mousephenotype.cda.solr.service.ObservationService;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,13 +47,13 @@ public class ParallelCoordinatesLoader {
         ParallelCoordinatesLoader loader = new ParallelCoordinatesLoader();
         loader.initialise(args);
         loader.getDataFor();
-       
+
     }
-    
+
 
     public void getDataFor()
     throws SolrServerException{
-       
+
         String data = os.getMeansFor("IMPC_CBC_*", true);
         File f = new File("WebContent/resources/js/data/IMPC_CBC.js");
         try {
@@ -70,7 +70,7 @@ public class ParallelCoordinatesLoader {
 
     private void initialise(String[] args)
     throws Exception {
-       
+
         OptionSet options = parseCommandLine(args);
 
         if (options != null) {
@@ -89,10 +89,10 @@ public class ParallelCoordinatesLoader {
         logger.info("Process finished.  Exiting.");
 
     }
-    
-    
+
+
     private OptionSet parseCommandLine(String[] args) {
-       
+
         OptionParser parser = new OptionParser();
         OptionSet options = null;
 
@@ -117,10 +117,10 @@ public class ParallelCoordinatesLoader {
 
         return options;
     }
-    
+
 
     private ApplicationContext loadApplicationContext(String context) {
-       
+
         ApplicationContext appContext;
 
         // Try context as a file resource.

@@ -21,7 +21,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PostQcService;
 
 import javax.annotation.Resource;
 import java.net.MalformedURLException;

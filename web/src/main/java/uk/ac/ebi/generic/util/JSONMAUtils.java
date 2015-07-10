@@ -17,7 +17,7 @@ package uk.ac.ebi.generic.util;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import uk.ac.ebi.phenotype.web.pojo.Anatomy;
+import org.mousephenotype.cda.solr.service.dto.Anatomy;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
