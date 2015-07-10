@@ -20,6 +20,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -41,22 +43,10 @@ public class ImpressService {
 	@Value("${drupalBaseUrl}")
 	public String DRUPAL_BASE_URL;
 
-	private final HttpSolrServer solr;
+	@Autowired
+	@Qualifier("pipelineCore")
+	private HttpSolrServer solr;
 
-	public ImpressService(HttpSolrServer solr) {
-		this.solr = solr;
-	}
-
-	public ImpressService() {
-
-		this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/pipeline"); // default
-	}
-
-
-	public ImpressService(String solrUrl) {
-
-		solr = new HttpSolrServer(solrUrl);
-	}
 
 
 	public List<Integer> getProcedureStableKey(String procedureStableId) {

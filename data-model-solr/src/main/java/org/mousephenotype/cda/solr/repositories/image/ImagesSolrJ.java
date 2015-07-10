@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	private long numberFound;
 
 	@Autowired
-	@Qualifier("impcImagesCore")
+	@Qualifier("sangerImagesCore")
 	public SolrServer server;
 
 //	public ImagesSolrJ(String solrBaseUrl) throws MalformedURLException {
@@ -131,7 +132,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	@Override
 	public QueryResponse getExperimentalFacetForGeneAccession(String geneId) throws SolrServerException {
 		String processedGeneId = processQuery(geneId);
-		QueryResponse solrResp = this.runFacetQuery("accession:"+processedGeneId,"expName", 0,1, "");
+		QueryResponse solrResp = this.runFacetQuery(SangerImageDTO.MGI_ACCESSION_ID + ":" + processedGeneId, "expName", 0, 1, "");
 //		System.out.println("images solr expression response number docs="+solrResp.getResults().size());
 		return solrResp;
 	}

@@ -28,6 +28,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -36,6 +38,8 @@ import java.util.*;
 public class MpService {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	@Autowired
+	@Qualifier("mpCore")
     private HttpSolrServer solr;
 
 
@@ -43,9 +47,6 @@ public class MpService {
 	}
 
 
-	public MpService(String solrUrl) {
-        solr = new HttpSolrServer(solrUrl);
-    }
 
 	/**
 	 * Return the phenotype

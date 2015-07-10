@@ -43,10 +43,10 @@
 	<mvc:interceptors>
 		<!-- An interceptor which keeps a hibernate session open to allow lazy
 			loading of form backing objects -->
-		<!--<bean-->
-			<!--class="org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor">-->
-			<!--<property name="sessionFactory" ref="sessionFactory" />-->
-		<!--</bean>-->
+		<bean
+			class="org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor">
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
 		<!--  add the deployment path to all pages -->
 		<bean class="uk.ac.ebi.phenotype.web.util.DeploymentInterceptor">
 <!-- 			<property name="deploymentPath" value="${deploymentPath}" /> -->

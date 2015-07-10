@@ -114,7 +114,7 @@ public class SolrServerConfig {
 
 
 	//SangerImages
-	@Bean(name = "imagesCore")
+	@Bean(name = "sangerImagesCore")
 	HttpSolrServer getImagesCore() {
 		return new HttpSolrServer(solrBaseUrl + "/images");
 	}
