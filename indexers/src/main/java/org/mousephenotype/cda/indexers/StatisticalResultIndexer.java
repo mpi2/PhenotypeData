@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MpOntologyService;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.ImpressBean;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
@@ -64,7 +64,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     SolrServer statResultCore;
 
     @Autowired
-    MpOntologyService mpOntologyService;
+    MpOntologyDAO mpOntologyService;
 
     Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBean> procedureMap = new HashMap<>();

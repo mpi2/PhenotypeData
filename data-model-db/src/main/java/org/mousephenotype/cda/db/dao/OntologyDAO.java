@@ -67,7 +67,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  *
  * @author mrelac
  */
-public abstract class OntologyService {
+public abstract class OntologyDAO {
 
     @Autowired
     @Qualifier("ontodbDataSource")
@@ -86,7 +86,7 @@ public abstract class OntologyService {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public OntologyService() {
+    public OntologyDAO() {
         
     }
     
@@ -139,8 +139,8 @@ public abstract class OntologyService {
             populateSynonyms();                                                 // This must come first, as other methods depend on it.
             populateAllTerms();                                                 // This must come before populating the ancestor map.
             
-            OntologyService.this.populateNode2TermMap();
-            OntologyService.this.populateAncestorMap();
+            OntologyDAO.this.populateNode2TermMap();
+            OntologyDAO.this.populateAncestorMap();
             populateAncestorGraph();
             
         } catch (Exception e) {

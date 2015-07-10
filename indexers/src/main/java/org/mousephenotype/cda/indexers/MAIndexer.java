@@ -22,7 +22,7 @@ import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyService;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
 
-import static org.mousephenotype.cda.db.dao.OntologyService.BATCH_SIZE;
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class MAIndexer extends AbstractIndexer {
     SolrServer maCore;
 
     @Autowired
-    MaOntologyService maOntologyService;
+    MaOntologyDAO maOntologyService;
 
     private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
 

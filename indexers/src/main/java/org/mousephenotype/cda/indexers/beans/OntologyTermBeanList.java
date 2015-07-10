@@ -19,7 +19,7 @@ package org.mousephenotype.cda.indexers.beans;
 import java.util.List;
 
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.OntologyService;
+import org.mousephenotype.cda.db.dao.OntologyDAO;
 
 /**
  * This class encapsulates the methods necessary to serve up individual lists of
@@ -33,9 +33,9 @@ import org.mousephenotype.cda.db.dao.OntologyService;
 public class OntologyTermBeanList {
     protected final String id;
     
-    protected OntologyService ontologyService;
+    protected OntologyDAO ontologyService;
     
-    public OntologyTermBeanList(OntologyService ontologyService, String id) {
+    public OntologyTermBeanList(OntologyDAO ontologyService, String id) {
         this.ontologyService = ontologyService;
         this.id = id;
     }

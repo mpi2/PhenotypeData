@@ -22,7 +22,7 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyService;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -72,7 +72,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	DataSource komp2DataSource;
 	
 	@Autowired
-	MaOntologyService maService;
+	MaOntologyDAO maService;
 
 
 	@Resource(name = "globalConfiguration")

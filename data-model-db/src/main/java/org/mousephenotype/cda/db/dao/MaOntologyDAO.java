@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author mrelac
  */
-public class MaOntologyService extends OntologyService {
+public class MaOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Map<String, String> subsets = new HashMap();
@@ -50,7 +50,7 @@ public class MaOntologyService extends OntologyService {
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public MaOntologyService() throws SQLException {
+    public MaOntologyDAO() throws SQLException {
         
     }
     

@@ -18,7 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyService;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -64,7 +64,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	SolrServer pipelineCore;
 
 	@Autowired
-	MaOntologyService maOntologyService;
+	MaOntologyDAO maOntologyService;
 
 	private Map<Integer, Map<String, String>> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;

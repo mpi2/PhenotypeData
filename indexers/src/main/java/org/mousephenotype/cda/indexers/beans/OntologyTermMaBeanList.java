@@ -19,7 +19,7 @@ package org.mousephenotype.cda.indexers.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mousephenotype.cda.db.dao.MaOntologyService;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 
 /**
  * This class encapsulates the methods necessary to serve up individual lists of
@@ -32,12 +32,12 @@ import org.mousephenotype.cda.db.dao.MaOntologyService;
  */
 public class OntologyTermMaBeanList extends OntologyTermBeanList {
     
-    public OntologyTermMaBeanList(MaOntologyService maOntologyService, String id) {
+    public OntologyTermMaBeanList(MaOntologyDAO maOntologyService, String id) {
         super(maOntologyService, id);
     }
 
     public List<String> getSubsets() {
-        return ((MaOntologyService)ontologyService).getSubset(id, new ArrayList<String>());
+        return ((MaOntologyDAO)ontologyService).getSubset(id, new ArrayList<String>());
     }
     
 }
