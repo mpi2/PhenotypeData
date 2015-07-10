@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,13 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
     public PreQcService() {
         super();
         isPreQc = true;
+    }
+
+    @PostConstruct
+    public void postSetup() {
+        // Ensure the superclass attributes are set
+        super.solr = solr;
+        super.pipelineDAO = pipelineDAO;
     }
 
 

@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -58,6 +59,8 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class StatisticalResultService extends AbstractGenotypePhenotypeService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
 
 	@Autowired
    	BiologicalModelDAO bmDAO;
@@ -78,20 +81,28 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     @Autowired
     PhenotypePipelineDAO parameterDAO;
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
+	@Autowired @Qualifier("statisticalResultCore")
+	HttpSolrServer solr;
+
+	@Autowired
+	PhenotypePipelineDAO pipelineDao;
+
+
 
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
 
 
-	public StatisticalResultService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
-		solr = new HttpSolrServer(solrUrl);
-		pipelineDAO = pipelineDao;
+	public StatisticalResultService() {
+		super();
 		isPreQc = false;
 	}
 
-
-	public StatisticalResultService() {
+	@PostConstruct
+	public void postSetup() {
+		// Ensure the superclass attributes are set
+		super.solr = solr;
+		super.pipelineDAO = pipelineDAO;
 	}
 
 
