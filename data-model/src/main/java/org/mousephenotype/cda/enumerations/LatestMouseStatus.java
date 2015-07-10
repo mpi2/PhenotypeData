@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.enumerations;
 /**
  * class to represent the mouse status at the gene level (not allele)
  * http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/gene/select/?q=*:*&facet=true&facet.field=latest_mouse_status&rows=0
@@ -31,7 +31,7 @@ public enum LatestMouseStatus {
 	ES_CELLS_PRODUCED("ES Cells Produced"),
 	ASSIGNED_FOR_ES_CELL_PRODUCTION("Assigned for ES Cell Production"),
 	NOT_ASSIGNED_FOR_ES_CELL_PRODUCTION("Not Assigned for ES Cell Production");
-	
+
 	String label;
 	private LatestMouseStatus(String label){
 		this.label=label;

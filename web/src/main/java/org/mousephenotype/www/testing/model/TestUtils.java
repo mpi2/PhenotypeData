@@ -21,7 +21,7 @@ package org.mousephenotype.www.testing.model;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -29,17 +29,18 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.mousephenotype.www.testing.exception.GraphTestException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import uk.ac.ebi.generic.util.Tools;
 import uk.ac.ebi.phenotype.chart.ChartType;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
 import uk.ac.ebi.phenotype.util.Utils;
 
 import javax.annotation.Resource;
@@ -82,6 +83,10 @@ public class TestUtils {
 
     @Autowired
     PreQcService preQcService;
+
+    @Autowired
+    @Qualifier("preQcCore")
+    HttpSolrServer preQcSolrServer;
 
     /**
      * Defines the group: experimental or control.
@@ -1036,14 +1041,12 @@ public class TestUtils {
      * @param count the number of random mpIds to return. A null or 0 value means return all.
      * @return a list of <code>count</code> strings containing mpIds with preqc links
      */
-    public static List<String> getPreqcIds(String solrUrl, PhenotypePipelineDAO phenotypePipelineDAO, Integer count) {
+    public List<String> getPreqcIds(String solrUrl, PhenotypePipelineDAO phenotypePipelineDAO, Integer count) {
         Set<String> geneIds = new HashSet();
         if ((count != null) && (count < 1))
             count = 1000000;           // Null/0 indicates fetch all gene IDs (well, many, at least).
 
         try {
-            PreQcService preqcService = new PreQcService(solrUrl, phenotypePipelineDAO);
-            SolrServer server = preqcService.getSolrServer();
 
             /*logger.debug*/System.out.println("TestUtils.getPreqcIds(): querying preqc core for " + (count == null ? "all" : count) + " gene ids.");
 
@@ -1060,7 +1063,7 @@ public class TestUtils {
 
             System.out.println("solrQuery = " + solrQuery.toString());
 
-            QueryResponse response = server.query(solrQuery);
+            QueryResponse response = preQcSolrServer.query(solrQuery);
 
             List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
             for (GroupCommand groupCommand : groupResponse) {

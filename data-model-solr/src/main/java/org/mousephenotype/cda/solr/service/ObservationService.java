@@ -71,28 +71,22 @@ import org.mousephenotype.cda.solr.service.dto.ParallelCoordinatesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class ObservationService extends BasicService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
+
     @Autowired
     PhenotypePipelineDAO parameterDAO;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
-    private final HttpSolrServer solr;
+    @Autowired @Qualifier("experimentCore")
+    private HttpSolrServer solr;
 
 
-    public ObservationService() {
-
-        this("http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
-    }
-
-    public ObservationService(String solrUrl) {
-        System.out.println("setting observationService solrUrl=" + solrUrl);
-        solr = new HttpSolrServer(solrUrl);
-    }
 
     public  List<Group> getDatapointsByColony(ArrayList<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{

@@ -26,6 +26,8 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,15 +37,18 @@ import java.util.List;
 @Service("preqcService")
 public class PreQcService extends AbstractGenotypePhenotypeService {
 
-    public PreQcService(String solrUrl, PhenotypePipelineDAO pipelineDao) {
-        solr = new HttpSolrServer(solrUrl);
-        pipelineDAO = pipelineDao;
-        isPreQc = true;
-    }
+    @Autowired
+    @Qualifier("preQcCore")
+    HttpSolrServer solr;
+
+    @Autowired
+    PhenotypePipelineDAO pipelineDAO;
 
     public PreQcService() {
         super();
+        isPreQc = true;
     }
+
 
     /**
      * Returns a list of <code>count GraphTestDTO</code> instances.

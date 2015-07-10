@@ -22,6 +22,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -31,6 +33,8 @@ import java.util.Set;
 @Service
 public class DiseaseService {
 
+    @Autowired
+    @Qualifier("diseaseCore")
     private HttpSolrServer solr;
 
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
