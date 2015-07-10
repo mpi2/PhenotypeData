@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl;
-import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
+import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -40,7 +40,7 @@ public class GeneHeatmapController {
 
     @Autowired
     @Qualifier("idg")
-	private SecondaryProjectDAO idgSecondaryProjectDAO;
+	private SecondaryProjectService idgSecondaryProjectService;
 
     @Autowired
     @Qualifier("threeI")
@@ -68,9 +68,9 @@ public class GeneHeatmapController {
 		System.out.println("calling heatmap controller method for " + project);
 
 		if (project.equalsIgnoreCase("idg")){
-			SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
-			List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
-		    List<BasicBean> xAxisBeans = secondaryProjectDAO.getXAxisForHeatMap();
+			SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
+			List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
+		    List<BasicBean> xAxisBeans = secondaryProjectService.getXAxisForHeatMap();
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
 		}
@@ -84,19 +84,19 @@ public class GeneHeatmapController {
 		String project="threeI";
 		Long time = System.currentTimeMillis();
 	    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i"); //procedures
-		SecondaryProjectDAO secondaryProjectDAO = this.getSecondaryProjectDao(project);
-		List<GeneRowForHeatMap> geneRows = secondaryProjectDAO.getGeneRowsForHeatMap(request);
+		SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
+		List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
 	    model.addAttribute("geneRows", geneRows);
 	    model.addAttribute("xAxisBeans", xAxisBeans);
 		System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
 	    return "threeIMap";
 	}
 
-	private SecondaryProjectDAO getSecondaryProjectDao(String project) {
-		if(project.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())){
-			return idgSecondaryProjectDAO;
+	private SecondaryProjectService getSecondaryProjectDao(String project) {
+		if(project.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())){
+			return idgSecondaryProjectService;
 		}
-		if(project.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())){
+		if(project.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())){
 			return threeISecondaryProjectDAO;
 		}
 		return null;

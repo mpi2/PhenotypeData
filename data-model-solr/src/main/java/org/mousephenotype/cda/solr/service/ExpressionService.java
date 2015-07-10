@@ -61,6 +61,10 @@ public class ExpressionService {
 	Map<String, ImpressService.OntologyBean> abnormalMaFromImpress = null;
 
 
+	public ExpressionService() {
+	}
+
+
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl) {
 
 		experimentSolr = new HttpSolrServer(experimentSolrUrl);
@@ -71,7 +75,7 @@ public class ExpressionService {
 	private void initialiseAbnormalMaMap() {
 		abnormalMaFromImpress = impressService
 				.getParameterStableIdToAbnormalMaMap();
-		
+
 	}
 
 	public QueryResponse getExpressionImagesForGeneByAnatomy(
@@ -105,7 +109,7 @@ public class ExpressionService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mgiAccession
 	 *            if mgi accesion null assume a request for control data
 	 * @param fields
@@ -139,7 +143,7 @@ public class ExpressionService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mgiAccession
 	 *            if mgi accesion null assume a request for control data
 	 * @param fields
@@ -194,7 +198,7 @@ public class ExpressionService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param acc
 	 *            mgi_accession for gene
 	 * @param topMaNameFilter
@@ -228,7 +232,7 @@ public class ExpressionService {
 					ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK);
 		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		
+
 		List<FacetField> fields = laczResponse.getFacetFields();
 
 		// we have the unique ma top level terms associated and all the images
@@ -283,7 +287,7 @@ public class ExpressionService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param acc
 	 *            mgi_accession for gene
 	 * @param model
@@ -324,12 +328,12 @@ public class ExpressionService {
 		Map<String, SolrDocumentList> mutantImagesAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
 
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
-			
+
 			ExpressionRowBean expressionRow = getAnatomyRow(anatomy,
 					expressionAnatomyToDocs);
 			int hetSpecimens = 0;
 			for (String key : expressionRow.getSpecimen().keySet()) {
-				
+
 				if (expressionRow.getSpecimen().get(key).getZyg()
 						.equalsIgnoreCase("heterozygote")) {
 					hetSpecimens++;
@@ -364,13 +368,13 @@ public class ExpressionService {
 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
-			
+
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
 
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals(
 								"categorical")) {
-					
+
 					if (doc.containsKey(ImageDTO.PARAMETER_STABLE_ID)
 							&& row.getParameterStableId() == null) {
 						String parameterStableId = (String) doc
@@ -378,7 +382,7 @@ public class ExpressionService {
 						row.setParameterStableId(parameterStableId);
 						OntologyBean ontologyBean = abnormalMaFromImpress
 								.get(parameterStableId);
-						
+
 						if (ontologyBean != null) {
 
 							row.setAbnormalMaId(ontologyBean.getMaId());
@@ -418,14 +422,14 @@ public class ExpressionService {
 	/**
 	 * Are there hom images in this set (needed for the expression table on gene
 	 * page
-	 * 
+	 *
 	 * @param anatomy
 	 * @param row
 	 * @param doc
 	 * @return
 	 */
 	private ExpressionRowBean homImages(ExpressionRowBean row, SolrDocument doc) {
-		
+
 		if (doc.containsKey(ImageDTO.ZYGOSITY)) {
 			if (doc.get(ImageDTO.ZYGOSITY).equals("homozygote")) {
 				row.setHomImages(true);
@@ -436,26 +440,26 @@ public class ExpressionService {
 
 	private ExpressionRowBean getExpressionCountForAnatomyTerm(String anatomy,
 			ExpressionRowBean row, SolrDocument doc) {
-		
+
 		if (doc.containsKey(ImageDTO.PARAMETER_NAME)) {
 			String paramAssName = (String) doc
 					.get(ObservationDTO.PARAMETER_NAME);
 			String paramAssValue = (String) doc.get(ObservationDTO.CATEGORY);
-			
+
 			String sampleId = (String) doc.get(ImageDTO.EXTERNAL_SAMPLE_ID);
 			String zyg = (String) doc.get(ImageDTO.ZYGOSITY);
 			if (paramAssName.equalsIgnoreCase(anatomy)) {
 				row.addSpecimen(sampleId, zyg);
 				if (paramAssValue.equalsIgnoreCase("expression")) {
 					row.addSpecimenExpressed(sampleId, zyg);
-					
+
 				} else if (paramAssValue
 						.equalsIgnoreCase("tissue not available")) {
 					row.addNoTissueAvailable(sampleId, zyg);
-					
+
 				} else if (paramAssValue.equalsIgnoreCase("no expression")) {
 					row.addNotExpressed(sampleId, zyg);
-					
+
 				}
 			}
 
@@ -470,7 +474,7 @@ public class ExpressionService {
 		for (SolrDocument doc : controlResponse) {
 			ArrayList<String> anatomies = (ArrayList<String>) doc
 					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-			
+
 			if (anatomies != null) {
 				SolrDocumentList anatomyList = null;
 				for (String anatomy : anatomies) {
@@ -478,7 +482,7 @@ public class ExpressionService {
 						anatomyToDocs.put(anatomy, new SolrDocumentList());
 					}
 					anatomyList = anatomyToDocs.get(anatomy);
-					
+
 					anatomyList.add(doc);
 				}
 			}
@@ -499,7 +503,7 @@ public class ExpressionService {
 				if (!anatomyToDocs.containsKey(anatomy)) {
 					anatomyToDocs.put(anatomy, new SolrDocumentList());
 				}
-				
+
 				anatomyList = anatomyToDocs.get(anatomy);
 				anatomyList.add(doc);
 			}
@@ -510,7 +514,7 @@ public class ExpressionService {
 	/**
 	 * class for storing just the data needed for one row of the expression
 	 * table on the gene page
-	 * 
+	 *
 	 * @author jwarren
 	 *
 	 */
@@ -547,7 +551,7 @@ public class ExpressionService {
 
 		public void setNumberOfImages(int numberOfImages) {
 			this.numberOfImages=numberOfImages;
-			
+
 		}
 
 		public void setAbnormalMaId(String abnormalMaId) {
@@ -573,16 +577,16 @@ public class ExpressionService {
 
 		public void setMaName(String abnormalMaName) {
 			this.abnormalMaName=abnormalMaName;
-			
+
 		}
 
-		
+
 
 		public void setParameterStableId(String parameterStableId) {
 			this.parameterStableId = parameterStableId;
 		}
 
-		
+
 
 		boolean homImages = false;
 		boolean wildTypeExpression = false;
@@ -709,8 +713,8 @@ public class ExpressionService {
 		public Map<String, Specimen> getSpecimen() {
 			return this.specimen;
 		}
-		
-		
+
+
 
 	}
 
