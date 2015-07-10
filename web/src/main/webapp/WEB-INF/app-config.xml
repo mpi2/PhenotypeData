@@ -43,7 +43,7 @@
 
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"
-		  class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		  class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="komp2DataSource" />
 		<property name="packagesToScan" value="org.mousephenotype.cda.db" />
 		<property name="hibernateProperties">
@@ -58,9 +58,13 @@
 
 	<!-- Drives transactions using Hibernate APIs when requested -->
 	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
+
+	<!-- Weaves in transactional advice around annotated Transactional methods -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
 
 	<!--<bean id="obsSer" class="org.mousephenotype.cda.solr.service.ObservationService" />-->
 	<!--<bean id="srSer" class="org.mousephenotype.cda.solr.service.StatisticalResultService">-->
@@ -179,9 +183,6 @@
 
 	<!--this is the phenodigm DAO implementation we are looking for... -->
 	<bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
-
-	<!-- Weaves in transactional advice around annotated Transactional methods -->
-	<!--<tx:annotation-driven transaction-manager="transactionManager" />-->
 
 
   <!--<bean id="phenotypePipelineDAO" class="org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl">-->

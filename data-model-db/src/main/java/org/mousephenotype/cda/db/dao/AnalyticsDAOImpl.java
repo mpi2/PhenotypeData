@@ -32,14 +32,15 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@Transactional
 public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public AnalyticsDAOImpl() {
-		
+
 	}
-	
+
 	/**
 	 * Creates a new Hibernate project data access manager.
 	 * @param sessionFactory the Hibernate session factory
