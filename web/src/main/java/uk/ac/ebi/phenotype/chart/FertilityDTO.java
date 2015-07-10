@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.chart;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 
 public class FertilityDTO {

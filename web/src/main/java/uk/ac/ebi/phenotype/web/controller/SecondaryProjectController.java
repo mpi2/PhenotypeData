@@ -20,6 +20,11 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +42,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.dao.SecondaryProjectDAO;
-import uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary;
-import uk.ac.ebi.phenotype.service.*;
-import uk.ac.ebi.phenotype.service.dto.AlleleDTO;
-import uk.ac.ebi.phenotype.service.dto.GeneDTO;
-import uk.ac.ebi.phenotype.service.dto.GenotypePhenotypeDTO;
-import uk.ac.ebi.phenotype.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.*;
+import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+
 
 @Controller
 public class SecondaryProjectController {
@@ -66,7 +67,6 @@ public class SecondaryProjectController {
     @Autowired
     @Qualifier("postqcService")
     PostQcService genotypePhenotypeService;
-
     @Autowired
     @Qualifier("preqcService")
     PreQcService preQcService;

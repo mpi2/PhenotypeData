@@ -15,10 +15,11 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.solr.service.dto.CategoricalSet;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import uk.ac.ebi.phenotype.pojo.BiologicalModel;
 
 
 public class CategoricalChartDataObject {

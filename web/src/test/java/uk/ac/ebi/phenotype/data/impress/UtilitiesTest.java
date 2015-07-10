@@ -9,10 +9,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.dao.OntologyTermDAO;
-import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-import uk.ac.ebi.phenotype.pojo.OntologyTerm;
-import uk.ac.ebi.phenotype.pojo.Parameter;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.impress.Utilities;
 
 import java.util.Arrays;
 import java.util.List;

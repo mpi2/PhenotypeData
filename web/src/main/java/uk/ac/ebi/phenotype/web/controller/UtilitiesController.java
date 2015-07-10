@@ -24,7 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.service.ObservationService;
+import org.mousephenotype.cda.solr.service.ObservationService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

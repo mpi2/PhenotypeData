@@ -16,18 +16,18 @@
 
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import uk.ac.ebi.phenotype.service.dto.ExperimentDTO;
-import uk.ac.ebi.phenotype.service.dto.ObservationDTO;
-
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 public class ChartUtils {
 
