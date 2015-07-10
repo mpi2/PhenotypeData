@@ -36,11 +36,12 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@Transactional
 public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 		GenomicFeatureDAO {
 
 	public GenomicFeatureDAOImpl() {
-		
+
 	}
 	/**
 	 * Creates a new Hibernate GenomicFeature data access manager.
@@ -114,7 +115,7 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 	@Transactional(readOnly = false)
 	public int deleteAllGenomicFeatures() {
 
-		Session session = sessionFactory.openSession();
+		Session session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 
 		// Embeddable collections are not deleted with parent when
@@ -141,7 +142,7 @@ public class GenomicFeatureDAOImpl extends HibernateDAOImpl implements
 
 		int c = 0;
 
-		Session session = sessionFactory.openSession();
+		Session session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 
 		for (GenomicFeature feature: genomicFeatures) {

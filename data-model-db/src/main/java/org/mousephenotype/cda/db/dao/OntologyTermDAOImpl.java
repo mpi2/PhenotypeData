@@ -37,6 +37,7 @@ import java.util.List;
 
 
 @Repository
+@Transactional
 public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO {
 
 	public OntologyTermDAOImpl() {
@@ -103,7 +104,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 	@Transactional(readOnly = false)
 	public int deleteAllTerms(String shortName) {
 
-		Session session = sessionFactory.openSession();
+		Session session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 
 		// get the database id
@@ -121,7 +122,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 	public int batchInsertion(Collection<OntologyTerm> ontologyTerms) {
 		int c = 0;
 
-		Session session = sessionFactory.openSession();
+		Session session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 
 		for (OntologyTerm term: ontologyTerms) {

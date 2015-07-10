@@ -25,18 +25,13 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.*;
 
-@Service
 public class PhenotypeCenterService {
 
-	@Autowired
-	PhenotypePipelineDAO ppDao;
-
+	private PhenotypePipelineDAO ppDao;
 	private static final Logger LOG = LoggerFactory.getLogger(PhenotypeCenterService.class);
 	private HttpSolrServer solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
@@ -50,8 +45,9 @@ public class PhenotypeCenterService {
 	}
 
 
-	public PhenotypeCenterService(String baseSolrUrl){
+	public PhenotypeCenterService(String baseSolrUrl, PhenotypePipelineDAO ppDao){
 		solr = new HttpSolrServer(baseSolrUrl);
+		this.ppDao = ppDao;
 
 	}
 

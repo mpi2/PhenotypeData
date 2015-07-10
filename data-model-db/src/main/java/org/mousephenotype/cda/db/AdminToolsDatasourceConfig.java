@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.db;
 
+import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 /**
@@ -18,6 +20,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
+@ComponentScanNonParticipant
 public class AdminToolsDatasourceConfig {
 
 	@Bean
@@ -27,6 +30,7 @@ public class AdminToolsDatasourceConfig {
 	}
 
 	@Bean
+	@PersistenceContext(name="adminContext")
 	public LocalContainerEntityManagerFactoryBean emf2(EntityManagerFactoryBuilder builder){
 		return builder
 			.dataSource(admintoolsDataSource())

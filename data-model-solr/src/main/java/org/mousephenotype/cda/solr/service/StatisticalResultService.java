@@ -91,6 +91,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
+	public StatisticalResultService() {
+	}
+
+
 	public static Double getFemalePercentageChange(String token) {
 	    Double retVal = null;
 

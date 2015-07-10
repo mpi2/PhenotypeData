@@ -43,7 +43,7 @@ import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import org.mousephenotype.cda.solr.service.*;
-import uk.ac.ebi.phenotype.web.dao.SecondaryProjectDAO;
+import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -82,11 +82,11 @@ public class SecondaryProjectController {
 
     @Autowired
     @Qualifier("idg")
-    SecondaryProjectDAO idg;
+    SecondaryProjectService idg;
 
     @Autowired
     @Qualifier("threeI")
-    SecondaryProjectDAO threeI;
+    SecondaryProjectService threeI;
 
     @Autowired
     @Qualifier("solrServer")
@@ -252,7 +252,7 @@ public class SecondaryProjectController {
 
         System.out.println("calling secondary project id=" + id);
         Set<String> accessions;
-        if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.IDG.name())) {
+        if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())) {
             try {
                 accessions = idg.getAccessionsBySecondaryProjectId(id);
                 model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
@@ -265,7 +265,7 @@ public class SecondaryProjectController {
             }
             System.out.println("returning to idg");
             return "idg";
-        } else if (id.equalsIgnoreCase(SecondaryProjectDAO.SecondaryProjectIds.threeI.name())) {
+        } else if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())) {
             System.out.println("returning to threeI");
             return "threeI";
         }

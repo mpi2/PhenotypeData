@@ -15,8 +15,8 @@
 		</property>
 	</bean>
 
-	<!-- The configuration for your 'PhenotypeArchive' Dispatcher Servlet. This 
-		example uses component scanning to automatically pick up controllers. It 
+	<!-- The configuration for your 'PhenotypeArchive' Dispatcher Servlet. This
+		example uses component scanning to automatically pick up controllers. It
 		allow us to use Autowire, Required and Qualifier annotations. - Dependencies
 		of controllers are wired using Autowired support. - The URI scheme is controller
 		using RequestMapping annotations -->
@@ -28,9 +28,8 @@
     <mvc:resources mapping="/dalliance/**" location="/resources/dalliance/" />
     <mvc:resources mapping="/release_notes/**" location="/resources/release_notes/" />
     <mvc:resources mapping="/image_compara/**" location="/image_compara/" /><!-- first pass place to keep the omero image compara plugin -->
-    
+
 	<context:component-scan base-package="uk.ac.ebi.phenotype.web.controller" />
-	<context:component-scan base-package="uk.ac.sanger.phenodigm2.controller" />
 
 	<!-- <mvc:annotation-driven/> use this if you don't need extra converters -->
 	<mvc:annotation-driven>
@@ -42,12 +41,12 @@
 	</mvc:annotation-driven>
 
 	<mvc:interceptors>
-		<!-- An interceptor which keeps a hibernate session open to allow lazy 
+		<!-- An interceptor which keeps a hibernate session open to allow lazy
 			loading of form backing objects -->
-		<bean
-			class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor">
-			<property name="sessionFactory" ref="sessionFactory" />
-		</bean>
+		<!--<bean-->
+			<!--class="org.springframework.orm.hibernate4.support.OpenSessionInViewInterceptor">-->
+			<!--<property name="sessionFactory" ref="sessionFactory" />-->
+		<!--</bean>-->
 		<!--  add the deployment path to all pages -->
 		<bean class="uk.ac.ebi.phenotype.web.util.DeploymentInterceptor">
 <!-- 			<property name="deploymentPath" value="${deploymentPath}" /> -->

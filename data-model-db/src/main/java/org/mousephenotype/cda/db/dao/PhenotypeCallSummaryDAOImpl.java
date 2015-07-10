@@ -40,12 +40,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@Transactional
 public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements PhenotypeCallSummaryDAO {
 
 	public PhenotypeCallSummaryDAOImpl() {
-		
+
 	}
-	
+
 	/**
 	 * Creates a new Hibernate pipeline data access manager.
 	 * @param sessionFactory the Hibernate session factory
@@ -185,7 +186,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	public int deletePhenotypeCallSummariesByDatasourceParameterSexZygosity(
 			Datasource datasource, Parameter parameter, SexType sex,
 			ZygosityType zygosity) {
-		Session session = sessionFactory.openSession();
+		Session session = sessionFactory.getCurrentSession();
 		Transaction tx = session.beginTransaction();
 
 		// execute the delete query
