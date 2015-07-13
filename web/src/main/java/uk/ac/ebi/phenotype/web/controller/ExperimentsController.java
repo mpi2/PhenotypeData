@@ -15,15 +15,27 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.db.dao.AlleleDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.Pipeline;
 import org.mousephenotype.cda.db.pojo.Procedure;
+import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
@@ -37,20 +49,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 
 @Controller
@@ -67,6 +71,9 @@ public class ExperimentsController {
 	@Autowired
 	SolrIndex solrIndex;
 
+	@Autowired
+	private ImpressService impressService;
+	
 	@Autowired
 	private StatisticalResultService srService;
 
@@ -87,28 +94,34 @@ public class ExperimentsController {
 	@RequestMapping("/experiments/alleles/{alleleAccession}")
 	public String genes(
 			@PathVariable String alleleAccession,
-			@RequestParam(required = true, value = "phenotyping_center") String phenotypingCenter,
-			@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
+			@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
+			@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 			@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+			RedirectAttributes attributes) 
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
+		List<ImpressBean> pipelines = new ArrayList<>();
+		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
+		List<String> procedureStableIds = null;
+		List<String> truncatedStableIds = null;
 
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
-
-		Pipeline pipeline = pipelineDao.getPhenotypePipelineByStableId(pipelineStableId);
-		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
-
+				
+		if (pipelineStableId == null){
+			pipelines = observationService.getPipelines(alleleAccession, phenotypingCenter, resource);
+		} else {
+			pipelines = new ArrayList<>();
+			pipelines.add(impressService.getPipeline(pipelineStableId));
+		}
+				
 		// check whether there is a procedure id, and if so if it's truncated or not
 		// The reason is a procedure can have multiple versions.
-		List<String> procedureStableIds = null;
-		List<String> truncatedStableIds = null;
 		if (procedureStableId != null) {
 			List<Procedure> procedures = pipelineDao.getProcedureByMatchingStableId(procedureStableId);
 			truncatedStableIds = new ArrayList();
@@ -120,30 +133,43 @@ public class ExperimentsController {
 				}
 			}
 		}
+		
 		try {
 			// get all p-values for this allele/center/pipeline
-			pvaluesMap = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession,phenotypingCenter,pipelineStableId,truncatedStableIds, resource);
+			pvaluesMap = new HashMap<String, List<StatisticalResultBean>>();
+			Map<String, List<String>> parametersByProcedure = new HashMap<>();
+			
+			for (ImpressBean pipeline : pipelines){
+				pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession, phenotypingCenter, pipeline.getStableId(), truncatedStableIds, resource));
+				if (resource != null){
+					for (String res : resource){
+						parametersByProcedure.putAll(srService.getParametersToProcedureMap(res, phenotypingCenter, pipeline.getStableId()));
+					}
+				} else {
+					parametersByProcedure.putAll(srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId()));
+				}
+			}	
+			
 			ColorCodingPalette colorCoding = new ColorCodingPalette();
 			colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
-			Map<String, List<String>> parametersByProcedure = srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId());
-			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter, pipeline.getStableId());
-
+			
+			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter);
+			
 			model.addAttribute("palette", colorCoding.getPalette());
 			model.addAttribute("chart", chart);
-
+		
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-
+	
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
-		model.addAttribute("pipeline", pipeline);
 		model.addAttribute("request", request);
-
+		
 		return "experiments";
 	}
-
+		
 	/**
 	 * Error handler for gene not found
 	 *
