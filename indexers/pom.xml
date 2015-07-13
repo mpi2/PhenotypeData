@@ -51,14 +51,16 @@
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-solr</artifactId>
 		</dependency>
-		
 		<dependency>
     		<groupId>org.mousephenotype.cda</groupId>
     		<artifactId>data-model-db</artifactId>
     	</dependency>
-    	
+    	<dependency>
+    	<!-- needed for single db connections DataSource -->
+    		<groupId>commons-dbcp</groupId>
+    		<artifactId>commons-dbcp</artifactId>
+		</dependency>
 		
-
 	</dependencies>
 
 </project>

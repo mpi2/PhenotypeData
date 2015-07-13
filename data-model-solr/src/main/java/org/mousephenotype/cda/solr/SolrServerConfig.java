@@ -1,6 +1,5 @@
 package org.mousephenotype.cda.solr;
 
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
@@ -33,11 +32,6 @@ public class SolrServerConfig {
 
 	@Autowired
 	PhenotypePipelineDAO ppDao;
-
-	@Bean
-	public SolrServer solrServer(@Value("${solr.host}") String solrHost) {
-		return new HttpSolrServer(solrHost);
-	}
 
 	// PhenoDigm solr server configuration
 	@Bean(name = "solrServer")
