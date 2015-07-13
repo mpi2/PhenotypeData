@@ -38,7 +38,9 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -46,6 +48,7 @@ import java.util.concurrent.ExecutionException;
 
 public class AbstractGenotypePhenotypeService extends BasicService {
 
+    @NotNull @Autowired
     protected PhenotypePipelineDAO pipelineDAO;
 
     protected HttpSolrServer solr;

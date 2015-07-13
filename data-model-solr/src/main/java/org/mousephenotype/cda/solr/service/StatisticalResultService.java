@@ -30,7 +30,10 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.OrganisationDAO;
+import org.mousephenotype.cda.db.dao.ProjectDAO;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -46,8 +49,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -83,11 +84,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	@Autowired @Qualifier("statisticalResultCore")
 	HttpSolrServer solr;
 
-	@Autowired @NotNull
-	PhenotypePipelineDAO pipelineDao;
-
-	@Autowired @NotNull
-	PhenotypePipelineDAO ppDao;
 
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
@@ -102,7 +98,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	public void postSetup() {
 		// Ensure the superclass attributes are set
 		super.solr = solr;
-		super.pipelineDAO = pipelineDAO;
 	}
 
 
@@ -203,7 +198,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	ArrayList<Parameter> parameterNames = new ArrayList<>();
 
     	for (String parameterStableId: parameterStableIds){
-        	Parameter p = ppDao.getParameterByStableId(parameterStableId);
+        	Parameter p = pipelineDAO.getParameterByStableId(parameterStableId);
         	if (p.isRequiredFlag() || !requiredParamsOnly){
         		parameterNames.add(p);
         	}
@@ -870,9 +865,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         r.setMetadataGroup(result.getMetadataGroup());
         if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
         if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-        System.out.println("ARE NULL " + (organisationDAO == null) + "   " + (ppDao == null));
-        if(result.getParameterStableId()!= null) r.setParameter(ppDao.getParameterByStableId(result.getParameterStableId()));
-        if(result.getPipelineStableId()!= null) r.setPipeline(ppDao.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+        if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
+        if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
     //    if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
         if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
         r.setRawOutput(result.getRawOutput());
@@ -893,7 +887,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
     protected CategoricalResult translateStatisticalResultToCategoricalResult(StatisticalResultDTO result) {
-    	
+
         CategoricalResult r = new CategoricalResult();
         r.setColonyId(result.getColonyId());
         if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
@@ -909,8 +903,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         r.setMaleMutants(result.getMaleMutantCount());
         r.setMetadataGroup(result.getMetadataGroup());
         if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-        if(result.getParameterStableId()!= null) r.setParameter(ppDao.getParameterByStableId(result.getParameterStableId()));
-        if(result.getPipelineStableId()!= null) r.setPipeline(ppDao.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+        if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
+        if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
  //       if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
         if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
         r.setRawOutput(result.getRawOutput());

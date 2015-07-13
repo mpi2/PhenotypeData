@@ -23,7 +23,6 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,9 +39,6 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
     @Qualifier("genotypePhenotypeCore")
     HttpSolrServer solr;
 
-    @Autowired
-    PhenotypePipelineDAO pipelineDAO;
-
     public PostQcService() {
         super();
         isPreQc = false;
@@ -52,7 +48,6 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
     public void postSetup() {
         // Ensure the superclass attributes are set
         super.solr = solr;
-        super.pipelineDAO = pipelineDAO;
     }
 
     /**
