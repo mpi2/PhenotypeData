@@ -56,11 +56,7 @@
     		<groupId>org.mousephenotype.cda</groupId>
     		<artifactId>data-model-db</artifactId>
     	</dependency>
-    	<dependency>
-    		<groupId>commons-dbcp</groupId>
-    		<artifactId>commons-dbcp</artifactId>
-		</dependency>
-		
+    	
 		
 
 	</dependencies>

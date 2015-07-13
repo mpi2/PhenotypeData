@@ -9,8 +9,13 @@
 
     <context:annotation-config />
 
-
-    <bean id="dccConvertMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" />
+<context:component-scan base-package="org.mousephenotype.cda.db">
+		<context:exclude-filter type="annotation" expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant"/>
+	</context:component-scan>
+	<context:component-scan base-package="org.mousephenotype.cda.solr">
+	</context:component-scan>
+	
+  <!--   <bean id="dccConvertMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" /> -->
 
     <!-- Get the datasources from the filesystem overrides -->
     <!-- Creates a MySQL Datasource -->
@@ -224,7 +229,8 @@
     <!-- used for concurrently loading the impc_images core -->
     <bean id="observationIndexer" class="org.mousephenotype.cda.indexers.ObservationIndexer" />
     <bean id="genotypePhenotypeIndexer" class="org.mousephenotype.cda.indexers.GenotypePhenotypeIndexer" />
-    <bean id="mpOntologyService" class="org.mousephenotype.cda.indexers.MpOntologyService" />
+    <bean id="mpOntologyService" class="org.mousephenotype.cda.db.dao.MpOntologyDAO" />
+    <bean id="maOntologyDAO" class="org.mousephenotype.cda.db.dao.MaOntologyDAO" />
     <bean id="statisticalResultIndexer" class="org.mousephenotype.cda.indexers.StatisticalResultIndexer" />
     <bean id="preqcIndexer" class="org.mousephenotype.cda.indexers.PreqcIndexer" />
     <bean id="alleleIndexer" class="org.mousephenotype.cda.indexers.AlleleIndexer" />
