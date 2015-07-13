@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.utils;
+package org.mousephenotype.cda.utilities;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.stereotype.Component;
