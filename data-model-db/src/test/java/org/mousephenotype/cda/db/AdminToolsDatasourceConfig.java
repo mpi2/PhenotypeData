@@ -29,7 +29,7 @@ public class AdminToolsDatasourceConfig {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Bean
+	@Bean(name="emf2")
 	@PersistenceContext(name="adminContext")
 	public LocalContainerEntityManagerFactoryBean emf2(EntityManagerFactoryBuilder builder){
 		return builder
