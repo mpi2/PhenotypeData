@@ -30,7 +30,10 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.OrganisationDAO;
+import org.mousephenotype.cda.db.dao.ProjectDAO;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -46,8 +49,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.validation.constraints.NotNull;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -83,9 +84,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	@Autowired @Qualifier("statisticalResultCore")
 	HttpSolrServer solr;
 
-	@Autowired @NotNull
-	PhenotypePipelineDAO pipelineDao;
-
 
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
@@ -100,7 +98,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	public void postSetup() {
 		// Ensure the superclass attributes are set
 		super.solr = solr;
-		super.pipelineDAO = pipelineDAO;
 	}
 
 
@@ -891,7 +888,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
     protected CategoricalResult translateStatisticalResultToCategoricalResult(StatisticalResultDTO result) {
-    	
+
         CategoricalResult r = new CategoricalResult();
         r.setColonyId(result.getColonyId());
         if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
