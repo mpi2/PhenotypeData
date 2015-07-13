@@ -20,10 +20,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
-import org.mousephenotype.cda.indexers.beans.ImpressBean;
+import org.mousephenotype.cda.solr.bean.ImpressBean;
 
 /**
  *
