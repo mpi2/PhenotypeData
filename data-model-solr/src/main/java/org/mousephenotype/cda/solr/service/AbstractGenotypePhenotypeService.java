@@ -44,7 +44,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-public abstract class AbstractGenotypePhenotypeService extends BasicService {
+public class AbstractGenotypePhenotypeService extends BasicService {
 
     protected PhenotypePipelineDAO pipelineDAO;
 

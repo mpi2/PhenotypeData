@@ -27,7 +27,7 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.bean.ImpressBean;
-import org.mousephenotype.cda.solr.bean.ProcedurePojo;
+import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,9 +59,9 @@ public class ImpressService {
 	 * @author tudose
 	 * @return List of procedures in a pipeline
 	 */
-	public List<ProcedurePojo> getProcedures(String pipelineStableId){
+	public List<ProcedureBean> getProcedures(String pipelineStableId){
 		
-		List<ProcedurePojo> procedures = new ArrayList<>();
+		List<ProcedureBean> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
@@ -82,7 +82,7 @@ public class ImpressService {
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				ProcedurePojo procedure = new ProcedurePojo(group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_ID).toString(), 
+				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_ID).toString(), 
 															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_NAME).toString(),
 															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_ID).toString(),
 															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_KEY).toString());
