@@ -16,11 +16,14 @@
 
 package org.mousephenotype.cda.utilities;
 
+import org.springframework.stereotype.Component;
+
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mrelac on 13/07/2015.
  */
+@Component
 public class CommonUtils {
 
     /**
