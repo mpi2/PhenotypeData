@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -35,13 +33,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -57,13 +52,14 @@ import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.service.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.service.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -73,6 +69,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 
 @Service
@@ -1763,4 +1763,51 @@ public class ObservationService extends BasicService {
 
     }
 
+
+    /**
+     * @author tudose
+     * @date 2015/07/08
+     * @param alleleAccession
+     * @param phenotypingCenter
+     * @param resource
+     * @return List of pipelines with data for the given parameters.
+     * @throws SolrServerException 
+     */    
+    public List<ImpressBean> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource) 
+    throws SolrServerException{
+    	
+    	List<ImpressBean> pipelines = new ArrayList<>();
+		
+    	SolrQuery query = new SolrQuery()
+			.setQuery("*:*")
+			.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
+			.addField(ObservationDTO.PIPELINE_ID)
+			.addField(ObservationDTO.PIPELINE_NAME)
+			.addField(ObservationDTO.PIPELINE_STABLE_ID);
+    	if (phenotypingCenter != null){
+			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+    	}
+    	if ( resource != null){
+    		query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":\"" + StringUtils.join(resource, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+    	}
+    	
+		query.set("group", true);
+		query.set("group.field", ObservationDTO.PIPELINE_STABLE_ID);
+		query.setRows(10000);
+		query.set("group.limit", 1);
+
+		System.out.println("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+		
+		QueryResponse response = solr.query(query);
+		
+		for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+
+			SolrDocument doc = group.getResult().get(0);
+			ImpressBean pipeline = new ImpressBean(null, doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
+			pipelines.add(pipeline);
+			
+		}
+
+		return pipelines;
+    }
 }

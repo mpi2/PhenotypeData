@@ -310,15 +310,15 @@
         </c:choose>
 
         <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
-				<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
+		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
         <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
         <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
-   			<c:choose>
+   		<c:choose>
             <c:when test="${param['bare'] == null}">
-        				<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script> 
+        		<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script> 
             </c:when>
-	      </c:choose>
+	    </c:choose>
 
     </div> <!-- wrapper -->
 </body>
