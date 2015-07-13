@@ -117,7 +117,7 @@ public class PhenomeChartProvider {
 		+ "                     href : base_url + '/charts?accession=' + event.point.geneAccession + "
 		+ "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
 		+ "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
-		+ "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', \n"
+		+ "'&bare=true', \n"
 		+ "                     title : event.point.geneAccession \n"
 		+ "                  } \n"
 		+ "                  ], \n"
@@ -140,8 +140,6 @@ public class PhenomeChartProvider {
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
-
-
 
 		return chartString;
 	}
@@ -566,7 +564,7 @@ public class PhenomeChartProvider {
 
 
 	/**
-	 *
+	 * 
 	 * @param alleleAccession
 	 * @param statisticalResults
 	 * @param minimalPvalue
@@ -575,12 +573,12 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter, String pipelineStableId)
+	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
 		JSONArray series = new JSONArray();
-		ArrayList<String> categories = new ArrayList();
+		ArrayList<String> categories = new ArrayList<String>();
 
 		try {
 
@@ -600,7 +598,7 @@ public class PhenomeChartProvider {
 			// Start from the pipeline so that there is no need to keep this
 			// information from the caller side
 			// get All procedures and generate a Map Parameter => Procedure
-
+						
 			for (String procedure : parametersByProcedure.keySet()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
@@ -609,24 +607,23 @@ public class PhenomeChartProvider {
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure);
 				// create a series here
-
+								
 				for (String parameterStableId : parametersByProcedure.get(procedure)) {
-
+											
 					if (statisticalResults.containsKey(parameterStableId)) {
-
+									
 						int resultIndex = 0;
-						long tempTime = System.currentTimeMillis();
-						StatisticalResultBean statsResult = statisticalResults.get(parameterStableId).get(0);
-
+						long tempTime = System.currentTimeMillis();						
+						StatisticalResultBean statsResult = statisticalResults.get(parameterStableId).get(0);							
+													
 						// smallest p-value sis the first (solr docs are sorted)
-						if (statsResult.getIsSuccessful() && resultIndex == 0) {
+						if (statsResult.getIsSuccessful() && resultIndex == 0) { 
 
 							// create the point first
 							JSONObject dataPoint = new JSONObject();
 							dataPoint.put("name", statsResult.getParameterName());
 							dataPoint.put("parameter_stable_id", parameterStableId);
 							dataPoint.put("parameter_name", statsResult.getParameterName());
-							dataPoint.put("pipeline_stable_id", pipelineStableId);
 							dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
 							dataPoint.put("alleleAccession", allele.getId().getAccession());
 							dataPoint.put("phenotyping_center", phenotypingCenter);
@@ -636,11 +633,10 @@ public class PhenomeChartProvider {
 							dataPoint.put("effectSize", statsResult.getEffectSize());
 							dataPoint.put("sex", statsResult.getControlSex());
 							dataPoint.put("zygosity", statsResult.getZygosity());
-							// maybe change for the complete object here
 							dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
 							dataPoint.put("maleMutants", statsResult.getMaleMutants());
-							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
-
+							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());								
+							
 							if (!categories.contains(statsResult.getParameterName())) {
 								categories.add(statsResult.getParameterName());
 								dataArray.put(dataPoint);
@@ -648,7 +644,7 @@ public class PhenomeChartProvider {
 								index++;
 							}
 						}
-					}
+					}					
 				}
 
 				if (dataArray.length() > 0) {
@@ -656,7 +652,7 @@ public class PhenomeChartProvider {
 					series.put(scatterJsonObject);
 				}
 			}
-			chartString = createPvaluesOverviewChart( allele.getId().getAccession(), minimalPvalue, pointFormat.toString(),	series,	new JSONArray(categories));
+			chartString = createPvaluesOverviewChart( allele.getId().getAccession(), minimalPvalue, pointFormat.toString(),	series,	new JSONArray(categories.toArray()));
 
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -664,6 +660,8 @@ public class PhenomeChartProvider {
 
 		return chartString;
 	}
+
+
 
 
 	/**
