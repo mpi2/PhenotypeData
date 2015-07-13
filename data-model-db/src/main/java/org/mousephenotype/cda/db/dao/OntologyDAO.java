@@ -15,31 +15,21 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
-
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.utilities.Utils;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
 
 
 /**
@@ -72,6 +62,9 @@ public abstract class OntologyDAO {
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
+
+    @Autowired
+    CommonUtils commonUtils;
 
     public static final int MAX_ROWS = 1000000;
     public static final int BATCH_SIZE = 50;
@@ -488,12 +481,12 @@ public abstract class OntologyDAO {
             List<List<String>> ancestorList = new ArrayList();
             for (String sAncestorNodeId : entry.getValue()) {
                 List<String> nodeIds = new ArrayList();
-                Integer ancesterNodeId = Utils.tryParseInt(sAncestorNodeId);
+                Integer ancesterNodeId = commonUtils.tryParseInt(sAncestorNodeId);
                 String ancestorNodeIdConcat = ancestorMap.get(ancesterNodeId);
                 if (ancestorNodeIdConcat !=  null) {
                     String[] sNodeIds = ancestorMap.get(ancesterNodeId).split(" ");
                         for (String sNodeId : sNodeIds) {
-                            if (Utils.tryParseInt(sNodeId) != 0) {
+                            if (commonUtils.tryParseInt(sNodeId) != 0) {
                                 nodeIds.add(node2termMap.get(sNodeId));
                             }
                         }

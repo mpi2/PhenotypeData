@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.internal.SessionImpl;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +65,17 @@ public class HibernateDAOImpl implements HibernateDAO {
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() {
 		Session session = sessionFactory.getCurrentSession();
-		Connection connection = ((SessionImpl)session).connection();
+
+		SessionImplementor sessionImplementor = (SessionImplementor) session;
+		Connection connection = null;
+
+		try {
+			connection = sessionImplementor.getJdbcConnectionAccess().obtainConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+//		Connection connection = ((SessionImpl)session).connection();
 		return connection;
 	}
 

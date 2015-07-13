@@ -15,19 +15,24 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.solr.bean.ImpressBean;
+import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -47,6 +52,78 @@ public class ImpressService {
 	@Qualifier("pipelineCore")
 	private HttpSolrServer solr;
 
+	
+
+	/**
+	 * @date 2015/07/08
+	 * @author tudose
+	 * @return List of procedures in a pipeline
+	 */
+	public List<ProcedureBean> getProcedures(String pipelineStableId){
+		
+		List<ProcedureBean> procedures = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(PipelineDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
+				.addField(PipelineDTO.PROCEDURE_ID)
+				.addField(PipelineDTO.PROCEDURE_NAME)
+				.addField(PipelineDTO.PROCEDURE_STABLE_ID)
+				.addField(PipelineDTO.PROCEDURE_STABLE_KEY)
+				.addField(PipelineDTO.PARAMETER_ID)
+				.addField(PipelineDTO.PARAMETER_NAME)
+				.addField(PipelineDTO.PARAMETER_STABLE_ID)
+				.addField(PipelineDTO.PARAMETER_STABLE_KEY);
+			query.set("group", true);
+			query.set("group.field", PipelineDTO.PROCEDURE_STABLE_ID);
+			query.setRows(10000);
+			query.set("group.limit", 10000);
+
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_ID).toString(), 
+															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_NAME).toString(),
+															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_ID).toString(),
+															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_KEY).toString());
+				for (SolrDocument doc : group.getResult()){
+					ImpressBean parameter = new ImpressBean((Integer)doc.getFirstValue(PipelineDTO.PARAMETER_ID), doc.getFirstValue(PipelineDTO.PARAMETER_STABLE_KEY).toString(),
+															doc.getFirstValue(PipelineDTO.PARAMETER_STABLE_ID).toString(), doc.getFirstValue(PipelineDTO.PARAMETER_NAME).toString());
+					procedure.addParameter(parameter);
+				}
+			}
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return procedures;
+	}
+	
+	
+	/**
+	 * @date 2015/07/08
+	 * @author tudose
+	 * @param pipelineStableId
+	 * @return Pipeline in an object of type ImpressBean
+	 * @throws SolrServerException
+	 */	
+	public ImpressBean getPipeline(String pipelineStableId) 
+	throws SolrServerException{
+		
+		SolrQuery query = new SolrQuery()
+				.setQuery(PipelineDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
+				.addField(PipelineDTO.PIPELINE_STABLE_ID)
+				.addField(PipelineDTO.PIPELINE_STABLE_KEY)
+				.addField(PipelineDTO.PIPELINE_NAME)
+				.addField(PipelineDTO.PIPELINE_ID)
+				.setRows(1);
+		SolrDocument doc = solr.query(query).getResults().get(0);
+		
+		return new ImpressBean((Integer)doc.getFirstValue(PipelineDTO.PIPELINE_ID), doc.getFirstValue(PipelineDTO.PIPELINE_STABLE_KEY).toString(), doc.getFirstValue(PipelineDTO.PIPELINE_STABLE_ID).toString(), doc.getFirstValue(PipelineDTO.PIPELINE_NAME).toString());
+	
+	}
+	
 
 
 	public List<Integer> getProcedureStableKey(String procedureStableId) {
@@ -126,29 +203,32 @@ public class ImpressService {
 		else return "#";
 	}
 
+
 	public Map<String,OntologyBean> getParameterStableIdToAbnormalMaMap(){
-		//http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/pipeline/select?q=*:*&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(abnormal_ma_id:*)&rows=100
+	
 		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
 		List<PipelineDTO> pipelineDtos=null;
-			SolrQuery query = new SolrQuery()
-				.setQuery(PipelineDTO.ABNORMAL_MA_ID + ":*" )
-				.setFields(PipelineDTO.ABNORMAL_MA_ID, PipelineDTO.ABNORMAL_MA_NAME, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
-
-			QueryResponse response=null;
-			try {
-				response = solr.query(query);
-				pipelineDtos = response.getBeans(PipelineDTO.class);
-				for(PipelineDTO pipe:pipelineDtos){
-					if(!idToAbnormalMaId.containsKey(pipe.getParameterStableId())){
-						idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAbnormalMaTermId(),pipe.getAbnormalMaName()));
-					}
+		SolrQuery query = new SolrQuery()
+			.setQuery(PipelineDTO.ABNORMAL_MA_ID + ":*" )
+			.setFields(PipelineDTO.ABNORMAL_MA_ID, PipelineDTO.ABNORMAL_MA_NAME, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
+		QueryResponse response=null;
+		
+		try {
+			response = solr.query(query);
+			pipelineDtos = response.getBeans(PipelineDTO.class);
+			for(PipelineDTO pipe:pipelineDtos){
+				if(!idToAbnormalMaId.containsKey(pipe.getParameterStableId())){
+					idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAbnormalMaTermId(),pipe.getAbnormalMaName()));
 				}
-			} catch (SolrServerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			return idToAbnormalMaId;
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+	
+		return idToAbnormalMaId;
 	}
+	
+
 	public class OntologyBean{
 
 		public OntologyBean(String id, String name){

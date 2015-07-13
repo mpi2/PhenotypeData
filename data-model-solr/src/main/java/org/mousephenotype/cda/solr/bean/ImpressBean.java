@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.indexers.beans;
+package org.mousephenotype.cda.solr.bean;
 
 /**
  * Class to act as Map value DTO for impress data
@@ -25,6 +25,15 @@ public class ImpressBean {
 	public String name;
 
 
+	public ImpressBean(Integer id, String stableKey, String stableId, String name){
+	
+		this.id = id;
+		this.stableId = stableId;
+		this.stableKey = stableKey;
+		this.name = name;
+	
+	}
+	
 	public Integer getId() {
 
 		return id;

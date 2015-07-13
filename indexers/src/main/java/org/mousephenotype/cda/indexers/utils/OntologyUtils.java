@@ -20,10 +20,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
-import org.mousephenotype.cda.indexers.beans.ImpressBean;
+import org.mousephenotype.cda.solr.bean.ImpressBean;
 
 /**
  *
@@ -134,17 +135,10 @@ public class OntologyUtils {
     private static Map<Integer, ImpressBean> populateImpressMap(PreparedStatement p) throws SQLException {
 
         Map<Integer, ImpressBean> impressMap = new HashMap<>();
-
         ResultSet resultSet = p.executeQuery();
 
         while (resultSet.next()) {
-            ImpressBean b = new ImpressBean();
-
-            b.id = resultSet.getInt("id");
-            b.stableKey = resultSet.getString("stable_key");
-            b.stableId = resultSet.getString("stable_id");
-            b.name = resultSet.getString("name");
-
+            ImpressBean b = new ImpressBean(resultSet.getInt("id"), resultSet.getString("stable_key"), resultSet.getString("stable_id"), resultSet.getString("name"));
             impressMap.put(resultSet.getInt("id"), b);
         }
 

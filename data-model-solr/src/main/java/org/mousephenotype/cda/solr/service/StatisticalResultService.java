@@ -46,6 +46,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -78,15 +80,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     @Autowired
     ProjectDAO projectDAO;
 
-    @Autowired
-    PhenotypePipelineDAO parameterDAO;
-
 	@Autowired @Qualifier("statisticalResultCore")
 	HttpSolrServer solr;
 
-	@Autowired
+	@Autowired @NotNull
 	PhenotypePipelineDAO pipelineDao;
-
 
 
     Map<String, ArrayList<String>> maleParamToGene = null;
@@ -203,7 +201,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	ArrayList<Parameter> parameterNames = new ArrayList<>();
 
     	for (String parameterStableId: parameterStableIds){
-        	Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
+        	Parameter p = pipelineDAO.getParameterByStableId(parameterStableId);
         	if (p.isRequiredFlag() || !requiredParamsOnly){
         		parameterNames.add(p);
         	}
@@ -835,7 +833,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getBatchSignificant()!=null) r.setBatchSignificance(Boolean.valueOf(result.getBatchSignificant()));
         if(result.getBlupsTest()!= null) r.setBlupsTest(new Double(result.getBlupsTest()));
         r.setColonyId(result.getColonyId());
-        if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
+ //       if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
         r.setControlSelectionStrategy(result.getControlSelectionMethod());
         if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
         r.setDependentVariable(result.getDependentVariable());
@@ -870,9 +868,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         r.setMetadataGroup(result.getMetadataGroup());
         if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
         if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
+        System.out.println("ARE NULL " + (organisationDAO == null) + "   " + (pipelineDAO == null));
         if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
         if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
-        if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
+    //    if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
         if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
         r.setRawOutput(result.getRawOutput());
         if(result.getRotatedResidualsTest()!= null) r.setRotatedResidualsNormalityTest(new Double(result.getRotatedResidualsTest()));
@@ -892,11 +891,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
     protected CategoricalResult translateStatisticalResultToCategoricalResult(StatisticalResultDTO result) {
+    	
         CategoricalResult r = new CategoricalResult();
         r.setColonyId(result.getColonyId());
         if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
         r.setControlSelectionStrategy(result.getControlSelectionMethod());
-        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
+//        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
         r.setDependentVariable(result.getDependentVariable());
         if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
         if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(bmDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
@@ -909,7 +909,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
         if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
         if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
-        if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
+ //       if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
         if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
         r.setRawOutput(result.getRawOutput());
         if(result.getSex()!= null) r.setSexType(SexType.valueOf(result.getSex()));
