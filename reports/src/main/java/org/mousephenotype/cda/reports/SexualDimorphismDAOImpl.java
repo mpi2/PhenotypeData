@@ -23,7 +23,7 @@ import org.mousephenotype.cda.db.dao.HibernateDAOImpl;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.utils.UrlUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

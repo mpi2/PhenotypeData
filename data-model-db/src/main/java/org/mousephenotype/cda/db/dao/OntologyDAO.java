@@ -35,7 +35,6 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.utilities.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
