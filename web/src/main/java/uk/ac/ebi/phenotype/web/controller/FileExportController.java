@@ -1534,13 +1534,13 @@ public class FileExportController {
 			if (counter % 500 == 0) {
 				batchIdList.add(id);
 
-				if (dataTypeName.equals("ensembl")) {
+				/*if (dataTypeName.equals("ensembl")) {
 					// batch converting ensembl gene id to mgi gene id
 					genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
 				} else if (dataTypeName.equals("marker_symbol")) {
 					// batch converting marker symbol to mgi gene id
 					genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
-				}
+				}*/
 
 				// batch solr query
 				batchIdListStr = StringUtils.join(batchIdList, ",");
@@ -1555,22 +1555,35 @@ public class FileExportController {
 
 		if (batchIdList.size() > 0) {
 			// do the rest
-			if (dataTypeName.equals("ensembl")) {
+			/*if (dataTypeName.equals("ensembl")) {
 				// batch converting ensembl gene id to mgi gene id
 				genes.addAll(geneService.getGeneByEnsemblId(batchIdList));
 			} else if (dataTypeName.equals("marker_symbol")) {
 				// batch converting marker symbol to mgi gene id
 				genes = geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList); // ["bla1","bla2"]
-			}
+			}*/
 
 			// batch solr query
 			batchIdListStr = StringUtils.join(batchIdList, ",");
 			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
 		}
 
-		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request,
-				queryIds);
-		// System.out.println("datarows: "+ dataRows);
+		/*for ( GeneDTO gene : genes  ){
+			if ( gene.getMgiAccessionId() != null ){
+				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
+			}	
+		}
+		
+		if ( genes.size() == 0 ){
+			mgiIds = queryIds;
+		}
+		
+		if ( dataTypeName.equals("ensembl")) {
+			System.out.println("Found " + genes.size() + " of " + queryIds.size() + " Ensembl id converted to MGI gene id");
+		}*/
+		
+		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
+		
 		Workbook wb = null;
 		String fileName = "batch_query_dataset";
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
@@ -1581,7 +1594,7 @@ public class FileExportController {
 
 		Set<String> foundIds = new HashSet<>();
 
-		System.out.println("responses: " + solrResponses.size());
+		System.out.println("Number of responses: " + solrResponses.size());
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -1590,11 +1603,11 @@ public class FileExportController {
 		}
 
 		int totalDocs = results.size();
-		System.out.println("docs found: " + totalDocs);
+		System.out.println("TOTAL DOCS FOUND: " + totalDocs);
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
-		String NA = "info not available";
+		String NA = "Info not available";
 		String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
 		String oriDataTypeNAme = dataTypeName;
 
@@ -1644,7 +1657,7 @@ public class FileExportController {
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 
-			// System.out.println("Working on document " + i);
+			System.out.println("Working on document " + i + " of " + totalDocs);
 
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap(); // Note
 																				// getFieldValueMap()
@@ -1672,9 +1685,7 @@ public class FileExportController {
 						// using cutoff {}", geneIdentifier, rawScoreCutoff);
 						diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier,
 								rawScoreCutoff);
-						System.out.println(
-								"received " + diseaseAssociationSummarys.size() + " disease-gene associations");
-						break;
+						//System.out.println("received " + diseaseAssociationSummarys.size() + " disease-gene associations");
 						// log.info("{} - received {} disease-gene
 						// associations", geneIdentifier,
 						// diseaseAssociationSummarys.size());
@@ -1684,9 +1695,6 @@ public class FileExportController {
 						// geneIdentifier);
 					}
 
-					// add the known association summaries to a dedicated list
-					// for the top
-					// panel
 					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
 						AssociationSummary associationSummary = diseaseAssociationSummary.getAssociationSummary();
 						if (associationSummary.isAssociatedInHuman()) {

@@ -130,6 +130,7 @@ public class DataTableController {
 
     	String content = null;
     	
+    	String oriDataTypeName = dataTypeName;
     	List<String> queryIds = Arrays.asList(idlist.split(","));
     	Long time = System.currentTimeMillis();
     	
@@ -137,16 +138,12 @@ public class DataTableController {
     	List<org.mousephenotype.cda.solr.service.dto.GeneDTO> genes = new ArrayList<>();
 		List<QueryResponse> solrResponses = new ArrayList<>();
 		
-		if ( dataTypeName.equals("marker_symbol") ){
-			dataTypeName = "gene";
-		}
-		
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
 		
 		int counter = 0;
 		
-		System.out.println("id length: "+ queryIds.size());
+		//System.out.println("id length: "+ queryIds.size());
 		// will show only 10 records to the users to show how the data look like
 		for ( String id : queryIds ) {
 			counter++;
@@ -158,6 +155,7 @@ public class DataTableController {
 		}	
 		queryIds = batchIdList;
 		
+		
 		if ( dataTypeName.equals("ensembl") ){
 			// batch converting ensembl gene id to mgi gene id
 			genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
@@ -165,28 +163,36 @@ public class DataTableController {
 		else if ( dataTypeName.equals("marker_symbol") ){
 			// batch converting marker symbol to mgi gene id
 			genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
+			System.out.println("GENEs: "+ genes);
 		}
 		
-		//System.out.println("GOT " + genes.size() + " genes");
-		
-		// batch solr query
-		batchIdListStr = StringUtils.join(batchIdList, ",");
-		//System.out.println("idstr: "+ batchIdListStr);
-		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
-	
 		for ( GeneDTO gene : genes  ){
 			if ( gene.getMgiAccessionId() != null ){
 				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
 			}	
+			batchIdList = mgiIds;
 		}
 		
+		//System.out.println("GOT " + genes.size() + " genes");
+		
+		if ( dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ){
+			dataTypeName = "gene";
+		}
+		
+		// batch solr query
+		batchIdListStr = StringUtils.join(batchIdList, ",");
+		System.out.println("idstr: "+ batchIdListStr);
+		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
+	
+		/*
 		if ( genes.size() == 0 ){
 			mgiIds = queryIds;
-		}
+		}*/
 		
-		System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id took: " + (System.currentTimeMillis() - time));
+		//System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id/marker_symbol took: " + (System.currentTimeMillis() - time));
+		//System.out.println("mgi id: " + mgiIds);
 		
-		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, dataTypeName, mgiIds);
+		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
 		
 		
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
@@ -232,7 +238,7 @@ public class DataTableController {
     	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String baseUrl = request.getAttribute("baseUrl").toString();
     	
-    	String NA = "info not available";
+    	String NA = "Info not available";
     	
     	String[] flList = StringUtils.split(fllist, ",");
     	
@@ -252,6 +258,7 @@ public class DataTableController {
     	dataTypeId.put("gene", "mgi_accession_id");
     	dataTypeId.put("marker_name", "mgi_accession_id");
     	dataTypeId.put("ensembl", "mgi_accession_id");
+    	
     	dataTypeId.put("mp", "mp_id");
     	dataTypeId.put("ma", "ma_id");
     	dataTypeId.put("hp", "hp_id");
@@ -271,7 +278,7 @@ public class DataTableController {
 		
 		int fieldCount = 0;
 		
-		//System.out.println("totaldocs:" + totalDocs);
+		System.out.println("totaldocs:" + totalDocs);
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 		
@@ -334,7 +341,7 @@ public class DataTableController {
 
 					String qryField = null;
 					String imgQryField = null;
-					if ( dataTypeName.equals("gene") ){
+					if ( dataTypeName.equals("gene") || dataTypeName.equals("ensembl") ){
 						qryField = "mgi_accession_id";
 						imgQryField = "gene_accession_id";
 					}
@@ -345,11 +352,19 @@ public class DataTableController {
 					
 					Collection<Object> accs = docMap.get(qryField);
 					String accStr = null;
-					for( Object acc : accs ){
-						accStr = imgQryField + ":\"" + (String) acc + "\"";
-					}
+					String imgLink = null;
 					
-					String imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					System.out.println("qryfield: " + qryField);
+					System.out.println("imgQryField: " + imgQryField);
+					if ( accs != null ){
+						for( Object acc : accs ){
+							accStr = imgQryField + ":\"" + (String) acc + "\"";
+						}
+						imgLink = "<a target='_blank' href='" + hostName + impcImgBaseUrl + "q="  + accStr + " AND observation_type:image_record&fq=biological_sample_group:experimental" + "'>image url</a>";
+					}
+					else {
+						imgLink = NA;
+					}
 					
 					fieldCount++;
 					rowData.add(imgLink);
@@ -378,14 +393,36 @@ public class DataTableController {
 					try {
 						String value = null;
 						//System.out.println("TEST CLASS: "+ docMap.get(fieldName).getClass());
+						//System.out.println("****dataTypeName: " + dataTypeName + " --- " + fieldName);
 						try {
 							Collection<Object> vals =  docMap.get(fieldName);
 							Set<Object> valSet = new HashSet<>(vals);
 							value = StringUtils.join(valSet, ", ");	
 							
 							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
-								String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
-								foundIds.add("\"" + value + "\"");
+								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
+								String coreName = null;
+								if ( dataTypeName.equals("marker_symbol") ){
+									coreName = "gene";
+									Collection<Object> mvals = docMap.get("marker_symbol");
+									Set<Object> mvalSet = new HashSet<>(mvals);
+									for (Object mval : mvalSet) {
+										foundIds.add("\"" + mval + "\"");
+									}
+								}
+								else if (dataTypeName.equals("ensembl") ){
+									coreName = "gene";
+									Collection<Object> gvals = docMap.get("ensembl_gene_id");
+									Set<Object> gvalSet = new HashSet<>(gvals);
+									for (Object gval : gvalSet) {
+										foundIds.add("\"" + gval + "\"");
+									}
+								}
+								else {
+									coreName = dataTypeName;
+									foundIds.add("\"" + value + "\"");
+								}
+								
 								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
 							}
 							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
@@ -419,8 +456,8 @@ public class DataTableController {
 		
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-		//System.out.println("Found ids: "+ new ArrayList(foundIds));
-		//System.out.println("non found ids: " + nonFoundIds);
+		System.out.println("Found ids: "+ new ArrayList(foundIds));
+		System.out.println("non found ids: " + nonFoundIds);
 		
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();

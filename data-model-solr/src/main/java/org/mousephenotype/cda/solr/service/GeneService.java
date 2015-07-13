@@ -834,9 +834,11 @@ public class GeneService {
 		List<GeneDTO> genes = new ArrayList<>();
 		
 		String symbolsStr = StringUtils.join(symbols, ",");  // ["bla1","bla2"]
-		
+		System.out.println("symbol str: " + symbolsStr);
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM + ":(" + symbolsStr + ")")
+			//.setQuery("*:*")
+			//.setFilterQueries(GeneDTO.MARKER_SYMBOL + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM + ":(" + symbolsStr + ")")
 			.setRows(symbols.size())
 			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
 
