@@ -26,7 +26,7 @@
  * </ul>
  */
 
-package org.mousephenotype.www;
+package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
