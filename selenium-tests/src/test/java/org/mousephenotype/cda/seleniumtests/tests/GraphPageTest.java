@@ -22,7 +22,7 @@
  * should indeed be a graph present when the link is clicked.
  */
 
-package org.mousephenotype.www;
+package org.mousephenotype.cda.seleniumtests.tests;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.log4j.Logger;

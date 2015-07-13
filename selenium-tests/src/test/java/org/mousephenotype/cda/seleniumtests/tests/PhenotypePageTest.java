@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.www;
+package org.mousephenotype.cda.seleniumtests.tests;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
