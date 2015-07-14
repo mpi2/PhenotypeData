@@ -16,42 +16,31 @@
 
 package org.mousephenotype.cda.seleniumtests.tests;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+ import org.apache.log4j.Logger;
+ import org.apache.solr.client.solrj.SolrServerException;
+ import org.junit.*;
+ import org.junit.runner.RunWith;
+ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+ import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+ import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
+ import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+ import org.mousephenotype.cda.solr.service.MpService;
+ import org.mousephenotype.cda.solr.service.PostQcService;
+ import org.mousephenotype.cda.utilities.CommonUtils;
+ import org.openqa.selenium.*;
+ import org.openqa.selenium.support.ui.ExpectedConditions;
+ import org.openqa.selenium.support.ui.WebDriverWait;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Qualifier;
+ import org.springframework.boot.test.SpringApplicationConfiguration;
+ import org.springframework.test.context.TestPropertySource;
+ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mousephenotype.www.testing.model.PageStatus;
-import org.mousephenotype.www.testing.model.PhenotypePage;
-import org.mousephenotype.www.testing.model.TestUtils;
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.MpService;
-import uk.ac.ebi.phenotype.util.Utils;
+ import java.text.DateFormat;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.List;
 
 /**
  *
@@ -100,6 +89,9 @@ public class PhenotypePageTest {
     protected String seleniumUrl;
 
     @Autowired
+    protected CommonUtils commonUtils;
+
+    @Autowired
     protected TestUtils testUtils;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -113,12 +105,12 @@ public class PhenotypePageTest {
 
     @Before
     public void setup() {
-        if (Utils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
+        if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
             timeout_in_seconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
-        if (Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
-            thread_wait_in_ms = Utils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
+        if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
+            thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        TestUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, seleniumUrl);
 
         driver.navigate().refresh();
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
@@ -154,6 +146,7 @@ public class PhenotypePageTest {
     @Test
 //@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException {
+        PageStatus status = new PageStatus();
         String testName = "testMGI_MPLinksAreValid";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
@@ -194,8 +187,8 @@ public class PhenotypePageTest {
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                errorList.add(message);
-                TestUtils.sleep(thread_wait_in_ms);
+                status.addError(message);
+                commonUtils.sleep(thread_wait_in_ms);
                 continue;
             }
             try {
@@ -205,27 +198,27 @@ public class PhenotypePageTest {
                 if (elements.isEmpty()) {
                     message = "Expected valid MGI page for " + phenotypeId + "(" + target + ").";
                     logger.error(message);
-                    errorList.add(message);
+                    status.addError(message);
                 } else {
                     found = elements.get(0).getText().contains(idString);
                 }
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
+                status.addError(message);
             }
 
-            if ( ! found) {
+            if (( ! found) && ( ! status.hasErrors())) {
                 message = "div id 'templateBodyInsert' not found.";
-                errorList.add(message);
+                status.addError(message);
             } else {
                 message = "SUCCESS: MGI link OK for " + phenotypeId + ". URL: " + target;
                 successList.add(message);
             }
 
-            TestUtils.sleep(thread_wait_in_ms);
+            commonUtils.sleep(thread_wait_in_ms);
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, phenotypeIds.size());
     }
 
     /**
@@ -293,6 +286,7 @@ public class PhenotypePageTest {
 //@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
+        PageStatus status = new PageStatus();
         String testName = "testInvalidMpTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
@@ -315,7 +309,7 @@ public class PhenotypePageTest {
                     .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.node h1")));
             if (phenotypeLinks == null) {
                 message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                errorList.add(message);
+                status.addError(message);
             }
             for (WebElement div : phenotypeLinks) {
                 if (div.getText().equals(EXPECTED_ERROR_MESSAGE)) {
@@ -325,23 +319,24 @@ public class PhenotypePageTest {
             }
         } catch (Exception e) {
             message = "Timeout: Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            errorList.add(message);
+            status.addError(message);
         }
 
-        if ( ! found) {
-            message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            errorList.add(message);
-        } else {
+        if (found && ( ! status.hasErrors())) {
             message = "SUCCESS: INTERMEDIATE_MP_TERM_ID " + phenotypeId + ". URL: " + target;
             successList.add(message);
+        } else {
+            message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+            status.addError(message);
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
     }
 
 //@Ignore
     @Test
     public void testDefinitionAndSynonymCount() throws SolrServerException {
+        PageStatus status = new PageStatus();
         String testName = "testDefinitionAndSynonymCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
@@ -370,43 +365,43 @@ public class PhenotypePageTest {
             logger.debug("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], baseUrl);
                 phenotypePage.selectPhenotypesLength(100);
                 String definition = phenotypePage.getDefinition();
                 if (definition.isEmpty()) {
-                    System.out.println("ERROR: Expected definition but none was found. URL: " + target);
+                    message = "ERROR: Expected definition but none was found. URL: " + target;
+                    status.addError(message);
                     errorCount++;
                 }
 
                 List<String> synonyms = phenotypePage.getSynonyms();
                 if (synonyms.size() != expectedSynonymCount[i]) {
-                    System.out.println("ERROR: Expected " + expectedSynonymCount + " synonyms but found " + synonyms.size() + ". Values:");
+                    message = "ERROR: Expected " + expectedSynonymCount + " synonyms but found " + synonyms.size() + ". Values:";
                     for (int j = 0; j < synonyms.size(); j++) {
                         String synonym = synonyms.get(j);
                         if (j > 0)
                             System.out.print(",\t");
                         System.out.print("'" + synonym + "'");
                     }
-                    System.out.println();
+                    status.addError(message);
                 }
             } catch (Exception e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + target);
+                status.addError("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + target);
             }
         }
 
-        if (errorCount > 0) {
-            errorList.add("Test failed.");
-        } else {
+        if ((errorCount == 0) && ( ! status.hasErrors())) {
             successList.add("Test succeeded.");
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
     }
 
     // PRIVATE METHODS
 
 
     private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
+        PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
         List<String> errorList = new ArrayList();
@@ -431,13 +426,13 @@ public class PhenotypePageTest {
             System.out.println("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, baseUrl);
                 if (phenotypePage.hasPhenotypesTable()) {
                     phenotypePage.selectPhenotypesLength(100);
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-                    PageStatus status = phenotypePage.validate();
-                    if (status.hasErrors()) {
-                        System.out.println(status.toStringErrorMessages());
+                    PageStatus localStatus = phenotypePage.validate();
+                    if (localStatus.hasErrors()) {
+                        status.add(localStatus);
                         errorCount++;
                     }
                 } else {
@@ -456,17 +451,17 @@ public class PhenotypePageTest {
                 errorCount++;
             }
 
-            if (errorCount > 0) {
-                errorList.add("FAIL: MP_TERM_ID " + phenotypeId + ". URL: " + target);
-            } else {
+            if ((errorCount == 0) && ( ! status.hasErrors())) {
                 successList.add("SUCCESS: MP_TERM_ID " + phenotypeId + ". URL: " + target);
+            } else {
+                errorList.add("FAIL: MP_TERM_ID " + phenotypeId + ". URL: " + target);
             }
 
             i++;
-            TestUtils.sleep(100);
+            commonUtils.sleep(100);
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, phenotypeIds.size());
     }
 
 }
