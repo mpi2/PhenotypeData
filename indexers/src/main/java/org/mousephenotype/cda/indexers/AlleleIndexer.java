@@ -895,6 +895,7 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setMgiAccessionId(id);
             dto.setMarkerType(bean.getFeatureType());
             dto.setMarkerSymbol(bean.getMarkerSymbol());
+            dto.setMarkerSymbolLowercase(bean.getMarkerSymbol());
             dto.setGeneLatestEsCellStatus(bean.getLatestEsCellStatus());
             dto.setGeneLatestMouseStatus(bean.getLatestMouseStatus());
             dto.setImitsPhenotypeStarted(bean.getLatestPhenotypeStarted());
@@ -950,6 +951,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 }
                
                 allele.getMarkerSynonym().add(rs.getString("marker_synonym"));
+                allele.getMarkerSynonymLowercase().add(rs.getString("marker_synonym"));
                 allele.setMarkerName(rs.getString("marker_name"));
             }
             logger.debug("Finished marker synonym lookup");
