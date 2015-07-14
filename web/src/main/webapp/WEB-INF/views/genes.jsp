@@ -198,8 +198,10 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                                 <c:if test="${orderPossible}">
-                                            <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
-                                        </c:if>
+                                           			 <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+                                        		</c:if>
+                                        		
+ 												<p><a  class="btn" href='${baseUrl}/experiments/allelesData?geneAccession=${gene.id.accession}' >All data</a> </p>
                                     </div>
 
                                     <p class="with-label no-margin">
@@ -236,6 +238,7 @@
                                         <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.id.accession}"><i class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
                                     </p>
 
+ 									
  									
                                     <c:if test="${gwasPhenoMapping != null }">
                                     	
@@ -435,17 +438,6 @@
                                         </div>
 
                                     </c:if>
-                                    <!-- Show list of links to data for every center/pipeline/allele combination -->
-                                    <c:if test="${!(empty dataMapList)}">
-                                        <p class="with-label no-margin">
-                                        <p class="no-margin">Browse all phenotype data for:</p>
-                                        <ul>				
-                                            <c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
-                                                <li><a href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} using ${dataMap["pipeline_name"]} SOPs (<a href='${baseUrl}/phenome?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>MP calls for all strains</a>).</li>					
-                                            </c:forEach>
-                                        </ul>
-                                        </p>
-                                    </c:if>	
                                 </div>
                                 
                             </div><!-- end of phenotype associations panel -->

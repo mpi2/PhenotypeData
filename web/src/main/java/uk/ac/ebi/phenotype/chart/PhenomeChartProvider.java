@@ -144,10 +144,18 @@ public class PhenomeChartProvider {
 		+ "           } \n" // events
 		+ "       } \n"
 		+ "   }, \n"
+//		+ "   navigator : {"
+//		+ "    adaptToUpdatedData: false,"
+//        + "    series : {"
+//        + "       data : "  + series.toString() + "\n"
+//        + "    }"
+//        + " },"
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
 
+		System.out.println("SIZE OF charts code " + chartString.length());
+		
 		return chartString;
 	}
 

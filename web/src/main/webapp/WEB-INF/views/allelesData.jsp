@@ -9,14 +9,6 @@
 	
 
 	<jsp:attribute name="header">
-	
-		<!-- CSS Local Imports -->
-		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
-		
-		<!-- JavaScript Local Imports -->
-		<script type="text/javascript" src="${baseUrl}/js/general/dropdownfilters.js?v=${version}"></script>
-		<script type="text/javascript" src="${baseUrl}/js/general/allele.js?v=${version}"></script>
-		
 		<script type="text/javascript">
 			var base_url = '${baseUrl}';
 		</script>
@@ -26,8 +18,7 @@
 				list-style-type: none;
 			}
 		</style>
-
-  </jsp:attribute>
+  	</jsp:attribute>
 
 	<jsp:body>
 		<div class="region region-content">
@@ -39,86 +30,84 @@
 							<!--  Phenotype Associations Panel -->
 							<div class="section">
 								<div class="inner">
-					
-								
-								<!-- Associations table -->
-								<c:if test="${chart != null}">						
-									<!-- chart here -->
-					  				<div id="chartDiv"></div>
-									<script type="text/javascript">${chart}</script>	
-								</c:if>
-								
-								<c:set var="count" value="0" scope="page" />
-															
-								<p class="resultCount">
-								Total number of results: ${rows}
-								</p>
-							
-								<script>
-									var resTemp = document.getElementsByClassName("resultCount");
-									if (resTemp.length > 1){ resTemp[0].remove();}
-								</script>
-								
-								<table id="strainPvalues">
-									<thead>
-										<tr>
-											<th class="headerSort">Procedure</th>
-											<th class="headerSort">Parameter</th>
-											<th class="headerSort">Zygosity</th>
-											<th class="headerSort">Mutants</th>
-											<th class="headerSort">Statistical</br>Method</th>
-											<th class="headerSort">P Value</th>
-											<th class="headerSort">Status</th>
-											<th class="headerSort">Graph</th>
-										</tr>
-									</thead>
+										
+									<p class="resultCount">
+									Total number of results: ${rows}
+									</p>
 									
-									<tbody>
-										<c:forEach var="stableId" items="${pvaluesMap.keySet()}" varStatus="status">
-											<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
-											<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
-													<tr>
-													<td>${pValueItem.getProcedureName()}</td>
-													<td>${pValueItem.getParameterName()}</td>
-													<td>${pValueItem["zygosity"]}</td>
-													<td>${pValueItem.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
-													<td>${pValueItem.statisticalMethod}</td>
-													<!-- pValue -->
-													<c:choose>
-														<c:when test="${ ! empty pValueItem && pValueItem.getStatus() == 'SUCCESS'}">
-															<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
-															<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
-															<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
-															<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
-															<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-																${pValueItem.pValue}
-															</td>
-														</c:when>
-														<c:otherwise><td>${pValueItem.pValue}</td></c:otherwise>
-													</c:choose>
-													<td>${pValueItem.status}</td>
-													<td style="text-align:center">
-													<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${phenotyping_center}'>
-													<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
-													</td>
-													</tr>
+									<!-- Associations table -->
+									<c:if test="${chart != null}">						
+										<!-- chart here -->
+						  				<div id="chartDiv"></div>
+										<script type="text/javascript" async>${chart}</script>	
+									</c:if>
+									
+									<c:set var="count" value="0" scope="page" />
+											
+									<script>
+										var resTemp = document.getElementsByClassName("resultCount");
+										if (resTemp.length > 1){ resTemp[0].remove();}
+									</script>
+									
+									<table id="strainPvalues">
+										<thead>
+											<tr>
+												<th class="headerSort">Procedure</th>
+												<th class="headerSort">Parameter</th>
+												<th class="headerSort">Zygosity</th>
+												<th class="headerSort">Mutants</th>
+												<th class="headerSort">Statistical</br>Method</th>
+												<th class="headerSort">P Value</th>
+												<th class="headerSort">Status</th>
+												<th class="headerSort">Graph</th>
+											</tr>
+										</thead>
+										
+										<tbody>
+											<c:forEach var="stableId" items="${pvaluesMap.keySet()}" varStatus="status">
+												<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
+												<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
+														<tr>
+														<td>${pValueItem.getProcedureName()}</td>
+														<td>${pValueItem.getParameterName()}</td>
+														<td>${pValueItem["zygosity"]}</td>
+														<td>${pValueItem.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
+														<td>${pValueItem.statisticalMethod}</td>
+														<!-- pValue -->
+														<c:choose>
+															<c:when test="${ ! empty pValueItem && pValueItem.getStatus() == 'SUCCESS'}">
+																<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
+																<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
+																<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
+																<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
+																<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
+																	${pValueItem.pValue}
+																</td>
+															</c:when>
+															<c:otherwise><td>${pValueItem.pValue}</td></c:otherwise>
+														</c:choose>
+														<td>${pValueItem.status}</td>
+														<td style="text-align:center">
+														<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${phenotyping_center}'>
+														<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
+														</td>
+														</tr>
+												</c:forEach>
 											</c:forEach>
-										</c:forEach>
-									</tbody>
-								</table>								
-							</div>
-						</div> <!-- parameter list -->
-				 
-      	</div> <!--end of node wrapper should be after all secions  -->
-    	</div>
-    </div>
-   </div>
+										</tbody>
+									</table>								
+								</div>
+							</div> <!-- parameter list -->
+      					</div> <!--end of node wrapper should be after all secions  -->
+    				</div>
+    			</div>
+   			</div>
 
 		<script type="text/javascript">
 			$(document).ready(function() {
 			  var oTable = $('#strainPvalues').dataTable({
-//				  "sPaginationType": "bootstrap"
-						"bPaginate":false
+				  "sPaginationType": "bootstrap"
+//						"bPaginate":false
 			  });
 			  // Sort immediately with p-value column starting with the lowest one
 			  oTable.fnSort( [ [5,'asc'] ] );
