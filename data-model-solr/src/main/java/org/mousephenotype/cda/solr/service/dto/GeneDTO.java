@@ -26,9 +26,11 @@ public class GeneDTO {
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	
 	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String MARKER_SYMBOL_LOWERCASE = "marker_symbol_lowercase";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String MARKER_SYNONYM = "marker_synonym";
+	public static final String MARKER_SYNONYM_LOWERCASE = "marker_synonym_lowercase";
 	public static final String MARKER_TYPE = "marker_type";
 	public static final String ENSEMBL_GENE_ID = "ensembl_gene_id";
 	public static final String IMITS_PHENOTYPE_STARTED = "imits_phenotype_started";
@@ -211,6 +213,9 @@ public class GeneDTO {
 
 	@Field(MARKER_SYMBOL)
 	String markerSymbol;
+	@Field(MARKER_SYMBOL_LOWERCASE)
+	String markerSymbolLowercase;
+	
 
 	@Field(HUMAN_GENE_SYMBOL)
 	List<String> humanGeneSymbol;
@@ -220,6 +225,8 @@ public class GeneDTO {
 
 	@Field(MARKER_SYNONYM)
 	List<String> markerSynonym;
+	@Field(MARKER_SYNONYM_LOWERCASE)
+	List<String> markerSynonymLowercase;
 
 	@Field(MARKER_TYPE)
 	String markerType;
@@ -639,6 +646,17 @@ public class GeneDTO {
 		this.markerSymbol = markerSymbol;
 	}
 
+	public String getMarkerSymbolLowercase() {
+
+		return markerSymbolLowercase;
+	}
+
+
+	public void setMarkerSymbolLowercase(String markerSymbolLowercase) {
+
+		this.markerSymbolLowercase = markerSymbolLowercase;
+	}
+	
 
 	public List<String> getHumanGeneSymbol() {
 

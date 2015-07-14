@@ -28,6 +28,7 @@ public class SangerGeneBean {
 	public static final String MGI_ALLELE_ACCESSION_ID = "allele_accession_id";
 	public static final String FEATURE_TYPE = "feature_type";
 	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String MARKER_SYMBOL_LOWERCASE = "marker_symbol_lowercase";
 	public static final String LATEST_ES_CELL_STATUS = "latest_es_cell_status";
 	public static final String LATEST_MOUSE_STATUS = "latest_mouse_status";
 	public static final String LATEST_PROJECT_STATUS = "latest_project_status";
@@ -45,6 +46,9 @@ public class SangerGeneBean {
 	private String featureType;
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
+	@Field(MARKER_SYMBOL_LOWERCASE)
+	private String markerSymbolLowercase;
+	
 	@Field(LATEST_ES_CELL_STATUS)
 	private String latestEsCellStatus;
 	@Field(LATEST_MOUSE_STATUS)
@@ -123,6 +127,23 @@ public class SangerGeneBean {
 		this.markerSymbol = markerSymbol;
 	}
 
+	/**
+	 * @return the markerSymbolLowercase
+	 */
+	public String getMarkerSymbolLowercase() {
+		return markerSymbolLowercase;
+	}
+
+	/**
+	 * @param markerSymbolLowercase
+	 *            the markerSymbolLowercase to set
+	 */
+	public void setMarkerSymbolLowercase(String markerSymbolLowercase) {
+		this.markerSymbolLowercase = markerSymbolLowercase;
+	}
+
+	
+	
 	/**
 	 * @return the latestEsCellStatus
 	 */
