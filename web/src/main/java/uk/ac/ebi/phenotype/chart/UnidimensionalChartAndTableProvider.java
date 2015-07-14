@@ -215,7 +215,7 @@ public class UnidimensionalChartAndTableProvider {
 				wt1.add(q3);// upper quartile
 				Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3 + (1.5 * IQR)), decimalPlaces);
 				wt1.add(maxIQR);// maximumbs.
-				chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1));
+				chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1.toArray()));
 			}
 
 			JSONArray boxPlot2DData = chartsSeriesElement.getBoxPlotArray();
