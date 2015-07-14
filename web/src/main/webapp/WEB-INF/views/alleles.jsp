@@ -4,8 +4,8 @@
 
 <t:genericpage>
 
-    	<jsp:attribute name="title">Allele details </jsp:attribute>
-        <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; ${allele_name}</jsp:attribute>
+    <jsp:attribute name="title">Allele details </jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; ${allele_name}</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">    
 
@@ -98,8 +98,6 @@
 <h1 class="title" id="top">${title}        
     <span style="font-size: 40%;">See <a href="${baseUrl}/alleles/${acc}<c:if test="${bare == true}">?bare=true</c:if>">all alleles</a> for ${summary['marker_symbol']}</span>
 </h1>
-
-</br>
 
 <jsp:include page="alleles_summary_frag.jsp" />
 

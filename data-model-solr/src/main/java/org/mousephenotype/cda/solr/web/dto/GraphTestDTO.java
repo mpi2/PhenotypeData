@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.solr.web.dto;
 
 /**
  * This class encapsulates the code and data necessary to represent the data

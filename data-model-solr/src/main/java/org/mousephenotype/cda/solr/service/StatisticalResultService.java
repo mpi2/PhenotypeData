@@ -42,6 +42,10 @@ import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
 import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
+import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -728,11 +732,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public Map<String, List<StatisticalResultBean>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String alleleAccession, String phenotypingCenter,	String pipelineStableId, List<String> procedureStableIds, ArrayList<String> resource)
+    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, String alleleAccession, String phenotypingCenter,	String pipelineStableId, List<String> procedureStableIds, ArrayList<String> resource)
 	throws NumberFormatException, SolrServerException {
 
-    	Map<String, List<StatisticalResultBean>> results = new HashMap<>();
+    	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
     	SolrQuery query = new SolrQuery();
+    	
 	    query.setQuery("*:*")
 	         .addField(StatisticalResultDTO.P_VALUE)
 	         .addField(StatisticalResultDTO.EFFECT_SIZE)
@@ -749,12 +754,20 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	         .addField(StatisticalResultDTO.PROCEDURE_NAME)
 	         .addField(StatisticalResultDTO.METADATA_GROUP)
 	         .setRows(Integer.MAX_VALUE)
-	         .addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
-	         .addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-	         .addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
 	         .set("sort", StatisticalResultDTO.P_VALUE + " asc");
 
-
+	    if (geneAccession != null){
+	    	query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
+	    }
+	    if (phenotypingCenter != null){
+	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+	    }
+	    if (pipelineStableId != null){
+	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+	    }
+	    if (alleleAccession != null){
+	    	query.addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+	    }
 		if (procedureStableIds != null){
 			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(" + StringUtils.join(procedureStableIds, " OR ") + ")");
 		}
@@ -767,12 +780,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	    for (StatisticalResultDTO statResult : solrResults) {
 
 		    if ( ! results.containsKey(statResult.getParameterStableId())) {
-			    results.put(statResult.getParameterStableId(), new ArrayList<StatisticalResultBean>());
+			    results.put(statResult.getParameterStableId(), new ArrayList<StatisticalResultDTO>());
 		    }
 
-	   	    results.get(statResult.getParameterStableId()).add(new StatisticalResultBean(statResult));
+	   	    results.get(statResult.getParameterStableId()).add(statResult);
 	    }
-
+	    
 		return results;
 
     }
@@ -1034,7 +1047,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public Map<String, List<String>> getParametersToProcedureMap(String resourceName, String phenotypingCenter, String pipelineSrableId)
+    public Map<String, List<String>> getParametersToProcedureMap(String alleleAccession, String geneAccession, String resourceName, String phenotypingCenter, String pipelineSrableId, String procedure)
     throws SolrServerException{
 
         Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>

@@ -21,6 +21,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -137,7 +138,8 @@ public class PhenotypeAssociationsTest {
     // PRIVATE METHODS
 
 
-    private void processRow(WebDriverWait wait, String geneId, int index) {
+    private PageStatus processRow(WebDriverWait wait, String geneId, int index) {
+        PageStatus status = new PageStatus();
         String message;
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("gene[" + index + "] URL: " + target);
@@ -150,8 +152,8 @@ public class PhenotypeAssociationsTest {
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
             if ((phenotypeAssociationElements == null) || (phenotypeAssociationElements.isEmpty())) {
-                errorList.add("ERROR: Expected phenotype association but none was found");
-                return;         // This gene page has no phenotype associations.
+                status.addError("ERROR: Expected phenotype association but none was found");
+                return status;         // This gene page has no phenotype associations.
             }
 
             // Get the expected result count.
@@ -159,17 +161,17 @@ public class PhenotypeAssociationsTest {
             int actualResultsCount =  driver.findElements(By.xpath("//img[@alt = 'Female' or @alt = 'Male']")).size();
 
             if (expectedResultsCount != actualResultsCount) {
-                errorList.add("ERROR: Expected minimum result count of " + expectedMinimumResultCount + " but actual sum of phenotype counts was " + sumOfPhenotypeCounts + " for " + driver.getCurrentUrl());
-            } else {
-                successList.add("SUCCESS! expectedMinimumResultCount: " + expectedMinimumResultCount + ". sumOfPhenotypeCounts: " + sumOfPhenotypeCounts + ". URL: " + driver.getCurrentUrl());
+                status.addError("ERROR: Expected minimum result count of " + expectedMinimumResultCount + " but actual sum of phenotype counts was " + sumOfPhenotypeCounts + " for " + driver.getCurrentUrl());
             }
         } catch (NoSuchElementException | TimeoutException te) {
             message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-            errorList.add(message);
+            status.addError(message);
         }  catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-            exceptionList.add(message);
+            status.addError(message);
         }
+
+        return status;
     }
 
 
@@ -192,6 +194,7 @@ public class PhenotypeAssociationsTest {
     @Test
 //@Ignore
     public void testTotalsCount() throws SolrServerException {
+        PageStatus status = new PageStatus();
         String testName = "testTotalsCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
@@ -213,12 +216,16 @@ public class PhenotypeAssociationsTest {
             }
             i++;
 
-            processRow(wait, geneId, i);
+            status = processRow(wait, geneId, i);
 
             commonUtils.sleep(thread_wait_in_ms);
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+        if ( ! status.hasErrors()) {
+            successList.add("Success");
+        }
+
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, geneIds.size());
     }
 
 }
