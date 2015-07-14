@@ -60,13 +60,6 @@
             <version>0.0.1</version>
         </dependency>
 
-        <!--  orace jdbc driver -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0</version>
-        </dependency>
-
         <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
