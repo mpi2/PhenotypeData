@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.solr.web.dto;
 
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 

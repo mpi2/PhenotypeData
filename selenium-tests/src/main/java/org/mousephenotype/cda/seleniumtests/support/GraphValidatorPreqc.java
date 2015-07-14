@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.log4j.Logger;
-import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
+import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

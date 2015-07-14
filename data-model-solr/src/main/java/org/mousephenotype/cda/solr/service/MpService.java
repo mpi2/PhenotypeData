@@ -27,7 +27,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

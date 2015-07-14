@@ -60,10 +60,12 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.dto.CategoricalDataObject;
-import org.mousephenotype.cda.solr.service.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParallelCoordinatesDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
+import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
+import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +87,6 @@ public class ObservationService extends BasicService {
 
     @Autowired @Qualifier("experimentCore")
     private HttpSolrServer solr;
-
 
 
     public  List<Group> getDatapointsByColony(ArrayList<String> resourceName, String parameterStableId, String biologicalSampleGroup)
@@ -120,6 +121,69 @@ public class ObservationService extends BasicService {
 
     }
 
+    /**
+     * @author tudose
+     * @since 2015/07/14
+     * @param geneAccessionId
+     * @return Basic information for allele pages in an AllelePageDTO
+     */
+    public AllelePageDTO getAllelesInfo(String geneAccessionId){
+    	
+    	AllelePageDTO dto = new AllelePageDTO();
+    	SolrQuery q = new SolrQuery();
+        
+    	q.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId +"\"");
+    	q.addField(ObservationDTO.GENE_SYMBOL);
+        q.setFacet(true);
+        q.setFacetLimit(-1);
+        q.setFacetMinCount(1);
+        q.addFacetField(ObservationDTO.PHENOTYPING_CENTER);
+        q.addFacetField(ObservationDTO.PIPELINE_NAME);
+        q.addFacetField(ObservationDTO.ALLELE_SYMBOL);
+        q.setRows(1);
+
+        String pivotFacet =  StatisticalResultDTO.PROCEDURE_NAME  + "," + StatisticalResultDTO.PARAMETER_STABLE_ID;
+		q.set("facet.pivot", pivotFacet);
+        
+        try {
+        	QueryResponse res = solr.query(q);
+        	
+        	FacetField phenotypingCenters = res.getFacetField(ObservationDTO.PHENOTYPING_CENTER);
+        	
+        	for (Count facet : phenotypingCenters.getValues()){
+        		dto.addPhenotypingCenter(facet.getName());
+        	}
+            
+        	FacetField alleles = solr.query(q).getFacetField(ObservationDTO.ALLELE_SYMBOL);
+        	for (Count facet : alleles.getValues()){
+        		dto.addAlleleSymbol(facet.getName());
+        	}
+        	
+        	FacetField pipelines = solr.query(q).getFacetField(ObservationDTO.PHENOTYPING_CENTER);
+        	for (Count facet : pipelines.getValues()){
+        		dto.addPipelineName(facet.getName());
+        	}
+        	
+        	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
+    			ArrayList<String> lst = new ArrayList<>();
+    			for (PivotField gene : pivot.getPivot()){
+    				lst.add(gene.getValue().toString());
+    			}
+    			dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<String>(lst));
+    		}
+            
+            SolrDocument doc = res.getResults().get(0);
+            dto.setGeneSymbol(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
+            dto.setGeneAccession(geneAccessionId);
+            
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        }
+        
+        return dto;
+        
+    }
+    
 
     public String getMeansFor(String procedueStableId, boolean requiredParametersOnly)
     throws SolrServerException{
