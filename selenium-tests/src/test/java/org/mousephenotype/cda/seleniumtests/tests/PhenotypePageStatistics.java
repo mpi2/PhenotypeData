@@ -32,6 +32,7 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -140,6 +141,7 @@ public class PhenotypePageStatistics {
      */
     @Test
     public void testCollectTableAndImageStatistics() throws SolrServerException {
+        PageStatus status = new PageStatus();
         String testName = "testCollectTableAndImageStatistics";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
@@ -184,7 +186,7 @@ public class PhenotypePageStatistics {
                 found = true;
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                errorList.add(message);
+                status.addError(message);
                 continue;
             }
             try {
@@ -202,7 +204,7 @@ public class PhenotypePageStatistics {
                     List<WebElement> imagesAccordion = driver.findElements(By.cssSelector("div.accordion-body ul li"));
                     if (imagesAccordion.isEmpty()) {
                         message = "ERROR: Found Image tag but there were no image links";
-                        errorList.add(message);
+                        status.addError(message);
                     } else {
                         hasImage = true;
                     }
@@ -222,15 +224,15 @@ public class PhenotypePageStatistics {
                 }
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
+                status.addError(message);
             }
 
-            if ( ! found) {
-                message = "h1 with id 'top' not found.";
-                errorList.add(message);
-            } else {
+            if (found) {
                 message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
                 successList.add(message);
+            } else {
+                message = "h1 with id 'top' not found.";
+                status.addError(message);
             }
 
             commonUtils.sleep(thread_wait_in_ms);
@@ -260,7 +262,7 @@ public class PhenotypePageStatistics {
             }
         }
 
-        testUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, phenotypeIds.size());
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, phenotypeIds.size());
     }
 
 }
