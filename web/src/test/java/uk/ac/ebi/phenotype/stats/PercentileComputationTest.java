@@ -2,14 +2,8 @@ package uk.ac.ebi.phenotype.stats;
 
 import static org.junit.Assert.assertTrue;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import javax.validation.constraints.AssertTrue;
-
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocumentList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;

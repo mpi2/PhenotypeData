@@ -62,7 +62,7 @@ public class AbrChartAndTableProvider {
 			Integer phenotypingCenterId, String strain, String metadataGroup, String alleleAccession, String chartId){
 
     	HashMap<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap(); // <control/experim, ArrayList<dataToPlot>>
-    	data.put(ChartUtils.getLabel(null,  SexType.female), new ArrayList<UnidimensionalStatsObject>() );
+    	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<UnidimensionalStatsObject>() );
     	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<UnidimensionalStatsObject>() );
     	for (String zygosity: zyList){
         	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.male), new ArrayList<UnidimensionalStatsObject>() );

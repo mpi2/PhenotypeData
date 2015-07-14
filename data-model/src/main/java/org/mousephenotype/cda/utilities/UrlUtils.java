@@ -19,6 +19,8 @@ package org.mousephenotype.cda.utilities;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.stereotype.Component;
 
+import java.net.URLDecoder;
+
 /**
  * This class encapsulates the code and data necessary to manage the composition of url strings.
  *
@@ -44,5 +46,23 @@ public class UrlUtils {
             url += "&phenotyping_center=" + phenotypingCenter;
         }
         return url;
+    }
+
+    /**
+     * Decodes <code>url</code>, into UTF-8, making it suitable to use as a link.
+     * Invalid url strings are ignored and the original string is returned.
+     * @param url the url to decode
+     * @return the decoded url
+     */
+    public String urlDecode(String url) {
+        String retVal = url;
+        try {
+            String decodedValue = URLDecoder.decode(url, "UTF-8");
+            retVal = decodedValue;
+        } catch (Exception e) {
+            System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed: " + e.getLocalizedMessage());
+        }
+
+        return retVal;
     }
 }
