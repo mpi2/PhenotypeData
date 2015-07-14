@@ -21,7 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.DatabaseApplication;
+
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ import java.util.*;
 @Service
 public class AlleleService {
 
-	private static final Logger logger = LoggerFactory.getLogger(DatabaseApplication.class);
+	private static final Logger logger = LoggerFactory.getLogger(AlleleService.class);
 
 	@Autowired @Qualifier("alleleCore")
 	private HttpSolrServer solr;

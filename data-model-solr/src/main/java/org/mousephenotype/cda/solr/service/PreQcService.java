@@ -42,9 +42,6 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
     @Qualifier("preQcCore")
     HttpSolrServer solr;
 
-    @Autowired
-    PhenotypePipelineDAO pipelineDAO;
-
     public PreQcService() {
         super();
         isPreQc = true;
@@ -54,7 +51,6 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
     public void postSetup() {
         // Ensure the superclass attributes are set
         super.solr = solr;
-        super.pipelineDAO = pipelineDAO;
     }
 
 
