@@ -217,6 +217,7 @@
 
 	<field name="marker_symbol_bf" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	<field name="marker_symbol_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
+	<field name="marker_synonym_lowercase" type="text_lowercase" indexed="true" stored="false" multiValued="true"/>
 	
 	<!-- for copyfield -->
 	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
@@ -249,6 +250,7 @@
 	
 	<copyField source="marker_symbol" dest="marker_symbol_bf" />
 	<copyField source="marker_symbol" dest="marker_symbol_lowercase" />
+	<copyField source="marker_synonym" dest="marker_synonym_lowercase" />
 	
  <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
 

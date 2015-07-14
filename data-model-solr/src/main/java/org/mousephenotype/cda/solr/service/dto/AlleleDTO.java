@@ -35,7 +35,9 @@ public class AlleleDTO {
 	public static final String DATA_TYPE = "dataType";
 	public static final String MARKER_TYPE = "marker_type";
 	public static final String MARKER_SYMBOL = "marker_symbol";
+	public static final String MARKER_SYMBOL_LOWERCASE = "marker_symbol_lowercase";
 	public static final String MARKER_SYNONYM = "marker_synonym";
+	public static final String MARKER_SYNONYM_LOWERCASE = "marker_synonym_lowercase";
 	public static final String MARKER_NAME = "marker_name";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
 	public static final String ENSEMBL_GENE_ID = "ensembl_gene_id";
@@ -145,9 +147,16 @@ public class AlleleDTO {
 	private String markerType;
 	@Field(MARKER_SYMBOL)
 	private String markerSymbol;
+	
+	@Field(MARKER_SYMBOL_LOWERCASE)
+	private String markerSymbolLowercase;
 
 	@Field(MARKER_SYNONYM)
 	private List<String> markerSynonym;
+	
+	@Field(MARKER_SYNONYM_LOWERCASE)
+	private List<String> markerSynonymLowercase;
+	
 	@Field(MARKER_NAME)
 	private String markerName;
 
@@ -370,6 +379,22 @@ public class AlleleDTO {
 	}
 
 	/**
+	 * @return the markerSymbolLowercase
+	 */
+	public String getMarkerSymbolLowercase() {
+		return markerSymbolLowercase;
+	}
+
+	/**
+	 * @param markerSymbolLowercase
+	 *            the markerSymbolLowercase to set
+	 */
+	public void setMarkerSymbolLowercase(String markerSymbolLowercase) {
+		this.markerSymbolLowercase = markerSymbolLowercase;
+	}
+	
+	
+	/**
 	 * @return the markerSynonym
 	 */
 	public List<String> getMarkerSynonym() {
@@ -384,6 +409,22 @@ public class AlleleDTO {
 		this.markerSynonym = markerSynonym;
 	}
 
+	/**
+	 * @return the markerSynonymLowercase
+	 */
+	public List<String> getMarkerSynonymLowercase() {
+		return markerSynonymLowercase;
+	}
+
+	/**
+	 * @param markerSynonymLowercase
+	 *            the markerSynonymLowercase to set
+	 */
+	public void setMarkerSynonymLowercase(List<String> markerSynonymLowercase) {
+		this.markerSynonymLowercase = markerSynonymLowercase;
+	}
+	
+	
 	/**
 	 * @return the markerName
 	 */
@@ -1273,18 +1314,40 @@ public class AlleleDTO {
 		return latestProductionCentre;
 	}
 	
+	
+	
 	@Override
 	public String toString() {
-		return String
-				.format("AlleleDTO [status=%s, type=%s, mgiAccessionId=%s, dataType=%s, markerType=%s, markerSymbol=%s, markerSynonym=%s, markerName=%s, humanGeneSymbol=%s, geneLatestEsCellStatus=%s, latestEsCellStatus=%s, geneLatestMouseStatus=%s, latestMouseStatus=%s, latestProjectStatus=%s, latestProductionStatus=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, latestPhenotypeStatus=%s, imitsPhenotypeStatus=%s, legacyPhenotypeStatus=%s, gfAcc=%s, latestPhenotypingCentre=%s, latestProductionCentre=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedKnownGene=%s, impcPredictedKnownGene=%s, mgiNovelPredictedInLocus=%s, impcNovelPredictedInLocus=%s, diseaseHumanPhenotypes=%s]",
-						status, type, mgiAccessionId, dataType, markerType, markerSymbol, markerSynonym, markerName, humanGeneSymbol, geneLatestEsCellStatus,
-						latestEsCellStatus, geneLatestMouseStatus, latestMouseStatus, latestProjectStatus, latestProductionStatus, imitsPhenotypeStarted,
-						imitsPhenotypeComplete, latestPhenotypeStatus, imitsPhenotypeStatus, legacyPhenotypeStatus, gfAcc, latestPhenotypingCentre,
-						latestProductionCentre, alleleName, alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus,
-						phenotypeStatus, productionCentre, phenotypingCentre, goTermIds, goTermNames, goTermDefs, goTermEvids, goTermDomains, uniprotAccs,
-						pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids, pfama_go_terms, pfama_go_cats,
-						diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses, humanCurated, mouseCurated, mgiPredicted, impcPredicted,
-						mgiPredictedKnownGene, impcPredictedKnownGene, mgiNovelPredictedInLocus, impcNovelPredictedInLocus, diseaseHumanPhenotypes);
+		return "AlleleDTO [status=" + status + ", type=" + type + ", mgiAccessionId=" + mgiAccessionId + ", dataType="
+				+ dataType + ", markerType=" + markerType + ", markerSymbol=" + markerSymbol
+				+ ", markerSymbolLowercase=" + markerSymbolLowercase + ", markerSynonym=" + markerSynonym
+				+ ", markerSynonymLowercase=" + markerSynonymLowercase + ", markerName=" + markerName
+				+ ", humanGeneSymbol=" + humanGeneSymbol + ", ensemblGeneIds=" + ensemblGeneIds
+				+ ", geneLatestEsCellStatus=" + geneLatestEsCellStatus + ", latestEsCellStatus=" + latestEsCellStatus
+				+ ", geneLatestMouseStatus=" + geneLatestMouseStatus + ", latestMouseStatus=" + latestMouseStatus
+				+ ", latestProjectStatus=" + latestProjectStatus + ", latestProductionStatus=" + latestProductionStatus
+				+ ", imitsPhenotypeStarted=" + imitsPhenotypeStarted + ", imitsPhenotypeComplete="
+				+ imitsPhenotypeComplete + ", latestPhenotypeStatus=" + latestPhenotypeStatus
+				+ ", imitsPhenotypeStatus=" + imitsPhenotypeStatus + ", legacyPhenotypeStatus=" + legacyPhenotypeStatus
+				+ ", gfAcc=" + gfAcc + ", latestPhenotypingCentre=" + latestPhenotypingCentre
+				+ ", latestProductionCentre=" + latestProductionCentre + ", alleleName=" + alleleName
+				+ ", alleleAccessionIds=" + alleleAccessionIds + ", imitsEsCellStatus=" + imitsEsCellStatus
+				+ ", esCellStatus=" + esCellStatus + ", imitsMouseStatus=" + imitsMouseStatus + ", mouseStatus="
+				+ mouseStatus + ", phenotypeStatus=" + phenotypeStatus + ", productionCentre=" + productionCentre
+				+ ", phenotypingCentre=" + phenotypingCentre + ", goTermIds=" + goTermIds + ", goTermNames="
+				+ goTermNames + ", goTermDefs=" + goTermDefs + ", goTermEvids=" + goTermEvids + ", goTermDomains="
+				+ goTermDomains + ", goCount=" + goCount + ", go_uniprot=" + go_uniprot + ", evidCodeRank="
+				+ evidCodeRank + ", uniprotAccs=" + uniprotAccs + ", pfama_jsons=" + pfama_jsons + ", scdb_ids="
+				+ scdb_ids + ", scdb_links=" + scdb_links + ", clan_ids=" + clan_ids + ", clan_accs=" + clan_accs
+				+ ", clan_descs=" + clan_descs + ", pfama_ids=" + pfama_ids + ", pfama_accs=" + pfama_accs
+				+ ", pfama_go_ids=" + pfama_go_ids + ", pfama_go_terms=" + pfama_go_terms + ", pfama_go_cats="
+				+ pfama_go_cats + ", diseaseId=" + diseaseId + ", diseaseSource=" + diseaseSource + ", diseaseTerm="
+				+ diseaseTerm + ", diseaseAlts=" + diseaseAlts + ", diseaseClasses=" + diseaseClasses
+				+ ", humanCurated=" + humanCurated + ", mouseCurated=" + mouseCurated + ", mgiPredicted=" + mgiPredicted
+				+ ", impcPredicted=" + impcPredicted + ", mgiPredictedKnownGene=" + mgiPredictedKnownGene
+				+ ", impcPredictedKnownGene=" + impcPredictedKnownGene + ", mgiNovelPredictedInLocus="
+				+ mgiNovelPredictedInLocus + ", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus
+				+ ", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes + "]";
 	}
 	
 }
