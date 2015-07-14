@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import org.hibernate.SessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.DatabaseApplication;
 import org.mousephenotype.cda.db.TestConfig;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ import javax.validation.constraints.NotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
-@ContextConfiguration(classes={DatabaseApplication.class, TestConfig.class})
+@ContextConfiguration(classes={ TestConfig.class})
 @TransactionConfiguration(defaultRollback=true, transactionManager="internalTransactionManager")
 @Transactional
 public class BiologicalModelDAOTest extends TestCase {
