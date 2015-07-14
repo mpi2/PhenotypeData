@@ -14,17 +14,17 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.enumerations;
+package org.mousephenotype.cda.web;
 
 /**
  * Created by mrelac on 13/07/2015.
  */
-public enum DownloadType {
-        TSV("tsv")
-      , XLS("xls");
+public enum ExperimentGroup {
+        CONTROL("control")
+      , MUTANT("experimental");
 
       private final String name;
-      DownloadType(String name) {
+      ExperimentGroup(String name) {
           this.name = name;
       }
 

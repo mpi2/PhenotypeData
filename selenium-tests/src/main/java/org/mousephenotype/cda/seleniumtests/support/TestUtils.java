@@ -32,12 +32,12 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.TimeSeriesParameters;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.phenotype.chart.ChartType;
-import uk.ac.ebi.phenotype.chart.ChartUtils;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -1147,9 +1147,9 @@ public class TestUtils {
             case TIME_SERIES_LINE_BODYWEIGHT:
                 try {
                     List<String> parameterStableIds = new ArrayList();
-                    parameterStableIds.addAll(ChartUtils.ESLIM_701);
-                    parameterStableIds.addAll(ChartUtils.ESLIM_702);
-                    parameterStableIds.addAll(ChartUtils.IMPC_BWT);
+                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_701);
+                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_702);
+                    parameterStableIds.addAll(TimeSeriesParameters.IMPC_BWT);
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();

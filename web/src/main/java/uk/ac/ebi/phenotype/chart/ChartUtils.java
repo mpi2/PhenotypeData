@@ -16,26 +16,21 @@
 
 package uk.ac.ebi.phenotype.chart;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.TimeSeriesParameters;
+
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ChartUtils {
-
-    public static final List<String> ESLIM_702 = Arrays.asList("ESLIM_009_001_003", "ESLIM_010_001_003", "ESLIM_011_001_011", "ESLIM_012_001_005", "ESLIM_013_001_018", "ESLIM_022_001_001");
-    public static final List<String> ESLIM_701 = Arrays.asList("ESLIM_001_001_001", "ESLIM_002_001_001", "ESLIM_003_001_001", "ESLIM_004_001_001", "ESLIM_005_001_001", "ESLIM_020_001_001", "ESLIM_022_001_001");
-    public static final List<String> IMPC_BWT = Arrays.asList("IMPC_GRS_003_001", "IMPC_CAL_001_001", "IMPC_DXA_001_001", "IMPC_HWT_007_001", "IMPC_PAT_049_001", "IMPC_BWT_001_001", "IMPC_ABR_001_001", "IMPC_CHL_001_001", "TCP_CHL_001_001", "HMGU_ROT_004_001");
-    public static final List<String> IMPC_IPG_002_001 = Arrays.asList("IMPC_IPG_012_001", "IMPC_IPG_011_001", "IMPC_IPG_010_001");
-
 
     private static final Logger logger = Logger.getLogger(ChartUtils.class);
 
@@ -188,13 +183,13 @@ public class ChartUtils {
 
     public static String getPlotParameter(String parameter) {
 
-        if (ESLIM_702.contains(parameter)) {
+        if (TimeSeriesParameters.ESLIM_702.contains(parameter)) {
             return "ESLIM_022_001_702";
-        } else if (ESLIM_701.contains(parameter)) {
+        } else if (TimeSeriesParameters.ESLIM_701.contains(parameter)) {
             return "ESLIM_022_001_701";
-        } else if (IMPC_BWT.contains(parameter)) {
+        } else if (TimeSeriesParameters.IMPC_BWT.contains(parameter)) {
             return "IMPC_BWT_008_001";
-        } else if (IMPC_IPG_002_001.contains(parameter)){
+        } else if (TimeSeriesParameters.IMPC_IPG_002_001.contains(parameter)){
         	return "IMPC_IPG_002_001";
 
         }
@@ -205,8 +200,8 @@ public class ChartUtils {
 
     public static ChartType getPlotType(String parameter) {
 
-        if (ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
-                || IMPC_BWT.contains(parameter) || parameter.equals("IMPC_BWT_008_001") || parameter.equals("IMPC_IPG_002_001")) {
+        if (TimeSeriesParameters.ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || TimeSeriesParameters.ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
+                || TimeSeriesParameters.IMPC_BWT.contains(parameter) || parameter.equals("IMPC_BWT_008_001") || parameter.equals("IMPC_IPG_002_001")) {
             return ChartType.TIME_SERIES_LINE;
         }
 
