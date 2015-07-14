@@ -836,9 +836,7 @@ public class GeneService {
 		String symbolsStr = StringUtils.join(symbols, ",");  // ["bla1","bla2"]
 		System.out.println("symbol str: " + symbolsStr);
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.MARKER_SYMBOL + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM + ":(" + symbolsStr + ")")
-			//.setQuery("*:*")
-			//.setFilterQueries(GeneDTO.MARKER_SYMBOL + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM + ":(" + symbolsStr + ")")
+			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM_LOWERCASE + ":(" + symbolsStr + ")")
 			.setRows(symbols.size())
 			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
 
@@ -851,7 +849,7 @@ public class GeneService {
 		
 	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.MARKER_SYMBOL + ":\"" + symbol + "\"")
+			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":\"" + symbol + "\"")
 			.setRows(1)
 			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
 
