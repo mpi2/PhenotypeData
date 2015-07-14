@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.solr.web.dto;
 
 import java.util.List;
 import java.util.Objects;

@@ -13,35 +13,27 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.solr.web.dto;
 
-import java.util.List;
+public class SimpleOntoTerm {
 
-
-public class ResponseWrapper<E> {
-	List<E> list;
-	Long totalNumberFound;
-		
-	public ResponseWrapper(List<E> list){
-		this.list=list;
-	}
-	public Long getTotalNumberFound() {
+	private String id;
+	private String name;
 	
-		return totalNumberFound;
+	public void setTermName(String name){
+		this.name = name;
 	}
 	
-	public void setTotalNumberFound(Long totalNumberFound) {
-	
-		this.totalNumberFound = totalNumberFound;
+	public String getTermName(){
+		return name;
 	}
 	
-	public List<E> getList() {
-	
-		return list;
-	}
-	public void setList(List<E> list) {
-		this.list = list;
+	public void setTermId(String id){
+		this.id = id;
 	}
 	
+	public String getTermId(){
+		return id;
+	}
 	
 }
