@@ -15,7 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +22,8 @@ import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -30,8 +31,7 @@ import java.util.*;
 
 public class PhenomeChartProvider {
 
-	private static final Logger logger = Logger
-	.getLogger(PhenomeChartProvider.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 
 	public String createPvaluesOverviewChart(String alleleAccession, double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
@@ -564,7 +564,7 @@ public class PhenomeChartProvider {
 
 
 	/**
-	 * 
+	 *
 	 * @param alleleAccession
 	 * @param statisticalResults
 	 * @param minimalPvalue
@@ -598,7 +598,7 @@ public class PhenomeChartProvider {
 			// Start from the pipeline so that there is no need to keep this
 			// information from the caller side
 			// get All procedures and generate a Map Parameter => Procedure
-						
+
 			for (String procedure : parametersByProcedure.keySet()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
@@ -607,17 +607,17 @@ public class PhenomeChartProvider {
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure);
 				// create a series here
-								
+
 				for (String parameterStableId : parametersByProcedure.get(procedure)) {
-											
+
 					if (statisticalResults.containsKey(parameterStableId)) {
-									
+
 						int resultIndex = 0;
-						long tempTime = System.currentTimeMillis();						
-						StatisticalResultBean statsResult = statisticalResults.get(parameterStableId).get(0);							
-													
+						long tempTime = System.currentTimeMillis();
+						StatisticalResultBean statsResult = statisticalResults.get(parameterStableId).get(0);
+
 						// smallest p-value sis the first (solr docs are sorted)
-						if (statsResult.getIsSuccessful() && resultIndex == 0) { 
+						if (statsResult.getIsSuccessful() && resultIndex == 0) {
 
 							// create the point first
 							JSONObject dataPoint = new JSONObject();
@@ -635,8 +635,8 @@ public class PhenomeChartProvider {
 							dataPoint.put("zygosity", statsResult.getZygosity());
 							dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
 							dataPoint.put("maleMutants", statsResult.getMaleMutants());
-							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());								
-							
+							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
+
 							if (!categories.contains(statsResult.getParameterName())) {
 								categories.add(statsResult.getParameterName());
 								dataArray.put(dataPoint);
@@ -644,7 +644,7 @@ public class PhenomeChartProvider {
 								index++;
 							}
 						}
-					}					
+					}
 				}
 
 				if (dataArray.length() > 0) {

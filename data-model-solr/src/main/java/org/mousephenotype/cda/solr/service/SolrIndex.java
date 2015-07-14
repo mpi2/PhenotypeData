@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.solr.service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -36,7 +36,6 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -44,14 +43,16 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.generic.util.DrupalHttpProxy;
 import org.mousephenotype.cda.solr.generic.util.HttpProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SolrIndex {
-	
-	private static final String IMG_NOT_FOUND = "No information available";;
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private static final String IMG_NOT_FOUND = "No information available";
+
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -59,50 +60,50 @@ public class SolrIndex {
 	private List<String> phenoStatuses = new ArrayList<String>();
 
 	private Object Json;
-	
+
     public static Map<String,Integer> getGoCodeRank(){
 
     	//GO evidence code ranking mapping
         final Map<String,Integer> codeRank = new HashMap<>();
-        
-        // experimental 
+
+        // experimental
 	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
 	    codeRank.put("IGI", 5);codeRank.put("IEP", 5);
-        
+
 	    // curated computational
 	    codeRank.put("ISS", 4);codeRank.put("ISO", 4);codeRank.put("ISA", 4);codeRank.put("ISM", 4);
 	    codeRank.put("IGC", 4);codeRank.put("IBA", 4);codeRank.put("IBD", 4);codeRank.put("IKR", 4);
 	    codeRank.put("IRD", 4);codeRank.put("RCA", 4);
-	    
+
 	    // automated electronic
 	    codeRank.put("IEA", 3);
-	    
+
 	    // other
 	    codeRank.put("TAS", 2);codeRank.put("NAS", 2);codeRank.put("IC", 2);
-	    
+
 	    // no biological data available
 	    codeRank.put("ND", 1);
-	
+
     	return codeRank;
     }
-    
+
     public static Map<Integer, String> getGomapCategory(){
-    	
+
     	Map<Integer, String> evidRank = new HashMap<>();
-		
+
 		evidRank.put(1, "No biological data available");
 		evidRank.put(2, "Other");
 		evidRank.put(3, "Automated electronic");
 		evidRank.put(4, "Curated computational");
 		evidRank.put(5, "Experimental");
-		
+
 		return evidRank;
     }
-    
+
     public static Map<String, String> coreIdQMap(){
-    	
+
     	Map<String, String> map = new HashMap<>();
-		
+
 		map.put("gene", "mgi_accession_id");
 		map.put("ensembl", "ensembl_gene_id");
 		map.put("mp", "mp_id");
@@ -111,14 +112,14 @@ public class SolrIndex {
 		map.put("hp", "hp_id");
 		map.put("phenodigm", "hp_id");
 		map.put("impc_images", "gene_accession_id");
-		
+
 		return map;
     }
-    
+
 	/**
 	 * Return the number of documents found for a specified solr query on a
 	 * specified core.
-	 * 
+	 *
 	 * @param query
 	 *            the query
 	 * @param core
@@ -140,7 +141,7 @@ public class SolrIndex {
 
 	/**
 	 * Gets the json string representation for the query.
-	 * 
+	 *
 	 * @param query
 	 *            the query for which documents
 	 * @param core
@@ -173,14 +174,14 @@ public class SolrIndex {
 
 	}
 
-	
+
 	public QueryResponse getBatchQueryJson(String idlist, String fllist, String solrCoreName) throws SolrServerException {
-		
+
 		HttpSolrServer server = null;
-		
+
 		Map<String, String> coreIdQMap = coreIdQMap();
 		String qField = coreIdQMap.get(solrCoreName);
-		
+
 		if ( solrCoreName.equals("phenodigm") ){
 			//server = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
 			//server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
@@ -195,33 +196,33 @@ public class SolrIndex {
 			server = new HttpSolrServer(config.get("internalSolrUrl") + "/" + solrCoreName);
 		}
 		System.out.println("solrurl: " + server);
-		
+
 		String[] idList = StringUtils.split(idlist);
 		String querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
 		System.out.println("queryStr: " + querystr);
-		
+
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
-		
-		if ( solrCoreName.equals("phenodigm") ){ 
+
+		if ( solrCoreName.equals("phenodigm") ){
 			query.setFilterQueries("type:hp_mp");
 		}
-		
+
 		query.setStart(0);
 		query.setRows(10);  // default
-		
+
 		// retrieves wanted fields
 		query.setFields(fllist);
 
 		QueryResponse response = server.query(query, METHOD.POST);
 		System.out.println("response: "+ response);
-		
+
 		return response;
 	}
-	
+
 	/**
 	 * Get rows for saving to an external file.
-	 * 
+	 *
 	 * @param core
 	 *            the solr core to query
 	 * @param gridSolrParams
@@ -241,28 +242,28 @@ public class SolrIndex {
 			throws IOException, URISyntaxException {
 
 		//System.out.println("GRID SOLR PARAMS : " + gridSolrParams);
-		
-		if (core.equals("gene")) {			
+
+		if (core.equals("gene")) {
 			//gridFields += ",imits_report_phenotyping_complete_date,imits_report_genotype_confirmed_date,imits_report_mi_plan_status,escell,ikmc_project,imits_phenotype_started,imits_phenotype_complete,imits_phenotype_status";
 		}
 
 		//String newgridSolrParams = gridSolrParams + "&rows=" + length
 		//gridSolrParams = gridSolrParams.replace("rows=10", "rows="+length);
-		//String newgridSolrParams = gridSolrParams 		
+		//String newgridSolrParams = gridSolrParams
 			//	+ "&start=" + start + "&fl=" + gridFields;
-		
+
 		//String url = composeSolrUrl(core, "", "", newgridSolrParams, start,
 				//length, false);
 		String url = composeSolrUrl(core, "", "", gridSolrParams, start,
 				length, showImgView);
-		
+
 		log.debug("Export data URL: " + url);
 		return getResults(url);
 	}
 
 	public JSONObject getBqDataTableExportRows(String core, String gridFields, String idList)
 			throws IOException, URISyntaxException {
-		
+
 		Map<String, String> idMap = coreIdQMap();
 		String qField = idMap.get(core);
 		if ( core.equals("hp") ){
@@ -273,23 +274,23 @@ public class SolrIndex {
 			qField = "ensembl_gene_id";
 			core = "gene"; // use gene core to fetch dataset via ensembl identifiers
 		}
-		
+
 		String internalSolrUrl = config.get("internalSolrUrl");
 		String url = internalSolrUrl + "/" + core + "/select?";
-					
+
 		url += "q=" + qField + ":(" + idList + ")";
 		url += "&start=0&rows=999999&wt=json&fl=" + gridFields;
-		
+
 		System.out.println("Export data URL: " + url);
-		
+
 		return getResults(url);
 	}
 
-	
+
 	/**
 	 * Prepare a url for querying the solr indexes based on the passed in
 	 * arguments.
-	 * 
+	 *
 	 * @param core
 	 *            which solr core to query
 	 * @param mode
@@ -309,16 +310,16 @@ public class SolrIndex {
 	private String composeSolrUrl(String core, String mode, String query,
 			String gridSolrParams, Integer iDisplayStart,
 			Integer iDisplayLength, boolean showImgView) {
-		
+
 		String internalSolrUrl = config.get("internalSolrUrl");
 		String url = internalSolrUrl + "/" + core + "/select?";
-					
+
 //		System.out.println(("BASEURL: " + url));
-		
+
 		if (mode.equals("mpPage")) {
 			url += "q=" + query;
 			url += "&start=0&rows=0&wt=json&qf=auto_suggest&defType=edismax";
-		} else if (mode.equals("geneGrid")) {			
+		} else if (mode.equals("geneGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			//System.out.println("GENE PARAMS: " + url);
@@ -332,7 +333,7 @@ public class SolrIndex {
 			if (!showImgView) {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=1&facet.limit=-1";
 			}
-//			System.out.println("IMPC_IMG PARAMS: " + url); 
+//			System.out.println("IMPC_IMG PARAMS: " + url);
 		} else if (mode.equals("imagesGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
@@ -348,7 +349,7 @@ public class SolrIndex {
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("MA PARAMS: " + url);
-		} else if ( mode.equals("diseaseGrid") ){			
+		} else if ( mode.equals("diseaseGrid") ){
 			url += gridSolrParams.replaceAll(" ", "%20") + "&start="
 					+ iDisplayStart + "&rows=" + iDisplayLength;
 //			System.out.println("DISEASE PARAMS: " + url);
@@ -363,10 +364,10 @@ public class SolrIndex {
 //			System.out.println("IKMC ALLELE PARAMS: " + url);
 		} else if (mode.equals("all") || mode.equals("page") || mode.equals("")) { // download search page result
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows=" + iDisplayLength;
-			if (core.equals("images") && !showImgView) {				
+			if (core.equals("images") && !showImgView) {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
 			}
-			else if (core.equals("impc_images") && !showImgView) {				
+			else if (core.equals("impc_images") && !showImgView) {
 				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=1&facet.limit=-1";
 			}
 //			System.out.println("GRID DUMP PARAMS - " + core + ": " + url);
@@ -413,10 +414,10 @@ public class SolrIndex {
 					}
 				}
 			}
-			if (doc.containsKey("hasQc")) {				
-					return "QCed data available";			
+			if (doc.containsKey("hasQc")) {
+					return "QCed data available";
 			}
-			
+
 		} catch (Exception e) {
 			log.error("Error getting phenotyping status");
 			log.error(e.getLocalizedMessage());
@@ -425,12 +426,12 @@ public class SolrIndex {
 		// if all the above fails: no phenotyping data yet
 		//return "Not Applicable";
 		return "";
-		
+
 	}*/
 
 	/**
 	 * Generates a map of label, field, link representing a facet field
-	 * 
+	 *
 	 * @param names
 	 *            an array of strings representing the facet ID and the name of
 	 *            the facet
@@ -441,12 +442,12 @@ public class SolrIndex {
 	public Map<String, String> renderFacetField(String[] names, HttpServletRequest request) {
 
 		String hostName = request.getAttribute("mappedHostname").toString();
-		String baseUrl =  request.getAttribute("baseUrl").toString(); 
+		String baseUrl =  request.getAttribute("baseUrl").toString();
 		// key: display label, value: facetField
 		Map<String, String> hm = new HashMap<String, String>();
 		String name = names[0];
 		String id = names[1];
-		
+
 		if (id.startsWith("MP:")) {
 			String url = baseUrl + "/phenotypes/" + id;
 			hm.put("label", "MP");
@@ -457,7 +458,7 @@ public class SolrIndex {
 		} else if (id.startsWith("MA:")) {
 			String url = baseUrl + "/anatomy/" + id;
 			hm.put("label", "MA");
-			hm.put("field", "annotationTermName");	
+			hm.put("field", "annotationTermName");
 			hm.put("fullLink", hostName + url);
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		} else if (id.equals("exp")) {
@@ -471,7 +472,7 @@ public class SolrIndex {
 			hm.put("fullLink", hostName + url);
 			hm.put("link", "<a href='" + url + "'>" + name + "</a>");
 		}
-		hm.put("id", id);	
+		hm.put("id", id);
 		return hm;
 	}
 
@@ -490,7 +491,7 @@ public class SolrIndex {
                 + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
                 + "&" + fqStr
                 + "&rows=0";
-        
+
         List<String> imgPath = new ArrayList<String>();
 
         JSONObject imgCountJson = getResults(queryUrlCount);
@@ -498,7 +499,7 @@ public class SolrIndex {
 
         Integer imgCount = imgCountJson.getJSONObject("response").getInt("numFound");
         JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
-        
+
         int dataLen = docs.size() < 5 ? docs.size() : maxNum;
 
         for (int i = 0; i < dataLen; i ++) {
@@ -524,21 +525,21 @@ public class SolrIndex {
             }
             imgPath.add(link);
         }
-        
+
         pathAndCount.add(StringUtils.join(imgPath, ""));
         pathAndCount.add(imgCount);
-        
+
         return pathAndCount;
     }
-	
+
 	/**
 	 * Merge all the facets together based on whether they include an underscore
 	 * because underscore facet names means that the solr field name represents
 	 * a facet and it's identifier, which are the ones we are concerned with.
-	 * 
+	 *
 	 * Each facet is formatted as an array where, starting at the zeroth
 	 * element, it alternates between facet name and count for that facet
-	 * 
+	 *
 	 * @param facetFields
 	 *            the json representation of all the facets as arrays
 	 * @return a json array which combined all the passed in facets filtered for
@@ -573,7 +574,7 @@ public class SolrIndex {
 
 		return fields;
 	}
-	
+
 	public class AnnotNameValCount {
 		public String name;
 		public String id;
@@ -582,18 +583,18 @@ public class SolrIndex {
 		public String link;
 		public int imgCount;
 	}
-	
+
 	public List<AnnotNameValCount> mergeImpcFacets(JSONObject json, String baseUrl) {
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-	
+
 		List<AnnotNameValCount> annots = new ArrayList<>();
-		
+
 		Map<String, String> hm = new HashMap<String, String>();
 		hm.put("symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
 		hm.put("ma_id_term", "MA");
-		
+
 		// Initialize a list on creation using an inner anonymous class
 		List<String> facetNames = new ArrayList<String>() {
 			private static final long serialVersionUID = 1L;
@@ -605,18 +606,18 @@ public class SolrIndex {
 			}
 		};
 		for (String facet : facetNames) {
-			
+
 			//JSONObject arr = facetFields.getJSONArray(facet);
 			if (json.getJSONObject("facet_counts").getJSONObject("facet_fields").containsKey(facet)){
 				JSONArray arr = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray(facet);
 				for (int i = 0; i < arr.size(); i = i + 2) {
-					
+
 					AnnotNameValCount annotNameValCount = new AnnotNameValCount();
-					
+
 					annotNameValCount.name  = hm.get(facet);
 					annotNameValCount.facet = facet;
 					annotNameValCount.val   = arr.get(i).toString();
-					
+
 					if ( facet.equals("symbol_gene") ){
 						annotNameValCount.facet = "gene_symbol"; // query field name
 						String[] fields = annotNameValCount.val.split("_");
@@ -636,12 +637,12 @@ public class SolrIndex {
 				}
 			}
 		}
-		
+
 		return annots;
 	}
 	/**
 	 * Get the IMPC status for a gene identified by accession id.
-	 * 
+	 *
 	 * @param accession
 	 *            the MGI id of the gene in question
 	 * @return the status
@@ -712,7 +713,7 @@ public class SolrIndex {
 
 	/**
 	 * Get the results of a query from the provided url.
-	 * 
+	 *
 	 * @param url
 	 *            the URL from which to get the content
 	 * @return a JSONObject representing the result of the query
@@ -721,15 +722,15 @@ public class SolrIndex {
 	 */
 	public JSONObject getResults(String url) throws IOException,
 			URISyntaxException {
-		
+
 		log.debug("GETTING CONTENT FROM: " + url);
-		
+
 		HttpProxy proxy = new HttpProxy();
-		
+
 		try {
 			String content = proxy.getContent(new URL(url));
 			return (JSONObject) JSONSerializer.toJSON(content);
-		} 
+		}
 		catch (Exception e) {
         }
 		return null;
@@ -738,7 +739,7 @@ public class SolrIndex {
 	/**
 	 * Get the results of a query from the provided url using a proxy that
 	 * includes the drupal session cookie.
-	 * 
+	 *
 	 * @param url
 	 *            the URL from which to get the content
 	 * @return a JSONObject representing the result of the query
@@ -763,7 +764,7 @@ public class SolrIndex {
 	/**
 	 * Get the MP solr document associated to a specific MP term. The document
 	 * contains the relations to MA terms and sibling MP terms
-	 * 
+	 *
 	 * @param phenotype_id
 	 *            the MP term in question
 	 * @return a (json) solr document with the results of doing a solr query on
@@ -779,7 +780,7 @@ public class SolrIndex {
 
 		return getResults(url);
 	}
-        
+
 	public JSONObject getImageInfo(int imageId) throws SolrServerException,
 			IOException, URISyntaxException {
 
@@ -811,9 +812,9 @@ public class SolrIndex {
 		map.put("experimental", expDocument);
 		return map;
 	}
-	
+
 	public class PfamAnnotations {
-			
+
 		public String scdbId;
 		public String scdbLink;
 		public String clanId;
@@ -827,7 +828,7 @@ public class SolrIndex {
 		public String pfamAgoTerm;
 		public String pfamAgoCat;
 		public String pfamAnnots;
-		
+
 		// these getters/setters are needed as JSONSerializer.toJSON() works on JavaBeans
 		public String getScdbId() {
 			return scdbId;
@@ -907,28 +908,28 @@ public class SolrIndex {
 		public void setPfamAnnots(String pfamAnnots) {
 			this.pfamAnnots = pfamAnnots;
 		}
-		
+
 	 }
-	
+
 	@SuppressWarnings("deprecation")
 	public String getMgiGenesClansDataTable(HttpServletRequest request) throws IOException, URISyntaxException {
-		
+
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
 		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/allele/select?wt=json";
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
-		
+
 		String url = internalBaseSolrUrl + qParam + flParam;
-		
+
 		JSONObject json = getResults(url);
-		
+
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
-		
+
         JSONObject j = new JSONObject();
 		j.put("aaData", new Object[0]);
-		
+
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
 
@@ -937,40 +938,40 @@ public class SolrIndex {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-				
+
 			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
 			rowData.add(marker);
-			
-			String phenoStatus = doc.getString("latest_phenotype_status");		
+
+			String phenoStatus = doc.getString("latest_phenotype_status");
 			rowData.add(phenoStatus);
-			
+
 			if ( doc.containsKey("pfama_json") ){
 				JSONArray pfamJsonStrs = doc.getJSONArray("pfama_json");
-				
+
 				List<String> clans = new ArrayList<>();
 				List<String> scdbs = new ArrayList<>();
 	            List<String> pfamAs = new ArrayList<>();
-	            
-	            String pfamBaseUrl = "http://pfam.xfam.org"; 
+
+	            String pfamBaseUrl = "http://pfam.xfam.org";
 	            String scopBaseUrl = "http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?sunid=";
-	           
+
 				for ( int p=0; p<pfamJsonStrs.size(); p++ ){
-					String pfstr = pfamJsonStrs.getString(p).replaceAll("^\"|\"$", ""); 
-					JSONObject pfamj = JSONObject.fromObject(pfstr); 
-					
+					String pfstr = pfamJsonStrs.getString(p).replaceAll("^\"|\"$", "");
+					JSONObject pfamj = JSONObject.fromObject(pfstr);
+
 					if ( doc.containsKey("pfamAacc") ){
 						String pfamAacc = doc.getString("pfamAacc");
 						String pfamUrl = pfamBaseUrl + "/family/" + pfamAacc;
 						String pfamLink = "<a href='" + pfamUrl + "'>" + pfamAacc + "</a>";
 						rowData.add(pfamLink);
 					}
-					
+
 					String clanUrl = pfamBaseUrl + "/clan/" + pfamj.getString("clanAcc");
 					String clanLink = "<a href='" + clanUrl + "'>" + pfamj.getString("clanId") + "</a>";
 					clans.add(clanLink);
-					
+
 					if ( doc.containsKey("scdbId") ){
 						String scdbId = doc.getString("scdbId");
 						if ( scdbId.equals("SCOP") ){
@@ -990,60 +991,60 @@ public class SolrIndex {
 				rowData.add("not available");
 				rowData.add("not available");
 			}
-			
-			j.getJSONArray("aaData").add(rowData);			
+
+			j.getJSONArray("aaData").add(rowData);
 		}
-		
-		return j.toString();	
+
+		return j.toString();
 	}
 
 	public String getMgiGenesClansPlainTable(HttpServletRequest request) throws IOException, URISyntaxException {
-		
+
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
 		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?wt=json&rows=999999&fq=mp_id:*";
 		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
-		
+
 		String url = internalBaseSolrUrl + qParam + flParam;
 		JSONObject json = getResults(url);
-		
+
 		String table = "";
 		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>PfamA family</th><th>Pfam clan</th><th>Structure</th><th>Evidence</th></tr></thead>";
 		String trs = "";
-		
+
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
-		
+
 		for (int i = 0; i < docs.size(); i++) {
 
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
-				
+
 			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
 			rowData.add("<td>" + marker + "</td>");
-			
-			String phenoStatus = doc.getString("latest_phenotype_status");		
+
+			String phenoStatus = doc.getString("latest_phenotype_status");
 			rowData.add("<td>" + phenoStatus + "</td>");
-			
+
 			if ( doc.containsKey("pfama_json") ){
 				JSONArray pfamJsonStrs = doc.getJSONArray("pfama_json");
-				
+
 				Set<String> pfams = new HashSet<>();
 				Set<String> clans = new HashSet<>();
 				Set<String> scdbs = new HashSet<>();
-				
-	            String pfamBaseUrl = "http://pfam.xfam.org"; 
+
+	            String pfamBaseUrl = "http://pfam.xfam.org";
 	            String cathBaseUrl = "http://www.cathdb.info/version/latest/superfamily/";
 	            String scopBaseUrl = "http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?sunid=";
-	           
+
 				for ( int p=0; p<pfamJsonStrs.size(); p++ ){
-					String pfstr = pfamJsonStrs.getString(p).replaceAll("^\"|\"$", ""); 
-					JSONObject pfamj = JSONObject.fromObject(pfstr); 
-					
+					String pfstr = pfamJsonStrs.getString(p).replaceAll("^\"|\"$", "");
+					JSONObject pfamj = JSONObject.fromObject(pfstr);
+
 					if ( pfamj.containsKey("pfamAacc") ){
 						//System.out.println("got pfamAacc");
 						String pfamAacc = pfamj.getString("pfamAacc");
@@ -1051,14 +1052,14 @@ public class SolrIndex {
 						String pfamLink = "<a href='" + pfamUrl + "'>" + pfamAacc + "</a>";
 						pfams.add(pfamLink);
 					}
-					
+
 					if ( pfamj.containsKey("clanAcc") ){
 						//System.out.println("got clanAcc");
 						String clanUrl = pfamBaseUrl + "/clan/" + pfamj.getString("clanAcc");
 						String clanLink = "<a href='" + clanUrl + "'>" + pfamj.getString("clanId") + "</a>";
 						clans.add(clanLink);
 					}
-					
+
 					if ( pfamj.containsKey("scdbId") ){
 						//System.out.println("got scdbId");
 						String scdbId = pfamj.getString("scdbId");
@@ -1078,12 +1079,12 @@ public class SolrIndex {
 						scdbs.add(scdbLink);
 					}
 				}
-				
+
 				// natural sort
 				Set<String> sortedPfams = new TreeSet<String>(pfams);
 				Set<String> sortedClans = new TreeSet<String>(clans);
 				Set<String> sortedScdbs = new TreeSet<String>(scdbs);
-				
+
 				rowData.add("<td>" + StringUtils.join(sortedPfams, "<br>") + "</td>");
 				rowData.add("<td>" + StringUtils.join(sortedClans, "<br>") + "</td>");
 				rowData.add("<td>" + StringUtils.join(sortedScdbs, "<br>") + "</td>");
@@ -1095,14 +1096,14 @@ public class SolrIndex {
 				rowData.add("<td>not available</td>");
 				rowData.add("<td>pfam-negative</td>");
 			}
-			
+
 			trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
 		}
-		
+
 		table = "<table id='gene2pfam'>" + th + "<tbody>" + trs + "</tbody></table>";
-		return table;	
+		return table;
 	}
-	
+
 	public String getGO2ImpcGeneAnnotationTable(HttpServletRequest request) throws IOException, URISyntaxException {
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
 		String flStr = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_domain,go_term_name";
@@ -1112,47 +1113,47 @@ public class SolrIndex {
 		String th = "<thead><tr><th>Marker symbol</th><th>Phenotyping status</th><th>GO Id</th><th>GO Evidence</th><th>GO name</th><th>GO domain</th></tr></thead>";
 		String trs = "";
 		//System.out.println(internalBaseSolrUrl + queryParams + flStr);
-		
+
 		JSONObject json = getResults(internalBaseSolrUrl + queryParams + flStr);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		for (int i = 0; i < docs.size(); i++) {
 
 			JSONObject doc = docs.getJSONObject(i);
-				
+
 			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;	
+			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
-			
-			String phenoStatus = doc.getString("latest_phenotype_status");		
-			
+
+			String phenoStatus = doc.getString("latest_phenotype_status");
+
 			if ( doc.containsKey("go_term_id") ){
-				
+
 				JSONArray goTermIds = doc.getJSONArray("go_term_id");
 				JSONArray goTermEvids = doc.getJSONArray("go_term_evid");
 				JSONArray goTermNames = doc.getJSONArray("go_term_name");
 				JSONArray goTermDomains = doc.getJSONArray("go_term_domain");
-				
+
 	            String goBaseUrl = "http://www.ebi.ac.uk/QuickGO/GTerm?id=";
-	           
+
 				for ( int p=0; p<goTermIds.size(); p++ ){
-					
+
 					List<String> rowData = new ArrayList<String>();
 					rowData.add("<td>" + marker + "</td>");
 					rowData.add("<td>" + phenoStatus + "</td>");
-					
-					String goId = goTermIds.get(p).toString(); 
+
+					String goId = goTermIds.get(p).toString();
 					String goUrl = goBaseUrl + goId;
 					String goLink = "<a href='" + goUrl + "'>" + goId + "</a>";
 					rowData.add("<td>" + goLink + "</td>");
-					
-					String goEvid = goTermEvids.get(p).toString(); 
+
+					String goEvid = goTermEvids.get(p).toString();
 					rowData.add("<td>" + goEvid + "</td>");
-					
-					String goName = goTermNames.get(p).toString(); 
+
+					String goName = goTermNames.get(p).toString();
 					rowData.add("<td>" + goName + "</td>");
-					
-					String goDomain = goTermDomains.get(p).toString(); 
+
+					String goDomain = goTermDomains.get(p).toString();
 					rowData.add("<td>" + goDomain + "</td>");
 					trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
 				}
@@ -1168,85 +1169,85 @@ public class SolrIndex {
 				trs += "<tr>" + StringUtils.join(rowData, "") + "</tr>";
 			}
 		}
-		
+
 		table = "<table id='gene2go'>" + th + "<tbody>" + trs + "</tbody></table>";
-		
-		return table;	
-	
+
+		return table;
+
 	}
-	
+
 	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
 		String internalBaseSolrUrl = config.get("internalSolrUrl") + "/gene/select?";
-		
+
 		Map<String, Map<String, Map<String, JSONArray>>> statusEvidCount = new LinkedHashMap<>();
-		
+
 		phenoStatuses.add("Phenotyping Complete");
 		phenoStatuses.add("Phenotyping Started");
-		
+
 		// all queries here take into account of having MP calls
 		for ( String status : phenoStatuses ){
 			String phenoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:*&rows=0";
-		
+
 			//String allGoParams = "q=latest_phenotype_status:\"" + status + "\"&wt=json&fq=mp_id:* AND go_term_id:*&rows=0";
-			
+
 			// either molecular_function or biological_process
 			//String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			String goParamsFP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND (go_term_domain:\"biological_process\" AND go_term_domain:\"molecular_function\")&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
-			
+
 			// only molecular_function
 			//String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			String goParamsF = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"molecular_function\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
-			
+
 			// only biological_process
 			//String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=go_term_evid";
 			String goParamsP = "q=latest_phenotype_status:\"" + status + "\" AND go_term_id:* AND go_term_evid:* AND go_term_domain:\"biological_process\"&wt=json&rows=0&fq=mp_id:*&facet=on&facet.limit=-1&facet.field=evidCodeRank";
-			
-			
+
+
 			Map<String, String> goQueries = new LinkedHashMap<>();
 			goQueries.put("FP", internalBaseSolrUrl + goParamsFP);
 			goQueries.put("F",  internalBaseSolrUrl + goParamsF);
 			goQueries.put("P",  internalBaseSolrUrl + goParamsP);
-			
+
 			Map<String, String> phenoQueries = new LinkedHashMap<>();
 			phenoQueries.put(status,  internalBaseSolrUrl + phenoParams);
-			
+
 			String noGoParams = "q=latest_phenotype_status:\"" + status + "\" AND -go_term_id:*&fq=mp_id:*&wt=json&rows=0";
 			Map<String, String> noGoQueries = new LinkedHashMap<>();
 			noGoQueries.put("none", internalBaseSolrUrl + noGoParams);
-			
+
 			Map<String, Map<String, String>> annotUrls = new LinkedHashMap<>();
 			String noGo  = "w/o GO";
 			String hasGo = "w/  GO";
 			String allPheno = "allPheno";
-			
+
 			annotUrls.put(noGo, noGoQueries);
 			annotUrls.put(hasGo, goQueries);
 			annotUrls.put(allPheno, phenoQueries);
-			
+
 			Map<String, Map<String, JSONArray>> annotCounts = new LinkedHashMap<>();
-			
+
 			Iterator it = annotUrls.entrySet().iterator();
 			while (it.hasNext()) {
 		        Map.Entry pairs = (Map.Entry)it.next();
 		        String annot = pairs.getKey().toString();
-		       
+
 		        Map<String, String> queries = (Map<String, String>) pairs.getValue();
 		        it.remove(); // avoids a ConcurrentModificationException
-		        
+
 		        Map<String, JSONArray> jlist = new LinkedHashMap<>();
 		        Iterator itq = queries.entrySet().iterator();
-		        
+
 		        while (itq.hasNext()) {
 			        Map.Entry pairs2 = (Map.Entry)itq.next();
 			        String domain = pairs2.getKey().toString();
 			        String query = pairs2.getValue().toString();
 			        itq.remove(); // avoids a ConcurrentModificationException
-		        
+
 			        JSONObject json = getResults(query);
 			        //System.out.println("DOMAIN: " + domain);
 			        //System.out.println(annot + " QUERY: " + query);
-			        
-			        if ( annot.equals(hasGo) ){ 
+
+			        if ( annot.equals(hasGo) ){
 			        	JSONArray jfacet = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("evidCodeRank");
 			        	jlist.put(domain, jfacet);
 			        	annotCounts.put(annot, jlist);
@@ -1260,9 +1261,9 @@ public class SolrIndex {
 			        }
 		        }
 			}
-			
+
 			statusEvidCount.put(status, annotCounts);
-			
+
 		}
 		return statusEvidCount;
 	}

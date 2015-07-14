@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import org.apache.log4j.Logger;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,8 @@ public class PhenotypeCallSummarySolr {
 	@Qualifier("preqcService")
 	PreQcService preqcService;
 
-	private static final Logger log = Logger.getLogger(PhenotypeCallSummarySolr.class);
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
 
 
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException {

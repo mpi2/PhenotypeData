@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.solr.service;
 
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -28,6 +27,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,8 @@ import java.util.*;
 @Service
 public class MpService {
 
-    private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
 	@Autowired
 	@Qualifier("mpCore")
     private HttpSolrServer solr;

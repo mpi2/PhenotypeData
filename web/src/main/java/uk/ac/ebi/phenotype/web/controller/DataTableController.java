@@ -18,15 +18,25 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
+import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
+import org.mousephenotype.cda.solr.generic.util.Tools;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -36,19 +46,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
-import uk.ac.ebi.generic.util.Tools;
-import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ReferenceDTO;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
@@ -58,10 +55,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -74,7 +69,7 @@ public class DataTableController {
 
     private static final int ArrayList = 0;
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
     private SolrIndex solrIndex;
@@ -98,26 +93,26 @@ public class DataTableController {
 
     private String IMG_NOT_FOUND = "Image coming soon<br>";
     private String NO_INFO_MSG = "No information available";
-    
+
     @Autowired
     private ReferenceDAO referenceDAO;
 
     @Autowired
 	private GenomicFeatureDAO genesDao;
-    
+
     @Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
-    
+
     /**
      <p>
      * deals with batchQuery
      * Return jQuery dataTable from server-side for lazy-loading.
      * </p>
-     * @throws SolrServerException 
-     * 
+     * @throws SolrServerException
+     *
      */
-    
+
     @RequestMapping(value = "/dataTable_bq", method = RequestMethod.POST)
     public ResponseEntity<String> bqDataTableJson(
 		@RequestParam(value = "idlist", required = true) String idlist,
@@ -129,33 +124,33 @@ public class DataTableController {
         Model model) throws IOException, URISyntaxException, SolrServerException {
 
     	String content = null;
-    	
+
     	String oriDataTypeName = dataTypeName;
     	List<String> queryIds = Arrays.asList(idlist.split(","));
     	Long time = System.currentTimeMillis();
-    	
+
     	List<String> mgiIds = new ArrayList<>();
     	List<org.mousephenotype.cda.solr.service.dto.GeneDTO> genes = new ArrayList<>();
 		List<QueryResponse> solrResponses = new ArrayList<>();
-		
+
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
-		
+
 		int counter = 0;
-		
+
 		//System.out.println("id length: "+ queryIds.size());
 		// will show only 10 records to the users to show how the data look like
 		for ( String id : queryIds ) {
 			counter++;
-			
+
 			// do the batch size
 			if ( counter < 11 ){
 				batchIdList.add(id);
 			}
-		}	
+		}
 		queryIds = batchIdList;
-		
-		
+
+
 		if ( dataTypeName.equals("ensembl") ){
 			// batch converting ensembl gene id to mgi gene id
 			genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
@@ -165,42 +160,42 @@ public class DataTableController {
 			genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
 			System.out.println("GENEs: "+ genes);
 		}
-		
+
 		for ( GeneDTO gene : genes  ){
 			if ( gene.getMgiAccessionId() != null ){
 				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
-			}	
+			}
 			batchIdList = mgiIds;
 		}
-		
+
 		//System.out.println("GOT " + genes.size() + " genes");
-		
+
 		if ( dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ){
 			dataTypeName = "gene";
 		}
-		
+
 		// batch solr query
 		batchIdListStr = StringUtils.join(batchIdList, ",");
 		System.out.println("idstr: "+ batchIdListStr);
 		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
-	
+
 		/*
 		if ( genes.size() == 0 ){
 			mgiIds = queryIds;
 		}*/
-		
+
 		//System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id/marker_symbol took: " + (System.currentTimeMillis() - time));
 		//System.out.println("mgi id: " + mgiIds);
-		
+
 		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
-		
-		
+
+
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-    	
+
     }
-		
+
     private JSONObject prepareHpMpMapping(QueryResponse solrResponse) {
-    	
+
     	JSONObject j = new JSONObject();
     	//Map<String, List<HpTermMpId>> hp2mp = new HashMap<>();
     	Map<String, List<String>> hp2mp = new HashMap<>();
@@ -209,94 +204,94 @@ public class DataTableController {
     	SolrDocumentList results = solrResponse.getResults();
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
-			
+
 			Map<String, Object> docMap = doc.getFieldValueMap();
 			//String hp_id = (String) docMap.get("hp_id");
 			//String hp_term = (String) docMap.get("hp_term");
 			String hpidTerm = (String) docMap.get("hp_id") + "_" + (String) docMap.get("hp_term");
 			String mp_id = (String) docMap.get("mp_id");
 			mpids.add("\"" + mp_id + "\"");
-			
+
 			if ( ! hp2mp.containsKey(hpidTerm) ){
 				hp2mp.put(hpidTerm, new ArrayList<String>());
 			}
 			hp2mp.get(hpidTerm).add(mp_id);
 		}
-    	
+
 		j.put("map", hp2mp);
-		
+
 		List<String> ids = new ArrayList<>();
 		ids.addAll(mpids);
 		String idlist = StringUtils.join(ids, ",");
 		j.put("idlist",  idlist);
-		
+
     	return j;
     }
-    
+
     public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
-    	
+
     	String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
     	String baseUrl = request.getAttribute("baseUrl").toString();
-    	
+
     	String NA = "Info not available";
-    	
+
     	String[] flList = StringUtils.split(fllist, ",");
-    	
+
     	Set<String> foundIds = new HashSet<>();
-    	
+
     	System.out.println("responses: " + solrResponses.size());
-    	
+
     	SolrDocumentList results = new SolrDocumentList();
-    	
+
     	for ( QueryResponse solrResponse : solrResponses ){
     		results.addAll(solrResponse.getResults());
     	}
-    	
+
     	int totalDocs = results.size();
-    	
+
     	Map<String, String> dataTypeId = new HashMap<>();
     	dataTypeId.put("gene", "mgi_accession_id");
     	dataTypeId.put("marker_name", "mgi_accession_id");
     	dataTypeId.put("ensembl", "mgi_accession_id");
-    	
+
     	dataTypeId.put("mp", "mp_id");
     	dataTypeId.put("ma", "ma_id");
     	dataTypeId.put("hp", "hp_id");
     	dataTypeId.put("disease", "disease_id");
-    	
+
     	Map<String, String> dataTypePath = new HashMap<>();
     	dataTypePath.put("gene", "genes");
     	dataTypePath.put("mp", "phenotypes");
     	dataTypePath.put("ma", "anatomy");
     	dataTypePath.put("disease", "disease");
-    	
+
     	JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
 
 		j.put("iTotalRecords", totalDocs);
 		j.put("iTotalDisplayRecords", totalDocs);
-		
+
 		int fieldCount = 0;
-		
+
 		System.out.println("totaldocs:" + totalDocs);
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
-		
+
 			//System.out.println("doc: " + doc);
-			
+
 			List<String> rowData = new ArrayList<String>();
-			
+
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap();  // Note getFieldValueMap() returns only String
 			//System.out.println("DOCMAP: "+docMap.toString());
-			
+
 			List<String> orthologousDiseaseIdAssociations = new ArrayList<>();
 			List<String> orthologousDiseaseTermAssociations = new ArrayList<>();
 			List<String> phenotypicDiseaseIdAssociations = new ArrayList<>();
 			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
-			
+
 			if ( docMap.get("mgi_accession_id") != null && !( dataTypeName.equals("ma") || dataTypeName.equals("disease") ) ) {
 				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
-				
+
 				for( Object acc : mgiGeneAccs ){
 					String mgi_gene_id = (String) acc;
 					//System.out.println("mgi_gene_id: "+ mgi_gene_id);
@@ -310,7 +305,7 @@ public class DataTableController {
 						log.error(ExceptionUtils.getFullStackTrace(e));
 						//log.error("Error retrieving disease data for {}", geneIdentifier);
 					}
-	
+
 					// add the known association summaries to a dedicated list for the top
 					// panel
 					for (DiseaseAssociationSummary diseaseAssociationSummary : diseaseAssociationSummarys) {
@@ -329,14 +324,14 @@ public class DataTableController {
 				}
 			}
 			fieldCount = 0; // reset
-			
+
 			//for (String fieldName : doc.getFieldNames()) {
 			for ( int k=0; k<flList.length; k++ ){
 				String fieldName = flList[k];
 				//System.out.println("DataTableController: "+ fieldName + " - value: " + docMap.get(fieldName));
-				
+
 				if ( fieldName.equals("images_link") ){
-					
+
 					String impcImgBaseUrl = baseUrl + "/impcImages/images?";
 
 					String qryField = null;
@@ -349,11 +344,11 @@ public class DataTableController {
 						qryField = "ma_id";
 						imgQryField = "ma_id";
 					}
-					
+
 					Collection<Object> accs = docMap.get(qryField);
 					String accStr = null;
 					String imgLink = null;
-					
+
 					System.out.println("qryfield: " + qryField);
 					System.out.println("imgQryField: " + imgQryField);
 					if ( accs != null ){
@@ -365,13 +360,13 @@ public class DataTableController {
 					else {
 						imgLink = NA;
 					}
-					
+
 					fieldCount++;
 					rowData.add(imgLink);
 				}
 				else if ( docMap.get(fieldName) == null ){
 					fieldCount++;
-					
+
 					String vals = NA;
 					if ( fieldName.equals("disease_id_by_gene_orthology") ){
 						vals = orthologousDiseaseIdAssociations.size() == 0 ? NA : StringUtils.join(orthologousDiseaseIdAssociations, ", ");
@@ -385,9 +380,9 @@ public class DataTableController {
 					else if ( fieldName.equals("disease_term_by_phenotypic_similarity") ){
 						vals = phenotypicDiseaseTermAssociations.size() == 0 ? NA : StringUtils.join(phenotypicDiseaseTermAssociations, ", ");
 					}
-					
+
 					rowData.add(vals);
-					
+
 				}
 				else {
 					try {
@@ -397,8 +392,8 @@ public class DataTableController {
 						try {
 							Collection<Object> vals =  docMap.get(fieldName);
 							Set<Object> valSet = new HashSet<>(vals);
-							value = StringUtils.join(valSet, ", ");	
-							
+							value = StringUtils.join(valSet, ", ");
+
 							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
 								String coreName = null;
@@ -422,7 +417,7 @@ public class DataTableController {
 									coreName = dataTypeName;
 									foundIds.add("\"" + value + "\"");
 								}
-								
+
 								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
 							}
 							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
@@ -431,7 +426,7 @@ public class DataTableController {
 						} catch ( ClassCastException c) {
 							value = docMap.get(fieldName).toString();
 						}
-						
+
 						//System.out.println("row " + i + ": field: " + k + " -- " + fieldName + " - " + value);
 						fieldCount++;
 						rowData.add(value);
@@ -451,14 +446,14 @@ public class DataTableController {
 				}
 			}
 			j.getJSONArray("aaData").add(rowData);
-			
+
 		}
-		
+
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
 		System.out.println("Found ids: "+ new ArrayList(foundIds));
 		System.out.println("non found ids: " + nonFoundIds);
-		
+
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
@@ -466,11 +461,11 @@ public class DataTableController {
 			}
 			j.getJSONArray("aaData").add(rowData);
 		}
-		
+
 		//System.out.println(j.toString());
 		return j.toString();
     }
-    
+
     /**
      * <p>
      * Return jQuery dataTable from server-side for lazy-loading.
@@ -499,7 +494,7 @@ public class DataTableController {
         JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 
         String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");
-        // use this for pattern matching later, instead of the modified complexphrase q string	
+        // use this for pattern matching later, instead of the modified complexphrase q string
         String queryOri = jParams.getString("qOri");
 
         String query = "";
@@ -571,10 +566,10 @@ public class DataTableController {
         } else if (mode.equals("gene2go")) {
             jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
         }
-        
+
         return jsonStr;
     }
-    
+
     public String parseJsonforGoDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, String evidRank) {
 
         String hostName = request.getAttribute("mappedHostname").toString();
@@ -651,11 +646,11 @@ public class DataTableController {
             String geneInfo = concateGeneInfo(doc, json, qryStr, request);
             rowData.add(geneInfo);
 
-            // phenotyping status			
+            // phenotyping status
             String mgiId = doc.getString("mgi_accession_id");
             String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
 
-            // ES cell/mice production status	
+            // ES cell/mice production status
             boolean toExport = false;
 
             String prodStatus = org.mousephenotype.cda.solr.service.GeneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);
@@ -673,7 +668,7 @@ public class DataTableController {
                             + "</div>";
 
                     rowData.add(uinterest);
-                    //rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");					
+                    //rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");
                 } else {
                     String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
                             + "<i class='fa fa-sign-in'></i>"
@@ -762,7 +757,7 @@ public class DataTableController {
         for (int i = 0; i < docs.size(); i ++) {
             List<String> rowData = new ArrayList<String>();
 
-            // array element is an alternate of facetField and facetCount			
+            // array element is an alternate of facetField and facetCount
             JSONObject doc = docs.getJSONObject(i);
 
             String mpId = doc.getString("mp_id");
@@ -789,10 +784,10 @@ public class DataTableController {
                         syns = prefixSyns.get(0);
                     }
 
-//					mpCol = "<div class='mpCol'><div class='title'>" 
-//							+ mpLink 
+//					mpCol = "<div class='mpCol'><div class='title'>"
+//							+ mpLink
 //							+ "</div>"
-//							+ "<div class='subinfo'>" 
+//							+ "<div class='subinfo'>"
 //							+ "<span class='label'>synonym</span>: " + syns
 //							+ "</div>";
                     //rowData.add(mpCol);
@@ -895,7 +890,7 @@ public class DataTableController {
         for (int i = 0; i < docs.size(); i ++) {
             List<String> rowData = new ArrayList<String>();
 
-            // array element is an alternate of facetField and facetCount                        
+            // array element is an alternate of facetField and facetCount
             JSONObject doc = docs.getJSONObject(i);
             String maId = doc.getString("ma_id");
             String maTerm = doc.getString("ma_term");
@@ -932,7 +927,7 @@ public class DataTableController {
              try {
              maDef = doc.getString("ma_definition");
              }
-             catch (Exception e) {                                                 
+             catch (Exception e) {
              //e.printStackTrace();
              }
              rowData.add(mpDef);*/
@@ -951,7 +946,7 @@ public class DataTableController {
         //System.out.println("baseurl: "+ baseUrl);
 
         if (showImgView) {
-        	
+
             // image view: one image per row
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
             int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -962,13 +957,13 @@ public class DataTableController {
             j.put("iTotalRecords", totalDocs);
             j.put("iTotalDisplayRecords", totalDocs);
 
-			//String imgBaseUrl = mediaBaseUrl + "/"; 
+			//String imgBaseUrl = mediaBaseUrl + "/";
             for (int i = 0; i < docs.size(); i ++) {
 
                 List<String> rowData = new ArrayList<String>();
                 JSONObject doc = docs.getJSONObject(i);
                 String annots = "";
-                
+
                 String imgLink = null;
 
                 if (doc.containsKey("jpeg_url")) {
@@ -997,41 +992,41 @@ public class DataTableController {
 //					if (doc.has("annotationTermId")) {
 //						JSONArray termIds   = doc.getJSONArray("annotationTermId");
 //						JSONArray termNames = doc.getJSONArray("annotationTermName");
-//						for( Object s : termIds ){														
+//						for( Object s : termIds ){
 //							if ( s.toString().contains("MA")){
 //								log.debug(i + " - MA: " + termNames.get(counter).toString());
 //								String name = termNames.get(counter).toString();
-//								String maid = termIds.get(counter).toString();	
+//								String maid = termIds.get(counter).toString();
 //								String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
 //								ma.add("<a href='" + url + "'>" + name + "</a>");
 //							}
 //							else if ( s.toString().contains("MP") ){
 //								log.debug(i+ " - MP: " + termNames.get(counter).toString());
-//								log.debug(i+ " - MP: " + termIds.get(counter).toString());								
-//								String mpid = termIds.get(counter).toString();							
-//								String name = termNames.get(counter).toString();							
+//								log.debug(i+ " - MP: " + termIds.get(counter).toString());
+//								String mpid = termIds.get(counter).toString();
+//								String name = termNames.get(counter).toString();
 //								String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
 //								mp.add("<a href='" + url + "'>" + name + "</a>");
 //							}
 //							counter++;
 //						}
-//					}	
-					
+//					}
+
 					if (doc.has("ma_id")) {
 						JSONArray termIds   = doc.getJSONArray("ma_id");
 						JSONArray termNames = doc.getJSONArray("ma_term");
-						for( Object s : termIds ){														
+						for( Object s : termIds ){
 							log.info(i + " - MA: " + termNames.get(counter).toString());
 							log.debug(i + " - MA: " + termNames.get(counter).toString());
 							String name = termNames.get(counter).toString();
-							String maid = termIds.get(counter).toString();	
+							String maid = termIds.get(counter).toString();
 							String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
 							ma.add("<a href='" + url + "'>" + name + "</a>");
-							
+
 							counter++;
 						}
-					}	
-					
+					}
+
                     if (doc.has("procedure_name")) {
                         String procedureName = doc.getString("procedure_name");
                         procedures.add(procedureName);
@@ -1044,8 +1039,8 @@ public class DataTableController {
 //						String list = "<ul class='imgMp'><li>" + StringUtils.join(mp, "</li><li>") + "</li></ul>";
 //						annots += "<span class='imgAnnots'><span class='annotType'>MP</span>: " + list + "</span>";
 //					}
-//					
-//					
+//
+//
 					if ( ma.size() == 1 ){
 						annots += "<span class='imgAnnots'><span class='annotType'>MA</span>: " + StringUtils.join(ma, ", ") + "</span>";
 					}
@@ -1071,7 +1066,7 @@ public class DataTableController {
                     }
 
 //					ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
-//					if ( gene.size() == 1 ){						
+//					if ( gene.size() == 1 ){
 //						annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ",") + "</span>";
 //					}
 //					else if ( gene.size() > 1 ){
@@ -1083,7 +1078,7 @@ public class DataTableController {
 
                     j.getJSONArray("aaData").add(rowData);
                 } catch (Exception e) {
-                    // some images have no annotations					
+                    // some images have no annotations
                     rowData.add("No information available");
                     rowData.add(imgLink);
                     j.getJSONArray("aaData").add(rowData);
@@ -1126,7 +1121,7 @@ public class DataTableController {
                 List<String> rowData = new ArrayList<String>();
 
                 AnnotNameValCount annot = annots.get(i);
-               
+
                 String displayAnnotName = annot.name;
                 String annotVal = annot.val;
                 String annotId = annot.id;
@@ -1135,23 +1130,23 @@ public class DataTableController {
                 String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
                 String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
-                
+
                 //https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
                 String imgSubSetLink = null;
                 String thisImgUrl = null;
                 List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
-               
+
                 int imgCount = (int) pathAndImgCount.get(1);
-                
+
                 String unit = imgCount > 1 ? "images" : "image";
-                
+
                 if (imgCount == 0) {
                     imgSubSetLink = imgCount + " " + unit;
                 } else {
                     String currFqStr = null;
                     if (displayAnnotName.equals("Gene")) {
                         currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
-                    } 
+                    }
                     else if (displayAnnotName.equals("Procedure")) {
                         currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
                     }
@@ -1161,10 +1156,10 @@ public class DataTableController {
 
                     //String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
                     thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
-                    
+
                     imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
                 }
-                
+
                 rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
                 rowData.add(pathAndImgCount.get(0).toString());
 
@@ -1274,7 +1269,7 @@ public class DataTableController {
                     rowData.add(imgLink);
                     j.getJSONArray("aaData").add(rowData);
                 } catch (Exception e) {
-                    // some images have no annotations					
+                    // some images have no annotations
                     rowData.add("No information available");
                     rowData.add(imgLink);
                     j.getJSONArray("aaData").add(rowData);
@@ -1307,7 +1302,7 @@ public class DataTableController {
             j.put("iTotalDisplayRecords", numFacets / 2);
 
             int end = start + length;
-			//System.out.println("Start: "+start*2+", End: "+end*2); 
+			//System.out.println("Start: "+start*2+", End: "+end*2);
 
 			// The facets array looks like:
             //   [0] = facet name
@@ -1328,7 +1323,7 @@ public class DataTableController {
 
                     List<String> rowData = new ArrayList<String>();
 
-                    Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp				
+                    Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp
                     String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
                     String facetField = hm.get("field").toString();
 
@@ -1378,7 +1373,7 @@ public class DataTableController {
         for (int i = 0; i < docs.size(); i ++) {
             List<String> rowData = new ArrayList<String>();
 
-            // disease link			
+            // disease link
             JSONObject doc = docs.getJSONObject(i);
             //System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
             String diseaseId = doc.getString("disease_id");
@@ -1390,7 +1385,7 @@ public class DataTableController {
             String src = doc.getString("disease_source");
             rowData.add(src);
 
-            // curated data: human/mouse	
+            // curated data: human/mouse
             String human = "<span class='status done'>human</span>";
             String mice = "<span class='status done'>mice</span>";
 
@@ -1398,13 +1393,13 @@ public class DataTableController {
             String impc = "<span class='status done'>IMPC</span>";
             String mgi = "<span class='status done'>MGI</span>";
 
-            /*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations', 
-             'subfacets':{'human_curated':'From human data (OMIM, Orphanet)', 
+            /*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations',
+             'subfacets':{'human_curated':'From human data (OMIM, Orphanet)',
              'mouse_curated':'From mouse data (MGI)',
              'impc_predicted_known_gene':'From human data with IMPC prediction',
              'mgi_predicted_known_gene':'From human data with MGI prediction'}
              },
-             'predicted':{'label':'With Predicted Gene Associations by Phenotype', 
+             'predicted':{'label':'With Predicted Gene Associations by Phenotype',
              'subfacets': {'impc_predicted':'From IMPC data',
              'impc_novel_predicted_in_locus':'Novel IMPC prediction in linkage locus',
              'mgi_predicted':'From MGI data',
@@ -1413,7 +1408,7 @@ public class DataTableController {
              };
              */
             try {
-                //String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";			
+                //String isHumanCurated = doc.getString("human_curated").equals("true") ? human : "";
                 String isHumanCurated = doc.getString("human_curated").equals("true")
                         || doc.getString("impc_predicted_known_gene").equals("true")
                         || doc.getString("mgi_predicted_known_gene").equals("true") ? human : "";
@@ -1422,13 +1417,13 @@ public class DataTableController {
                 rowData.add(isHumanCurated + isMouseCurated);
 
 				//rowData.add("test1" + "test2");
-                //String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";				
+                //String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_predicted_in_locus").equals("true")) ? impc : "";
                 //String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_predicted_in_locus").equals("true")) ? mgi : "";
                 String isImpcPredicted = (doc.getString("impc_predicted").equals("true") || doc.getString("impc_novel_predicted_in_locus").equals("true")) ? impc : "";
                 String isMgiPredicted = (doc.getString("mgi_predicted").equals("true") || doc.getString("mgi_novel_predicted_in_locus").equals("true")) ? mgi : "";
 
                 rowData.add(isImpcPredicted + isMgiPredicted);
-				//rowData.add("test3" + "test4");		
+				//rowData.add("test3" + "test4");
                 //System.out.println("DOCS: " + rowData.toString());
                 j.getJSONArray("aaData").add(rowData);
             } catch (Exception e) {
@@ -1616,12 +1611,12 @@ public class DataTableController {
 
     	Connection connKomp2 = komp2DataSource.getConnection();
         Connection conn = admintoolsDataSource.getConnection();
-        
+
         JSONObject j = new JSONObject();
 
         // when symbol is set to be empty, change reviewed status, too
         if ( alleleSymbol.equals("") ){
-        	
+
         	// update acc, gacc and reviewed field
         	String uptSql = "UPDATE allele_ref SET symbol='', reviewed='no', acc='', gacc='' WHERE dbid=?";
             PreparedStatement stmt = conn.prepareStatement(uptSql);
@@ -1640,7 +1635,7 @@ public class DataTableController {
         if (alleleSymbol.contains(",")) {
             int symCount = alleleSymbol.split(",").length;
             List<String> placeHolders = new ArrayList<>();
-            
+
             for (int c = 0; c < symCount; c ++) {
                 placeHolders.add("?");
             }
@@ -1672,7 +1667,7 @@ public class DataTableController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } 
+        }
 
         try {
 	        String uptSql = "UPDATE allele_ref SET symbol=?, acc=?, reviewed=?, gacc=? WHERE dbid=?";
@@ -1683,10 +1678,10 @@ public class DataTableController {
 	        stmt.setString(4, geneAcc);
 	        stmt.setInt(5, dbid);
 	        stmt.executeUpdate();
-        
+
         	if ( alleleAcc.equals("") ){
         		// update acc, gacc and reviewed field
-        		
+
         		j.put("reviewed", "no");
                 j.put("symbol", "");
                 j.put("alleleIdNotFound", "yes");
@@ -1874,13 +1869,13 @@ public class DataTableController {
                 //rowData.add(resultSet.getString("name"));
                 String pmid = "<span id=" + dbid + ">" + resultSet.getString("pmid") + "</span>";
                 rowData.add(pmid);
-                
-                
-                
-                
+
+
+
+
                 rowData.add(resultSet.getString("date_of_publication"));
-                
-                
+
+
                 rowData.add(resultSet.getString("grant_id"));
                 rowData.add(resultSet.getString("agency"));
                 rowData.add(resultSet.getString("acronym"));
@@ -1900,16 +1895,16 @@ public class DataTableController {
         }
         return j.toString();
     }
-    
+
     public String fetch_allele_ref(int iDisplayLength, int iDisplayStart, String sSearch) throws SQLException {
         final int DISPLAY_THRESHOLD = 4;
         List<org.mousephenotype.cda.db.pojo.ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
-        
+
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
         j.put("iTotalRecords", references.size());
         j.put("iTotalDisplayRecords", references.size());
-        
+
         // MMM to digit conversion
         Map<String, String> m2d = new HashMap<>();
         // the digit part is set as such to work with the default non-natural sort behavior so that
@@ -1926,19 +1921,19 @@ public class DataTableController {
         m2d.put("Oct","20");
         m2d.put("Nov","21");
         m2d.put("Dec","22");
-        
+
         for (org.mousephenotype.cda.db.pojo.ReferenceDTO reference : references) {
 
         	List<String> rowData = new ArrayList<>();
         	Map<String,String> alleleSymbolinks = new LinkedHashMap<String,String>();
-            
+
             int alleleAccessionIdCount = reference.getAlleleAccessionIds().size();
             for (int i = 0; i < alleleAccessionIdCount; i++) {
 
                 String symbol = Tools.superscriptify(reference.getAlleleSymbols().get(i));
                 String alleleLink;
                 String cssClass = "class='" +  (alleleSymbolinks.size() < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
-                
+
                 if (i < reference.getImpcGeneLinks().size()) {
                 		alleleLink = "<div " + cssClass + "><a target='_blank' href='" + reference.getImpcGeneLinks().get(i) + "'>" + symbol + "</a></div>";
                 } else {
@@ -1950,12 +1945,12 @@ public class DataTableController {
                 }
                 alleleSymbolinks.put(symbol, alleleLink);
             }
-            
+
             if (alleleSymbolinks.size() > 5){
             	int num = alleleSymbolinks.size();
             	alleleSymbolinks.put("toggle", "<div class='alleleToggle' rel='" + num + "'>Show all " + num + " alleles ...</div>");
             }
-            
+
             List<String> alLinks = new ArrayList<>();
             Iterator it = alleleSymbolinks.entrySet().iterator();
             while (it.hasNext()) {
@@ -1963,14 +1958,14 @@ public class DataTableController {
                 alLinks.add(pair.getValue().toString());
                 it.remove(); // avoids a ConcurrentModificationException
             }
-            
+
             rowData.add(StringUtils.join(alLinks, ""));
 
             rowData.add(reference.getTitle());
             rowData.add(reference.getJournal());
-            
+
             String oriPubDate = reference.getDateOfPublication();
-          
+
             String altStr = null;
             oriPubDate = oriPubDate.trim();
             if ( oriPubDate.matches("^\\d+$") ){
@@ -1980,16 +1975,16 @@ public class DataTableController {
             	String[] parts = oriPubDate.split(" ");
             	altStr = parts[0] + "-" + m2d.get(parts[1]);
             }
-            
+
             // alt is for alt-string sorting in dataTable for date_of_publication field
             // The format is either YYYY or YYYY Mmm (2012 Jul, eg)
             // I could not get sorting to work with this column using dataTable datetime-moment plugin (which supports self-defined format)
             // but I managed to get it to work with alt-string
             rowData.add("<span alt='" + altStr + "'>" + oriPubDate + "</span>");
-            
+
             List<String> agencyList = new ArrayList();
             int agencyCount = reference.getGrantAgencies().size();
-            
+
             for (int i = 0; i < agencyCount; i++) {
                 String cssClass = "class='" +  (i < DISPLAY_THRESHOLD ? "showMe" : "hideMe") + "'";
                 String grantAgency = reference.getGrantAgencies().get(i);
@@ -1998,14 +1993,14 @@ public class DataTableController {
                 }
             }
             rowData.add("<ul>" + StringUtils.join(agencyList, "") + "</ul>");
-            
+
             int pmid = Integer.parseInt(reference.getPmid());
             List<String> paperLinks = new ArrayList<>();
             List<String> paperLinksOther = new ArrayList<>();
             List<String> paperLinksPubmed = new ArrayList<>();
             List<String> paperLinksEuroPubmed = new ArrayList<>();
             String[] urlList = reference.getPaperUrls().toArray(new String[0]);
-            
+
             for (int i = 0; i < urlList.length; i ++) {
                 String[] urls = urlList[i].split(",");
 
@@ -2046,14 +2041,14 @@ public class DataTableController {
             paperLinks.addAll(paperLinksPubmed);
             paperLinks.addAll(paperLinksOther);
             rowData.add(StringUtils.join(paperLinks, ""));
-            
+
             j.getJSONArray("aaData").add(rowData);
         }
 
         //System.out.println("Got " + rowCount + " rows");
         return j.toString();
     }
-    
+
     public class MpAnnotations {
     	public String mp_id;
     	public String mp_term;
@@ -2065,6 +2060,6 @@ public class DataTableController {
     	public String human_gene_symbol;
     	public String disease_id;
     	public String disease_term;
-		
+
     }
 }

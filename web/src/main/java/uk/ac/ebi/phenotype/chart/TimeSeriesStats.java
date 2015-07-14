@@ -15,23 +15,20 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.log4j.Logger;
-
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 
 public class TimeSeriesStats {
 
-
-
-	private static final Logger log = Logger.getLogger(TimeSeriesStats.class);
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	public List<DiscreteTimePoint> getMeanDataPoints(
 			List<DiscreteTimePoint> timeSeriesDataForLine) {

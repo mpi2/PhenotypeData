@@ -15,13 +15,14 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class DiseaseService {
     @Qualifier("diseaseCore")
     private HttpSolrServer solr;
 
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     // Disease sources. When modifying these, please modify getAllDiseases() accordingly.
     public static final class DiseaseField {

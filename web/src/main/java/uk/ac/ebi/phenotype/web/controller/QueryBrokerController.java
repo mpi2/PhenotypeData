@@ -17,7 +17,10 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.log4j.Logger;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,8 +31,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.generic.util.SolrIndex;
-import org.mousephenotype.cda.solr.service.GeneService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +46,7 @@ import java.util.Map;
 @Controller
 public class QueryBrokerController {
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
 	private SolrIndex solrIndex;

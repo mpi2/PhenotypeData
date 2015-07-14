@@ -16,8 +16,9 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.apache.log4j.Logger;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -25,45 +26,45 @@ import java.util.*;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary to represent access functionality
  * to a two-dimensional data grid composed of type <code>String</code>. Callers
  * pass in a <code>String[][]</code> containing the data store where the first
  * line is a heading. The class then serves up access to the data by row index
- * and either column index or column name, which must match exactly. No 
+ * and either column index or column name, which must match exactly. No
  * IndexOutOfBounds exception checking is done.
  */
 public class GridMap {
     private String[][] data;
     private final String target;
     private final HashMap<String, Integer> colNameHash = new HashMap();
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
     protected TestUtils testUtils;
 
     @Autowired
     protected UrlUtils urlUtils;
-    
+
     /**
      * Creates a <code>GridMap</code> instance
-     * 
+     *
      * @param data the data store
      * @param target the target url of the page containing the data
      */
     public GridMap(String[][] data, String target) {
         this.data = data;
         this.target = target;
-        
+
         int i = 0;
         for (String colHeading : data[0]) {
             colNameHash.put(colHeading, i);
         }
     }
-    
+
     /**
      * Creates a <code>GridMap</code> instance
-     * 
+     *
      * @param dataList the data store
      * @param target the target URL of the page containing the data
      */
@@ -86,20 +87,20 @@ public class GridMap {
             data = new String[0][0];
             logger.warn("Exception: " + e.getLocalizedMessage());
         }
-        
+
         this.target = target;
     }
-    
+
     /**
      * Creates a set from <code>input</code> using <code>colIndexes</code>, using
      * the underscore character as a column delimiter. Each value is first trimmed,
      * then lowercased.
-     * 
+     *
      * Example: input.body[][] = "a", "b", "c", "d", "e"
      *                           "f", "g", "h", "i", "j"
-     * 
+     *
      * colIndexes = 1, 3, 4
-     * 
+     *
      * produces a set that looks like:  "b_d_e_"
      *                                  "g_i_j_"
      * @param colIndexes indexes of columns to be copied
@@ -108,12 +109,12 @@ public class GridMap {
     public Set<String> createSet(Integer[] colIndexes) {
         return testUtils.createSet(this, colIndexes);
     }
-    
+
     public GridMap urlDecode(List<Integer> colIndexes) {
         if ((data == null) || data.length == 0) {
             return this;
         }
-        
+
         String[][] localData = new String[data.length][data[0].length];
         for (int rowIndex = 0; rowIndex < localData.length; rowIndex++) {
             String[] row = data[rowIndex];
@@ -125,12 +126,12 @@ public class GridMap {
                 localData[rowIndex][colIndex] = cell;
             }
         }
-        
+
         GridMap retVal = new GridMap(localData, target);
-        
+
         return retVal;
     }
-    
+
     /**
      * Decodes <code>url</code>, into UTF-8, making it suitable to use as a link.
      * Invalid url strings are ignored and the original string is returned.
@@ -148,50 +149,50 @@ public class GridMap {
         } catch (Exception e) {
             System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed: " + e.getLocalizedMessage());
         }
-        
+
         return retVal;
     }
-    
-    
+
+
     // GETTERS AND SETTERS
-    
-    
+
+
     public String[][] getData() {
         return data;
     }
-    
+
     public String[] getHeading() {
         if ((data != null) && (data.length > 0)) {
             return data[0];
         }
-        
+
         return new String[0];
     }
-    
+
     public String[][] getBody() {
         if ((data != null) && (data.length > 1)) {
             String[][] clone = new String[data.length - 1][data[0].length];
             for (int i = 0; i < data.length - 1; i++) {
                 clone[i] = data[i + 1];
             }
-            
+
             return clone;
         }
-        
+
         return new String[0][0];
     }
-    
+
     public String getCell(int rowIndex, int colIndex) {
         if (data != null)
             return data[rowIndex][colIndex];
-        
+
         return "";
     }
-    
+
     public String getCell(int rowIndex, String colName) {
         if ( ! colNameHash.containsKey(colName))
             throw new RuntimeException("ERROR: Column " + colName + " was not found.");
-        
+
         return data[rowIndex][colNameHash.get(colName)];
     }
 

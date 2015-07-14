@@ -15,32 +15,26 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.HashMap;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.*;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
 
 
 public class HttpProxy {
 
-	private Logger log = Logger.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	// Timeout after 2 seconds
 	private int CONNECTION_TIMEOUT = 30000;
@@ -49,11 +43,11 @@ public class HttpProxy {
 
 	/**
 	 * Method to get page content from an external URL
-	 * 
+	 *
 	 * @param url the url to interrogate
 	 * @return the content in a String
 	 * @throws IOException
-	 * @throws URISyntaxException 
+	 * @throws URISyntaxException
 	 */
 	public String getContent(URL url) throws IOException, URISyntaxException {
 
@@ -113,7 +107,7 @@ public class HttpProxy {
 		} else {
 			urlConn = (HttpsURLConnection) url.openConnection();
 		}
-		
+
 		log.debug("Getting content from URL: " + url);
 
 		// Send the cookie (if there is one) along with request
@@ -171,9 +165,9 @@ public class HttpProxy {
 			return null;
 		}
 
-		// Do not proxy requests to these hosts 
+		// Do not proxy requests to these hosts
 		// e.g. http.nonProxyHosts=*.ebi.ac.uk|localhost|127.0.0.1
-		String noProxyStr = System.getProperty("http.nonProxyHosts"); 
+		String noProxyStr = System.getProperty("http.nonProxyHosts");
 		if (noProxyStr != null){
 			String[] noProxy = noProxyStr.split("\\|");
 			for (String host : noProxy) {
@@ -206,5 +200,5 @@ public class HttpProxy {
 		this.cookie = cookie;
 	}
 
-	
+
 }

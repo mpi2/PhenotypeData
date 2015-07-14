@@ -15,7 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.util;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +28,7 @@ import java.util.Random;
 
 public class DrupalHttpProxy extends HttpProxy {
 
-	private Logger log = Logger.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	private String debugSession = null;
 	private HttpServletRequest request;

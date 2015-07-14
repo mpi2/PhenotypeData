@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.apache.log4j.Logger;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
@@ -25,6 +24,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -32,14 +33,15 @@ import java.util.*;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary to represent the abstract
  * parent of the search page facet tables. It contains code and data common to
  * all such search page facet tables. Subclasses need only implement <code>
  * validateDownload(String[][] data)</code>.
  */
 public abstract class SearchFacetTable {
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
     public final String graphUrl;
     private boolean hasTable;
     protected String[] pageHeading;
@@ -47,7 +49,7 @@ public abstract class SearchFacetTable {
     protected final WebDriver driver;
     protected final int timeoutInSeconds;
     protected final WebDriverWait wait;
-    
+
     public static final String NO_INFO_AVAILABLE    = "No information available";
     public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
 
@@ -59,27 +61,27 @@ public abstract class SearchFacetTable {
 
     @Autowired
     protected UrlUtils urlUtils;
-    
+
     // byHash String keys:
     public enum TableComponent {
         BY_TABLE("byTable")
       , BY_TABLE_TR("byTableTr")
       , BY_SELECT_GRID_LENGTH("bySelectGridLength");
-      
+
       private final String mapKey;
-      
+
       private TableComponent(final String mapKey) {
           this.mapKey = mapKey;
       }
-      
+
       @Override
       public String toString() {
           return mapKey;
       }
     };
-    
+
     protected final Map<TableComponent, By> byMap;
-    
+
     /**
      * Initializes the generic components of a <code>SearchFacetTable</code>.
      * @param driver A <code>WebDriver</code> instance pointing to the search
@@ -102,24 +104,24 @@ public abstract class SearchFacetTable {
             throw e;
         }
     }
-    
+
     public enum EntriesSelect {
         _10(10),
         _25(25),
         _50(50),
         _100(100);
-        
+
         private final int value;
-        
+
         private EntriesSelect(final int value) {
             this.value = value;
         }
-        
+
         public int getValue() {
             return value;
         }
     }
-    
+
     /**
      *
      * @return the number of rows in the "xxGrid" table. Always include 1
@@ -130,7 +132,7 @@ public abstract class SearchFacetTable {
         List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(byMap.get(TableComponent.BY_TABLE_TR)));
         return elements.size() + 1;
     }
-    
+
     /**
      * Return the number of entries currently showing in the 'entries' drop-down
      * box.
@@ -146,10 +148,10 @@ public abstract class SearchFacetTable {
             return 0;
         }
     }
-    
+
     /**
      * Set the number of entries in the 'entries' drop-down box.
-     * 
+     *
      * @param entriesSelect The new value for the number of entries to show.
      */
     public void setNumEntries(EntriesSelect entriesSelect) {
@@ -160,7 +162,7 @@ public abstract class SearchFacetTable {
     }
 
     /**
-     * 
+     *
      * @return true if this page has a searchFaceTable; false otherwise
      */
     public boolean hasTable() {
@@ -168,7 +170,7 @@ public abstract class SearchFacetTable {
     }
 
     /**
-     * 
+     *
      * @return The searchFacetTable <code>WebElement</code>
      */
     public WebElement getTable() {
@@ -190,7 +192,7 @@ public abstract class SearchFacetTable {
             return;
         }
         hasTable = true;
-        
+
         // Save the pageHeading values.
         List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
         pageHeading = new String[headingElementList.size()];
@@ -213,14 +215,14 @@ public abstract class SearchFacetTable {
                 if (style.contains("block;"))
                     driver.findElement(By.xpath("//span[@id='dnld']")).click();
                 break;
-                
+
             case OPEN:
                 if (style.contains("none;"))
                     driver.findElement(By.xpath("//span[@id='dnld']")).click();
                 break;
         }
     }
-    
+
     /**
      * @return The window state (open or close)
      */
@@ -228,22 +230,22 @@ public abstract class SearchFacetTable {
         String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
         return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSED);
     }
-    
+
     /**
      * Validates download data against this search table instance.
-     * 
+     *
      * @param data The download data used for comparison
      * @return validation status
      */
     public abstract PageStatus validateDownload(String[][] data);
-    
-    
+
+
     // PROTECTED METHODS
-    
+
 
     /**
      * Validates download data against this search table instance.
-     * 
+     *
      * @param pageData The page data used for comparison
      * @param pageColumns The page columns used in the comparison
      * @param downloadDataArray The download data used for comparison
@@ -257,14 +259,14 @@ public abstract class SearchFacetTable {
         for (String[] row : downloadDataArray) {
             List rowList = Arrays.asList(row);
             downloadDataList.add(rowList);
-        } 
-       
+        }
+
         GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
-        
+
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
-        
+
         // Create a pair of sets: one from the page, the other from the download.
         GridMap patchedPageData = testUtils.patchEmptyFields(pageData);
         Set pageSet = testUtils.createSet(patchedPageData, pageColumns);
@@ -287,7 +289,7 @@ public abstract class SearchFacetTable {
         if (errorCount > 0) {
             status.addError("Mismatch.");
         }
-        
+
         return status;
     }
 }

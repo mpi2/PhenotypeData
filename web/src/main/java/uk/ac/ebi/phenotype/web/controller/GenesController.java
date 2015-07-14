@@ -36,6 +36,7 @@ import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
+import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.DataTableRow;
@@ -55,8 +56,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
@@ -313,14 +312,14 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
-		
+
 		model.addAttribute("showEmbryoViewer",this.displayEmbryoViewer());
 	}
 
 
 	private boolean displayEmbryoViewer() {
 		return true;
-		
+
 	}
 
 
@@ -761,7 +760,7 @@ public class GenesController {
 
 		log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
 	}
-	
-	
+
+
 
 }

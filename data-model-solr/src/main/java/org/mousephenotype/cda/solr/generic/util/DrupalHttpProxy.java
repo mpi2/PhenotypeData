@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,19 +26,17 @@ import java.util.Random;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
-
 public class DrupalHttpProxy extends HttpProxy {
 
-	private Logger log = Logger.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	private String debugSession = null;
 	private HttpServletRequest request;
-	
+
 	protected static String authenticatedMenu = null;
 	protected static String publicMenu = null;
 	protected static String publicUserMenu = null;
-	
+
 	public DrupalHttpProxy(HttpServletRequest request) {
 		super();
 		this.request = request;
@@ -44,16 +45,16 @@ public class DrupalHttpProxy extends HttpProxy {
 	/**
 	 * helper method to get a page from an external URL by including in the
 	 * drupal session cookie
-	 * 
+	 *
 	 * NOTE: The drupal session cookie is identified because it starts with the
 	 * string "SSESS" ... this is not a very strong signal.
-	 * 
+	 *
 	 * CAUTION: This method bypasses the SSL certificate verification to allow
 	 * secure content from domains other than "www." to be accessed. This is
-	 * required because the drupal content pages return coorectly only when 
+	 * required because the drupal content pages return coorectly only when
 	 * SSL is enabled. We need the drupal session cookie to determine if the user
 	 * is logged in.
-	 * 
+	 *
 	 * @param url
 	 *            the url to interrogate
 	 * @return the content in one big string with leading/trailing whitespace
@@ -79,7 +80,7 @@ public class DrupalHttpProxy extends HttpProxy {
 
 		if(url.getProtocol().toLowerCase().equals("https")) {
 			content = getSecureContent(escapedUrl);
-		} else {			
+		} else {
 			content = getNonSecureContent(escapedUrl);
 		}
 
@@ -88,20 +89,20 @@ public class DrupalHttpProxy extends HttpProxy {
 
 		return content;
 	}
-	
+
 	/**
 	 * returns the drupal session cookie. If the debugSession class variable is
 	 * set, the session variable is overriden.
-	 * 
+	 *
 	 * NOTE: If the class variable debugSession is set, then that string
 	 * overrides any session variable picked up from the cookie jar.
-	 * 
+	 *
 	 * NOTE: The drupal session cookie is identified by starting with the string
 	 * "SSESS" which, in hindsight, may turn out not to be the best idea in the
 	 * world.
-	 * 
+	 *
 	 * @return the drupal session cookie string
-	 * 
+	 *
 	 */
 	public String getDrupalSessionCookieString() {
 
@@ -134,34 +135,34 @@ public class DrupalHttpProxy extends HttpProxy {
 
 	/**
 	 * Get the current menus for the drupal system -- both the main menu and the user menu
-	 * 
+	 *
 	 * @return a concatenated drupal menu as a string separated by "MAIN*MENU*BELOW", or a default if
 	 *         drupal could not be contacted for some reason
 	 * @throws standard Exception
 	 */
 	//public JSONObject getDrupalMenu(String drupalBaseUrl) throws JSONException {
-	public String getDrupalMenu(String drupalBaseUrl) {	
+	public String getDrupalMenu(String drupalBaseUrl) {
 		String content = "";
 		Random randomGenerator = new Random();
-		
+
 		// If we can't get the menu, default to the logged out menu
 		try {
 			if (getDrupalSessionCookieString() != null && ! getDrupalSessionCookieString().equals("") ) {
-				log.info("Getting drupal menu.");				
+				log.info("Getting drupal menu.");
 				//URL url = new URL(drupalBaseUrl + "/menudisplaycombined");
 				URL url = new URL(drupalBaseUrl + "/menudisplaycombinedrendered");
-								
+
 				content = this.getContent(url);
-				
+
 			} else {
 				if (publicMenu == null || randomGenerator.nextInt(100) == 1) {
 					log.info("Not logged in, using standard menu.");
 					//URL url = new URL(drupalBaseUrl + "/menudisplaycombined");
 					URL url = new URL(drupalBaseUrl + "/menudisplaycombinedrendered");
-								
+
 					publicMenu = this.getContent(url);
 					content = publicMenu;
-					
+
 				} else {
 					content = publicMenu;
 				}
@@ -174,7 +175,7 @@ public class DrupalHttpProxy extends HttpProxy {
 		//strip off the drupal <front> tag
 		content = content.replace("<front>", "");
 //		System.out.println(content);
-		
+
 		return content;
 	}
 

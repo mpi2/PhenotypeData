@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +23,8 @@ import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
@@ -35,8 +36,8 @@ import java.util.*;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
-	private static final Logger logger = Logger
-			.getLogger(TimeSeriesChartAndTableProvider.class);
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	public ChartData doTimeSeriesOverviewData(
 			Map<String, List<DiscreteTimePoint>> lines, Parameter p) {

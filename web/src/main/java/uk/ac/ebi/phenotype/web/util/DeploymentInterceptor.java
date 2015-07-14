@@ -15,7 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -28,7 +29,7 @@ import java.util.Map;
 
 public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
-    private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
     DataReleaseVersionManager dataReleaseVersionManager;
@@ -61,10 +62,10 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
         }
         request.setAttribute("mappedHostname", mappedHostname);
 
-        // If this webapp is being accessed behind a proxy, the 
+        // If this webapp is being accessed behind a proxy, the
         // x-forwarded-host header will be set, in which case, use the
-        // configured baseUrl and mediaBauseUrl paths.  If this webapp is 
-        // being accessed directly set the baseUrl and mediaBaseUrl as 
+        // configured baseUrl and mediaBauseUrl paths.  If this webapp is
+        // being accessed directly set the baseUrl and mediaBaseUrl as
         // the current context path
         if (request.getHeader("x-forwarded-host") != null) {
 

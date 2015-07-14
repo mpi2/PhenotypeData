@@ -17,7 +17,6 @@ package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.*;
@@ -29,6 +28,8 @@ import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StackedBarsData;
 import org.mousephenotype.cda.web.ChartType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,9 +42,10 @@ import java.util.*;
 @Service
 public class UnidimensionalChartAndTableProvider {
 
-	private static final Logger logger = Logger.getLogger(UnidimensionalChartAndTableProvider.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	private String axisFontSize = "15";
+
 	@Autowired
 	PhenotypePipelineDAO ppDAO;
 
@@ -133,7 +135,7 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public static List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, Parameter parameter, BiologicalModel expBiologicalModel) {
+	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, Parameter parameter, BiologicalModel expBiologicalModel) {
 
 		Map<String, String> usefulStrings = GraphUtils.getUsefulStrings(expBiologicalModel);
 		List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(parameter, experiment, usefulStrings.get("allelicComposition"), usefulStrings.get("symbol"), usefulStrings.get("geneticBackground"));
@@ -437,7 +439,7 @@ public class UnidimensionalChartAndTableProvider {
 	 * @param geneticBackground
 	 * @return
 	 */
-	private static List<UnidimensionalStatsObject> produceUnidimensionalStatsData(Parameter parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
+	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(Parameter parameter, ExperimentDTO experiment, String allelicCompositionString, String symbol, String geneticBackground) {
 
 		List<? extends StatisticalResult> results = experiment.getResults();
 		logger.debug("result=" + results);
