@@ -644,7 +644,7 @@ public class GenePageTest {
             successList.add("Akt2 test: [PASSED]");
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, 1);
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, 1);
     }
 
     // Tests gene page with more than one Production Status [blue] order button.
@@ -694,7 +694,7 @@ public class GenePageTest {
             }
         }
 
-        TestUtils.printEpilogue(testName, start, status, 1, 1, 1);
+        testUtils.printEpilogue(testName, start, status, 1, 1, 1);
     }
 
 
@@ -702,6 +702,7 @@ public class GenePageTest {
 
 
     private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
+        PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
         String target = "";
@@ -737,12 +738,12 @@ public class GenePageTest {
                 genePage.validate(phenotypesTableRequired);
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
+                status.addError(message);
                 commonUtils.sleep(thread_wait_in_ms);
                 continue;
             }  catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                exceptionList.add(message);
+                status.addError(message);
                 commonUtils.sleep(thread_wait_in_ms);
                 continue;
             }
@@ -753,7 +754,7 @@ public class GenePageTest {
             commonUtils.sleep(thread_wait_in_ms);
         }
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, targetCount, geneIds.size());
+        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
     }
 
     private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
