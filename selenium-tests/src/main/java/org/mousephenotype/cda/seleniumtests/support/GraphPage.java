@@ -17,10 +17,10 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.enumerations.DownloadType;
 import org.mousephenotype.cda.seleniumtests.exception.DownloadException;
 import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

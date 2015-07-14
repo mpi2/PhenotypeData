@@ -19,11 +19,11 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.ac.ebi.phenotype.chart.ChartType;
 
 import java.util.List;
 import java.util.regex.Pattern;

@@ -16,11 +16,11 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.enumerations.DownloadType;
-import org.mousephenotype.cda.enumerations.ExperimentGroup;
 import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.DownloadType;
+import org.mousephenotype.cda.web.ExperimentGroup;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.ac.ebi.phenotype.chart.ChartType;
 
 import java.util.*;
 

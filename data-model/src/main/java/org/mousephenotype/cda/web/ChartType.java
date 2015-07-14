@@ -13,7 +13,8 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.chart;
+
+package org.mousephenotype.cda.web;
 
 public enum ChartType {
 

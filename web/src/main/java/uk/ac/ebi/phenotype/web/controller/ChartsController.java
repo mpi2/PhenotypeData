@@ -32,6 +32,7 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ViabilityDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
+import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
