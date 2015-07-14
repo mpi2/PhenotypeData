@@ -101,7 +101,7 @@ public class ExperimentsController {
 			RedirectAttributes attributes) 
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		
+		Long time = System.currentTimeMillis();	
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);		
 		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
 		int rows = 0;
@@ -122,6 +122,8 @@ public class ExperimentsController {
 		model.addAttribute("rows", rows);
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("allelePageDTO", allelePageDTO);
+		
+		System.out.println("Loading took : " + (System.currentTimeMillis() - time));
 		
 		return "allelesData";
 	}
