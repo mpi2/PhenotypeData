@@ -126,6 +126,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setDataType(allele.getDataType());
                 gene.setMarkerType(allele.getMarkerType());
                 gene.setMarkerSymbol(allele.getMarkerSymbol());
+                gene.setMarkerSymbolLowercase(allele.getMarkerSymbol());
                 gene.setMarkerSynonym(allele.getMarkerSynonym());
                 gene.setMarkerName(allele.getMarkerName());
                 gene.setHumanGeneSymbol(allele.getHumanGeneSymbol());
