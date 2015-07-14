@@ -15,23 +15,25 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.apache.log4j.Logger;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-
 
 public class JSONRestUtil {
 
-private static final Logger log = Logger.getLogger(JSONRestUtil.class);
+
+	private final static Logger log = LoggerFactory.getLogger(JSONRestUtil.class);
+
 	/**
 	 * Get the results of a query from the provided url. make sure the url requests JSON!!!
-	 * 
+	 *
 	 * @param url
 	 *            the URL from which to get the content
 	 * @return a JSONObject representing the result of the query
@@ -41,22 +43,22 @@ private static final Logger log = Logger.getLogger(JSONRestUtil.class);
 	public static JSONObject getResults(String url) throws IOException, URISyntaxException {
 
 		log.debug("GETTING CONTENT FROM: " + url);
-		
+
 		HttpProxy proxy = new HttpProxy();
 		String content = proxy.getContent(new URL(url));
 
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
-	
+
 	public static int getNumberFoundFromJsonResponse(JSONObject response) {
 		int numberFound = (int) response.getJSONObject("response").getInt("numFound");
 		return numberFound;
 	}
-	
+
 	public static JSONArray getDocArray(JSONObject jsonResponse) {
 		JSONArray docs = jsonResponse.getJSONObject(
 				"response").getJSONArray("docs");
 		return docs;
 	}
-	
+
 }

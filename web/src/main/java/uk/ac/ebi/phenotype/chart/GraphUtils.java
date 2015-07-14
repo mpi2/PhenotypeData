@@ -15,7 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
@@ -25,6 +24,8 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.web.ChartType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.UnsupportedEncodingException;
@@ -33,7 +34,8 @@ import java.util.*;
 
 public class GraphUtils {
 
-	private static final Logger log = Logger.getLogger(GraphUtils.class);
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
 	ExperimentService experimentService;
 
     @Autowired

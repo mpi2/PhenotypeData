@@ -16,13 +16,14 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.apache.log4j.Logger;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary for access to the gene
  * page's "genes" HTML table.
  */
@@ -54,7 +55,7 @@ public class GeneTable {
     public static final int COL_INDEX_GENES_SOURCE              =  6;
     public static final int COL_INDEX_GENES_P_VALUE             =  7;
     public static final int COL_INDEX_GENES_GRAPH_LINK               =  8;
-    
+
     public static final String COL_GENES_PHENOTYPE           = "Phenotype";
     public static final String COL_GENES_ALLELE              = "Allele";
     public static final String COL_GENES_ZYGOSITY            = "Zygosity";
@@ -64,22 +65,22 @@ public class GeneTable {
     public static final String COL_GENES_SOURCE              = "Source";
     public static final String COL_GENES_P_VALUE             = "P Value";
     public static final String COL_GENES_GRAPH               = "Graph";
-    
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
     TestUtils testUtils;
 
     @Autowired
     UrlUtils urlUtils;
-    
+
     public GeneTable(WebDriver driver, WebDriverWait wait, String target) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
         this.data = null;
     }
-    
+
     /**
      * Query to see if HTML table with id 'genes' exists and is not empty.
      * @return true if genes table exists and is not empty; false otherwise
@@ -88,7 +89,7 @@ public class GeneTable {
         List<WebElement> elements = driver.findElements(By.xpath("//table[@id='genes']/tbody/tr"));
         return ( ! elements.isEmpty());
     }
-    
+
     /**
      * @return a <code>GridMap</code> containing the data and column access
      * variables that were loaded by the last call to <code>load()</code>.
@@ -121,13 +122,13 @@ public class GeneTable {
     public GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
-        
+
         String[][] dataArray;
         preQcList = new ArrayList();
         postQcList = new ArrayList();
         preAndPostQcList = new ArrayList();
         String value;
-        
+
         // Wait for page.
         WebElement genesTable = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#genes")));
 
@@ -193,7 +194,7 @@ public class GeneTable {
                 } else {
                     value = cell.getText();
                 }
-                
+
                 dataArray[sourceRowIndex][sourceColIndex] = value;
                 sourceColIndex++;
             }
@@ -213,7 +214,7 @@ public class GeneTable {
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
             sourceRowIndex++;
         }
-        
+
         data = new GridMap(postQcList, target);
         return data;
     }
@@ -229,9 +230,9 @@ public class GeneTable {
     public List<List<String>> getPreAndPostQcList() {
         return preAndPostQcList;
     }
-    
+
     /**
-     * 
+     *
      * @return the number of rows in the "genes" table. Always include 1 extra for the heading.
      */
     private int computeTableRowCount() {
@@ -239,5 +240,5 @@ public class GeneTable {
         List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='genes']/tbody/tr")));
         return elements.size() + 1;
     }
-    
+
 }

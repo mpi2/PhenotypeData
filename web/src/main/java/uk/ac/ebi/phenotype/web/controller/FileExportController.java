@@ -21,7 +21,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -34,10 +33,15 @@ import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
+import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -47,9 +51,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.generic.util.ExcelWorkBook;
-import uk.ac.ebi.generic.util.SolrIndex;
-import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
-import uk.ac.ebi.generic.util.Tools;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
@@ -65,7 +66,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,7 +75,7 @@ import java.util.*;
 @Controller
 public class FileExportController {
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
 	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
@@ -920,7 +920,7 @@ public class FileExportController {
 			 * if(doc.has("mp_definition")) {
 			 * data.add(doc.getString("mp_definition")); } else {
 			 * data.add(NO_INFO_MSG); }
-			 * 
+			 *
 			 * if(doc.has("top_level_mp_term")) { List<String> tops = new
 			 * ArrayList<String>(); JSONArray top =
 			 * doc.getJSONArray("top_level_mp_term"); for(int t=0;
@@ -1571,19 +1571,19 @@ public class FileExportController {
 		/*for ( GeneDTO gene : genes  ){
 			if ( gene.getMgiAccessionId() != null ){
 				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
-			}	
+			}
 		}
-		
+
 		if ( genes.size() == 0 ){
 			mgiIds = queryIds;
 		}
-		
+
 		if ( dataTypeName.equals("ensembl")) {
 			System.out.println("Found " + genes.size() + " of " + queryIds.size() + " Ensembl id converted to MGI gene id");
 		}*/
-		
+
 		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
-		
+
 		Workbook wb = null;
 		String fileName = "batch_query_dataset";
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
@@ -1815,7 +1815,7 @@ public class FileExportController {
 							 * dataTypeName.equals("marker_symbol") ||
 							 * dataTypeName.equals("ensembl") ? "gene" :
 							 * dataTypeName; foundIds.add("\"" + value + "\"");
-							 * 
+							 *
 							 * System.out.println("fieldname: " + fieldName +
 							 * " datatype: " + dataTypeName); //value =
 							 * "<a target='_blank' href='" + hostName + baseUrl

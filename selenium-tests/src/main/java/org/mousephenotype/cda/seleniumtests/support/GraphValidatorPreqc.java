@@ -16,11 +16,12 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.apache.log4j.Logger;
 import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -28,29 +29,29 @@ import java.util.List;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary to validate a preqc
  * graph. Since this is not an EBI graph, there is no need to extend from
  * GraphValidator.
  */
 public class GraphValidatorPreqc {
-    
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
     protected TestUtils testUtils;
-    
+
     public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) {
         PageStatus status = new PageStatus();
         String message;
-        
+
         List<String> urls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName());
         for (String url : urls) {
             if ( ! testUtils.isPreQcLink(url)) {
                 logger.info("Not a preqc graph. Continuing...: Gene Page URL: " + genePage.getTarget() + ". Graph URL: " + url);
                 continue;
             }
-            
+
             // If the graph page doesn't load, log it.
             driver.get(url);
             // Make sure there is a div.viz-tools.
@@ -60,7 +61,7 @@ public class GraphValidatorPreqc {
                 status.addError(message);
             }
         }
-        
+
         return status;
     }
 }

@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +28,8 @@ import org.mousephenotype.cda.solr.service.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.service.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -41,7 +42,7 @@ import java.util.*;
 @Service
 public class CategoricalChartAndTableProvider {
 
-	private static final Logger logger = Logger.getLogger(CategoricalChartAndTableProvider.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
 	PhenotypePipelineDAO ppDAO;

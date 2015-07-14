@@ -17,13 +17,14 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 public class ChartUtils {
 
-    private static final Logger logger = Logger.getLogger(ChartUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChartUtils.class);
 
     /**
      * method that changes the javascript of the chart to have a new max yAxis,

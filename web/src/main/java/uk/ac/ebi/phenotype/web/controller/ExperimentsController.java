@@ -15,17 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.exception.JDBCConnectionException;
@@ -37,6 +26,7 @@ import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +39,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Controller
@@ -73,7 +71,7 @@ public class ExperimentsController {
 
 	@Autowired
 	private ImpressService impressService;
-	
+
 	@Autowired
 	private StatisticalResultService srService;
 
@@ -100,27 +98,27 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
-			RedirectAttributes attributes) 
+			RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
 		List<ImpressBean> pipelines = new ArrayList<>();
 		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
-		int rows = 0; 
+		int rows = 0;
 		List<String> procedureStableIds = null;
 		List<String> truncatedStableIds = null;
 
 		if (allele == null) {
 			log.warn("Allele '" + alleleAccession + "' can't be found.");
 		}
-				
+
 		if (pipelineStableId == null){
 			pipelines = observationService.getPipelines(alleleAccession, phenotypingCenter, resource);
 		} else {
 			pipelines = new ArrayList<>();
 			pipelines.add(impressService.getPipeline(pipelineStableId));
 		}
-				
+
 		// check whether there is a procedure id, and if so if it's truncated or not
 		// The reason is a procedure can have multiple versions.
 		if (procedureStableId != null) {
@@ -134,12 +132,12 @@ public class ExperimentsController {
 				}
 			}
 		}
-		
+
 		try {
 			// get all p-values for this allele/center/pipeline
 			pvaluesMap = new HashMap<String, List<StatisticalResultBean>>();
 			Map<String, List<String>> parametersByProcedure = new HashMap<>();
-			
+
 			for (ImpressBean pipeline : pipelines){
 				pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(alleleAccession, phenotypingCenter, pipeline.getStableId(), truncatedStableIds, resource));
 				if (resource != null){
@@ -149,33 +147,33 @@ public class ExperimentsController {
 				} else {
 					parametersByProcedure.putAll(srService.getParametersToProcedureMap(null, phenotypingCenter, pipeline.getStableId()));
 				}
-			}	
-			
+			}
+
 			ColorCodingPalette colorCoding = new ColorCodingPalette();
 			colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
-			
+
 			String chart = phenomeChartProvider.generatePvaluesOverviewChart(allele, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, parametersByProcedure, phenotypingCenter);
-			
+
 			model.addAttribute("palette", colorCoding.getPalette());
 			model.addAttribute("chart", chart);
-		
+
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-	
+
 		for ( List<StatisticalResultBean> list : pvaluesMap.values()){
 			rows += list.size();
 		}
-		
+
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("request", request);
 		model.addAttribute("rows", rows);
-				
+
 		return "experiments";
 	}
-		
+
 	/**
 	 * Error handler for gene not found
 	 *

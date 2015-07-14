@@ -28,6 +28,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
+import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.DataTableRow;
@@ -46,8 +47,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.generic.util.SolrIndex;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.util.ParameterComparator;
@@ -124,7 +123,7 @@ public class PhenotypesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
-    	// Check whether the MP term exists     
+    	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotypes(phenotype_id);
     	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
         if (mpTerm == null && mpDbTerm == null) {
@@ -139,7 +138,7 @@ public class PhenotypesController {
         Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
 
         try {
-        	
+
         	JSONArray docs = solrIndex
                     .getMpData(phenotype_id)
                     .getJSONObject("response")

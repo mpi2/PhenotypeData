@@ -21,17 +21,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.db.pojo.Procedure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class PipelineProcedureData {
 
 
-	private static final Logger log = Logger
-			.getLogger(PipelineProcedureData.class);
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	// null is returned which doesn't sit well with code so this number
 	// indicates no week for a procedure to be carried out on a mouse

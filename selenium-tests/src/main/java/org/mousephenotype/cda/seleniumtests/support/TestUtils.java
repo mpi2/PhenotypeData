@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.Group;
@@ -36,6 +35,8 @@ import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesParameters;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -93,7 +94,7 @@ import static org.junit.Assert.fail;
 public class TestUtils {
     public final int DEFAULT_COUNT = 10;
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private static final Logger logger = Logger.getLogger("TestUtils");
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     public static final String NO_SUPPORTING_DATA = "No supporting data supplied.";
 

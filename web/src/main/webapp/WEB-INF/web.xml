@@ -82,18 +82,6 @@
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
-	<!-- proxy for javascript cross origin requests -->
-	<!--<servlet>-->
-		<!--<description></description>-->
-		<!--<display-name>proxy</display-name>-->
-		<!--<servlet-name>JSproxy</servlet-name>-->
-		<!--<servlet-class>uk.ac.ebi.phenotype.web.proxy.JSproxy</servlet-class>-->
-	<!--</servlet>-->
-	<!--<servlet-mapping>-->
-		<!--<servlet-name>JSproxy</servlet-name>-->
-		<!--<url-pattern>/proxy/*</url-pattern>-->
-	<!--</servlet-mapping>-->
-
 	<welcome-file-list>
     	<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

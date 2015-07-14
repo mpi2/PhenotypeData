@@ -15,28 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -50,16 +37,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import uk.ac.ebi.generic.util.SolrIndex;
-import org.mousephenotype.cda.db.dao.GwasDAO;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class ExternalAnnotsController {
 
-	private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
+	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -69,25 +60,25 @@ public class ExternalAnnotsController {
 
 	@Autowired
 	private GwasDAO gwasDao;
-	
+
 	@Autowired
 	@Qualifier("admintoolsDataSource")
 	//@Qualifier("admintoolsDataSourceLocal")
 	private DataSource admintoolsDataSource;
-	
-	
+
+
 	/**
 	 * redirect calls to the base url to the gwaslookup page
-	 * 
+	 *
 	 * @return
 	 */
 	@RequestMapping(value = "/gwaslookup", method = RequestMethod.GET)
 	public String gwaslookup() {
-		
+
 		return "gwaslookup";
 	}
-	
-	
+
+
 	@RequestMapping(value = "/gwaslookup", method = RequestMethod.POST)
 	public ResponseEntity<String> getImpcPhenotype2GwasDiseaseTraitMapping2 (
 
@@ -104,30 +95,30 @@ public class ExternalAnnotsController {
 		@RequestParam(value = "mp_term_id", required = false) String mp_term_id,
 		@RequestParam(value = "mp_term_name", required = false) String mp_term_name,
 		@RequestParam(value = "mode", required = false) String mode,
-		
+
 		HttpServletRequest request,
 		HttpServletResponse response,
 		Model model) throws IOException, URISyntaxException, SQLException  {
 		//System.out.println("PARAMS: " + request.getQueryString());
-		
+
 		String content = null;
-		
+
 		String[] parts = request.getQueryString().split("&");
-		
+
 		if ( parts.length == 1 ){
 			parts = request.getQueryString().split("=");
 			String field = parts[0];
 			String value = parts[1];
 			//System.out.println("QUERY: " + field + " --- " + value);
 			content = fetchGwasMappingOverviewTable(request, field, value);
-		}	
+		}
 		else {
 			List<String> params = new ArrayList<>();
 			for( int i=0; i<parts.length; i++ ){
 				String[] pair = parts[i].split("=");
 				params.add(pair[0] + "=\"" + URLDecoder.decode(pair[1], "UTF-8") + "\"");
 			}
-			
+
 			String sql = StringUtils.join(params, " AND ");
 			content = fetchGwasMappingDetailTable(request, sql);
 		}
@@ -135,36 +126,36 @@ public class ExternalAnnotsController {
 		//System.out.println("content: " + content);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
-	
+
 	@RequestMapping(value = "/phenotype2gwas", method = RequestMethod.GET)
 	public String getImpcPhenotype2GwasDiseaseTraitMapping (
-			@RequestParam(value = "mgi_gene_symbol", required = false) String mgiGeneSymbol, 
-			
+			@RequestParam(value = "mgi_gene_symbol", required = false) String mgiGeneSymbol,
+
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException  {
-		
-		
+
+
 		//System.out.println("GOT symbol: " + mgiGeneSymbol);
-		
+
 		String htmlStr = null;
 		if ( ! mgiGeneSymbol.isEmpty() ){
 			String mode = "nontool";
 			htmlStr = fetchGwasMappingTable(request, "mgi_gene_symbol", mgiGeneSymbol, mode);
 		}
-		
+
 		model.addAttribute("mapping", htmlStr);
-		
+
 		return "phenotype2gwas";
 	}
 	private String fetchGwasMappingDetailTable(HttpServletRequest request, String sql) throws SQLException {
-		
+
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		
+
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingDetailRows(sql);
 		String NA = "Info not available";
-		
+
         int totalDocs = gwasMappings.size();
         System.out.println("GOT " + totalDocs + " rows" );
 
@@ -179,9 +170,9 @@ public class ExternalAnnotsController {
         thList.add("<th>GWAS upstream gene</th>");
         thList.add("<th>GWAS downstream gene</th>");
         String thead = "<thead>" + StringUtils.join(thList,"") + "</thead>";
-        
+
         List<String> trs = new ArrayList<>();
-       
+
         int count = 0;
         for (GwasDTO gw : gwasMappings) {
         	count++;
@@ -194,38 +185,38 @@ public class ExternalAnnotsController {
         	tr.add("<td>" + gw.getGwasPhenoMappingCategory() + "</td>");
         	tr.add("<td>" + gw.getGwasSnpId() + "</td>");
         	tr.add("<td>" + Float.toString(gw.getGwasPvalue()) + "</td>");
-        	
+
         	String gwas_reported_gene = gw.getGwasReportedGene().isEmpty() ? NA : gw.getGwasReportedGene();
         	tr.add("<td>" + gwas_reported_gene  + "</td>");
-        	
+
         	String gwas_mapped_gene = gw.getGwasMappedGene().isEmpty() ? NA : gw.getGwasMappedGene();
         	tr.add("<td>" + gwas_mapped_gene + "</td>");
-        	
+
         	String gwas_upstream_gene = gw.getGwasUpstreamGene().isEmpty() ? NA : gw.getGwasUpstreamGene();
         	tr.add("<td>" + gwas_upstream_gene + "</td>");
 
         	String gwas_downstream_gene = gw.getGwasDownstreamGene().isEmpty() ? NA : gw.getGwasDownstreamGene();
         	tr.add("<td>" + gwas_downstream_gene + "</td>");
-        	
+
         	String trClass = count % 2 == 0 ? "even" : "odd";
         	trs.add("<tr class='" + trClass + "'>" + StringUtils.join(tr,"") + "</tr>");
         }
-        
+
         String table = "<table class='detailed'>" + thead + StringUtils.join(trs,"") + "</table>";
         return table;
 	}
-	
+
 	private String fetchGwasMappingOverviewTable(HttpServletRequest request, String field, String value) throws SQLException{
-		
+
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		
+
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingOverviewByQueryStr(field, value);
-		
+
 		JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
         int totalDocs = gwasMappings.size();
-        
+
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
 
@@ -241,85 +232,85 @@ public class ExternalAnnotsController {
 
         	String mp_term_name = gw.getGwasMpTermName();
         	String gwas_disease_trait = gw.getGwasDiseaseTrait();
-           
-           
+
+
         	List<String> rowData = new ArrayList<String>();
             rowData.add(mgi_gene_symbol_link);
             rowData.add(mp_term_name);
             rowData.add(gwas_disease_trait);
             rowData.add("<i class='fa fa-plus-square' id='" + counter + "'></i>");
             j.getJSONArray("aaData").add(rowData);
-           
+
         }
         return j.toString();
-        
+
 	}
-	
-	
-	
+
+
+
 	private String fetchGwasMappingTable(HttpServletRequest request, String field, String value, String mode) throws SQLException{
-		
+
 	// GWAS Gene to IMPC gene mapping
-		
+
 		List<GwasDTO> gwasMappings = null;
 		if ( field.equals("mgi_gene_symbol") ){
 			value = value.toUpperCase();
 		}
 		gwasMappings = gwasDao.getGwasMappingRows(field, value);
-		
+
 		System.out.println("ExternalAnnotsController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
-		
+
 		GwasDTO gm1 = gwasMappings.get(0);
 		String mgiGeneId = gm1.getGwasMgiGeneId();
 		String mgiGeneSymbol = gm1.getGwasMgiGeneSymbol();
 		String mappingCat = gm1.getGwasPhenoMappingCategory();
-		
+
 		Set<String> traits = new HashSet<>();
 		Map<String, List<String>> alleleIdData = new HashMap<>();
 		Map<String, List<GwasDTO>> traitGwasMappings = new HashMap<>();
-		
+
 		for ( GwasDTO gw : gwasMappings ) {
 			String traitName = gw.getGwasDiseaseTrait();
-			
+
 			traits.add(traitName);
 			if ( ! traitGwasMappings.containsKey(traitName) ){
 				traitGwasMappings.put(traitName, new ArrayList<GwasDTO>());
 			}
 			traitGwasMappings.get(traitName).add(gw);
 		}
-		
-		
+
+
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String geneLink = baseUrl + "/genes/" + mgiGeneId;
 		String markerRow = "<div id='mk'><span id='mkLeft'>Marker symbol: <a href='" + geneLink + "'>" + mgiGeneSymbol + "</a></span><span id='mkRight' class='"+ mappingCat +"'>" + mappingCat + " phenotypic mapping</span></div>";
 		List<String> dataRow = new ArrayList<>();
-		
+
 		String theadRow = null;
 		if ( mode.equals("tool") ){
 			theadRow = "<thead><tr><th class='impcData'>Marker symbol</th><th class='impcData'>Phenotypic mapping</th><th class='impcData'>IMPC MP term</th><th class='impcData'>IMPC Mouse gender</th><th>GWAS SNP id</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
 		}
 		else {
 			theadRow = "<thead><tr><th class='impcData'>IMPC MP term</th><th class='impcData'>IMPC Mouse gender</th><th>GWAS SNP id</th><th>GWAS p value</th><th>GWAS Reported gene</th><th>GWAS Mapped gene</th><th>GWAS Upstream gene</th><th>GWAS Downstream gene</th></tr></thead>";
-			
+
 		}
 		//System.out.println("marker row: " + markerRow);
 		List<String> trts = new ArrayList<>();
 		trts.add("<li class='trtName'>GWAS disease traits:&nbsp;&nbsp;</li>");
-		
+
 		int counter = 0;
 		for ( String traitName : traits ){
 			//System.out.println(traitName + " has got " + traitGwasMappings.get(traitName).size() + " gwas mappings");
 			counter++;
-			String tabId = mgiGeneSymbol + "_" + counter; 
-			
+			String tabId = mgiGeneSymbol + "_" + counter;
+
 			trts.add("<li><a href='#" + tabId + "'>" + traitName + "</a></li>");
-			
+
 			List<String> tabDivs = new ArrayList<>();
-			
+
 			Map<String, List<GwasDTO>> alleleNameGwasMappings = new HashMap<>();
-			
+
 			for ( GwasDTO tGw : traitGwasMappings.get(traitName) ){
-	
+
 				String thisAlleleName = tGw.getGwasMgiAlleleName();
 				if ( ! alleleNameGwasMappings.containsKey(thisAlleleName) ){
 					alleleNameGwasMappings.put(thisAlleleName, new ArrayList<GwasDTO>());
@@ -328,16 +319,16 @@ public class ExternalAnnotsController {
 			}
 			for (Map.Entry<String, List<GwasDTO>> entry : alleleNameGwasMappings.entrySet()){
 			    List<GwasDTO> aGws = entry.getValue();
-			    
+
 			    String thisAlleleName = entry.getKey();
 			    String thisAlleleId = aGws.get(0).getGwasMgiAlleleId();
 			    String alleleId = thisAlleleId.startsWith("NULL") ? "" : "(" + thisAlleleId + ")";
-			   
+
 			   // String caption = " <caption>IMPC allele: " + thisAlleleName + alleleId + "</caption>";
 			    String caption = " <caption>IMPC allele: " + thisAlleleName + "(" + thisAlleleId + ")" + "</caption>";
-			    
+
 			    List<String> trs = new ArrayList<>();
-			    
+
 			    for ( GwasDTO aGw : aGws ) {
 			    	List<String> tds = new ArrayList<>();
 			    	String mgiBaseLink = baseUrl + "/phenotypes/";
@@ -353,24 +344,24 @@ public class ExternalAnnotsController {
 					tds.add("<td>" + aGw.getGwasMappedGene() + "</td>");
 					tds.add("<td>" + aGw.getGwasUpstreamGene() + "</td>");
 					tds.add("<td>" + aGw.getGwasDownstreamGene() + "</td>");
-					
+
 					String td = StringUtils.join(tds, "");
 					trs.add("<tr>" + td + "</tr>");
-			    }	
-				
+			    }
+
 				String table = "<table class='tablesorter'>" + theadRow + caption + "<tbody>"+ StringUtils.join(trs, "") + "</tbody></table>";
-				
+
 				//System.out.println("table ---- " + table);
 				tabDivs.add("<div id='" + tabId + "'>" + table + "</div>");
-			    
+
 			}
-			
+
 			dataRow.add(StringUtils.join(tabDivs, ""));
 		}
-		
+
 		if (traits.size() > 1){
 			String traitTabs = "<ul class='tabs'>" + StringUtils.join(trts, "") + "</ul>";
-			
+
 			if ( mode.equals("tool") ){
 				return "<div id='tabs'>" + traitTabs + StringUtils.join(dataRow, "") + "</div>";
 			}
@@ -379,34 +370,34 @@ public class ExternalAnnotsController {
 		else {
 			Iterator ti = traits.iterator();
 			String traitName = "<div class='trtName'>GWAS disease trait:&nbsp;&nbsp;" + ti.next().toString() + "</div>";
-			
+
 			if ( mode.equals("tool") ){
 				return traitName + StringUtils.join(dataRow, "");
 			}
 			return markerRow + traitName + StringUtils.join(dataRow, "");
 		}
 	}
-	
+
 	@RequestMapping(value = "/allelerefedit", method = RequestMethod.GET)
 	public String dataTableJsonAlleleRefEdit(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException  {
 		// model.addAttribute("q", q);
-		
+
 		return "allelerefedit";
 	}
-	
+
 	@RequestMapping(value = "/alleleref", method = RequestMethod.GET)
 	public String dataTableJsonAlleleRef(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException, SQLException  {
 		// model.addAttribute("q", q);
-		
+
 		return "alleleref";
 	}
-	
+
 	@ExceptionHandler(Exception.class)
 	private ResponseEntity<String> getSolrErrorResponse(Exception e) {
 		e.printStackTrace();
@@ -415,7 +406,7 @@ public class ExternalAnnotsController {
 		JSONObject errorJson = (JSONObject) JSONSerializer.toJSON(errorJSON);
 		return new ResponseEntity<String>(errorJson.toString(), createResponseHeaders(), HttpStatus.CREATED);
 	}
-	
+
 	private HttpHeaders createResponseHeaders(){
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -424,7 +415,7 @@ public class ExternalAnnotsController {
 
 	@RequestMapping(value = "/gene2fam", method = RequestMethod.GET)
 	public String gene2fam(@RequestParam(value = "q", required = false) String q,
-			@RequestParam(value = "core", required = false) String core, 
+			@RequestParam(value = "core", required = false) String core,
 			@RequestParam(value = "fq", required = false) String fq, HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
