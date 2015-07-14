@@ -106,6 +106,7 @@ public class ExperimentsController {
 		Allele allele = alleleDao.getAlleleByAccession(alleleAccession);
 		List<ImpressBean> pipelines = new ArrayList<>();
 		Map<String, List<StatisticalResultBean>> pvaluesMap = null;
+		int rows = 0; 
 		List<String> procedureStableIds = null;
 		List<String> truncatedStableIds = null;
 
@@ -162,11 +163,16 @@ public class ExperimentsController {
 			e.printStackTrace();
 		}
 	
+		for ( List<StatisticalResultBean> list : pvaluesMap.values()){
+			rows += list.size();
+		}
+		
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("phenotyping_center", phenotypingCenter);
 		model.addAttribute("allele", allele);
 		model.addAttribute("request", request);
-		
+		model.addAttribute("rows", rows);
+				
 		return "experiments";
 	}
 		
