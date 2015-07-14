@@ -78,7 +78,7 @@
 							
 								
 								<p class="resultCount">
-								Total number of results: ${count}
+								Total number of results: ${rows}
 								</p>
 							
 								<script>
