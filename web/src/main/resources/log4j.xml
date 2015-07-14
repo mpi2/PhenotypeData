@@ -11,10 +11,8 @@
         </layout>
     </appender>
 
-
-
     <root>
-        <priority value="all" />
+        <priority value="warn" />
         <appender-ref ref="console" />
     </root>
 

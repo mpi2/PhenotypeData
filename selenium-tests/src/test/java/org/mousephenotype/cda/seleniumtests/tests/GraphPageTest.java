@@ -34,7 +34,7 @@ import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
+import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.WebDriver;

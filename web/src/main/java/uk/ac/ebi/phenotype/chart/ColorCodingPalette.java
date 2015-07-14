@@ -15,12 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 /**
  * Generates a color palette given a set of p-values
@@ -244,6 +245,7 @@ public class ColorCodingPalette {
 		}
 
 	}
+	
 
 	/**
 	 * Add a colorIndex to a set of statistical results
@@ -303,15 +305,11 @@ public class ColorCodingPalette {
 	 * @param scale
 	 * @param minimalPValue
 	 */
-	public void generateColors(Map<String, List<StatisticalResultBean>> statisticalResults, int maxColorIndex, double scale, double minimalPValue) {
+	public void generateColors(Map<String, List<StatisticalResultBean>> pvaluesMap, int maxColorIndex, double scale, double minimalPValue) {
 
 		palette = getColorPalette(maxColorIndex);
 
-		addColorIndexToStatisticalResults(
-				statisticalResults,
-				maxColorIndex,
-				scale,
-				minimalPValue);
+		addColorIndexToStatisticalResults(pvaluesMap, maxColorIndex, scale, minimalPValue);
 	}
 
 	/**
@@ -325,11 +323,7 @@ public class ColorCodingPalette {
 
 		palette = getColorPalette(maxColorIndex);
 
-		addColorIndexToStatisticalResults(
-				phenotypeCalls,
-				maxColorIndex,
-				scale,
-				minimalPValue);
+		addColorIndexToStatisticalResults( 	phenotypeCalls, maxColorIndex, scale, minimalPValue);
 	}
 
 	/**

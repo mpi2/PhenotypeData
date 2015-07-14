@@ -29,7 +29,7 @@ import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
+import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesParameters;

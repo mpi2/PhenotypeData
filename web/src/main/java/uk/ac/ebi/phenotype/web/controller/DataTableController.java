@@ -34,7 +34,6 @@ import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +45,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
@@ -251,7 +253,7 @@ public class DataTableController {
 
     	Map<String, String> dataTypeId = new HashMap<>();
     	dataTypeId.put("gene", "mgi_accession_id");
-    	dataTypeId.put("marker_name", "mgi_accession_id");
+    	dataTypeId.put("marker_symbol", "mgi_accession_id");
     	dataTypeId.put("ensembl", "mgi_accession_id");
 
     	dataTypeId.put("mp", "mp_id");
@@ -393,7 +395,6 @@ public class DataTableController {
 							Collection<Object> vals =  docMap.get(fieldName);
 							Set<Object> valSet = new HashSet<>(vals);
 							value = StringUtils.join(valSet, ", ");
-
 							if ( !dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								//String coreName = dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ? "gene" : dataTypeName;
 								String coreName = null;
@@ -402,7 +403,8 @@ public class DataTableController {
 									Collection<Object> mvals = docMap.get("marker_symbol");
 									Set<Object> mvalSet = new HashSet<>(mvals);
 									for (Object mval : mvalSet) {
-										foundIds.add("\"" + mval + "\"");
+										// so that we can compare
+										foundIds.add("\"" + mval.toString().toUpperCase() + "\"");
 									}
 								}
 								else if (dataTypeName.equals("ensembl") ){
