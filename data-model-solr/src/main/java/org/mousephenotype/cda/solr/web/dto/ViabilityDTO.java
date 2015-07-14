@@ -13,10 +13,12 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.solr.web.dto;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
 public class ViabilityDTO {
 	public final static String totalPups="IMPC_VIA_003_001";

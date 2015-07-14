@@ -19,7 +19,7 @@
  * and open the template in the editor.
  */
 
-package org.mousephenotype.cda.solr.service.dto;
+package org.mousephenotype.cda.solr.web.dto;
 
 import java.util.Collection;
 import java.util.HashMap;

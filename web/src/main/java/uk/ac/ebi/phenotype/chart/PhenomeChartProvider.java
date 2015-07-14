@@ -15,6 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,10 +32,7 @@ import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 public class PhenomeChartProvider {
 
@@ -41,7 +47,8 @@ public class PhenomeChartProvider {
 		String chartString = "	$(function () { \n"
 		+ "  pvaluesOverviewChart = new Highcharts.Chart({ \n"
 		+ "     chart: {\n"
-		+ "renderTo: 'chart" + alleleAccession + "',\n"
+//		+ "renderTo: 'chart" + alleleAccession + "',\n"
+		+ "renderTo: 'chartDiv',\n"
 		+ "         type: 'scatter',\n"
 		+ "         zoomType: 'xy',\n"
 		+ "         height: 800\n"
@@ -137,10 +144,18 @@ public class PhenomeChartProvider {
 		+ "           } \n" // events
 		+ "       } \n"
 		+ "   }, \n"
+//		+ "   navigator : {"
+//		+ "    adaptToUpdatedData: false,"
+//        + "    series : {"
+//        + "       data : "  + series.toString() + "\n"
+//        + "    }"
+//        + " },"
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
 
+		System.out.println("SIZE OF charts code " + chartString.length());
+		
 		return chartString;
 	}
 
@@ -573,7 +588,7 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	Allele allele,	Map<String, List<StatisticalResultBean>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter)
+	public String generatePvaluesOverviewChart(	String geneAccession, String alleleAccession, Map<String, List<StatisticalResultDTO>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
@@ -587,7 +602,6 @@ public class PhenomeChartProvider {
 
 			pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">procedure: {series.name}</td></tr>");
-		//	pointFormat.append("<tr><td style=\"padding:0\">sex: {point.controlSex}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">zygosity: {point.zygosity}</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">mutants: {point.femaleMutants}f:{point.maleMutants}m</td></tr>");
 			pointFormat.append("<tr><td style=\"padding:0\">metadata_group: {point.metadataGroup}</td></tr>");
@@ -597,8 +611,7 @@ public class PhenomeChartProvider {
 			// Create a statistical series for every procedure in the pipeline
 			// Start from the pipeline so that there is no need to keep this
 			// information from the caller side
-			// get All procedures and generate a Map Parameter => Procedure
-						
+			// get All procedures and generate a Map Parameter => Procedure						
 			for (String procedure : parametersByProcedure.keySet()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
@@ -606,35 +619,34 @@ public class PhenomeChartProvider {
 
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure);
-				// create a series here
-								
+				
+				// create a series here								
 				for (String parameterStableId : parametersByProcedure.get(procedure)) {
 											
 					if (statisticalResults.containsKey(parameterStableId)) {
 									
 						int resultIndex = 0;
 						long tempTime = System.currentTimeMillis();						
-						StatisticalResultBean statsResult = statisticalResults.get(parameterStableId).get(0);							
+						StatisticalResultDTO statsResult = statisticalResults.get(parameterStableId).get(0);							
 													
 						// smallest p-value sis the first (solr docs are sorted)
-						if (statsResult.getIsSuccessful() && resultIndex == 0) { 
+						if (statsResult.getStatus().equalsIgnoreCase("SUCCESS") && resultIndex == 0) { 
 
 							// create the point first
 							JSONObject dataPoint = new JSONObject();
 							dataPoint.put("name", statsResult.getParameterName());
 							dataPoint.put("parameter_stable_id", parameterStableId);
 							dataPoint.put("parameter_name", statsResult.getParameterName());
-							dataPoint.put("geneAccession", allele.getGene().getId().getAccession());
-							dataPoint.put("alleleAccession", allele.getId().getAccession());
+							dataPoint.put("geneAccession", geneAccession);
+							dataPoint.put("alleleAccession", alleleAccession);
 							dataPoint.put("phenotyping_center", phenotypingCenter);
 							dataPoint.put("y", index);
-							dataPoint.put("x", statsResult.getLogValue());
+							dataPoint.put("x", getLogValue(statsResult.getpValue()));
 							dataPoint.put("pValue", statsResult.getpValue());
 							dataPoint.put("effectSize", statsResult.getEffectSize());
-							dataPoint.put("sex", statsResult.getControlSex());
 							dataPoint.put("zygosity", statsResult.getZygosity());
-							dataPoint.put("femaleMutants", statsResult.getFemaleMutants());
-							dataPoint.put("maleMutants", statsResult.getMaleMutants());
+							dataPoint.put("femaleMutants", statsResult.getFemaleMutantCount());
+							dataPoint.put("maleMutants", statsResult.getMaleMutantCount());
 							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());								
 							
 							if (!categories.contains(statsResult.getParameterName())) {
@@ -652,7 +664,7 @@ public class PhenomeChartProvider {
 					series.put(scatterJsonObject);
 				}
 			}
-			chartString = createPvaluesOverviewChart( allele.getId().getAccession(), minimalPvalue, pointFormat.toString(),	series,	new JSONArray(categories.toArray()));
+			chartString = createPvaluesOverviewChart( alleleAccession, minimalPvalue, pointFormat.toString(),	series,	new JSONArray(categories.toArray()));
 
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -662,7 +674,16 @@ public class PhenomeChartProvider {
 	}
 
 
-
+	/**
+	 * Return a -Log10 value to generate a scale
+	 * @return -Math.log10(pValue)
+	 */
+	public double getLogValue(Double pValue) {
+		if (pValue < 1E-20) {
+			return -Math.log10(1E-20);
+		}
+		return -Math.log10(pValue);
+	}
 
 	/**
 	 * Add jitter to a data point by capping the effect size between 0 and 0.8
