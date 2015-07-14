@@ -26,11 +26,9 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.SearchFacetTable;
-import org.mousephenotype.cda.seleniumtests.support.SearchPage;
+import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;
-import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
@@ -44,7 +42,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.generic.util.JSONRestUtil;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -306,13 +303,11 @@ public class SearchPageTest {
             e.printStackTrace();
             status.addError(message);
         } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            } else {
+            if ( ! status.hasErrors()) {
                 successList.add(testName + ": SUCCESS.");
             }
 
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+            testUtils.printEpilogue(testName, start, status, successList.size(), paramList.size(), paramList.size());
         }
     }
 
@@ -442,6 +437,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     @Test
 @Ignore
     public void testAutosuggestForSpecificKnownGenes() throws Exception {
+        PageStatus status = new PageStatus();
         testCount++;
         String testName = "testAutosuggestForSpecificKnownGenes";
 
@@ -483,12 +479,11 @@ if (core.equals(SearchPage.GENE_CORE)) {
                 for (SearchPage.AutosuggestRow row : autoSuggestions) {
                     message += "\n" + row.toString();
                 }
-                System.out.println(message);
-                errorList.add(message);
+                status.addError(message);
             }
         }
 
-        testUtils.printEpilogue(testName, start, errorList, null, successList, geneSymbols.length, geneSymbols.length);
+        testUtils.printEpilogue(testName, start, status, successList.size(), geneSymbols.length, geneSymbols.length);
 
         System.out.println();
     }
@@ -632,6 +627,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     @Test
 @Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
+        PageStatus status = new PageStatus();
         testCount++;
         String testName = "testQueryingRandomGeneSymbols";
 
@@ -690,9 +686,9 @@ if (core.equals(SearchPage.GENE_CORE)) {
             sumSuccessList.add("passed");
         }
         else {
-            System.out.println("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-            sumErrorList.add("[FAILED] - " + testName + "\n" + StringUtils.join(errorList, "\n"));
-            testUtils.printEpilogue(testName, start, errorList, null, successList, nbRows,  1);
+            message = "[FAILED] - \" + testName + \"\\n\" + StringUtils.join(errorList, \"\\n\")";
+            status.addError(message);
+            testUtils.printEpilogue(testName, start, status, nbRows, 1, 1);
             fail("There were " + sumErrorList.size() + " errors.");
 
         }
@@ -865,6 +861,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     @Test
 @Ignore
     public void testPagination() throws Exception {
+        PageStatus status = new PageStatus();
         testCount++;
         System.out.println();
         String testName = "testPagination";
@@ -914,8 +911,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
                     successList.add("Success!");
             } catch (Exception e) {
                 message = "EXCEPTION: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. message: " + e.getLocalizedMessage();
-                System.out.println(message);
-                exceptionList.add(message);
+                status.addError(message);
                 e.printStackTrace();
             }
         }
@@ -925,12 +921,13 @@ if (core.equals(SearchPage.GENE_CORE)) {
             sumSuccessList.add("passed");
         }
 
-        testUtils.printEpilogue(testName, start, errorList, exceptionList, successList, cores.size(), cores.size());
+        testUtils.printEpilogue(testName, start, status, successList.size(), cores.size(), cores.size());
     }
 
     @Test
 @Ignore
     public void testFacetCountsNoSearchTerm() throws Exception {
+        PageStatus status = new PageStatus();
         testCount++;
         System.out.println();
         String testName = "testFacetCountsNoSearchTerm";
@@ -946,9 +943,9 @@ if (core.equals(SearchPage.GENE_CORE)) {
         for (String core : cores) {
             recordCount++;
             String target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
-            PageStatus status = facetCountEngine(target, imageMap);
-            if (status.hasErrors()) {
-                errorList.add("[FAILED] - " + testName + "\n" + status.toStringErrorMessages());
+            PageStatus localStatus = facetCountEngine(target, imageMap);
+            if (localStatus.hasErrors()) {
+                status.addError("[FAILED] - " + testName + "\n" + status.toStringErrorMessages());
             } else {
                 successList.add("passed");
             }
@@ -965,7 +962,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             int resultCount = searchPage.getResultCount();
 
             if (facetCountFromSolr != resultCount) {
-                errorList.add("[FAILED] - " + testName + "\n" + "facetCountFromSolr (" + facetCountFromSolr + ") is not equal to page results count (" + resultCount + ").");
+                status.addError("[FAILED] - " + testName + "\n" + "facetCountFromSolr (" + facetCountFromSolr + ") is not equal to page results count (" + resultCount + ").");
             } else {
                 successList.add("passed");
             }
@@ -976,7 +973,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             sumSuccessList.add("passed");
         }
 
-        testUtils.printEpilogue(testName, start, errorList, null, successList, recordCount, recordCount);
+        testUtils.printEpilogue(testName, start, status, successList.size(), cores.size(), cores.size());
     }
 
     private class SearchTermGroup {
@@ -1078,10 +1075,10 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
         if (status.hasErrors()) {
             sumErrorList.add("[FAILED] - " + testName + "\n" + status.toStringErrorMessages());
-            testUtils.printEpilogue(testName, start, status.getErrorMessages(), null, successList, paramList.size(), paramList.size());
+            testUtils.printEpilogue(testName, start, status, successList.size(), paramList.size(), paramList.size());
         } else if (status.hasWarnings()) {
             sumErrorList.add("[WARNINGS] - " + testName + "\n" + status.toStringWarningMessages());
-            testUtils.printEpilogue(testName, start, status.getWarningMessages(), null, successList, paramList.size(), paramList.size());
+            testUtils.printEpilogue(testName, start, status, successList.size(), paramList.size(), paramList.size());
         } else {
             System.out.println("[PASSED] - " + testName + ".");
             sumSuccessList.add("passed");
@@ -1100,6 +1097,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     @Test
 @Ignore
     public void testMPII_806() throws Exception {
+        PageStatus status = new PageStatus();
         Date start = new Date();
         successList.clear();
         errorList.clear();
@@ -1119,19 +1117,19 @@ if (core.equals(SearchPage.GENE_CORE)) {
         String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
         if ( ! element.getText().contains("fasting glucose")) {
-            errorList.add("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
+            status.addError("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
             element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']")));
             if (element.getText().contains("Found") == false) {
-                errorList.add("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
+                status.addError("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
             }
         }
 
         if ((errorList.isEmpty() && (exceptionList.isEmpty())))
             successList.add((testName + ": OK"));
 
-        TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
     }
 
     /**
@@ -1190,17 +1188,14 @@ if (core.equals(SearchPage.GENE_CORE)) {
             }
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-            System.out.println(message);
             e.printStackTrace();
             status.addError(message);
         } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            } else {
+            if ( ! status.hasErrors()) {
                 successList.add(testName + ": SUCCESS.");
             }
 
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
 
     }
@@ -1258,10 +1253,9 @@ if (core.equals(SearchPage.GENE_CORE)) {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
             SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
-facet = Facet
             facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
-            searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
+            searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
 //            searchPage.clickPageButton();
 //searchPage.clickPageButton(SearchPage.PageDirective.LAST);
 //TestUtils.sleep(2000);
@@ -1270,17 +1264,13 @@ facet = Facet
 
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-            System.out.println(message);
-            e.printStackTrace();
             status.addError(message);
         } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            } else {
+            if ( ! status.hasErrors()) {
                 successList.add(testName + ": SUCCESS.");
             }
 
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
     }
 
@@ -1305,17 +1295,17 @@ facet = Facet
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, impcImageMap);
 
             facet = Facet.IMPC_IMAGES;
             searchPage.clickFacet(facet);
-            searchPage.getImpcImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
+            searchPage.getImpcImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
 
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
 
- searchPage.clickPageButton(PageDirective.LAST);
+ searchPage.clickPageButton(SearchPage.PageDirective.LAST);
  searchPage.getImpcImageTable().updateImageTableAfterChange();
- TestUtils.sleep(2000);
+ commonUtils.sleep(2000);
             status.add(searchPage.validateDownload(facet));
 
         } catch (Exception e) {
@@ -1330,7 +1320,7 @@ facet = Facet
                 successList.add(testName + ": SUCCESS.");
             }
 
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
     }
 
@@ -1349,12 +1339,12 @@ facet = Facet
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
             Facet facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
-            searchPage.getImageTable().setCurrentView(ImageFacetView.IMAGE_VIEW);
-            searchPage.clickPageButton(PageDirective.LAST);
-            TestUtils.sleep(2000);
+            searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
+            searchPage.clickPageButton(SearchPage.PageDirective.LAST);
+            commonUtils.sleep(2000);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
         } catch (Exception e) {
@@ -1369,7 +1359,7 @@ facet = Facet
                 successList.add(testName + ": SUCCESS.");
             }
 
-            TestUtils.printEpilogue(testName, start, errorList, exceptionList, successList, 1, 1);
+            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
     }
 
@@ -1383,7 +1373,7 @@ facet = Facet
 
         System.out.println("\n\n----- " + testName + " -----");
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedResult = "wnt1";
@@ -1401,7 +1391,7 @@ facet = Facet
 
         System.out.println("\n\n----- " + testName + " -----");
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
@@ -1422,7 +1412,7 @@ facet = Facet
 
         System.out.println("\n\n----- " + testName + " -----");
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
@@ -1447,7 +1437,7 @@ facet = Facet
         System.out.println("testMaTermNamesMatchFacetNames");
         String target = baseUrl + "/search";
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
+        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, impcImageMap);
         String[] pageMaFacetTermNames = searchPage.getFacetNames(Facet.ANATOMY);
         for (int i = 0; i < pageMaFacetTermNames.length; i++) {
             // Remove the newline and facet count.
