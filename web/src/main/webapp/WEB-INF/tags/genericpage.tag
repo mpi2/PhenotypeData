@@ -1,10 +1,9 @@
-<%@ tag description="Overall Page template" pageEncoding="UTF-8" 
+<%@ tag description="Overall Page template" pageEncoding="UTF-8"
         import="uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,java.net.URLEncoder"
         %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<%@ taglib uri="http://htmlcompressor.googlecode.com/taglib/compressor" prefix="compress" %>
 
 
 <%-- -------------------------------------------------------------------------- --%>
@@ -167,10 +166,10 @@
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-        <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script> 
+        <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script>
 
         <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
- 		
+
         <jsp:invoke fragment="header" />
 
         <%-- Always use www.mousephenotype.org as the canonical domain, except for bare pages --%>
@@ -184,22 +183,22 @@
 
 
     <jsp:invoke fragment="bodyTag"/>
-    
+
     <c:if test="${!param['bare'].equalsIgnoreCase(\"true\")}">
 	    <div id="feedback_simple">
 	        <a class="feedback_simple-right feedback_simple" style="top: 35%; height: 100px; width: 35px;" target="_self" href=""><img src="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.gif" /></a>
 	    </div>
     </c:if>
-    
+
     <div id="wrapper">
         <c:choose>
             <c:when test="${param['bare'] == null}">
-								<script type="text/javascript" >									
+								<script type="text/javascript" >
 								    // assign the url to feedback link dynamically
 								    // this won't work with hashtag change which is taken care of in search.jsp
 								    $('a.feedback_simple').attr('href', '/website-feedback?page=' + document.URL);
 							  </script>
-							  
+
                 <header id="header">
                     <div class="region region-header">
 
@@ -222,13 +221,13 @@
                         <nav id="mn">${menu}</nav>
                         <div class="clear"></div>
                     </div>
-                   
+
                 </header>
 
                 <div id="main">
                     <div class="breadcrumb">
                         <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
-                        
+
                         <div class='searchcontent'>
     											<div id='bigsearchbox' class='block'>
     												<div class='content'>
@@ -236,17 +235,17 @@
     													<div class='ui-widget'>
     													<input id='s'>
     														<a><i class='fa fa-info searchExample'></i></a>
-    													</div>						
+    													</div>
     												</div>
     											</div>
     										</div>
-    										
+
                         <div id='batchQryLink'>
                         	<a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch query</span></a>
                         </div>
-                        
+
                     </div>
-                    
+
                     <jsp:doBody />
                 </div>
                 <!-- /main -->
@@ -311,12 +310,12 @@
 
         <!-- <script type="text/javascript" src='${baseUrl}/js/script.min.js?v=${version}' ></script>-->
 		<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-        <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>                 
-        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>     	    
+        <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
    		<c:choose>
             <c:when test="${param['bare'] == null}">
-        		<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script> 
+        		<script type='text/javascript' src="${baseUrl}/js/searchAndFacet/breadcrumbSearchBox.js?v=${version}"></script>
             </c:when>
 	    </c:choose>
 
