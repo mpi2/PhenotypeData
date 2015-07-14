@@ -16,7 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.solr.service.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 
 import java.util.ArrayList;
 import java.util.List;

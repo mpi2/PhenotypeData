@@ -3,30 +3,9 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Experiment details for ${allele.symbol}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Alleles &raquo; <t:formatAllele>${allele.symbol}</t:formatAllele></jsp:attribute>
+	<jsp:attribute name="title">Experiment details for alleles of ???</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
-	<jsp:attribute name="addToFooter">
-	<!--  start of floating menu for genes page -->
-	<div class="region region-pinned">
-            
-        <div id="flyingnavi" class="block">
-            
-            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-            
-            <ul>
-                <li><a href="#top">Allele</a></li>
-                <li><a href="#section-associations">Phenotype Associations</a></li><!--  always a section for this even if says no phenotypes found - do not putting in check here -->
-            </ul>
-            
-            <div class="clear"></div>
-            
-        </div>
-        
-    </div>
-	<!--  end of floating menu for genes page -->
-
-	</jsp:attribute>
+	
 	
 
 	<jsp:attribute name="header">
@@ -38,10 +17,6 @@
 		<script type="text/javascript" src="${baseUrl}/js/general/dropdownfilters.js?v=${version}"></script>
 		<script type="text/javascript" src="${baseUrl}/js/general/allele.js?v=${version}"></script>
 		
-		<!-- Why it is there? I don't know -->
-		<script type="text/javascript">var gene_id = '${allele.gene.id.accession}';</script>
-		
-		<!-- Assign this as a variable for other components -->
 		<script type="text/javascript">
 			var base_url = '${baseUrl}';
 		</script>
@@ -59,32 +34,29 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top"><t:formatAllele>${allele.symbol}</t:formatAllele> - ${phenotyping_center}</h1>
+						<h1 class="title" id="top">Experiments for ${allelePageDTO.getGeneSymbol()}</h1>
 
 							<!--  Phenotype Associations Panel -->
 							<div class="section">
 								<div class="inner">
 					
+								
 								<!-- Associations table -->
 								<c:if test="${chart != null}">						
 									<!-- chart here -->
-					  			<div id="chart${allele.id.accession}"></div>
+					  				<div id="chartDiv"></div>
 									<script type="text/javascript">${chart}</script>	
 								</c:if>
 								
-								<br/><br/>			
-								
 								<c:set var="count" value="0" scope="page" />
-							
-								
+															
 								<p class="resultCount">
 								Total number of results: ${rows}
 								</p>
 							
 								<script>
-								 var resTemp = document.getElementsByClassName("resultCount");
-								 if (resTemp.length > 1)
-									 resTemp[0].remove();
+									var resTemp = document.getElementsByClassName("resultCount");
+									if (resTemp.length > 1){ resTemp[0].remove();}
 								</script>
 								
 								<table id="strainPvalues">
@@ -109,32 +81,11 @@
 													<td>${pValueItem.getProcedureName()}</td>
 													<td>${pValueItem.getParameterName()}</td>
 													<td>${pValueItem["zygosity"]}</td>
-													<!-- nb of mutants -->
-													<c:choose>
-														<c:when test="${pValueItem.controlSex eq 'male'}">
-															<td>${pValueItem.maleMutants}m</td>
-														</c:when>
-														<c:when test="${pValueItem.controlSex eq 'female'}">
-															<td>${pValueItem.femaleMutants}f</td>
-														</c:when>
-														<c:when test="${empty pValueItem.femaleMutants and empty pValueItem.maleMutants}">
-															<td> - </td>
-														</c:when>
-														<c:when test="${empty pValueItem.femaleMutants and not empty pValueItem.maleMutants}">
-															<td>${pValueItem.maleMutants}m</td>
-														</c:when>
-														<c:when test="${empty pValueItem.maleMutants and not empty pValueItem.femaleMutants}">
-															<td>${pValueItem.maleMutants}f</td>
-														</c:when>
-														<c:otherwise>
-															<td>${pValueItem.femaleMutants}f:${pValueItem.maleMutants}m</td>
-														</c:otherwise>
-													</c:choose>
-													<!-- Statistical Method -->
-															<td>${pValueItem.statisticalMethod}</td>
+													<td>${pValueItem.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
+													<td>${pValueItem.statisticalMethod}</td>
 													<!-- pValue -->
 													<c:choose>
-														<c:when test="${ ! empty pValueItem && pValueItem.isSuccessful }">
+														<c:when test="${ ! empty pValueItem && pValueItem.getStatus() == 'SUCCESS'}">
 															<c:set var="paletteIndex" value="${pValueItem.colorIndex}"/>
 															<c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
 															<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
@@ -151,10 +102,10 @@
 													<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 													</td>
 													</tr>
-										</c:forEach>
+											</c:forEach>
 										</c:forEach>
 									</tbody>
-								</table>				
+								</table>								
 							</div>
 						</div> <!-- parameter list -->
 				 
