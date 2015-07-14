@@ -2,7 +2,7 @@
 /**
  * @author tudose
  */
-package uk.ac.ebi.phenotype.loader;
+package org.mousephenotype.cda.loads;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;

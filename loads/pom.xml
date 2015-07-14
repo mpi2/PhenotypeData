@@ -23,6 +23,12 @@
             <artifactId>data-model-db</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-solr</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.mousephenotype.dcc.exportlibrary.xmlvalidationresourcescollection</groupId>
             <artifactId>exportlibrary.xmlvalidationresourcescollection</artifactId>
@@ -127,6 +133,14 @@
             <artifactId>httpclient</artifactId>
             <version>4.5</version>
         </dependency>
+
+        <!-- For command line option parsing -->
+        <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
+            <version>4.3</version>
+        </dependency>
+
 
     </dependencies>
 
