@@ -276,10 +276,8 @@
 	<field name="geneName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="subtype"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="geneSynonyms"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-        <field name="maTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
+    <field name="maTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="maTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="mpTermId"  type="string"   indexed="true"  stored="true"  multiValued="true" />
-	<field name="mpTermName"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="expName_exp"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="symbol_gene"  type="string"   indexed="true"  stored="true"  multiValued="true" />
 	<field name="topLevel"  type="string"   indexed="true"  stored="true"  multiValued="true" />
