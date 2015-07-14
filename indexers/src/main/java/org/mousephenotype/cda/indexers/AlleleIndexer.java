@@ -947,9 +947,11 @@ public class AlleleIndexer extends AbstractIndexer {
                 String id = rs.getString("id");
                 AlleleDTO allele = alleles.get(id);
                 if (allele.getMarkerSynonym() == null) {
-                    allele.setMarkerSynonym(new ArrayList<String>());
+                    allele.setMarkerSynonym(new ArrayList<>());
                 }
-               
+                if (allele.getMarkerSynonymLowercase() == null) {
+                    allele.setMarkerSynonymLowercase(new ArrayList<>());
+                }
                 allele.getMarkerSynonym().add(rs.getString("marker_synonym"));
                 allele.getMarkerSynonymLowercase().add(rs.getString("marker_synonym"));
                 allele.setMarkerName(rs.getString("marker_name"));
