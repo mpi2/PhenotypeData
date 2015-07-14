@@ -17,11 +17,12 @@ package uk.ac.ebi.generic.util;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.mousephenotype.cda.solr.service.dto.Anatomy;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+
+import org.mousephenotype.cda.solr.web.dto.Anatomy;
 
 public class JSONMAUtils {
 

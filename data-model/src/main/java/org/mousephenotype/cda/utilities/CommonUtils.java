@@ -26,6 +26,32 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class CommonUtils {
 
+    private final static double EPSILON = 0.000000001;
+    /**
+     * Performs an approximate match between two doubles. Returns true if
+     * the two values are within a difference of 0.000000001; false otherwise
+     * @param a first operand
+     * @param b second operand
+     * @return true if  the two values are within a difference of 0.000000001;
+     * false otherwise
+     */
+    public boolean equals(double a, double b) {
+        return (a == b ? true : Math.abs(a - b) < EPSILON);
+    }
+
+    /**
+     * Performs an approximate match between two doubles. Returns true if
+     * the two values are within <code>epsilon</code>; false otherwise
+     * @param a first operand
+     * @param b second operand
+     * @param epsilon the difference within which both operands are considered
+     * equal
+     * @return true if  the two values are within <code>epsilon</code>; false otherwise
+     */
+    public boolean equals(double a, double b, double epsilon) {
+        return (a == b ? true : Math.abs(a - b) < epsilon);
+    }
+
     /**
      * Return the string representation of the specified <code>milliseconds</code>
      * in hh:mm:ss format. NOTE: year, month, and day do not participate in the
@@ -35,7 +61,7 @@ public class CommonUtils {
      * @param milliseconds
      * @return
      */
-    public static String msToHms(Long milliseconds) {
+    public String msToHms(Long milliseconds) {
         String result = String.format("%02d:%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(milliseconds),
                 TimeUnit.MILLISECONDS.toMinutes(milliseconds) -
@@ -44,6 +70,38 @@ public class CommonUtils {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
 
         return result;
+    }
+
+    /**
+     * Sleeps the thread for <code>thread_wait_in_ms</code> milliseconds.
+     * If <code>threadWaitInMs</code> is null or 0, no sleep is executed.
+     *
+     * @param threadWaitInMs length of time, in milliseconds, to sleep.
+     */
+    public void sleep(Integer threadWaitInMs) {
+        if ((threadWaitInMs != null) && (threadWaitInMs > 0))
+            try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
+    }
+
+    /**
+     * Given an <code>Object</code> that may be null or may be a float or double, this
+     * method attempts to convert the value to a <code>Double</code>. If successful,
+     * the <code>Double</code> value is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     * @param o the object to try to convert
+     * @return the converted value, if <em>o</em> is a <code>Float or Double</code>; null otherwise
+     */
+    public Double tryParseDouble(Object o) {
+        if (o == null)
+            return null;
+
+        Double retVal = null;
+        try {
+            retVal = Double.parseDouble(o.toString().trim());
+        }
+        catch (NumberFormatException nfe ) { }
+
+        return retVal;
     }
 
     /**

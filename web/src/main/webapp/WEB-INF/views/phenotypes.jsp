@@ -6,9 +6,9 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">${phenotype.id.accession} (${phenotype.name}) | IMPC Phenotype Information</jsp:attribute>
+	<jsp:attribute name="title">${phenotype.getMpId()} (${phenotype.getMpTerm()}) | IMPC Phenotype Information</jsp:attribute>
 	
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=*:*&facet=mp">Phenotypes</a> &raquo; ${phenotype.name}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=*:*&facet=mp">Phenotypes</a> &raquo; ${phenotype.getMpTerm()}</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -25,7 +25,7 @@
 		
 		
 		<script type="text/javascript">
-			var phenotypeId = '${phenotype.id.accession}'; 
+			var phenotypeId = '${phenotype.getMpId()}'; 
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
 
@@ -104,7 +104,7 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-			<h1 class="title" id="top">Phenotype: ${phenotype.name} </h1>	 
+			<h1 class="title" id="top">Phenotype: ${phenotype.getMpTerm()} </h1>	 
 			
 				<div class="section">
 					<div class="inner">
@@ -124,8 +124,8 @@
                              </c:if>
                          </div>
 					
-						<c:if test="${not empty phenotype.description}">
-							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.description} </p>
+						<c:if test="${not empty phenotype.getMpDefinition()}">
+							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 						</c:if>
 						<c:if test="${not empty synonyms}">
 							<p class="with-label"> <span class="label">Synonyms</span>
@@ -171,7 +171,7 @@
 								</ul>
 							</div>
 						</c:if>
-						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.id.accession}">${phenotype.id.accession}</a></p>
+						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
 						<c:if test="${!hasData}">
 							<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
 						</c:if>
@@ -185,7 +185,7 @@
 						<div class="inner">					
 							<!-- Phenotype Assoc. summary -->
 							<div class="half">
-								<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.name}
+								<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
 									(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 								<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
@@ -200,7 +200,7 @@
 								<div id="chartsHalf" class="half">
 								<c:if test="${parametersAssociated.size() > 1}">
 									<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
-										<select class="overviewSelect" onchange="ajaxToBe('${phenotype.id.accession}', this.options[this.selectedIndex].value);">
+										<select class="overviewSelect" onchange="ajaxToBe('${phenotype.getMpId()}', this.options[this.selectedIndex].value);">
 											<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
 												<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
 											</c:forEach>
@@ -210,7 +210,7 @@
 								<br/>
 	
 								<div id="chart-container">
-									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.id.accession}">
+									<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.getMpId()}">
 									</div>
 									<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 								</div>
@@ -227,7 +227,7 @@
 			<c:if test="${hasData}">
 				<div class="section">
 				
-			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.name} 	
+			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.getMpTerm()} 	
 			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
 			    </h2>
 				   
@@ -266,7 +266,7 @@
 				
 				<!--  HEATMAP section -->
 				<div class="section" id="phenotypeHeatmapSection" >
-					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.name} 
+					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.getMpTerm()} 
 						<span class="documentation" ><a href='https://www.mousephenotype.org/heatmap/manual.html' id='pre-qc' class="fa fa-question-circle pull-right"></a></span> 
 					</h2>
 					<div class="inner">

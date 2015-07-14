@@ -102,8 +102,6 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
-
-
             <!--  additional external dependencies -->
 
         </dependencies>

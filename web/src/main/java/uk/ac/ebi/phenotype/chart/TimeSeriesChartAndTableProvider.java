@@ -115,7 +115,6 @@ public class TimeSeriesChartAndTableProvider {
 
 		String title = "Mean " + parameter.getName();
 		if (lines.size() > 1) {
-			System.out.println("PARAMETER: " + parameter.getName());
 			// if lines are greater than one i.e. more than just control create charts and tables
 			String xAxisLabel = (parameter.getName().contains("Body Weight Curve ")) ? "Age - rounded to nearest week" : parameter.checkParameterUnit(1);
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);

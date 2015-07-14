@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.chart;
 import org.apache.commons.lang.WordUtils;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

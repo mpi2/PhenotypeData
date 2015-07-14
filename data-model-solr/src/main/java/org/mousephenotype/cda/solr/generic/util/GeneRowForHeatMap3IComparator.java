@@ -19,8 +19,8 @@ package org.mousephenotype.cda.solr.generic.util;
 import java.util.Comparator;
 import java.util.Map;
 
-import org.mousephenotype.cda.solr.service.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.service.dto.HeatMapCell;
+import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 
 public class GeneRowForHeatMap3IComparator implements Comparator<GeneRowForHeatMap> {
 

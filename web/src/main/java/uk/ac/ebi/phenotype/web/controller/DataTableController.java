@@ -43,12 +43,13 @@ import uk.ac.ebi.generic.util.SolrIndex.AnnotNameValCount;
 import uk.ac.ebi.generic.util.Tools;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.solr.web.dto.ReferenceDTO;
+import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ReferenceDTO;
+
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;

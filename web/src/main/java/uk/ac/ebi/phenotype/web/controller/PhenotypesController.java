@@ -30,9 +30,10 @@ import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
-import org.mousephenotype.cda.solr.service.dto.DataTableRow;
-import org.mousephenotype.cda.solr.service.dto.PhenotypePageTableRow;
-import org.mousephenotype.cda.solr.service.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,19 +124,14 @@ public class PhenotypesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
-    	// Check whether the MP term exists
-        OntologyTerm oTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
-
-        if (oTerm == null) {
+    	// Check whether the MP term exists     
+    	MpDTO mpTerm = mpService.getPhenotypes(phenotype_id);
+    	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
+        if (mpTerm == null && mpDbTerm == null) {
+        	System.out.println("ONTOLOGY TERM NULL");
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
-        // Yes, it's a valid MP term
-//		OntologyTerm oTerm=new OntologyTerm();
-//		DatasourceEntityId dId=new DatasourceEntityId();
-//		dId.setAccession(phenotype_id);
-//		dId.setDatabaseId(5);
-//		oTerm.setId(dId);
         Set<OntologyTerm> anatomyTerms = new HashSet();
         Set<OntologyTerm> mpSiblings = new HashSet();
         Set<OntologyTerm> goTerms = new HashSet();
@@ -143,7 +139,7 @@ public class PhenotypesController {
         Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
 
         try {
-
+        	
         	JSONArray docs = solrIndex
                     .getMpData(phenotype_id)
                     .getJSONObject("response")
@@ -159,15 +155,15 @@ public class PhenotypesController {
 	            JSONObject mpData = docs.getJSONObject(0);
 	            JSONArray terms;
 
-	            if (mpData.containsKey("mp_term")) {
-	                String term = mpData.getString("mp_term");
-	                oTerm.setName(term);
-	            }
-
-	            if (mpData.containsKey("mp_definition")) {
-	                String definition = mpData.getString("mp_definition");
-	                oTerm.setDescription(definition);
-	            }
+//	            if (mpData.containsKey("mp_term")) {
+//	                String term = mpData.getString("mp_term");
+//	                oTerm.setName(term);
+//	            }
+//
+//	            if (mpData.containsKey("mp_definition")) {
+//	                String definition = mpData.getString("mp_definition");
+//	                oTerm.setDescription(definition);
+//	            }
 
 	            if (mpData.containsKey("mp_term_synonym")) {
 	                JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
@@ -244,10 +240,10 @@ public class PhenotypesController {
         processPhenotypes(phenotype_id, "", model, request);
 
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-        List<Procedure> procedures = new ArrayList(pipelineDao.getProceduresByOntologyTerm(oTerm));
+        List<Procedure> procedures = new ArrayList(pipelineDao.getProceduresByOntologyTerm(mpDbTerm));
         Collections.sort(procedures, new ProcedureComparator());
         model.addAttribute("procedures", procedures);
-        model.addAttribute("phenotype", oTerm);
+        model.addAttribute("phenotype", mpTerm);
 
         long time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));

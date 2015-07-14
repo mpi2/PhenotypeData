@@ -41,6 +41,7 @@ public class StatisticalResultBean implements StatisticalSignificance {
 	Integer femaleControls;
 	Integer femaleMutants;
 	String metadataGroup;
+	
 
 	private double colorIndex;
 
