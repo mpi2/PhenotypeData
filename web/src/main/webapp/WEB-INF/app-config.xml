@@ -14,8 +14,11 @@
 
 	<!-- Define the global parameters used when deploying without maven -->
 	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
 		<property name="locations">
 			<list>
+				<value>file:${user.home}/configfiles/#{ systemProperties['profile'] }/application.properties</value>
 				<value>classpath:appConfig.properties</value>
 			</list>
 		</property>
