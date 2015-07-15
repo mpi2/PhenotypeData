@@ -238,7 +238,7 @@
                                     </p>
 
  									
- 									
+ 									<!-- hide GWAS stuff for now
                                     <c:if test="${gwasPhenoMapping != null }">
                                     	
                                        	<c:if test="${gwasPhenoMapping == 'no mapping' }">
@@ -264,7 +264,9 @@
                                			</c:if>
                                    		
                                		</c:if>
-
+ 									-->
+ 									
+ 									
                                     <p><a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>
                                     </p>
 
