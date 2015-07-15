@@ -38,6 +38,7 @@
 			var core = aCores[i];  
 			var facet = core + 'Facet';
 			var params = $.extend({}, jsonBase[facet].srchParams, jsonBase[facet].filterParams);
+			
 			delete params.fl;
 			
 			if ( typeof oUrlParams.fq == 'undefined' ){
@@ -75,8 +76,8 @@
 		return JSON.stringify(coreQry);
 	}
 	
-	$.fn.fetchSolrFacetCount = function(oUrlParams){		
-
+	$.fn.fetchSolrFacetCount = function(oUrlParams){
+		
 		// querybroker takes care of applying marker_type:"protein coding gene" filter
 		// when search page loads by default
 		var showProteinCodingGeneCount = false;
@@ -102,10 +103,30 @@
 		// q to search SOLR
 		q = $.fn.process_q(q); 
 		oUrlParams.q  = q;
-
+		
 		var facetMode = oUrlParams.facetName;
 		var oFacets = {};
 		oFacets.count = {};	
+		
+		// deals with hp:XXXXX query
+		if ( q.match(/hp\\\%3A/i) ){
+			
+			q = decodeURIComponent(q).replace('\\','');
+			// convert HP to MP
+			$.ajax({
+       			url: solrUrl +"/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+q.toUpperCase()+"\"",				       			
+       			dataType: "jsonp",
+       			jsonp: 'json.wrf',
+       			type: 'post',
+    	    	async: false,
+       			success: function( json ) {
+	    				input = json.response.docs[0].hpmp_id;
+	    				document.location.href = baseUrl + '/search?q=' + input + '#fq=top_level_mp_term:*&facet=mp';
+       			}
+			});
+			
+		}
+		
 		// one query to solr and get back 6 sets of json each of which corresponds to one of the 6 cores
 	    $.ajax({url: baseUrl + '/querybroker',
 	    	data: {'q' : _getParams(oUrlParams)},
