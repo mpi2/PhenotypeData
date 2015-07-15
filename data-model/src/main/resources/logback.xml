@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <logger name="org.mousephenotype" level="DEBUG"/>
+    <logger name="org.mousephenotype" level="INFO"/>
 
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.hibernate" level="WARN"/>
