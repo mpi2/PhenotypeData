@@ -19,7 +19,7 @@
 		<property name="locations">
 			<list>
 				<value>classpath:appConfig.properties</value>
-				<value>file:${user.home}/configfiles/#{ systemProperties['profile'] }/application.properties</value>
+				<value>file:${user.home}/configfiles/#{ contextAttributes['profile'] }/application.properties</value>
 			</list>
 		</property>
 	</bean>
