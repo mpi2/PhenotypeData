@@ -105,11 +105,11 @@
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
 
-<!-- from tab tutorial -->
-<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
-<%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
-  <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
+			<!-- from tab tutorial -->
+			<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
+			<%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
+			  <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+			  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
   
   
             <script type="text/javascript">var gene_id = '${acc}';
@@ -201,7 +201,6 @@
                                            			 <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
                                         		</c:if>
                                         		
- 												<p><a  class="btn" href='${baseUrl}/experiments/allelesData?geneAccession=${gene.id.accession}' >All data</a> </p>
                                     </div>
 
                                     <p class="with-label no-margin">
@@ -320,30 +319,32 @@
                                             </div>
                                             
                                             <%-- <c:if test="${!(empty dataMapList)}">
-                                        <p class="with-label no-margin">
-                                        <p class="no-margin">Browse all phenotype data for:</p>
-                                        <ul>				
-                                            <c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
-                                                <li><a href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} using ${dataMap["pipeline_name"]} SOPs (<a href='${baseUrl}/phenome?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>MP calls for all strains</a>).</li>					
-                                            </c:forEach>
-                                        </ul>
-                                        </p>
-                                    </c:if>	 --%>
+		                                        <p class="with-label no-margin">
+		                                        <p class="no-margin">Browse all phenotype data for:</p>
+		                                        <ul>				
+		                                            <c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
+		                                                <li><a href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} using ${dataMap["pipeline_name"]} SOPs (<a href='${baseUrl}/phenome?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>MP calls for all strains</a>).</li>					
+		                                            </c:forEach>
+		                                        </ul>
+		                                        </p>
+		                                    </c:if>	 --%>
                                           <c:if test="${!(empty dataMapList)}">
-                                          
-                                          <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-	                                        <div class="floatright" style="clear:both">
-	                                         	<a class="btn" href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}' style="margin:10px">All Adult Data</a>
-                                            </div>
+                                          	<br/>
+                                          	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+	                                      	<div class="floatright" style="clear:both">
+	                                         	<p><a class="btn" href='${baseUrl}/experiments/allelesData?geneAccession=${gene.id.accession}' style="margin:10px">All Adult Data</a></p>
+                                          	</div>
                                           </c:if>
+                                          
                                           <c:if test="${showEmbryoViewer}">
                                             <div class="floatright" style="clear:both">
                                             	<a class="btn" href="${baseUrl}/embryoviewer?gene_symbol=${gene.symbol}" style="margin:10px">Embryo Viewer</a>
                                             </div>
                                           </c:if>
-                                            <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
+                                          
+                                          <p> Phenotype Summary based on automated MP annotations supported by experiments on knockout mouse models. </p>
                                            
-                                            <c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">
+                                          <c:forEach var="zyg" items="${phenotypeSummaryObjects.keySet()}">
                                                 <p>In <b>${zyg} :</b></p>
                                                 <ul>
                                                     <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
