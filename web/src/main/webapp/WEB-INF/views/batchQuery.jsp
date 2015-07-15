@@ -241,8 +241,10 @@
                 	+ '<p>The data fields in additional annotations of the customized output panel are based on their being annotated to a datatype of your search.</p>'
       				+ '<p>For example, an MP term is annotated to an IMPC gene via phenotypic observations or experiments.</p>'
       				+ '<p>A disease term (human disease) is annotated to an IMPC mouse phenotype via <a href="http://database.oxfordjournals.org/content/2013/bat025" target="_blank">Phenodigm</a>, which is a semantic approach to map between clinical features observed in humans and mouse phenotype annotations.</p>'
-      				+ '<p>An HP term is mapped to an MP term using similar Phenodigm semantic approach.</p>'  
-                	+ '</div>'
+      				+ '<p>An HP term is mapped to an MP term using similar Phenodigm semantic approach.</p>' 
+      				+ '<p><b>hasQc</b>: IMPC lines with phenotyping data that has been quality controlled by the IMPC Data Coordination Center</p>'
+                	+ '<p><b>p value</b>: statistical confidence that the result is not due to chance. Lower is more significant. IMPC significant threshold value is 0.0001.</p>'
+      				+ '</div>'
                  	+ '</div>';
                	
                 $("a#bqdoc").qtip({            	   
@@ -665,7 +667,8 @@
 						<h1 class="title" id="top">IMPC Dataset Batch Query</h1>
 							 
 						<div class="textright">
-							<a id="bqdoc" class="">Help</a>						
+							
+							<a id="bqdoc" class=""><i class="fa fa-info-circle"></i></a>					
 						</div>	
 						
 						<div class="section">
