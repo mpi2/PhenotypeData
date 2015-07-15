@@ -40,9 +40,11 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * @author Gautier Koscielny Selenium test for graph query coverage ensuring
- * each graph display work for any given gene accession/parameter/zygosity from
- * the Solr core
+ * @author Gautier Koscielny
+ * @author mrelac
+ *
+ * Selenium test for graph query coverage ensuring each graph display works for any given gene accession/parameter/zygosity
+ * from the Solr core.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("classpath:testConfig.properties")
