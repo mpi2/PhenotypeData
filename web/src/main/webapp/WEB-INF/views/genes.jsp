@@ -320,7 +320,7 @@
                                           	<br/>
                                           	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 	                                      	<div class="floatright" style="clear:both">
-	                                         	<p><a class="btn" href='${baseUrl}/experiments/allelesData?geneAccession=${gene.id.accession}' style="margin:10px">All Adult Data</a></p>
+	                                         	<p><a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.id.accession}' style="margin:10px">All Adult Data</a></p>
                                           	</div>
                                           </c:if>
                                           
