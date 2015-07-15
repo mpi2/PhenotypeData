@@ -39,12 +39,14 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -86,16 +88,7 @@ public class SearchPageTest {
     protected GeneService geneService;
 
     @Autowired
-    protected String baseUrl;
-
-    @Autowired
-    protected WebDriver driver;
-
-    @Autowired
-    protected String seleniumUrl;
-
-    @Autowired
-    protected String solrUrl;
+    private SeleniumWrapper wrapper;
 
     @Autowired
     protected TestUtils testUtils;
@@ -106,6 +99,23 @@ public class SearchPageTest {
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
+
+    @NotNull
+    @Value("baseUrl")
+    protected String baseUrl;
+
+    @NotNull
+    @Value("solrUrl")
+    protected String solrUrl;
+
+
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
+
+    protected WebDriver driver;
+
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
@@ -162,7 +172,7 @@ public class SearchPageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
 
         driver.navigate().refresh();
         driver.manage().timeouts().setScriptTimeout(timeout_in_seconds, TimeUnit.SECONDS);

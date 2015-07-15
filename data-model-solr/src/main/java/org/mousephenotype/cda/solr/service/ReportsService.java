@@ -33,9 +33,10 @@ import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -70,8 +71,9 @@ public class ReportsService {
     @Autowired
     private PhenotypePipelineDAO pipelineDao;
 
-	@Resource(name = "globalConfiguration")
-	Map<String, String> config;
+	@NotNull
+	@Value("drupalBaseUrl")
+	String drupalBaseUrl;
 
 	private static ArrayList<String> resources;
 
@@ -741,7 +743,7 @@ public class ReportsService {
 
 					String geneLink = "";
 					if (gene!=null) {
-						geneLink = config.get("drupalBaseUrl") + "/data/genes/" + gene.getMgiAccessionId();
+						geneLink = drupalBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
 					}
 
 					String[] row = {geneSymbol, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink };
