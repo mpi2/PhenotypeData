@@ -5,8 +5,8 @@
 <t:genericpage>
 	<jsp:attribute name="title">Experiment details for alleles of ???</jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
-	
-	
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; <a href="${baseUrl}/genes/${allelePageDTO.getGeneAccession()}">${allelePageDTO.getGeneSymbol()}</a> &raquo; allData </jsp:attribute>
+   
 
 	<jsp:attribute name="header">
 		<script type="text/javascript">
@@ -25,7 +25,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">Experiments for ${allelePageDTO.getGeneSymbol()}</h1>
+						<h1 class="title" id="top">All data for ${allelePageDTO.getGeneSymbol()}</h1>
 
 							<!--  Phenotype Associations Panel -->
 							<div class="section">
@@ -52,6 +52,8 @@
 									<table id="strainPvalues">
 										<thead>
 											<tr>
+												<th class="headerSort">Allele</th>
+												<th class="headerSort">Phenotyping Center</th>
 												<th class="headerSort">Procedure</th>
 												<th class="headerSort">Parameter</th>
 												<th class="headerSort">Zygosity</th>
@@ -68,9 +70,11 @@
 												<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}"/>
 												<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
 														<tr>
+														<td><t:formatAllele>${pValueItem.getAlleleSymbol()}</t:formatAllele></td>												
+														<td>${pValueItem.getPhenotypingCenter()}</td>
 														<td>${pValueItem.getProcedureName()}</td>
 														<td>${pValueItem.getParameterName()}</td>
-														<td>${pValueItem["zygosity"]}</td>
+														<td>${pValueItem["zygosity"].substring(0,3).toUpperCase()}</td>
 														<td>${pValueItem.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
 														<td>${pValueItem.statisticalMethod}</td>
 														<!-- pValue -->
@@ -81,14 +85,15 @@
 																<c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
 																<c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
 																<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-																	${pValueItem.pValue}
-																</td>
+																	<t:formatScientific> ${pValueItem.pValue}</t:formatScientific>																</td>
 															</c:when>
-															<c:otherwise><td>${pValueItem.pValue}</td></c:otherwise>
+															<c:otherwise>
+																	<td><t:formatScientific>${pValueItem.pValue}</t:formatScientific></td>
+															</c:otherwise>
 														</c:choose>
 														<td>${pValueItem.status}</td>
 														<td style="text-align:center">
-														<a href='${baseUrl}/charts?accession=${allele.gene.id.accession}&allele_accession=${allele.id.accession}&parameter_stable_id=${stableId}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${phenotyping_center}'>
+														<a href='${baseUrl}/charts?accession=${pValueItem.getMarkerAccessionId()}&allele_accession_id=${pValueItem.getAlleleAccessionId()}&parameter_stable_id=${pValueItem.getParameterStableId()}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${pValueItem.getPhenotypingCenter()}'>
 														<i class="fa fa-bar-chart-o" alt="Graphs" > </i></a>
 														</td>
 														</tr>
@@ -106,11 +111,11 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 			  var oTable = $('#strainPvalues').dataTable({
-				  "sPaginationType": "bootstrap"
-//						"bPaginate":false
+//				  "sPaginationType": "bootstrap"
+						"bPaginate":false
 			  });
 			  // Sort immediately with p-value column starting with the lowest one
-			  oTable.fnSort( [ [5,'asc'] ] );
+			  oTable.fnSort( [ [7,'asc'] ] );
 			} );	
 		</script>
 	
