@@ -70,8 +70,8 @@ public class ExcelWorkBook {
 		// data rows
 	    // Create a row and put some cells in it. Rows are 0 based.
 	    // Then set value for that created cell
-    	for (int k=0; k<tableData.length; k++) {
-    		XSSFRow row = sheet.createRow(k+1);  // data starts from row 1	
+    	for (int k=1; k<tableData.length; k++) { // data starts from row 1	(row 0 is title)
+        	XSSFRow row = sheet.createRow(k);  
     		for (int l = 0; l < tableData[k].length; l++) {  
     			XSSFCell cell = row.createCell(l);   
     			String cellStr;
@@ -110,57 +110,6 @@ public class ExcelWorkBook {
     	}    
 	}
 	
-	/*
-	public ExcelWorkBook(String[] titles, Object[][] tableData, String sheetTitle) throws Exception {
-        
-		// create new workbook
-		this.wb = new HSSFWorkbook();
-
-		// create new sheet
-		Sheet sheet = wb.createSheet(sheetTitle); // do not exceed 31 characters
-		PrintSetup printSetup = sheet.getPrintSetup();
-		printSetup.setLandscape(true);
-		sheet.setFitToPage(true);
-		sheet.setHorizontallyCenter(true);
-				
-    	//header row
-    	Row headerRow = sheet.createRow(0);
-    	//headerRow.setHeightInPoints(40);
-    	Cell headerCell;
-    	for (int i = 0; i < titles.length; i++) {
-    		headerCell = headerRow.createCell(i);
-    		headerCell.setCellValue(titles[i]);
-        	//headerCell.setCellStyle(styles.get("header"));
-    	}
-
-    	// data rows
-    	// Create a row and put some cells in it. Rows are 0 based.
-    	// Then set value for that created cell
-    	for (int i=0; i<tableData.length; i++) {
-    		Row row = sheet.createRow(i+1);  // data starts from row 1	 		
-    		for (int j = 0; j < tableData[i].length; j++) {  
-    			Cell cell = row.createCell(j);   
-    			
-    			String cellStr = tableData[i][j].toString();
-    			
-    			// make hyperlink in cell
-    			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
-    				
-    				HSSFHyperlink url_link = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
-    				url_link.setAddress(cellStr);
-    				
-                    cell.setCellValue(cellStr);         
-                    cell.setHyperlink(url_link);
-                    
-    			}
-    			else {
-    				cell.setCellValue(cellStr);  
-    			}
- //   			System.out.println((String)tableData[i][j]);
-    		}
-    	}    
-	}
-*/
 	public XSSFWorkbook fetchWorkBook() {
 		return this.wb;
 	}	
