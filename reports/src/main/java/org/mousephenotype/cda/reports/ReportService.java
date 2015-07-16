@@ -983,7 +983,6 @@ public class ReportService {
         return sexualDimorphismDAO.sexualDimorphismReportWithBodyWeight(baseUrl);
     }
 
-
     class IpGTTStats {
 
     	String geneSymbol;
