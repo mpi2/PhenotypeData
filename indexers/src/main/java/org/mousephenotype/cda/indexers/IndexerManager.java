@@ -34,7 +34,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -139,10 +138,6 @@ public class IndexerManager {
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
 
     private enum RunStatus { OK, FAIL };
-
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
-
 
     @Autowired
     ObservationIndexer observationIndexer;

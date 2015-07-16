@@ -43,6 +43,10 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
     @Autowired
     UrlUtils urlUtils;
 
+	public SexualDimorphismDAOImpl() {
+
+	}
+
 	public SexualDimorphismDAOImpl(SessionFactory sessionFactory) {
 
 		this.sessionFactory = sessionFactory;
