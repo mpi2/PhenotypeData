@@ -30,10 +30,10 @@ public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;
 
-    public Map<String,Integer> getGoCodeRank(){
+    public Map<String,Integer> getGoCodeRank() {
 
     	//GO evidence code ranking mapping
-        final Map<String,Integer> codeRank = new HashMap<>();
+        Map<String,Integer> codeRank = new HashMap<>();
 
         // experimental
 	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
