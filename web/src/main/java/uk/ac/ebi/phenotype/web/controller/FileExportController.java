@@ -1,18 +1,19 @@
 /*******************************************************************************
- * Copyright 2015 EMBL - European Bioinformatics Institute
+ *  Copyright © 2013 - 2015 EMBL - European Bioinformatics Institute
  *
- * Licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License. You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
- *******************************************************************************/
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ *  either express or implied. See the License for the specific
+ *  language governing permissions and limitations under the
+ *  License.
+ ******************************************************************************/
+
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
@@ -44,6 +45,7 @@ import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +81,9 @@ import java.util.*;
 @Controller
 public class FileExportController {
 
+	@Autowired
+	protected CommonUtils commonUtils;
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
@@ -91,6 +96,7 @@ public class FileExportController {
 	private GeneService geneService;
 
 	@Autowired
+    @Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO ppDAO;
 
 	@Resource(name = "globalConfiguration")
@@ -1356,7 +1362,7 @@ public class FileExportController {
 		rowData.add(fields);
 
 		// GO evidence code ranking mapping
-		Map<String, Integer> codeRank = SolrIndex.getGoCodeRank();
+		Map<String, Integer> codeRank = commonUtils.getGoCodeRank();
 
 		// GO evidence rank to category mapping
 		Map<Integer, String> evidRankCat = SolrIndex.getGomapCategory();
@@ -1511,7 +1517,7 @@ public class FileExportController {
 			@RequestParam(value = "idList", required = true) String idlist,
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
-	HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+		HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
 		String dumpMode = "all";
 
@@ -1521,10 +1527,6 @@ public class FileExportController {
 		List<String> mgiIds = new ArrayList<>();
 		List<GeneDTO> genes = new ArrayList<>();
 		List<QueryResponse> solrResponses = new ArrayList<>();
-
-		if (dataTypeName.equals("marker_symbol")) {
-			dataTypeName = "gene";
-		}
 
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
@@ -1537,14 +1539,6 @@ public class FileExportController {
 			// do the batch size
 			if (counter % 500 == 0) {
 				batchIdList.add(id);
-
-				/*if (dataTypeName.equals("ensembl")) {
-					// batch converting ensembl gene id to mgi gene id
-					genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
-				} else if (dataTypeName.equals("marker_symbol")) {
-					// batch converting marker symbol to mgi gene id
-					genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
-				}*/
 
 				// batch solr query
 				batchIdListStr = StringUtils.join(batchIdList, ",");
@@ -1559,32 +1553,11 @@ public class FileExportController {
 
 		if (batchIdList.size() > 0) {
 			// do the rest
-			/*if (dataTypeName.equals("ensembl")) {
-				// batch converting ensembl gene id to mgi gene id
-				genes.addAll(geneService.getGeneByEnsemblId(batchIdList));
-			} else if (dataTypeName.equals("marker_symbol")) {
-				// batch converting marker symbol to mgi gene id
-				genes = geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList); // ["bla1","bla2"]
-			}*/
-
+			
 			// batch solr query
 			batchIdListStr = StringUtils.join(batchIdList, ",");
 			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
 		}
-
-		/*for ( GeneDTO gene : genes  ){
-			if ( gene.getMgiAccessionId() != null ){
-				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
-			}
-		}
-
-		if ( genes.size() == 0 ){
-			mgiIds = queryIds;
-		}
-
-		if ( dataTypeName.equals("ensembl")) {
-			System.out.println("Found " + genes.size() + " of " + queryIds.size() + " Ensembl id converted to MGI gene id");
-		}*/
 
 		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
 
@@ -1615,7 +1588,7 @@ public class FileExportController {
 		String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
 		String oriDataTypeNAme = dataTypeName;
 
-		if (dataTypeName.equals("ensembl")) {
+		if (dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")) {
 			dataTypeName = "gene";
 		}
 
@@ -1633,8 +1606,6 @@ public class FileExportController {
 		dataTypePath.put("hp", "");
 		dataTypePath.put("disease", "disease");
 
-		List<String> rowData = new ArrayList();
-
 		// column names
 		// String idLinkColName = dataTypeId.get(dataType) + "_link";
 		String idLinkColName = "id_link";
@@ -1650,15 +1621,17 @@ public class FileExportController {
 		cols[0] = dataTypeId.get(dataTypeName);
 		cols[1] = idLinkColName;
 
-		List<String> colStr = new ArrayList<>();
+		List<String> colList = new ArrayList<>();
 		for (int i = 0; i < cols.length; i++) {
-			colStr.add(cols[i]);
+			colList.add(cols[i]);
 		}
-		rowData.add(StringUtils.join(colStr, "\t"));
+		
+		List<String> rowData = new ArrayList();
+		rowData.add(StringUtils.join(colList, "\t"));
 
-		System.out.println("grid fields: " + colStr);
+		System.out.println("grid fields: " + colList);
 
-		for (int i = 0; i < results.size(); ++i) {
+		for (int i = 0; i < results.size(); i++) {
 			SolrDocument doc = results.get(i);
 
 			System.out.println("Working on document " + i + " of " + totalDocs);
@@ -1737,7 +1710,8 @@ public class FileExportController {
 					}
 					// System.out.println("idlink id: " + accStr);
 
-					if (!oriDataTypeNAme.equals("ensembl")) {
+					if (!oriDataTypeNAme.equals("ensembl") && !oriDataTypeNAme.equals("marker_symbol")) {
+						System.out.println("idlink check: " + accStr);
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1806,7 +1780,13 @@ public class FileExportController {
 								for (Object val : valSet) {
 									foundIds.add("\"" + val + "\"");
 								}
-							} else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
+							} 
+							if (oriDataTypeNAme.equals("marker_symbol") && fieldName.equals("marker_symbol")) {
+								for (Object val : valSet) {
+									foundIds.add("\"" + val.toString().toUpperCase() + "\"");
+								}
+							} 
+							else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
 								for (Object val : valSet) {
 									foundIds.add("\"" + val + "\"");
 								}
@@ -1868,6 +1848,7 @@ public class FileExportController {
 			}
 			rowData.add(StringUtils.join(data, "\t"));
 		}
+
 		return rowData;
 	}
 
@@ -1911,7 +1892,7 @@ public class FileExportController {
 
 				String sheetName = fileName;
 
-				String[] titles = new String[0];
+				String[] titles = null;
 				String[][] tableData = new String[0][0];
 				if (!dataRows.isEmpty()) {
 

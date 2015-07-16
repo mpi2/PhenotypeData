@@ -20,6 +20,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.repositories.ObservationRepository;
+import org.mousephenotype.cda.solr.service.ReportsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 
@@ -34,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,10 +45,14 @@ import java.util.List;
 
 @ComponentScan("org.mousephenotype.cda.reports")
 @SpringBootApplication
+@Primary
 public class ReportsManager implements CommandLineRunner {
 
     @Autowired(required = true)
     ObservationRepository observations;
+
+    @Autowired
+    ReportsService reportsService;
 
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
     private static final String PROPERTIES_FILE_ARG = "propertiesFile";
@@ -145,6 +152,28 @@ public class ReportsManager implements CommandLineRunner {
         }
 
         dumpInputParameters();
+
+        for (ReportType reportType : reports) {
+            switch (reportType) {
+                case ALL_GENOTYPE_PHENOTYPE_DATA:
+
+
+
+                    break;
+
+                case BMD_STATS:
+                    List<String> parameters = new ArrayList(Arrays.asList(new String[]{"IMPC_DXA_004_001", "IMPC_IPG_010_001", "IMPC_IPG_012_001"}));
+                    for (String parameter : parameters) {
+                        List<String[]> result = reportsService.getBmdIpdttReport(parameter);
+
+
+
+//                        ControllerUtils.writeAsCSV(result, "stats_" + parameter + ".csv", response);
+                    }
+            }
+        }
+
+
         System.exit(0);
     }
 

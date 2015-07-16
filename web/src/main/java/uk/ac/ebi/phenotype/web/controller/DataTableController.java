@@ -153,7 +153,7 @@ public class DataTableController {
 		queryIds = batchIdList;
 
 
-		if ( dataTypeName.equals("ensembl") ){
+		/*if ( dataTypeName.equals("ensembl") ){
 			// batch converting ensembl gene id to mgi gene id
 			genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
 		}
@@ -161,9 +161,9 @@ public class DataTableController {
 			// batch converting marker symbol to mgi gene id
 			genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
 			System.out.println("GENEs: "+ genes);
-		}
+		}*/
 
-		for ( GeneDTO gene : genes  ){
+		/*for ( GeneDTO gene : genes  ){
 			if ( gene.getMgiAccessionId() != null ){
 				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
 			}
@@ -175,7 +175,7 @@ public class DataTableController {
 		if ( dataTypeName.equals("marker_symbol") || dataTypeName.equals("ensembl") ){
 			dataTypeName = "gene";
 		}
-
+*/
 		// batch solr query
 		batchIdListStr = StringUtils.join(batchIdList, ",");
 		System.out.println("idstr: "+ batchIdListStr);
@@ -190,10 +190,7 @@ public class DataTableController {
 		//System.out.println("mgi id: " + mgiIds);
 
 		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
-
-
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-
     }
 
     private JSONObject prepareHpMpMapping(QueryResponse solrResponse) {
@@ -248,9 +245,8 @@ public class DataTableController {
     	for ( QueryResponse solrResponse : solrResponses ){
     		results.addAll(solrResponse.getResults());
     	}
-
     	int totalDocs = results.size();
-
+    	
     	Map<String, String> dataTypeId = new HashMap<>();
     	dataTypeId.put("gene", "mgi_accession_id");
     	dataTypeId.put("marker_symbol", "mgi_accession_id");
@@ -589,7 +585,6 @@ public class DataTableController {
         j.put("iTotalDisplayRecords", totalDocs);
 
         //GO evidence code ranking mapping
-        Map<String, Integer> codeRank = SolrIndex.getGoCodeRank();
 
         for (int i = 0; i < docs.size(); i ++) {
 

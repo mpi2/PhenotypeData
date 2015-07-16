@@ -54,32 +54,6 @@ public class SolrIndex {
 
 	private Object Json;
 
-    public static Map<String,Integer> getGoCodeRank(){
-
-    	//GO evidence code ranking mapping
-        final Map<String,Integer> codeRank = new HashMap<>();
-
-        // experimental
-	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
-	    codeRank.put("IGI", 5);codeRank.put("IEP", 5);
-
-	    // curated computational
-	    codeRank.put("ISS", 4);codeRank.put("ISO", 4);codeRank.put("ISA", 4);codeRank.put("ISM", 4);
-	    codeRank.put("IGC", 4);codeRank.put("IBA", 4);codeRank.put("IBD", 4);codeRank.put("IKR", 4);
-	    codeRank.put("IRD", 4);codeRank.put("RCA", 4);
-
-	    // automated electronic
-	    codeRank.put("IEA", 3);
-
-	    // other
-	    codeRank.put("TAS", 2);codeRank.put("NAS", 2);codeRank.put("IC", 2);
-
-	    // no biological data available
-	    codeRank.put("ND", 1);
-
-    	return codeRank;
-    }
-
     public static Map<Integer, String> getGomapCategory(){
 
     	Map<Integer, String> evidRank = new HashMap<>();
@@ -168,47 +142,55 @@ public class SolrIndex {
 	}
 
 
-	public QueryResponse getBatchQueryJson(String idlist, String fllist, String solrCoreName) throws SolrServerException {
+	public QueryResponse getBatchQueryJson(String idlist, String fllist, String dataTypeName) throws SolrServerException {
 
 		HttpSolrServer server = null;
 
 		Map<String, String> coreIdQMap = coreIdQMap();
-		String qField = coreIdQMap.get(solrCoreName);
+		String qField = coreIdQMap.get(dataTypeName);
 
-		if ( solrCoreName.equals("phenodigm") ){
+		if ( dataTypeName.equals("phenodigm") ){
 			//server = new HttpSolrServer("http://solrcloudlive.sanger.ac.uk/solr/phenodigm");
 			//server = new HttpSolrServer("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
 		}
-		else if ( solrCoreName.equals("hp") ){
+		else if ( dataTypeName.equals("hp") ){
 			server = new HttpSolrServer(internalSolrUrl + "/mp");
 		}
-		else if ( solrCoreName.equals("ensembl") ){
+		else if ( dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")){
 			server = new HttpSolrServer(internalSolrUrl + "/gene");
 		}
 		else {
-			server = new HttpSolrServer(internalSolrUrl + "/" + solrCoreName);
+			server = new HttpSolrServer(internalSolrUrl + "/" + dataTypeName);
 		}
-		System.out.println("solrurl: " + server);
+		//System.out.println("solrurl: " + server.toString());
 
-		String[] idList = StringUtils.split(idlist);
-		String querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
-		System.out.println("queryStr: " + querystr);
+		String[] idList = StringUtils.split(idlist, ",");
+		String querystr = null;
+		
+		if (dataTypeName.equals("marker_symbol")){
+			querystr = "marker_symbol_lowercase:(" + StringUtils.join(idList, " OR ") + ")"
+					+ " OR marker_synonym_lowercase:(" + StringUtils.join(idList, " OR ") + ")";
+		}
+		else {
+			querystr = qField + ":(" + StringUtils.join(idList, " OR ") + ")";
+		}
+		//System.out.println("queryStr: " + querystr);
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(querystr);
 
-		if ( solrCoreName.equals("phenodigm") ){
+		if ( dataTypeName.equals("phenodigm") ){
 			query.setFilterQueries("type:hp_mp");
 		}
 
 		query.setStart(0);
-		query.setRows(10);  // default
+		query.setRows(idList.length);  // default
 
 		// retrieves wanted fields
 		query.setFields(fllist);
-
+		//System.out.println("QUERY: " + query);
 		QueryResponse response = server.query(query, METHOD.POST);
-		System.out.println("response: "+ response);
+		//System.out.println("response: "+ response);
 
 		return response;
 	}
