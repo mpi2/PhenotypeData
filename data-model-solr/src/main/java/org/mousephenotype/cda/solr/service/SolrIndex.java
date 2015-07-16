@@ -54,32 +54,6 @@ public class SolrIndex {
 
 	private Object Json;
 
-    public static Map<String,Integer> getGoCodeRank(){
-
-    	//GO evidence code ranking mapping
-        final Map<String,Integer> codeRank = new HashMap<>();
-
-        // experimental
-	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
-	    codeRank.put("IGI", 5);codeRank.put("IEP", 5);
-
-	    // curated computational
-	    codeRank.put("ISS", 4);codeRank.put("ISO", 4);codeRank.put("ISA", 4);codeRank.put("ISM", 4);
-	    codeRank.put("IGC", 4);codeRank.put("IBA", 4);codeRank.put("IBD", 4);codeRank.put("IKR", 4);
-	    codeRank.put("IRD", 4);codeRank.put("RCA", 4);
-
-	    // automated electronic
-	    codeRank.put("IEA", 3);
-
-	    // other
-	    codeRank.put("TAS", 2);codeRank.put("NAS", 2);codeRank.put("IC", 2);
-
-	    // no biological data available
-	    codeRank.put("ND", 1);
-
-    	return codeRank;
-    }
-
     public static Map<Integer, String> getGomapCategory(){
 
     	Map<Integer, String> evidRank = new HashMap<>();

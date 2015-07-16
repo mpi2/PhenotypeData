@@ -18,6 +18,8 @@ package org.mousephenotype.cda.utilities;
 
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,6 +29,33 @@ import java.util.concurrent.TimeUnit;
 public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;
+
+    public Map<String,Integer> getGoCodeRank(){
+
+    	//GO evidence code ranking mapping
+        final Map<String,Integer> codeRank = new HashMap<>();
+
+        // experimental
+	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
+	    codeRank.put("IGI", 5);codeRank.put("IEP", 5);
+
+	    // curated computational
+	    codeRank.put("ISS", 4);codeRank.put("ISO", 4);codeRank.put("ISA", 4);codeRank.put("ISM", 4);
+	    codeRank.put("IGC", 4);codeRank.put("IBA", 4);codeRank.put("IBD", 4);codeRank.put("IKR", 4);
+	    codeRank.put("IRD", 4);codeRank.put("RCA", 4);
+
+	    // automated electronic
+	    codeRank.put("IEA", 3);
+
+	    // other
+	    codeRank.put("TAS", 2);codeRank.put("NAS", 2);codeRank.put("IC", 2);
+
+	    // no biological data available
+	    codeRank.put("ND", 1);
+
+    	return codeRank;
+    }
+
     /**
      * Performs an approximate match between two doubles. Returns true if
      * the two values are within a difference of 0.000000001; false otherwise

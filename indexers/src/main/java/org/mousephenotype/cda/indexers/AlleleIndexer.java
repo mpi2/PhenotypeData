@@ -28,13 +28,13 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +59,9 @@ import java.util.*;
  *
  */
 public class AlleleIndexer extends AbstractIndexer {
+
+    @Autowired
+    protected CommonUtils commonUtils;
 
     private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
     public static final int PHENODIGM_BATCH_SIZE = 50000;
@@ -1082,7 +1085,7 @@ public class AlleleIndexer extends AbstractIndexer {
         logger.debug("Starting GO data lookup");
 
         //GO evidence code ranking mapping
-        Map<String,Integer> codeRank = SolrIndex.getGoCodeRank();
+        Map<String,Integer> codeRank = commonUtils.getGoCodeRank();
 
         for (String id : alleles.keySet()) {
 
