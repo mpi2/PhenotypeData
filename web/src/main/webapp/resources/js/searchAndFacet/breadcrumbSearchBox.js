@@ -1,4 +1,5 @@
 $(document).ready(function () {
+	
 		    var exampleSearch = 
 				 '<h3 id="samplesrch">Example Searches</h3>'
 					+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
@@ -224,7 +225,7 @@ $(document).ready(function () {
 	       		}
 	       	}).data("ui-autocomplete")._renderItem = function( ul, item) {
 	   			// prevents HTML tags being escaped
-	   				console.log("Autocomplete " + item);
+	   				
 	   				return $( "<li></li>" ) 
 	 				  .data( "item.autocomplete", item )
 	 				  .append( $( "<a></a>" ).html( item.label ) )
