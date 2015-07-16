@@ -138,7 +138,7 @@ public class Tools {
        
         String[][] tableData = new String[rowNum][colNum];
 
-        for (int i = 1; i < rowNum; i ++) {  // starts from 1 to skip title row
+        for (int i = 1; i < rowNum; i++) {  // starts from 1 to skip title row
             String[] colVals = rows.get(i).split("\t");
             
             for (int j = 0; j < colVals.length; j++) {
