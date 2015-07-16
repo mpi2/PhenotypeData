@@ -1523,7 +1523,7 @@ public class FileExportController {
 		List<QueryResponse> solrResponses = new ArrayList<>();
 
 		if (dataTypeName.equals("marker_symbol")) {
-			dataTypeName = "gene";
+			//dataTypeName = "gene";
 		}
 
 		List<String> batchIdList = new ArrayList<>();
@@ -1544,8 +1544,9 @@ public class FileExportController {
 				} else if (dataTypeName.equals("marker_symbol")) {
 					// batch converting marker symbol to mgi gene id
 					genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
-				}*/
-
+				}
+				*/
+				
 				// batch solr query
 				batchIdListStr = StringUtils.join(batchIdList, ",");
 				// System.out.println(batchIdListStr);
@@ -1569,6 +1570,7 @@ public class FileExportController {
 
 			// batch solr query
 			batchIdListStr = StringUtils.join(batchIdList, ",");
+			System.out.println("check response: " + solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
 			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
 		}
 
@@ -1615,7 +1617,7 @@ public class FileExportController {
 		String imgBaseUrl = request.getAttribute("baseUrl") + "/impcImages/images?";
 		String oriDataTypeNAme = dataTypeName;
 
-		if (dataTypeName.equals("ensembl")) {
+		if (dataTypeName.equals("ensembl") || dataTypeName.equals("marker_symbol")) {
 			dataTypeName = "gene";
 		}
 
@@ -1633,8 +1635,6 @@ public class FileExportController {
 		dataTypePath.put("hp", "");
 		dataTypePath.put("disease", "disease");
 
-		List<String> rowData = new ArrayList();
-
 		// column names
 		// String idLinkColName = dataTypeId.get(dataType) + "_link";
 		String idLinkColName = "id_link";
@@ -1650,15 +1650,17 @@ public class FileExportController {
 		cols[0] = dataTypeId.get(dataTypeName);
 		cols[1] = idLinkColName;
 
-		List<String> colStr = new ArrayList<>();
+		List<String> colList = new ArrayList<>();
 		for (int i = 0; i < cols.length; i++) {
-			colStr.add(cols[i]);
+			colList.add(cols[i]);
 		}
-		rowData.add(StringUtils.join(colStr, "\t"));
+		
+		List<String> rowData = new ArrayList();
+		rowData.add(StringUtils.join(colList, "\t"));
 
-		System.out.println("grid fields: " + colStr);
+		System.out.println("grid fields: " + colList);
 
-		for (int i = 0; i < results.size(); ++i) {
+		for (int i = 0; i < results.size(); i++) {
 			SolrDocument doc = results.get(i);
 
 			System.out.println("Working on document " + i + " of " + totalDocs);
@@ -1737,7 +1739,8 @@ public class FileExportController {
 					}
 					// System.out.println("idlink id: " + accStr);
 
-					if (!oriDataTypeNAme.equals("ensembl")) {
+					if (!oriDataTypeNAme.equals("ensembl") && !oriDataTypeNAme.equals("marker_symbol")) {
+						System.out.println("idlink check: " + accStr);
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1806,7 +1809,13 @@ public class FileExportController {
 								for (Object val : valSet) {
 									foundIds.add("\"" + val + "\"");
 								}
-							} else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
+							} 
+							if (oriDataTypeNAme.equals("marker_symbol") && fieldName.equals("marker_symbol")) {
+								for (Object val : valSet) {
+									foundIds.add("\"" + val.toString().toUpperCase() + "\"");
+								}
+							} 
+							else if (dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName)) {
 								for (Object val : valSet) {
 									foundIds.add("\"" + val + "\"");
 								}
@@ -1868,6 +1877,7 @@ public class FileExportController {
 			}
 			rowData.add(StringUtils.join(data, "\t"));
 		}
+
 		return rowData;
 	}
 
@@ -1911,7 +1921,7 @@ public class FileExportController {
 
 				String sheetName = fileName;
 
-				String[] titles = new String[0];
+				String[] titles = null;
 				String[][] tableData = new String[0][0];
 				if (!dataRows.isEmpty()) {
 
