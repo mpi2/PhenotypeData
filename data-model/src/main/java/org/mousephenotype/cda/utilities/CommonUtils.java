@@ -33,7 +33,7 @@ public class CommonUtils {
     public Map<String,Integer> getGoCodeRank() {
 
     	//GO evidence code ranking mapping
-        Map<String,Integer> codeRank = new HashMap<>();
+        final Map<String,Integer> codeRank = new HashMap<>();
 
         // experimental
 	    codeRank.put("EXP", 5);codeRank.put("IDA", 5);codeRank.put("IPI", 5);codeRank.put("IMP", 5);
