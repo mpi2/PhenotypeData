@@ -1517,7 +1517,7 @@ public class FileExportController {
 			@RequestParam(value = "idList", required = true) String idlist,
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
-	HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+		HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
 		String dumpMode = "all";
 
@@ -1527,10 +1527,6 @@ public class FileExportController {
 		List<String> mgiIds = new ArrayList<>();
 		List<GeneDTO> genes = new ArrayList<>();
 		List<QueryResponse> solrResponses = new ArrayList<>();
-
-		if (dataTypeName.equals("marker_symbol")) {
-			//dataTypeName = "gene";
-		}
 
 		List<String> batchIdList = new ArrayList<>();
 		String batchIdListStr = null;
@@ -1544,15 +1540,6 @@ public class FileExportController {
 			if (counter % 500 == 0) {
 				batchIdList.add(id);
 
-				/*if (dataTypeName.equals("ensembl")) {
-					// batch converting ensembl gene id to mgi gene id
-					genes.addAll(geneService.getGeneByEnsemblId(batchIdList)); // ["bla1","bla2"]
-				} else if (dataTypeName.equals("marker_symbol")) {
-					// batch converting marker symbol to mgi gene id
-					genes.addAll(geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList)); // ["bla1","bla2"]
-				}
-				*/
-				
 				// batch solr query
 				batchIdListStr = StringUtils.join(batchIdList, ",");
 				// System.out.println(batchIdListStr);
@@ -1566,33 +1553,11 @@ public class FileExportController {
 
 		if (batchIdList.size() > 0) {
 			// do the rest
-			/*if (dataTypeName.equals("ensembl")) {
-				// batch converting ensembl gene id to mgi gene id
-				genes.addAll(geneService.getGeneByEnsemblId(batchIdList));
-			} else if (dataTypeName.equals("marker_symbol")) {
-				// batch converting marker symbol to mgi gene id
-				genes = geneService.getGeneByGeneSymbolsOrGeneSynonyms(batchIdList); // ["bla1","bla2"]
-			}*/
-
+			
 			// batch solr query
 			batchIdListStr = StringUtils.join(batchIdList, ",");
-			System.out.println("check response: " + solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
 			solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, gridFields, dataTypeName));
 		}
-
-		/*for ( GeneDTO gene : genes  ){
-			if ( gene.getMgiAccessionId() != null ){
-				mgiIds.add("\"" + gene.getMgiAccessionId() + "\"");
-			}
-		}
-
-		if ( genes.size() == 0 ){
-			mgiIds = queryIds;
-		}
-
-		if ( dataTypeName.equals("ensembl")) {
-			System.out.println("Found " + genes.size() + " of " + queryIds.size() + " Ensembl id converted to MGI gene id");
-		}*/
 
 		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
 
