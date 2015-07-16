@@ -3,9 +3,8 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 
-
 	<p class="resultCount">Total number of results: ${rows}</p>
-
+	
 	<!-- Associations table -->
 	<c:if test="${chart != null}">
 		<!-- chart here -->
