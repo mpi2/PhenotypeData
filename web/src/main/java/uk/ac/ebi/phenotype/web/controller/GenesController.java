@@ -255,13 +255,16 @@ public class GenesController {
 		}
 
 		// GWAS Gene to IMPC gene mapping
-		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getSymbol().toUpperCase());
+		// commented out for now as we are going to use biosolr stuff to do this
+		/*List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getSymbol().toUpperCase());
 
 		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){
 			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getGwasPhenoMappingCategory());
 		}
-
+		*/
+		
+		
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -398,8 +401,8 @@ public class GenesController {
 		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummary pcs : phenotypeList) {
+			
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
-
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr)) {
 				pr = phenotypes.get(pr);

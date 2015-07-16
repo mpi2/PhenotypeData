@@ -122,8 +122,8 @@ public class PhenomeChartProvider {
 		+ "                   $.fancybox.open([ \n"
 		+ "                  {\n"
 		+ "                     href : base_url + '/charts?accession=' + event.point.geneAccession + "
-		+ "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
-		+ "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
+		+ "'&parameter_stable_id=' + event.point.parameterStableId + '&allele_accession=' + event.point.alleleAccession + "
+		+ "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotypingCenter + "
 		+ "'&bare=true', \n"
 		+ "                     title : event.point.geneAccession \n"
 		+ "                  } \n"
@@ -153,8 +153,6 @@ public class PhenomeChartProvider {
 		+ "     series: " + series.toString() + "\n"
 		+ "    }); \n"
 		+ "	}); \n";
-
-		System.out.println("SIZE OF charts code " + chartString.length());
 
 		return chartString;
 	}
@@ -635,11 +633,11 @@ public class PhenomeChartProvider {
 							// create the point first
 							JSONObject dataPoint = new JSONObject();
 							dataPoint.put("name", statsResult.getParameterName());
-							dataPoint.put("parameter_stable_id", parameterStableId);
-							dataPoint.put("parameter_name", statsResult.getParameterName());
-							dataPoint.put("geneAccession", geneAccession);
-							dataPoint.put("alleleAccession", alleleAccession);
-							dataPoint.put("phenotyping_center", phenotypingCenter);
+							dataPoint.put("parameterStableId", parameterStableId);
+							dataPoint.put("parameterName", statsResult.getParameterName());
+							dataPoint.put("geneAccession", statsResult.getMarkerAccessionId());
+							dataPoint.put("alleleAccession", statsResult.getAlleleAccessionId());
+							dataPoint.put("phenotypingCenter", statsResult.getPhenotypingCenter());
 							dataPoint.put("y", index);
 							dataPoint.put("x", getLogValue(statsResult.getpValue()));
 							dataPoint.put("pValue", statsResult.getpValue());
