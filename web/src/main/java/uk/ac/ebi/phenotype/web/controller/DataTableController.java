@@ -593,7 +593,6 @@ public class DataTableController {
         j.put("iTotalDisplayRecords", totalDocs);
 
         //GO evidence code ranking mapping
-        Map<String, Integer> codeRank = commonUtils.getGoCodeRank();
 
         for (int i = 0; i < docs.size(); i ++) {
 
