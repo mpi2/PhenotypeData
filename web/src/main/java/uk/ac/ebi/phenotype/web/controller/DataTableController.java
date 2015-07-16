@@ -107,8 +107,8 @@ public class DataTableController {
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
 
-	@Autowired
-	protected CommonUtils commonUtils;
+	//@Autowired
+	//protected CommonUtils commonUtils;
 
     /**
      <p>
@@ -194,10 +194,7 @@ public class DataTableController {
 		//System.out.println("mgi id: " + mgiIds);
 
 		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
-
-
     	return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-
     }
 
     private JSONObject prepareHpMpMapping(QueryResponse solrResponse) {
