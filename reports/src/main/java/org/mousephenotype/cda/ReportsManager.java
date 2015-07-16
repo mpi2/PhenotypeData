@@ -145,6 +145,12 @@ public class ReportsManager implements CommandLineRunner {
         }
 
         dumpInputParameters();
+
+        for (ReportType reportType : reports) {
+
+        }
+
+
         System.exit(0);
     }
 
