@@ -121,8 +121,6 @@ public class ExperimentsController {
 		model.addAttribute("pvaluesMap", pvaluesMap);
 		model.addAttribute("allelePageDTO", allelePageDTO);
 
-		System.out.println("Loading took : " + (System.currentTimeMillis() - time));
-
 		return "allelesData";
 	}
 /*

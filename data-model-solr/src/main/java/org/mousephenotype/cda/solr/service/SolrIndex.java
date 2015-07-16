@@ -46,7 +46,7 @@ public class SolrIndex {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@NotNull
-	@Value("internalSolrUrl")
+	@Value("${internalSolrUrl}")
 	private String internalSolrUrl;
 
 	private List<String> phenoStatuses = new ArrayList<String>();
