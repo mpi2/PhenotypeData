@@ -589,8 +589,7 @@ public class DataTableController {
         j.put("iTotalDisplayRecords", totalDocs);
 
         //GO evidence code ranking mapping
-        Map<String, Integer> codeRank = SolrIndex.getGoCodeRank();
-
+        
         for (int i = 0; i < docs.size(); i ++) {
 
             JSONObject doc = docs.getJSONObject(i);
