@@ -96,7 +96,7 @@ public class FileExportController {
 	private GeneService geneService;
 
 	@Autowired
-    @Qualifier("phenotypePipelineDAO")
+    @Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO ppDAO;
 
 	@Resource(name = "globalConfiguration")
