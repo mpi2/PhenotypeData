@@ -108,25 +108,6 @@
 		var oFacets = {};
 		oFacets.count = {};	
 		
-		// deals with hp:XXXXX query
-		if ( q.match(/hp\\\%3A/i) ){
-			
-			q = decodeURIComponent(q).replace('\\','');
-			// convert HP to MP
-			$.ajax({
-       			url: solrUrl +"/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+q.toUpperCase()+"\"",				       			
-       			dataType: "jsonp",
-       			jsonp: 'json.wrf',
-       			type: 'post',
-    	    	async: false,
-       			success: function( json ) {
-	    				input = json.response.docs[0].hpmp_id;
-	    				document.location.href = baseUrl + '/search?q=' + input + '#fq=top_level_mp_term:*&facet=mp';
-       			}
-			});
-			
-		}
-		
 		// one query to solr and get back 6 sets of json each of which corresponds to one of the 6 cores
 	    $.ajax({url: baseUrl + '/querybroker',
 	    	data: {'q' : _getParams(oUrlParams)},
