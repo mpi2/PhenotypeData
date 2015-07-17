@@ -296,6 +296,9 @@
   	<field name="mpQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
+  	
+  	
+  	<field name="embryo_data_available" type="string" indexed="true" stored="true" multiValued="false"/>
 
  </fields>
 
