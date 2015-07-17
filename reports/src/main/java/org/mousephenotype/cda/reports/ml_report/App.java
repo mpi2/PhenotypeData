@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @ComponentScan("org.mousephenotype.org")
 @SpringBootApplication
-public class App /*implements CommandLineRunner */ {
+public class App /*implements CommandLineRunner*/ {
 
 //    @Autowired(required=true)
 //    ObservationRepository observations;
@@ -21,8 +21,8 @@ public class App /*implements CommandLineRunner */ {
 //    public static void main(String args[]) {
 //        SpringApplication.run(ReportsManager.class, args);
 //    }
-//
-//
+
+
 //    @Override
 //    public void run(String... strings) throws Exception {
 //
