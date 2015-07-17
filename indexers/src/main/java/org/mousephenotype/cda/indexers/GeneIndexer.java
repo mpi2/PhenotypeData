@@ -20,6 +20,9 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
+import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
+import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -69,6 +72,7 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
+    Map<String, List<EmbryoStrain>> embryoRestData=null;
 
     public GeneIndexer() {
 
@@ -186,6 +190,15 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setPfamaGoTerms(allele.getPfamaGoTerms());
                 gene.setPfamaGoCats(allele.getPfamaGoCats());
                 gene.setPfamaJsons(allele.getPfamaJsons());
+                
+                if(embryoRestData!=null){
+                	List<EmbryoStrain> embryoStrainsForGene = embryoRestData.get(gene.getMgiAccessionId());
+                	//for the moment lets just set an embryo data available flag!
+                	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
+                		gene.setEmbryoDataAvailable(true);
+                	}
+                	
+                }
 
 				//gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene
@@ -444,7 +457,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setInferredSelectedTopLevelMaId(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaId())));
                 gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
-
+          
                 documentCount++;
                 geneCore.addBean(gene, 60000);
                 count ++;
@@ -482,9 +495,25 @@ public class GeneIndexer extends AbstractIndexer {
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
+        embryoRestData=populateEmbryoData();
     }
 
-    private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
+    private Map<String, List<EmbryoStrain>> populateEmbryoData() {
+    	System.out.println("populating embryo data");
+		EmbryoRestGetter embryoGetter=new EmbryoRestGetter();
+		EmbryoRestData restData=embryoGetter.getEmbryoRestData();
+		List<EmbryoStrain> strains = restData.getStrains();
+		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
+		for(EmbryoStrain strain: strains){
+			String mgi=strain.getMgi();
+			if(mgiToEmbryoMap.containsKey(mgi)){
+				mgiToEmbryoMap.get(mgi).add(strain);
+			}
+		}
+		return mgiToEmbryoMap;
+	}
+
+	private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
 
         Map<String, List<MpDTO>> map= null;
 

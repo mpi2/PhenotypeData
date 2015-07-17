@@ -147,6 +147,7 @@ public class GeneDTO {
 	public static final String PFAMA_GO_ID = "pfama_go_id"; 
 	public static final String PFAMA_GO_TERM = "pfama_go_term"; 
 	public static final String PFAMA_GO_CAT = "pfama_go_cat"; 
+	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available"; 
 	
 	
 	
@@ -549,6 +550,9 @@ public class GeneDTO {
 	
 	@Field(PFAMA_GO_CAT)
 	private List<String> pfama_go_cats = new ArrayList<>();
+	
+	@Field(EMBRYO_DATA_AVAILABLE)
+	private boolean isEmbryoDataAvailable;
 	
 	
 	public List<String> getTopLevelMpTermSynonym() {
@@ -2141,6 +2145,12 @@ public class GeneDTO {
 		result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
 		return result;
 	}
+	
+	
+	public void setEmbryoDataAvailable(boolean b) {
+		this.isEmbryoDataAvailable=b;
+		
+	}
 
 
 	@Override
@@ -2163,4 +2173,6 @@ public class GeneDTO {
 						goTermDomains, uniprotAccs, pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids,
 						pfama_go_terms, pfama_go_cats);
 	}
+
+
 }
