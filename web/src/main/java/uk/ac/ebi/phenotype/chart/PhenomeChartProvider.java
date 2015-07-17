@@ -40,7 +40,7 @@ public class PhenomeChartProvider {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 
-	public String createPvaluesOverviewChart(String alleleAccession, double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
+	public String createPvaluesOverviewChart(double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
 	throws JSONException {
 
 
@@ -586,7 +586,7 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	String geneAccession, String alleleAccession, Map<String, List<StatisticalResultDTO>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, String phenotypingCenter)
+	public String generatePvaluesOverviewChart(	String geneAccession, Map<String, List<StatisticalResultDTO>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
@@ -662,7 +662,7 @@ public class PhenomeChartProvider {
 					series.put(scatterJsonObject);
 				}
 			}
-			chartString = createPvaluesOverviewChart(alleleAccession, minimalPvalue, pointFormat.toString(), series, new JSONArray(categories.toArray()));
+			chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(categories.toArray()));
 
 		} catch (JSONException e) {
 			e.printStackTrace();

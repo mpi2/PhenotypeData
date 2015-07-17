@@ -89,9 +89,9 @@ public class ExperimentsController {
 	@RequestMapping("/experimentsFrag")
 	public String getAlleles(
 			@RequestParam(required = true, value = "geneAccession") String geneAccession,
-			@RequestParam(required = false, value = "alleleAccession") String alleleAccession,
-			@RequestParam(required = false, value = "phenotypingCenter") String phenotypingCenter,
-			@RequestParam(required = false, value = "pipelineStableId") String pipelineStableId,
+			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
@@ -99,17 +99,15 @@ public class ExperimentsController {
 			RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		System.out.println("geneAccession :: " + geneAccession);
-		Long time = System.currentTimeMillis();
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
 		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
 		int rows = 0;
 
-		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleAccession, phenotypingCenter, pipelineStableId, procedureStableId, resource));
+		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource));
 		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
 			rows += list.size();
 		}
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, alleleAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure(), phenotypingCenter);
+		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
@@ -122,9 +120,9 @@ public class ExperimentsController {
 	@RequestMapping("/experiments")
 	public String getBasicInfo(
 			@RequestParam(required = true, value = "geneAccession") String geneAccession,
-			@RequestParam(required = false, value = "alleleAccession") String alleleAccession,
-			@RequestParam(required = false, value = "phenotypingCenter") String phenotypingCenter,
-			@RequestParam(required = false, value = "pipelineStableId") String pipelineStableId,
+			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
@@ -136,7 +134,7 @@ public class ExperimentsController {
 		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
 		int rows = 0;
 
-		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleAccession, phenotypingCenter, pipelineStableId, procedureStableId, resource));
+		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource));
 		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
 			rows += list.size();
 		}
@@ -144,7 +142,7 @@ public class ExperimentsController {
 //		ColorCodingPalette colorCoding = new ColorCodingPalette();
 //		colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
 
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, alleleAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure(), phenotypingCenter);
+		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
 //		model.addAttribute("palette", colorCoding.getPalette());
 		model.addAttribute("chart", chart);

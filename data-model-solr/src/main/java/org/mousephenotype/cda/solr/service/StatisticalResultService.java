@@ -732,7 +732,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, String alleleAccession, String phenotypingCenter,	String pipelineStableId, List<String> procedureStableIds, ArrayList<String> resource)
+    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, ArrayList<String> resource)
 	throws NumberFormatException, SolrServerException {
 
     	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
@@ -764,13 +764,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	    	query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
 	    }
 	    if (phenotypingCenter != null){
-	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"" +StringUtils.join(phenotypingCenter, "\" OR \"")  + "\")");
 	    }
-	    if (pipelineStableId != null){
-	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+	    if (pipelineName != null){
+	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
 	    }
-	    if (alleleAccession != null){
-	    	query.addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+	    if (alleleSymbol != null){
+	    	query.addFilterQuery(StatisticalResultDTO.ALLELE_SYMBOL + ":(\"" + StringUtils.join(alleleSymbol, "\" OR \"") + "\")");
 	    }
 		if (procedureStableIds != null){
 			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(" + StringUtils.join(procedureStableIds, " OR ") + ")");
