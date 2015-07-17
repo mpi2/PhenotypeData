@@ -19,7 +19,7 @@
 			<div class="block">
 				<div class="content">
 					<div class="node node-gene">
-						<h1 class="title" id="top">All data for ${allelePageDTO.getGeneSymbol()}</h1>
+						<h1 id="top">All data for ${allelePageDTO.getGeneSymbol()}</h1>
 							<div class="section">
 							
 								<div class="inner">

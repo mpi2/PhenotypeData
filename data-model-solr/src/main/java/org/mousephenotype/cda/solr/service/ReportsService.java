@@ -69,6 +69,7 @@ public class ReportsService {
     MpService mpService;
 
     @Autowired
+	@Qualifier("phenotypePipelineDAOImpl")
     private PhenotypePipelineDAO pipelineDao;
 
 	@NotNull
@@ -413,7 +414,7 @@ public class ReportsService {
     }
 
 
-    public List<List<String[]>> getHitsPerParamProcedure(){
+    public List<List<String[]>> getHitsPerParameterAndProcedure(){
     	//Columns:
     	//	parameter name | parameter stable id | number of significant hits
 
@@ -760,7 +761,6 @@ public class ReportsService {
 		return res;
 
 	}
-
 
 	private class GeneCenterZygosity {
 		private String geneSymbol;

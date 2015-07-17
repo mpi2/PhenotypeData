@@ -15,38 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.hibernate.exception.JDBCConnectionException;
-import org.mousephenotype.cda.db.dao.AlleleDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.Procedure;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
-import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
-import uk.ac.ebi.phenotype.chart.Constants;
-import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
-import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -56,23 +24,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.hibernate.exception.JDBCConnectionException;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import uk.ac.ebi.phenotype.chart.Constants;
+import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
+import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+
 
 @Controller
 public class ExperimentsController {
 
-	private final Logger log = LoggerFactory.getLogger(ExperimentsController.class);
-
-	@Autowired
-	private AlleleDAO alleleDao;
-
-	@Autowired
-	private PhenotypePipelineDAO pipelineDao;
 
 	@Autowired
 	SolrIndex solrIndex;
-
-	@Autowired
-	private ImpressService impressService;
 
 	@Autowired
 	private StatisticalResultService srService;
@@ -139,12 +120,8 @@ public class ExperimentsController {
 			rows += list.size();
 		}
 
-//		ColorCodingPalette colorCoding = new ColorCodingPalette();
-//		colorCoding.generateColors(	pvaluesMap,	ColorCodingPalette.NB_COLOR_MAX, 1,	Constants.SIGNIFICANT_P_VALUE);
-
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
-//		model.addAttribute("palette", colorCoding.getPalette());
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
 		model.addAttribute("pvaluesMap", pvaluesMap);

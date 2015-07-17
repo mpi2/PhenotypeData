@@ -27,18 +27,15 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 public class PhenomeChartProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
 
 	public String createPvaluesOverviewChart(double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
 	throws JSONException {
@@ -180,7 +177,7 @@ public class PhenomeChartProvider {
 		String chartString = "	$(function () { \n"
 		+ "  phenomeChart = new Highcharts.Chart({ \n"
 		+ "     chart: {\n"
-		+ "renderTo: 'phenomeChart',\n"
+		+ "			renderTo: 'phenomeChart',\n"
 		+ "         type: 'scatter',\n"
 		+ "         zoomType: 'xy',\n"
 		+ "         height: 800\n"
@@ -206,10 +203,10 @@ public class PhenomeChartProvider {
 		+ "         } \n"
 		+ "     }, \n"
 		+ "      showLastLabel: true \n"
-		+ "  }, \n"
-		+ "    yAxis: { \n"
-		+ "min: 0,\n"
-		+ "max: " + -Math.log10(1E-21) + ",\n"
+		+ "  	}, \n"
+		+ "   	 yAxis: { \n"
+		+ "			min: 0,\n"
+		+ "			max: " + -Math.log10(1E-21) + ",\n"
 		+ "         title: { \n"
 		+ "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
 		+ "           }, \n"
@@ -248,9 +245,9 @@ public class PhenomeChartProvider {
 		+ "                   $.fancybox.open([ \n"
 		+ "                  {\n"
 		+ "                     href : base_url + '/charts?accession=' + event.point.geneAccession +"
-		+ "'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
-		+ "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
-		+ "'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', \n"
+		+ "								'&parameter_stable_id=' + event.point.parameter_stable_id + '&allele_accession=' + event.point.alleleAccession + "
+		+ "								'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotyping_center + "
+		+ "								'&pipeline_stable_id=' + event.point.pipeline_stable_id + '&bare=true', \n"
 		+ "                     title : event.point.geneAccession \n"
 		+ "                  } \n"
 		+ "                  ], \n"
