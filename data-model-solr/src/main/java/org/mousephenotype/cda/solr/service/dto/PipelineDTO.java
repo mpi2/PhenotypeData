@@ -101,15 +101,23 @@ public class PipelineDTO {
 
 	@Field(PARAMETER_NAME)
 	private String parameterName;
+	
+	@Field(PARAMETER_STABLE_KEY)
+	private String parameterStableKey;
+	
 
 	@Field(PROCEDURE_ID)
-	private List<Integer> procedureId;
+	private Integer procedureId;
 
 	@Field(PROCEDURE_STABLE_ID)
-	private List<String> procedureStableId;
+	private String procedureStableId;
 
 	@Field(PROCEDURE_NAME)
-	private List<String> procedureName;
+	private String procedureName;
+	
+	@Field(PROCEDURE_STABLE_KEY)
+	private Integer procedureStableKey;
+	
 
 	@Field(MAPPED_PROCEDURE_NAME)
 	private List<String> mappedProcedureName;
@@ -118,19 +126,16 @@ public class PipelineDTO {
 	private int pipelineId;
 
 	@Field(PIPELINE_STABLE_ID)
-	private List<String> pipelineStableId;
+	private String pipelineStableId;
 
 	@Field(PIPELINE_STABLE_KEY)
-	private List<Integer> pipelineStableKey;
+	private Integer pipelineStableKey;
 
 	@Field(PIPELINE_NAME)
-	private List<String> pipelineName;
+	private String pipelineName;
 
 	@Field(PIPE_PROC_SID)
 	private List<String> pipeProcId;
-
-	@Field(PROCEDURE_STABLE_KEY)
-	private List<Integer> procedureStableKey;
 
 	@Field(PROCEDURE_NAME_ID)
 	private List<String> procedureNameId;
@@ -140,9 +145,6 @@ public class PipelineDTO {
 
 	@Field(PROCEDURE_PARAMETER_NAME)
 	private List<String> procedureParamName;
-
-	@Field(PARAMETER_STABLE_KEY)
-	private String parameterStableKey;
 
 	@Field(ID_ID_ID)
 	private String ididid;
@@ -190,6 +192,7 @@ public class PipelineDTO {
 
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypingStatus;
+	
 
 	@Override
 	public String toString() {
@@ -855,31 +858,6 @@ public class PipelineDTO {
 		this.procedureNameId = procedureNameId;
 	}
 
-
-	public List<Integer> getProcedureStableKey() {
-
-		return procedureStableKey;
-	}
-
-
-	public void setProcedureStableKey(List<Integer> procedureStableKey) {
-
-		this.procedureStableKey = procedureStableKey;
-	}
-
-
-	public List<Integer> getPipelineStableKey() {
-
-		return pipelineStableKey;
-	}
-
-
-	public void setPipelineStableKey(List<Integer> pipelineStableKey) {
-
-		this.pipelineStableKey = pipelineStableKey;
-	}
-
-
 	public List<String> getPipeProcId() {
 
 		return pipeProcId;
@@ -927,43 +905,6 @@ public class PipelineDTO {
 		this.parameterName = parameterName;
 	}
 
-
-	public List<Integer> getProcedureId() {
-
-		return procedureId;
-	}
-
-
-	public void setProcedureId(List<Integer> procedureId) {
-
-		this.procedureId = procedureId;
-	}
-
-
-	public List<String> getProcedureStableId() {
-
-		return procedureStableId;
-	}
-
-
-	public void setProcedureStableId(List<String> procedureStableId) {
-
-		this.procedureStableId = procedureStableId;
-	}
-
-
-	public List<String> getProcedureName() {
-
-		return procedureName;
-	}
-
-
-	public void setProcedureName(List<String> procedureName) {
-
-		this.procedureName = procedureName;
-	}
-
-
 	public List<String> getMappedProcedureName() {
 
 		return mappedProcedureName;
@@ -976,18 +917,6 @@ public class PipelineDTO {
 	}
 
 
-	public List<String> getPipelineName() {
-
-		return pipelineName;
-	}
-
-
-	public void setPipelineName(List<String> pipelineName) {
-
-		this.pipelineName = pipelineName;
-	}
-
-
 	public int getPipelineId() {
 
 		return pipelineId;
@@ -997,18 +926,6 @@ public class PipelineDTO {
 	public void setPipelineId(int pipelineId) {
 
 		this.pipelineId = pipelineId;
-	}
-
-
-	public List<String> getPipelineStableId() {
-
-		return pipelineStableId;
-	}
-
-
-	public void setPipelineStableId(List<String> pipelineStableId) {
-
-		this.pipelineStableId = pipelineStableId;
 	}
 
 
@@ -1030,44 +947,6 @@ public class PipelineDTO {
 			this.mgiAccession = new ArrayList<>();
 		}
 		this.mgiAccession.add(mgiAccession);
-	}
-
-
-	public void addProcedureId(int procId) {
-
-		if (this.procedureId == null) {
-			this.procedureId = new ArrayList<Integer>();
-		}
-		this.procedureId.add(procId);
-	}
-
-
-	public void addProcedureName(String procedureName) {
-
-		if (this.procedureName == null) {
-			this.procedureName = new ArrayList<String>();
-		}
-		this.procedureName.add(procedureName);
-
-	}
-
-
-	public void addProcedureStableId(String procedureStableId) {
-
-		if (this.procedureStableId == null) {
-			this.procedureStableId = new ArrayList<String>();
-		}
-		this.procedureStableId.add(procedureStableId);
-	}
-
-
-	public void addProcedureStableKey(Integer procedureStableKey) {
-
-		if (this.procedureStableKey == null) {
-			this.procedureStableKey = new ArrayList<Integer>();
-		}
-		this.procedureStableKey.add(procedureStableKey);
-
 	}
 
 
@@ -1493,36 +1372,6 @@ public class PipelineDTO {
 		
 	}
 
-
-	public void addPipelineName(String pipelineName) {
-
-		if (this.pipelineName== null) {
-			this.pipelineName = new ArrayList<>();
-		}
-		this.pipelineName.add(pipelineName);
-		
-	}
-
-
-	public void addPipelineStableId(String pipelineStableId) {
-
-		if (this.pipelineStableId== null) {
-			this.pipelineStableId = new ArrayList<>();
-		}
-		this.pipelineStableId.add(pipelineStableId);
-		
-	}
-
-
-	public void addPipelineStableKey(Integer pipelineStableKey) {
-		if (this.pipelineStableKey== null) {
-			this.pipelineStableKey = new ArrayList<>();
-		}
-		this.pipelineStableKey.add(pipelineStableKey);
-		
-	}
-
-
 	public void addPipeProcId(String pipeProcId) {
 
 		if (this.pipeProcId== null) {
@@ -1543,4 +1392,86 @@ public class PipelineDTO {
 		return abnormalMaTermId;
 	}
 
+
+	public Integer getProcedureId() {
+		return procedureId;
+	}
+
+
+	public void setProcedureId(Integer procedureId) {
+		this.procedureId = procedureId;
+	}
+
+
+	public String getProcedureStableId() {
+		return procedureStableId;
+	}
+
+
+	public void setProcedureStableId(String procedureStableId) {
+		this.procedureStableId = procedureStableId;
+	}
+
+
+	public String getProcedureName() {
+		return procedureName;
+	}
+
+
+	public void setProcedureName(String procedureName) {
+		this.procedureName = procedureName;
+	}
+
+
+	public Integer getProcedureStableKey() {
+		return procedureStableKey;
+	}
+
+
+	public void setProcedureStableKey(Integer procedureStableKey) {
+		this.procedureStableKey = procedureStableKey;
+	}
+
+
+	public String getPipelineStableId() {
+		return pipelineStableId;
+	}
+
+
+	public void setPipelineStableId(String pipelineStableId) {
+		this.pipelineStableId = pipelineStableId;
+	}
+
+
+	public Integer getPipelineStableKey() {
+		return pipelineStableKey;
+	}
+
+
+	public void setPipelineStableKey(Integer pipelineStableKey) {
+		this.pipelineStableKey = pipelineStableKey;
+	}
+
+
+	public String getPipelineName() {
+		return pipelineName;
+	}
+
+
+	public void setPipelineName(String pipelineName) {
+		this.pipelineName = pipelineName;
+	}
+
+
+	public List<String> getInferredSelectedTopLevelMaId() {
+		return inferredSelectedTopLevelMaId;
+	}
+
+
+	public void setInferredSelectedTopLevelMaId(List<String> inferredSelectedTopLevelMaId) {
+		this.inferredSelectedTopLevelMaId = inferredSelectedTopLevelMaId;
+	}
+
+	
+	
 }
