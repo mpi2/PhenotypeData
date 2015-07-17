@@ -39,6 +39,7 @@ import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.slf4j.Logger;
@@ -162,7 +163,7 @@ public class GenesController {
 
 	@RequestMapping("/genes/{acc}")
 	public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
                 String debug = request.getParameter("debug");
                 log.info("#### genesAllele2: debug: " + debug);
@@ -178,11 +179,11 @@ public class GenesController {
 
 
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
-	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException {
+	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-
+		GeneDTO geneDto=geneService.getGeneById(acc);
 		if (gene == null) {
 			log.warn("Gene object from database for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -316,11 +317,12 @@ public class GenesController {
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 
-		model.addAttribute("showEmbryoViewer",this.displayEmbryoViewer());
+		model.addAttribute("showEmbryoViewer",this.displayEmbryoViewer(geneDto));
 	}
 
 
-	private boolean displayEmbryoViewer() {
+	private boolean displayEmbryoViewer(GeneDTO gene) {
+		//if(gene.getEmbry)
 		return true;
 
 	}
