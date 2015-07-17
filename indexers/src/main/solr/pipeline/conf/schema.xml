@@ -137,24 +137,29 @@
 
 	<field name="dataType" type="string" indexed="true" stored="true"/> 
     <field name="_version_" type="long" indexed="true" stored="true"/> 
+    
 	<field name="parameter_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="parameter_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>		
     <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>	
-    <field name="procedure_id" type="int" indexed="true" stored="true" required="true" multiValued="true"/>
-    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true" />
-    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
+    
+    <field name="procedure_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+    <field name="procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+
+	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/> 
+    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+
+
+	<!-- Facets/search page stuff -->
 	<field name="mapped_procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
-    <field name="procedure_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="true"/>
 	<field name="proc_name_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
     <field name="proc_param_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
     <field name="proc_param_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
-
-	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="true"/>
-    <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="true"/>
-    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
-    <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="true"/> 
-	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" multiValued="true"/> 
+	<field name="pipe_proc_sid" type="string" indexed="true" stored="true" required="true" multiValued="true"/>  
 	<field name="ididid" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
 
 	<!-- MP stuff -->

@@ -63,4 +63,9 @@ public class ReportsConfig {
         return DataSourceBuilder.create().build();
     }
 
+    @Bean
+    public SexualDimorphismDAO sexualDimorphismDAO() {
+        return new SexualDimorphismDAOImpl();
+    }
+
 }

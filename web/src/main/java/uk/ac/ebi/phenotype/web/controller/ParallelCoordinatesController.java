@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 
@@ -39,11 +40,27 @@ public class ParallelCoordinatesController {
 
 	@Autowired
 	StatisticalResultService srs;
+	
+
+	@Autowired
+	ImpressService impressService;
 
 	@Autowired
 	PhenotypePipelineDAO pp;
 
-	@RequestMapping(value="/parallel", method=RequestMethod.GET)
+	@RequestMapping(value="/parallel2", method=RequestMethod.GET)
+	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
+	throws SolrServerException{
+
+		System.out.println("Controller for parallel2");
+		model.addAttribute("procedures", impressService.getProceduresByStableIdRegex("IMPC_*"));
+		
+		return "parallel2";
+		
+	}
+
+	
+	@RequestMapping(value="/parallelFrag", method=RequestMethod.GET)
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
@@ -64,7 +81,6 @@ public class ParallelCoordinatesController {
 //		System.out.println(data);
 //		model.addAttribute("dataJs", data + ";");
 
-		return "parallel";
+		return "parallelFrag";
 	}
-
 }
