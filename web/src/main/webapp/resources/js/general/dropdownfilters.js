@@ -164,9 +164,9 @@ $(document).ready(function(){
 		}).done(function( html ) {
 			$("#genes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
 			initGenePhenotypesTable();
-			//alert('calling new table in genes.jsp');
 		});
 	}
+	
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
 	//to move the input text or reassign the div that does it and hide the other one??
 	//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc

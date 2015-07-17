@@ -52,7 +52,6 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 		this.sessionFactory = sessionFactory;
 	}
 
-
 	@Transactional(readOnly = true)
 	public List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) {
 

@@ -15,22 +15,27 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
+import org.mousephenotype.cda.solr.bean.ProcedureBean;
+import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
-import org.mousephenotype.cda.solr.service.ProcedureBean;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
 
 
 @Controller

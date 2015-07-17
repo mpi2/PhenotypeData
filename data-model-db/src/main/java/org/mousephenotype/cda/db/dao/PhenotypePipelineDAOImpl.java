@@ -216,6 +216,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				.setString(1, term.getId().getAccession())
 				.list());
 	}
+	
 
 	/**
 	 * Return all categorical parameters for which we have data loaded

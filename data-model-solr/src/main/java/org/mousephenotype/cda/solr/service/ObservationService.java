@@ -159,7 +159,7 @@ public class ObservationService extends BasicService {
         		dto.addAlleleSymbol(facet.getName());
         	}
         	
-        	FacetField pipelines = solr.query(q).getFacetField(ObservationDTO.PHENOTYPING_CENTER);
+        	FacetField pipelines = solr.query(q).getFacetField(ObservationDTO.PIPELINE_NAME);
         	for (Count facet : pipelines.getValues()){
         		dto.addPipelineName(facet.getName());
         	}
