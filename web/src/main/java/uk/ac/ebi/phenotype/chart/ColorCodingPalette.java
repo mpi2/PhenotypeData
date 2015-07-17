@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.bean.StatisticalResultBean;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 /**
@@ -200,51 +199,6 @@ public class ColorCodingPalette {
 		zLimMax = maxColorIndex/scale;
 		//  list(col=round(color.vals), zlim=c(0, max.color.index/scale))
 	}
-
-	/**
-	 * Add a colorIndex to a set of statistical results
-	 * @param statisticalResults structure containing
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
-	 */
-	private void addColorIndexToStatisticalResults(Map<String, List<StatisticalResultBean>> statisticalResults, int maxColorIndex, double scale, double minimalPValue){
-
-		// to scale from 0 to max color index
-		double maxColor = 0;
-
-		for (String parameterId: statisticalResults.keySet()) {
-			// OK, for this parameter, compute a color index
-
-			for (StatisticalResultBean statsResult: statisticalResults.get(parameterId)) {
-				double pValue = statsResult.getpValue();
-				if (pValue < minimalPValue) {
-					pValue = minimalPValue;
-				}
-				statsResult.setColorIndex(-Math.log10(pValue));
-				if (statsResult.getColorIndex() > maxColor) {
-					maxColor = statsResult.getColorIndex();
-				}
-			}
-		}
-
-		if( scale == 0 ){
-			scale = maxColorIndex / maxColor;
-		}
-
-		// scale
-		for (String parameterId: statisticalResults.keySet()) {
-			for (StatisticalResultBean statsResult: statisticalResults.get(parameterId)) {
-				statsResult.setColorIndex(statsResult.getColorIndex()*scale);
-				statsResult.setColorIndex(Math.round(statsResult.getColorIndex()));
-				// check whether any color is greater than the maxColorIndex
-				if (statsResult.getColorIndex() > maxColorIndex) {
-					statsResult.setColorIndex(maxColorIndex);
-				}
-			}
-		}
-
-	}
 	
 
 	/**
@@ -298,19 +252,6 @@ public class ColorCodingPalette {
 		return rgbOrangeRedPalette.get(0); // 3 colors
 	}
 
-	/**
-	 * All in one: given a set of p-value
-	 * @param pValues
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
-	 */
-	public void generateColors(Map<String, List<StatisticalResultBean>> pvaluesMap, int maxColorIndex, double scale, double minimalPValue) {
-
-		palette = getColorPalette(maxColorIndex);
-
-		addColorIndexToStatisticalResults(pvaluesMap, maxColorIndex, scale, minimalPValue);
-	}
 
 	/**
 	 * All in one: given a set of phenotype call summary

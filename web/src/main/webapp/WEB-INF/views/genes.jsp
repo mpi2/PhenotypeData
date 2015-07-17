@@ -95,22 +95,10 @@
 
         <jsp:attribute name="header">
 
-
-            <!-- CSS Local Imports -->
-            <!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
-
             <!-- JavaScript Local Imports -->
-            <!--  <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> -->
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-
-			<!-- from tab tutorial -->
-			<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"> -->
-			<%-- <link rel="stylesheet" href="${baseUrl}/css/vendor/jquery.ui/jquery.ui.core.css"> --%>
-			  <!-- <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-			  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script> -->
-  
   
             <script type="text/javascript">var gene_id = '${acc}';
             
@@ -277,7 +265,6 @@
                             <div class="section">
 
                                 <h2 class="title " id="section-associations"> Phenotype associations for ${gene.symbol} 
-                                    <!-- <span class="documentation" > <a href='' id='mpPanel'><i class="fa fa-question-circle pull-right"></i></a></span>-->
                                     <span class="documentation" ><a href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
                                 </h2>		
 
@@ -333,7 +320,7 @@
                                           	<br/>
                                           	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 	                                      	<div class="floatright" style="clear:both">
-	                                         	<p><a class="btn" href='${baseUrl}/experiments/allelesData?geneAccession=${gene.id.accession}' style="margin:10px">All Adult Data</a></p>
+	                                         	<p><a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.id.accession}' style="margin:10px">All Adult Data</a></p>
                                           	</div>
                                           </c:if>
                                           
@@ -401,11 +388,7 @@
                                                 <div class="row-fluid" id="phenotypesDiv">	
 
                                                     <div class="container span12">
-                                                        <div id="filterParams" >
-                                                            <c:forEach var="filterParameters" items="${paramValues.fq}">
-                                                                ${filterParameters}
-                                                            </c:forEach>
-                                                        </div> 
+                                                       
                                                         <c:if test="${not empty phenotypes}">
                                                             <form class="tablefiltering no-style" id="target" action="destination.html">
                                                                 <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
@@ -425,8 +408,8 @@
                                                             </c:forEach>
 
                                                             <jsp:include page="PhenoFrag.jsp"></jsp:include>
-                                                                <br/>
-                                                                <div id="exportIconsDiv"></div>
+                                                            <br/>
+                                                            <div id="exportIconsDiv"></div>
                                                         </c:if>
 
                                                         <!-- if no data to show -->

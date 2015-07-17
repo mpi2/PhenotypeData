@@ -30,6 +30,7 @@ public class AllelePageDTO {
 	String geneAccession;
 	String geneSymbol;
 	List<String> alleleSymbols;
+	List<String> escapedAlleleSymbols;
 	List<String> phenotypingCenters;
 	List<String> pipelineNames;
 	Map<String, List<String>> parametersByProcedure = new HashMap<>();
@@ -75,6 +76,9 @@ public class AllelePageDTO {
 	public void addAlleleSymbol(String alleleSymbol) {
 		alleleSymbols = alleleSymbols == null ? new ArrayList<>() : alleleSymbols;
 		alleleSymbols.add(alleleSymbol);
+
+		escapedAlleleSymbols = escapedAlleleSymbols == null ? new ArrayList<>() : escapedAlleleSymbols;
+		escapedAlleleSymbols.add(alleleSymbol.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
 	}
 	
 	public List<String> getPhenotypingCenters() {
@@ -104,6 +108,14 @@ public class AllelePageDTO {
 	}
 	
 	
+	public List<String> getEscapedAlleleSymbols() {
+		return escapedAlleleSymbols;
+	}
+
+	public void setEscapedAlleleSymbols(List<String> escapedAlleleSymbols) {
+		this.escapedAlleleSymbols = escapedAlleleSymbols;
+	}
+
 	@Override
 	public String toString() {
 		return "AllelePageDTO [geneAccession=" + geneAccession + ", geneSymbol=" + geneSymbol + ", alleleSymbols="
