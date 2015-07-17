@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.reports;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -23,17 +24,55 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
+ * This class contains generic file utilities required by the reports module.
+ *
  * Created by mrelac on 16/07/2015.
  */
 @Component
 public class FileUtils {
-    public File create(String targetFileDir, String filename, List<String> content) throws IOException {
+
+    /**
+     * Create and write CSV file <code>filename</code> to directory <code>targetFileDir</code>
+     * from source <code>content</code>.
+     * @param targetFileDir target directory
+     * @param filename target filename
+     * @param content content to be written
+     * @return a <code>File</code> instance representing the csv file just created
+     * @throws IOException
+     */
+    public File createCSV(String targetFileDir, String filename, List<String[]> content) throws IOException {
         File file = new File(Paths.get(targetFileDir, filename).toAbsolutePath().toString());
 
-        FileWriter writer = new FileWriter(file.getAbsoluteFile());
-        BufferedWriter bw = new BufferedWriter(writer);
-//        bw.write(content);
-        bw.close();
+        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+        CSVWriter csvWriter = new CSVWriter(fileWriter);
+
+        csvWriter.writeAll(content);
+        csvWriter.close();
+
+        return file;
+    }
+
+    /**
+     * Create and write CSV file <code>filename</code> to directory <code>targetFileDir</code>
+     * from source <code>content</code>.
+     * @param targetFileDir target directory
+     * @param filename target filename
+     * @param content content to be written
+     * @return a <code>File</code> instance representing the csv file just created
+     * @throws IOException
+     */
+    public File createCSVMulti(String targetFileDir, String filename, List<List<String[]>> content) throws IOException {
+        File file = new File(Paths.get(targetFileDir, filename).toAbsolutePath().toString());
+
+        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+        CSVWriter csvWriter = new CSVWriter(fileWriter);
+
+        for (List<String[]> row : content) {
+            csvWriter.writeAll(row);
+            csvWriter.writeNext(new String[0]);
+        }
+
+        csvWriter.close();
 
         return file;
     }

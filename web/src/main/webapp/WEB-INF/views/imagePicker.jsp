@@ -51,11 +51,11 @@
                                 	<option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}" data-img-label="
    										<c:if test="${not empty img.sex}">${img.sex}</c:if>
    										 <c:if test="${not empty count}">${count} Images<br/></c:if>
-                                                <c:if test="${not empty img.parameter_association_name}">
-                                                	<c:forEach var="pAssName" items="${img.parameter_association_name}" varStatus="status">${pAssName}<br/> </c:forEach>
-                                                </c:if>
-                                                <c:if test="${not empty img.parameter_association_value}">
-                                                	<c:forEach var="pAssValue" items="${img.parameter_association_value}" varStatus="status">${pAssValue}<br/> </c:forEach>
+                                                 <c:if test="${not empty img.parameter_association_name}">
+                                                	<c:forEach items="${img.parameter_association_name}" varStatus="status">
+                                                		<c:out value="${img.parameter_association_name[status.index]}"/> (<c:out value="${img.parameter_association_value[status.index]}"/>)
+                                                	</br>
+                                                	</c:forEach>
                                                 </c:if>
                                                 <%-- <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}</c:if> --%>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
@@ -88,6 +88,7 @@
                                                 <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach items="${img.parameter_association_name}" varStatus="status">
                                                 		<c:out value="${img.parameter_association_name[status.index]}"/> (<c:out value="${img.parameter_association_value[status.index]}"/>)
+                                                	</br>
                                                 	</c:forEach>
                                                 </c:if>
                                      <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>

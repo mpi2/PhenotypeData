@@ -110,7 +110,7 @@ public class ReportsController {
 	@RequestMapping(value = "/reports/hitsPerPP", method = RequestMethod.GET)
 	public void getHitsPerPP(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		List<List<String[]>> result = rService.getHitsPerParamProcedure();
+		List<List<String[]>> result = rService.getHitsPerParameterAndProcedure();
 		ControllerUtils.writeAsCSVMultipleTables(result, "hits_per_parameter_procedure.csv", response);
 	}
 
