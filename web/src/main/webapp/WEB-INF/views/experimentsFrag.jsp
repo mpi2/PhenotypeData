@@ -23,7 +23,7 @@
 		<thead>
 			<tr>
 				<th class="headerSort">Allele</th>
-				<th class="headerSort">Phenotyping Center</th>
+				<th class="headerSort">Center</th>
 				<th class="headerSort">Procedure</th>
 				<th class="headerSort">Parameter</th>
 				<th class="headerSort">Zygosity</th>
