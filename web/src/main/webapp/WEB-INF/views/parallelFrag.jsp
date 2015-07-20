@@ -1,6 +1,36 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
+
+
+<!-- CSS Local Imports -->
+<link rel="stylesheet" href="${baseUrl}/css/vendor/slick.grid.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" />
+
+<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/charts/parallel/parallel-coordinates.js"></script>
+
+<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/underscore.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/vendor/backbone.js"></script>
+
+<script type="text/javascript" src="${baseUrl}/js/data/IMPC_CBC.js"></script>
+<script src="${baseUrl}/js/vendor/jquery/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="${baseUrl}/js/charts/parallel/filter.js"></script>
+
+<!-- SlickGrid -->
+<script src="${baseUrl}/js/vendor/jquery/jquery.event.drag-2.0.min.js"></script>
+<script src="${baseUrl}/js/vendor/slick/slick.core.js"></script>
+<script src="${baseUrl}/js/vendor/slick/slick.grid.js"></script>
+<script src="${baseUrl}/js/vendor/slick/slick.dataview.js"></script>
+<script src="${baseUrl}/js/vendor/slick/slick.pager.js"></script>
+<script src="${baseUrl}/js/charts/parallel/grid.js"></script>
+<script src="${baseUrl}/js/charts/parallel/pie.js"></script>
+<script src="${baseUrl}/js/charts/parallel/options.js"></script>
+
 <div id="nav">
 	<h1>${procedure}</h1>
 	<div class="widget right toggle">
