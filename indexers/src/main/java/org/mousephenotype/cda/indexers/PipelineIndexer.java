@@ -172,11 +172,11 @@ public class PipelineIndexer extends AbstractIndexer {
 					ProcedureBean procBean = procedureIdToProcedure
 							.get(pipeline.procedureId);
 					// System.out.println(procBean.procedureStableId);
-					pipe.addProcedureId(pipeline.procedureId);
-					pipe.addProcedureName(procBean.procedureName);
+					pipe.setProcedureId(pipeline.procedureId);
+					pipe.setProcedureName(procBean.procedureName);
 					// System.out.println(procBean.procedureName+" "+procBean.procedureStableId+pipe.getParameterName());
-					pipe.addProcedureStableId(procBean.procedureStableId);
-					pipe.addProcedureStableKey(procBean.procedureStableKey);
+					pipe.setProcedureStableId(procBean.procedureStableId);
+					pipe.setProcedureStableKey(procBean.procedureStableKey);
 					pipe.addProcedureNameId(procBean.procNameId);
 					pipe.addMappedProcedureName(SangerProcedureMapper
 							.getImpcProcedureFromSanger(procBean.procedureName));
@@ -205,9 +205,9 @@ public class PipelineIndexer extends AbstractIndexer {
 					// <field column="pipe_proc_sid"
 					// name="pipe_proc_sid" />
 					pipe.setPipelineId(pipeline.pipelineId);
-					pipe.addPipelineName(pipeline.pipelineName);
-					pipe.addPipelineStableId(pipeline.pipelineStableId);
-					pipe.addPipelineStableKey(pipeline.pipelineStableKey);
+					pipe.setPipelineName(pipeline.pipelineName);
+					pipe.setPipelineStableId(pipeline.pipelineStableId);
+					pipe.setPipelineStableKey(pipeline.pipelineStableKey);
 					pipe.addPipeProcId(pipeline.pipeProcSid);
 
 					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr

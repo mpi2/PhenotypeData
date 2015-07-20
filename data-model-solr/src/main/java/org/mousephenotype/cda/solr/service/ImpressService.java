@@ -53,6 +53,48 @@ public class ImpressService {
 	private HttpSolrServer solr;
 
 	
+	
+	/**
+	 * @since 2015/07/17
+	 * @author tudose
+	 * @param procedureStableIdRegex
+	 * @return 
+	 */
+	
+	public List<ProcedureBean> getProceduresByStableIdRegex(String procedureStableIdRegex){
+		
+		List<ProcedureBean> procedures = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(PipelineDTO.PROCEDURE_STABLE_ID + ":" + procedureStableIdRegex)
+				.addField(PipelineDTO.PROCEDURE_ID)
+				.addField(PipelineDTO.PROCEDURE_NAME)
+				.addField(PipelineDTO.PROCEDURE_STABLE_ID)
+				.addField(PipelineDTO.PROCEDURE_STABLE_KEY);
+			query.set("group", true);
+			query.set("group.field", PipelineDTO.PROCEDURE_STABLE_ID);
+			query.setRows(10000);
+			query.set("group.limit", 1);
+
+			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
+			
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_ID).toString(), 
+															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_NAME).toString(),
+															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_ID).toString(),
+															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_KEY).toString());
+			}
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return procedures;
+	}
+	
 
 	/**
 	 * @date 2015/07/08
@@ -126,7 +168,7 @@ public class ImpressService {
 	
 
 
-	public List<Integer> getProcedureStableKey(String procedureStableId) {
+	public Integer getProcedureStableKey(String procedureStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -145,7 +187,7 @@ public class ImpressService {
 	}
 
 
-	public List<Integer> getPipelineStableKey(String pipelineStableId) {
+	public Integer getPipelineStableKey(String pipelineStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -196,9 +238,9 @@ public class ImpressService {
 
 */
 	public String getPipelineUrlByStableId(String stableId){
-		List<Integer> pipelineKey = getPipelineStableKey(stableId);
-		if (pipelineKey != null && pipelineKey.size()>0){
-			return DRUPAL_BASE_URL + "/impress/procedures/" + pipelineKey.get(0);
+		Integer pipelineKey = getPipelineStableKey(stableId);
+		if (pipelineKey != null ){
+			return DRUPAL_BASE_URL + "/impress/procedures/" + pipelineKey;
 		}
 		else return "#";
 	}
