@@ -16,6 +16,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mousephenotype.cda.solr.generic.util.HttpProxy;
 import org.springframework.web.client.RestTemplate;
@@ -67,30 +68,17 @@ public class EmbryoRestGetter {
 			
 			JSONObject json=new JSONObject(content);
 			System.out.println("json="+json.toString());
-			String []names=JSONObject.getNames(json);
-			for(String name:names){
-				System.out.println("name="+name);
-				JSONObject jsonObject = json.getJSONObject(name);
+			//String []names=JSONObject.getNames(json);
+			JSONArray coloniesArray=json.getJSONArray("colonies");
+			for(int i=0;i<coloniesArray.length(); i++){
+				JSONObject jsonObject = coloniesArray.getJSONObject(i);
 					System.out.println("start of object");
 					embryoStrain = new EmbryoStrain();
-					embryoStrain.setName(name);
-				
-				//if (line.contains("\"mgi\"")) {
+					embryoStrain.setColonyId(jsonObject.getString("colony_id"));
 					embryoStrain.setMgi(jsonObject.getString("mgi"));
-				//}
-				//if (line.contains("\"centre\"")) {
 					embryoStrain.setCentre(jsonObject.getString("centre"));
-				//}
-				//if (line.contains("\"url\"")) {
 					embryoStrain.setUrl(jsonObject.getString("url"));
-				//}
-				//if (line.contains("\"mgi\"")) {
-
-				//}
-				//if (line.contains("},")) {
 					strains.add(embryoStrain);
-				//}
-				
 			}
 			
 

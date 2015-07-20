@@ -471,7 +471,7 @@ div.ui-tabs-panel {
                                             <div class="floatright"
 												style="clear: both">
                                             	<a class="btn"
-													href="${baseUrl}/embryoviewer?gene_symbol=${gene.symbol}"
+													href="${drupalBaseUrl}/embryoviewer?gene_symbol=${gene.symbol}"
 													style="margin: 10px">Embryo Viewer</a>
                                             </div>
                                           </c:if>
