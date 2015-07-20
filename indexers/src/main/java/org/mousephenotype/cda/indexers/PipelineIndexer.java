@@ -73,7 +73,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
-	private Map<String, String> parameterStableIdToMaTermIdMap;
 	private Map<String, String> parameterStableIdToAbnormalMaMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
