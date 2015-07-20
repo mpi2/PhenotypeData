@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class  EmbryoStrain{
 	@Override
 	public String toString() {
-		return "EmbryoStrain [centre=" + centre + ", mgi=" + mgi + ", url=" + url + ", name=" + name + "]";
+		return "EmbryoStrain [centre=" + centre + ", mgi=" + mgi + ", url=" + url + ", colonyId=" + colonyId + "]";
 	}
 	String centre;
 	public String getCentre() {
@@ -32,12 +32,13 @@ public class  EmbryoStrain{
 	}
 	String mgi;
 	String url;
-	String name;
-	public String getName() {
-		return name;
+	String colonyId;
+	public String getColonyId() {
+		return colonyId;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setColonyId(String colonyId) {
+		this.colonyId = colonyId;
 	}
+	
 	
 }

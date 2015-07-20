@@ -26,6 +26,7 @@ import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.netbeans.lib.cvsclient.commandLine.command.log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,6 +197,7 @@ public class GeneIndexer extends AbstractIndexer {
                 	//for the moment lets just set an embryo data available flag!
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
+                		logger.info("setting embryo true");
                 	}
                 	
                 }
@@ -501,14 +503,21 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<EmbryoStrain>> populateEmbryoData() {
     	System.out.println("populating embryo data");
 		EmbryoRestGetter embryoGetter=new EmbryoRestGetter();
-		EmbryoRestData restData=embryoGetter.getEmbryoRestData();
+		EmbryoRestData restData=null;
+		try {
+			restData = embryoGetter.getEmbryoRestData();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		List<EmbryoStrain> strains = restData.getStrains();
 		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
 		for(EmbryoStrain strain: strains){
 			String mgi=strain.getMgi();
-			if(mgiToEmbryoMap.containsKey(mgi)){
-				mgiToEmbryoMap.get(mgi).add(strain);
+			if(!mgiToEmbryoMap.containsKey(mgi)){
+				mgiToEmbryoMap.put(mgi,new ArrayList<>());
 			}
+				mgiToEmbryoMap.get(mgi).add(strain);
 		}
 		return mgiToEmbryoMap;
 	}

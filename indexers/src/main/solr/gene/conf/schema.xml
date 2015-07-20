@@ -298,7 +298,7 @@
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	
   	
-  	<field name="embryo_data_available" type="string" indexed="true" stored="true" multiValued="false"/>
+  	<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
 
  </fields>
 
