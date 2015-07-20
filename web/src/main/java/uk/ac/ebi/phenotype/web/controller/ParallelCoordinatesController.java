@@ -53,7 +53,9 @@ public class ParallelCoordinatesController {
 	throws SolrServerException{
 
 		System.out.println("Controller for parallel2");
-		model.addAttribute("procedures", impressService.getProceduresByStableIdRegex("IMPC_*"));
+		
+		model.addAttribute("procedures", impressService.getProceduresByPipeline("IMPC_001"));
+		System.out.println("ADDED " +  impressService.getProceduresByPipeline("IMPC_001"));
 		
 		return "parallel2";
 		
@@ -74,7 +76,7 @@ public class ParallelCoordinatesController {
 			for (String p : procedureIds){
 				procedures += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + "<br/>";
 			}
-
+			
 			model.addAttribute("procedure", procedures);
 		}
 //		String data = os.getMeansFor("IMPC_CBC_*", true);
