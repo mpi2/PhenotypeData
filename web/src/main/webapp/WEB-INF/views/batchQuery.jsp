@@ -532,6 +532,9 @@
             	// deals with duplicates
             	oConf.idlist = getUniqIdsStr(oConf.idlist);
             	
+            	 var myTrigger;
+                 var progressElem = $('#progressCounter');
+            	
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
                     "bSort": true, // true is default 
@@ -566,15 +569,15 @@
                     
                     	var endPoint = baseUrl + '/bqExport';	
                     	
-                        $('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
-                        		+ "<span class='export2'>Export as</span>"
-                        		+ "<input name='coreName' value='' type='hidden' />"
-                        		+ "<input name='fileType' value='' type='hidden' />"
-                        		+ "<input name='gridFields' value='' type='hidden' />"
-                        		+ "<input name='idList' value='' type='hidden' />"
-                        		+ "<button class='tsv fa fa-download gridDump'>TSV</button>"
-                        		+ " or<button class='xls fa fa-download gridDump'>XLS</button>"
-                        		+ "</form>");
+                    	$('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
+                        	+ "<span class='export2'>Export as</span>"
+                        	+ "<input name='coreName' value='' type='hidden' />"
+                       		+ "<input name='fileType' value='' type='hidden' />"
+                       		+ "<input name='gridFields' value='' type='hidden' />"
+                       		+ "<input name='idList' value='' type='hidden' />"
+                       		+ "<button class='tsv fa fa-download gridDump'>TSV</button>"
+                       		+ " or<button class='xls fa fa-download gridDump'>XLS</button>"
+                       		+ "</form>");
                    		
                    		$('button.gridDump').click(function(){
                     		
@@ -628,9 +631,16 @@
                 });
             }
             function doExport(currDataType, fileType, fllist, idList, isForm, phenoSimilarity_id, phenoSimilarity_term,
-    				wantHumanCurated_id, wantHumanCurated_term){
+    			wantHumanCurated_id, wantHumanCurated_term){
             	
             	// deals with duplicates
+            	if ( idList.split(",").length > 500 ){
+            		var isOk = window.confirm("Please be aware that you have submitted > 500 identifiers and it will take longer to download\n\nWould you like to proceed?");
+            		if ( !isOk ){
+            			return false; // won't do the rest
+            		}
+            	}
+            	
             	idList = getUniqIdsStr(idList);
             	
             	$("form#dnld input[name='coreName']").val(currDataType);
@@ -748,6 +758,7 @@
 								<div class="inner">
 									<div id='infoBlock'></div>
 									<div id='errBlock'></div>
+									<div id='progressCounter'></div>
 								 	<div id='bqResult'></div>
 								 	
 								</div>	
