@@ -139,8 +139,10 @@ $(document).ready(function(){
        return retVal;
    }
 
-    function _doDataExport(url, form){				
+    function _doDataExport(url, form){	
+    	console.log("STARTED");
 		$(form).appendTo('body').submit().remove();
+		console.log("FINISHED");
 	}
 	function refreshPhenoTable(newUrl){
 		//alert(newUrl);

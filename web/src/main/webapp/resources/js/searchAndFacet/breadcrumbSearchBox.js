@@ -300,14 +300,15 @@ $(document).ready(function () {
    		    		// user hits enter before autosuggest pops up	
    		    		// ie, facet info is unknown
    		    		
-   		    		if (input.match(/HP\\%3A\d+/)){
+   		    		if (input.match(/HP\\\%3A\d+/i)){
+   		    			
    		    			// work out the mapped mp_id and fire off the query
        		    		_convertHp2MpAndSearch(input);
    		    		} 
-   		    		else if ( input.match(/MP%3A\d+ - (.+)/) ){
+   		    		else if ( input.match(/MP%3A\d+ - (.+)/i) ){
    		    			// hover over hp mp mapping but not selecting 
    		    			// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
-   		    			var matched = input.match(/MP%3A\d+ - (.+)/); 
+   		    			var matched = input.match(/MP%3A\d+ - (.+)/i); 
    		    			var mpTerm = '"' + matched[1] + '"';
    		    			var fqStr = $.fn.getCurrentFq('mp');
    		    			document.location.href = baseUrl + '/search?q=mp_term:' + mpTerm + '#fq=' + fqStr + '&facet=mp'; 
@@ -327,7 +328,7 @@ $(document).ready(function () {
    		    	else {	
    		    		
    		    		//alert('3: ' + facet)
-   		    		if (input.match(/HP\\%3A\d+/)){
+   		    		if (input.match(/HP\\\%3A\d+/i)){
        		    		// work out the mapped mp_id and fire off the query
        		    		_convertHp2MpAndSearch(input);
    		    		} 
@@ -343,23 +344,23 @@ $(document).ready(function () {
    		});
 		
    		function _convertHp2MpAndSearch(input){
-    		
+   			input = input.toUpperCase();
     		$.ajax({
-       			url: "${solrUrl}/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",				       			
+       			url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",				       			
        			dataType: "jsonp",
        			jsonp: 'json.wrf',
        			type: 'post',
     	    	async: false,
        			success: function( json ) {
-	    				input = json.response.docs[0].hpmp_id;
-	    				document.location.href = baseUrl + '/search?q=' + input + '#fq=top_level_mp_term:*&facet=mp';
+	    				var mpid = json.response.docs[0].hpmp_id;
+	    				document.location.href = baseUrl + '/search?q=' + mpid + '#fq=top_level_mp_term:*&facet=mp';
        			}
-				});
+			});
    		}
    		
    		function _convertInputForSearch(input){
    			$.ajax({
-       			url: "${solrUrl}/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",				       			
+       			url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",				       			
        			dataType: "jsonp",
        			jsonp: 'json.wrf',
        			type: 'post',

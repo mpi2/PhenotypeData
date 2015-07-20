@@ -44,6 +44,10 @@ public class ProcedureBean {
 		this.parameters = new ArrayList<>();
 	}
 	
+	public ProcedureBean(String name, String stableId) {
+		setProcedureName(name);
+		setProcedureStableId(stableId);
+	}
 	
 	
 	public void addParameter(ImpressBean parameter){
