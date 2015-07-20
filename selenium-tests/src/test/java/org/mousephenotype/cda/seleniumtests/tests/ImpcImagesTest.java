@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import org.mousephenotype.cda.seleniumtests.tests.TestConfig;
 
 /**
  *
