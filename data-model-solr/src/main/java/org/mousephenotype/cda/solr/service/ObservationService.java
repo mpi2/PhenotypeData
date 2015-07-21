@@ -59,6 +59,7 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.bean.ImpressBean;
+import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
@@ -121,6 +122,50 @@ public class ObservationService extends BasicService {
 
     }
 
+    
+    /**
+     * @author tudose
+     * @since 2015/07/21
+     * @param pipelineStableId
+     * @param dataType
+     * @param resource
+     * @return
+     */
+	public List<ProcedureBean> getProceduresByPipeline(String pipelineStableId, String observationType, String resource){
+		
+		List<ProcedureBean> procedures = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
+				.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType)
+				.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource)
+				.addField(ObservationDTO.PROCEDURE_ID)
+				.addField(ObservationDTO.PROCEDURE_NAME)
+				.addField(ObservationDTO.PROCEDURE_STABLE_ID);
+			query.set("group", true);
+			query.set("group.field", ObservationDTO.PROCEDURE_STABLE_ID);
+			query.setRows(10000);
+			query.set("group.limit", 1);
+
+			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
+			
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString(), 
+															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString(),
+															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID).toString(), null);
+				procedures.add(procedure);
+			}
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return procedures;
+	}
+    
     /**
      * @author tudose
      * @since 2015/07/14

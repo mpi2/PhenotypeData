@@ -61,13 +61,13 @@ public class ImpressService {
 	 * @return 
 	 */
 	
-	public List<ProcedureBean> getProceduresByStableIdRegex(String procedureStableIdRegex){
+	public List<ProcedureBean> getProceduresByPipeline(String pipelineStableId){
 		
 		List<ProcedureBean> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
-				.setQuery(PipelineDTO.PROCEDURE_STABLE_ID + ":" + procedureStableIdRegex)
+				.setQuery(PipelineDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
 				.addField(PipelineDTO.PROCEDURE_ID)
 				.addField(PipelineDTO.PROCEDURE_NAME)
 				.addField(PipelineDTO.PROCEDURE_STABLE_ID)
@@ -86,6 +86,7 @@ public class ImpressService {
 															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_NAME).toString(),
 															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_ID).toString(),
 															group.getResult().get(0).getFirstValue(PipelineDTO.PROCEDURE_STABLE_KEY).toString());
+				procedures.add(procedure);
 			}
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
