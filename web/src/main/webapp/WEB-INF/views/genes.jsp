@@ -466,12 +466,11 @@ div.ui-tabs-panel {
                                           	</div>
                                           </c:if>
                                           
-                                          <c:if
-											test="${showEmbryoViewer}">
+                                          <c:if test="${geneDTO.embryoDataAvailable}">
                                             <div class="floatright"
 												style="clear: both">
                                             	<a class="btn"
-													href="${drupalBaseUrl}/embryoviewer?gene_symbol=${gene.symbol}"
+													href="${drupalBaseUrl}/embryoviewer?mgi=${acc}"
 													style="margin: 10px">Embryo Viewer</a>
                                             </div>
                                           </c:if>

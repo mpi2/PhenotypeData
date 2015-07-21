@@ -57,7 +57,7 @@ public class EmbryoRestGetter {
 		try {
 			String content=null;
 			try {
-				content = proxy.getContent(new URL(embryoRestUrl));
+				content = proxy.getContent(new URL(embryoRestUrl),true);
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
