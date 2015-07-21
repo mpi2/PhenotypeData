@@ -385,9 +385,18 @@
 	       	        	},
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 	       	            	
-	       	            	oInfos.params = oInfos.params = paramStr + downloadFl + thisButt.attr('rel');
-	       	            	oInfos.gocollapse = false;
-	       	            	$.fn.initDataTableDumpControl(oInfos);
+	       	            	var oInfosDl = {};
+	       	            	oInfosDl.params = paramStr + downloadFl + thisButt.attr('rel');
+	       	            	oInfosDl.gocollapse = false;
+	       	            	oInfosDl.qOri = $(this).attr('rel');
+	       	            	oInfosDl.solrCoreName = "gene";
+	       	            	oInfosDl.legacyOnly = false;
+	       	            	oInfosDl.evidRank = $(this).attr('id');
+	       	            	oInfosDl.mode = "gene2go";
+	       	            	oInfosDl.widgetName = 'geneFacet';
+	       	            	oInfosDl.coreName = 'gene';
+	       	            	oInfosDl.dogoterm = true;
+	       	            	$.fn.initDataTableDumpControl(oInfosDl);
 
 	       	            	if (goDomain != 'not available'){
 		       	            	var dTable = $(this).DataTable();
