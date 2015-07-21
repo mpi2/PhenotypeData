@@ -589,6 +589,7 @@ public class DataTableController {
         for (int i = 0; i < docs.size(); i ++) {
 
             JSONObject doc = docs.getJSONObject(i);
+            //System.out.println("DOC: "+ doc.toString());
             String marker_symbol = doc.getString("marker_symbol");
             String gId = doc.getString("mgi_accession_id");
             String glink = "<a href='" + hostName + baseUrl + "/" + gId + "'>" + marker_symbol + "</a>";
@@ -599,6 +600,7 @@ public class DataTableController {
 
             // has GO
             if (doc.containsKey("go_count")) {
+            	// System.out.println("GO COUNT: "+ doc.getInt("go_count"));
                 List<String> rowData = new ArrayList<String>();
                 rowData.add(glink);
                 rowData.add(phenoStatus);
