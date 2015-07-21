@@ -48,7 +48,7 @@ public class ParallelCoordinatesController {
 	@Autowired
 	PhenotypePipelineDAO pp;
 
-	@RequestMapping(value="/parallel2", method=RequestMethod.GET)
+	@RequestMapping(value="/parallel", method=RequestMethod.GET)
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
@@ -67,15 +67,17 @@ public class ParallelCoordinatesController {
 	throws SolrServerException{
 
 		if (procedureIds == null){
-			model.addAttribute("procedure", "Clinical Blood Chemistry");
+			model.addAttribute("procedure", "");
 		}
 		else {
 			String data = srs.getGenotypeEffectFor(procedureIds , false);
 			model.addAttribute("dataJs", data + ";");
 			String procedures = "";
-			for (String p : procedureIds){
-				procedures += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + "<br/>";
+			for (int i = 0;  i < procedureIds.size()-1; i++){
+				String p = procedureIds.get(i);
+				procedures += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + ", ";
 			}
+			procedures += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
 			
 			model.addAttribute("procedure", procedures);
 		}
