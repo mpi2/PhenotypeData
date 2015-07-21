@@ -452,7 +452,7 @@ div.ui-tabs-panel {
 		                                        </ul>
 		                                        </p>
 		                                    </c:if>	 --%>
-                                          <c:if
+                                         <c:if
 											test="${!(empty dataMapList)}">
                                           	<br />
                                           	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
@@ -539,6 +539,30 @@ div.ui-tabs-panel {
                                             </c:forEach>
                                             
 
+                                        </c:when>
+                                        <c:when test="${summaryNumber == 0}">
+                                         <c:if
+											test="${!(empty dataMapList)}">
+                                          	<br />
+                                          	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+	                                      	<div class="floatright"
+												style="clear: both">
+	                                         	<p>
+													<a class="btn"
+														href='${baseUrl}/experiments?geneAccession=${gene.id.accession}'
+														style="margin: 10px">All Adult Data</a>
+												</p>
+                                          	</div>
+                                          </c:if>
+                                          
+                                          <c:if test="${geneDTO.embryoDataAvailable}">
+                                            <div class="floatright"
+												style="clear: both">
+                                            	<a class="btn"
+													href="${drupalBaseUrl}/embryoviewer?mgi=${acc}"
+													style="margin: 10px">Embryo Viewer</a>
+                                            </div>
+                                          </c:if>
                                         </c:when>
                                         <c:when test="${hasPreQcData}">
                                             <!-- Only pre QC data available, suppress post QC phenotype summary -->
