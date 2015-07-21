@@ -327,7 +327,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
              String gene = gr.getGroupValue();
              for (String center : dataByGroup.keySet()){
-                 String group = (gene == null) ? "WT " : center;
+             //    String group = (gene == null) ? "WT " : center;
+                 String group = (gene == null) ? "WT " : "Mutant";
+                 if (group.equalsIgnoreCase("WT")){
+                	 System.out.println("FOUND ONE ");
+                 }
 	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
 	             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
 	             beans.put(gene + " " + group, currentBean);
