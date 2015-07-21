@@ -799,7 +799,7 @@ public class GeneService {
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"")
 			.setRows(1)
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL);
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.EMBRYO_DATA_AVAILABLE);
 
 		QueryResponse rsp = solr.query(solrQuery);
 		if (rsp.getResults().getNumFound() > 0) {
