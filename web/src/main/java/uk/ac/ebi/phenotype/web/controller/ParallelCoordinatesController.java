@@ -54,8 +54,8 @@ public class ParallelCoordinatesController {
 
 		System.out.println("Controller for parallel2");
 		
-		model.addAttribute("procedures", impressService.getProceduresByPipeline("IMPC_001"));
-		System.out.println("ADDED " +  impressService.getProceduresByPipeline("IMPC_001"));
+		model.addAttribute("procedures", os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC"));
+		System.out.println("ADDED " +  os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC"));
 		
 		return "parallel2";
 		
