@@ -28,36 +28,30 @@
 <script src="${baseUrl}/js/vendor/slick/slick.dataview.js"></script>
 <script src="${baseUrl}/js/vendor/slick/slick.pager.js"></script>
 <script src="${baseUrl}/js/charts/parallel/grid.js"></script>
-<script src="${baseUrl}/js/charts/parallel/pie.js"></script>
+<!-- script src="${baseUrl}/js/charts/parallel/pie.js"></script-->
 <script src="${baseUrl}/js/charts/parallel/options.js"></script>
 
-<div id="nav">
-	<h1>${procedure}</h1>
-	<div class="widget right toggle">
-		<input type="range" min="0" max="1" value="0.2" step="0.01"
-			name="power" list="powers" id="line_opacity"></input> <br /> Opacity:
-		<span id="opacity_level">20%</span>
-	</div>
-	<div>
-		<a href="#" id="shadows" class="right toggle">Shadows</a>
-	</div>
-	<!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
-	<!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
-</div>
+<h3>Procedures displayed: ${procedure}</h3>	
+<!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
+<!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 <div id="row-fluid">
 	<div class="widgets">
-		<div id="totals" class="widget right">
-			Total Selected<br />
+		<div id="legend"></div>
+		<div class="widget right toggle">
+			<input type="range" min="0" max="1" value="0.2" step="0.01"
+				name="power" list="powers" id="line_opacity"></input> <br /> Opacity:
+			<span id="opacity_level">20%</span>
 		</div>
-		<div id="pie" class="widget right">
-			Group Breakdown<br />
+		<div>
+			<a href="#" id="shadows" class="button green filter_control">Shadows</a>
 		</div>
-		<a href="#" id="export_selected" class="button green filter_control">Export</a>
-		<a href="#" id="remove_selected" class="button red filter_control">Remove</a>
+		<!-- div id="totals" class="widget right">Total Selected<br /></div>
+		<div id="pie" class="widget right">	Group Breakdown<br /></div-->
+		<a href="#" id="export_selected" class="button green filter_control" title = "Export raw data in the table">Export</a>
+		<a href="#" id="remove_selected" class="button red filter_control" title = "Remove selections">Remove</a>
 		<!-- a href="#" id="keep_selected" class="button green filter_control">Keep</a-->
 		<div id="pager" class="info"></div>
 		<div class="clear"></div>
-		<div id="legend"></div>
 	</div>
 	<div id="parallel"></div>
 	<div id="myGrid"></div>
@@ -88,11 +82,12 @@
 		var columns = _(foods[0]).keys();
 		var axes = _(columns).without('name', 'group');
 
-		var foodgroups = [ "WT", "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
+		var foodgroups = [ "WT", "Mutant"];
+		// "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
 
 		var colors = {
-			//      "Mutant" : '#0978A1',
-			"WT" : '#EF7B0B',
+		    "Mutant" : '#0978A1',
+			"WT" : '#EF7B0B'/*,
 			"MRC Harwell" : 'rgb(119, 119, 119)',
 			"TCP" : '#16532D',
 			"WTSI" : '#602619',
@@ -101,7 +96,7 @@
 			"UC Davis" : 'rgb(255, 201, 67)',
 			"ICS" : 'rgb(191, 151, 50)',
 			"NING" : 'rgb(247, 157, 70)',
-			"RBRC" : '#0978A1'
+			"RBRC" : '#0978A1'*/
 		}
 
 		_(foodgroups).each(function(group) {
@@ -109,8 +104,8 @@
 		});
 
 		var pc = parallel(dimensions, colors, defaults);
-		var pie = piegroups(foods, foodgroups, colors, 'group');
-		var totals = pietotals([ 'in', 'out' ], [ _(foods).size(), 0 ]);
+//		var pie = piegroups(foods, foodgroups, colors, 'group');
+//		var totals = pietotals([ 'in', 'out' ], [ _(foods).size(), 0 ]);
 
 		var slicky = new grid({
 			model : dimensions,
