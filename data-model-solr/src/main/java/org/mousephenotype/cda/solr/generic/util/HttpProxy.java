@@ -41,6 +41,10 @@ public class HttpProxy {
 	protected HashMap<URL, String> cache = new HashMap<URL, String>();
 	private String cookie = null;
 
+	
+	public String getContent(URL url) throws IOException, URISyntaxException {
+		return this.getContent(url, false);
+	}
 	/**
 	 * Method to get page content from an external URL
 	 *
@@ -49,7 +53,7 @@ public class HttpProxy {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String getContent(URL url) throws IOException, URISyntaxException {
+	public String getContent(URL url, boolean external) throws IOException, URISyntaxException {
 
 		// If this url has already been fetched, return the cached content
 		// rather than re-fetching
@@ -67,7 +71,7 @@ public class HttpProxy {
                     if(url.getProtocol().toLowerCase().equals("https")) {
                             content = getSecureContent(escapedUrl);
                     } else {
-                            content = getNonSecureContent(escapedUrl);
+                            content = getNonSecureContent(escapedUrl, external);
                     }
                 } catch (Exception e) {
                     log.error("EXCEPTION for protocol " + url.getProtocol().toLowerCase() + ": " + e.getLocalizedMessage() + ". Solr URL: " + escapedUrl);
