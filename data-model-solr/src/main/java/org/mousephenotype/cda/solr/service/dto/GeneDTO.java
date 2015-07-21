@@ -555,6 +555,14 @@ public class GeneDTO {
 	private boolean isEmbryoDataAvailable;
 	
 	
+	public boolean isEmbryoDataAvailable() {
+		return isEmbryoDataAvailable;
+	}
+
+	public void setEmbryoDataAvailable(boolean isEmbryoDataAvailable) {
+		this.isEmbryoDataAvailable = isEmbryoDataAvailable;
+	}
+
 	public List<String> getTopLevelMpTermSynonym() {
 
 		return topLevelMpTermSynonym;
@@ -2146,12 +2154,6 @@ public class GeneDTO {
 		return result;
 	}
 	
-	
-	public void setEmbryoDataAvailable(boolean b) {
-		this.isEmbryoDataAvailable=b;
-		
-	}
-
 
 	@Override
 	public String toString() {
