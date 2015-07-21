@@ -556,7 +556,7 @@ public class GeneDTO {
 	
 	
 	public boolean isEmbryoDataAvailable() {
-		return isEmbryoDataAvailable;
+		return this.isEmbryoDataAvailable;
 	}
 
 	public void setEmbryoDataAvailable(boolean isEmbryoDataAvailable) {
