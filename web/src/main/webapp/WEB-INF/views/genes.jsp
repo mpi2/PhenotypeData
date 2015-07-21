@@ -466,8 +466,7 @@ div.ui-tabs-panel {
                                           	</div>
                                           </c:if>
                                           
-                                          <c:if
-											test="${showEmbryoViewer}">
+                                          <c:if test="${geneDTO.isEmbryoDataAvailable}">
                                             <div class="floatright"
 												style="clear: both">
                                             	<a class="btn"

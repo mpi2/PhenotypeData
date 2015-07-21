@@ -184,6 +184,7 @@ public class GenesController {
 		// see if the gene exists first:
 		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		GeneDTO geneDto=geneService.getGeneById(acc);
+		model.addAttribute("geneDTO",geneDto);
 		if (gene == null) {
 			log.warn("Gene object from database for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -316,15 +317,6 @@ public class GenesController {
 		model.addAttribute("countIKMCAlleles", countIKMCAlleles);
 		log.debug("CHECK IKMC allele error : " + ikmcError);
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
-
-		model.addAttribute("showEmbryoViewer",this.displayEmbryoViewer(geneDto));
-	}
-
-
-	private boolean displayEmbryoViewer(GeneDTO gene) {
-		//if(gene.getEmbry)
-		return true;
-
 	}
 
 
