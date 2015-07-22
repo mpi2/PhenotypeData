@@ -17,10 +17,12 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import org.mousephenotype.cda.db.pojo.Parameter;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import net.sf.json.JSONObject;
 
 
@@ -60,12 +62,20 @@ public class ParallelCoordinatesDTO {
 			res += "\"name\": \"" + geneSymbol + "\",";
 			res += "\"group\": \"" + group + "\",";
 			int i = 0; 
-			for (MeanBean mean : this.means.values()){
-				res += "\"" + mean.parameterName + "\": ";
-				res += mean.mean;
-				i++;
-				if (i < this.means.size()){
-					res +=", ";
+			
+			
+			if (this.means.values().size() > 0){
+				
+				ArrayList <MeanBean> values = new ArrayList<MeanBean>(this.means.values());
+				Collections.sort(values, this.means.values().iterator().next().getComparatorByParameterName());				
+				
+				for (MeanBean mean : values){
+					res += "\"" + mean.parameterName + "\": ";
+					res += mean.mean;
+					i++;
+					if (i < this.means.size()){
+						res +=", ";
+					}
 				}
 			}
 		}
@@ -117,6 +127,46 @@ public class ParallelCoordinatesDTO {
 		}
 		public Double getMean(){
 			return mean;
+		}
+		
+		public Comparator<MeanBean> getComparatorByParameterName()
+		{   
+			Comparator<MeanBean> comp = new Comparator<MeanBean>(){
+		    @Override
+		    public int compare(MeanBean s1, MeanBean s2)
+		    {
+		        return s1.parameterName.compareTo(s2.parameterName);
+		    }        
+			};
+			return comp;
+		}  
+		
+		public String getUnit() {
+			return unit;
+		}
+		public void setUnit(String unit) {
+			this.unit = unit;
+		}
+		public String getParameterStableId() {
+			return parameterStableId;
+		}
+		public void setParameterStableId(String parameterStableId) {
+			this.parameterStableId = parameterStableId;
+		}
+		public String getParameterName() {
+			return parameterName;
+		}
+		public void setParameterName(String parameterName) {
+			this.parameterName = parameterName;
+		}
+		public Integer getParameterStableKey() {
+			return parameterStableKey;
+		}
+		public void setParameterStableKey(Integer parameterStableKey) {
+			this.parameterStableKey = parameterStableKey;
+		}
+		public void setMean(Double mean) {
+			this.mean = mean;
 		}
 	}
 }
