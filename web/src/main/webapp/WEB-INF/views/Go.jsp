@@ -16,10 +16,10 @@
 	
 	<link href="${baseUrl}/js/vendor/jquery.sumoselect/sumoselect.css" rel="stylesheet" />
 	<link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
+	<!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" /> -->
 	<script type='text/javascript' src="${baseUrl}/js/vendor/jquery.sumoselect/jquery.sumoselect.js"></script> 
 	<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  
-	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script> 
 			  	
 	<style type="text/css">
 		.FP {background-color: #CC9999;}

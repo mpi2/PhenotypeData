@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import java.io.IOException;
@@ -74,6 +75,12 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
+    
+    
+    EmbryoRestGetter embryoGetter;
+    
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
     public GeneIndexer() {
 
@@ -94,10 +101,11 @@ public class GeneIndexer extends AbstractIndexer {
 
     @Override
     public void initialise(String[] args) throws IndexerException {
-
+    	
         super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
+        final String embryoRestUrl=config.get("embryoRestUrl");
+        this.embryoGetter=new EmbryoRestGetter(embryoRestUrl);
         try {
 
             komp2DbConnection = komp2DataSource.getConnection();
@@ -502,7 +510,6 @@ public class GeneIndexer extends AbstractIndexer {
 
     private Map<String, List<EmbryoStrain>> populateEmbryoData() {
     	System.out.println("populating embryo data");
-		EmbryoRestGetter embryoGetter=new EmbryoRestGetter();
 		EmbryoRestData restData=null;
 		try {
 			restData = embryoGetter.getEmbryoRestData();
