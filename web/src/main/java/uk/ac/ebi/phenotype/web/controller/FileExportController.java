@@ -1001,12 +1001,12 @@ public class FileExportController {
 
 			// ES/Mice production status
 			boolean toExport = true;
-			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, request, toExport);
+			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, toExport);
 
 			data.add(prodStatus);
 
 			// phenotyping status
-			String phStatus = geneService.getPhenotypingStatus(doc, request, toExport, legacyOnly);
+			String phStatus = geneService.getPhenotypingStatus(doc, request.getAttribute("mappedHostname").toString(), toExport, legacyOnly);
 
 			if (phStatus.isEmpty()) {
 				data.add(NO_INFO_MSG);
