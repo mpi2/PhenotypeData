@@ -652,10 +652,10 @@ public class DataTableController {
             // ES cell/mice production status
             boolean toExport = false;
 
-            String prodStatus = org.mousephenotype.cda.solr.service.GeneService.getLatestProductionStatusForEsCellAndMice(doc, request, toExport, geneLink);
+            String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, toExport, geneLink);
             rowData.add(prodStatus);
 
-            String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request, toExport, legacyOnly);
+            String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request.getAttribute("mappedHostname").toString(), toExport, legacyOnly);
             rowData.add(phenotypeStatusHTMLRepresentation);
 
             // register of interest
