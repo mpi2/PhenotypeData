@@ -430,7 +430,7 @@ public class ExternalAnnotsController {
 		return "gene2pfam";
 	}
 
-	@RequestMapping(value = "/reports/gene2go", method = RequestMethod.GET)
+	@RequestMapping(value = "/gene2go", method = RequestMethod.GET)
 	public String goStats(HttpServletRequest request, HttpServletResponse response, Model model) throws IOException, URISyntaxException {
 
 		Map<String, Map<String, Map<String, JSONArray>>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
