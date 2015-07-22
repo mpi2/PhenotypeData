@@ -37,17 +37,19 @@
 <div id="row-fluid">
 	<div class="widgets">
 		<div id="legend"></div>
+		<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>
+		<!-- div id="totals" class="widget right">Total Selected<br /></div>
+		<div id="pie" class="widget right">	Group Breakdown<br /></div-->
+		<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>
+		<!-- a href="#" id="remove_selected" class="button red filter_control btn" title = "Remove selections">Remove</a-->
+		<a href="#" id="remove_filters" class="button right filter_control btn" title = "Remove filters">Clear filters</a>
+		<!-- a href="#" id="keep_selected" class="button green filter_control">Keep</a-->
 		<div class="widget right toggle">
 			<input type="range" min="0" max="1" value="0.2" step="0.01"
 				name="power" list="powers" id="line_opacity"></input> <br /> Opacity:
 			<span id="opacity_level">20%</span>
 		</div>
-		<a href="#" id="shadows" class="button green filter_control btn">Shadows</a>
-		<!-- div id="totals" class="widget right">Total Selected<br /></div>
-		<div id="pie" class="widget right">	Group Breakdown<br /></div-->
-		<a href="#" id="export_selected" class="button green filter_control btn" title = "Export raw data in the table">Export</a>
-		<a href="#" id="remove_selected" class="button red filter_control btn" title = "Remove selections">Remove</a>
-		<!-- a href="#" id="keep_selected" class="button green filter_control">Keep</a-->
+		
 		<div id="pager" class="info"></div>
 		<div class="clear"></div>
 	</div>
@@ -137,11 +139,30 @@
 			$('#line_opacity').val(opacity).change();
 		});
 
+		
+		dimensions.bind('change:removefilter', function() {
+			var data = dimensions.get('data');
+			var defaultValues = defaults;
+			var filtered = dimensions.get('data');
+			var data_size = _(data).size();
+			var filtered_size = _(filtered).size();
+			var opacity = _([ 2 / Math.pow(filtered_size, 0.37), 100 ]).min();
+			$('#line_opacity').val(opacity).change();
+		});
+		
 		highlighter.bind('change:selected', function() {
 			var highlighted = this.get('selected');
 			pc.highlight(highlighted);
 		});
 
+		$('#remove_filters').click(function() {
+			dimensions.clearfilter();
+			pc.update(dimensions.get('data'));
+			pc.render();
+			dimensions.trigger('change:removefilter');
+			return false;
+		});
+		
 		$('#remove_selected').click(function() {
 			dimensions.outliers();
 			pc.update(dimensions.get('data'));
@@ -179,12 +200,7 @@
 					}
 				}).join(",");
 			});
-			/* 	      var uriContent = "data:application/octet-stream," + encodeURIComponent(csv);
-				      var myWindow = window.open(uriContent, "export.csv");
-				      console.log(uriContent + " ...")
-				      myWindow.focus();
-			 */
-
+			
 			var link = document.createElement('a');
 			link.download = "parallel_coordinates_data.csv";
 			link.href = "data:application/octet-stream," + encodeURIComponent(csv);
