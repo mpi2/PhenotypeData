@@ -27,13 +27,12 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1322,7 +1321,7 @@ public class DataTableController {
 
                     List<String> rowData = new ArrayList<String>();
 
-                    Map<String, String> hm = solrIndex.renderFacetField(names, request); //MA:xxx, MP:xxx, MGI:xxx, exp
+                    Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString()); //MA:xxx, MP:xxx, MGI:xxx, exp
                     String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
                     String facetField = hm.get("field").toString();
 

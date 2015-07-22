@@ -1,19 +1,16 @@
 package org.mousephenotype.cda.indexers.utils;
 
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.mousephenotype.cda.solr.generic.util.HttpProxy;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.mousephenotype.cda.solr.generic.util.HttpProxy;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 /**
  * Class for getting the embryo data from the phenoDCC on embryo data available

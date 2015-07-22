@@ -47,14 +47,6 @@
             <classifier>jdk15</classifier>
         </dependency>
 
-        <!-- TODO - THIS DEPENDENCY NEEDS TO BE REMOVED. -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.3</version>
-            <scope>provided</scope>
-        </dependency>
-
          <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
