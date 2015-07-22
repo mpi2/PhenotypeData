@@ -638,10 +638,7 @@ public class FileExportController {
 				if (names.length == 2) { // only want facet value of xxx_yyy
 					String annotName = names[0];
 
-					Map<String, String> hm = solrIndex.renderFacetField(names, request); // MA:xxx,
-																							// MP:xxx,
-																							// MGI:xxx,
-																							// exp
+					Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString());
 
 					data.add(hm.get("label"));
 					data.add(annotName);

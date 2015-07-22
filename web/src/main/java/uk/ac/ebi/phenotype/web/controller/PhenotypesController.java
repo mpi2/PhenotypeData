@@ -28,7 +28,7 @@ import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
