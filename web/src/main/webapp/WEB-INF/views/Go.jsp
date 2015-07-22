@@ -16,10 +16,10 @@
 	
 	<link href="${baseUrl}/js/vendor/jquery.sumoselect/sumoselect.css" rel="stylesheet" />
 	<link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
+	<!-- <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" /> -->
 	<script type='text/javascript' src="${baseUrl}/js/vendor/jquery.sumoselect/jquery.sumoselect.js"></script> 
 	<script type='text/javascript' src='${baseUrl}/js/utils/tools.js'></script>  
-	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script>
+	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js'></script> 
 			  	
 	<style type="text/css">
 		.FP {background-color: #CC9999;}
@@ -385,9 +385,18 @@
 	       	        	},
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 	       	            	
-	       	            	oInfos.params = oInfos.params = paramStr + downloadFl + thisButt.attr('rel');
-	       	            	oInfos.gocollapse = false;
-	       	            	$.fn.initDataTableDumpControl(oInfos);
+	       	            	var oInfosDl = {};
+	       	            	oInfosDl.params = paramStr + downloadFl + thisButt.attr('rel');
+	       	            	oInfosDl.gocollapse = false;
+	       	            	oInfosDl.qOri = $(this).attr('rel');
+	       	            	oInfosDl.solrCoreName = "gene";
+	       	            	oInfosDl.legacyOnly = false;
+	       	            	oInfosDl.evidRank = $(this).attr('id');
+	       	            	oInfosDl.mode = "gene2go";
+	       	            	oInfosDl.widgetName = 'geneFacet';
+	       	            	oInfosDl.coreName = 'gene';
+	       	            	oInfosDl.dogoterm = true;
+	       	            	$.fn.initDataTableDumpControl(oInfosDl);
 
 	       	            	if (goDomain != 'not available'){
 		       	            	var dTable = $(this).DataTable();

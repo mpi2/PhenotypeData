@@ -132,8 +132,8 @@
 			var filtered = dimensions.get('filtered');
 			var data_size = _(data).size();
 			var filtered_size = _(filtered).size();
-			pie.update(filtered);
-			totals.update([ filtered_size, data_size - filtered_size ]);
+//			pie.update(filtered);
+//			totals.update([ filtered_size, data_size - filtered_size ]);
 
 			var opacity = _([ 2 / Math.pow(filtered_size, 0.37), 100 ]).min();
 			$('#line_opacity').val(opacity).change();
