@@ -22,6 +22,9 @@ a:hover {
 p {
   margin-left: 12px;
 }
+a.filter_control{
+	margin: 5px;
+}
 
 #legend { 
   float: left;
