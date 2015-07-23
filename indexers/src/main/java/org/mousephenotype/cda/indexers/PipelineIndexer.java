@@ -147,15 +147,11 @@ public class PipelineIndexer extends AbstractIndexer {
 				for (int paramDbId : parameterIds) {
 					PipelineDTO pipe = new PipelineDTO();// new pipe object for
 															// each param
-					Map<String, String> row = paramDbIdToParameter
-							.get(paramDbId);
+					Map<String, String> row = paramDbIdToParameter.get(paramDbId);
 					pipe.setParameterId(paramDbId);
-					pipe.setParameterName(row
-							.get(ObservationDTO.PARAMETER_NAME));
-					String paramStableId = row
-							.get(ObservationDTO.PARAMETER_STABLE_ID);
-					String paramStableName = row
-							.get(ObservationDTO.PARAMETER_NAME);
+					pipe.setParameterName(row.get(ObservationDTO.PARAMETER_NAME));
+					String paramStableId = row.get(ObservationDTO.PARAMETER_STABLE_ID);
+					String paramStableName = row.get(ObservationDTO.PARAMETER_NAME);
 					pipe.setParameterStableId(paramStableId);
 					if(parameterStableIdToAbnormalMaMap.containsKey(paramStableId)){
 						pipe.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
@@ -163,46 +159,20 @@ public class PipelineIndexer extends AbstractIndexer {
 						pipe.setAbnormalMaName(term.getName());
 					}
 
-					//System.out.println("parameterStableId="+paramStableId);
 					pipe.setParameterStableKey(row.get("stable_key"));
-					// where="pproc_id=phenotype_procedure_parameter.procedure_id">
-					// need to change pipelineDTOs to have multiple procedures
-
-					ProcedureBean procBean = procedureIdToProcedure
-							.get(pipeline.procedureId);
-					// System.out.println(procBean.procedureStableId);
+					ProcedureBean procBean = procedureIdToProcedure.get(pipeline.procedureId);
 					pipe.setProcedureId(pipeline.procedureId);
 					pipe.setProcedureName(procBean.procedureName);
-					// System.out.println(procBean.procedureName+" "+procBean.procedureStableId+pipe.getParameterName());
 					pipe.setProcedureStableId(procBean.procedureStableId);
 					pipe.setProcedureStableKey(procBean.procedureStableKey);
 					pipe.addProcedureNameId(procBean.procNameId);
-					pipe.addMappedProcedureName(SangerProcedureMapper
-							.getImpcProcedureFromSanger(procBean.procedureName));
+					pipe.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
-					// <field column="proc_param_stable_id"
-					// name="proc_param_stable_id" />
-					// <field column="proc_param_name"
-					// name="proc_param_name" />
-					String procParamStableId = procBean.procedureStableId
-							+ "___" + paramStableId;
-					String procParamName = procBean.procedureName + "___"
-							+ paramStableName;
-					// System.out.println(procBean.procedureStableId + "___" +
-					// paramStableId);
+					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
+					String procParamName = procBean.procedureName + "___" + paramStableName;
 					pipe.addProcParamStableId(procParamStableId);
 					pipe.addProcParamName(procParamName);
 					// add the pipeline info here
-
-					// System.out.println("pipeline name="+pipeline.pipelineName+" "+pipeline.pipelineStableId);
-					// <field column="pipe_id" name="pipeline_id" />
-					// <field column="pipe_stable_id"
-					// name="pipeline_stable_id" />
-					// <field column="pipe_name" name="pipeline_name" />
-					// <field column="pipe_stable_key"
-					// name="pipeline_stable_key" />
-					// <field column="pipe_proc_sid"
-					// name="pipe_proc_sid" />
 					pipe.setPipelineId(pipeline.pipelineId);
 					pipe.setPipelineName(pipeline.pipelineName);
 					pipe.setPipelineStableId(pipeline.pipelineStableId);
@@ -269,29 +239,16 @@ public class PipelineIndexer extends AbstractIndexer {
 
 							String mpTermId = gfMpBean.mpAcc;
 							MpDTO mp = mpIdToMp.get(mpTermId);
-
-							// <field column="mp_id"
-							// xpath="/response/result/doc/str[@name='mp_id']"
-							// />
 							pipe.addMpId(mpTermId);
 
 							if (mp != null) {
 
-								// <field column="mp_term"
-								// xpath="/response/result/doc/str[@name='mp_term']"
-								// />
 								pipe.addMpTerm(mp.getMpTerm());
 
-								// <field column="mp_term_synonym"
-								// xpath="/response/result/doc/arr[@name='mp_term_synonym']/str"
-								// />
 								if (mp.getMpTermSynonym() != null) {
 									pipe.addMpTermSynonym(mp.getMpTermSynonym());
 								}
 
-								// <field column="ontology_subset"
-								// xpath="/response/result/doc/arr[@name='ontology_subset']/str"
-								// />
 								if (mp.getOntologySubset() != null) {
 									pipe.addOntologySubset(mp
 											.getOntologySubset());
@@ -303,9 +260,6 @@ public class PipelineIndexer extends AbstractIndexer {
 									logger.warn("topLevelMpTermId for mpTerm "
 											+ mpTermId + " is null!");
 								}
-								// <field column="top_level_mp_id"
-								// xpath="/response/result/doc/arr[@name='top_level_mp_id']/str"
-								// />
 								if (mp.getTopLevelMpTerm() != null) {
 									pipe.addTopLevelMpTerm(mp
 											.getTopLevelMpTerm());
@@ -313,86 +267,41 @@ public class PipelineIndexer extends AbstractIndexer {
 									logger.warn("topLevelMpTerm for mpTerm "
 											+ mpTermId + " is null!");
 								}
-								// <field column="top_level_mp_term"
-								// xpath="/response/result/doc/arr[@name='top_level_mp_term']/str"
-								// />
 								if (mp.getTopLevelMpTermSynonym() != null) {
 									pipe.addTopLevelMpTermSynonym(mp
 											.getTopLevelMpTermSynonym());
 								}
-								// <field column="top_level_mp_term_synonym"
-								// xpath="/response/result/doc/arr[@name='top_level_mp_term_synonym']/str"
-								// />
 								if (mp.getIntermediateMpId() != null) {
 									pipe.addIntermediateMpId(mp
 											.getIntermediateMpId());
 								}
-
-								// <field column="intermediate_mp_id"
-								// xpath="/response/result/doc/arr[@name='intermediate_mp_id']/str"
-								// />
 								if (mp.getIntermediateMpTerm() != null) {
 									pipe.addIntermediateMpTerm(mp
 											.getIntermediateMpTerm());
 								}
-								// <field column="intermediate_mp_term"
-								// xpath="/response/result/doc/arr[@name='intermediate_mp_term']/str"
-								// />
 								if (mp.getIntermediateMpTermSynonym() != null) {
 									pipe.addIntermediateMpTermSynonym(mp
 											.getIntermediateMpTermSynonym());
 								}
-								// <field column="intermediate_mp_term_synonym"
-								// xpath="/response/result/doc/arr[@name='intermediate_mp_term_synonym']/str"
-								// />
-
-								// <field column="child_mp_id"
-								// xpath="/response/result/doc/arr[@name='child_mp_id']/str"
-								// />
-								// <field column="child_mp_term"
-								// xpath="/response/result/doc/arr[@name='child_mp_term']/str"
-								// />
 								if (mp.getChildMpId() != null) {
 									pipe.addChildMpId(mp.getChildMpId());
 									pipe.addChildMpTerm(mp.getChildMpTerm());
 								}
-
-								// <field column="child_mp_term_synonym"
-								// xpath="/response/result/doc/arr[@name='child_mp_term_synonym']/str"
-								// />
 								if (mp.getChildMpTermSynonym() != null) {
 									pipe.addChildMpTermSynonym(mp
 											.getChildMpTermSynonym());
 								}
-
-								// <field column="hp_id"
-								// xpath="/response/result/doc/arr[@name='hp_id']/str"
-								// />
 								if (mp.getHpId() != null) {
 									pipe.addHpId(mp.getHpId());
 								}
 
-								// <field column="hp_term"
-								// xpath="/response/result/doc/arr[@name='hp_term']/str"
-								// />
 								if (mp.getHpTerm() != null) {
 									pipe.addHpTerm(mp.getHpTerm());
 								}
-
-								// <!-- MA: inferred from MP -->
-								// <field column="inferred_ma_id"
-								// xpath="/response/result/doc/arr[@name='inferred_ma_id']/str"
-								// />
-								// <field column="inferred_ma_term"
-								// xpath="/response/result/doc/arr[@name='inferred_ma_term']/str"
-								// />
 								if (mp.getInferredMaId() != null) {
 									pipe.addInferredMaId(mp.getInferredMaId());
 									pipe.addInferredMaTerm(mp
 											.getInferredMaTerm());
-									// <field column="inferred_ma_term_synonym"
-									// xpath="/response/result/doc/arr[@name='inferred_ma_term_synonym']/str"
-									// />
 									if (mp.getInferredMaTermSynonym() != null) {
 										pipe.addInferredMaTermSynonym(mp
 												.getInferredMaTermSynonym());
@@ -401,47 +310,25 @@ public class PipelineIndexer extends AbstractIndexer {
 								if (mp.getInferredSelectedTopLevelMaId() != null) {
 									pipe.addInferredSelectedTopLevelMaId(mp
 											.getInferredSelectedTopLevelMaId());
-									// <field
-									// column="inferred_selected_top_level_ma_id"
-									// xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_id']/str"
-									// />
 									if (mp.getInferredSelectedTopLevelMaTerm() != null) {
 										pipe.addInferredSelectedTopLevelMaTerm(mp
 												.getInferredSelectedTopLevelMaTerm());
 									}
-									// <field
-									// column="inferred_selected_top_level_ma_term"
-									// xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term']/str"
-									// />
 									if (mp.getInferredSelectedTopLevelMaTermSynonym() != null) {
 										pipe.addInferredSelectedToLevelMaTermSynonym(mp
 												.getInferredSelectedTopLevelMaTermSynonym());
 									}
-									// <field
-									// column="inferred_selected_top_level_ma_term_synonym"
-									// xpath="/response/result/doc/arr[@name='inferred_selected_top_level_ma_term_synonym']/str"
-									// />
 
 								}
 								if (mp.getInferredChildMaId() != null) {
 									pipe.addInferredChildMaId(mp
 											.getInferredChildMaId());
-									// <field column="inferred_child_ma_id"
-									// xpath="/response/result/doc/arr[@name='inferred_child_ma_id']/str"
-									// />
 									pipe.addInferredChildMaTerm(mp
 											.getInferredChildMaTerm());
-									// <field column="inferred_child_ma_term"
-									// xpath="/response/result/doc/arr[@name='inferred_child_ma_term']/str"
-									// />
 									if (mp.getInferredChildMaTermSynonym() != null) {
 										pipe.addInferredChildMaTermSynonyms(mp
 												.getInferredChildMaTermSynonym());
 									}
-									// <field
-									// column="inferred_child_ma_term_synonym"
-									// xpath="/response/result/doc/arr[@name='inferred_child_ma_term_synonym']/str"
-									// />
 								}
 							}
 
@@ -457,18 +344,12 @@ public class PipelineIndexer extends AbstractIndexer {
 
 			}
 
-			// }
-			// pipe.setPipelineName(pipelineName);
-			// pipe.setPipelineStableId(pipelineStableId);
-			// pipe.setPipelineId(pipelineId);
-
 			logger.info("commiting to Pipeline core for last time!");
 			logger.info("Pipeline commit started.");
 			pipelineCore.commit();
 			logger.info("Pipeline commit finished.");
 
 		} catch (IOException | SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new IndexerException(e);
 		} catch (NullPointerException npe) {
@@ -493,7 +374,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		logger.info("populating PCS pipeline info");
 		Map<Integer, Map<String, String>> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "select 'pipeline' as dataType, id, stable_id, name, stable_key from phenotype_parameter";
-//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
+		//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
 		try (PreparedStatement p = komp2DbConnection
 				.prepareStatement(queryString)) {
 			ResultSet resultSet = p.executeQuery();
@@ -503,11 +384,6 @@ public class PipelineIndexer extends AbstractIndexer {
 				// a map of
 				// column names
 				// to values
-				// <field column="dataType" name="dataType" />
-				// <field column="id" name="parameter_id" />
-				// <field column="stable_id" name="parameter_stable_id" />
-				// <field column="name" name="parameter_name" />
-				// <field column="stable_key" name="parameter_stable_key" />
 				int id = resultSet.getInt("id");
 				rowMap.put(ObservationDTO.PARAMETER_NAME,
 						resultSet.getString("name"));
@@ -515,15 +391,6 @@ public class PipelineIndexer extends AbstractIndexer {
 						resultSet.getString("stable_id"));
 				rowMap.put("dataType", resultSet.getString("dataType"));
 				rowMap.put("stable_key", resultSet.getString("stable_key"));
-				// rowMap.put(ObservationDTO.PIPELINE_STABLE_ID,
-				// resultSet.getString("pipe.stable_id"));
-				// rowMap.put(ObservationDTO.PIPELINE_NAME,
-				// resultSet.getString("pipe.name"));
-				// rowMap.put("proc_param_name",
-				// resultSet.getString("proc.name")+"___"+resultSet.getString("param.name"));
-				// rowMap.put("proc_param_stable_id",
-				// resultSet.getString("proc.stable_id")+"___"+resultSet.getString("param.stable_id"));
-				// List<Map<String,String>> rows=null;
 
 				localParamDbIdToParameter.put(id, rowMap);
 			}
