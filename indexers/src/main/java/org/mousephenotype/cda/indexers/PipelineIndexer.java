@@ -177,6 +177,8 @@ public class PipelineIndexer extends AbstractIndexer {
 					pipe.setProcedureStableId(procBean.procedureStableId);
 					pipe.setProcedureStableKey(procBean.procedureStableKey);
 					pipe.addProcedureNameId(procBean.procNameId);
+					pipe.setRequired(procBean.required);
+					pipe.setDescription(procBean.description);
 					pipe.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
 					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
@@ -214,8 +216,7 @@ public class PipelineIndexer extends AbstractIndexer {
 									if (allele.getHumanGeneSymbol() != null) {
 										pipe.addHumanGeneSymbol(allele.getHumanGeneSymbol());
 									}
-									// /> <!-- status name from Bill
-									// Skarnes and used at EBI -->
+									// status name from Bill Skarnes and used at EBI
 									pipe.addStatus(allele.getStatus());
 									pipe.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
 									pipe.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
@@ -231,8 +232,8 @@ public class PipelineIndexer extends AbstractIndexer {
 									pipe.addAlleleName(allele.getAlleleName());
 								}
 							}
+							
 							// mps for parameter
-
 							String mpTermId = gfMpBean.mpAcc;
 							MpDTO mp = mpIdToMp.get(mpTermId);
 							pipe.addMpId(mpTermId);
