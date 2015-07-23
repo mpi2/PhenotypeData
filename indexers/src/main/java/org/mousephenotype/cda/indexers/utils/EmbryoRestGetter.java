@@ -1,25 +1,16 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import java.io.BufferedReader;
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.mousephenotype.cda.solr.generic.util.HttpProxy;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.mousephenotype.cda.solr.generic.util.HttpProxy;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Class for getting the embryo data from the phenoDCC on embryo data available
@@ -27,13 +18,17 @@ import org.springframework.web.client.RestTemplate;
  * @author jwarren
  *
  */
+@Service
 public class EmbryoRestGetter {
 
-	private String embryoRestUrl="http://dev.mousephenotype.org/EmbryoViewerWebApp/rest/ready";//default is dev - needs to be wired up properly with spring when going to beta and live
+	//@NotNull
+   // @Value("${embryoRestUrl}")
+	private String embryoRestUrl;//="http://dev.mousephenotype.org/EmbryoViewerWebApp/rest/ready";//default is dev - needs to be wired up properly with spring when going to beta and live
 
-	public void setRestUrl(String embryoRestUrl) {
+	
+	public EmbryoRestGetter(String embryoRestUrl) {
+		super();
 		this.embryoRestUrl = embryoRestUrl;
-
 	}
 
 	// public EmbryoRestData getEmbryoRestData(){

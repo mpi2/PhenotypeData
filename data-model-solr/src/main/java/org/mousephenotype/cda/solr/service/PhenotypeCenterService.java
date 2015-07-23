@@ -13,38 +13,34 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.service;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.GroupResponse;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.sql.SQLException;
+import java.util.*;
 
 public class PhenotypeCenterService {
-
-	private PhenotypePipelineDAO ppDao;
 	private static final Logger LOG = LoggerFactory.getLogger(PhenotypeCenterService.class);
 	private HttpSolrServer solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
+
+	@Autowired
+	@Qualifier("phenotypePipelineDAOImpl")
+	private PhenotypePipelineDAO ppDao;
 
 //	public PhenotypeCenterProgress(){
 //		this("https://www.ebi.ac.uk/mi/impc/solr/experiment");//"http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default

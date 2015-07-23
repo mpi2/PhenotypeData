@@ -25,7 +25,7 @@ import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
@@ -34,7 +34,8 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Repository
+@Transactional
 public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualDimorphismDAO {
 
 	@Autowired
@@ -52,7 +53,6 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 		this.sessionFactory = sessionFactory;
 	}
 
-	@Transactional(readOnly = true)
 	public List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) {
 
 		List<String[]> res = new ArrayList<>();
@@ -113,7 +113,6 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 
 
 	@Override
-	@Transactional(readOnly = true)
 	public List<String[]> sexualDimorphismReportWithBodyWeight(String baseUrl) {
 
 		List<String[]> res = new ArrayList<>();
@@ -173,6 +172,7 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 	}
 
 
+	@Transactional(readOnly = true)
 	PreparedStatement getSexualDimorphismReportQuery(boolean withBodyWeight) {
 
 		String database;

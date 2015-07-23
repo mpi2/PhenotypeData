@@ -638,10 +638,7 @@ public class FileExportController {
 				if (names.length == 2) { // only want facet value of xxx_yyy
 					String annotName = names[0];
 
-					Map<String, String> hm = solrIndex.renderFacetField(names, request); // MA:xxx,
-																							// MP:xxx,
-																							// MGI:xxx,
-																							// exp
+					Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString());
 
 					data.add(hm.get("label"));
 					data.add(annotName);
@@ -1001,12 +998,12 @@ public class FileExportController {
 
 			// ES/Mice production status
 			boolean toExport = true;
-			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, request, toExport);
+			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, toExport);
 
 			data.add(prodStatus);
 
 			// phenotyping status
-			String phStatus = geneService.getPhenotypingStatus(doc, request, toExport, legacyOnly);
+			String phStatus = geneService.getPhenotypingStatus(doc, request.getAttribute("mappedHostname").toString(), toExport, legacyOnly);
 
 			if (phStatus.isEmpty()) {
 				data.add(NO_INFO_MSG);

@@ -24,6 +24,7 @@
         this[k] = options[k];
       }
       this.model.bind('change:filtered', function() { self.update()});
+      this.model.bind('change:removefilter', function() { self.clearfilters(); });
       this.cols = _(this.columns).map(function(col) {
         return {
           id: col,
@@ -113,7 +114,22 @@
       this.dataView.beginUpdate();
       this.dataView.setItems(data);
       this.dataView.endUpdate();
-    }
+    },
+    clearfilters: function() {
+        var self = this;
+        var filtered = _(this.model.get('data')).map(function(obj) {
+          obj.id = self.counter++;
+          for (var k in obj){
+          	if (obj[k] == null){
+          		obj[k] = "NA";
+          	}
+          }
+          return obj;
+        });
+        this.dataView.beginUpdate();
+        this.dataView.setItems(filtered);
+        this.dataView.endUpdate();
+      }
   });
 
 })();

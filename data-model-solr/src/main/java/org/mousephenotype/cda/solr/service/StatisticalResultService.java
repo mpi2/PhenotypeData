@@ -70,6 +70,7 @@ import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
+import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.sortSkipAndLimit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,11 +226,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         	}
     	}
 
-    	// query for each parameter
-
     	int i = 0;
 
-    	for (Parameter p: parameterNames){
+    	for (i = 0; i < parameterNames.size(); i++){
+    		Parameter p = parameterNames.get(i);
     		query = new SolrQuery();
         	query.setQuery("*:*");
         	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
@@ -337,6 +337,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	             beans.put(gene + " " + group, currentBean);
              }
          }
+    	 
          return beans;
 	}
 

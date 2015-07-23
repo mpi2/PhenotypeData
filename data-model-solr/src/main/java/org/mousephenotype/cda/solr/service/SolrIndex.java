@@ -25,14 +25,12 @@ import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.solr.generic.util.DrupalHttpProxy;
 import org.mousephenotype.cda.solr.generic.util.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -45,6 +43,10 @@ public class SolrIndex {
 	private static final String IMG_NOT_FOUND = "No information available";
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
+	@NotNull
+	@Value("${baseUrl")
+	private String baseUrl;
 
 	@NotNull
 	@Value("${internalSolrUrl}")
@@ -409,13 +411,10 @@ public class SolrIndex {
 	 *            an array of strings representing the facet ID and the name of
 	 *            the facet
 	 *            the base url of the generated links
-	 * @param request the request object
 	 * @return a map represneting the facet, facet label and link
 	 */
-	public Map<String, String> renderFacetField(String[] names, HttpServletRequest request) {
+	public Map<String, String> renderFacetField(String[] names, String hostName) {
 
-		String hostName = request.getAttribute("mappedHostname").toString();
-		String baseUrl =  request.getAttribute("baseUrl").toString();
 		// key: display label, value: facetField
 		Map<String, String> hm = new HashMap<String, String>();
 		String name = names[0];
@@ -710,31 +709,6 @@ public class SolrIndex {
 	}
 
 	/**
-	 * Get the results of a query from the provided url using a proxy that
-	 * includes the drupal session cookie.
-	 *
-	 * @param url
-	 *            the URL from which to get the content
-	 * @return a JSONObject representing the result of the query
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 */
-	public JSONObject getResults(DrupalHttpProxy drupalProxy, String url)
-			throws IOException, URISyntaxException {
-		String content = "";
-
-		log.debug("GETTING CONTENT FROM: " + url);
-
-		if (drupalProxy != null) {
-			content = drupalProxy.getContent(new URL(url));
-		} else {
-			return getResults(url);
-		}
-
-		return (JSONObject) JSONSerializer.toJSON(content);
-	}
-
-	/**
 	 * Get the MP solr document associated to a specific MP term. The document
 	 * contains the relations to MA terms and sibling MP terms
 	 *
@@ -885,7 +859,7 @@ public class SolrIndex {
 	 }
 
 	@SuppressWarnings("deprecation")
-	public String getMgiGenesClansDataTable(HttpServletRequest request) throws IOException, URISyntaxException {
+	public String getMgiGenesClansDataTable() throws IOException, URISyntaxException {
 
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
@@ -913,7 +887,7 @@ public class SolrIndex {
 			JSONObject doc = docs.getJSONObject(i);
 
 			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+			String geneLink = baseUrl + "/genes/" + mgiId;
 			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
 			rowData.add(marker);
 
@@ -971,7 +945,7 @@ public class SolrIndex {
 		return j.toString();
 	}
 
-	public String getMgiGenesClansPlainTable(HttpServletRequest request) throws IOException, URISyntaxException {
+	public String getMgiGenesClansPlainTable() throws IOException, URISyntaxException {
 
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
@@ -996,7 +970,7 @@ public class SolrIndex {
 			JSONObject doc = docs.getJSONObject(i);
 
 			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+			String geneLink = baseUrl + "/genes/" + mgiId;
 			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
 			rowData.add("<td>" + marker + "</td>");
 
@@ -1077,7 +1051,7 @@ public class SolrIndex {
 		return table;
 	}
 
-	public String getGO2ImpcGeneAnnotationTable(HttpServletRequest request) throws IOException, URISyntaxException {
+	public String getGO2ImpcGeneAnnotationTable() throws IOException, URISyntaxException {
 		String internalBaseSolrUrl = internalSolrUrl + "/gene/select?";
 		String flStr = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_domain,go_term_name";
 		String queryParams = "q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\" OR (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=10&fq=mp_id:*";
@@ -1095,7 +1069,7 @@ public class SolrIndex {
 			JSONObject doc = docs.getJSONObject(i);
 
 			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+			String geneLink = baseUrl + "/genes/" + mgiId;
 			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
 
 			String phenoStatus = doc.getString("latest_phenotype_status");
