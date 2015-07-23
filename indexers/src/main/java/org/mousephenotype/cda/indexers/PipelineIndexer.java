@@ -67,9 +67,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 	@Autowired
 	MaOntologyDAO maOntologyService;
-	
-	@Autowired
-	
+		
 
 	private Map<Integer, Map<String, String>> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;
