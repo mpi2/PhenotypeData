@@ -19,7 +19,10 @@
 
 package org.mousephenotype.cda.solr.bean;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 
 /**
@@ -125,5 +128,4 @@ public class ProcedureBean {
 	}
 	
 		
-	
 }
