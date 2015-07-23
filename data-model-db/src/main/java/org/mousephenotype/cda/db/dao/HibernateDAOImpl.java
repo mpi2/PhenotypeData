@@ -56,16 +56,13 @@ public class HibernateDAOImpl implements HibernateDAO {
 	@Autowired
 	protected SessionFactory sessionFactory;
 
-
-
 	/**
-	 * Method to get a connection from the session factory
-	 * This is deprecated and should be replaced!
-	 * @return
+	 * Method to get a jdbc connection.
+	 *
+	 * @return a jdbc connection.
 	 */
-	@SuppressWarnings("deprecation")
 	public Connection getConnection() {
-		Session session = sessionFactory.getCurrentSession();
+		Session session = getSession();
 
 		SessionImplementor sessionImplementor = (SessionImplementor) session;
 		Connection connection = null;
@@ -76,17 +73,23 @@ public class HibernateDAOImpl implements HibernateDAO {
 			e.printStackTrace();
 		}
 
-//		Connection connection = ((SessionImpl)session).connection();
 		return connection;
 	}
 
 	/**
-	 * Method to get a session from the session factory
-	 * @return
+	 * Method to get a session from the session factory.
+     *
+	 * @return a hibernate session.
 	 */
 	public Session getSession() {
-		Session session = sessionFactory.getCurrentSession();
-		return session;
+		Session sess = null;
+		try {
+			sess = sessionFactory.getCurrentSession();
+		} catch (org.hibernate.HibernateException he) {
+			sess = sessionFactory.openSession();
+		}
+		return sess;
+
 	}
 
 	/**

@@ -159,7 +159,7 @@ public class ReportsManager implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         String filename = "";
-        String suffix = "csv";
+        String suffix = ".csv";
         File file = null;
         List<String[]> result;
         List<List<String[]>> resultMulti;
@@ -270,6 +270,7 @@ public class ReportsManager implements CommandLineRunner {
 
             } catch (Exception e) {
                 log.error("FAILED to create report '" + reportType + " in " + targetDirectory + "/" + filename + ". Reason: " + e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }
 
