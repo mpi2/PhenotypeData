@@ -22,6 +22,8 @@
 			<div class="content">
 				<div class="section"> 
 					<div class="inner">
+						<div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
+						
 						<form class="tablefiltering no-style" id="target" action="destination.html">
 							<select id="proceduresFilter" class="impcdropdown"  multiple="multiple" title="Select procedures to display">
 		                    	<c:forEach var="procedure" items="${procedures}">
@@ -30,8 +32,6 @@
 		                    </select>
 		                	<div class="clear"></div>
 	                    </form>
-	                    
-						<div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
 									
 						<div id="chart-and-table">
 						</div>

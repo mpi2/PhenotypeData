@@ -69,7 +69,7 @@
 				d3.select(this).call(axis.scale(y[d]));
 			}).append("svg:text").attr("text-anchor", "start").attr("y", 0).attr("transform", function(d) {
 				return "rotate(-90)"
-			}).text(String);
+			}).text(String).classed("axis-label", true);
 
 			// Add and store a brush for each axis.
 			g.append("svg:g").attr("class", "brush").each(function(d) {

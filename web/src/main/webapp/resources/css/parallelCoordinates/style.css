@@ -1,7 +1,3 @@
-body {
-  margin: 0;
-  padding: 0;
-}
 a {
   text-decoration: none;
 }
@@ -163,11 +159,6 @@ a.filter_control{
 .axis-filter.active {
   background: rgba(55,55,55,0.3);
 }
-#footer {
-  padding: 60px;
-  color: #888;
-  font-size:13px;
-}
 /* SVG Paralllel Coordinates */
 #parallel {
   width: 100%;  /* vs jquery resizable */
@@ -212,12 +203,12 @@ a.filter_control{
 }
 
 .axis text {
-  text-shadow:
-   -1px -1px 0 #fff,
-    1px -1px 0 #fff,
-   -1px 1px 0 #fff,
-    1px 1px 0 #fff;
+  opacity: 0.4;
   cursor: move;
+}
+text.axis-label {
+	color:#fff;
+	opacity:1;
 }
 
 .dimension {
