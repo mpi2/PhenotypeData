@@ -15,6 +15,22 @@
  *******************************************************************************/
 package org.mousephenotype.cda.db.pojo;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 /**
  *
  * A concrete representation of phenotype parameter within a pipeline.
@@ -31,12 +47,6 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.mousephenotype.cda.enumerations.CategoriesExclude;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
 @Entity
@@ -529,13 +539,18 @@ public class Parameter extends PipelineEntry {
 	}
 
 
-
-
+	
 	@Override
 	public String toString() {
-		return "Parameter [stableId=" + stableId + ", stableKey=" + stableKey
-				+ "]";
+		return "Parameter [name=" + getName() + ", unit=" + unit + ", type=" + type + ", datatype=" + datatype + ", formula=" + formula
+				+ ", derivedFlag=" + derivedFlag + ", sequence=" + sequence + ", requiredFlag=" + requiredFlag
+				+ ", metaDataFlag=" + metaDataFlag + ", importantFlag=" + importantFlag + ", annotateFlag="
+				+ annotateFlag + ", incrementFlag=" + incrementFlag + ", optionsFlag=" + optionsFlag + ", mediaFlag="
+				+ mediaFlag + ", requiredForDataAnalysisFlag=" + requiredForDataAnalysisFlag + ", dataAnalysisNotes="
+				+ dataAnalysisNotes + ", procedures=" + procedures + ", options=" + options + ", increments="
+				+ increments + ", annotations=" + annotations + ", eqAnnotations=" + eqAnnotations + "]";
 	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -687,5 +702,8 @@ public class Parameter extends PipelineEntry {
 		List<String> okCategoriesList= CategoriesExclude.getInterfaceFreindlyCategories(categories);
 		return okCategoriesList;
 	}
+	
 
 }
+
+

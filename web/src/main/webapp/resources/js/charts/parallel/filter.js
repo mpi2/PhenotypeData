@@ -58,6 +58,12 @@
       this.set({filtered: filtered});
     },
 
+    clearfilter: function() {
+
+        this.set({data: this.get('data')});
+        this.set({filter: this.get('data')});
+    },
+    
     outliers: function() {
       var self = this;
       var leftovers = _(self.get('data')).reject(function(d,k) {
@@ -68,7 +74,7 @@
           return false;
       }
       self.set({data: leftovers});
-      self.clearFilter();
+      self.emptyfilter();
     },
     
     inliers: function() {
@@ -81,10 +87,10 @@
           return false;
       }
       self.set({data: leftovers});
-      self.clearFilter();
+      self.emptyfilter();
     },
     
-    clearFilter: function() {
+    emptyfilter: function() {
       this.set({filter: {}});
       this.trigger('change:filter');  
     },

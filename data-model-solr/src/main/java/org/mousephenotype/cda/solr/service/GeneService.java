@@ -32,9 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +46,10 @@ public class GeneService {
 	@Autowired
 	@Qualifier("geneCore")
 	private HttpSolrServer solr;
+
+    @NotNull
+    @Value("${baseUrl}")
+    private String baseUrl;
 
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
 
@@ -194,31 +199,35 @@ public class GeneService {
 	}
 
 	// returns ready formatted icons
-	public Map<String, String> getProductionStatus(String geneId, HttpServletRequest request) 
+	public Map<String, String> getProductionStatus(String geneId, String hostname)
 	throws SolrServerException{
 
-		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + geneId;
+		String geneUrl = baseUrl + "/genes/" + geneId;
 		SolrQuery query = new SolrQuery();
 		query.setQuery("mgi_accession_id:\"" + geneId + "\"");
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
 
-		return getStatusFromDoc(doc, request, geneUrl);
+		return getStatusFromDoc(doc, hostname, geneUrl);
 
 	}
 
 	/**
 	 * Get the latest phenotyping status for a document.
 	 * 
-	 * @param doc
-	 *            represents a gene with imits status fields
+	 * @param doc represents a gene with imits status fields
+     * @param hostName the hostname
+     * @Param toExport export if true; false otherwise
+     * @param legacyOnly is legacy only if true; false otherwise
+     *
+	 *
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String getPhenotypingStatus(JSONObject doc, HttpServletRequest request, boolean toExport, boolean legacyOnly) {
+	public String getPhenotypingStatus(JSONObject doc, String hostName, boolean toExport, boolean legacyOnly) {
 		
 		String mgiId = doc.getString("mgi_accession_id");
-		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+		String geneUrl = baseUrl + "/genes/" + mgiId;
 
 		final String statusField = GeneDTO.LATEST_PHENOTYPE_STATUS ;
 		String phenotypeStatusHTMLRepresentation = "";
@@ -228,9 +237,7 @@ public class GeneService {
 		try {	
 		
 			log.debug("getPhenotypingStatus :" + doc.getString(statusField));
-			log.debug("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
-			
-			String hostName = request.getAttribute("mappedHostname").toString();
+            log.debug("hasQC :" + doc.containsKey(GeneDTO.HAS_QC));
 			
 			/*
 			 * 1. Check we have preQC/postQC IMPC data (started or completed) 		
@@ -323,10 +330,10 @@ public class GeneService {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells as a string
 	 */
-	public static String getEsCellStatus(JSONObject doc, HttpServletRequest request, boolean toExport){
+	public String getEsCellStatus(JSONObject doc, boolean toExport){
 		
 		String mgiId = doc.getString("mgi_accession_id");
-		String geneUrl = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+		String geneUrl = baseUrl + "/genes/" + mgiId;
 				
 		String status = null;
 		
@@ -377,13 +384,13 @@ public class GeneService {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for both ES cells and alleles
 	 */
-	public static String getLatestProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport, String geneLink){		
+	public String getLatestProductionStatusForEsCellAndMice(JSONObject doc, boolean toExport, String geneLink){
 		
 		//ObjectMapper mapper = new ObjectMapper();
 		
 		//GeneDTO gene = mapper.readValue(doc.toString(), GeneDTO.class);
 		
-		String esCellStatus = getEsCellStatus(doc, request, toExport);
+		String esCellStatus = getEsCellStatus(doc, toExport);
 		
 		String miceStatus = "";		
 		final List<String> exportMiceStatus = new ArrayList<String>();
@@ -452,7 +459,7 @@ public class GeneService {
 	 * @param doc a SOLR Document
 	 * @return
 	 */
-	private Map<String, String> getStatusFromDoc(SolrDocument doc, HttpServletRequest request, String geneLink) {
+	private Map<String, String> getStatusFromDoc(SolrDocument doc, String hostname, String geneLink) {
 		
 		String miceStatus = "";
 		String esCellStatusHTMLRepresentation = "";
@@ -497,12 +504,12 @@ public class GeneService {
 			/*
 			 * Get the HTML representation of the ES Cell status
 			 */
-			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, request, false);
+			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, false);
 			
 			/*
 			 * Get the HTML representation of the phenotyping status
 			 */
-			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, request, false, false);
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, hostname, false, false);
 			
 			/*
 			 * Order flag is separated from HTML generation code
@@ -611,9 +618,9 @@ public class GeneService {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells and all statuses at the allele level for mice as a comma separated string
 	 */
-	public String getProductionStatusForEsCellAndMice(JSONObject doc, HttpServletRequest request, boolean toExport){		
+	public String getProductionStatusForEsCellAndMice(JSONObject doc, boolean toExport){
 		
-		String esCellStatus = getEsCellStatus(doc, request, toExport);		
+		String esCellStatus = getEsCellStatus(doc, toExport);
 		String miceStatus = "";		
 		final List<String> exportMiceStatus = new ArrayList<String>();
 		
@@ -697,10 +704,11 @@ public class GeneService {
 	/**
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
+     * @param hostname the host name
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, HttpServletRequest request)
+	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, String hostname)
 			throws SolrServerException {
 			
 		Map<String, String> geneToStatusMap = new HashMap<>();
@@ -722,7 +730,7 @@ public class GeneService {
 				// String field = (String)doc.getFieldValue(GeneDTO.LATEST_MOUSE_STATUS);
 				// productionStatus=this.getMouseProducedForGene(field);
 				String prodStatusIcons = "Neither production nor phenotyping status available ";
-				Map<String, String> prod = this.getProductionStatus(accession, request);
+				Map<String, String> prod = this.getProductionStatus(accession, hostname);
 				prodStatusIcons = ( prod.get("icons").equalsIgnoreCase("") ) ? prodStatusIcons : prod.get("icons") ;
 				// model.addAttribute("orderPossible" , prod.get("orderPossible"));
 				// model.addAttribute("prodStatusIcons" , prodStatusIcons);

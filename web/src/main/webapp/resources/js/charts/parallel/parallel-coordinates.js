@@ -40,25 +40,6 @@
 				return "stroke:" + colors[d.group] + ";";
 			});
 
-			/*
-			// Add dots for null values
-			var series = svg.append("svg:g")
-				.attr("class", "series")
-				.selectAll(".serie")
-				.data(cars)
-				.enter().append("svg:g")
-				.attr("class", "serie");      
-			var point  = series.selectAll(".point")
-				.data(dimensions.map(function(p) {return p;}))
-				.enter().append("svg:circle")
-			 	.attr("cx", function (d,i,j) { 
-			//     	  console.log("Dimensions for " + d + " point pos: " + i + "  " + j + " + y= " + cars[j][d] + "  ==  " + y[d](cars[j][d]) + " x=" + x(i)); 
-			 	  return x(i);
-			}) 
-			.attr("cy", function (d,i,j) { return y[d](cars[j][d]) ;})
-			.attr("r", function (d,i,j) { return getRadius(cars[j][d]) ; });
-			 */
-
 			// Add a group element for each dimension.
 			var g = svg.selectAll(".dimension").data(dimensions).enter().append("svg:g").attr("class", "dimension").attr("transform", function(d) {
 				return "translate(" + x(d) + ")";
@@ -102,7 +83,6 @@
 
 			// Returns the path for a given data point.
 			function path(d) {
-
 				//return line(dimensions.map(function(p) { return [position(p), y[p](d[p])]; }));
 				return line(dimensions.map(function(p) {
 					// check for undefined values
@@ -205,9 +185,6 @@
 					}).attr("y", function(d) {
 						return y[d](defaults[d]) - 5;
 					}).text("No data")
-					//        .attr("font-family", "sans-serif")
-					//        .attr("font-size", "20px")
-					//        .attr("fill", "red")
 					;
 
 				}

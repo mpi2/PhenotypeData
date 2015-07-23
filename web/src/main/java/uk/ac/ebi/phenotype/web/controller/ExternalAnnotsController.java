@@ -424,7 +424,7 @@ public class ExternalAnnotsController {
 		// model.addAttribute("fq", fq);
 
 		// String dataTableJson = solrIndex.getMgiGenesClansDataTable(request);
-		String dataTableJson = solrIndex.getMgiGenesClansPlainTable(request);
+		String dataTableJson = solrIndex.getMgiGenesClansPlainTable();
 		model.addAttribute("datatable", dataTableJson);
 
 		return "gene2pfam";

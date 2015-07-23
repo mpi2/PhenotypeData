@@ -15,9 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.reports;
 
+import org.mousephenotype.cda.db.dao.HibernateDAO;
+
 import java.util.List;
 
-public interface SexualDimorphismDAO {
+public interface SexualDimorphismDAO extends HibernateDAO {
 	
 	List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) ;
 	
