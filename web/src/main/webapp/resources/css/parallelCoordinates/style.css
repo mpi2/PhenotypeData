@@ -4,11 +4,6 @@ a {
 a:hover {
   text-decoration: underline;
 }
-#main {
-  width: 100%;
-  min-width: 760px;
-  margin: 8px auto;
-}
 #nav {
   height: 64px;
   width: 100%;
