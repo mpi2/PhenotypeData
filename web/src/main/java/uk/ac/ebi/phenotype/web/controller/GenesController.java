@@ -28,7 +28,6 @@ import org.json.JSONArray;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
@@ -36,7 +35,7 @@ import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -247,7 +246,7 @@ public class GenesController {
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
 			model.addAttribute("hasPreQcData", hasPreQc);
 
-			Map<String, String> prod = geneService.getProductionStatus(acc, request);
+			Map<String, String> prod = geneService.getProductionStatus(acc, request.getAttribute("mappedHostname").toString());
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 		} catch (SolrServerException e2) {

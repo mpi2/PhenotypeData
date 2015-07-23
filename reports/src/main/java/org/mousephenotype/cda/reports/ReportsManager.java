@@ -30,8 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
 
@@ -48,9 +46,7 @@ import java.util.List;
  * Created by mrelac on 23/06/2015.
  */
 
-@ComponentScan("org.mousephenotype.cda.reports")
 @SpringBootApplication
-@Primary
 public class ReportsManager implements CommandLineRunner {
 
     @Autowired(required = true)
@@ -163,6 +159,7 @@ public class ReportsManager implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         String filename = "";
+        String suffix = "csv";
         File file = null;
         List<String[]> result;
         List<List<String[]>> resultMulti;
@@ -183,47 +180,47 @@ public class ReportsManager implements CommandLineRunner {
             try {
                 switch (reportType) {
 
-                    case BMD_STATS:
-                        List<String> parameters = new ArrayList(Arrays.asList(new String[]{"IMPC_DXA_004_001", "IMPC_IPG_010_001", "IMPC_IPG_012_001"}));
-                        for (String parameter : parameters) {
-                            filename = "bmd_stats_" + parameter + ".csv";
-                            result = reportsService.getBmdIpdttReport(parameter);
-                            file = fileUtils.createCSV(targetDirectory, filename, result);
-                        }
-                        break;
+//                    case BMD_STATS:
+//                        List<String> parameters = new ArrayList(Arrays.asList(new String[]{"IMPC_DXA_004_001", "IMPC_IPG_010_001", "IMPC_IPG_012_001"}));
+//                        for (String parameter : parameters) {
+//                            filename = "bmd_stats_" + parameter + suffix;
+//                            result = reportsService.getBmdIpdttReport(parameter);
+//                            file = fileUtils.createCSV(targetDirectory, filename, result);
+//                        }
+//                        break;
 
                     case DATA_OVERVIEW:
-                        filename = "data_overview.csv";
+                        filename = "data_overview" + suffix;
                         resultMulti = reportsService.getDataOverview();
                         file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
                         break;
 
                     case DISTRIBUTION_OF_PHENOTYPE_HITS:
-                        filename = "distribution_of_phenotype_hits.csv";
+                        filename = "distribution_of_phenotype_hits" + suffix;
                         resultMulti = reportsService.getMpCallDistribution();
                         file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
                         break;
 
                     case FERTILITY:
-                        filename = "fertility.csv";
+                        filename = "fertility" + suffix;
                         result = reportsService.getFertilityData();
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
 
                     case HITS_PER_LINE:
-                        filename = "hits_per_line.csv";
+                        filename = "hits_per_line" + suffix;
                         resultMulti = reportsService.getHitsPerLine();
                         file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
                         break;
 
                     case HITS_PER_PARAMETER_AND_PROCEDURE:
-                        filename = "hits_per_parameter_and_procedure.csv";
+                        filename = "hits_per_parameter_and_procedure" + suffix;
                         resultMulti = reportsService.getHitsPerParameterAndProcedure();
                         file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
                         break;
 
                     case LACZ_EXPRESSION:
-                        filename = "lacz_expression.csv";
+                        filename = "lacz_expression" + suffix;
                         result = imageService.getLaczExpressionSpreadsheet();
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
@@ -232,37 +229,37 @@ public class ReportsManager implements CommandLineRunner {
 //                        reportGenerator.run();
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:
-                        filename = "phenotype_overview_per_gene.csv";
+                        filename = "phenotype_overview_per_gene" + suffix;
                         result = reportsService.getHitsPerGene();
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
 
                     case PROCEDURE_COMPLETENESS:
-                        filename = "procedure_completeness.csv";
+                        filename = "procedure_completeness" + suffix;
                         result = phenotypeCenterService.getCentersProgressByStrainCsv();
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
 
                     case SEXUAL_DIMORPHISM_NO_BODY_WEIGHT:
-                        filename = "sexual_dimorphism_no_body_weight.csv";
+                        filename = "sexual_dimorphism_no_body_weight" + suffix;
                         result = sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(drupalBaseUrl);
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
 
                     case SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT:
-                        filename = "sexual_dimorphism_with_body_weight.csv";
+                        filename = "sexual_dimorphism_with_body_weight" + suffix;
                         result = sexualDimorphismDAO.sexualDimorphismReportWithBodyWeight(drupalBaseUrl);
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
 
                     case VIABILITY:
-                        filename = "viability.csv";
+                        filename = "viability" + suffix;
                         resultMulti = reportsService.getViabilityReport();
                         file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
                         break;
 
                     case ZYGOSITY:
-                        filename = "zygosity.csv";
+                        filename = "zygosity" + suffix;
                         result = reportsService.getGeneByZygosity();
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
@@ -272,7 +269,7 @@ public class ReportsManager implements CommandLineRunner {
                 log.info("Created report '" + reportType + "' in " + fqFilename + ".");
 
             } catch (Exception e) {
-                log.error("FAILED to create report '" + reportType + " in " + targetDirectory + filename + ". Reason: " + e.getLocalizedMessage());
+                log.error("FAILED to create report '" + reportType + " in " + targetDirectory + "/" + filename + ". Reason: " + e.getLocalizedMessage());
             }
         }
 
