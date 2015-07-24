@@ -1,19 +1,20 @@
 /*******************************************************************************
- * Copyright 2015 EMBL - European Bioinformatics Institute
+ *  Copyright © 2013 - 2015 EMBL - European Bioinformatics Institute
  *
- * Licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License. You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
- *******************************************************************************/
-package org.mousephenotype.cda.solr.service;
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ *  either express or implied. See the License for the specific
+ *  language governing permissions and limitations under the
+ *  License.
+ ******************************************************************************/
+
+package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -27,10 +28,13 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,19 +51,19 @@ import java.util.concurrent.ExecutionException;
 public class ReportsService {
 
 	@Autowired
-	StatisticalResultService srService;
+    StatisticalResultService srService;
 
     @Autowired
-	ObservationService oService;
+    ObservationService oService;
 
 	@Autowired
-	GeneService geneService;
+    GeneService geneService;
 
     @Autowired
-	ExperimentService experimentService;
+    ExperimentService experimentService;
 
     @Autowired
-	ImageService iService;
+    ImageService iService;
 
     @Autowired
 	@Qualifier("postqcService")
@@ -72,6 +76,9 @@ public class ReportsService {
 	@Qualifier("phenotypePipelineDAOImpl")
     private PhenotypePipelineDAO pipelineDao;
 
+    @Autowired
+    StatisticalResultService statisticalResultService;
+
 	@NotNull
 	@Value("drupalBaseUrl")
 	String drupalBaseUrl;
@@ -81,6 +88,7 @@ public class ReportsService {
 	public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
 	public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
 	public static final String[] EMPTY_ROW = new String[]{""};
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 
 	public ReportsService(){
@@ -943,29 +951,28 @@ public class ReportsService {
     	return res;
     }
 
-
-
-    /**
-     *
-     * @param mpTermId
-     * @return List of all parameters that may lead to associations to the MP
-     * term or any of it's children (based on the slim only)
-     */
-    public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
-        HashSet<String> res = new HashSet<>();
-        ArrayList<String> mpIds;
-        try {
-            mpIds = mpService.getChildrenFor(mpTermId);
-            res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
-            for (String mp : mpIds) {
-                res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
-            }
-        } catch (SolrServerException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-
+//
+//
+//    /**
+//     *
+//     * @param mpTermId
+//     * @return List of all parameters that may lead to associations to the MP
+//     * term or any of it's children (based on the slim only)
+//     */
+//    public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
+//        HashSet<String> res = new HashSet<>();
+//        ArrayList<String> mpIds;
+//        try {
+//            mpIds = mpService.getChildrenFor(mpTermId);
+//            res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
+//            for (String mp : mpIds) {
+//                res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
+//            }
+//        } catch (SolrServerException e) {
+//            e.printStackTrace();
+//        }
+//        return res;
+//    }
 
     class IpGTTStats {
 

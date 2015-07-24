@@ -17,6 +17,10 @@
     <name>reports</name>
     <description>IMPC report product</description>
 
+    <properties>
+        <start-class>org.mousephenotype.cda.reports.ReportsManager</start-class>
+    </properties>
+
     <dependencies>
 
         <dependency>
@@ -39,6 +43,7 @@
             <artifactId>commons-configuration</artifactId>
             <version>1.9</version>
         </dependency>
+
         <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
