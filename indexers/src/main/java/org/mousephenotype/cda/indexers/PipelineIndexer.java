@@ -48,8 +48,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 public class PipelineIndexer extends AbstractIndexer {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(PipelineIndexer.class);
+	private static final Logger logger = LoggerFactory.getLogger(PipelineIndexer.class);
 	private Connection komp2DbConnection;
 
 	@Autowired
