@@ -56,8 +56,8 @@ public class PipelineDTO {
 	public static final String INTERMEDIATE_MP_TERM = MpDTO.INTERMEDIATE_MP_TERM;
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
 
-	public static final String MA_ID = "abnormal_ma_id";
-	public static final String MA_NAME = "abnormal_ma_name";
+	public static final String MA_ID = "ma_id";
+	public static final String MA_NAME = "ma_name";
 	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
 	public static final String INFERRED_MA_TERM_SYNONYM = MpDTO.INFERRED_MA_TERM_SYNONYM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
