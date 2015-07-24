@@ -26,8 +26,9 @@ sea biscuit, sea biscit => seabiscuit
 
 xray,x-ray,X-ray
 x-ray,xray
-haemto, hemato
 
+# deals with hematology/haematology
+haemat, hemat
 
 ########################
 
