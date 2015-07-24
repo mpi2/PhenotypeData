@@ -38,6 +38,8 @@ haemto, hemato
 # to the explicit mapping:
 #ipod, i-pod, i pod => ipod
 
+haemat => hemat
+
 ########################
 
 #multiple synonym mapping entries are merged.

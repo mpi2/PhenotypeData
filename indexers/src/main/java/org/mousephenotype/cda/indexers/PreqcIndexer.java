@@ -19,10 +19,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,6 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -96,16 +95,16 @@ public class PreqcIndexer extends AbstractIndexer {
     @Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(preqcCore);
-        
+
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
         else
             logger.info("validateBuild(): Indexed " + documentCount + " preqc documents.");
     }
-    
+
     @Override
     public void run() throws IndexerException {
         long start = System.currentTimeMillis();
@@ -125,12 +124,26 @@ public class PreqcIndexer extends AbstractIndexer {
             preqcXmlFilename = config.get("preqcXmlFilename");
 
             doGeneSymbol2IdMapping();
+            logger.info(" Finished doGeneSymbol2IdMapping: " + (System.currentTimeMillis() - start));
+
             doAlleleSymbol2NameIdMapping();
+            logger.info(" Finished doAlleleSymbol2NameIdMapping: " + (System.currentTimeMillis() - start));
+
             doStrainId2NameMapping();
+            logger.info(" Finished doStrainId2NameMapping: " + (System.currentTimeMillis() - start));
+
             doImpressSid2NameMapping();
+            logger.info(" Finished doImpressSid2NameMapping: " + (System.currentTimeMillis() - start));
+
             doOntologyMapping();
+            logger.info(" Finished doOntologyMapping: " + (System.currentTimeMillis() - start));
+
             populatePostQcData();
+            logger.info(" Finished populatePostQcData: " + (System.currentTimeMillis() - start));
+
             populateResourceMap();
+            logger.info(" Finished populateResourceMap: " + (System.currentTimeMillis() - start));
+
 
             preqcCore.deleteByQuery("*:*");
 
@@ -702,29 +715,37 @@ public class PreqcIndexer extends AbstractIndexer {
 
     public void populatePostQcData() {
 
-        String query = "SELECT DISTINCT CONCAT(e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+        List<String> queries = new ArrayList<>();
+
+        // Gather all line level data
+        queries.add("SELECT CONCAT(e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
             "FROM observation o " +
             "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
             "INNER JOIN experiment e ON e.id=eo.experiment_id " +
             "INNER JOIN organisation org ON org.id=e.organisation_id " +
-            "WHERE e.colony_id IS NOT NULL " +
-            "UNION " +
-            "SELECT DISTINCT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+            "WHERE e.colony_id IS NOT NULL ");
+
+        // Gather all specimen level data
+        queries.add("SELECT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
             "FROM observation o " +
             "INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
             "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
             "INNER JOIN organisation org ON org.id=bs.organisation_id " +
-            "WHERE bs.sample_group='experimental' " ;
+            "WHERE bs.sample_group='experimental' ");
 
-        try (PreparedStatement p = conn_komp2.prepareStatement(query)) {
-            ResultSet resultSet = p.executeQuery();
+        for (String query : queries){
 
-            while (resultSet.next()) {
-                postQcData.add(resultSet.getString("data_value"));
+            try (PreparedStatement p = conn_komp2.prepareStatement(query)) {
+                ResultSet resultSet = p.executeQuery();
+
+                while (resultSet.next()) {
+                    postQcData.add(resultSet.getString("data_value"));
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -795,7 +816,7 @@ public class PreqcIndexer extends AbstractIndexer {
             return PreqcIndexer.this;
         }
     }
-    
+
     @Override
     public void initialise(String[] args) throws IndexerException {
         super.initialise(args);
