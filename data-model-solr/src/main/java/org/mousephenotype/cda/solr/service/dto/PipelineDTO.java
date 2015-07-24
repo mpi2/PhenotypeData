@@ -119,7 +119,7 @@ public class PipelineDTO {
 	private String parameterName;
 	
 	@Field(PARAMETER_STABLE_KEY)
-	private String parameterStableKey;
+	private int parameterStableKey;
 	
 
 	@Field(PROCEDURE_ID)
@@ -843,7 +843,7 @@ public class PipelineDTO {
 	}
 
 
-	public String getParameterStableKey() {
+	public int getParameterStableKey() {
 
 		return parameterStableKey;
 	}
@@ -990,7 +990,7 @@ public class PipelineDTO {
 	}
 
 
-	public void setParameterStableKey(String paramStableKey) {
+	public void setParameterStableKey(int paramStableKey) {
 
 		this.parameterStableKey = paramStableKey;
 
