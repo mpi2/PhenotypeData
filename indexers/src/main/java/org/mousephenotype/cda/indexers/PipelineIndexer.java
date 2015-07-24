@@ -69,7 +69,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	MaOntologyDAO maOntologyService;
 		
 
-	private Map<Integer, Map<String, String>> paramDbIdToParameter = null;
+	private Map<Integer, ParameterDTO> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;
 	private Map<Integer, ProcedureDTO> procedureIdToProcedure = null;
 	private List<PipelineBean> pipelines;
@@ -77,6 +77,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
 	private Map<String, String> parameterStableIdToAbnormalMaMap;
+	private Map<String, String> procedureToObsTypeMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
 	public PipelineIndexer() {
@@ -156,158 +157,158 @@ public class PipelineIndexer extends AbstractIndexer {
 						.get(pipeline.pipelineId);
 
 				for (int paramDbId : parameterIds) {
-					PipelineDTO pipe = new PipelineDTO();// new pipe object for
+					PipelineDTO doc = new PipelineDTO();// new pipe object for
 															// each param
-					Map<String, String> row = paramDbIdToParameter.get(paramDbId);
-					pipe.setParameterId(paramDbId);
-					pipe.setParameterName(row.get(ObservationDTO.PARAMETER_NAME));
-					String paramStableId = row.get(ObservationDTO.PARAMETER_STABLE_ID);
-					String paramStableName = row.get(ObservationDTO.PARAMETER_NAME);
-					pipe.setParameterStableId(paramStableId);
+					ParameterDTO param = paramDbIdToParameter.get(paramDbId);
+					doc.setParameterId(paramDbId);
+					doc.setParameterName(param.parameterName);
+					String paramStableId = param.parameterStableId;
+					String paramStableName = param.parameterName;
+					doc.setParameterStableId(paramStableId);
 					if(parameterStableIdToAbnormalMaMap.containsKey(paramStableId)){
-						pipe.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
+						doc.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
 						OntologyTermBean term = maOntologyService.getTerm(parameterStableIdToAbnormalMaMap.get(paramStableId));
-						pipe.setAbnormalMaName(term.getName());
+						doc.setAbnormalMaName(term.getName());
 					}
 
-					pipe.setParameterStableKey(row.get("stable_key"));
+					doc.setParameterStableKey(param.parameterStableKey);
 					ProcedureDTO procBean = procedureIdToProcedure.get(pipeline.procedureId);
-					pipe.setProcedureId(pipeline.procedureId);
-					pipe.setProcedureName(procBean.procedureName);
-					pipe.setProcedureStableId(procBean.procedureStableId);
-					pipe.setProcedureStableKey(procBean.procedureStableKey);
-					pipe.addProcedureNameId(procBean.procNameId);
-					pipe.setRequired(procBean.required);
-					pipe.setDescription(procBean.description);
-					pipe.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
+					doc.setProcedureId(pipeline.procedureId);
+					doc.setProcedureName(procBean.procedureName);
+					doc.setProcedureStableId(procBean.procedureStableId);
+					doc.setProcedureStableKey(procBean.procedureStableKey);
+					doc.addProcedureNameId(procBean.procNameId);
+					doc.setRequired(procBean.required);
+					doc.setDescription(procBean.description);
+					doc.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
 					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
 					String procParamName = procBean.procedureName + "___" + paramStableName;
-					pipe.addProcParamStableId(procParamStableId);
-					pipe.addProcParamName(procParamName);
+					doc.addProcParamStableId(procParamStableId);
+					doc.addProcParamName(procParamName);
 					// add the pipeline info here
-					pipe.setPipelineId(pipeline.pipelineId);
-					pipe.setPipelineName(pipeline.pipelineName);
-					pipe.setPipelineStableId(pipeline.pipelineStableId);
-					pipe.setPipelineStableKey(pipeline.pipelineStableKey);
-					pipe.addPipeProcId(pipeline.pipeProcSid);
+					doc.setPipelineId(pipeline.pipelineId);
+					doc.setPipelineName(pipeline.pipelineName);
+					doc.setPipelineStableId(pipeline.pipelineStableId);
+					doc.setPipelineStableKey(pipeline.pipelineStableKey);
+					doc.addPipeProcId(pipeline.pipeProcSid);
 
 					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr
 					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + paramStableId;
-					String idididKey = paramDbId + "_" + pipeline.pipeProcSid + "_" + pipe.getPipelineId();
-					pipe.setIdIdId(ididid);
+					String idididKey = paramDbId + "_" + pipeline.pipeProcSid + "_" + doc.getPipelineId();
+					doc.setIdIdId(ididid);
 					if (pppidsToGfMpBeans.containsKey(idididKey)) {
 						List<GfMpBean> gfMpBeanList = pppidsToGfMpBeans.get(idididKey);
 						for (GfMpBean gfMpBean : gfMpBeanList) {
 							String mgiAccession = gfMpBean.gfAcc;
-							pipe.addMgiAccession(mgiAccession);
+							doc.addMgiAccession(mgiAccession);
 							if (mgiToAlleleMap.containsKey(mgiAccession)) {
 								List<AlleleDTO> alleles = mgiToAlleleMap.get(mgiAccession);
 								for (AlleleDTO allele : alleles) {
 									if (allele.getMarkerSymbol() != null) {
-										pipe.addMarkerType(allele.getMarkerType());
-										pipe.addMarkerSymbol(allele.getMarkerSymbol());
+										doc.addMarkerType(allele.getMarkerType());
+										doc.addMarkerSymbol(allele.getMarkerSymbol());
 										if (allele.getMarkerSynonym() != null) {
-											pipe.addMarkerSynonym(allele.getMarkerSynonym());
+											doc.addMarkerSynonym(allele.getMarkerSynonym());
 										}
 									}
 
-									pipe.addMarkerName(allele.getMarkerName());
+									doc.addMarkerName(allele.getMarkerName());
 									if (allele.getHumanGeneSymbol() != null) {
-										pipe.addHumanGeneSymbol(allele.getHumanGeneSymbol());
+										doc.addHumanGeneSymbol(allele.getHumanGeneSymbol());
 									}
 									// status name from Bill Skarnes and used at EBI
-									pipe.addStatus(allele.getStatus());
-									pipe.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
-									pipe.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
-									pipe.addImitsPhenotypeStatus(allele.getImitsPhenotypeStatus());
+									doc.addStatus(allele.getStatus());
+									doc.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
+									doc.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
+									doc.addImitsPhenotypeStatus(allele.getImitsPhenotypeStatus());
 									if (allele.getLatestProductionCentre() != null) {
-										pipe.addLatestProductionCentre(allele.getLatestProductionCentre());
+										doc.addLatestProductionCentre(allele.getLatestProductionCentre());
 									}
 									if (allele.getLatestPhenotypingCentre() != null) {
-										pipe.addLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
+										doc.addLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
 									}
-									pipe.addLatestPhenotypingCentre(allele.getLatestPhenotypeStatus());
-									pipe.addLegacyPhenotypingStatus(allele.getLatestPhenotypeStatus());
-									pipe.addAlleleName(allele.getAlleleName());
+									doc.addLatestPhenotypingCentre(allele.getLatestPhenotypeStatus());
+									doc.addLegacyPhenotypingStatus(allele.getLatestPhenotypeStatus());
+									doc.addAlleleName(allele.getAlleleName());
 								}
 							}
 							
 							// mps for parameter
 							String mpTermId = gfMpBean.mpAcc;
 							MpDTO mp = mpIdToMp.get(mpTermId);
-							pipe.addMpId(mpTermId);
+							doc.addMpId(mpTermId);
 
 							if (mp != null) {
 
-								pipe.addMpTerm(mp.getMpTerm());
+								doc.addMpTerm(mp.getMpTerm());
 
 								if (mp.getMpTermSynonym() != null) {
-									pipe.addMpTermSynonym(mp.getMpTermSynonym());
+									doc.addMpTermSynonym(mp.getMpTermSynonym());
 								}
 
 								if (mp.getOntologySubset() != null) {
-									pipe.addOntologySubset(mp.getOntologySubset());
+									doc.addOntologySubset(mp.getOntologySubset());
 								}
 								if (mp.getTopLevelMpTermId() != null) {
-									pipe.addTopLevelMpId(mp.getTopLevelMpTermId());
+									doc.addTopLevelMpId(mp.getTopLevelMpTermId());
 								} else {
 									logger.warn("topLevelMpTermId for mpTerm " + mpTermId + " is null!");
 								}
 								if (mp.getTopLevelMpTerm() != null) {
-									pipe.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+									doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
 								} else {
 									logger.warn("topLevelMpTerm for mpTerm "
 											+ mpTermId + " is null!");
 								}
 								if (mp.getTopLevelMpTermSynonym() != null) {
-									pipe.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
+									doc.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
 								}
 								if (mp.getIntermediateMpId() != null) {
-									pipe.addIntermediateMpId(mp.getIntermediateMpId());
+									doc.addIntermediateMpId(mp.getIntermediateMpId());
 								}
 								if (mp.getIntermediateMpTerm() != null) {
-									pipe.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+									doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
 								}
 								if (mp.getIntermediateMpTermSynonym() != null) {
-									pipe.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
+									doc.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
 								}
 								if (mp.getChildMpId() != null) {
-									pipe.addChildMpId(mp.getChildMpId());
-									pipe.addChildMpTerm(mp.getChildMpTerm());
+									doc.addChildMpId(mp.getChildMpId());
+									doc.addChildMpTerm(mp.getChildMpTerm());
 								}
 								if (mp.getChildMpTermSynonym() != null) {
-									pipe.addChildMpTermSynonym(mp.getChildMpTermSynonym());
+									doc.addChildMpTermSynonym(mp.getChildMpTermSynonym());
 								}
 								if (mp.getHpId() != null) {
-									pipe.addHpId(mp.getHpId());
+									doc.addHpId(mp.getHpId());
 								}
 
 								if (mp.getHpTerm() != null) {
-									pipe.addHpTerm(mp.getHpTerm());
+									doc.addHpTerm(mp.getHpTerm());
 								}
 								if (mp.getInferredMaId() != null) {
-									pipe.addInferredMaId(mp.getInferredMaId());
-									pipe.addInferredMaTerm(mp.getInferredMaTerm());
+									doc.addInferredMaId(mp.getInferredMaId());
+									doc.addInferredMaTerm(mp.getInferredMaTerm());
 									if (mp.getInferredMaTermSynonym() != null) {
-										pipe.addInferredMaTermSynonym(mp.getInferredMaTermSynonym());
+										doc.addInferredMaTermSynonym(mp.getInferredMaTermSynonym());
 									}
 								}
 								if (mp.getInferredSelectedTopLevelMaId() != null) {
-									pipe.addInferredSelectedTopLevelMaId(mp.getInferredSelectedTopLevelMaId());
+									doc.addInferredSelectedTopLevelMaId(mp.getInferredSelectedTopLevelMaId());
 									if (mp.getInferredSelectedTopLevelMaTerm() != null) {
-										pipe.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
+										doc.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
 									}
 									if (mp.getInferredSelectedTopLevelMaTermSynonym() != null) {
-										pipe.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
+										doc.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
 									}
 
 								}
 								if (mp.getInferredChildMaId() != null) {
-									pipe.addInferredChildMaId(mp.getInferredChildMaId());
-									pipe.addInferredChildMaTerm(mp.getInferredChildMaTerm());
+									doc.addInferredChildMaId(mp.getInferredChildMaId());
+									doc.addInferredChildMaTerm(mp.getInferredChildMaTerm());
 									if (mp.getInferredChildMaTermSynonym() != null) {
-										pipe.addInferredChildMaTermSynonyms(mp.getInferredChildMaTermSynonym());
+										doc.addInferredChildMaTermSynonyms(mp.getInferredChildMaTermSynonym());
 									}
 								}
 							}
@@ -315,7 +316,7 @@ public class PipelineIndexer extends AbstractIndexer {
 						}
 					}
 					documentCount++;
-					pipelineCore.addBean(pipe);
+					pipelineCore.addBean(doc);
 					if(documentCount % 10000 == 0){
 						System.out.println("documentCount=" + documentCount);
 						pipelineCore.commit();
@@ -338,7 +339,6 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		long endTime = System.currentTimeMillis();
 		logger.info("time was " + (endTime - startTime) / 1000);
-
 		logger.info("Pipeline Indexer complete!");
 	}
 	
@@ -350,10 +350,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	
-	private Map<Integer, Map<String, String>> populateParamDbIdToParametersMap() {
+	private Map<Integer, ParameterDTO> populateParamDbIdToParametersMap() {
 
 		logger.info("populating PCS pipeline info");
-		Map<Integer, Map<String, String>> localParamDbIdToParameter = new HashMap<>();
+		procedureToObsTypeMap = new HashMap<String, String>();
+		Map<Integer, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "select id, stable_id, name, stable_key from phenotype_parameter";
 		//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
 		
@@ -361,14 +362,14 @@ public class PipelineIndexer extends AbstractIndexer {
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
-				Map<String, String> rowMap = new HashMap<>();
+				ParameterDTO param = new ParameterDTO();
 				// store the row in a map of column names to values
 				int id = resultSet.getInt("id");
-				rowMap.put(ObservationDTO.PARAMETER_NAME, resultSet.getString("name"));
-				rowMap.put(ObservationDTO.PARAMETER_STABLE_ID, resultSet.getString("stable_id"));
-				rowMap.put("stable_key", resultSet.getString("stable_key"));
-
-				localParamDbIdToParameter.put(id, rowMap);
+				param.parameterName = resultSet.getString("name");
+				param.parameterStableId = resultSet.getString("stable_id");
+				param.parameterStableKey = resultSet.getInt("stable_key");
+//				param.observationType = checkType(id);
+				localParamDbIdToParameter.put(id, param);
 			}
 			System.out.println("phenotype parameter should have 5704+ entries and has "	+ localParamDbIdToParameter.size() + " entries");
 
@@ -584,8 +585,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	 */
 	// Method copied from org.mousephenotype.cda.db.impress.Utilities.
 	// Adjusted to avoid use of Parameter dao obj.
-	public ObservationType checkType(ParameterDTO parameter, String value) {
-
+/*	public ObservationType checkType(String parameterId) {
+		
+		
+		System.out.println("Parameter id is " + parameterId);
+		ParameterDTO parameter = paramDbIdToParameter.get(parameterId);
 		Map<String, String> MAPPING = new HashMap<>();
 		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
 		MAPPING.put("M-G-P_022_001_001", "FLOAT");
@@ -674,7 +678,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		return observationType;
 	}
-
+*/
 	public class ProcedureDTO {
 
 		boolean required;
