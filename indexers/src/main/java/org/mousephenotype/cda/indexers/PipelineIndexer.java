@@ -67,9 +67,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 	@Autowired
 	MaOntologyDAO maOntologyService;
-	
-	@Autowired
-	
+		
 
 	private Map<Integer, Map<String, String>> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;
@@ -179,6 +177,8 @@ public class PipelineIndexer extends AbstractIndexer {
 					pipe.setProcedureStableId(procBean.procedureStableId);
 					pipe.setProcedureStableKey(procBean.procedureStableKey);
 					pipe.addProcedureNameId(procBean.procNameId);
+					pipe.setRequired(procBean.required);
+					pipe.setDescription(procBean.description);
 					pipe.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
 					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
@@ -216,8 +216,7 @@ public class PipelineIndexer extends AbstractIndexer {
 									if (allele.getHumanGeneSymbol() != null) {
 										pipe.addHumanGeneSymbol(allele.getHumanGeneSymbol());
 									}
-									// /> <!-- status name from Bill
-									// Skarnes and used at EBI -->
+									// status name from Bill Skarnes and used at EBI
 									pipe.addStatus(allele.getStatus());
 									pipe.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
 									pipe.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
@@ -233,8 +232,8 @@ public class PipelineIndexer extends AbstractIndexer {
 									pipe.addAlleleName(allele.getAlleleName());
 								}
 							}
+							
 							// mps for parameter
-
 							String mpTermId = gfMpBean.mpAcc;
 							MpDTO mp = mpIdToMp.get(mpTermId);
 							pipe.addMpId(mpTermId);
@@ -417,7 +416,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		logger.info("populating procedureId to Procedure Map info");
 		Map<Integer, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
-		String queryString = "select id as pproc_id, stable_id, name, stable_key, is_mandatory, desciption, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure";
+		String queryString = "select id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id from phenotype_procedure";
 
 		try (PreparedStatement p = komp2DbConnection
 				.prepareStatement(queryString)) {
@@ -430,7 +429,7 @@ public class PipelineIndexer extends AbstractIndexer {
 				proc.procedureStableKey = resultSet.getInt("stable_key");
 				proc.procNameId = resultSet.getString("proc_name_id");
 				proc.required = new Boolean(resultSet.getString("is_mandatory"));
-				proc.description = resultSet.getString("desciption");
+				proc.description = resultSet.getString("description");
 				procedureIdToProcedureMap.put(resultSet.getInt("pproc_id"), proc);
 			}
 
