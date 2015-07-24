@@ -254,6 +254,7 @@
 				<entry key="phenodigm.solrserver" value="${phenodigm.solrserver}" />
 				<entry key="imits.solrserver" value="${imits.solrserver}" />
 				<entry key="buildIndexesSolrUrl" value="${buildIndexesSolrUrl}" />
+				<entry key="embryoRestUrl" value="${embryoRestUrl}" />
 			</map>
 		</property>
 	</bean>
