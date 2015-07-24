@@ -80,11 +80,12 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>         
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" side="front"/>        
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
         </analyzer>
         <analyzer type="query"> 
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
+         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
         <!--<filter class="solr.KStemFilterFactory"/> -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
         </analyzer>
@@ -395,12 +396,6 @@
 	<field name="intermediate_ma_term" type="string" indexed="true" stored="true" multiValued="true" />
 	<field name="intermediate_ma_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />
    
-        <copyField source="symbol" dest="marker_symbol" />
-        <copyField source="symbol" dest="auto_suggest" />
-        <copyField source="geneName" dest="auto_suggest" />
-        <copyField source="geneSynonyms" dest="auto_suggest" />
-        <copyField source="subtype" dest="auto_suggest" />
-  
         <!--  for copyFields -->
 
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
@@ -421,10 +416,31 @@
   
     <!-- <copyField source="name" dest="text"/>-->
   
+   <copyField source="symbol" dest="marker_symbol" />
+   <copyField source="symbol" dest="auto_suggest" />
+   <copyField source="geneName" dest="auto_suggest" />
+   <copyField source="geneSynonyms" dest="auto_suggest" />
+   <copyField source="subtype" dest="auto_suggest" />
+  
   <copyField source="gene_accession_id" dest="auto_suggest" />
   <copyField source="gene_symbol" dest="auto_suggest" />
   <copyField source="procedure_name" dest="auto_suggest" />
   <copyField source="phenotyping_center" dest="latest_phenotyping_centre" />
+  
+	<copyField source="top_level_mp_term" dest="auto_suggest" /> 
+	<copyField source="top_level_mp_term_synonym" dest="auto_suggest" /> 
+	<copyField source="intermediate_mp_term" dest="auto_suggest" /> 
+	<copyField source="intermediate_mp_term_synonym" dest="auto_suggest" /> 
+	<copyField source="child_mp_term" dest="auto_suggest" /> 
+	<copyField source="child_mp_term_synonym" dest="auto_suggest" /> 
+	
+	<copyField source="ma_term" dest="auto_suggest" /> 
+	<copyField source="ma_term_synonym" dest="auto_suggest" /> 
+	<copyField source="selected_top_level_ma_term" dest="auto_suggest" /> 
+	<copyField source="selected_top_level_ma_term_synonym" dest="auto_suggest" /> 
+	<copyField source="child_ma_term" dest="auto_suggest" /> 
+	<copyField source="child_ma_term_synonym" dest="auto_suggest" /> 
+  
   
   
 </schema>
