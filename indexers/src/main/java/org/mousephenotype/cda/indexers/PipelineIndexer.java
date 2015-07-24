@@ -165,7 +165,6 @@ public class PipelineIndexer extends AbstractIndexer {
 					}
 
 					doc.setParameterStableKey(param.parameterStableKey);
-					System.out.println("_-_" + pipeline.procedureStableId + (procedureIdToProcedure.get(pipeline.procedureStableId) == null));
 					ProcedureDTO procBean = procedureIdToProcedure.get(pipeline.procedureStableId);
 					doc.setProcedureId(procBean.procedureId);
 					doc.setProcedureName(procBean.procedureName);
