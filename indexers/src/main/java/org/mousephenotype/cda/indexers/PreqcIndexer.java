@@ -96,16 +96,16 @@ public class PreqcIndexer extends AbstractIndexer {
     @Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(preqcCore);
-        
+
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
         else
             logger.info("validateBuild(): Indexed " + documentCount + " preqc documents.");
     }
-    
+
     @Override
     public void run() throws IndexerException {
         long start = System.currentTimeMillis();
@@ -125,12 +125,26 @@ public class PreqcIndexer extends AbstractIndexer {
             preqcXmlFilename = config.get("preqcXmlFilename");
 
             doGeneSymbol2IdMapping();
+            logger.info(" Finished doGeneSymbol2IdMapping: " + (System.currentTimeMillis() - start));
+
             doAlleleSymbol2NameIdMapping();
+            logger.info(" Finished doAlleleSymbol2NameIdMapping: " + (System.currentTimeMillis() - start));
+
             doStrainId2NameMapping();
+            logger.info(" Finished doStrainId2NameMapping: " + (System.currentTimeMillis() - start));
+
             doImpressSid2NameMapping();
+            logger.info(" Finished doImpressSid2NameMapping: " + (System.currentTimeMillis() - start));
+
             doOntologyMapping();
+            logger.info(" Finished doOntologyMapping: " + (System.currentTimeMillis() - start));
+
             populatePostQcData();
+            logger.info(" Finished populatePostQcData: " + (System.currentTimeMillis() - start));
+
             populateResourceMap();
+            logger.info(" Finished populateResourceMap: " + (System.currentTimeMillis() - start));
+
 
             preqcCore.deleteByQuery("*:*");
 
@@ -795,7 +809,7 @@ public class PreqcIndexer extends AbstractIndexer {
             return PreqcIndexer.this;
         }
     }
-    
+
     @Override
     public void initialise(String[] args) throws IndexerException {
         super.initialise(args);
