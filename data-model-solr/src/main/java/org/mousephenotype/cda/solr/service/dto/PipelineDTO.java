@@ -34,14 +34,18 @@ public class PipelineDTO {
 	public static final String PROCEDURE_NAME = ObservationDTO.PROCEDURE_NAME;
 	public static final String PROCEDURE_NAME_ID = "proc_name_id";
 
-	public static final String PROCEDURE_PARAMETER_STABLE_ID = "proc_param_stable_id";
-	public static final String PROCEDURE_PARAMETER_NAME = "proc_param_name";
-
 	public static final String PARAMETER_ID = ObservationDTO.PARAMETER_ID;
 	public static final String PARAMETER_STABLE_ID = ObservationDTO.PARAMETER_STABLE_ID;
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
 	public static final String PARAMETER_NAME = ObservationDTO.PARAMETER_NAME;
+	
+	public static final String REQUIRED = "required";
+	public static final String MP_TERMS = "mp_terms";
+	public static final String DESCRIPTION = "description";
+	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
+	public static final String PROCEDURE_PARAMETER_STABLE_ID = "proc_param_stable_id";
+	public static final String PROCEDURE_PARAMETER_NAME = "proc_param_name";
 	private static final String MAPPED_PROCEDURE_NAME = "mapped_procedure_name";
 
 	private static final String PIPE_PROC_SID = "pipe_proc_sid";
@@ -93,6 +97,18 @@ public class PipelineDTO {
 	// IMPReSS fields
 	//
 
+	@Field(REQUIRED)
+	private boolean required;
+
+	@Field(DESCRIPTION)
+	private String description;
+
+	@Field(MP_TERMS)
+	private List<String> mpTerms;
+
+	@Field(OBSERVATION_TYPE)
+	private String observationType;
+	
 	@Field(PARAMETER_ID)
 	private int parameterId;
 
@@ -193,60 +209,6 @@ public class PipelineDTO {
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypingStatus;
 	
-
-	@Override
-	public String toString() {
-		return "PipelineDTO [parameterId=" + parameterId
-				+ ", parameterStableId=" + parameterStableId
-				+ ", parameterName=" + parameterName + ", procedureId="
-				+ procedureId + ", procedureStableId=" + procedureStableId
-				+ ", procedureName=" + procedureName + ", mappedProcedureName="
-				+ mappedProcedureName + ", pipelineId=" + pipelineId
-				+ ", pipelineStableId=" + pipelineStableId
-				+ ", pipelineStableKey=" + pipelineStableKey
-				+ ", pipelineName=" + pipelineName + ", pipeProcId="
-				+ pipeProcId + ", procedureStableKey=" + procedureStableKey
-				+ ", procedureNameId=" + procedureNameId
-				+ ", procedureParamStableId=" + procedureParamStableId
-				+ ", procedureParamName=" + procedureParamName
-				+ ", parameterStableKey=" + parameterStableKey + ", ididid="
-				+ ididid + ", mgiAccession=" + mgiAccession + ", markerType="
-				+ markerType + ", markerSymbol=" + markerSymbol
-				+ ", markerSynonyms=" + markerSynonyms + ", markerName="
-				+ markerName + ", humanGeneSymbol=" + humanGeneSymbol
-				+ ", status=" + status + ", imitsPhenotypeStarted="
-				+ imitsPhenotypeStarted + ", imitsPhenotypeComplete="
-				+ imitsPhenotypeComplete + ", imitsPhenotypeStatus="
-				+ imitsPhenotypeStatus + ", latestProductionCentre="
-				+ latestProductionCentre + ", latestPhenotypingCentre="
-				+ latestPhenotypingCentre + ", latestPhenotypingStatus="
-				+ latestPhenotypingStatus + ", legacyPhenotypingStatus="
-				+ legacyPhenotypingStatus + ", alleleName=" + alleleName
-				+ ", mpId=" + mpId + ", mpTerm=" + mpTerm + ", mpTermSynonym="
-				+ mpTermSynonym + ", ontologySubset=" + ontologySubset
-				+ ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm="
-				+ topLevelMpTerm + ", topLevelMpTermSynonym="
-				+ topLevelMpTermSynonym + ", intermediateMpId="
-				+ intermediateMpId + ", intermediateMpTerm="
-				+ intermediateMpTerm + ", intermediateMpTermSynonym="
-				+ intermediateMpTermSynonym + ", childMpId=" + childMpId
-				+ ", childMpTerm=" + childMpTerm + ", childMpTermSynonym="
-				+ childMpTermSynonym + ", hpId=" + hpId + ", hpTerm=" + hpTerm
-				+ ", inferredMaId=" + inferredMaId + ", inferredMaTerm="
-				+ inferredMaTerm + ", inferredMaTermSynonym="
-				+ inferredMaTermSynonym + ", selectedTopLevelMaId="
-				+ selectedTopLevelMaId + ", inferredSelectedTopLevelMaTerm="
-				+ inferredSelectedTopLevelMaTerm
-				+ ", inferredSelectedToLevelMaTermSynonym="
-				+ inferredSelectedToLevelMaTermSynonym + ", inferredChildMaId="
-				+ inferredChildMaId + ", inferredChildMaTerm="
-				+ inferredChildMaTerm + ", inferredChildMaTermSynonym="
-				+ inferredChildMaTermSynonym
-				+ ", inferredSelectedTopLevelMaId="
-				+ inferredSelectedTopLevelMaId + "]";
-	}
-
-
 	@Field(LEGACY_PHENOTYPE_STATUS)
 	private List<String> legacyPhenotypingStatus;
 
@@ -339,6 +301,36 @@ public class PipelineDTO {
 	private String abnormalMaName;
 
 
+	public boolean isRequired() {
+		return required;
+	}
+
+
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
+
+
+	public List<String> getMpTerms() {
+		return mpTerms;
+	}
+
+
+	public void setMpTerms(List<String> mpTerms) {
+		this.mpTerms = mpTerms;
+	}
+
+
+	public String getObservationType() {
+		return observationType;
+	}
+
+
+	public void setObservationType(String observationType) {
+		this.observationType = observationType;
+	}
+
+
 	public String getAbnormalMaName() {
 		return abnormalMaName;
 	}
@@ -394,6 +386,16 @@ public class PipelineDTO {
 	public void setOntologySubset(List<String> ontologySubset) {
 
 		this.ontologySubset = ontologySubset;
+	}
+
+
+	public String getDescription() {
+		return description;
+	}
+
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 
@@ -1470,6 +1472,41 @@ public class PipelineDTO {
 
 	public void setInferredSelectedTopLevelMaId(List<String> inferredSelectedTopLevelMaId) {
 		this.inferredSelectedTopLevelMaId = inferredSelectedTopLevelMaId;
+	}
+
+
+	@Override
+	public String toString() {
+		return "PipelineDTO [required=" + required + ", description=" + description + ", mpTerms=" + mpTerms
+				+ ", observationType=" + observationType + ", parameterId=" + parameterId + ", parameterStableId="
+				+ parameterStableId + ", parameterName=" + parameterName + ", parameterStableKey=" + parameterStableKey
+				+ ", procedureId=" + procedureId + ", procedureStableId=" + procedureStableId + ", procedureName="
+				+ procedureName + ", procedureStableKey=" + procedureStableKey + ", mappedProcedureName="
+				+ mappedProcedureName + ", pipelineId=" + pipelineId + ", pipelineStableId=" + pipelineStableId
+				+ ", pipelineStableKey=" + pipelineStableKey + ", pipelineName=" + pipelineName + ", pipeProcId="
+				+ pipeProcId + ", procedureNameId=" + procedureNameId + ", procedureParamStableId="
+				+ procedureParamStableId + ", procedureParamName=" + procedureParamName + ", ididid=" + ididid
+				+ ", mgiAccession=" + mgiAccession + ", markerType=" + markerType + ", markerSymbol=" + markerSymbol
+				+ ", markerSynonyms=" + markerSynonyms + ", markerName=" + markerName + ", humanGeneSymbol="
+				+ humanGeneSymbol + ", status=" + status + ", imitsPhenotypeStarted=" + imitsPhenotypeStarted
+				+ ", imitsPhenotypeComplete=" + imitsPhenotypeComplete + ", imitsPhenotypeStatus="
+				+ imitsPhenotypeStatus + ", latestProductionCentre=" + latestProductionCentre
+				+ ", latestPhenotypingCentre=" + latestPhenotypingCentre + ", latestPhenotypingStatus="
+				+ latestPhenotypingStatus + ", legacyPhenotypingStatus=" + legacyPhenotypingStatus + ", alleleName="
+				+ alleleName + ", mpId=" + mpId + ", mpTerm=" + mpTerm + ", mpTermSynonym=" + mpTermSynonym
+				+ ", ontologySubset=" + ontologySubset + ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm="
+				+ topLevelMpTerm + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpId="
+				+ intermediateMpId + ", intermediateMpTerm=" + intermediateMpTerm + ", intermediateMpTermSynonym="
+				+ intermediateMpTermSynonym + ", childMpId=" + childMpId + ", childMpTerm=" + childMpTerm
+				+ ", childMpTermSynonym=" + childMpTermSynonym + ", hpId=" + hpId + ", hpTerm=" + hpTerm
+				+ ", inferredMaId=" + inferredMaId + ", inferredMaTerm=" + inferredMaTerm + ", inferredMaTermSynonym="
+				+ inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
+				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
+				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
+				+ ", inferredChildMaId=" + inferredChildMaId + ", inferredChildMaTerm=" + inferredChildMaTerm
+				+ ", inferredChildMaTermSynonym=" + inferredChildMaTermSynonym + ", inferredSelectedTopLevelMaId="
+				+ inferredSelectedTopLevelMaId + ", abnormalMaTermId=" + abnormalMaTermId + ", abnormalMaName="
+				+ abnormalMaName + "]";
 	}
 
 	

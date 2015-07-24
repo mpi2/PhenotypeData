@@ -34,6 +34,7 @@
 			<tokenizer class="solr.WhitespaceTokenizerFactory"/>
 			<filter class="solr.LowerCaseFilterFactory"/>
 			<filter class="solr.SnowballPorterFilterFactory" language="English"/>
+			 <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
 		</analyzer>
 	</fieldType>
 

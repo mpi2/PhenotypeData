@@ -97,7 +97,6 @@ $(document).ready(function(){
 	
 	function reloadChartAndTable(procedures){
 		
-		console.log("RELOaADING " +  base_url);
 	 	$( '#spinner' ).show();
 		var tableUrl = base_url + "/parallelFrag?";
 		tableUrl += getParametersForUrl(procedures, "procedure_id");
