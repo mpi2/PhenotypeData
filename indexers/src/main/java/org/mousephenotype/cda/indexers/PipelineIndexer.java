@@ -34,7 +34,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -365,9 +364,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	private void addAbnormalMaOntologyMap(){
 		
 		int i = 0;
-		String sqlQuery="SELECT pp.id as id, ot.name as name stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa "
-				+ "ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id INNER JOIN ontology_term ot ON ot.acc=ppoa.ontology_acc "
-				+ "WHERE ppoa.ontology_db_id=8 LIMIT 10000";
+		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
+				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
+				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id = pploa.annotation_id "
+				+ " INNER JOIN ontology_term ot ON ot.acc = ppoa.ontology_acc "
+				+ " WHERE ppoa.ontology_db_id=8 LIMIT 10000";
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
 			
 			ResultSet resultSet = p.executeQuery();
@@ -594,3 +595,5 @@ public class PipelineIndexer extends AbstractIndexer {
 		
 	}
 }
+
+
