@@ -142,15 +142,42 @@ function displayDocAnnotations(doc, frame){
 	$('#annotations').html(getAnnotationsDisplayString(doc));
 }
 function getAnnotationsDisplayString(doc){
-	var label= annotationBreak+doc.sex+annotationBreak+doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
+	//filename removed from display but here for debug if needed
+	var filename=doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
+	var label= "";
 	
 	if(doc.biological_sample_group === 'experimental'){
-		label+=annotationBreak+doc.zygosity+annotationBreak+superscriptSymbol(doc.allele_symbol);
+		label+=doc.zygosity+annotationBreak+superscriptSymbol(doc.allele_symbol)+annotationBreak;
+	}else{
+		label+="Wild Type"+annotationBreak;
+	}
+	if(doc.sex){
+		label+=doc.sex+annotationBreak;
+	}
+	if(doc.parameter_association_name){
+		label+=doc.parameter_association_name+annotationBreak+doc.parameter_association_value+annotationBreak;
 	}
 	
-	if(doc.parameter_association_name){
-		label+=annotationBreak+doc.parameter_association_name+annotationBreak+doc.parameter_association_value;
+	if(doc.download_url){
+		label+="<a target='_blank' href='"+doc.jpeg_url+"'>"+"jpeg</a>"+annotationBreak;
+		label+="<a href='"+doc.download_url+"'>"+"download original</a>"+annotationBreak;
 	}
+	
+	if(doc.parameter_name){
+		label+=doc.parameter_name+annotationBreak;
+		
+	}
+	
+	if(doc.procedure_name){
+		label+=doc.procedure_name+annotationBreak;
+		
+	}
+	if(doc.pipeline_name){
+		label+=doc.pipeline_name+annotationBreak;
+		
+	}
+	
+	
 	return label;
 }
 //setInterval(function () {

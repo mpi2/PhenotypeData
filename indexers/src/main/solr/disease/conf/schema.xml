@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+  <?xml version="1.0" encoding="UTF-8" ?>
 <!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -379,6 +379,14 @@
 	<copyField source="disease_id" dest="auto_suggest"/>
 	<copyField source="disease_source" dest="auto_suggest"/>
 		
+	<copyField source="mp_term" dest="auto_suggest"/>	
+	<copyField source="top_level_mp_term" dest="auto_suggest"/>		
+	<copyField source="intermediate_mp_term" dest="auto_suggest"/>	
+	<copyField source="child_mp_term" dest="auto_suggest"/>	
+	<copyField source="top_level_mp_term_synonym" dest="auto_suggest"/>		
+	<copyField source="intermediate_mp_term_synonym" dest="auto_suggest"/>	
+	<copyField source="child_mp_term_synonym" dest="auto_suggest"/>	
+	
 	<copyField source="mgi_accession_id" dest="auto_suggest"/>
 	<copyField source="marker_symbol" dest="auto_suggest"/> 
 	<copyField source="marker_name" dest="auto_suggest"/> 
@@ -1286,11 +1294,12 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>         
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="100" side="front"/>        
-        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true" />
         </analyzer>
         <analyzer type="query"> 
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
         <!--<filter class="solr.KStemFilterFactory"/> -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
         </analyzer>
