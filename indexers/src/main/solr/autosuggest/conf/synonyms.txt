@@ -26,8 +26,9 @@ sea biscuit, sea biscit => seabiscuit
 
 xray,x-ray,X-ray
 x-ray,xray
-haemto, hemato
 
+# deals with hematology/haematology
+haemat, hemat
 
 ########################
 
@@ -37,6 +38,9 @@ haemto, hemato
 # If expand==false, "ipod, i-pod, i pod" is equivalent
 # to the explicit mapping:
 #ipod, i-pod, i pod => ipod
+
+haemat => hemat
+
 
 ########################
 
