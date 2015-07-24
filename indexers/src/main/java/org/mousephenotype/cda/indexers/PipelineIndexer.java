@@ -151,18 +151,16 @@ public class PipelineIndexer extends AbstractIndexer {
 
 			for (PipelineBean pipeline : pipelines) {
 
-				Set<Integer> parameterIds = procedureIdToParams
-						.get(pipeline.pipelineId);
+				Set<Integer> parameterIds = procedureIdToParams.get(pipeline.pipelineId);
 
 				for (int paramDbId : parameterIds) {
-					PipelineDTO doc = new PipelineDTO();// new pipe object for
-															// each param
+					
+					PipelineDTO doc = new PipelineDTO();
 					ParameterDTO param = paramDbIdToParameter.get(paramDbId);
 					doc.setParameterId(paramDbId);
 					doc.setParameterName(param.parameterName);
-					String paramStableId = param.parameterStableId;
-					String paramStableName = param.parameterName;
-					doc.setParameterStableId(paramStableId);
+					doc.setParameterStableId(param.parameterStableId);
+					
 					if(param.abnormalMaId != null){
 						doc.setAbnormalMaTermId(param.abnormalMaId);
 						doc.setAbnormalMaName(param.abnormalMaName);
@@ -179,8 +177,6 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setDescription(procBean.description);
 ///					doc.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
-					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
-					String procParamName = procBean.procedureName + "___" + paramStableName;
 ///					doc.addProcParamStableId(procParamStableId);
 ///					doc.addProcParamName(procParamName);
 					// add the pipeline info here
@@ -191,7 +187,7 @@ public class PipelineIndexer extends AbstractIndexer {
 ///					doc.addPipeProcId(pipeline.pipeProcSid);
 
 					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr
-					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + paramStableId;
+					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + param.parameterStableId;
 					doc.setIdIdId(ididid);
 					
 					documentCount++;
