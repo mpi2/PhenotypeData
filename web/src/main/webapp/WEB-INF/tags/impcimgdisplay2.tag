@@ -39,7 +39,7 @@ allele = allele.replaceAll("##", "</sup>");
          	</c:when>
          	
          	<c:otherwise>
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}">
+         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}">
          		
          		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" style="max-height: 200px;"></a>
          	</c:otherwise>
