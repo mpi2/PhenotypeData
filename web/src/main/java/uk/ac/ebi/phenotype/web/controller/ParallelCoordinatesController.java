@@ -66,8 +66,10 @@ public class ParallelCoordinatesController {
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
+		System.out.println("GOT in getGraph");
 		if (procedureIds == null){
 			model.addAttribute("procedure", "");
+			
 		}
 		else {
 			String data = srs.getGenotypeEffectFor(procedureIds , false);

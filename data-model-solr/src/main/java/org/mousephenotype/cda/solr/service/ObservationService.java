@@ -144,7 +144,7 @@ public class ObservationService extends BasicService {
 				.addField(ObservationDTO.PROCEDURE_NAME)
 				.addField(ObservationDTO.PROCEDURE_STABLE_ID);
 			query.set("group", true);
-			query.set("group.field", ObservationDTO.PROCEDURE_STABLE_ID);
+			query.set("group.field", ObservationDTO.PROCEDURE_NAME);
 			query.setRows(10000);
 			query.set("group.limit", 1);
 
@@ -153,6 +153,7 @@ public class ObservationService extends BasicService {
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+				//group.getResult();
 				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString(), 
 															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString(),
 															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID).toString(), null);

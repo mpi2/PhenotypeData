@@ -36,7 +36,7 @@
 <!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
 <div id="row-fluid">
 	<div class="widgets">
-		<div id="legend"></div>
+		<!-- div id="legend"></div-->
 		<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>
 		<!-- div id="totals" class="widget right">Total Selected<br /></div>
 		<div id="pie" class="widget right">	Group Breakdown<br /></div-->
@@ -99,9 +99,9 @@
 			"RBRC" : '#0978A1'*/
 		}
 
-		_(foodgroups).each(function(group) {
-			$('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
-		});
+//		_(foodgroups).each(function(group) {
+//			$('#legend').append("<div class='item'><div class='color' style='background: " + colors[group] + "';></div><div class='key'>" + group + "</div></div>");
+//		});
 
 		var pc = parallel(dimensions, colors, defaults);
 //		var pie = piegroups(foods, foodgroups, colors, 'group');
