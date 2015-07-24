@@ -133,7 +133,7 @@ function initFancybox() {
 			  this.fullRes = url;
 			 },
 	    afterLoad: function() {
-	        this.title = '<a href="' + this.fullRes + '"><i class="fa fa-download"></i> Download this image in high resolution</a>'+this.title;
+	        this.title = '<a href="' + this.fullRes + '"><i class="fa fa-download"></i> Download this image in high resolution</a>'+'&nbsp &nbsp <a href="' + this.original + '"><i class="fa fa-download"></i> Download this image in original format</a>'+this.title;
 	    },
 	    helpers : {
 	        title: {
