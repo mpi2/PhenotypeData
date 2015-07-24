@@ -57,7 +57,7 @@ public class PipelineDTO {
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
 
 	public static final String MA_ID = "ma_id";
-	public static final String MA_NAME = "ma_term";
+	public static final String MA_TERM = "ma_term";
 	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
 	public static final String INFERRED_MA_TERM_SYNONYM = MpDTO.INFERRED_MA_TERM_SYNONYM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
@@ -168,10 +168,10 @@ public class PipelineDTO {
 	private List<String> inferredSelectedTopLevelMaId;
 	
 	@Field(MA_ID)
-	private String maTermId;
+	private String maId;
 	
-	@Field(MA_NAME)
-	private String maName;
+	@Field(MA_TERM)
+	private String maTerm;
 
 
 	
@@ -653,22 +653,22 @@ public class PipelineDTO {
 
 
 	public String getMaTermId() {
-		return maTermId;
+		return maId;
 	}
 
 
-	public void setMaTermId(String maTermId) {
-		this.maTermId = maTermId;
+	public void setMaId(String maId) {
+		this.maId = maId;
 	}
 
 
 	public String getMaName() {
-		return maName;
+		return maTerm;
 	}
 
 
 	public void setMaName(String maName) {
-		this.maName = maTermId;
+		this.maTerm = maName;
 	}
 
 
@@ -688,8 +688,8 @@ public class PipelineDTO {
 				+ inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
 				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
 				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
-				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maTermId=" + maTermId
-				+ ", maName=" + maName + "]";
+				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maTermId=" + maId
+				+ ", maName=" + maTerm + "]";
 	}
 
 	

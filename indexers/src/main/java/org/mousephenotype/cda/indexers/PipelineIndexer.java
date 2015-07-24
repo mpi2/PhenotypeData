@@ -160,7 +160,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setParameterStableId(param.parameterStableId);
 					
 					if(param.abnormalMaId != null){
-						doc.setMaTermId(param.abnormalMaId);
+						doc.setMaId(param.abnormalMaId);
 						doc.setMaName(param.abnormalMaName);
 					}
 
