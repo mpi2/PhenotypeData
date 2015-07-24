@@ -15,30 +15,34 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
-import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.dto.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Populate the MA core
@@ -65,10 +69,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
 
-	@Autowired
-	MaOntologyDAO maOntologyService;
-		
-
 	private Map<Integer, ParameterDTO> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;
 	private Map<Integer, ProcedureDTO> procedureIdToProcedure = null;
@@ -76,8 +76,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
-	private Map<String, String> parameterStableIdToAbnormalMaMap;
-	private Map<String, String> procedureToObsTypeMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
 	public PipelineIndexer() {
@@ -130,7 +128,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		procedureIdToParams = populateParamIdToProcedureIdListMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populateProcedureIdToPipelineMap();
-		parameterStableIdToAbnormalMaMap=populateParameterStableIdToAbnormalOntologyMap();
+		addAbnormalMaOntologyMap();
 		pppidsToGfMpBeans = populateGfAccAndMp();
 		mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
 		mpIdToMp = populateMpIdToMp();
@@ -165,10 +163,9 @@ public class PipelineIndexer extends AbstractIndexer {
 					String paramStableId = param.parameterStableId;
 					String paramStableName = param.parameterName;
 					doc.setParameterStableId(paramStableId);
-					if(parameterStableIdToAbnormalMaMap.containsKey(paramStableId)){
-						doc.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
-						OntologyTermBean term = maOntologyService.getTerm(parameterStableIdToAbnormalMaMap.get(paramStableId));
-						doc.setAbnormalMaName(term.getName());
+					if(param.abnormalMaId != null){
+						doc.setAbnormalMaTermId(param.abnormalMaId);
+						doc.setAbnormalMaName(param.abnormalMaName);
 					}
 
 					doc.setParameterStableKey(param.parameterStableKey);
@@ -353,7 +350,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<Integer, ParameterDTO> populateParamDbIdToParametersMap() {
 
 		logger.info("populating PCS pipeline info");
-		procedureToObsTypeMap = new HashMap<String, String>();
 		Map<Integer, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "select id, stable_id, name, stable_key from phenotype_parameter";
 		//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
@@ -368,7 +364,8 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.parameterName = resultSet.getString("name");
 				param.parameterStableId = resultSet.getString("stable_id");
 				param.parameterStableKey = resultSet.getInt("stable_key");
-//				param.observationType = checkType(id);
+				// TODO obs_type
+				// TODO mp_terms 
 				localParamDbIdToParameter.put(id, param);
 			}
 			System.out.println("phenotype parameter should have 5704+ entries and has "	+ localParamDbIdToParameter.size() + " entries");
@@ -487,27 +484,28 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	
-	private Map<String,String> populateParameterStableIdToAbnormalOntologyMap(){
-		Map<String,String> parameterStableIdToOntology=new HashMap<>();
-		String sqlQuery="SELECT stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 10000";
-		try (PreparedStatement p = komp2DbConnection
-				.prepareStatement(sqlQuery)) {
+	private void addAbnormalMaOntologyMap(){
+		
+		int i = 0;
+		String sqlQuery="SELECT pp.id as id, ot.name as name stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa "
+				+ "ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id INNER JOIN ontology_term ot ON ot.acc=ppoa.ontology_acc "
+				+ "WHERE ppoa.ontology_db_id=8 LIMIT 10000";
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
+			
 			ResultSet resultSet = p.executeQuery();
-
 			while (resultSet.next()) {
-
-				String parameterId = resultSet.getString("stable_id");
-				String maId = resultSet.getString("ontology_acc");
-				parameterStableIdToOntology.put(parameterId,maId);
+				String parameterId = resultSet.getString("id");
+				paramDbIdToParameter.get(parameterId).abnormalMaId = resultSet.getString("ontology_acc");
+				paramDbIdToParameter.get(parameterId).abnormalMaName = resultSet.getString("name");
+				i++;
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("547+ should be and is in procIdToPipelineMap " + parameterStableIdToOntology.size());
+		
+		System.out.println("547+ should be and is in procIdToPipelineMap " + i);
 
-
-		return parameterStableIdToOntology;
 	}
 
 
@@ -647,7 +645,6 @@ public class PipelineIndexer extends AbstractIndexer {
 						}
 					} catch (NumberFormatException ex) {
 						logger.debug("Invalid float value: " + value);
-						//TODO probably should throw an exception!
 					}
 
 				} else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.parameterName.contains("images"))) {
@@ -711,6 +708,8 @@ public class PipelineIndexer extends AbstractIndexer {
 		String parameterStableId;
 		String dataType;
 		String observationType;
+		String abnormalMaId;
+		String abnormalMaName;
 		boolean isIncrement;
 		boolean isMetadata;
 		boolean isOptions;
