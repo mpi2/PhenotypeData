@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
@@ -44,6 +45,9 @@ public class MpService {
 	@Qualifier("mpCore")
     private HttpSolrServer solr;
 
+	@Autowired
+	@Qualifier("phenotypePipelineDAOImpl")
+	private PhenotypePipelineDAO pipelineDao;
 
 	public MpService() {
 	}
@@ -99,7 +103,7 @@ public class MpService {
     public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.addFacetField( "top_level_mp_term_id");
+		solrQuery.addFacetField("top_level_mp_term_id");
 		solrQuery.setRows(0);
 		QueryResponse rsp = solr.query(solrQuery);
 		System.out.println("solr query in basicbean="+solrQuery);
@@ -157,4 +161,25 @@ public class MpService {
 
     	return computationalHPTerms;
     }
+
+	/**
+	 *
+	 * @param mpTermId
+	 * @return List of all parameters that may lead to associations to the MP
+	 * term or any of it's children (based on the slim only)
+	 */
+	public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
+		HashSet<String> res = new HashSet<>();
+		ArrayList<String> mpIds;
+		try {
+			mpIds = getChildrenFor(mpTermId);
+			res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
+			for (String mp : mpIds) {
+				res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
 }

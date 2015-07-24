@@ -467,7 +467,7 @@ public class PhenotypesController {
         int total = 0;
         int nominator = 0;
 
-        List<String> parameters = new ArrayList<>(rService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
+        List<String> parameters = new ArrayList<>(mpService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
         nominator = gpService.getGenesBy(phenotype_id, null, true).size();
         total = srService.getTestedGenes(parameters, null).size();
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);

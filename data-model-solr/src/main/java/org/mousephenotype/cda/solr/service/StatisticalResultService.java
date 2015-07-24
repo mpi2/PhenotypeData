@@ -15,22 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -50,11 +34,7 @@ import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
 import org.mousephenotype.cda.db.dao.ProjectDAO;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -73,6 +53,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 /**
  * Latest version pulled in 2015/07/07
  * @author tudose
@@ -824,7 +811,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		query.setFacet(true);
 		query.addFacetField(StatisticalResultDTO.RESOURCE_FULLNAME);
 		query.addFacetField(StatisticalResultDTO.PROCEDURE_NAME );
-		query.addFacetField(StatisticalResultDTO.MARKER_SYMBOL );
+		query.addFacetField(StatisticalResultDTO.MARKER_SYMBOL);
 		query.addFacetField(StatisticalResultDTO.MP_TERM_NAME );
 		query.set("sort", "p_value asc");
 		query.setRows(10000000);
@@ -1117,7 +1104,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
           	.setRows(10000);
     	q.add("group", "true");
     	q.add("group.field", StatisticalResultDTO.PROCEDURE_NAME);
-    	q.add("group.rows","1");
+    	q.add("group.rows", "1");
         q.add("fl", StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
 
     	System.out.println("Procedure query " + solr.getBaseURL() + "/select?" + q);
@@ -1227,7 +1214,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
-		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
@@ -1300,6 +1287,28 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
+
+	public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException {
+		SolrQuery q = new SolrQuery("*:*")
+				.addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
+				.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
+				.addField(StatisticalResultDTO.ALLELE_SYMBOL)
+				.addField(StatisticalResultDTO.COLONY_ID)
+				.addField(StatisticalResultDTO.MARKER_SYMBOL)
+				.addField(StatisticalResultDTO.ZYGOSITY)
+				.addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+				.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+				.addField(StatisticalResultDTO.PARAMETER_NAME)
+				.addField(StatisticalResultDTO.P_VALUE);
+
+		QueryResponse response = solr.query(q);
+		Long rows = response.getResults().getNumFound();
+		q.setRows(Integer.parseInt(rows.toString()));
+		List<StatisticalResultDTO> result = solr.query(q).getBeans(StatisticalResultDTO.class);
+
+		return result;
+	}
+
     class OverviewRatio {
     	Double meanFControl;
     	Double meanFMutant;
@@ -1393,7 +1402,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     		return ratio;
     	}
-
     }
 
 
