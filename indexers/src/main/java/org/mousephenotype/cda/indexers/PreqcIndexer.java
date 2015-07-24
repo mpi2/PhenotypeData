@@ -718,7 +718,7 @@ public class PreqcIndexer extends AbstractIndexer {
         List<String> queries = new ArrayList<>();
 
         // Gather all line level data
-        queries.add("SELECT DISTINCT CONCAT(e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+        queries.add("SELECT CONCAT(e.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
             "FROM observation o " +
             "INNER JOIN experiment_observation eo ON eo.observation_id=o.id " +
             "INNER JOIN experiment e ON e.id=eo.experiment_id " +
@@ -726,7 +726,7 @@ public class PreqcIndexer extends AbstractIndexer {
             "WHERE e.colony_id IS NOT NULL ");
 
         // Gather all specimen level data
-        queries.add("SELECT DISTINCT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
+        queries.add("SELECT CONCAT(ls.colony_id, '_', o.parameter_stable_id, '_', UPPER(org.name)) AS data_value " +
             "FROM observation o " +
             "INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
             "INNER JOIN biological_sample bs ON bs.id=o.biological_sample_id " +
