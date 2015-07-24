@@ -34,7 +34,6 @@ public class PipelineDTO {
 	public static final String PROCEDURE_STABLE_ID = ObservationDTO.PROCEDURE_STABLE_ID;
 	public static final String PROCEDURE_STABLE_KEY = "procedure_stable_key";
 	public static final String PROCEDURE_NAME = ObservationDTO.PROCEDURE_NAME;
-	public static final String PROCEDURE_NAME_ID = "proc_name_id";
 
 	public static final String PARAMETER_ID = ObservationDTO.PARAMETER_ID;
 	public static final String PARAMETER_STABLE_ID = ObservationDTO.PARAMETER_STABLE_ID;
@@ -57,8 +56,8 @@ public class PipelineDTO {
 	public static final String INTERMEDIATE_MP_TERM = MpDTO.INTERMEDIATE_MP_TERM;
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
 
-	public static final String ABNORMAL_MA_ID = "abnormal_ma_id";
-	public static final String ABNORMAL_MA_NAME = "abnormal_ma_name";
+	public static final String MA_ID = "abnormal_ma_id";
+	public static final String MA_NAME = "abnormal_ma_name";
 	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
 	public static final String INFERRED_MA_TERM_SYNONYM = MpDTO.INFERRED_MA_TERM_SYNONYM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
@@ -116,9 +115,6 @@ public class PipelineDTO {
 	@Field(PIPELINE_NAME)
 	private String pipelineName;
 
-	@Field(PROCEDURE_NAME_ID)
-	private List<String> procedureNameId;
-
 	@Field(ID_ID_ID)
 	private String ididid;
 
@@ -171,15 +167,14 @@ public class PipelineDTO {
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> inferredSelectedTopLevelMaId;
 	
-	@Field(ABNORMAL_MA_ID)
-	private String abnormalMaTermId;
+	@Field(MA_ID)
+	private String maTermId;
 	
-	@Field(ABNORMAL_MA_NAME)
-	private String abnormalMaName;
+	@Field(MA_NAME)
+	private String maName;
 
 
-
-
+	
 	public boolean isRequired() {
 		return required;
 	}
@@ -402,18 +397,7 @@ public class PipelineDTO {
 		return parameterStableKey;
 	}
 
-
-	public List<String> getProcedureNameId() {
-
-		return procedureNameId;
-	}
-
-
-	public void setProcedureNameId(List<String> procedureNameId) {
-
-		this.procedureNameId = procedureNameId;
-	}
-
+	
 	public int getParameterId() {
 
 		return parameterId;
@@ -458,15 +442,6 @@ public class PipelineDTO {
 	public void setPipelineId(int pipelineId) {
 
 		this.pipelineId = pipelineId;
-	}
-
-	public void addProcedureNameId(String procNameId) {
-
-		if (this.procedureNameId == null) {
-			this.procedureNameId = new ArrayList<String>();
-		}
-		this.procedureNameId.add(procNameId);
-
 	}
 
 	public void setParameterStableKey(int paramStableKey) {
@@ -677,23 +652,23 @@ public class PipelineDTO {
 	}
 
 
-	public String getAbnormalMaTermId() {
-		return abnormalMaTermId;
+	public String getMaTermId() {
+		return maTermId;
 	}
 
 
-	public void setAbnormalMaTermId(String abnormalMaTermId) {
-		this.abnormalMaTermId = abnormalMaTermId;
+	public void setMaTermId(String maTermId) {
+		this.maTermId = maTermId;
 	}
 
 
-	public String getAbnormalMaName() {
-		return abnormalMaName;
+	public String getMaName() {
+		return maName;
 	}
 
 
-	public void setAbnormalMaName(String abnormalMaName) {
-		this.abnormalMaName = abnormalMaName;
+	public void setMaName(String maName) {
+		this.maName = maTermId;
 	}
 
 
@@ -705,15 +680,16 @@ public class PipelineDTO {
 				+ ", procedureId=" + procedureId + ", procedureStableId=" + procedureStableId + ", procedureName="
 				+ procedureName + ", procedureStableKey=" + procedureStableKey + ", pipelineId=" + pipelineId
 				+ ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey=" + pipelineStableKey
-				+ ", pipelineName=" + pipelineName + ", procedureNameId=" + procedureNameId + ", ididid=" + ididid
-				+ ", mpId=" + mpId + ", mpTerm=" + mpTerm + ", mpTermSynonym=" + mpTermSynonym + ", topLevelMpId="
-				+ topLevelMpId + ", topLevelMpTerm=" + topLevelMpTerm + ", topLevelMpTermSynonym="
-				+ topLevelMpTermSynonym + ", intermediateMpId=" + intermediateMpId + ", intermediateMpTerm="
-				+ intermediateMpTerm + ", intermediateMpTermSynonym=" + intermediateMpTermSynonym + ", inferredMaId="
-				+ inferredMaId + ", inferredMaTermSynonym=" + inferredMaTermSynonym + ", selectedTopLevelMaId="
-				+ selectedTopLevelMaId + ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
+				+ ", pipelineName=" + pipelineName + ", ididid=" + ididid + ", mpId=" + mpId + ", mpTerm=" + mpTerm
+				+ ", mpTermSynonym=" + mpTermSynonym + ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm="
+				+ topLevelMpTerm + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpId="
+				+ intermediateMpId + ", intermediateMpTerm=" + intermediateMpTerm + ", intermediateMpTermSynonym="
+				+ intermediateMpTermSynonym + ", inferredMaId=" + inferredMaId + ", inferredMaTermSynonym="
+				+ inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
+				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
 				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
-				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + "]";
+				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maTermId=" + maTermId
+				+ ", maName=" + maName + "]";
 	}
 
 	
