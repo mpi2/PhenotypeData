@@ -39,7 +39,7 @@ import java.util.*;
 
 /**
  * Pulled in 2015/07/09
- * @author tudose
+ * by @author tudose
  *
  */
 
@@ -371,33 +371,23 @@ public class ExpressionService {
 
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
 
-				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
-						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals(
-								"categorical")) {
+				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE) && doc.get(ObservationDTO.OBSERVATION_TYPE).equals("categorical")) {
 
-					if (doc.containsKey(ImageDTO.PARAMETER_STABLE_ID)
-							&& row.getParameterStableId() == null) {
-						String parameterStableId = (String) doc
-								.get(ImageDTO.PARAMETER_STABLE_ID);
+					if (doc.containsKey(ImageDTO.PARAMETER_STABLE_ID) && row.getParameterStableId() == null) {
+						String parameterStableId = (String) doc.get(ImageDTO.PARAMETER_STABLE_ID);
 						row.setParameterStableId(parameterStableId);
-						OntologyBean ontologyBean = abnormalMaFromImpress
-								.get(parameterStableId);
+						OntologyBean ontologyBean = abnormalMaFromImpress.get(parameterStableId);
 
 						if (ontologyBean != null) {
 
 							row.setAbnormalMaId(ontologyBean.getMaId());
 							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							System.out.println("no ma id for anatomy term="
-									+ anatomy);
+							System.out.println("no ma id for anatomy term=" + anatomy);
 						}
 					}
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);
-				} else if (doc.get(ObservationDTO.OBSERVATION_TYPE).equals(
-						"image_record")
-						&& doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP)
-								.equals("experimental")) {// assume image with
-															// parameterAssociation
+				} else if (doc.get(ObservationDTO.OBSERVATION_TYPE).equals("image_record")&& doc.get(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP).equals("experimental")) {// assume image with parameterAssociation
 					row = homImages(row, doc);
 					row.setImagesAvailable(true);
 					row.setNumberOfImages(row.getNumberOfImages()+1);

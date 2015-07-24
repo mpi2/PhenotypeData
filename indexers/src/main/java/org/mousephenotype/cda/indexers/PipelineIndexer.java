@@ -15,30 +15,34 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
-import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.dto.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Populate the MA core
@@ -65,10 +69,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
 
-	@Autowired
-	MaOntologyDAO maOntologyService;
-		
-
 	private Map<Integer, ParameterDTO> paramDbIdToParameter = null;
 	private Map<Integer, Set<Integer>> procedureIdToParams = null;
 	private Map<Integer, ProcedureDTO> procedureIdToProcedure = null;
@@ -76,8 +76,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
 	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
-	private Map<String, String> parameterStableIdToAbnormalMaMap;
-	private Map<String, String> procedureToObsTypeMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
 	public PipelineIndexer() {
@@ -130,7 +128,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		procedureIdToParams = populateParamIdToProcedureIdListMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populateProcedureIdToPipelineMap();
-		parameterStableIdToAbnormalMaMap=populateParameterStableIdToAbnormalOntologyMap();
+		addAbnormalMaOntologyMap();
 		pppidsToGfMpBeans = populateGfAccAndMp();
 		mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
 		mpIdToMp = populateMpIdToMp();
@@ -153,22 +151,19 @@ public class PipelineIndexer extends AbstractIndexer {
 
 			for (PipelineBean pipeline : pipelines) {
 
-				Set<Integer> parameterIds = procedureIdToParams
-						.get(pipeline.pipelineId);
+				Set<Integer> parameterIds = procedureIdToParams.get(pipeline.pipelineId);
 
 				for (int paramDbId : parameterIds) {
-					PipelineDTO doc = new PipelineDTO();// new pipe object for
-															// each param
+					
+					PipelineDTO doc = new PipelineDTO();
 					ParameterDTO param = paramDbIdToParameter.get(paramDbId);
 					doc.setParameterId(paramDbId);
 					doc.setParameterName(param.parameterName);
-					String paramStableId = param.parameterStableId;
-					String paramStableName = param.parameterName;
-					doc.setParameterStableId(paramStableId);
-					if(parameterStableIdToAbnormalMaMap.containsKey(paramStableId)){
-						doc.setAbnormalMaTermId(parameterStableIdToAbnormalMaMap.get(paramStableId));
-						OntologyTermBean term = maOntologyService.getTerm(parameterStableIdToAbnormalMaMap.get(paramStableId));
-						doc.setAbnormalMaName(term.getName());
+					doc.setParameterStableId(param.parameterStableId);
+					
+					if(param.abnormalMaId != null){
+						doc.setAbnormalMaTermId(param.abnormalMaId);
+						doc.setAbnormalMaName(param.abnormalMaName);
 					}
 
 					doc.setParameterStableKey(param.parameterStableKey);
@@ -180,141 +175,21 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.addProcedureNameId(procBean.procNameId);
 					doc.setRequired(procBean.required);
 					doc.setDescription(procBean.description);
-					doc.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
+///					doc.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
-					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
-					String procParamName = procBean.procedureName + "___" + paramStableName;
-					doc.addProcParamStableId(procParamStableId);
-					doc.addProcParamName(procParamName);
+///					doc.addProcParamStableId(procParamStableId);
+///					doc.addProcParamName(procParamName);
 					// add the pipeline info here
 					doc.setPipelineId(pipeline.pipelineId);
 					doc.setPipelineName(pipeline.pipelineName);
 					doc.setPipelineStableId(pipeline.pipelineStableId);
 					doc.setPipelineStableKey(pipeline.pipelineStableKey);
-					doc.addPipeProcId(pipeline.pipeProcSid);
+///					doc.addPipeProcId(pipeline.pipeProcSid);
 
 					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr
-					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + paramStableId;
-					String idididKey = paramDbId + "_" + pipeline.pipeProcSid + "_" + doc.getPipelineId();
+					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + param.parameterStableId;
 					doc.setIdIdId(ididid);
-					if (pppidsToGfMpBeans.containsKey(idididKey)) {
-						List<GfMpBean> gfMpBeanList = pppidsToGfMpBeans.get(idididKey);
-						for (GfMpBean gfMpBean : gfMpBeanList) {
-							String mgiAccession = gfMpBean.gfAcc;
-							doc.addMgiAccession(mgiAccession);
-							if (mgiToAlleleMap.containsKey(mgiAccession)) {
-								List<AlleleDTO> alleles = mgiToAlleleMap.get(mgiAccession);
-								for (AlleleDTO allele : alleles) {
-									if (allele.getMarkerSymbol() != null) {
-										doc.addMarkerType(allele.getMarkerType());
-										doc.addMarkerSymbol(allele.getMarkerSymbol());
-										if (allele.getMarkerSynonym() != null) {
-											doc.addMarkerSynonym(allele.getMarkerSynonym());
-										}
-									}
-
-									doc.addMarkerName(allele.getMarkerName());
-									if (allele.getHumanGeneSymbol() != null) {
-										doc.addHumanGeneSymbol(allele.getHumanGeneSymbol());
-									}
-									// status name from Bill Skarnes and used at EBI
-									doc.addStatus(allele.getStatus());
-									doc.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
-									doc.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
-									doc.addImitsPhenotypeStatus(allele.getImitsPhenotypeStatus());
-									if (allele.getLatestProductionCentre() != null) {
-										doc.addLatestProductionCentre(allele.getLatestProductionCentre());
-									}
-									if (allele.getLatestPhenotypingCentre() != null) {
-										doc.addLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
-									}
-									doc.addLatestPhenotypingCentre(allele.getLatestPhenotypeStatus());
-									doc.addLegacyPhenotypingStatus(allele.getLatestPhenotypeStatus());
-									doc.addAlleleName(allele.getAlleleName());
-								}
-							}
-							
-							// mps for parameter
-							String mpTermId = gfMpBean.mpAcc;
-							MpDTO mp = mpIdToMp.get(mpTermId);
-							doc.addMpId(mpTermId);
-
-							if (mp != null) {
-
-								doc.addMpTerm(mp.getMpTerm());
-
-								if (mp.getMpTermSynonym() != null) {
-									doc.addMpTermSynonym(mp.getMpTermSynonym());
-								}
-
-								if (mp.getOntologySubset() != null) {
-									doc.addOntologySubset(mp.getOntologySubset());
-								}
-								if (mp.getTopLevelMpTermId() != null) {
-									doc.addTopLevelMpId(mp.getTopLevelMpTermId());
-								} else {
-									logger.warn("topLevelMpTermId for mpTerm " + mpTermId + " is null!");
-								}
-								if (mp.getTopLevelMpTerm() != null) {
-									doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
-								} else {
-									logger.warn("topLevelMpTerm for mpTerm "
-											+ mpTermId + " is null!");
-								}
-								if (mp.getTopLevelMpTermSynonym() != null) {
-									doc.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
-								}
-								if (mp.getIntermediateMpId() != null) {
-									doc.addIntermediateMpId(mp.getIntermediateMpId());
-								}
-								if (mp.getIntermediateMpTerm() != null) {
-									doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
-								}
-								if (mp.getIntermediateMpTermSynonym() != null) {
-									doc.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
-								}
-								if (mp.getChildMpId() != null) {
-									doc.addChildMpId(mp.getChildMpId());
-									doc.addChildMpTerm(mp.getChildMpTerm());
-								}
-								if (mp.getChildMpTermSynonym() != null) {
-									doc.addChildMpTermSynonym(mp.getChildMpTermSynonym());
-								}
-								if (mp.getHpId() != null) {
-									doc.addHpId(mp.getHpId());
-								}
-
-								if (mp.getHpTerm() != null) {
-									doc.addHpTerm(mp.getHpTerm());
-								}
-								if (mp.getInferredMaId() != null) {
-									doc.addInferredMaId(mp.getInferredMaId());
-									doc.addInferredMaTerm(mp.getInferredMaTerm());
-									if (mp.getInferredMaTermSynonym() != null) {
-										doc.addInferredMaTermSynonym(mp.getInferredMaTermSynonym());
-									}
-								}
-								if (mp.getInferredSelectedTopLevelMaId() != null) {
-									doc.addInferredSelectedTopLevelMaId(mp.getInferredSelectedTopLevelMaId());
-									if (mp.getInferredSelectedTopLevelMaTerm() != null) {
-										doc.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
-									}
-									if (mp.getInferredSelectedTopLevelMaTermSynonym() != null) {
-										doc.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
-									}
-
-								}
-								if (mp.getInferredChildMaId() != null) {
-									doc.addInferredChildMaId(mp.getInferredChildMaId());
-									doc.addInferredChildMaTerm(mp.getInferredChildMaTerm());
-									if (mp.getInferredChildMaTermSynonym() != null) {
-										doc.addInferredChildMaTermSynonyms(mp.getInferredChildMaTermSynonym());
-									}
-								}
-							}
-
-						}
-					}
+					
 					documentCount++;
 					pipelineCore.addBean(doc);
 					if(documentCount % 10000 == 0){
@@ -353,7 +228,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<Integer, ParameterDTO> populateParamDbIdToParametersMap() {
 
 		logger.info("populating PCS pipeline info");
-		procedureToObsTypeMap = new HashMap<String, String>();
 		Map<Integer, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "select id, stable_id, name, stable_key from phenotype_parameter";
 		//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
@@ -368,7 +242,8 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.parameterName = resultSet.getString("name");
 				param.parameterStableId = resultSet.getString("stable_id");
 				param.parameterStableKey = resultSet.getInt("stable_key");
-//				param.observationType = checkType(id);
+				// TODO obs_type
+				// TODO mp_terms 
 				localParamDbIdToParameter.put(id, param);
 			}
 			System.out.println("phenotype parameter should have 5704+ entries and has "	+ localParamDbIdToParameter.size() + " entries");
@@ -487,27 +362,28 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	
-	private Map<String,String> populateParameterStableIdToAbnormalOntologyMap(){
-		Map<String,String> parameterStableIdToOntology=new HashMap<>();
-		String sqlQuery="SELECT stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 10000";
-		try (PreparedStatement p = komp2DbConnection
-				.prepareStatement(sqlQuery)) {
+	private void addAbnormalMaOntologyMap(){
+		
+		int i = 0;
+		String sqlQuery="SELECT pp.id as id, ot.name as name stable_id, ontology_acc FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa "
+				+ "ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id INNER JOIN ontology_term ot ON ot.acc=ppoa.ontology_acc "
+				+ "WHERE ppoa.ontology_db_id=8 LIMIT 10000";
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
+			
 			ResultSet resultSet = p.executeQuery();
-
 			while (resultSet.next()) {
-
-				String parameterId = resultSet.getString("stable_id");
-				String maId = resultSet.getString("ontology_acc");
-				parameterStableIdToOntology.put(parameterId,maId);
+				String parameterId = resultSet.getString("id");
+				paramDbIdToParameter.get(parameterId).abnormalMaId = resultSet.getString("ontology_acc");
+				paramDbIdToParameter.get(parameterId).abnormalMaName = resultSet.getString("name");
+				i++;
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("547+ should be and is in procIdToPipelineMap " + parameterStableIdToOntology.size());
+		
+		System.out.println("547+ should be and is in procIdToPipelineMap " + i);
 
-
-		return parameterStableIdToOntology;
 	}
 
 
@@ -647,7 +523,6 @@ public class PipelineIndexer extends AbstractIndexer {
 						}
 					} catch (NumberFormatException ex) {
 						logger.debug("Invalid float value: " + value);
-						//TODO probably should throw an exception!
 					}
 
 				} else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.parameterName.contains("images"))) {
@@ -711,6 +586,8 @@ public class PipelineIndexer extends AbstractIndexer {
 		String parameterStableId;
 		String dataType;
 		String observationType;
+		String abnormalMaId;
+		String abnormalMaName;
 		boolean isIncrement;
 		boolean isMetadata;
 		boolean isOptions;
