@@ -177,141 +177,23 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.addProcedureNameId(procBean.procNameId);
 					doc.setRequired(procBean.required);
 					doc.setDescription(procBean.description);
-					doc.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
+///					doc.addMappedProcedureName(SangerProcedureMapper.getImpcProcedureFromSanger(procBean.procedureName));
 
 					String procParamStableId = procBean.procedureStableId + "___" + paramStableId;
 					String procParamName = procBean.procedureName + "___" + paramStableName;
-					doc.addProcParamStableId(procParamStableId);
-					doc.addProcParamName(procParamName);
+///					doc.addProcParamStableId(procParamStableId);
+///					doc.addProcParamName(procParamName);
 					// add the pipeline info here
 					doc.setPipelineId(pipeline.pipelineId);
 					doc.setPipelineName(pipeline.pipelineName);
 					doc.setPipelineStableId(pipeline.pipelineStableId);
 					doc.setPipelineStableKey(pipeline.pipelineStableKey);
-					doc.addPipeProcId(pipeline.pipeProcSid);
+///					doc.addPipeProcId(pipeline.pipeProcSid);
 
 					//changed the ididid to be pipe proc param stable id combination that should be unique and is unique in solr
 					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + paramStableId;
-					String idididKey = paramDbId + "_" + pipeline.pipeProcSid + "_" + doc.getPipelineId();
 					doc.setIdIdId(ididid);
-					if (pppidsToGfMpBeans.containsKey(idididKey)) {
-						List<GfMpBean> gfMpBeanList = pppidsToGfMpBeans.get(idididKey);
-						for (GfMpBean gfMpBean : gfMpBeanList) {
-							String mgiAccession = gfMpBean.gfAcc;
-							doc.addMgiAccession(mgiAccession);
-							if (mgiToAlleleMap.containsKey(mgiAccession)) {
-								List<AlleleDTO> alleles = mgiToAlleleMap.get(mgiAccession);
-								for (AlleleDTO allele : alleles) {
-									if (allele.getMarkerSymbol() != null) {
-										doc.addMarkerType(allele.getMarkerType());
-										doc.addMarkerSymbol(allele.getMarkerSymbol());
-										if (allele.getMarkerSynonym() != null) {
-											doc.addMarkerSynonym(allele.getMarkerSynonym());
-										}
-									}
-
-									doc.addMarkerName(allele.getMarkerName());
-									if (allele.getHumanGeneSymbol() != null) {
-										doc.addHumanGeneSymbol(allele.getHumanGeneSymbol());
-									}
-									// status name from Bill Skarnes and used at EBI
-									doc.addStatus(allele.getStatus());
-									doc.addImitsPhenotypeStarted(allele.getImitsPhenotypeStarted());
-									doc.addImitsPhenotypeComplete(allele.getImitsPhenotypeComplete());
-									doc.addImitsPhenotypeStatus(allele.getImitsPhenotypeStatus());
-									if (allele.getLatestProductionCentre() != null) {
-										doc.addLatestProductionCentre(allele.getLatestProductionCentre());
-									}
-									if (allele.getLatestPhenotypingCentre() != null) {
-										doc.addLatestPhenotypingCentre(allele.getLatestPhenotypingCentre());
-									}
-									doc.addLatestPhenotypingCentre(allele.getLatestPhenotypeStatus());
-									doc.addLegacyPhenotypingStatus(allele.getLatestPhenotypeStatus());
-									doc.addAlleleName(allele.getAlleleName());
-								}
-							}
-							
-							// mps for parameter
-							String mpTermId = gfMpBean.mpAcc;
-							MpDTO mp = mpIdToMp.get(mpTermId);
-							doc.addMpId(mpTermId);
-
-							if (mp != null) {
-
-								doc.addMpTerm(mp.getMpTerm());
-
-								if (mp.getMpTermSynonym() != null) {
-									doc.addMpTermSynonym(mp.getMpTermSynonym());
-								}
-
-								if (mp.getOntologySubset() != null) {
-									doc.addOntologySubset(mp.getOntologySubset());
-								}
-								if (mp.getTopLevelMpTermId() != null) {
-									doc.addTopLevelMpId(mp.getTopLevelMpTermId());
-								} else {
-									logger.warn("topLevelMpTermId for mpTerm " + mpTermId + " is null!");
-								}
-								if (mp.getTopLevelMpTerm() != null) {
-									doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
-								} else {
-									logger.warn("topLevelMpTerm for mpTerm "
-											+ mpTermId + " is null!");
-								}
-								if (mp.getTopLevelMpTermSynonym() != null) {
-									doc.addTopLevelMpTermSynonym(mp.getTopLevelMpTermSynonym());
-								}
-								if (mp.getIntermediateMpId() != null) {
-									doc.addIntermediateMpId(mp.getIntermediateMpId());
-								}
-								if (mp.getIntermediateMpTerm() != null) {
-									doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
-								}
-								if (mp.getIntermediateMpTermSynonym() != null) {
-									doc.addIntermediateMpTermSynonym(mp.getIntermediateMpTermSynonym());
-								}
-								if (mp.getChildMpId() != null) {
-									doc.addChildMpId(mp.getChildMpId());
-									doc.addChildMpTerm(mp.getChildMpTerm());
-								}
-								if (mp.getChildMpTermSynonym() != null) {
-									doc.addChildMpTermSynonym(mp.getChildMpTermSynonym());
-								}
-								if (mp.getHpId() != null) {
-									doc.addHpId(mp.getHpId());
-								}
-
-								if (mp.getHpTerm() != null) {
-									doc.addHpTerm(mp.getHpTerm());
-								}
-								if (mp.getInferredMaId() != null) {
-									doc.addInferredMaId(mp.getInferredMaId());
-									doc.addInferredMaTerm(mp.getInferredMaTerm());
-									if (mp.getInferredMaTermSynonym() != null) {
-										doc.addInferredMaTermSynonym(mp.getInferredMaTermSynonym());
-									}
-								}
-								if (mp.getInferredSelectedTopLevelMaId() != null) {
-									doc.addInferredSelectedTopLevelMaId(mp.getInferredSelectedTopLevelMaId());
-									if (mp.getInferredSelectedTopLevelMaTerm() != null) {
-										doc.addInferredSelectedTopLevelMaTerm(mp.getInferredSelectedTopLevelMaTerm());
-									}
-									if (mp.getInferredSelectedTopLevelMaTermSynonym() != null) {
-										doc.addInferredSelectedToLevelMaTermSynonym(mp.getInferredSelectedTopLevelMaTermSynonym());
-									}
-
-								}
-								if (mp.getInferredChildMaId() != null) {
-									doc.addInferredChildMaId(mp.getInferredChildMaId());
-									doc.addInferredChildMaTerm(mp.getInferredChildMaTerm());
-									if (mp.getInferredChildMaTermSynonym() != null) {
-										doc.addInferredChildMaTermSynonyms(mp.getInferredChildMaTermSynonym());
-									}
-								}
-							}
-
-						}
-					}
+					
 					documentCount++;
 					pipelineCore.addBean(doc);
 					if(documentCount % 10000 == 0){
