@@ -252,8 +252,8 @@ public class ImpressService {
 		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
 		List<PipelineDTO> pipelineDtos=null;
 		SolrQuery query = new SolrQuery()
-			.setQuery(PipelineDTO.ABNORMAL_MA_ID + ":*" )
-			.setFields(PipelineDTO.ABNORMAL_MA_ID, PipelineDTO.ABNORMAL_MA_NAME, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
+			.setQuery(PipelineDTO.MA_ID + ":*" )
+			.setFields(PipelineDTO.MA_ID, PipelineDTO.MA_TERM, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
 		QueryResponse response=null;
 		
 		try {
@@ -261,7 +261,7 @@ public class ImpressService {
 			pipelineDtos = response.getBeans(PipelineDTO.class);
 			for(PipelineDTO pipe:pipelineDtos){
 				if(!idToAbnormalMaId.containsKey(pipe.getParameterStableId())){
-					idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAbnormalMaTermId(),pipe.getAbnormalMaName()));
+					idToAbnormalMaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getMaTermId(),pipe.getMaName()));
 				}
 			}
 		} catch (SolrServerException e) {

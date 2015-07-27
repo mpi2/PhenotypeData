@@ -17,13 +17,14 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.solr.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ReportsService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,10 @@ public class ReportsController {
 
 	@Autowired
 	ReportsService rService;
+
+	@Autowired
+	@Qualifier("phenotypePipelineDAOImpl")
+	private PhenotypePipelineDAO pipelineDao;
 
 
 	@RequestMapping(value = "/reports/getLaczSpreadsheet", method = RequestMethod.GET)

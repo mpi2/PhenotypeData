@@ -65,4 +65,6 @@ public class ReportsConfig {
         return new SexualDimorphismDAOImpl();
     }
 
+    @Bean
+    public ReportsService reportsService() { return new ReportsService(); }
 }

@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.repositories.ObservationRepository;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
-import org.mousephenotype.cda.solr.service.ReportsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +63,9 @@ public class ReportsManager implements CommandLineRunner {
     @Autowired
     SexualDimorphismDAO sexualDimorphismDAO;
 
+    @Autowired
+    ImpcPValueReport impcPValueReport;
+
 //@Autowired
 //ReportGenerator reportGenerator;
 
@@ -85,20 +87,20 @@ public class ReportsManager implements CommandLineRunner {
     private boolean showHelp;
 
     public enum ReportType {
-        BMD_STATS("bmdStats", "BMD stats (Bone Mineral Content, excluding skull)"),
-        DATA_OVERVIEW("dataOverview", "Data overview"),
-        DISTRIBUTION_OF_PHENOTYPE_HITS("phenotypeHits", "Distribution of phenotype hits"),
-        FERTILITY("fertility", "Fertility"),
-        HITS_PER_LINE("hitsPerLine", "Hits per line"),
-        HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure"),
-        LACZ_EXPRESSION("laczExpression", "Lacz expression"),
-//        ML("ml", "ml"),
-        PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverview", "Phenotype overview per gene"),
-        PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness"),
-        SEXUAL_DIMORPHISM_NO_BODY_WEIGHT("sexualDimorphismNoBodyWeight", "Sexual dimorphism no body weight"),
-        SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT("sexualDimorphismWithBodyWeight", "Sexual dimorphism with body weight"),
-        VIABILITY("viability", "Viability"),
-        ZYGOSITY("zygosity", "Zygosity");
+        BMD_STATS("bmdStats", "BMD stats (Bone Mineral Content, excluding skull) report"),
+        DATA_OVERVIEW("dataOverview", "Data overview report"),
+        DISTRIBUTION_OF_PHENOTYPE_HITS("phenotypeHits", "Distribution of phenotype hits report"),
+        FERTILITY("fertility", "Fertility report"),
+        HITS_PER_LINE("hitsPerLine", "Hits per line report"),
+        HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
+        IMPC_P_VALUES("impcPvalues", "IMPC p-values report"),
+        LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
+        PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverview", "Phenotype overview per gene report"),
+        PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
+        SEXUAL_DIMORPHISM_NO_BODY_WEIGHT("sexualDimorphismNoBodyWeight", "Sexual dimorphism no body weight report"),
+        SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT("sexualDimorphismWithBodyWeight", "Sexual dimorphism with body weight report"),
+        VIABILITY("viability", "Viability report"),
+        ZYGOSITY("zygosity", "Zygosity report");
 
         String tag;
         String description;
@@ -152,6 +154,7 @@ public class ReportsManager implements CommandLineRunner {
     }
 
     public static void main(String args[]) {
+
         SpringApplication.run(ReportsManager.class, args);
     }
 
@@ -180,14 +183,14 @@ public class ReportsManager implements CommandLineRunner {
             try {
                 switch (reportType) {
 
-//                    case BMD_STATS:
-//                        List<String> parameters = new ArrayList(Arrays.asList(new String[]{"IMPC_DXA_004_001", "IMPC_IPG_010_001", "IMPC_IPG_012_001"}));
-//                        for (String parameter : parameters) {
-//                            filename = "bmd_stats_" + parameter + suffix;
-//                            result = reportsService.getBmdIpdttReport(parameter);
-//                            file = fileUtils.createCSV(targetDirectory, filename, result);
-//                        }
-//                        break;
+                    case BMD_STATS:
+                        List<String> parameters = new ArrayList(Arrays.asList(new String[]{"IMPC_DXA_004_001", "IMPC_IPG_010_001", "IMPC_IPG_012_001"}));
+                        for (String parameter : parameters) {
+                            filename = "bmd_stats_" + parameter + suffix;
+                            result = reportsService.getBmdIpdttReport(parameter);
+                            file = fileUtils.createCSV(targetDirectory, filename, result);
+                        }
+                        break;
 
                     case DATA_OVERVIEW:
                         filename = "data_overview" + suffix;
@@ -225,8 +228,11 @@ public class ReportsManager implements CommandLineRunner {
                         file = fileUtils.createCSV(targetDirectory, filename, result);
                         break;
 
-//                    case ML:
-//                        reportGenerator.run();
+                    case IMPC_P_VALUES:
+                        filename = "impc_pvalues" + suffix;
+                        impcPValueReport.run(args);
+                        file = impcPValueReport.file;
+                        break;
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:
                         filename = "phenotype_overview_per_gene" + suffix;
