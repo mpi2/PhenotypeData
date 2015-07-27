@@ -1,5 +1,8 @@
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.reports.support;
 
+import org.mousephenotype.cda.reports.support.ReportsService;
+import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
+import org.mousephenotype.cda.reports.support.SexualDimorphismDAOImpl;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;

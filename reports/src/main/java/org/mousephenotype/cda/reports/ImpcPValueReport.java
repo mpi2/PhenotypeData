@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
