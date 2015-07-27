@@ -107,20 +107,20 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return solr.query(query).getResults().getNumFound();
     }
 
-    public List<String[]> getHitsDistributionByProcedure(ArrayList<String> resourceName)
+    public List<String[]> getHitsDistributionByProcedure(List<String> resourceName)
         throws SolrServerException, InterruptedException, ExecutionException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID, resourceName);
     }
 
-    public List<String[]> getHitsDistributionByParameter(ArrayList<String> resourceName)
+    public List<String[]> getHitsDistributionByParameter(List<String> resourceName)
         throws SolrServerException, InterruptedException, ExecutionException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
     }
 
 
-    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, ArrayList<String> resourceName, ZygosityType zygosity,
+    public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, List<String> resourceName, ZygosityType zygosity,
                                                                  int facetMincount, Double maxPValue)
         throws SolrServerException, InterruptedException, ExecutionException {
 
@@ -163,7 +163,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
 
-    public Map<String, List<String>> getMpTermByGeneMap(List<String> geneSymbols, String facetPivot, ArrayList<String> resourceName)
+    public Map<String, List<String>> getMpTermByGeneMap(List<String> geneSymbols, String facetPivot, List<String> resourceName)
         throws SolrServerException, InterruptedException, ExecutionException {
 
         Map<String, List<String>> mpTermsByGene = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -203,10 +203,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return mpTermsByGene;
     }
 
-    private List<String[]> getHitsDistributionBySomething(String field, ArrayList<String> resourceName)
+    private List<String[]> getHitsDistributionBySomething(String field, List<String> resourceName)
         throws SolrServerException, InterruptedException, ExecutionException {
 
-        ArrayList<String[]>  res = new ArrayList<>();
+        List<String[]>  res = new ArrayList<>();
         Long time = System.currentTimeMillis();
         String pivotFacet = "";
         SolrQuery q = new SolrQuery();
@@ -289,10 +289,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @throws SolrServerException
      * @author tudose
      */
-    public ArrayList<Parameter> getParametersForPhenotype(String mpId)
+    public List<Parameter> getParametersForPhenotype(String mpId)
         throws SolrServerException {
 
-        ArrayList<Parameter> res = new ArrayList<>();
+        List<Parameter> res = new ArrayList<>();
         SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
         q.set("facet.field", "" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID);
         q.set("facet", true);
@@ -416,7 +416,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allTopLevelPhenotypes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            ArrayList<String> ids = (ArrayList<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+            List<String> ids = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
             for (String id : ids) {
                 allTopLevelPhenotypes.add(id);
             }
@@ -442,7 +442,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allIntermediateLevelPhenotypes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            ArrayList<String> ids = (ArrayList<String>) doc.getFieldValue(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
+            List<String> ids = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
             for (String id : ids) {
                 allIntermediateLevelPhenotypes.add(id);
             }
@@ -489,7 +489,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return result;
     }
 
-    public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(ArrayList<String> resourceName) throws SolrServerException {
+    public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) throws SolrServerException {
 
         SolrQuery query = new SolrQuery().setRows(1000000);
 
@@ -543,8 +543,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             for (int i = 0; i < result.size(); i ++) {
                 SolrDocument doc = result.get(i);
                 if (doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID) != null) {
-                    ArrayList<String> tlTermIDs = (ArrayList<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
-                    ArrayList<String> tlTermNames = (ArrayList<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+                    List<String> tlTermIDs = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+                    List<String> tlTermNames = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
                     int len = tlTermIDs.size();
                     for (int k = 0; k < len; k ++) {
                         tl.put(tlTermIDs.get(k), tlTermNames.get(k));

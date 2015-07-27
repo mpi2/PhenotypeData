@@ -62,10 +62,10 @@ public class UnidimensionalChartAndTableProvider {
 	throws SQLException, IOException, URISyntaxException {
 
 		ChartData chartAndTable = null;
-		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<UnidimensionalDataSet>();
+		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<>();
 
 		// get control data
-		List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<UnidimensionalResult>();
+		List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<>();
 		UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
 		unidimensionalDataSet.setExperiment(experiment);
 		unidimensionalDataSet.setOrganisation(experiment.getOrganisation());
@@ -76,7 +76,7 @@ public class UnidimensionalChartAndTableProvider {
 		Map<SexType, List<List<Float>>> genderAndRawDataMap = new HashMap<SexType, List<List<Float>>>();
 		List<ChartsSeriesElement> chartsSeriesElementsList = new ArrayList<ChartsSeriesElement>();
 		for (SexType sexType : experiment.getSexes()) {
-			List<List<Float>> rawData = new ArrayList<List<Float>>();
+			List<List<Float>> rawData = new ArrayList<>();
 			List<Float> dataFloats = new ArrayList<>();
 			for (ObservationDTO control : experiment.getControls(sexType)) {
 
@@ -92,7 +92,7 @@ public class UnidimensionalChartAndTableProvider {
 
 			for (ZygosityType zType : experiment.getZygosities()) {
 
-				List<Float> mutantCounts = new ArrayList<Float>();
+				List<Float> mutantCounts = new ArrayList<>();
 				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
 				expObservationsSet = experiment.getMutants(sexType, zType);
 
@@ -201,7 +201,7 @@ public class UnidimensionalChartAndTableProvider {
 
 			PercentileComputation pc = new PercentileComputation(listOfFloats);
 
-			List<Float> wt1 = new ArrayList<Float>();
+			List<Float> wt1 = new ArrayList<>();
 			if (listOfFloats.size() > 0) {
 				double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
 				double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
@@ -361,15 +361,15 @@ public class UnidimensionalChartAndTableProvider {
 		String title = parameter.getName();
 		String subtitle = procedureName;
 		String xLabel = "Ratio (mutantMean / controlMean)";//parameter.getUnit();
-		ArrayList<Double> control = map.getControlMutatns();
-		ArrayList<Double> mutant = map.getPhenMutants();
-		ArrayList<String> labels = new ArrayList<String>();
-		ArrayList<String> controlGenes = map.getControlGenes();
-		ArrayList<String> mutantGenes = map.getMutantGenes();
-		ArrayList<String> controlGenesUrl = map.getControlGeneAccesionIds();
-		ArrayList<String> mutantGenesUrl = map.getMutantGeneAccesionIds();
+		List<Double> control = map.getControlMutatns();
+		List<Double> mutant = map.getPhenMutants();
+		List<String> labels = new ArrayList<>();
+		List<String> controlGenes = map.getControlGenes();
+		List<String> mutantGenes = map.getMutantGenes();
+		List<String> controlGenesUrl = map.getControlGeneAccesionIds();
+		List<String> mutantGenesUrl = map.getMutantGeneAccesionIds();
 		DecimalFormat df;
-		ArrayList<Double> upperBounds = map.getUpperBounds();
+		List<Double> upperBounds = map.getUpperBounds();
 		// We need to set the number of decimals according to the difference between the lowest and highest, so that the bin labels will be distinct
 		// Here's an example where 2 decimals are not enogh https://www.mousephenotype.org/data/phenotypes/MP:0000063
 		if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.1){
@@ -443,7 +443,7 @@ public class UnidimensionalChartAndTableProvider {
 
 		List<? extends StatisticalResult> results = experiment.getResults();
 		logger.debug("result=" + results);
-		List<UnidimensionalStatsObject> statsObjects = new ArrayList<UnidimensionalStatsObject>();
+		List<UnidimensionalStatsObject> statsObjects = new ArrayList<>();
 
 		for (SexType sexType : experiment.getSexes()) {
 

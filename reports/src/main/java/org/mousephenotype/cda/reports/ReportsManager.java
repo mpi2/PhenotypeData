@@ -23,7 +23,6 @@ import org.mousephenotype.cda.db.repositories.ObservationRepository;
 import org.mousephenotype.cda.reports.support.FileUtils;
 import org.mousephenotype.cda.reports.support.ReportsService;
 import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
-import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +57,6 @@ public class ReportsManager implements CommandLineRunner {
     ReportsService reportsService;
 
     @Autowired
-    ImageService imageService;
-
-    @Autowired
     PhenotypeCenterService phenotypeCenterService;
 
     @Autowired
@@ -68,6 +64,15 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     protected ImpcPValueReport impcPValueReport;
+
+    @Autowired
+    protected LacZExpressionReport lacZExpressionReport;
+
+    @Autowired
+    protected HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
+
+    @Autowired
+    protected HitsPerLine hitsPerLine;
 
 //@Autowired
 //ReportGenerator reportGenerator;
@@ -214,25 +219,21 @@ public class ReportsManager implements CommandLineRunner {
                         break;
 
                     case HITS_PER_LINE:
-                        filename = "hits_per_line" + suffix;
-                        resultMulti = reportsService.getHitsPerLine();
-                        file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
+                        hitsPerLine.run(args);
+                        file = hitsPerLine.file;
                         break;
 
                     case HITS_PER_PARAMETER_AND_PROCEDURE:
-                        filename = "hits_per_parameter_and_procedure" + suffix;
-                        resultMulti = reportsService.getHitsPerParameterAndProcedure();
-                        file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
+                        hitsPerParameterAndProcedureReport.run(args);
+                        file = hitsPerParameterAndProcedureReport.file;
                         break;
 
                     case LACZ_EXPRESSION:
-                        filename = "lacz_expression" + suffix;
-                        result = imageService.getLaczExpressionSpreadsheet();
-                        file = fileUtils.createCSV(targetDirectory, filename, result);
+                        lacZExpressionReport.run(args);
+                        file = lacZExpressionReport.file;
                         break;
 
                     case IMPC_P_VALUES:
-                        filename = "impc_pvalues" + suffix;
                         impcPValueReport.run(args);
                         file = impcPValueReport.file;
                         break;
