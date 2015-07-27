@@ -845,111 +845,111 @@ public class ReportsService {
 		}
 	}
 
-	public List<List<String[]>> getMpCallDistribution(){
-
-    	Float pVal = (float) 0.0001;
-    	TreeMap<String, Long> significant = srService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
-    	TreeMap<String, Long> all = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    	all.putAll(srService.getDistributionOfAnnotationsByMPTopLevel(resources, null));
-
-    	List<List<String[]>> res = new ArrayList<>();
-    	List<String[]> table = new ArrayList<>();
-    	String[] header = new String[4];
-    	header[0] = "Top Level MP Term";
-    	header[1] = "No. Significant Calls";
-    	header[2] = "No. Not Significant Calls";
-    	header[3] = "% Significant Calls";
-    	table.add(header);
-
-    	for (String mp : all.keySet()){
-	   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){ // line data is not in statistical result core yet
-	    		String[] row = new String[4];
-	    		row[0] = mp;
-	    		Long sign = (long) 0;
-	    		if (significant.containsKey(mp)){
-	    			sign = significant.get(mp);
-	    		}
-	    		row[1] = sign.toString();
-	    		Long notSignificant = all.get(mp) - sign;
-	    		row[2] = notSignificant.toString();
-	    		Float percentage =  100 * ((float)sign / (float)all.get(mp));
-	    		row[3] = (percentage.toString());
-	    		table.add(row);
-	   		}
-    	}
-
-    	res.add(new ArrayList<>(table));
-
-    	table = new ArrayList<>();
-    	String[] headerLines = new String[4];
-    	headerLines[0] = "Top Level MP Term";
-    	headerLines[1] = "Lines Associated";
-    	headerLines[2] = "Lines Tested";
-    	headerLines[3] = "% Lines Associated";
-    	table.add(headerLines);
-
-    	try {
-    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
-    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    		genesAllMp.putAll(srService.getDistributionOfLinesByMPTopLevel(resources, null));
-
-		   	for (String mp : genesAllMp.keySet()){
-		   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){
-			   		String[] row = new String[4];
-		    		row[0] = mp;
-		    		int sign = 0;
-		    		if (genesSignificantMp.containsKey(mp)){
-		    			sign = genesSignificantMp.get(mp).size();
-		    		}
-		    		row[1] = Integer.toString(sign);
-		    		row[2] = Integer.toString(genesAllMp.get(mp).size());
-		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
-		    		row[3] = (percentage.toString());
-		    		table.add(row);
-		   		}
-	    	}
-    	} catch (SolrServerException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-	    }
-
-	    res.add(new ArrayList<>(table));
-
-    	table = new ArrayList<>();
-    	String[] headerGenes = new String[4];
-    	headerGenes[0] = "Top Level MP Term";
-    	headerGenes[1] = "Genes Associated";
-    	headerGenes[2] = "Genes Tested";
-    	headerGenes[3] = "% Associated";
-    	table.add(headerGenes);
-
-    	try {
-    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
-    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    		genesAllMp.putAll(srService.getDistributionOfGenesByMPTopLevel(resources, null));
-
-		   	for (String mp : genesAllMp.keySet()){
-		   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){
-			   		String[] row = new String[4];
-		    		row[0] = mp;
-		    		int sign = 0;
-		    		if (genesSignificantMp.containsKey(mp)){
-		    			sign = genesSignificantMp.get(mp).size();
-		    		}
-		    		row[1] = Integer.toString(sign);
-		    		row[2] = Integer.toString(genesAllMp.get(mp).size());
-		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
-		    		row[3] = (percentage.toString());
-		    		table.add(row);
-		   		}
-	    	}
-	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
-
-    	res.add(new ArrayList<>(table));
-
-    	return res;
-    }
+//	public List<List<String[]>> getMpCallDistribution(){
+//
+//    	Float pVal = (float) 0.0001;
+//    	TreeMap<String, Long> significant = srService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
+//    	TreeMap<String, Long> all = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+//    	all.putAll(srService.getDistributionOfAnnotationsByMPTopLevel(resources, null));
+//
+//    	List<List<String[]>> res = new ArrayList<>();
+//    	List<String[]> table = new ArrayList<>();
+//    	String[] header = new String[4];
+//    	header[0] = "Top Level MP Term";
+//    	header[1] = "No. Significant Calls";
+//    	header[2] = "No. Not Significant Calls";
+//    	header[3] = "% Significant Calls";
+//    	table.add(header);
+//
+//    	for (String mp : all.keySet()){
+//	   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){ // line data is not in statistical result core yet
+//	    		String[] row = new String[4];
+//	    		row[0] = mp;
+//	    		Long sign = (long) 0;
+//	    		if (significant.containsKey(mp)){
+//	    			sign = significant.get(mp);
+//	    		}
+//	    		row[1] = sign.toString();
+//	    		Long notSignificant = all.get(mp) - sign;
+//	    		row[2] = notSignificant.toString();
+//	    		Float percentage =  100 * ((float)sign / (float)all.get(mp));
+//	    		row[3] = (percentage.toString());
+//	    		table.add(row);
+//	   		}
+//    	}
+//
+//    	res.add(new ArrayList<>(table));
+//
+//    	table = new ArrayList<>();
+//    	String[] headerLines = new String[4];
+//    	headerLines[0] = "Top Level MP Term";
+//    	headerLines[1] = "Lines Associated";
+//    	headerLines[2] = "Lines Tested";
+//    	headerLines[3] = "% Lines Associated";
+//    	table.add(headerLines);
+//
+//    	try {
+//    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
+//    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+//    		genesAllMp.putAll(srService.getDistributionOfLinesByMPTopLevel(resources, null));
+//
+//		   	for (String mp : genesAllMp.keySet()){
+//		   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){
+//			   		String[] row = new String[4];
+//		    		row[0] = mp;
+//		    		int sign = 0;
+//		    		if (genesSignificantMp.containsKey(mp)){
+//		    			sign = genesSignificantMp.get(mp).size();
+//		    		}
+//		    		row[1] = Integer.toString(sign);
+//		    		row[2] = Integer.toString(genesAllMp.get(mp).size());
+//		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
+//		    		row[3] = (percentage.toString());
+//		    		table.add(row);
+//		   		}
+//	    	}
+//    	} catch (SolrServerException | InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//	    }
+//
+//	    res.add(new ArrayList<>(table));
+//
+//    	table = new ArrayList<>();
+//    	String[] headerGenes = new String[4];
+//    	headerGenes[0] = "Top Level MP Term";
+//    	headerGenes[1] = "Genes Associated";
+//    	headerGenes[2] = "Genes Tested";
+//    	headerGenes[3] = "% Associated";
+//    	table.add(headerGenes);
+//
+//    	try {
+//    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
+//    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+//    		genesAllMp.putAll(srService.getDistributionOfGenesByMPTopLevel(resources, null));
+//
+//		   	for (String mp : genesAllMp.keySet()){
+//		   		if (!mp.equalsIgnoreCase("reproductive system phenotype")){
+//			   		String[] row = new String[4];
+//		    		row[0] = mp;
+//		    		int sign = 0;
+//		    		if (genesSignificantMp.containsKey(mp)){
+//		    			sign = genesSignificantMp.get(mp).size();
+//		    		}
+//		    		row[1] = Integer.toString(sign);
+//		    		row[2] = Integer.toString(genesAllMp.get(mp).size());
+//		    		Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
+//		    		row[3] = (percentage.toString());
+//		    		table.add(row);
+//		   		}
+//	    	}
+//	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//		}
+//
+//    	res.add(new ArrayList<>(table));
+//
+//    	return res;
+//    }
 
 //
 //

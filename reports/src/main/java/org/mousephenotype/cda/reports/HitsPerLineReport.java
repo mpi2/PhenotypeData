@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutionException;
  */
 @SpringBootApplication
 @Component
-public class HitsPerLine extends AbstractReport {
+public class HitsPerLineReport extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -55,12 +55,12 @@ public class HitsPerLine extends AbstractReport {
     @Autowired
     StatisticalResultService statisticalResultService;
 
-    public HitsPerLine() throws ReportException {
+    public HitsPerLineReport() throws ReportException {
 
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(HitsPerLine.class, args);
+        SpringApplication.run(HitsPerLineReport.class, args);
     }
 
     @Override

@@ -1,0 +1,190 @@
+/*******************************************************************************
+ * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ ******************************************************************************/
+
+package org.mousephenotype.cda.reports;
+
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+/**
+ * Fertility report.
+ *
+ * Created by mrelac on 24/07/2015.
+ */
+@SpringBootApplication
+@Component
+public class PhenotypeHitsReport extends AbstractReport {
+
+    protected Logger log = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    StatisticalResultService statisticalResultService;
+
+    public PhenotypeHitsReport() throws ReportException {
+
+    }
+
+    public static void main(String args[]) {
+        SpringApplication.run(PhenotypeHitsReport.class, args);
+    }
+
+    @Override
+    public String getDefaultFilename() {
+        return "phenotypeHitsReport";
+    }
+
+    @Override
+    public void run(String[] args) throws ReportException {
+        Map<String, String> propertyMap = parse(args);
+        List<String> errors = validate(propertyMap);
+
+        if ( ! errors.isEmpty()) {
+            for (String error : errors) {
+                System.out.println(error);
+            }
+            System.out.println();
+            usage();
+            System.exit(1);
+        }
+
+        logInputParameters();
+
+        long start = System.currentTimeMillis();
+
+        List<List<String[]>> result = new ArrayList<>();
+
+        Float pVal = (float) 0.0001;
+        TreeMap<String, Long> significant = statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
+        TreeMap<String, Long> all = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        all.putAll(statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(resources, null));
+
+        List<String[]> table = new ArrayList<>();
+        String[] header = new String[4];
+        header[0] = "Top Level MP Term";
+        header[1] = "No. Significant Calls";
+        header[2] = "No. Not Significant Calls";
+        header[3] = "% Significant Calls";
+        table.add(header);
+
+        for (String mp : all.keySet()){
+            if (!mp.equalsIgnoreCase("reproductive system phenotype")){ // line data is not in statistical result core yet
+                String[] row = new String[4];
+                row[0] = mp;
+                Long sign = (long) 0;
+                if (significant.containsKey(mp)){
+                    sign = significant.get(mp);
+                }
+                row[1] = sign.toString();
+                Long notSignificant = all.get(mp) - sign;
+                row[2] = notSignificant.toString();
+                Float percentage =  100 * ((float)sign / (float)all.get(mp));
+                row[3] = (percentage.toString());
+                table.add(row);
+            }
+        }
+
+        result.add(new ArrayList<>(table));
+
+        table = new ArrayList<>();
+        String[] headerLines = new String[4];
+        headerLines[0] = "Top Level MP Term";
+        headerLines[1] = "Lines Associated";
+        headerLines[2] = "Lines Tested";
+        headerLines[3] = "% Lines Associated";
+        table.add(headerLines);
+
+        try {
+            Map<String, List<String>> genesSignificantMp = statisticalResultService.getDistributionOfLinesByMPTopLevel(resources, pVal);
+            TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            genesAllMp.putAll(statisticalResultService.getDistributionOfLinesByMPTopLevel(resources, null));
+
+            for (String mp : genesAllMp.keySet()){
+                if (!mp.equalsIgnoreCase("reproductive system phenotype")){
+                    String[] row = new String[4];
+                    row[0] = mp;
+                    int sign = 0;
+                    if (genesSignificantMp.containsKey(mp)){
+                        sign = genesSignificantMp.get(mp).size();
+                    }
+                    row[1] = Integer.toString(sign);
+                    row[2] = Integer.toString(genesAllMp.get(mp).size());
+                    Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
+                    row[3] = (percentage.toString());
+                    table.add(row);
+                }
+            }
+        } catch (SolrServerException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        result.add(new ArrayList<>(table));
+
+        table = new ArrayList<>();
+        String[] headerGenes = new String[4];
+        headerGenes[0] = "Top Level MP Term";
+        headerGenes[1] = "Genes Associated";
+        headerGenes[2] = "Genes Tested";
+        headerGenes[3] = "% Associated";
+        table.add(headerGenes);
+
+        try {
+            Map<String, List<String>> genesSignificantMp = statisticalResultService.getDistributionOfGenesByMPTopLevel(resources, pVal);
+            TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            genesAllMp.putAll(statisticalResultService.getDistributionOfGenesByMPTopLevel(resources, null));
+
+            for (String mp : genesAllMp.keySet()){
+                if (!mp.equalsIgnoreCase("reproductive system phenotype")){
+                    String[] row = new String[4];
+                    row[0] = mp;
+                    int sign = 0;
+                    if (genesSignificantMp.containsKey(mp)){
+                        sign = genesSignificantMp.get(mp).size();
+                    }
+                    row[1] = Integer.toString(sign);
+                    row[2] = Integer.toString(genesAllMp.get(mp).size());
+                    Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
+                    row[3] = (percentage.toString());
+                    table.add(row);
+                }
+            }
+
+            result.add(new ArrayList<>(table));
+            csvWriter.writeAllMulti(result);
+
+        } catch (SolrServerException | ExecutionException | InterruptedException  e) {
+            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
+        }
+
+        try {
+            csvWriter.close();
+        } catch (IOException e) {
+            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
+        }
+
+        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+    }
+}
