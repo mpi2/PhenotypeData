@@ -15,12 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.optional;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class PipelineDTO {
 
