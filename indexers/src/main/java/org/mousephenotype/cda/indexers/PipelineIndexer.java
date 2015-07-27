@@ -262,11 +262,11 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.media = resultSet.getBoolean("media");
 				param.observationType = assignType(param);
 				if (param.observationType == null){
-					System.out.println("Obs type is NULL for :" + param.parameterStableId + "  " + param.observationType);
+					logger.warn("Obs type is NULL for :" + param.parameterStableId + "  " + param.observationType);
 				}
 				localParamDbIdToParameter.put(id, param);
 			}
-			System.out.println("[Check] should be 5704+ phenotype parameter and has "	+ localParamDbIdToParameter.size() + " entries");
+			logger.info("[Check] should be 5704+ phenotype parameter and has "	+ localParamDbIdToParameter.size() + " entries");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -378,7 +378,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	
 	private Map<String, Set<String>> populateProcedureToParameterMap() {
 
-		logger.info("Populating param To ProcedureId info");
+		logger.info("Populating procIdToParams");
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
 		
 		String queryString = "SELECT procedure_id, parameter_id, pp.stable_id as parameter_stable_id, pproc.stable_id as procedure_stable_id "
@@ -405,13 +405,14 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("[Check] procIdToParams should be 5704+  size=" + procIdToParams.size());
+		logger.info("[Check] procIdToParams should be 5704+  size=" + procIdToParams.size());
 		return procIdToParams;
 	}
 
 	private Map<String, ProcedureDTO> populateProcedureIdToProcedureMap() {
 
-		logger.info("populating procedureId to Procedure Map info");
+		logger.info("Populating procedureIdToProcedureMap");
+		
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
 		String queryString = "SELECT id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id "
 				+ "FROM phenotype_procedure";
@@ -434,15 +435,17 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("[Check] should be 187+ procedureIdToProcedureMap size="
-				+ procedureIdToProcedureMap.size());
+		
+		logger.info("[Check] should be 190+ procedureIdToProcedureMap size=" + procedureIdToProcedureMap.size());
+		
 		return procedureIdToProcedureMap;
 	}
 
 
 	private List<PipelineBean> populateProcedureIdToPipelineMap() {
 
-		logger.info("populating procedureId to  pipeline Map info");
+		logger.info("Populating procIdToPipelineMap");
+		
 		List<PipelineBean> procIdToPipelineMap = new ArrayList<>();
 		String queryString = "SELECT pproc.stable_id as procedure_stable_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, "
 				+ " ppipe.stable_key AS pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) AS pipe_proc_sid "
