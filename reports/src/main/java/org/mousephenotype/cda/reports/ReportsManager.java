@@ -20,6 +20,9 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.repositories.ObservationRepository;
+import org.mousephenotype.cda.reports.support.FileUtils;
+import org.mousephenotype.cda.reports.support.ReportsService;
+import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.slf4j.Logger;
@@ -64,7 +67,7 @@ public class ReportsManager implements CommandLineRunner {
     SexualDimorphismDAO sexualDimorphismDAO;
 
     @Autowired
-    ImpcPValueReport impcPValueReport;
+    protected ImpcPValueReport impcPValueReport;
 
 //@Autowired
 //ReportGenerator reportGenerator;

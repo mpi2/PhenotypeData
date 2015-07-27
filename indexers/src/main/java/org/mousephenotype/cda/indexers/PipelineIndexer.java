@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +32,12 @@ import javax.sql.DataSource;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
@@ -67,6 +70,9 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
 
+	@Autowired
+	ObservationService os;
+	
 	private Map<String, ParameterDTO> paramDbIdToParameter;
 	private Map<String, Set<String>> procedureIdToParams;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
@@ -160,12 +166,11 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setParameterStableId(param.parameterStableId);
 					
 					if(param.abnormalMaId != null){
-						doc.setMaTermId(param.abnormalMaId);
+						doc.setMaId(param.abnormalMaId);
 						doc.setMaName(param.abnormalMaName);
 					}
 
 					doc.setParameterStableKey(param.parameterStableKey);
-					System.out.println("_-_" + pipeline.procedureStableId + (procedureIdToProcedure.get(pipeline.procedureStableId) == null));
 					ProcedureDTO procBean = procedureIdToProcedure.get(pipeline.procedureStableId);
 					doc.setProcedureId(procBean.procedureId);
 					doc.setProcedureName(procBean.procedureName);
@@ -222,7 +227,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		logger.info("populating PCS pipeline info");
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
-		String queryString = "select id, stable_id, name, stable_key from phenotype_parameter";
+		String queryString = "select * from phenotype_parameter";
 		//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
@@ -235,7 +240,16 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.parameterName = resultSet.getString("name");
 				param.parameterStableId = resultSet.getString("stable_id");
 				param.parameterStableKey = resultSet.getInt("stable_key");
-				// TODO obs_type
+				param.dataType = resultSet.getString("datatype");
+				param.parameterType = resultSet.getString("parameter_type");
+				param.metadata = resultSet.getBoolean("metadata");
+				param.unit = resultSet.getString("unit");
+				param.derived = resultSet.getBoolean("derived");
+				param.required = resultSet.getBoolean("required");
+				param.increment = resultSet.getBoolean("increment");
+				param.options = resultSet.getBoolean("options");
+				param.media = resultSet.getBoolean("media");
+				param.observationType = assignType(param);
 				// TODO mp_terms 
 				localParamDbIdToParameter.put(id, param);
 			}
@@ -312,13 +326,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 
-	// select pproc.id as pproc_id, ppipe.name as pipe_name, ppipe.id as
-	// pipe_id, ppipe.stable_id as pipe_stable_id, ppipe.stable_key as
-	// pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___',
-	// pproc.stable_id) as pipe_proc_sid from phenotype_procedure pproc inner
-	// join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id
-	// inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id where
-	// ppipe.db_id=6
 	private List<PipelineBean> populateProcedureIdToPipelineMap() {
 
 		logger.info("populating procedureId to  pipeline Map info");
@@ -446,14 +453,13 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @param parameter
 	 * @param value
 	 * @return
+	 * @throws SolrServerException 
 	 */
 	// Method copied from org.mousephenotype.cda.db.impress.Utilities.
 	// Adjusted to avoid use of Parameter dao obj.
-/*	public ObservationType checkType(String parameterId) {
+	// Method should only be used at indexing time. After that query pipeline core to find type.
+	protected ObservationType assignType(ParameterDTO parameter) throws SolrServerException {
 		
-		
-		System.out.println("Parameter id is " + parameterId);
-		ParameterDTO parameter = paramDbIdToParameter.get(parameterId);
 		Map<String, String> MAPPING = new HashMap<>();
 		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
 		MAPPING.put("M-G-P_022_001_001", "FLOAT");
@@ -461,21 +467,19 @@ public class PipelineIndexer extends AbstractIndexer {
 		MAPPING = Collections.unmodifiableMap(MAPPING);
 
 		ObservationType observationType = null;
-
-		Float valueToInsert = 0.0f;
-
 		String datatype = parameter.dataType;
+		
 		if (MAPPING.containsKey(parameter.parameterStableKey)) {
 			datatype = MAPPING.get(parameter.parameterStableId);
 		}
 
-		if (parameter.isMetadata) {
+		if (parameter.metadata) {
 
 			observationType = ObservationType.metadata;
 
 		} else {
 
-			if (parameter.isOptions) {
+			if (parameter.options) {
 
 				observationType = ObservationType.categorical;
 
@@ -495,7 +499,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 				} else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
 
-					if (parameter.isIncrement) {
+					if (parameter.increment) {
 
 						observationType = ObservationType.time_series;
 
@@ -505,43 +509,34 @@ public class PipelineIndexer extends AbstractIndexer {
 
 					}
 
-					try {
-						if (value != null) {
-							valueToInsert = Float.valueOf(value);
-						}
-					} catch (NumberFormatException ex) {
-						logger.debug("Invalid float value: " + value);
-					}
-
 				} else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.parameterName.contains("images"))) {
 
 					observationType = ObservationType.image_record;
 
-				} else if (datatype.equals("") && !parameter.isOptions && !parameter.parameterName.contains("images")) {
+				} else if (datatype.equals("") && !parameter.options && !parameter.parameterName.contains("images")) {
 
-					// is that a number or a category?
-					try {
-						// check whether it's null
-						if (value != null && !value.equals("null")) {
-
-							valueToInsert = Float.valueOf(value);
-						}
-						if (parameter.isIncrement) {
+					/* Look up in observation core. If we have a value the observation type will be correct. 
+					 * If not use the approximation below (categorical will always be missed).
+					 * See declaration of checkType(param, value) in imress utils.
+					 */					
+					ObservationType obs = os.getObservationTypeForParameterStableId(parameter.parameterStableId);
+					if (obs != null){
+						observationType = obs;
+					} else {			
+						if (parameter.increment) {
 							observationType = ObservationType.time_series;
 						} else {
 							observationType = ObservationType.unidimensional;
 						}
-
-					} catch (NumberFormatException ex) {
-						observationType = ObservationType.categorical;
 					}
+
 				}
 			}
 		}
 
 		return observationType;
 	}
-*/
+
 	public class ProcedureDTO {
 
 		boolean required;
@@ -573,14 +568,22 @@ public class PipelineIndexer extends AbstractIndexer {
 		String parameterName;
 		String parameterStableId;
 		String dataType;
-		String observationType;
+		String parameterType;
+		ObservationType observationType;
 		String abnormalMaId;
 		String abnormalMaName;
-		boolean isIncrement;
-		boolean isMetadata;
-		boolean isOptions;
+		String unit;
+		boolean increment;
+		boolean metadata;
+		boolean options;
+		boolean derived;
+		boolean required;
+		boolean media;		
 		
 		List<String> procedureStableIds;
 		
 	}
 }
+
+
+

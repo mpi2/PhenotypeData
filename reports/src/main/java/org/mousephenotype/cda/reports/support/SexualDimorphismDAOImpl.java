@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.reports.support;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;

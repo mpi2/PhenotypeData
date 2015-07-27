@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.reports.support;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import org.springframework.stereotype.Component;
