@@ -18,6 +18,8 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.mousephenotype.cda.reports.support.MpCSVWriter;
+import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -141,7 +143,7 @@ public abstract class AbstractReport implements CommandLineRunner {
 
         if (propertyMap.containsKey(REPORT_FORMAT_ARG)) {
             try {
-                this.reportFormat = ReportFormat.valueOf(REPORT_FORMAT_ARG);
+                this.reportFormat = ReportFormat.valueOf(propertyMap.get(REPORT_FORMAT_ARG));
             } catch (IllegalArgumentException | NullPointerException e) {
                 retVal.add("Unknown report format type '" + propertyMap.get(REPORT_FORMAT_ARG) + "'.");
             }

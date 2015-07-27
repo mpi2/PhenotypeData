@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.reports.support;
 
 /**
  * Created by mrelac on 24/07/2015.
