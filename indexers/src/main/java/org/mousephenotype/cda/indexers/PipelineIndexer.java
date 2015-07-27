@@ -78,6 +78,18 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 	
 
+	public static void main(String[] args) 
+	throws IndexerException {
+
+		PipelineIndexer indexer = new PipelineIndexer();
+		indexer.initialise(args);
+		indexer.run();
+		indexer.validateBuild();
+
+		logger.info("PipelineIndexer finished.  Exiting.");
+	}
+	
+
 	@Override
 	public void validateBuild() 
 	throws IndexerException {
@@ -89,7 +101,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					"Actual pipeline document count is " + numFound + "."));
 		}
 		if (numFound != documentCount){
-			logger.warn("WARNING: Added " + documentCount
+			logger.warn("Added " + documentCount
 					+ " pipeline documents but SOLR reports " + numFound
 					+ " documents.");
 		}
@@ -186,7 +198,8 @@ public class PipelineIndexer extends AbstractIndexer {
 					if (param.categories.size() > 0){
 						doc.setCategories(param.categories);
 						System.out.println("Adding " + param.categories);
-					}					
+					}	
+					
 					if(param.abnormalMaId != null){
 						doc.setMaId(param.abnormalMaId);
 						doc.setMaName(param.abnormalMaName);
@@ -197,14 +210,20 @@ public class PipelineIndexer extends AbstractIndexer {
 							doc.addMpId(mpId);
 							MpDTO mp = mpIdToMp.get(mpId);
 							doc.addMpTerm(mp.getMpTerm());
-							doc.addIntermediateMpId(mp.getIntermediateMpId());
-							doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
-							doc.addTopLevelMpId(mp.getTopLevelMpId());
-							doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+							if (mp.getIntermediateMpId() != null && mp.getIntermediateMpId().size() > 0){
+								doc.addIntermediateMpId(mp.getIntermediateMpId());
+								doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+							}
+							if (mp.getTopLevelMpId() != null && mp.getTopLevelMpId().size() > 0){
+								doc.addTopLevelMpId(mp.getTopLevelMpId());
+								doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+							}
 						}
 					}
-					documentCount++;
+					
 					pipelineCore.addBean(doc);
+					documentCount++;
+					
 					if(documentCount % 10000 == 0){
 						logger.info("Commit to Solr. Document count = " + documentCount);
 						pipelineCore.commit();
@@ -228,14 +247,14 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 	
 
-	// PROTECTED METHODS
+	
 	@Override
 	protected Logger getLogger() {
 		return logger;
 	}
 
 	
-	private Map<String, ParameterDTO> populateParamDbIdToParametersMap() {
+	protected Map<String, ParameterDTO> populateParamDbIdToParametersMap() {
 
 		logger.info("populating PCS pipeline info");
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
@@ -273,6 +292,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 		
 		localParamDbIdToParameter = addCategories(localParamDbIdToParameter);
+		localParamDbIdToParameter = addMpTerms(localParamDbIdToParameter);
 		return localParamDbIdToParameter;
 
 	}
@@ -283,7 +303,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @param stableIdToParameter
 	 * @return
 	 */
-	private Map<String, ParameterDTO> addCategories(Map<String, ParameterDTO> stableIdToParameter){
+	protected Map<String, ParameterDTO> addCategories(Map<String, ParameterDTO> stableIdToParameter){
 
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
 		String queryString = "SELECT stable_id, o.name AS cat_name, o.description AS cat_description "
@@ -322,7 +342,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @return
 	 * @throws SQLException
 	 */
-	private String getCategory (ResultSet resultSet) 
+	protected String getCategory (ResultSet resultSet) 
 	throws SQLException{
 		
 		String name = resultSet.getString("cat_name");
@@ -342,9 +362,9 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @param stableIdToParameter
 	 * @return
 	 */
-	private Map<String, ParameterDTO> addMpTerms(Map<String, ParameterDTO> stableIdToParameter){
+	protected Map<String, ParameterDTO> addMpTerms(Map<String, ParameterDTO> stableIdToParameter){
 		
-		String queryString = "SELECT * FROM phenotype_parameter pp "
+		String queryString = "SELECT stable_id, ontology_acc FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=pp.id "
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON l.annotation_id=ppoa.id "
 				+ " WHERE ontology_db_id=5 "
@@ -376,7 +396,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 	
 	
-	private Map<String, Set<String>> populateProcedureToParameterMap() {
+	protected Map<String, Set<String>> populateProcedureToParameterMap() {
 
 		logger.info("Populating procIdToParams");
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
@@ -409,7 +429,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		return procIdToParams;
 	}
 
-	private Map<String, ProcedureDTO> populateProcedureIdToProcedureMap() {
+	protected Map<String, ProcedureDTO> populateProcedureIdToProcedureMap() {
 
 		logger.info("Populating procedureIdToProcedureMap");
 		
@@ -442,7 +462,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 
-	private List<PipelineBean> populateProcedureIdToPipelineMap() {
+	protected List<PipelineBean> populateProcedureIdToPipelineMap() {
 
 		logger.info("Populating procIdToPipelineMap");
 		
@@ -478,7 +498,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	
-	private void addAbnormalMaOntologyMap(){
+	protected void addAbnormalMaOntologyMap(){
 		
 		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
@@ -501,7 +521,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 
-	private Map<String, MpDTO> populateMpIdToMp() 
+	protected Map<String, MpDTO> populateMpIdToMp() 
 	throws IndexerException {
 
 		Map<String, MpDTO> map = null;
@@ -513,17 +533,6 @@ public class PipelineIndexer extends AbstractIndexer {
 		return map;
 	}
 
-	public static void main(String[] args) 
-	throws IndexerException {
-
-		PipelineIndexer indexer = new PipelineIndexer();
-		indexer.initialise(args);
-		indexer.run();
-		indexer.validateBuild();
-
-		logger.info("Process finished.  Exiting.");
-	}
-	
 
 	/**@since 2015
 	 * @author tudose
