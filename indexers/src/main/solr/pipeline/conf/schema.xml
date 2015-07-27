@@ -161,7 +161,7 @@
     <field name="unit" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="metadata" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="increment" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
-    <field name="options" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+    <field name="categories" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="has_options" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="derived" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="media" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
