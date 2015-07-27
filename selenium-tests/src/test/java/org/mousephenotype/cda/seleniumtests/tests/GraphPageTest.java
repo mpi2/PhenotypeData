@@ -52,16 +52,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-//import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-//import org.mousephenotype.cda.solr.service.dto.GraphTestDTO;
-//import org.mousephenotype.www.testing.exception.GraphTestException;
-//import org.mousephenotype.www.testing.model.*;
-//import uk.ac.ebi.phenotype.chart.ChartType;
-//import org.mousephenotype.cda.solr.service.GeneService;
-//import org.mousephenotype.cda.solr.service.MpService;
-//import org.mousephenotype.cda.solr.service.PostQcService;
-//import uk.ac.ebi.phenotype.util.Utils;
-
 /**
  *
  * @author mrelac

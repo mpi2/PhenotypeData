@@ -16,14 +16,14 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import net.sf.json.JSONObject;
+import org.mousephenotype.cda.db.pojo.Parameter;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-
-import org.mousephenotype.cda.db.pojo.Parameter;
-
-import edu.emory.mathcs.backport.java.util.Collections;
-import net.sf.json.JSONObject;
+import java.util.List;
 
 
 public class ParallelCoordinatesDTO {
@@ -36,10 +36,10 @@ public class ParallelCoordinatesDTO {
 	String geneSymbol;
 	String geneAccession;
 	HashMap<String, MeanBean> means;
-	ArrayList<Parameter> allColumns;
+	List<Parameter> allColumns;
 	String group;
 	
-	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, ArrayList<Parameter> allColumns){
+	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, List<Parameter> allColumns){
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
 		this.group = group;
@@ -65,8 +65,8 @@ public class ParallelCoordinatesDTO {
 			
 			
 			if (this.means.values().size() > 0){
-				
-				ArrayList <MeanBean> values = new ArrayList<MeanBean>(this.means.values());
+
+                List <MeanBean> values = new ArrayList<MeanBean>(this.means.values());
 				Collections.sort(values, this.means.values().iterator().next().getComparatorByParameterName());				
 				
 				for (MeanBean mean : values){

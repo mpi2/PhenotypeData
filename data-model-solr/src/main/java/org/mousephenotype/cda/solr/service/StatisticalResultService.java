@@ -91,8 +91,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	HttpSolrServer solr;
 
 
-    Map<String, ArrayList<String>> maleParamToGene = null;
-    Map<String, ArrayList<String>> femaleParamToGene = null;
+    Map<String, List<String>> maleParamToGene = null;
+    Map<String, List<String>> femaleParamToGene = null;
 
 
 	public StatisticalResultService() {
@@ -147,7 +147,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 	
-	public Map<String, Long> getColoniesNoMPHit(ArrayList<String> resourceName, ZygosityType zygosity)
+	public Map<String, Long> getColoniesNoMPHit(List<String> resourceName, ZygosityType zygosity)
 	throws SolrServerException{
 		
 		Map<String, Long>  res = new HashMap<>();
@@ -200,8 +200,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	query.addFacetField(StatisticalResultDTO.PARAMETER_NAME);
 
 
-    	ArrayList<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
-    	ArrayList<Parameter> parameterNames = new ArrayList<>();
+		List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
+		List<Parameter> parameterNames = new ArrayList<>();
 
     	for (String parameterStableId: parameterStableIds){
         	Parameter p = pipelineDAO.getParameterByStableId(parameterStableId);
@@ -260,7 +260,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, ArrayList<Parameter> allParameterNames) {
+	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, List<Parameter> allParameterNames) {
 
 		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
 
@@ -275,7 +275,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
+    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, List<Parameter> allParameterNames) {
 
     	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
 
@@ -326,7 +326,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample, String[] center, String[] sex)
+	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, List<String> strains, String biologicalSample, String[] center, String[] sex)
 	throws SolrServerException {
 
 		String urlParams = "";
@@ -393,11 +393,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		// we do the binning for all the data but fill the bins after that to
 		// keep tract of phenotype associations
 		int binCount = Math.min((int) Math.floor((double) groups.size() / 2), 20);
-		ArrayList<String> mutantGenes = new ArrayList<String>();
-		ArrayList<String> controlGenes = new ArrayList<String>();
-		ArrayList<String> mutantGeneAcc = new ArrayList<String>();
-		ArrayList<String> controlGeneAcc = new ArrayList<String>();
-		ArrayList<Double> upperBounds = new ArrayList<Double>();
+		List<String> mutantGenes = new ArrayList<>();
+		List<String> controlGenes = new ArrayList<>();
+		List<String> mutantGeneAcc = new ArrayList<>();
+		List<String> controlGeneAcc = new ArrayList<>();
+		List<Double> upperBounds = new ArrayList<>();
 		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
 		if (size > 0) {
 			distribution.load(ArrayUtils.subarray(meansArray, 0, size-1));
@@ -406,8 +406,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			}
 			// we we need to distribute the control mutants and the
 			// phenotype-mutants in the bins
-			ArrayList<Double> controlM = new ArrayList<Double>();
-			ArrayList<Double> phenMutants = new ArrayList<Double>();
+			List<Double> controlM = new ArrayList<>();
+			List<Double> phenMutants = new ArrayList<>();
 
 			for (int j = 0; j < upperBounds.size(); j++) {
 				controlM.add((double) 0);
@@ -523,10 +523,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-    public Map<String, ArrayList<String>> getDistributionOfLinesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
+    public Map<String, List<String>> getDistributionOfLinesByMPTopLevel(List<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
-		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.COLONY_ID;
 		SolrQuery q = new SolrQuery();
@@ -551,7 +551,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			ArrayList<String> colonies = new ArrayList<>();
+			List<String> colonies = new ArrayList<>();
 			for (PivotField colony : pivot.getPivot()){
 				colonies.add(colony.getValue().toString());
 			}
@@ -562,10 +562,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-    public Map<String, ArrayList<String>> getDistributionOfGenesByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold)
+    public Map<String, List<String>> getDistributionOfGenesByMPTopLevel(List<String> resourceName, Float pValueThreshold)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
-		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery();
@@ -589,7 +589,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			ArrayList<String> genes = new ArrayList<>();
+			List<String> genes = new ArrayList<>();
 			for (PivotField gene : pivot.getPivot()){
 				genes.add(gene.getValue().toString());
 			}
@@ -603,7 +603,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
      * @author tudose
      */
-    public TreeMap<String, Long> getDistributionOfAnnotationsByMPTopLevel(ArrayList<String> resourceName, Float pValueThreshold) {
+    public TreeMap<String, Long> getDistributionOfAnnotationsByMPTopLevel(List<String> resourceName, Float pValueThreshold) {
 
         SolrQuery query = new SolrQuery();
 
@@ -738,7 +738,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, ArrayList<String> resource)
+    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource)
 	throws NumberFormatException, SolrServerException {
 
     	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
@@ -1085,7 +1085,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			ArrayList<String> lst = new ArrayList<>();
+			List<String> lst = new ArrayList<>();
 			for (PivotField gene : pivot.getPivot()){
 				lst.add(gene.getValue().toString());
 			}
@@ -1173,17 +1173,17 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	 * pie chart). It takes a long time to load so it does it asynchronously.
 	 *
 	 * @param sex
-	 * @return Map < String parameterStableId , ArrayList<String
+	 * @return Map < String parameterStableId , List<String
 	 *         geneMgiIdWithParameterXMeasured>>
 	 * @throws SolrServerException
 	 * @throws InterruptedException
 	 * @throws ExecutionException
 	 * @author tudose
 	 */
-	public Map<String, ArrayList<String>> getParameterToGeneMap(SexType sex)
+	public Map<String, List<String>> getParameterToGeneMap(SexType sex)
 	throws SolrServerException, InterruptedException, ExecutionException {
 
-		Map<String, ArrayList<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
+		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
 		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
@@ -1198,7 +1198,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			ArrayList<String> genes = new ArrayList<>();
+			List<String> genes = new ArrayList<>();
 			for (PivotField gene : pivot.getPivot()){
 				genes.add(gene.getValue().toString());
 			}
@@ -1224,7 +1224,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			ArrayList<String> genes = new ArrayList<>();
+			List<String> genes = new ArrayList<>();
 			for (PivotField gene : pivot.getPivot()){
 				genes.add(gene.getValue().toString());
 			}

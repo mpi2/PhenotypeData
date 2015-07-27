@@ -20,8 +20,10 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.mousephenotype.cda.reports.support.MpCSVWriter;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
@@ -49,6 +51,7 @@ public abstract class AbstractReport implements CommandLineRunner {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
     protected String propertiesFilename;
     protected ReportFormat reportFormat;
+    protected List<String> resources;
     protected boolean showHelp;
     protected String targetDirectory;
     protected String targetFilename;
@@ -58,6 +61,11 @@ public abstract class AbstractReport implements CommandLineRunner {
     protected static final String REPORT_FORMAT_ARG = "reportFormat";
     protected static final String TARGET_DIRECTORY_ARG = "targetDirectory";
     protected static final String TARGET_FILENAME_ARG = "targetFilename";
+
+    @Autowired
+    CommonUtils commonUtils;
+
+    public abstract String getDefaultFilename();
 
     public enum ReportFormat {
         csv(','),
@@ -76,7 +84,9 @@ public abstract class AbstractReport implements CommandLineRunner {
     }
 
     public AbstractReport() throws ReportException {
-
+        resources = new ArrayList<>();
+        resources.add("IMPC");
+        resources.add("3i");
     }
 
     public Map<String, String> parse(String[] args) {

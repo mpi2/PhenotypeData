@@ -422,132 +422,132 @@ public class ReportsService {
     }
 
 
-    public List<List<String[]>> getHitsPerParameterAndProcedure(){
-    	//Columns:
-    	//	parameter name | parameter stable id | number of significant hits
+//    public List<List<String[]>> getHitsPerParameterAndProcedure(){
+//    	//Columns:
+//    	//	parameter name | parameter stable id | number of significant hits
+//
+//    	List<List<String[]>> res = new ArrayList<>();
+//    	try {
+//    		List<String[]> parameters = new ArrayList<>();
+//    		String[] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
+//    		parameters.add(headerParams);
+//    		parameters.addAll(gpService.getHitsDistributionByParameter(resources));
+//
+//    		List<String[]> procedures = new ArrayList<>();
+//    		String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
+//    		procedures.add(headerProcedures);
+//    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
+//
+//			res.add(parameters);
+//			res.add(procedures);
+//
+//		} catch (SolrServerException | InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//		}
+//    	return res;
+//
+//    }
 
-    	List<List<String[]>> res = new ArrayList<>();
-    	try {
-    		List<String[]> parameters = new ArrayList<>();
-    		String[] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
-    		parameters.add(headerParams);
-    		parameters.addAll(gpService.getHitsDistributionByParameter(resources));
 
-    		List<String[]> procedures = new ArrayList<>();
-    		String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
-    		procedures.add(headerProcedures);
-    		procedures.addAll(gpService.getHitsDistributionByProcedure(resources));
-
-			res.add(parameters);
-			res.add(procedures);
-
-		} catch (SolrServerException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
-    	return res;
-
-    }
-
-
-    public List<List<String[]>> getHitsPerLine(){
-
-    	// TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
-      	//Columns:		parameter name | parameter stable id | number of significant hits
-
-    	List<List<String[]>> res = new ArrayList<>();
-    	try {
-    		List<String[]> zygosityTable = new ArrayList<>();
-    		String[] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
-    		zygosityTable.add(headerParams);
-
-    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
-    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
-    		Map<String, Long> allMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
-
-    		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
-    		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
-    		Map<String, Long> allNoHits = srService.getColoniesNoMPHit(resources, null);
-
-    		HashMap<Long, Integer> homRes = new HashMap<>();
-    		HashMap<Long, Integer> hetRes = new HashMap<>();
-    		HashMap<Long, Integer> allRes = new HashMap<>();
-
-    		long maxHitsPerColony = 0;
-
-    		for (String colony: homsMap.keySet()){
-    			if (homsNoHits.containsKey(colony)){
-    				homsNoHits.remove(colony);
-    			}
-    			if (allNoHits.containsKey(colony)){
-    				allNoHits.remove(colony);
-    			}
-    			long count = homsMap.get(colony);
-    			if (homRes.containsKey(count)){
-    				homRes.put(count, homRes.get(count) + 1);
-    			} else {
-    				homRes.put(count, 1);
-    				if (count > maxHitsPerColony){
-    					maxHitsPerColony = count;
-    				}
-    			}
-    		}
-    		for (String colony: hetsMap.keySet()){
-    			if (hetsNoHits.containsKey(colony)){
-    				hetsNoHits.remove(colony);
-    			}
-    			if (allNoHits.containsKey(colony)){
-    				allNoHits.remove(colony);
-    			}
-    			long count = hetsMap.get(colony);
-    			if (hetRes.containsKey(count)){
-    				hetRes.put(count, hetRes.get(count) + 1);
-    			} else {
-    				hetRes.put(count, 1);
-    				if (count > maxHitsPerColony){
-    					maxHitsPerColony = count;
-    				}
-    			}
-    		}
-    		int tempI = 0;
-    		for (String colony: allMap.keySet()){
-    			if (allNoHits.containsKey(colony)){
-    				allNoHits.remove(colony);
-    			}
-    			long count = allMap.get(colony);
-    			if (allRes.containsKey(count)){
-        			tempI++;
-    				allRes.put(count, allRes.get(count) + 1);
-    			} else {
-    				allRes.put(count, 1);
-        			tempI++;
-    				if (count > maxHitsPerColony){
-    					maxHitsPerColony = count;
-    				}
-    			}
-    		}
-
-    		homRes.put(Long.parseLong("0"), homsNoHits.size());
-    		hetRes.put(Long.parseLong("0"), hetsNoHits.size());
-    		allRes.put(Long.parseLong("0"), allNoHits.size());
-
-    		long iterator = 0;
-
-    		while (iterator <= maxHitsPerColony){
-    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator) ? homRes.get(iterator) : 0),
-    				Long.toString(hetRes.containsKey(iterator) ? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator) ? allRes.get(iterator) : 0)};
-    			zygosityTable.add(row);
-    			iterator += 1;
-    		}
-
-			res.add(zygosityTable);
-
-	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
-
-    	return res;
-
-    }
+//    public List<List<String[]>> getHitsPerLine(){
+//
+//    	// TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
+//      	//Columns:		parameter name | parameter stable id | number of significant hits
+//
+//    	List<List<String[]>> res = new ArrayList<>();
+//    	try {
+//    		List<String[]> zygosityTable = new ArrayList<>();
+//    		String[] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
+//    		zygosityTable.add(headerParams);
+//
+//    		Map<String, Long> homsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, srService.P_VALUE_THRESHOLD);
+//    		Map<String, Long> hetsMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, srService.P_VALUE_THRESHOLD);
+//    		Map<String, Long> allMap = gpService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, srService.P_VALUE_THRESHOLD);
+//
+//    		Map<String, Long> homsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
+//    		Map<String, Long> hetsNoHits = srService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
+//    		Map<String, Long> allNoHits = srService.getColoniesNoMPHit(resources, null);
+//
+//    		HashMap<Long, Integer> homRes = new HashMap<>();
+//    		HashMap<Long, Integer> hetRes = new HashMap<>();
+//    		HashMap<Long, Integer> allRes = new HashMap<>();
+//
+//    		long maxHitsPerColony = 0;
+//
+//    		for (String colony: homsMap.keySet()){
+//    			if (homsNoHits.containsKey(colony)){
+//    				homsNoHits.remove(colony);
+//    			}
+//    			if (allNoHits.containsKey(colony)){
+//    				allNoHits.remove(colony);
+//    			}
+//    			long count = homsMap.get(colony);
+//    			if (homRes.containsKey(count)){
+//    				homRes.put(count, homRes.get(count) + 1);
+//    			} else {
+//    				homRes.put(count, 1);
+//    				if (count > maxHitsPerColony){
+//    					maxHitsPerColony = count;
+//    				}
+//    			}
+//    		}
+//    		for (String colony: hetsMap.keySet()){
+//    			if (hetsNoHits.containsKey(colony)){
+//    				hetsNoHits.remove(colony);
+//    			}
+//    			if (allNoHits.containsKey(colony)){
+//    				allNoHits.remove(colony);
+//    			}
+//    			long count = hetsMap.get(colony);
+//    			if (hetRes.containsKey(count)){
+//    				hetRes.put(count, hetRes.get(count) + 1);
+//    			} else {
+//    				hetRes.put(count, 1);
+//    				if (count > maxHitsPerColony){
+//    					maxHitsPerColony = count;
+//    				}
+//    			}
+//    		}
+//    		int tempI = 0;
+//    		for (String colony: allMap.keySet()){
+//    			if (allNoHits.containsKey(colony)){
+//    				allNoHits.remove(colony);
+//    			}
+//    			long count = allMap.get(colony);
+//    			if (allRes.containsKey(count)){
+//        			tempI++;
+//    				allRes.put(count, allRes.get(count) + 1);
+//    			} else {
+//    				allRes.put(count, 1);
+//        			tempI++;
+//    				if (count > maxHitsPerColony){
+//    					maxHitsPerColony = count;
+//    				}
+//    			}
+//    		}
+//
+//    		homRes.put(Long.parseLong("0"), homsNoHits.size());
+//    		hetRes.put(Long.parseLong("0"), hetsNoHits.size());
+//    		allRes.put(Long.parseLong("0"), allNoHits.size());
+//
+//    		long iterator = 0;
+//
+//    		while (iterator <= maxHitsPerColony){
+//    			String[] row = {Long.toString(iterator), Long.toString(homRes.containsKey(iterator) ? homRes.get(iterator) : 0),
+//    				Long.toString(hetRes.containsKey(iterator) ? hetRes.get(iterator) : 0), Long.toString(allRes.containsKey(iterator) ? allRes.get(iterator) : 0)};
+//    			zygosityTable.add(row);
+//    			iterator += 1;
+//    		}
+//
+//			res.add(zygosityTable);
+//
+//	    } catch (SolrServerException | InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//		}
+//
+//    	return res;
+//
+//    }
 
 
 	/**
@@ -889,8 +889,8 @@ public class ReportsService {
     	table.add(headerLines);
 
     	try {
-    		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
-    		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
+    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
+    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfLinesByMPTopLevel(resources, null));
 
 		   	for (String mp : genesAllMp.keySet()){
@@ -923,8 +923,8 @@ public class ReportsService {
     	table.add(headerGenes);
 
     	try {
-    		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
-    		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
+    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
+    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfGenesByMPTopLevel(resources, null));
 
 		   	for (String mp : genesAllMp.keySet()){
@@ -983,7 +983,7 @@ public class ReportsService {
     	String lastDate;
     	String phenotypingCenter;
     	// < sex, <zygosity, <datapoints>>>
-    	HashMap<String, HashMap<String, ArrayList<Float>>> datapoints;
+    	HashMap<String, HashMap<String, List<Float>>> datapoints;
     	HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
 
 
@@ -1008,11 +1008,11 @@ public class ReportsService {
     			String sex = d.getFieldValue(ObservationDTO.SEX).toString();
     			String zyg = d.getFieldValue(ObservationDTO.ZYGOSITY).toString();
     			if (!datapoints.containsKey(sex)) {
-    				datapoints.put(sex, new HashMap<String, ArrayList<Float>>());
-    				stats.put(sex, new HashMap<String, DescriptiveStatistics>());
+    				datapoints.put(sex, new HashMap<>());
+    				stats.put(sex, new HashMap<>());
     			}
     			if (!datapoints.get(sex).containsKey(zyg)){
-    				datapoints.get(sex).put(zyg, new ArrayList<Float>());
+    				datapoints.get(sex).put(zyg, new ArrayList<>());
     				stats.get(sex).put(zyg, new DescriptiveStatistics());
     			}
     			datapoints.get(sex).get(zyg).add((Float)d.getFieldValue(ObservationDTO.DATA_POINT));
@@ -1023,7 +1023,7 @@ public class ReportsService {
     			}
     			if (!sexes.contains(sex)){
     				sexes.add(sex);
-    				datapoints.get(sex).put("WT", new ArrayList<Float>());
+    				datapoints.get(sex).put("WT", new ArrayList<>());
     				stats.get(sex).put("WT", new DescriptiveStatistics());
     			}
 
