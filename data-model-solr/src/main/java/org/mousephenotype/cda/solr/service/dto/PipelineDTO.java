@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class PipelineDTO {
 
@@ -43,6 +43,12 @@ public class PipelineDTO {
 	public static final String REQUIRED = "required";
 	public static final String MP_TERMS = "mp_terms";
 	public static final String DESCRIPTION = "description";
+	public static final String UNIT = "unit";
+	public static final String INCREMENT = "increment";
+	public static final String METADATA = "metadata";
+	public static final String OPTIONS = "options";
+	public static final String DERIVED = "derived";
+	public static final String MEDIA = "media";
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
@@ -65,6 +71,24 @@ public class PipelineDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
 
 
+
+	@Field(UNIT)
+	private String unit;
+
+	@Field(INCREMENT)
+	private boolean increment;
+
+	@Field(METADATA)
+	private boolean metadata;
+
+	@Field(OPTIONS)
+	private boolean options;
+
+	@Field(DERIVED)
+	private boolean derived;
+
+	@Field(MEDIA)
+	private boolean media;		
 	
 	@Field(REQUIRED)
 	private boolean required;
