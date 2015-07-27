@@ -178,8 +178,8 @@
 	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	
 	<!--  MA stuff -->
-	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>

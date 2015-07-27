@@ -253,7 +253,7 @@ public class ImpressService {
 		List<PipelineDTO> pipelineDtos=null;
 		SolrQuery query = new SolrQuery()
 			.setQuery(PipelineDTO.MA_ID + ":*" )
-			.setFields(PipelineDTO.MA_ID, PipelineDTO.MA_NAME, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
+			.setFields(PipelineDTO.MA_ID, PipelineDTO.MA_TERM, PipelineDTO.PARAMETER_STABLE_ID).setRows(1000000);
 		QueryResponse response=null;
 		
 		try {
