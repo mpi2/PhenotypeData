@@ -18,6 +18,8 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.mousephenotype.cda.reports.support.MpCSVWriter;
+import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -53,7 +55,7 @@ public abstract class AbstractReport implements CommandLineRunner {
 
     protected static final String HELP_ARG = "help";
     protected static final String PROPERTIES_FILE_ARG = "propertiesFile";
-    protected static final String TARGET_REPORT_FORMAT_ARG = "delimeter";
+    protected static final String REPORT_FORMAT_ARG = "reportFormat";
     protected static final String TARGET_DIRECTORY_ARG = "targetDirectory";
     protected static final String TARGET_FILENAME_ARG = "targetFilename";
 
@@ -98,8 +100,8 @@ public abstract class AbstractReport implements CommandLineRunner {
             propertyMap.put(TARGET_DIRECTORY_ARG, ps.getProperty(TARGET_DIRECTORY_ARG).toString());
         }
 
-        if ((ps.containsProperty(TARGET_REPORT_FORMAT_ARG))  && ps.getProperty(TARGET_REPORT_FORMAT_ARG) != null) {
-            propertyMap.put(TARGET_REPORT_FORMAT_ARG, ps.getProperty(TARGET_REPORT_FORMAT_ARG).toString());
+        if ((ps.containsProperty(REPORT_FORMAT_ARG))  && ps.getProperty(REPORT_FORMAT_ARG) != null) {
+            propertyMap.put(REPORT_FORMAT_ARG, ps.getProperty(REPORT_FORMAT_ARG).toString());
         }
 
         return propertyMap;
@@ -139,11 +141,11 @@ public abstract class AbstractReport implements CommandLineRunner {
             retVal.add("Expected required target filename.");
         }
 
-        if (propertyMap.containsKey(TARGET_REPORT_FORMAT_ARG)) {
+        if (propertyMap.containsKey(REPORT_FORMAT_ARG)) {
             try {
-                this.reportFormat = ReportFormat.valueOf(TARGET_REPORT_FORMAT_ARG);
+                this.reportFormat = ReportFormat.valueOf(propertyMap.get(REPORT_FORMAT_ARG));
             } catch (IllegalArgumentException | NullPointerException e) {
-                retVal.add("Unknown report format type '" + propertyMap.get(TARGET_REPORT_FORMAT_ARG) + "'.");
+                retVal.add("Unknown report format type '" + propertyMap.get(REPORT_FORMAT_ARG) + "'.");
             }
         } else {
             this.reportFormat = ReportFormat.csv;
@@ -196,7 +198,7 @@ public abstract class AbstractReport implements CommandLineRunner {
                 "--" + PROPERTIES_FILE_ARG       + "=properties_file (no extension)\n" +
                 "--" + TARGET_DIRECTORY_ARG      + "=target_directory\n" +
                 "--" + TARGET_FILENAME_ARG       + "=target_filename\n" +
-                "[--" + TARGET_REPORT_FORMAT_ARG + "=target_report_filename] (default is csv)\n" +
+                "[--" + REPORT_FORMAT_ARG + "=target_report_filename] (default is csv)\n" +
                 "[--" + HELP_ARG + "]\n");
         System.out.println();
         System.out.println("Report Formats: { csv | tsv }\n");

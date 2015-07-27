@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class PipelineDTO {
 
@@ -43,6 +43,12 @@ public class PipelineDTO {
 	public static final String REQUIRED = "required";
 	public static final String MP_TERMS = "mp_terms";
 	public static final String DESCRIPTION = "description";
+	public static final String UNIT = "unit";
+	public static final String INCREMENT = "increment";
+	public static final String METADATA = "metadata";
+	public static final String OPTIONS = "options";
+	public static final String DERIVED = "derived";
+	public static final String MEDIA = "media";
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
@@ -57,7 +63,7 @@ public class PipelineDTO {
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
 
 	public static final String MA_ID = "ma_id";
-	public static final String MA_NAME = "ma_term";
+	public static final String MA_TERM = "ma_term";
 	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
 	public static final String INFERRED_MA_TERM_SYNONYM = MpDTO.INFERRED_MA_TERM_SYNONYM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
@@ -65,6 +71,24 @@ public class PipelineDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
 
 
+
+	@Field(UNIT)
+	private String unit;
+
+	@Field(INCREMENT)
+	private boolean increment;
+
+	@Field(METADATA)
+	private boolean metadata;
+
+	@Field(OPTIONS)
+	private boolean options;
+
+	@Field(DERIVED)
+	private boolean derived;
+
+	@Field(MEDIA)
+	private boolean media;		
 	
 	@Field(REQUIRED)
 	private boolean required;
@@ -168,10 +192,10 @@ public class PipelineDTO {
 	private List<String> inferredSelectedTopLevelMaId;
 	
 	@Field(MA_ID)
-	private String maTermId;
+	private String maId;
 	
-	@Field(MA_NAME)
-	private String maName;
+	@Field(MA_TERM)
+	private String maTerm;
 
 
 	
@@ -653,22 +677,22 @@ public class PipelineDTO {
 
 
 	public String getMaTermId() {
-		return maTermId;
+		return maId;
 	}
 
 
-	public void setMaTermId(String maTermId) {
-		this.maTermId = maTermId;
+	public void setMaId(String maId) {
+		this.maId = maId;
 	}
 
 
 	public String getMaName() {
-		return maName;
+		return maTerm;
 	}
 
 
 	public void setMaName(String maName) {
-		this.maName = maTermId;
+		this.maTerm = maName;
 	}
 
 
@@ -688,8 +712,8 @@ public class PipelineDTO {
 				+ inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
 				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
 				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
-				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maTermId=" + maTermId
-				+ ", maName=" + maName + "]";
+				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maTermId=" + maId
+				+ ", maName=" + maTerm + "]";
 	}
 
 	

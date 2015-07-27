@@ -158,6 +158,12 @@
     <field name="observation_type" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="mp_terms" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="description" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="unit" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="metadata" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="increment" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="options" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="derived" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="media" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
 
 	<!-- MP stuff -->
 	
@@ -178,8 +184,8 @@
 	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
 	
 	<!--  MA stuff -->
-	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
