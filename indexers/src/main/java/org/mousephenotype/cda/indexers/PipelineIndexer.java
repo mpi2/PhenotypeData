@@ -172,9 +172,11 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setIdIdId(ididid);
 
 					doc.setRequired(procBean.required);
-					doc.setDescription(procBean.description);
+					//doc.setDescription(procBean.description); -> maybe we don't need this. If we do, should differentiate from parameter description.
 					doc.setObservationType(param.observationType.toString());
-					doc.setUnit(param.unit);
+					if (param.unit != null){
+						doc.setUnit(param.unit);
+					}
 					doc.setMetadata(param.metadata);
 					doc.setIncrement(param.increment);
 					doc.setHasOptions(param.options);
@@ -183,6 +185,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					
 					if (param.categories.size() > 0){
 						doc.setCategories(param.categories);
+						System.out.println("Adding " + param.categories);
 					}					
 					if(param.abnormalMaId != null){
 						doc.setMaId(param.abnormalMaId);
@@ -203,17 +206,14 @@ public class PipelineIndexer extends AbstractIndexer {
 					documentCount++;
 					pipelineCore.addBean(doc);
 					if(documentCount % 10000 == 0){
-						System.out.println("Commit to Solr. Document count = " + documentCount);
+						logger.info("Commit to Solr. Document count = " + documentCount);
 						pipelineCore.commit();
 					}
 				}
 
 			}
-
-			logger.info("Commiting to Pipeline core for last time. ");
-			logger.info("Pipeline commit started...");
+			logger.info("Commit to Solr. Document count = " + documentCount);
 			pipelineCore.commit();
-			logger.info("Pipeline commit finished.");
 
 		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();
@@ -223,8 +223,8 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
 		long endTime = System.currentTimeMillis();
-		logger.info("time was " + (endTime - startTime) / 1000);
-		logger.info("Pipeline Indexer complete!");
+		logger.info("Pipeline indexer completed in " + ( (endTime - startTime) / 1000));
+
 	}
 	
 
@@ -262,11 +262,11 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.media = resultSet.getBoolean("media");
 				param.observationType = assignType(param);
 				if (param.observationType == null){
-					System.out.println("Obs type is NULL for :" + param.parameterStableId + "  " + param.observationType);
+					logger.warn("Obs type is NULL for :" + param.parameterStableId + "  " + param.observationType);
 				}
 				localParamDbIdToParameter.put(id, param);
 			}
-			System.out.println("[Check] should be 5704+ phenotype parameter and has "	+ localParamDbIdToParameter.size() + " entries");
+			logger.info("[Check] should be 5704+ phenotype parameter and has "	+ localParamDbIdToParameter.size() + " entries");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -286,8 +286,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, ParameterDTO> addCategories(Map<String, ParameterDTO> stableIdToParameter){
 
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
-		String queryString = "SELECT * FROM phenotype_parameter p INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
-				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id ORDER BY stable_id ASC;";
+		String queryString = "SELECT stable_id, o.name AS cat_name, o.description AS cat_description "
+				+ " FROM phenotype_parameter p "
+				+ " INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
+				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id "
+				+ " ORDER BY stable_id ASC;";
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			
@@ -322,8 +325,8 @@ public class PipelineIndexer extends AbstractIndexer {
 	private String getCategory (ResultSet resultSet) 
 	throws SQLException{
 		
-		String name = resultSet.getString("name");
-		String description = resultSet.getString("description");
+		String name = resultSet.getString("cat_name");
+		String description = resultSet.getString("cat_description");
 		if (name.matches("[0-9]+")){
 			return description;
 		}
@@ -375,7 +378,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	
 	private Map<String, Set<String>> populateProcedureToParameterMap() {
 
-		logger.info("Populating param To ProcedureId info");
+		logger.info("Populating procIdToParams");
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
 		
 		String queryString = "SELECT procedure_id, parameter_id, pp.stable_id as parameter_stable_id, pproc.stable_id as procedure_stable_id "
@@ -402,13 +405,14 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("[Check] procIdToParams should be 5704+  size=" + procIdToParams.size());
+		logger.info("[Check] procIdToParams should be 5704+  size=" + procIdToParams.size());
 		return procIdToParams;
 	}
 
 	private Map<String, ProcedureDTO> populateProcedureIdToProcedureMap() {
 
-		logger.info("populating procedureId to Procedure Map info");
+		logger.info("Populating procedureIdToProcedureMap");
+		
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
 		String queryString = "SELECT id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id "
 				+ "FROM phenotype_procedure";
@@ -431,15 +435,17 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("[Check] should be 187+ procedureIdToProcedureMap size="
-				+ procedureIdToProcedureMap.size());
+		
+		logger.info("[Check] should be 190+ procedureIdToProcedureMap size=" + procedureIdToProcedureMap.size());
+		
 		return procedureIdToProcedureMap;
 	}
 
 
 	private List<PipelineBean> populateProcedureIdToPipelineMap() {
 
-		logger.info("populating procedureId to  pipeline Map info");
+		logger.info("Populating procIdToPipelineMap");
+		
 		List<PipelineBean> procIdToPipelineMap = new ArrayList<>();
 		String queryString = "SELECT pproc.stable_id as procedure_stable_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, "
 				+ " ppipe.stable_key AS pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) AS pipe_proc_sid "
