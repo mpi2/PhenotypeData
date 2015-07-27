@@ -49,41 +49,6 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.fail;
 
-//import org.apache.commons.lang3.StringUtils;
-//import org.apache.log4j.Logger;
-//import org.apache.solr.client.solrj.SolrQuery;
-//import org.apache.solr.client.solrj.SolrServer;
-//import org.apache.solr.client.solrj.response.Group;
-//import org.apache.solr.client.solrj.response.GroupCommand;
-//import org.apache.solr.client.solrj.response.QueryResponse;
-//import org.apache.solr.common.SolrDocument;
-//import org.apache.solr.common.SolrDocumentList;
-//import org.mousephenotype.www.testing.exception.GraphTestException;
-//import org.openqa.selenium.*;
-//import org.openqa.selenium.remote.RemoteWebDriver;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import uk.ac.ebi.generic.util.Tools;
-//import uk.ac.ebi.phenotype.chart.ChartType;
-//import uk.ac.ebi.phenotype.chart.ChartUtils;
-//import uk.ac.ebi.phenotype.dao.PhenotypePipelineDAO;
-//import uk.ac.ebi.phenotype.pojo.ObservationType;
-//import uk.ac.ebi.phenotype.service.ObservationService;
-//import uk.ac.ebi.phenotype.service.PostQcService;
-//import uk.ac.ebi.phenotype.service.PreQcService;
-//import uk.ac.ebi.phenotype.service.dto.GraphTestDTO;
-//import uk.ac.ebi.phenotype.util.Utils;
-//
-//import javax.annotation.Resource;
-//import java.net.URL;
-//import java.net.URLClassLoader;
-//import java.net.URLDecoder;
-//import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
-//import java.util.*;
-//import java.util.regex.Pattern;
-//
-//import static com.thoughtworks.selenium.SeleneseTestBase.fail;
-
 /**
  * This class is intended to hold methods useful for testing but not worthy of their own class.
  *
