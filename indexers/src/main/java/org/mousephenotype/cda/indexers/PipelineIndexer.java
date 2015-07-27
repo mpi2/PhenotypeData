@@ -172,9 +172,11 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setIdIdId(ididid);
 
 					doc.setRequired(procBean.required);
-					doc.setDescription(procBean.description);
+					//doc.setDescription(procBean.description); -> maybe we don't need this. If we do, should differentiate from parameter description.
 					doc.setObservationType(param.observationType.toString());
-					doc.setUnit(param.unit);
+					if (param.unit != null){
+						doc.setUnit(param.unit);
+					}
 					doc.setMetadata(param.metadata);
 					doc.setIncrement(param.increment);
 					doc.setHasOptions(param.options);
@@ -183,6 +185,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					
 					if (param.categories.size() > 0){
 						doc.setCategories(param.categories);
+						System.out.println("Adding " + param.categories);
 					}					
 					if(param.abnormalMaId != null){
 						doc.setMaId(param.abnormalMaId);
@@ -203,17 +206,14 @@ public class PipelineIndexer extends AbstractIndexer {
 					documentCount++;
 					pipelineCore.addBean(doc);
 					if(documentCount % 10000 == 0){
-						System.out.println("Commit to Solr. Document count = " + documentCount);
+						logger.info("Commit to Solr. Document count = " + documentCount);
 						pipelineCore.commit();
 					}
 				}
 
 			}
-
-			logger.info("Commiting to Pipeline core for last time. ");
-			logger.info("Pipeline commit started...");
+			logger.info("Commit to Solr. Document count = " + documentCount);
 			pipelineCore.commit();
-			logger.info("Pipeline commit finished.");
 
 		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();
@@ -223,8 +223,8 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
 		long endTime = System.currentTimeMillis();
-		logger.info("time was " + (endTime - startTime) / 1000);
-		logger.info("Pipeline Indexer complete!");
+		logger.info("Pipeline indexer completed in " + ( (endTime - startTime) / 1000));
+
 	}
 	
 
@@ -286,8 +286,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, ParameterDTO> addCategories(Map<String, ParameterDTO> stableIdToParameter){
 
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
-		String queryString = "SELECT * FROM phenotype_parameter p INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
-				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id ORDER BY stable_id ASC;";
+		String queryString = "SELECT stable_id, o.name AS cat_name, o.description AS cat_description "
+				+ " FROM phenotype_parameter p "
+				+ " INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
+				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id "
+				+ " ORDER BY stable_id ASC;";
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			
@@ -322,8 +325,8 @@ public class PipelineIndexer extends AbstractIndexer {
 	private String getCategory (ResultSet resultSet) 
 	throws SQLException{
 		
-		String name = resultSet.getString("name");
-		String description = resultSet.getString("description");
+		String name = resultSet.getString("cat_name");
+		String description = resultSet.getString("cat_description");
 		if (name.matches("[0-9]+")){
 			return description;
 		}
