@@ -158,6 +158,12 @@
     <field name="observation_type" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="mp_terms" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
     <field name="description" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="unit" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="metadata" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="increment" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="options" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="derived" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="media" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
 
 	<!-- MP stuff -->
 	

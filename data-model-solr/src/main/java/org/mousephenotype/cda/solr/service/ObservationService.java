@@ -406,6 +406,29 @@ public class ObservationService extends BasicService {
         query.setRows(Integer.MAX_VALUE);
         return solr.query(query).getBeans(ObservationDTO.class);
     }
+    
+    
+    /**
+     * @author tudose
+     * @since 2015/07/27
+     * @param parameterStableId
+     * @return the observation type for that parameter or null if no data
+     * @throws SolrServerException
+     */
+    public ObservationType getObservationTypeForParameterStableId(String parameterStableId) throws SolrServerException {
+    	
+        SolrQuery query = new SolrQuery();
+        query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+        query.setRows(Integer.MAX_VALUE);
+        query.addField(ObservationDTO.OBSERVATION_TYPE);
+        
+        List<ObservationDTO> res = solr.query(query).getBeans(ObservationDTO.class);
+        if (res != null && res.size() > 0){
+        	return ObservationType.valueOf(res.get(0).getObservationType());
+        }
+        
+        return null;
+    }
 
     public long getNumberOfDocuments(List<String> resourceName, boolean experimentalOnly)
             throws SolrServerException {
@@ -1489,46 +1512,6 @@ public class ObservationService extends BasicService {
             resSet.add(catObj);
         }
         return resSet;
-    }
-
-
-    public ObservationType getObservationTypeForParameterStableId(String paramStableId)
-    throws SolrServerException {
-
-        SolrQuery q = new SolrQuery().setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + paramStableId);
-        q.set("rows", 1);
-        QueryResponse response = solr.query(q);
-        String type = (String) response.getResults().get(0).getFieldValue(ObservationDTO.OBSERVATION_TYPE);
-
-        if (type.equalsIgnoreCase(ObservationType.unidimensional.toString())) {
-            return ObservationType.unidimensional;
-        }
-
-        if (type.equalsIgnoreCase(ObservationType.categorical.toString())) {
-            return ObservationType.categorical;
-        }
-
-        if (type.equalsIgnoreCase(ObservationType.time_series.toString())) {
-            return ObservationType.time_series;
-        }
-
-        if (type.equalsIgnoreCase(ObservationType.image_record.toString())) {
-            return ObservationType.image_record;
-        }
-
-        if (type.equalsIgnoreCase(ObservationType.metadata.toString())) {
-            return ObservationType.metadata;
-        }
-
-        if (type.equalsIgnoreCase(ObservationType.multidimensional.toString())) {
-            return ObservationType.multidimensional;
-        }
-
-        if (type.equalsIgnoreCase(ObservationType.text.toString())) {
-            return ObservationType.text;
-        }
-
-        return null;
     }
 
 
