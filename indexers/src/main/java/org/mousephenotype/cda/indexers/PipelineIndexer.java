@@ -188,18 +188,30 @@ public class PipelineIndexer extends AbstractIndexer {
 						doc.setMaId(param.abnormalMaId);
 						doc.setMaName(param.abnormalMaName);
 					}
+
+					if (param.mpIds.size() > 0){
+						for (String mpId : param.mpIds){
+							doc.addMpId(mpId);
+							MpDTO mp = mpIdToMp.get(mpId);
+							doc.addMpTerm(mp.getMpTerm());
+							doc.addIntermediateMpId(mp.getIntermediateMpId());
+							doc.addIntermediateMpTerm(mp.getIntermediateMpTerm());
+							doc.addTopLevelMpId(mp.getTopLevelMpId());
+							doc.addTopLevelMpTerm(mp.getTopLevelMpTerm());
+						}
+					}
 					documentCount++;
 					pipelineCore.addBean(doc);
 					if(documentCount % 10000 == 0){
-						System.out.println("documentCount=" + documentCount);
+						System.out.println("Commit to Solr. Document count = " + documentCount);
 						pipelineCore.commit();
 					}
 				}
 
 			}
 
-			logger.info("commiting to Pipeline core for last time!");
-			logger.info("Pipeline commit started.");
+			logger.info("Commiting to Pipeline core for last time. ");
+			logger.info("Pipeline commit started...");
 			pipelineCore.commit();
 			logger.info("Pipeline commit finished.");
 
@@ -227,8 +239,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		logger.info("populating PCS pipeline info");
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
-		String queryString = "select * from phenotype_parameter";
-		//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100;
+		String queryString = "SELECT * FROM phenotype_parameter";
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			ResultSet resultSet = p.executeQuery();
@@ -251,9 +262,8 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.media = resultSet.getBoolean("media");
 				param.observationType = assignType(param);
 				if (param.observationType == null){
-					System.out.println("Obs type : " + param.parameterStableId + "  " + param.observationType);
+					System.out.println("Obs type is NULL for :" + param.parameterStableId + "  " + param.observationType);
 				}
-				// TODO mp_terms 
 				localParamDbIdToParameter.put(id, param);
 			}
 			System.out.println("[Check] should be 5704+ phenotype parameter and has "	+ localParamDbIdToParameter.size() + " entries");
@@ -274,10 +284,10 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @return
 	 */
 	private Map<String, ParameterDTO> addCategories(Map<String, ParameterDTO> stableIdToParameter){
-		
-		String queryString = "SELECT * FROM phenotype_parameter p INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
-				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id order by stable_id ASC limit 10;";
+
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
+		String queryString = "SELECT * FROM phenotype_parameter p INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
+				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id ORDER BY stable_id ASC;";
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			
@@ -286,7 +296,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			
 			while (resultSet.next()) {
 				
-				String paramId = resultSet.getString("parameter_stable_id");
+				String paramId = resultSet.getString("stable_id");
 				if (param == null || !param.parameterStableId.equalsIgnoreCase(paramId)){
 					param = stableIdToParameter.get(paramId);
 				}
@@ -320,6 +330,46 @@ public class PipelineIndexer extends AbstractIndexer {
 		
 		return name;
 		
+	}
+	
+	
+	/**
+	 * @since 2015/07/27
+	 * @author tudose
+	 * @param stableIdToParameter
+	 * @return
+	 */
+	private Map<String, ParameterDTO> addMpTerms(Map<String, ParameterDTO> stableIdToParameter){
+		
+		String queryString = "SELECT * FROM phenotype_parameter pp "
+				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=pp.id "
+				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON l.annotation_id=ppoa.id "
+				+ " WHERE ontology_db_id=5 "
+				+ " ORDER BY stable_id ASC; ";
+		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
+		
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+			
+			ResultSet resultSet = p.executeQuery();
+			ParameterDTO param = null;
+			
+			while (resultSet.next()) {
+				
+				String paramId = resultSet.getString("stable_id");
+				if (param == null || !param.parameterStableId.equalsIgnoreCase(paramId)){
+					param = stableIdToParameter.get(paramId);
+				}
+				
+				param.mpIds.add(resultSet.getString("ontology_acc"));
+				localIdToParameter.put(param.parameterStableId, param);				
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return localIdToParameter;
+	
 	}
 	
 	
@@ -606,6 +656,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		
 		List<String> procedureStableIds;
 		List<String> categories = new ArrayList<>();
+		List<String> mpIds = new ArrayList<>();
 		
 	}
 }
