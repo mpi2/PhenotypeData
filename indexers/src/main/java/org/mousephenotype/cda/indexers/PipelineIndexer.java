@@ -30,27 +30,22 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.maven.doxia.logging.Log;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
-import org.neo4j.cypher.internal.compiler.v2_1.planner.logical.steps.uniqueIndexSeekLeafPlanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-/**
- * Populate the MA core
- */
+
+
 public class PipelineIndexer extends AbstractIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(PipelineIndexer.class);
@@ -59,10 +54,6 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
-
-	@Autowired
-	@Qualifier("alleleIndexing")
-	SolrServer alleleCore;
 
 	@Autowired
 	@Qualifier("mpIndexing")
@@ -75,12 +66,10 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Autowired
 	ObservationService os;
 	
-	private Map<String, ParameterDTO> paramDbIdToParameter;
-	private Map<String, Set<String>> procedureIdToParams;
+	private Map<String, ParameterDTO> paramIdToParameter;
+	private Map<String, Set<String>> procedureIdToParamIds;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
 	private List<PipelineBean> pipelines;
-	private Map<String, List<GfMpBean>> pppidsToGfMpBeans;
-	private Map<String, List<AlleleDTO>> mgiToAlleleMap;
 	private Map<String, MpDTO> mpIdToMp;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
@@ -130,13 +119,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	private void initialiseSupportingBeans()
 	throws IndexerException {
 
-		paramDbIdToParameter = populateParamDbIdToParametersMap();
-		procedureIdToParams = populateProcedureToParameterMap();
+		paramIdToParameter = populateParamDbIdToParametersMap();
+		procedureIdToParamIds = populateProcedureToParameterMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populateProcedureIdToPipelineMap();
 		addAbnormalMaOntologyMap();
-		pppidsToGfMpBeans = populateGfAccAndMp();
-		mgiToAlleleMap = IndexerMap.getGeneToAlleles(alleleCore);
 		mpIdToMp = populateMpIdToMp();
 	}
 	
@@ -157,12 +144,12 @@ public class PipelineIndexer extends AbstractIndexer {
 
 			for (PipelineBean pipeline : pipelines) {
 
-				Set<String> parameterIds = procedureIdToParams.get(pipeline.procedureStableId);
+				Set<String> parameterIds = procedureIdToParamIds.get(pipeline.procedureStableId);
 
 				for (String paramId : parameterIds) {
 					
 					PipelineDTO doc = new PipelineDTO();
-					ParameterDTO param = paramDbIdToParameter.get(paramId);
+					ParameterDTO param = paramIdToParameter.get(paramId);
 					ProcedureDTO procBean = procedureIdToProcedure.get(pipeline.procedureStableId);
 					
 					doc.setParameterId(param.parameterId);
@@ -447,8 +434,8 @@ public class PipelineIndexer extends AbstractIndexer {
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
-				paramDbIdToParameter.get(parameterId).abnormalMaId = resultSet.getString("ontology_acc");
-				paramDbIdToParameter.get(parameterId).abnormalMaName = resultSet.getString("name");
+				paramIdToParameter.get(parameterId).abnormalMaId = resultSet.getString("ontology_acc");
+				paramIdToParameter.get(parameterId).abnormalMaName = resultSet.getString("name");
 			}
 
 		} catch (Exception e) {
@@ -457,47 +444,6 @@ public class PipelineIndexer extends AbstractIndexer {
 		
 	}
 
-
-	private Map<String, List<GfMpBean>> populateGfAccAndMp() {
-		
-		logger.info("populating GfAcc and Mp info - started");
-		Map<String, List<GfMpBean>> gfMpBeansMap = new HashMap<>();
-		String queryString = "select distinct concat(s.parameter_id,'_',s.procedure_id,'_',s.pipeline_id) as pppIds, s.gf_acc, s.mp_acc, s.parameter_id as pp_parameter_id, s.procedure_id as pproc_procedure_id, s.pipeline_id as ppipe_pipeline_id, s.allele_acc, s.strain_acc from phenotype_parameter pp INNER JOIN phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id INNER JOIN phenotype_procedure pproc on ppp.procedure_id=pproc.id INNER JOIN phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id INNER JOIN phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id inner join phenotype_call_summary s on ppipe.id=s.pipeline_id and pproc.id=s.procedure_id and pp.id=s.parameter_id";
-
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
-			
-			ResultSet resultSet = p.executeQuery();
-			while (resultSet.next()) {
-				GfMpBean gfMpBean = new GfMpBean();
-
-				String pppids = resultSet.getString("pppids");
-				String gfAcc = resultSet.getString("gf_acc");
-				String mpAcc = resultSet.getString("mp_acc");
-				gfMpBean.gfAcc = gfAcc;
-				gfMpBean.mpAcc = mpAcc;
-				List<GfMpBean> beanList = new ArrayList<>();
-				if (gfMpBeansMap.containsKey(pppids)) {
-					beanList = gfMpBeansMap.get(pppids);
-				}
-				beanList.add(gfMpBean);
-				gfMpBeansMap.put(pppids, beanList);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		logger.info("populating GfAcc and Mp info - finished");
-
-		return gfMpBeansMap;
-	}
-
-	class GfMpBean {
-
-		String gfAcc;
-		String mpAcc;
-
-	}
 
 	private Map<String, MpDTO> populateMpIdToMp() 
 	throws IndexerException {
