@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 public class PipelineDTO {
 
@@ -43,6 +43,13 @@ public class PipelineDTO {
 	public static final String REQUIRED = "required";
 	public static final String MP_TERMS = "mp_terms";
 	public static final String DESCRIPTION = "description";
+	public static final String UNIT = "unit";
+	public static final String INCREMENT = "increment";
+	public static final String METADATA = "metadata";
+	public static final String HAS_OPTIONS = "has_options";
+	public static final String CATEGORIES = "categories";
+	public static final String DERIVED = "derived";
+	public static final String MEDIA = "media";
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
@@ -64,7 +71,26 @@ public class PipelineDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
 
+	@Field(CATEGORIES)
+	private List<String> catgories;
 
+	@Field(UNIT)
+	private String unit;
+
+	@Field(INCREMENT)
+	private boolean increment;
+
+	@Field(METADATA)
+	private boolean metadata;
+
+	@Field(HAS_OPTIONS)
+	private boolean hasOptions;
+
+	@Field(DERIVED)
+	private boolean derived;
+
+	@Field(MEDIA)
+	private boolean media;		
 	
 	@Field(REQUIRED)
 	private boolean required;
@@ -182,6 +208,16 @@ public class PipelineDTO {
 
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+
+
+	public List<String> getCategories() {
+		return catgories;
+	}
+
+
+	public void setCategories(List<String> catgories) {
+		this.catgories = catgories;
 	}
 
 
@@ -672,25 +708,101 @@ public class PipelineDTO {
 	}
 
 
-	@Override
-	public String toString() {
-		return "PipelineDTO [required=" + required + ", description=" + description + ", mpTerms=" + mpTerms
-				+ ", observationType=" + observationType + ", parameterId=" + parameterId + ", parameterStableId="
-				+ parameterStableId + ", parameterName=" + parameterName + ", parameterStableKey=" + parameterStableKey
-				+ ", procedureId=" + procedureId + ", procedureStableId=" + procedureStableId + ", procedureName="
-				+ procedureName + ", procedureStableKey=" + procedureStableKey + ", pipelineId=" + pipelineId
-				+ ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey=" + pipelineStableKey
-				+ ", pipelineName=" + pipelineName + ", ididid=" + ididid + ", mpId=" + mpId + ", mpTerm=" + mpTerm
-				+ ", mpTermSynonym=" + mpTermSynonym + ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm="
-				+ topLevelMpTerm + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpId="
-				+ intermediateMpId + ", intermediateMpTerm=" + intermediateMpTerm + ", intermediateMpTermSynonym="
-				+ intermediateMpTermSynonym + ", inferredMaId=" + inferredMaId + ", inferredMaTermSynonym="
-				+ inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
-				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
-				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
-				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maTermId=" + maId
-				+ ", maName=" + maTerm + "]";
+	public String getUnit() {
+		return unit;
 	}
 
-	
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+
+	public boolean isIncrement() {
+		return increment;
+	}
+
+
+	public void setIncrement(boolean increment) {
+		this.increment = increment;
+	}
+
+
+	public boolean isMetadata() {
+		return metadata;
+	}
+
+
+	public void setMetadata(boolean metadata) {
+		this.metadata = metadata;
+	}
+
+
+	public boolean getHasOptions() {
+		return hasOptions;
+	}
+
+
+	public void setHasOptions(boolean hasOptions) {
+		this.hasOptions = hasOptions;
+	}
+
+
+	public boolean isDerived() {
+		return derived;
+	}
+
+
+	public void setDerived(boolean derived) {
+		this.derived = derived;
+	}
+
+
+	public boolean isMedia() {
+		return media;
+	}
+
+
+	public void setMedia(boolean media) {
+		this.media = media;
+	}
+
+
+	public String getMaTerm() {
+		return maTerm;
+	}
+
+
+	public void setMaTerm(String maTerm) {
+		this.maTerm = maTerm;
+	}
+
+
+	public String getMaId() {
+		return maId;
+	}
+
+
+	@Override
+	public String toString() {
+		return "PipelineDTO [unit=" + unit + ", increment=" + increment + ", metadata=" + metadata + ", hasOptions="
+				+ hasOptions + ", derived=" + derived + ", media=" + media + ", required=" + required + ", description="
+				+ description + ", mpTerms=" + mpTerms + ", observationType=" + observationType + ", parameterId="
+				+ parameterId + ", parameterStableId=" + parameterStableId + ", parameterName=" + parameterName
+				+ ", parameterStableKey=" + parameterStableKey + ", procedureId=" + procedureId + ", procedureStableId="
+				+ procedureStableId + ", procedureName=" + procedureName + ", procedureStableKey=" + procedureStableKey
+				+ ", pipelineId=" + pipelineId + ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey="
+				+ pipelineStableKey + ", pipelineName=" + pipelineName + ", ididid=" + ididid + ", mpId=" + mpId
+				+ ", mpTerm=" + mpTerm + ", mpTermSynonym=" + mpTermSynonym + ", topLevelMpId=" + topLevelMpId
+				+ ", topLevelMpTerm=" + topLevelMpTerm + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym
+				+ ", intermediateMpId=" + intermediateMpId + ", intermediateMpTerm=" + intermediateMpTerm
+				+ ", intermediateMpTermSynonym=" + intermediateMpTermSynonym + ", inferredMaId=" + inferredMaId
+				+ ", inferredMaTermSynonym=" + inferredMaTermSynonym + ", selectedTopLevelMaId=" + selectedTopLevelMaId
+				+ ", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm
+				+ ", inferredSelectedToLevelMaTermSynonym=" + inferredSelectedToLevelMaTermSynonym
+				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maId=" + maId + ", maTerm="
+				+ maTerm + "]";
+	}
+
+
 }

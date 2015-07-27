@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.reports;
+package org.mousephenotype.cda.reports.support;
 
 import org.mousephenotype.cda.db.dao.HibernateDAO;
 
