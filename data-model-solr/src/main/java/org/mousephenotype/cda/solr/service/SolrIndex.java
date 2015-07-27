@@ -45,7 +45,7 @@ public class SolrIndex {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@NotNull
-	@Value("${baseUrl")
+	@Value("${baseUrl}")
 	private String baseUrl;
 
 	@NotNull
@@ -438,6 +438,7 @@ public class SolrIndex {
 			hm.put("field", "expName");
 			hm.put("link", name);
 		} else if (id.startsWith("MGI:")) {
+			
 			String url = baseUrl + "/genes/" + id;
 			hm.put("label", "Gene");
 			hm.put("field", "symbol");
