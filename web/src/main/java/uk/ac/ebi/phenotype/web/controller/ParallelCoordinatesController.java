@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -52,10 +53,8 @@ public class ParallelCoordinatesController {
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
-		System.out.println("Controller for parallel2");
-		
-		model.addAttribute("procedures", os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC"));
-		System.out.println("ADDED " +  os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC"));
+		List<ImpressBean> procedures = os.getProceduresByPipeline(null, "unidimensional", "IMPC", 2);
+		model.addAttribute("procedures", procedures);
 		
 		return "parallel2";
 		
@@ -66,26 +65,21 @@ public class ParallelCoordinatesController {
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
-		System.out.println("GOT in getGraph");
 		if (procedureIds == null){
-			model.addAttribute("procedure", "");
-			
+			model.addAttribute("procedure", "");			
 		}
 		else {
 			String data = srs.getGenotypeEffectFor(procedureIds , false);
 			model.addAttribute("dataJs", data + ";");
-			String procedures = "";
+			String title = "";
 			for (int i = 0;  i < procedureIds.size()-1; i++){
 				String p = procedureIds.get(i);
-				procedures += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + ", ";
+				title += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + ", ";
 			}
-			procedures += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
+			title += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
 			
-			model.addAttribute("procedure", procedures);
+			model.addAttribute("procedure", title);
 		}
-//		String data = os.getMeansFor("IMPC_CBC_*", true);
-//		System.out.println(data);
-//		model.addAttribute("dataJs", data + ";");
 
 		return "parallelFrag";
 	}
