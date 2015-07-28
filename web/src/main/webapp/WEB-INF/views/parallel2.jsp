@@ -27,7 +27,7 @@
 						<form class="tablefiltering no-style" id="target" action="destination.html">
 							<select id="proceduresFilter" class="impcdropdown"  multiple="multiple" title="Select procedures to display">
 		                    	<c:forEach var="procedure" items="${procedures}">
-		                    		<option value="${procedure.getProcedureStableId().substring(0,8)}">${procedure.getProcedureName()}</option>
+		                    		<option value="${procedure.getStableId().substring(0,8)}">${procedure.getName()}</option>
 		                    	</c:forEach>
 		                    </select>
 		                	<div class="clear"></div>
