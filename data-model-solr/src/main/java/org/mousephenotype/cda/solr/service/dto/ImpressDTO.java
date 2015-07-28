@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-public class PipelineDTO {
+public class ImpressDTO {
 
 	private static final String ID_ID_ID = "ididid"; // unique key 
 	
