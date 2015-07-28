@@ -103,9 +103,9 @@ CREATE TABLE analytics_specimen_load (
 	litter_id                  VARCHAR(255) NOT NULL DEFAULT '',
 	impress_pipeline           VARCHAR(50) NOT NULL DEFAULT '',
 	production_center          VARCHAR(100) NOT NULL DEFAULT '',
-  phenotyping_center         VARCHAR(100) NOT NULL DEFAULT '',
+	phenotyping_center         VARCHAR(100) NOT NULL DEFAULT '',
 	project                    VARCHAR(100) NOT NULL DEFAULT '',
-  mapped_project             VARCHAR(100) NOT NULL DEFAULT '',
+	mapped_project             VARCHAR(100) NOT NULL DEFAULT '',
 	status                     VARCHAR(100) NOT NULL DEFAULT '',
 	message                    TEXT,
 	additional_information     TEXT,
@@ -129,9 +129,9 @@ CREATE TABLE analytics_experiment_load (
 	impress_procedure        VARCHAR(100) NOT NULL DEFAULT '',
 	impress_parameters       TEXT,
 	parameter_types          VARCHAR(255) NOT NULL DEFAULT '',
-  data_values              INT(11) NOT NULL DEFAULT 0,
-  metadata_values          INT(11) NOT NULL DEFAULT 0,
-  missing_data_values      INT(11) NOT NULL DEFAULT 0,
+	data_values              INT(11) NOT NULL DEFAULT 0,
+	metadata_values          INT(11) NOT NULL DEFAULT 0,
+	missing_data_values      INT(11) NOT NULL DEFAULT 0,
 	status                   VARCHAR(100) NOT NULL DEFAULT '',
 	message                  TEXT,
 	additional_information   TEXT,
@@ -462,7 +462,7 @@ CREATE TABLE biological_model (
 	PRIMARY KEY (id),
 	KEY allelic_composition_idx (allelic_composition),
 	KEY genetic_background_idx (genetic_background),
-	UNIQUE KEY idx_unique_biomodels (db_id, allelic_composition(100), genetic_background(100), zygosity)
+	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100), zygosity)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
