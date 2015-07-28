@@ -38,7 +38,7 @@ import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +160,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 				for (String paramId : parameterIds) {
 					
-					PipelineDTO doc = new PipelineDTO();
+					ImpressDTO doc = new ImpressDTO();
 					ParameterDTO param = paramIdToParameter.get(paramId);
 					ProcedureDTO procBean = procedureIdToProcedure.get(pipeline.procedureStableId);
 					
