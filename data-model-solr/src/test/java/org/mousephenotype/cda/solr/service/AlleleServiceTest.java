@@ -33,7 +33,7 @@ public class AlleleServiceTest extends TestCase {
 	AlleleService as;
 
 	@Test
-	@Ignore
+//	@Ignore
 	public void testGetStatusCount() throws Exception {
 
 		logger.debug("Testing the getStatusCount method");
