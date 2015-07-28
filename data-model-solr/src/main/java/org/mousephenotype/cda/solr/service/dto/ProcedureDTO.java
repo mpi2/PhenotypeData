@@ -27,7 +27,7 @@ import org.mousephenotype.cda.db.pojo.Parameter;
 
 /**
  * @author tudose
- *
+ * @since 2015/07/28
  */
 public class ProcedureDTO extends ImpressBaseDTO{
 
@@ -40,7 +40,6 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	public ProcedureDTO(Integer id, Integer stableKey, String stableId, String name){
 		
 		super(id, stableKey, stableId, name);
-		this.parameters = new ArrayList<>();
 	}
 	
 	public ProcedureDTO() {
@@ -50,6 +49,9 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	
 	
 	public void addParameter(ImpressBaseDTO parameter){
+		if (this.parameters == null){
+			this.parameters = new ArrayList<>();
+		}
 		parameters.add(parameter);
 	}
 
