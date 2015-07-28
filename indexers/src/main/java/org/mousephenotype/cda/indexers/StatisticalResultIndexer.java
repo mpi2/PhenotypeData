@@ -521,8 +521,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	    doc.setStatisticalMethod("Supplied as data");
 	    doc.setMaleControlCount(0);
 	    doc.setFemaleControlCount(0);
-	    doc.setMaleMutantCount(r.getInt("male_mutants"));
-	    doc.setFemaleMutantCount(r.getInt("female_mutants"));
+//	    doc.setMaleMutantCount(r.getInt("male_mutants"));
+//	    doc.setFemaleMutantCount(r.getInt("female_mutants"));
 	    doc.setColonyId(r.getString("colony_id"));
 	    doc.setStatus("Success");
 
