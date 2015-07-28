@@ -23,8 +23,8 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
-import org.mousephenotype.cda.solr.bean.ProcedureBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
@@ -55,7 +55,7 @@ public class ObservationServiceTest  extends AbstractTransactionalJUnit4SpringCo
 	 */
 	@Test
 	public void testGetProceduresByPipeline(){
-		List<ImpressBean> procedures = os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC", null);
+		List<ImpressBaseDTO> procedures = os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC", null);
 		assertTrue(procedures.size() > 19);
 	}
 	

@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ public class ObservationIndexerTest {
     @Test
 //@Ignore
     public void testImpressDataMaps() throws Exception {
-        Map<Integer, ImpressBean> bioDataMap;
+        Map<Integer, ImpressBaseDTO> bioDataMap;
         Connection connection = ds.getConnection();
 
         // Pipelines

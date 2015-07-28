@@ -43,10 +43,10 @@ import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
-import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
@@ -120,9 +120,9 @@ public class ObservationService extends BasicService {
      * @param resource
      * @return List<ProcedureBean>
      */
-	public List<ImpressBean> getProceduresByPipeline(String pipelineStableId, String observationType, String resource, Integer minParameterNumber){
+	public List<ImpressBaseDTO> getProceduresByPipeline(String pipelineStableId, String observationType, String resource, Integer minParameterNumber){
 		
-		List<ImpressBean> procedures = new ArrayList<>();
+		List<ImpressBaseDTO> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
@@ -162,7 +162,7 @@ public class ObservationService extends BasicService {
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
-				ImpressBean procedure = new ImpressBean(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString()), 
+				ImpressBaseDTO procedure = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString()), 
 						null,
 						group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID ).toString(),
 						group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString());
@@ -179,10 +179,10 @@ public class ObservationService extends BasicService {
 					proceduresWithMinCount.addAll(pivot.values());
 				}
 				
-				List<ImpressBean> proceduresToReturn = new ArrayList<>();
+				List<ImpressBaseDTO> proceduresToReturn = new ArrayList<>();
 				
-				for (ImpressBean proc : procedures){
-					if (proceduresWithMinCount.contains(proc.name)){
+				for (ImpressBaseDTO proc : procedures){
+					if (proceduresWithMinCount.contains(proc.getName())){
 						proceduresToReturn.add(proc);
 					}
 				}
@@ -205,9 +205,9 @@ public class ObservationService extends BasicService {
      * @since 2015/07/28
      * @return List of parameters with data for the given procedure.
      */
-	public  List<ImpressBean> getParameters(String procedureName, String observationType, String resource){
+	public  List<ImpressBaseDTO> getParameters(String procedureName, String observationType, String resource){
 		
-		List<ImpressBean> parameters = new ArrayList<>();
+		List<ImpressBaseDTO> parameters = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
@@ -234,7 +234,7 @@ public class ObservationService extends BasicService {
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
-				ImpressBean parameter = new ImpressBean(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_ID).toString()), 
+				ImpressBaseDTO parameter = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_ID).toString()), 
 						null,
 						group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_STABLE_ID ).toString(),
 						group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_NAME).toString());
@@ -1948,10 +1948,10 @@ public class ObservationService extends BasicService {
      * @return List of pipelines with data for the given parameters.
      * @throws SolrServerException 
      */    
-    public List<ImpressBean> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource) 
+    public List<ImpressBaseDTO> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource) 
     throws SolrServerException{
     	
-    	List<ImpressBean> pipelines = new ArrayList<>();
+    	List<ImpressBaseDTO> pipelines = new ArrayList<>();
 		
     	SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
@@ -1978,7 +1978,10 @@ public class ObservationService extends BasicService {
 		for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
 			SolrDocument doc = group.getResult().get(0);
-			ImpressBean pipeline = new ImpressBean(null, doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
+			ImpressBaseDTO pipeline = new ImpressBaseDTO();
+			pipeline.setId(Integer.getInteger(doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString()));
+			pipeline.setStableId(doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString());
+			pipeline.setName(doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
 			pipelines.add(pipeline);
 			
 		}
