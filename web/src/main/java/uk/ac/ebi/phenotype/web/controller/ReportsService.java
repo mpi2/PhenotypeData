@@ -890,8 +890,8 @@ public class ReportsService {
     	table.add(headerLines);
 
     	try {
-    		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
-    		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
+    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfLinesByMPTopLevel(resources, pVal);
+    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfLinesByMPTopLevel(resources, null));
 
 		   	for (String mp : genesAllMp.keySet()){
@@ -924,8 +924,8 @@ public class ReportsService {
     	table.add(headerGenes);
 
     	try {
-    		Map<String, ArrayList<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
-    		TreeMap<String, ArrayList<String>> genesAllMp = new TreeMap<String, ArrayList<String>>(String.CASE_INSENSITIVE_ORDER);
+    		Map<String, List<String>> genesSignificantMp = srService.getDistributionOfGenesByMPTopLevel(resources, pVal);
+    		TreeMap<String, List<String>> genesAllMp = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     		genesAllMp.putAll(srService.getDistributionOfGenesByMPTopLevel(resources, null));
 
 		   	for (String mp : genesAllMp.keySet()){

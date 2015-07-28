@@ -45,10 +45,6 @@ public class SolrIndex {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@NotNull
-	@Value("${baseUrl}")
-	private String baseUrl;
-
-	@NotNull
 	@Value("${internalSolrUrl}")
 	private String internalSolrUrl;
 
@@ -351,59 +347,6 @@ public class SolrIndex {
 		return url;
 	}
 
-
-
-	/*public String deriveLatestPhenotypingStatus(JSONObject doc) {
-
-		// order of status: latest to oldest (IMPORTANT for deriving correct
-		// status)
-
-		try {
-			// Phenotyping complete
-			if (doc.containsKey("imits_phenotype_complete")) {
-				JSONArray complete = doc
-						.getJSONArray("imits_phenotype_complete");
-				for (Object c : complete) {
-					if (c.toString().equals("1")) {
-						return "Complete";
-					}
-				}
-			}
-
-			// Phenotyping started
-			if (doc.containsKey("imits_phenotype_started")) {
-				JSONArray started = doc.getJSONArray("imits_phenotype_started");
-				for (Object s : started) {
-					if (s.toString().equals("1")) {
-						return "Started";
-					}
-				}
-			}
-
-			// Phenotype Attempt Registered
-			if (doc.containsKey("imits_phenotype_status")) {
-				JSONArray statuses = doc.getJSONArray("imits_phenotype_status");
-				for (Object s : statuses) {
-					if (s.toString().equals("Phenotype Attempt Registered")) {
-						return "Attempt Registered";
-					}
-				}
-			}
-			if (doc.containsKey("hasQc")) {
-					return "QCed data available";
-			}
-
-		} catch (Exception e) {
-			log.error("Error getting phenotyping status");
-			log.error(e.getLocalizedMessage());
-		}
-
-		// if all the above fails: no phenotyping data yet
-		//return "Not Applicable";
-		return "";
-
-	}*/
-
 	/**
 	 * Generates a map of label, field, link representing a facet field
 	 *
@@ -413,13 +356,15 @@ public class SolrIndex {
 	 *            the base url of the generated links
 	 * @return a map represneting the facet, facet label and link
 	 */
-	public Map<String, String> renderFacetField(String[] names, String hostName) {
+	public Map<String, String> renderFacetField(String[] names, String hostName, String baseUrl) {
 
 		// key: display label, value: facetField
 		Map<String, String> hm = new HashMap<String, String>();
 		String name = names[0];
 		String id = names[1];
 
+		System.out.println("BASEURL in renderFacetField: "+ baseUrl);
+		
 		if (id.startsWith("MP:")) {
 			String url = baseUrl + "/phenotypes/" + id;
 			hm.put("label", "MP");
@@ -860,7 +805,7 @@ public class SolrIndex {
 	 }
 
 	@SuppressWarnings("deprecation")
-	public String getMgiGenesClansDataTable() throws IOException, URISyntaxException {
+	public String getMgiGenesClansDataTable(String baseUrl) throws IOException, URISyntaxException {
 
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
@@ -946,7 +891,7 @@ public class SolrIndex {
 		return j.toString();
 	}
 
-	public String getMgiGenesClansPlainTable() throws IOException, URISyntaxException {
+	public String getMgiGenesClansPlainTable(String baseUrl) throws IOException, URISyntaxException {
 
 		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
 		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
@@ -1052,7 +997,7 @@ public class SolrIndex {
 		return table;
 	}
 
-	public String getGO2ImpcGeneAnnotationTable() throws IOException, URISyntaxException {
+	public String getGO2ImpcGeneAnnotationTable(String baseUrl) throws IOException, URISyntaxException {
 		String internalBaseSolrUrl = internalSolrUrl + "/gene/select?";
 		String flStr = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,go_term_id,go_term_evid,go_term_domain,go_term_name";
 		String queryParams = "q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\" OR (go_term_domain:\"biological_process\" OR go_term_domain:\"molecular_function\")&wt=json&rows=10&fq=mp_id:*";

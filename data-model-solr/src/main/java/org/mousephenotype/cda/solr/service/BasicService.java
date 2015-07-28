@@ -92,6 +92,7 @@ public class BasicService {
      * @return
      */
     protected List<Map<String, String>> getFacetPivotResults(QueryResponse response, boolean keepCount) {
+    	
         List<Map<String, String>> results = new LinkedList<Map<String, String>>();
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 
@@ -117,6 +118,29 @@ public class BasicService {
 
         return results;
     }
+       
+//    
+//    protected Map<String, List<String>> getFacetPivotResults2Levels(QueryResponse response, String pivotName) {
+//    	
+//    	Map<String, List<String>> results = new HashMap<String, List<String>>();
+//        NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
+//
+//        if (facetPivot != null && facetPivot.size() > 0) {
+//        	
+//                List<PivotField> pivotResult = facetPivot.get(pivotName);
+//
+//                for (int j = 0; j < pivotResult.size(); j++) {
+//                    PivotField pivotLevel = pivotResult.get(j);
+//                    List<String> lmap = getLeveledFacetPivotValue(pivotLevel, null, keepCount);
+//                    results.addAll(lmap);
+//                }
+//            }
+//        }
+//
+//        return results;
+//    }
+//       
+//    
     
     /**
      * Java structure for simple facets in Solr. 

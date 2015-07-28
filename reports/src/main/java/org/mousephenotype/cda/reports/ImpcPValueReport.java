@@ -52,6 +52,11 @@ public class ImpcPValueReport extends AbstractReport {
     }
 
     @Override
+    public String getDefaultFilename() {
+        return "impcPvaluesReport";
+    }
+
+    @Override
     public void run(String[] args) throws ReportException {
         Map<String, String> propertyMap = parse(args);
         List<String> errors = validate(propertyMap);
@@ -108,7 +113,7 @@ public class ImpcPValueReport extends AbstractReport {
             allParameters.add(parameter.replace("\r\n", " ").replace("\n", " "));
         }
 
-        System.out.println(String.format(" Found %s rows", matrixValues.keySet().size()));
+        log.info(String.format(" Found %s rows", matrixValues.keySet().size()));
 
         List<String> sortedParameters = new ArrayList<>(allParameters);
         Collections.sort(sortedParameters);
@@ -126,7 +131,7 @@ public class ImpcPValueReport extends AbstractReport {
         for (RowKey rowKey : matrixValues.keySet()) {
 
             if (i%100==0) {
-                log.info(String.format(" %s rowKey records processed [%s]", i, System.currentTimeMillis() - start));
+                log.info(String.format(" %s rowKey records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
             }
             i++;
 

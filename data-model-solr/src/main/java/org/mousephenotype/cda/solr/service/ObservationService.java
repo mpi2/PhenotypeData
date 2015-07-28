@@ -15,24 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -73,9 +58,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -90,7 +79,7 @@ public class ObservationService extends BasicService {
     private HttpSolrServer solr;
 
 
-    public  List<Group> getDatapointsByColony(ArrayList<String> resourceName, String parameterStableId, String biologicalSampleGroup)
+    public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{
 
     	SolrQuery q = new SolrQuery();
@@ -129,17 +118,15 @@ public class ObservationService extends BasicService {
      * @param pipelineStableId
      * @param dataType
      * @param resource
-     * @return
+     * @return List<ProcedureBean>
      */
-	public List<ProcedureBean> getProceduresByPipeline(String pipelineStableId, String observationType, String resource){
+	public List<ImpressBean> getProceduresByPipeline(String pipelineStableId, String observationType, String resource, Integer minParameterNumber){
 		
-		List<ProcedureBean> procedures = new ArrayList<>();
+		List<ImpressBean> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
-				.setQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-				.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType)
-				.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource)
+				.setQuery("*:*")
 				.addField(ObservationDTO.PROCEDURE_ID)
 				.addField(ObservationDTO.PROCEDURE_NAME)
 				.addField(ObservationDTO.PROCEDURE_STABLE_ID);
@@ -147,18 +134,62 @@ public class ObservationService extends BasicService {
 			query.set("group.field", ObservationDTO.PROCEDURE_NAME);
 			query.setRows(10000);
 			query.set("group.limit", 1);
-
+			
+			if (pipelineStableId != null){
+				query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+			}
+			if (observationType != null){
+				query.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType);
+			}
+			if (resource != null){
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+			}
+			
+			String pivotField = ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_NAME;
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				
+				query.setFacet(true);
+				query.setFacetMinCount(1);
+				query.set("facet.pivot.mincount", minParameterNumber);
+				query.set("facet.pivot", pivotField);
+				
+			}			
+			
 			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
 			
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				//group.getResult();
-				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString(), 
-															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString(),
-															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID).toString(), null);
+
+				ImpressBean procedure = new ImpressBean(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString()), 
+						null,
+						group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID ).toString(),
+						group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString());
 				procedures.add(procedure);
 			}
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				// get procedureList with more than minParameterNumber 
+				// remove from procedures the ones not in procedureList
+				List<Map<String, String>> res = getFacetPivotResults(response, false);
+				HashSet<String> proceduresWithMinCount = new HashSet<>(); 
+				
+				for (Map<String, String> pivot : res ){
+					proceduresWithMinCount.addAll(pivot.values());
+				}
+				
+				List<ImpressBean> proceduresToReturn = new ArrayList<>();
+				
+				for (ImpressBean proc : procedures){
+					if (proceduresWithMinCount.contains(proc.name)){
+						proceduresToReturn.add(proc);
+					}
+				}
+				procedures = proceduresToReturn;
+				
+			}
+			
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -166,7 +197,58 @@ public class ObservationService extends BasicService {
 		
 		return procedures;
 	}
-    
+	
+	
+
+    /**
+     * @author tudose
+     * @since 2015/07/28
+     * @return List of parameters with data for the given procedure.
+     */
+	public  List<ImpressBean> getParameters(String procedureName, String observationType, String resource){
+		
+		List<ImpressBean> parameters = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery("*:*")
+				.addField(ObservationDTO.PARAMETER_ID)
+				.addField(ObservationDTO.PARAMETER_STABLE_ID)
+				.addField(ObservationDTO.PARAMETER_NAME);
+			query.set("group", true);
+			query.set("group.field", ObservationDTO.PARAMETER_NAME);
+			query.setRows(10000);
+			query.set("group.limit", 1);
+			
+			if (procedureName != null){
+				query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedureName + "\"");
+			}
+			if (observationType != null){
+				query.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType);
+			}
+			if (resource != null){
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+			}
+									
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+
+				ImpressBean parameter = new ImpressBean(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_ID).toString()), 
+						null,
+						group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_STABLE_ID ).toString(),
+						group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_NAME).toString());
+				parameters.add(parameter);
+			}			
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return parameters;
+	}
+	
+	
     /**
      * @author tudose
      * @since 2015/07/14
@@ -211,11 +293,11 @@ public class ObservationService extends BasicService {
         	}
         	
         	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
-    			ArrayList<String> lst = new ArrayList<>();
+                List<String> lst = new ArrayList<>();
     			for (PivotField gene : pivot.getPivot()){
     				lst.add(gene.getValue().toString());
     			}
-    			dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<String>(lst));
+    			dto.addParametersByProcedure(pivot.getValue().toString(), new ArrayList<>(lst));
     		}
             
             SolrDocument doc = res.getResults().get(0);
@@ -248,8 +330,8 @@ public class ObservationService extends BasicService {
     	query.addFacetField(ObservationDTO.PARAMETER_NAME);
 
 
-    	ArrayList<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(ObservationDTO.PARAMETER_STABLE_ID).keySet());
-    	ArrayList<Parameter> parameterNames = new ArrayList<>();
+        List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(ObservationDTO.PARAMETER_STABLE_ID).keySet());
+        List<Parameter> parameterNames = new ArrayList<>();
 
     	for (String parameterStableId: parameterStableIds){
         	Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
@@ -310,11 +392,11 @@ public class ObservationService extends BasicService {
     }
 
 
-    private HashMap<String, ParallelCoordinatesDTO> addDefaultMean(HashMap<String, ParallelCoordinatesDTO> beans, ArrayList<Parameter> allParameterNames) {
+    private HashMap<String, ParallelCoordinatesDTO> addDefaultMean(HashMap<String, ParallelCoordinatesDTO> beans, List<Parameter> allParameterNames) {
 
     	ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
 
-    	HashMap<String, ArrayList<Double>> defaultData = new HashMap(); // <parameter name, <mean values>>
+    	HashMap<String, List<Double>> defaultData = new HashMap(); // <parameter name, <mean values>>
     	for (Parameter param : allParameterNames){
     		defaultData.put(param.getName(), new ArrayList<Double>());
     	}
@@ -346,7 +428,7 @@ public class ObservationService extends BasicService {
     }
 
 
-    private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, ArrayList<Parameter> allParameterNames) {
+    private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, List<Parameter> allParameterNames) {
 
     	 List<Group> groups = response.getGroupResponse().getValues().get(0).getValues();
          for (Group gr : groups) {
@@ -367,7 +449,7 @@ public class ObservationService extends BasicService {
 	}
 
 
-	public List<String> getGenesWithMoreProcedures(int n, ArrayList<String> resourceName)
+	public List<String> getGenesWithMoreProcedures(int n, List<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {
 
         List<String> genes = new ArrayList<>();
@@ -465,7 +547,7 @@ public class ObservationService extends BasicService {
         return solr.query(query);
     }
 
-    public Map<String, Set<String>> getColoniesByPhenotypingCenter(ArrayList<String> resourceName, ZygosityType zygosity)
+    public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
             throws SolrServerException, InterruptedException {
 
         Map<String, Set<String>> res = new HashMap<>();
@@ -522,7 +604,7 @@ public class ObservationService extends BasicService {
         query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFacetField(ObservationDTO.PHENOTYPING_CENTER).addFacetField(ObservationDTO.STRAIN_ACCESSION_ID).addFacetField(ObservationDTO.METADATA_GROUP).addFacetField(ObservationDTO.PIPELINE_STABLE_ID).addFacetField(ObservationDTO.ALLELE_ACCESSION_ID).setRows(0).setFacet(true).setFacetMinCount(1).setFacetLimit(-1).setFacetSort(FacetParams.FACET_SORT_COUNT);
 
         if (phenotypingCenterParams != null &&  ! phenotypingCenterParams.isEmpty()) {
-            List<String> spaceSafeStringsList = new ArrayList<String>();
+            List<String> spaceSafeStringsList = new ArrayList<>();
             for (String pCenter : phenotypingCenterParams) {
                 if ( ! pCenter.endsWith("\"") &&  ! pCenter.startsWith("\"")) {
                     spaceSafeStringsList.add("\"" + pCenter + "\"");
@@ -565,7 +647,7 @@ public class ObservationService extends BasicService {
                 if (map.containsKey(ff.getName())) {
                     map.get(ff.getName()).add(count.getName());
                 } else {
-                    List<String> newList = new ArrayList<String>();
+                    List<String> newList = new ArrayList<>();
                     newList.add(count.getName());
                     map.put(ff.getName(), newList);
                 }
@@ -1109,7 +1191,7 @@ public class ObservationService extends BasicService {
      * @return list of triplets
      * @throws SolrServerException
      */
-    public List<Map<String, String>> getDistinctParameterListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter, List<String> procedureFilters, ArrayList<String> resource)
+    public List<Map<String, String>> getDistinctParameterListByPipelineAlleleCenter(String pipelineStableId, String alleleAccession, String phenotypingCenter, List<String> procedureFilters, List<String> resource)
     throws SolrServerException {
 
         SolrQuery query = new SolrQuery()
@@ -1203,7 +1285,7 @@ public class ObservationService extends BasicService {
 
 
     // gets categorical data for graphs on phenotype page
-    public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(String parameter, List<String> genes, ArrayList<String> strains, String[] center, String[] sex)
+    public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(String parameter, List<String> genes, List<String> strains, String[] center, String[] sex)
     throws SolrServerException {
 
         Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<String, List<DiscreteTimePoint>>(); // <allele_accession,
@@ -1247,7 +1329,7 @@ public class ObservationService extends BasicService {
             SolrDocumentList resDocs = gr.getResult();
             DescriptiveStatistics stats = new DescriptiveStatistics();
             float discreteTime = (float) resDocs.get(0).getFieldValue(ObservationDTO.DISCRETE_POINT);
-            ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
+            List<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
             for (int i = 0; i < resDocs.getNumFound(); i ++) {
                 SolrDocument doc = resDocs.get(i);
                 stats.addValue((float) doc.getFieldValue(ObservationDTO.DATA_POINT));
@@ -1284,10 +1366,10 @@ public class ObservationService extends BasicService {
 
 
     // gets categorical data for graphs on phenotype page
-    public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter, ArrayList<String> strains, String[] center, String[] sex)
+    public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter, List<String> strains, String[] center, String[] sex)
     throws SolrServerException {
 
-        ArrayList<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
+        List<DiscreteTimePoint> res = new ArrayList<DiscreteTimePoint>();
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter);
         String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
 
@@ -1402,7 +1484,7 @@ public class ObservationService extends BasicService {
      * @return list of centers and sexes for the given parameters
      * @throws SolrServerException
      */
-    public Set<String> getCenters(Parameter p, List<String> genes, ArrayList<String> strains, String biologicalSample)
+    public Set<String> getCenters(Parameter p, List<String> genes, List<String> strains, String biologicalSample)
     throws SolrServerException {
 
         Set<String> centers = new HashSet<String>();
@@ -1431,7 +1513,7 @@ public class ObservationService extends BasicService {
     }
 
 
-    public double getMeanPValue(Parameter p, ArrayList<String> strains, String biologicalSample, String[] center, SexType sex)
+    public double getMeanPValue(Parameter p, List<String> strains, String biologicalSample, String[] center, SexType sex)
     throws SolrServerException {
 
         System.out.println("GETTING THE MEAN");
@@ -1471,7 +1553,7 @@ public class ObservationService extends BasicService {
     }
 
     // gets categorical data for graphs on phenotype page
-    public CategoricalSet getCategories(Parameter parameter, ArrayList<String> genes, String biologicalSampleGroup, ArrayList<String> strains, String[] center, String[] sex)
+    public CategoricalSet getCategories(Parameter parameter, List<String> genes, String biologicalSampleGroup, List<String> strains, String[] center, String[] sex)
     throws SolrServerException, SQLException {
 
         CategoricalSet resSet = new CategoricalSet();
@@ -1564,7 +1646,7 @@ public class ObservationService extends BasicService {
     public List<ObservationDTO> getAllControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup)
     throws SolrServerException {
 
-        List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+        List<ObservationDTO> results;
 
         QueryResponse response = new QueryResponse();
 
@@ -1628,7 +1710,7 @@ public class ObservationService extends BasicService {
     public List<ObservationDTO> getConcurrentControlsBySex(Integer parameterId, String strain, Integer organisationId, Date experimentDate, String sex, String metadataGroup)
     throws SolrServerException {
 
-        List<ObservationDTO> results = new ArrayList<ObservationDTO>();
+        List<ObservationDTO> results;
 
 		// Use any control mouse ON THE SAME DATE as concurrent control
         // Set min and max time ranges to encompass the whole day

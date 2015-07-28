@@ -23,7 +23,6 @@ import org.mousephenotype.cda.db.repositories.ObservationRepository;
 import org.mousephenotype.cda.reports.support.FileUtils;
 import org.mousephenotype.cda.reports.support.ReportsService;
 import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
-import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,23 +50,45 @@ import java.util.List;
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
+    @Autowired
+    DataOverviewReport dataOverviewReport;
+
+    @Autowired
+    FertilityReport fertilityReport;
+
+    @Autowired
+    protected HitsPerLineReport hitsPerLineReport;
+
+    @Autowired
+    protected HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
+
+    @Autowired
+    protected ImpcPValueReport impcPValueReport;
+
+    @Autowired
+    protected LacZExpressionReport lacZExpressionReport;
+
+    @Autowired
+    protected PhenotypeHitsReport phenotypeHitsReport;
+
+
+
+
+
+
+
     @Autowired(required = true)
     ObservationRepository observations;
 
     @Autowired
+    @Deprecated
     ReportsService reportsService;
-
-    @Autowired
-    ImageService imageService;
 
     @Autowired
     PhenotypeCenterService phenotypeCenterService;
 
     @Autowired
     SexualDimorphismDAO sexualDimorphismDAO;
-
-    @Autowired
-    protected ImpcPValueReport impcPValueReport;
 
 //@Autowired
 //ReportGenerator reportGenerator;
@@ -92,9 +113,9 @@ public class ReportsManager implements CommandLineRunner {
     public enum ReportType {
         BMD_STATS("bmdStats", "BMD stats (Bone Mineral Content, excluding skull) report"),
         DATA_OVERVIEW("dataOverview", "Data overview report"),
-        DISTRIBUTION_OF_PHENOTYPE_HITS("phenotypeHits", "Distribution of phenotype hits report"),
+        PHENOTYPE_HITS("phenotypeHits", "Distribution of phenotype hits report"),
         FERTILITY("fertility", "Fertility report"),
-        HITS_PER_LINE("hitsPerLine", "Hits per line report"),
+        HITS_PER_LINE("hitsPerLineReport", "Hits per line report"),
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
         IMPC_P_VALUES("impcPvalues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
@@ -196,43 +217,36 @@ public class ReportsManager implements CommandLineRunner {
                         break;
 
                     case DATA_OVERVIEW:
-                        filename = "data_overview" + suffix;
-                        resultMulti = reportsService.getDataOverview();
-                        file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
+                        dataOverviewReport.run(args);
+                        file = dataOverviewReport.file;
                         break;
 
-                    case DISTRIBUTION_OF_PHENOTYPE_HITS:
-                        filename = "distribution_of_phenotype_hits" + suffix;
-                        resultMulti = reportsService.getMpCallDistribution();
-                        file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
+                    case PHENOTYPE_HITS:
+                        phenotypeHitsReport.run(args);
+                        file = phenotypeHitsReport.file;
                         break;
 
                     case FERTILITY:
-                        filename = "fertility" + suffix;
-                        result = reportsService.getFertilityData();
-                        file = fileUtils.createCSV(targetDirectory, filename, result);
+                        fertilityReport.run(args);
+                        file = fertilityReport.file;
                         break;
 
                     case HITS_PER_LINE:
-                        filename = "hits_per_line" + suffix;
-                        resultMulti = reportsService.getHitsPerLine();
-                        file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
+                        hitsPerLineReport.run(args);
+                        file = hitsPerLineReport.file;
                         break;
 
                     case HITS_PER_PARAMETER_AND_PROCEDURE:
-                        filename = "hits_per_parameter_and_procedure" + suffix;
-                        resultMulti = reportsService.getHitsPerParameterAndProcedure();
-                        file = fileUtils.createCSVMulti(targetDirectory, filename, resultMulti);
+                        hitsPerParameterAndProcedureReport.run(args);
+                        file = hitsPerParameterAndProcedureReport.file;
                         break;
 
                     case LACZ_EXPRESSION:
-                        filename = "lacz_expression" + suffix;
-                        result = imageService.getLaczExpressionSpreadsheet();
-                        file = fileUtils.createCSV(targetDirectory, filename, result);
+                        lacZExpressionReport.run(args);
+                        file = lacZExpressionReport.file;
                         break;
 
                     case IMPC_P_VALUES:
-                        filename = "impc_pvalues" + suffix;
                         impcPValueReport.run(args);
                         file = impcPValueReport.file;
                         break;

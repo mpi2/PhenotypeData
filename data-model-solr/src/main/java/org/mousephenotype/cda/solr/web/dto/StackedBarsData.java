@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Type/structure that I needed to pass bigger objects around for the stacked bars / histograms.
@@ -23,55 +23,55 @@ import java.util.ArrayList;
  *
  */
 public class StackedBarsData {
-	ArrayList<String> mutantGenes;
-	ArrayList<String> controlGenes;
-	ArrayList<String> mutantGeneAccesionIds;
-	ArrayList<String> controlGeneAccesionIds;
-	ArrayList<Double> upperBounds;
-	ArrayList<Double> controlMutatns;
-	ArrayList<Double> phenMutants;
+	List<String> mutantGenes;
+	List<String> controlGenes;
+	List<String> mutantGeneAccesionIds;
+	List<String> controlGeneAccesionIds;
+	List<Double> upperBounds;
+	List<Double> controlMutatns;
+	List<Double> phenMutants;
 	
 	
-	public ArrayList<String> getMutantGeneAccesionIds() {
+	public List<String> getMutantGeneAccesionIds() {
 		return mutantGeneAccesionIds;
 	}
-	public void setMutantGeneAccesionIds(ArrayList<String> mutantGeneAccesionIds) {
+	public void setMutantGeneAccesionIds(List<String> mutantGeneAccesionIds) {
 		this.mutantGeneAccesionIds = mutantGeneAccesionIds;
 	}
-	public ArrayList<String> getControlGeneAccesionIds() {
+	public List<String> getControlGeneAccesionIds() {
 		return controlGeneAccesionIds;
 	}
-	public void setControlGeneAccesionIds(ArrayList<String> controlGeneAccesionIds) {
+	public void setControlGeneAccesionIds(List<String> controlGeneAccesionIds) {
 		this.controlGeneAccesionIds = controlGeneAccesionIds;
 	}
-	public ArrayList<String> getMutantGenes() {
+	public List<String> getMutantGenes() {
 		return mutantGenes;
 	}
-	public void setMutantGenes(ArrayList<String> mutantGenes) {
+	public void setMutantGenes(List<String> mutantGenes) {
 		this.mutantGenes = mutantGenes;
 	}
-	public ArrayList<String> getControlGenes() {
+	public List<String> getControlGenes() {
 		return controlGenes;
 	}
-	public void setControlGenes(ArrayList<String> controlGenes) {
+	public void setControlGenes(List<String> controlGenes) {
 		this.controlGenes = controlGenes;
 	}
-	public ArrayList<Double> getUpperBounds() {
+	public List<Double> getUpperBounds() {
 		return upperBounds;
 	}
-	public void setUpperBounds(ArrayList<Double> upperBounds) {
+	public void setUpperBounds(List<Double> upperBounds) {
 		this.upperBounds = upperBounds;
 	}
-	public ArrayList<Double> getControlMutatns() {
+	public List<Double> getControlMutatns() {
 		return controlMutatns;
 	}
-	public void setControlMutatns(ArrayList<Double> controlMutatns) {
+	public void setControlMutatns(List<Double> controlMutatns) {
 		this.controlMutatns = controlMutatns;
 	}
-	public ArrayList<Double> getPhenMutants() {
+	public List<Double> getPhenMutants() {
 		return phenMutants;
 	}
-	public void setPhenMutants(ArrayList<Double> phenMutants) {
+	public void setPhenMutants(List<Double> phenMutants) {
 		this.phenMutants = phenMutants;
 	}
 	
