@@ -638,7 +638,7 @@ public class FileExportController {
 				if (names.length == 2) { // only want facet value of xxx_yyy
 					String annotName = names[0];
 
-					Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString());
+					Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString(), request.getAttribute("baseUrl").toString());
 
 					data.add(hm.get("label"));
 					data.add(annotName);
@@ -658,7 +658,7 @@ public class FileExportController {
 					solrParams = solrParams.replaceAll("&q=.+&",
 							"&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
 					String imgSubSetLink = hostName + request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
-
+					
 					data.add(imgSubSetLink);
 					rowData.add(StringUtils.join(data, "\t"));
 				}
@@ -677,9 +677,10 @@ public class FileExportController {
 		// config.get("impcMediaBaseUrl").replace("https:", "http:");
 		List<String> rowData = new ArrayList();
 
-		String mpBaseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
-		String maBaseUrl = request.getAttribute("baseUrl") + "/anatomy/";
-		String geneBaseUrl = request.getAttribute("baseUrl") + "/genes/";
+		String baseUrl = request.getAttribute("baseUrl").toString();
+		String mpBaseUrl = baseUrl + "/phenotypes/";
+		String maBaseUrl = baseUrl + "/anatomy/";
+		String geneBaseUrl = baseUrl + "/genes/";
 
 		if (showImgView) {
 
@@ -747,7 +748,7 @@ public class FileExportController {
 		} else {
 
 			// annotation view: images group by annotationTerm per row
-			String baseUrl = config.get("baseUrl").replace("https:", "http:");
+			baseUrl = baseUrl.replace("https:", "http:");
 			String mediaBaseUrl = "http:" + config.get("impcMediaBaseUrl");
 
 			rowData.add(
