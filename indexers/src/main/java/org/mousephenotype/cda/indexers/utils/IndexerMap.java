@@ -21,8 +21,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +45,9 @@ public class IndexerMap {
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
     private static List<AlleleDTO> alleles = null;
-    private static Map<Integer, ImpressBean> pipelineMap = null;
-    private static Map<Integer, ImpressBean> procedureMap = null;
-    private static Map<Integer, ImpressBean> parameterMap = null;
+    private static Map<Integer, ImpressBaseDTO> pipelineMap = null;
+    private static Map<Integer, ImpressBaseDTO> procedureMap = null;
+    private static Map<Integer, ImpressBaseDTO> parameterMap = null;
     private static Map<Integer, OrganisationBean> organisationMap = null;
 
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
@@ -146,7 +146,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress pipeline terms, indexed by internal database id.
      */
-    public static Map<Integer, ImpressBean> getImpressPipelines(Connection connection) throws SQLException {
+    public static Map<Integer, ImpressBaseDTO> getImpressPipelines(Connection connection) throws SQLException {
         if (pipelineMap == null) {
             pipelineMap = OntologyUtils.populateImpressPipeline(connection);
         }
@@ -161,7 +161,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress procedure terms, indexed by internal database id.
      */
-    public static Map<Integer, ImpressBean> getImpressProcedures(Connection connection) throws SQLException {
+    public static Map<Integer, ImpressBaseDTO> getImpressProcedures(Connection connection) throws SQLException {
         if (procedureMap == null) {
             procedureMap = OntologyUtils.populateImpressProcedure(connection);
         }
@@ -176,7 +176,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress parameter terms, indexed by internal database id.
      */
-    public static Map<Integer, ImpressBean> getImpressParameters(Connection connection) throws SQLException {
+    public static Map<Integer, ImpressBaseDTO> getImpressParameters(Connection connection) throws SQLException {
         if (parameterMap == null) {
             parameterMap = OntologyUtils.populateImpressParameter(connection);
         }

@@ -20,9 +20,9 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
@@ -68,9 +68,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
-    Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
-    Map<Integer, ImpressBean> procedureMap = new HashMap<>();
-    Map<Integer, ImpressBean> parameterMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
 
     public GenotypePhenotypeIndexer() {
     }
@@ -216,7 +216,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 // Procedure prefix is the first two strings of the parameter after splitting on underscore
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
-                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).stableId.split("_")).subList(0, 2), "_");
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
                 if (source3iProcedurePrefixes.contains(procedurePrefix)) {
                     doc.setResourceName("3i");
                     doc.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
@@ -227,17 +227,17 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 doc.setExternalId(r.getString("external_id"));
 
-                doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
-                doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
-                doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).stableId);
+                doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
+                doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
+                doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
 
-                doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).stableKey);
-                doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
-                doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
+                doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
+                doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
+                doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).getStableId());
 
-                doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).stableKey);
-                doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
-                doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
+                doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
+                doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
+                doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
                 String mpId = r.getString("mp_term_id");
                 OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);

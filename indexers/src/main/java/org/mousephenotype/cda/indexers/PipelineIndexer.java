@@ -37,8 +37,9 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,10 +170,10 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setParameterStableId(param.parameterStableId);
 					doc.setParameterStableKey(param.parameterStableKey);					
 
-					doc.setProcedureId(procBean.procedureId);
-					doc.setProcedureName(procBean.procedureName);
-					doc.setProcedureStableId(procBean.procedureStableId);
-					doc.setProcedureStableKey(procBean.procedureStableKey);
+					doc.setProcedureId(procBean.getId());
+					doc.setProcedureName(procBean.getName());
+					doc.setProcedureStableId(procBean.getStableId());
+					doc.setProcedureStableKey(procBean.getStableKey());
 
 					doc.setPipelineId(pipeline.pipelineId);
 					doc.setPipelineName(pipeline.pipelineName);
@@ -180,10 +181,10 @@ public class PipelineIndexer extends AbstractIndexer {
 					doc.setPipelineStableKey(pipeline.pipelineStableKey);
 
 					// ididid to be pipe proc param stable id combination that should be unique and is unique in solr
-					String ididid = pipeline.pipelineStableId + "_" + procBean.procedureStableId + "_" + param.parameterStableId;
+					String ididid = pipeline.pipelineStableId + "_" + procBean.getStableId() + "_" + param.parameterStableId;
 					doc.setIdIdId(ididid);
 
-					doc.setRequired(procBean.required);
+					doc.setRequired(procBean.isRequired());
 					//doc.setDescription(procBean.description); -> maybe we don't need this. If we do, should differentiate from parameter description.
 					doc.setObservationType(param.observationType.toString());
 					if (param.unit != null){
@@ -443,12 +444,12 @@ public class PipelineIndexer extends AbstractIndexer {
 
 			while (resultSet.next()) {
 				ProcedureDTO proc = new ProcedureDTO();
-				proc.procedureStableId = resultSet.getString("stable_id");
-				proc.procedureName = resultSet.getString("name");
-				proc.procedureStableKey = resultSet.getInt("stable_key");
-				proc.procNameId = resultSet.getString("proc_name_id");
-				proc.required = new Boolean(resultSet.getString("is_mandatory"));
-				proc.description = resultSet.getString("description");
+				proc.setStableId(resultSet.getString("stable_id"));
+				proc.setName(resultSet.getString("name"));
+				proc.setStableKey(resultSet.getInt("stable_key"));
+				proc.setProcNameId(resultSet.getString("proc_name_id"));
+				proc.setRequired(resultSet.getBoolean("is_mandatory"));
+				proc.setDescription(resultSet.getString("description"));
 				procedureIdToProcedureMap.put(resultSet.getString("stable_id"), proc);
 			}
 
@@ -624,19 +625,6 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
 		return observationType;
-	}
-
-	public class ProcedureDTO {
-
-		boolean required;
-		int procedureId;
-		int procedureStableKey;
-		String procedureStableId;
-		String procNameId;
-		String procedureName;
-		String observationType;	
-		String description;
-
 	}
 
 	public class PipelineBean {

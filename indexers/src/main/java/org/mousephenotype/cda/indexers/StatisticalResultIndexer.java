@@ -25,8 +25,8 @@ import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +66,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
-    Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
-    Map<Integer, ImpressBean> procedureMap = new HashMap<>();
-    Map<Integer, ImpressBean> parameterMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
     Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
     Map<String, ResourceBean> resourceMap = new HashMap<>();
 
@@ -441,7 +441,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setDataType(r.getString("data_type"));
 
         // Experiment details
-        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).stableId.split("_")).subList(0, 2), "_");
+        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
         if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
             doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
@@ -565,18 +565,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 
 	private void addImpressData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
-		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
-		doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).stableKey);
-		doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
-		doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).stableId);
-		doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
-		doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).stableKey);
-		doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
-		doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).stableId);
-		doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).id);
-		doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).stableKey);
-		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
-		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
+		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
+		doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
+		doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
+		doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
+		doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
+		doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
+		doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
+		doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).getStableId());
+		doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
+		doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
+		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
+		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 	}
 
 

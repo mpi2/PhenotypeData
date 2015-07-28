@@ -25,7 +25,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +59,9 @@ public class ObservationIndexer extends AbstractIndexer {
     Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
     Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
 
-    Map<Integer, ImpressBean> pipelineMap = new HashMap<>();
-    Map<Integer, ImpressBean> procedureMap = new HashMap<>();
-    Map<Integer, ImpressBean> parameterMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
+    Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
 
     Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
     Map<Integer, DatasourceBean> projectMap = new HashMap<>();
@@ -211,19 +211,19 @@ public class ObservationIndexer extends AbstractIndexer {
                 o.setDateOfExperiment(r.getDate("date_of_experiment"));
                 o.setExperimentSourceId(r.getString("external_id"));
 
-                o.setParameterId(parameterMap.get(r.getInt("parameter_id")).id);
-                o.setParameterName(parameterMap.get(r.getInt("parameter_id")).name);
-                o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).stableId);
+                o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
+                o.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
+                o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
-                o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).id);
-                o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).name);
-                String procedureStableId = procedureMap.get(r.getInt("procedure_id")).stableId;
+                o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
+                o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
+                String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
                 o.setProcedureStableId(procedureStableId);
                 o.setProcedureGroup(procedureStableId.substring(0, procedureStableId.lastIndexOf("_")));
 
-                o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).id);
-                o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).name);
-                o.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).stableId);
+                o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
+                o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
+                o.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
 
                 o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
                 o.setDataSourceName(datasourceMap.get(r.getInt("datasource_id")).name);

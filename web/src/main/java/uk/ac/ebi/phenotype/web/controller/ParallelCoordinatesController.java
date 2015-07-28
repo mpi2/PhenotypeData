@@ -25,10 +25,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ParallelCoordinatesController {
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
-		List<ImpressBean> procedures = os.getProceduresByPipeline(null, "unidimensional", "IMPC", 2);
+		List<ImpressBaseDTO> procedures = os.getProceduresByPipeline(null, "unidimensional", "IMPC", 2);
 		model.addAttribute("procedures", procedures);
 		
 		return "parallel2";

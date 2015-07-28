@@ -127,7 +127,7 @@ public class ImpressDTO {
 	private String procedureName;
 	
 	@Field(PROCEDURE_STABLE_KEY)
-	private Integer procedureStableKey;
+	private int procedureStableKey;
 	
 	@Field(PIPELINE_ID)
 	private int pipelineId;
@@ -136,7 +136,7 @@ public class ImpressDTO {
 	private String pipelineStableId;
 
 	@Field(PIPELINE_STABLE_KEY)
-	private Integer pipelineStableKey;
+	private int pipelineStableKey;
 
 	@Field(PIPELINE_NAME)
 	private String pipelineName;

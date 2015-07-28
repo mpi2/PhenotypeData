@@ -26,9 +26,9 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
-import org.mousephenotype.cda.solr.bean.ProcedureBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,9 +61,9 @@ public class ImpressService {
 	 * @return 
 	 */
 	
-	public List<ProcedureBean> getProceduresByPipeline(String pipelineStableId){
+	public List<ProcedureDTO> getProceduresByPipeline(String pipelineStableId){
 		
-		List<ProcedureBean> procedures = new ArrayList<>();
+		List<ProcedureDTO> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
@@ -82,10 +82,10 @@ public class ImpressService {
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString(), 
-															group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString(),
-															group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString(),
-															group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString());
+				ProcedureDTO procedure = new ProcedureDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()),
+						Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()), 
+						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString(), 
+						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString());
 				procedures.add(procedure);
 			}
 
@@ -102,9 +102,9 @@ public class ImpressService {
 	 * @author tudose
 	 * @return List of procedures in a pipeline
 	 */
-	public List<ProcedureBean> getProcedures(String pipelineStableId){
+	public List<ProcedureDTO> getProcedures(String pipelineStableId){
 		
-		List<ProcedureBean> procedures = new ArrayList<>();
+		List<ProcedureDTO> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
@@ -125,13 +125,18 @@ public class ImpressService {
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString(), 
-															group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString(),
-															group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString(),
-															group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString());
+				
+				ProcedureDTO procedure = new ProcedureDTO();
+				procedure.setId(Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()));
+				procedure.setName(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString());
+				procedure.setStableId(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString());
+				procedure.setStableKey(	Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()));
+				
 				for (SolrDocument doc : group.getResult()){
-					ImpressBean parameter = new ImpressBean((Integer)doc.getFirstValue(ImpressDTO.PARAMETER_ID), doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString(),
-															doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString(), doc.getFirstValue(ImpressDTO.PARAMETER_NAME).toString());
+					ImpressBaseDTO parameter = new ImpressBaseDTO((Integer)doc.getFirstValue(ImpressDTO.PARAMETER_ID), 
+							Integer.getInteger(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString()),
+							doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString(), 
+							doc.getFirstValue(ImpressDTO.PARAMETER_NAME).toString());
 					procedure.addParameter(parameter);
 				}
 			}
@@ -151,7 +156,7 @@ public class ImpressService {
 	 * @return Pipeline in an object of type ImpressBean
 	 * @throws SolrServerException
 	 */	
-	public ImpressBean getPipeline(String pipelineStableId) 
+	public ImpressBaseDTO getPipeline(String pipelineStableId) 
 	throws SolrServerException{
 		
 		SolrQuery query = new SolrQuery()
@@ -163,7 +168,10 @@ public class ImpressService {
 				.setRows(1);
 		SolrDocument doc = solr.query(query).getResults().get(0);
 		
-		return new ImpressBean((Integer)doc.getFirstValue(ImpressDTO.PIPELINE_ID), doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString(), doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_ID).toString(), doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
+		return new ImpressBaseDTO((Integer)doc.getFirstValue(ImpressDTO.PIPELINE_ID), 
+				Integer.getInteger(doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString()), 
+				doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_ID).toString(), 
+				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
 	
 	}
 	
@@ -177,7 +185,7 @@ public class ImpressService {
 				.setFields(ImpressDTO.PROCEDURE_STABLE_KEY);
 
 			QueryResponse response = solr.query(query);
-//System.out.println("impress in getprocedureStablekey response ="+response);
+
 			return response.getBeans(ImpressDTO.class).get(0).getProcedureStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
