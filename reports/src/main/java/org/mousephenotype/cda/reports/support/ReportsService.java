@@ -2,7 +2,7 @@
  *  Copyright © 2013 - 2015 EMBL - European Bioinformatics Institute
  *
  *  Licensed under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
+ *  "License"); you may not use this targetFile except in compliance
  *  with the License. You may obtain a copy of the License at
  *  http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,7 +22,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -44,7 +43,6 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -97,60 +95,60 @@ public class ReportsService {
     	resources.add("3i");
     }
 
-	public List<String[]> getBmdIpdttReport(String parameter)
-	throws SolrServerException {
+//	public List<String[]> getBmdIpdttReport(String parameter)
+//	throws SolrServerException {
+//
+//		Long time = System.currentTimeMillis();
+//		List<String[]> report = new ArrayList<>();
+//		String[] header = { "Gene", "Allele" , "Colony", "Phenotyping Center", "First date", "Last date",
+//							"Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male",
+//							"Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male",
+//							"Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male",
+//							"Mean HEM Male", "Median HEM Male", "SD HEM Male", "N HEM Male",
+//							"Mean WT Female", "Median WT Female", "SD WT Female", "N WT Female",
+//							"Mean HOM Female", "Median HOM Female", "SD HOM Female", "N HOM Female",
+//							"Mean HET Female", "Median HET Female", "SD HET Female", "N HET Female"
+//							};
+//		report.add(header);
+//		report.addAll(getBmpIpgttStats(oService.getDatapointsByColony(resources, parameter, "experimental")));
+//		System.out.println("Report generation took " + (System.currentTimeMillis() - time));
+//		return report;
+//	}
 
-		Long time = System.currentTimeMillis();
-		List<String[]> report = new ArrayList<>();
-		String[] header = { "Gene", "Allele" , "Colony", "Phenotyping Center", "First date", "Last date",
-							"Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male",
-							"Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male",
-							"Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male",
-							"Mean HEM Male", "Median HEM Male", "SD HEM Male", "N HEM Male",
-							"Mean WT Female", "Median WT Female", "SD WT Female", "N WT Female",
-							"Mean HOM Female", "Median HOM Female", "SD HOM Female", "N HOM Female",
-							"Mean HET Female", "Median HET Female", "SD HET Female", "N HET Female"
-							};
-		report.add(header);
-		report.addAll(getBmpIpgttStats(oService.getDatapointsByColony(resources, parameter, "experimental")));
-		System.out.println("Report generation took " + (System.currentTimeMillis() - time));
-		return report;
-	}
 
-
-	public List<String[]> getBmpIpgttStats(List<Group> groups){
-
-		List<String[]> rows = new ArrayList<>();
-
-		try {
-			for (Group group: groups) {
-				IpGTTStats stats;
-				stats = new IpGTTStats(group);
-
-				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
-						"" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
-						"" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
-						"" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
-						"" + stats.getMean(SexType.male, ZygosityType.hemizygote), "" + stats.getMedian(SexType.male, ZygosityType.hemizygote), "" + stats.getSD(SexType.male, ZygosityType.hemizygote), "" + stats.getN(SexType.male, ZygosityType.hemizygote),
-						"" + stats.getMean(SexType.female, null), "" + stats.getMedian(SexType.female, null), "" + stats.getSD(SexType.female, null), "" + stats.getN(SexType.female, null),
-						"" + stats.getMean(SexType.female, ZygosityType.homozygote), "" + stats.getMedian(SexType.female, ZygosityType.homozygote), "" + stats.getSD(SexType.female, ZygosityType.homozygote), "" + stats.getN(SexType.female, ZygosityType.homozygote),
-						"" + stats.getMean(SexType.female, ZygosityType.heterozygote), "" + stats.getMedian(SexType.female, ZygosityType.heterozygote), "" + stats.getSD(SexType.female, ZygosityType.heterozygote), "" + stats.getN(SexType.female, ZygosityType.heterozygote),
-				};
-				rows.add(row);
-			}
-        }catch (Exception e) {
-        	e.printStackTrace();
-		}
-
-		return rows;
-	}
+//	public List<String[]> getBmpIpgttStats(List<Group> groups){
+//
+//		List<String[]> rows = new ArrayList<>();
+//
+//		try {
+//			for (Group group: groups) {
+//				IpGTTStats stats;
+//				stats = new IpGTTStats(group);
+//
+//				String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
+//						"" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
+//						"" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
+//						"" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
+//						"" + stats.getMean(SexType.male, ZygosityType.hemizygote), "" + stats.getMedian(SexType.male, ZygosityType.hemizygote), "" + stats.getSD(SexType.male, ZygosityType.hemizygote), "" + stats.getN(SexType.male, ZygosityType.hemizygote),
+//						"" + stats.getMean(SexType.female, null), "" + stats.getMedian(SexType.female, null), "" + stats.getSD(SexType.female, null), "" + stats.getN(SexType.female, null),
+//						"" + stats.getMean(SexType.female, ZygosityType.homozygote), "" + stats.getMedian(SexType.female, ZygosityType.homozygote), "" + stats.getSD(SexType.female, ZygosityType.homozygote), "" + stats.getN(SexType.female, ZygosityType.homozygote),
+//						"" + stats.getMean(SexType.female, ZygosityType.heterozygote), "" + stats.getMedian(SexType.female, ZygosityType.heterozygote), "" + stats.getSD(SexType.female, ZygosityType.heterozygote), "" + stats.getN(SexType.female, ZygosityType.heterozygote),
+//				};
+//				rows.add(row);
+//			}
+//        }catch (Exception e) {
+//        	e.printStackTrace();
+//		}
+//
+//		return rows;
+//	}
 
 
 	/**
 	 * Generate the report for fertility data
 	 *   Fertile, Infertile, male & female infertiliy
 	 *
-	 * @return list of list of strings intended to be transformed into a delimited file for download
+	 * @return list of list of strings intended to be transformed into a delimited targetFile for download
 	 */
 	public List<String[]> getFertilityData() throws SolrServerException {
 
@@ -228,198 +226,198 @@ public class ReportsService {
 
 
 
-    public List<List<String[]>> getViabilityReport(){
-
-    	List<List<String[]>> res = new ArrayList<>();
-    	List<String[]> allTable = new ArrayList<>();
-    	List<String[]> countsTable = new ArrayList<>();
-    	List<String[]> genesTable = new ArrayList<>();
-    	HashMap<String, Integer> countsByCategory = new HashMap<>();
-    	HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
-
-    	try {
-    		QueryResponse response = oService.getViabilityData(resources);
-    		String[] header = {"Gene", "Colony", "Category"};
-    		allTable.add(header);
-    		for ( SolrDocument doc : response.getResults()){
-    			String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
-    			HashSet genes = new HashSet<>();
-    			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
-    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
-    			allTable.add(row);
-    			if (countsByCategory.containsKey(category)){
-    				countsByCategory.put(category, countsByCategory.get(category) + 1);
-    			}else {
-    				countsByCategory.put(category, 1);
-    			}
-    			if (genesByVia.containsKey(category)){
-    				genes = genesByVia.get(category);
-    			}
-
-			    if (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) {
-				    genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
-			    } else {
-				    System.out.println("  ERROR: Could not get solr document field gene_symbol for document: " + doc);
-			    }
-				genesByVia.put(category, genes);
-    		}
-
-      		for (String cat: countsByCategory.keySet()){
-      			String[] row = {cat, countsByCategory.get(cat).toString()};
-      			countsTable.add(row);
-      		}
-
-      		String[] genesHeader = {"Category", "# genes", "Genes"};
-    		genesTable.add(genesHeader);
-    		for (String cat : genesByVia.keySet()){
-    			String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesByVia.get(cat), ", ")};
-    			genesTable.add(row);
-    		}
-
-      		HashSet<String> conflicts = new HashSet<>();
-      		for (String cat : genesByVia.keySet()){
-      			for (String otherCat : genesByVia.keySet()){
-      				if (!otherCat.equalsIgnoreCase(cat)){
-      					Set<String> conflictingGenes = genesByVia.get(otherCat);
-      					conflictingGenes.retainAll(genesByVia.get(cat));
-      					conflicts.addAll(conflictingGenes);
-      				}
-      			}
-      		}
-
-		    genesTable.add(EMPTY_ROW);
-      		String[] row = {"Conflicting", "" + conflicts.size(), StringUtils.join(conflicts, ", ")};
-    		genesTable.add(row);
-    		String[] note = {"NOTE: Symbols in the conflicting list represent genes that are included in more than one viability category."};
-    		genesTable.add(note);
-
-      		res.add(countsTable);
-      		res.add(genesTable);
-      		res.add(allTable);
-
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-    	return res;
-    }
-
-
-	public List<List<String[]>> getDataOverview(){
-		// Lines phenotyped	with data pass QC	+
-		// broken out by center and total
-		// Phenotype hits	+
-		// Datapoints
-		// Images
-
-    	List<List<String[]>> res = new ArrayList<>();
-    	List<String[]> overview = new ArrayList<>();
-		String[] forArrayType = new String[0];
-
-		try {
-
-			List<String> row = new ArrayList<>();
-			row.add("# phenotyped genes");
-			row.add(Integer.toString(oService.getAllGeneIdsByResource(resources, false).size()));
-    		overview.add(row.toArray(forArrayType));
-
-	    	row = new ArrayList<>();
-			row.add("# phenotyped mutant lines");
-			row.add(Integer.toString(oService.getAllColonyIdsByResource(resources, true).size()));
-	    	overview.add(row.toArray(forArrayType));
-
-	    	row = new ArrayList<>();
-			row.add("# phenotype hits");
-			row.add(Long.toString(gpService.getNumberOfDocuments(resources)));
-	    	overview.add(row.toArray(forArrayType));
-
-	    	row = new ArrayList<>();
-			row.add("# data points");
-			row.add(Long.toString(oService.getNumberOfDocuments(resources, false)));
-	    	overview.add(row.toArray(forArrayType));
-
-	    	row = new ArrayList<>();
-			row.add("# images");
-			row.add(Long.toString(iService.getNumberOfDocuments(resources, false)));
-	    	overview.add(row.toArray(forArrayType));
-
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
+//    public List<List<String[]>> getViabilityReport(){
+//
+//    	List<List<String[]>> res = new ArrayList<>();
+//    	List<String[]> allTable = new ArrayList<>();
+//    	List<String[]> countsTable = new ArrayList<>();
+//    	List<String[]> genesTable = new ArrayList<>();
+//    	HashMap<String, Integer> countsByCategory = new HashMap<>();
+//    	HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
+//
+//    	try {
+//    		QueryResponse response = oService.getViabilityData(resources);
+//    		String[] header = {"Gene", "Colony", "Category"};
+//    		allTable.add(header);
+//    		for ( SolrDocument doc : response.getResults()){
+//    			String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
+//    			HashSet genes = new HashSet<>();
+//    			String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
+//    				doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
+//    			allTable.add(row);
+//    			if (countsByCategory.containsKey(category)){
+//    				countsByCategory.put(category, countsByCategory.get(category) + 1);
+//    			}else {
+//    				countsByCategory.put(category, 1);
+//    			}
+//    			if (genesByVia.containsKey(category)){
+//    				genes = genesByVia.get(category);
+//    			}
+//
+//			    if (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) {
+//				    genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
+//			    } else {
+//				    System.out.println("  ERROR: Could not get solr document field gene_symbol for document: " + doc);
+//			    }
+//				genesByVia.put(category, genes);
+//    		}
+//
+//      		for (String cat: countsByCategory.keySet()){
+//      			String[] row = {cat, countsByCategory.get(cat).toString()};
+//      			countsTable.add(row);
+//      		}
+//
+//      		String[] genesHeader = {"Category", "# genes", "Genes"};
+//    		genesTable.add(genesHeader);
+//    		for (String cat : genesByVia.keySet()){
+//    			String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesByVia.get(cat), ", ")};
+//    			genesTable.add(row);
+//    		}
+//
+//      		HashSet<String> conflicts = new HashSet<>();
+//      		for (String cat : genesByVia.keySet()){
+//      			for (String otherCat : genesByVia.keySet()){
+//      				if (!otherCat.equalsIgnoreCase(cat)){
+//      					Set<String> conflictingGenes = genesByVia.get(otherCat);
+//      					conflictingGenes.retainAll(genesByVia.get(cat));
+//      					conflicts.addAll(conflictingGenes);
+//      				}
+//      			}
+//      		}
+//
+//		    genesTable.add(getBmpIpgttStats);
+//      		String[] row = {"Conflicting", "" + conflicts.size(), StringUtils.join(conflicts, ", ")};
+//    		genesTable.add(row);
+//    		String[] note = {"NOTE: Symbols in the conflicting list represent genes that are included in more than one viability category."};
+//    		genesTable.add(note);
+//
+//      		res.add(countsTable);
+//      		res.add(genesTable);
+//      		res.add(allTable);
+//
+//		} catch (SolrServerException e) {
+//			e.printStackTrace();
+//		}
+//    	return res;
+//    }
 
 
-    	res.add(overview);
-
-    	List<String[]> linesPerCenter = new ArrayList<>();
-		try {
-			Map<String, Set<String>> result = oService.getColoniesByPhenotypingCenter(resources, null);
-			for (String center: result.keySet()){
-				String[] row= {"# mutant lines phenotyped at " + center, Integer.toString(result.get(center).size())};
-				linesPerCenter.add(row);
-			}
-
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-    	res.add(linesPerCenter);
-
-
-    	List<String> genesAll;
-		List<String> genesComplete;
-		List<String[]> mpTable = new ArrayList<>();
-
-    	try {
-
-		    genesAll = oService.getGenesWithMoreProcedures(1, resources);
-		    genesComplete = oService.getGenesWithMoreProcedures(13, resources);
-
-		    // Process top level MP terms
-		    String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-		    Map<String, List<String>> topLevelMpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
-		    Map<String, List<String>> topLevelMpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
-
-		    String[] headerTopLevel = {"Top Level MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
-		    mpTable.add(headerTopLevel);
-		    for(String mpTerm : topLevelMpTermByGeneMapAll.keySet()) {
-			    String[] row = {
-				    mpTerm,
-				    new Integer(topLevelMpTermByGeneMapAll.get(mpTerm).size()).toString(),
-				    new Float((float) topLevelMpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
-				    new Integer(topLevelMpTermByGeneMapComplete.get(mpTerm).size()).toString(),
-				    new Float((float) topLevelMpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
-			    mpTable.add(row);
-		    }
-
-		    String[] emptyRow = {""};
-		    mpTable.add(emptyRow);
-
-		    // Process granular MP terms
-		    String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-		    Map<String, List<String>> mpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
-		    Map<String, List<String>> mpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
-
-		    String[] headerMp = {"MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
-		    mpTable.add(headerMp);
-		    for(String mpTerm : mpTermByGeneMapAll.keySet()) {
-			    String[] row = {
-				    mpTerm,
-				    new Integer(mpTermByGeneMapAll.get(mpTerm).size()).toString(),
-				    new Float((float) mpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
-				    new Integer(mpTermByGeneMapComplete.get(mpTerm).size()).toString(),
-				    new Float((float) mpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
-			    mpTable.add(row);
-		    }
-
-		} catch (SolrServerException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
-
-		res.add(mpTable);
-
-		return res;
-    }
+//	public List<List<String[]>> getDataOverview(){
+//		// Lines phenotyped	with data pass QC	+
+//		// broken out by center and total
+//		// Phenotype hits	+
+//		// Datapoints
+//		// Images
+//
+//    	List<List<String[]>> res = new ArrayList<>();
+//    	List<String[]> overview = new ArrayList<>();
+//		String[] forArrayType = new String[0];
+//
+//		try {
+//
+//			List<String> row = new ArrayList<>();
+//			row.add("# phenotyped genes");
+//			row.add(Integer.toString(oService.getAllGeneIdsByResource(resources, false).size()));
+//    		overview.add(row.toArray(forArrayType));
+//
+//	    	row = new ArrayList<>();
+//			row.add("# phenotyped mutant lines");
+//			row.add(Integer.toString(oService.getAllColonyIdsByResource(resources, true).size()));
+//	    	overview.add(row.toArray(forArrayType));
+//
+//	    	row = new ArrayList<>();
+//			row.add("# phenotype hits");
+//			row.add(Long.toString(gpService.getNumberOfDocuments(resources)));
+//	    	overview.add(row.toArray(forArrayType));
+//
+//	    	row = new ArrayList<>();
+//			row.add("# data points");
+//			row.add(Long.toString(oService.getNumberOfDocuments(resources, false)));
+//	    	overview.add(row.toArray(forArrayType));
+//
+//	    	row = new ArrayList<>();
+//			row.add("# images");
+//			row.add(Long.toString(iService.getNumberOfDocuments(resources, false)));
+//	    	overview.add(row.toArray(forArrayType));
+//
+//		} catch (SolrServerException e) {
+//			e.printStackTrace();
+//		}
+//
+//
+//    	res.add(overview);
+//
+//    	List<String[]> linesPerCenter = new ArrayList<>();
+//		try {
+//			Map<String, Set<String>> result = oService.getColoniesByPhenotypingCenter(resources, null);
+//			for (String center: result.keySet()){
+//				String[] row= {"# mutant lines phenotyped at " + center, Integer.toString(result.get(center).size())};
+//				linesPerCenter.add(row);
+//			}
+//
+//		} catch (SolrServerException e) {
+//			e.printStackTrace();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//
+//    	res.add(linesPerCenter);
+//
+//
+//    	List<String> genesAll;
+//		List<String> genesComplete;
+//		List<String[]> mpTable = new ArrayList<>();
+//
+//    	try {
+//
+//		    genesAll = oService.getGenesWithMoreProcedures(1, resources);
+//		    genesComplete = oService.getGenesWithMoreProcedures(13, resources);
+//
+//		    // Process top level MP terms
+//		    String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+//		    Map<String, List<String>> topLevelMpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
+//		    Map<String, List<String>> topLevelMpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
+//
+//		    String[] headerTopLevel = {"Top Level MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
+//		    mpTable.add(headerTopLevel);
+//		    for(String mpTerm : topLevelMpTermByGeneMapAll.keySet()) {
+//			    String[] row = {
+//				    mpTerm,
+//				    new Integer(topLevelMpTermByGeneMapAll.get(mpTerm).size()).toString(),
+//				    new Float((float) topLevelMpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
+//				    new Integer(topLevelMpTermByGeneMapComplete.get(mpTerm).size()).toString(),
+//				    new Float((float) topLevelMpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
+//			    mpTable.add(row);
+//		    }
+//
+//		    String[] emptyRow = {""};
+//		    mpTable.add(emptyRow);
+//
+//		    // Process granular MP terms
+//		    String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
+//		    Map<String, List<String>> mpTermByGeneMapAll = gpService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
+//		    Map<String, List<String>> mpTermByGeneMapComplete = gpService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
+//
+//		    String[] headerMp = {"MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
+//		    mpTable.add(headerMp);
+//		    for(String mpTerm : mpTermByGeneMapAll.keySet()) {
+//			    String[] row = {
+//				    mpTerm,
+//				    new Integer(mpTermByGeneMapAll.get(mpTerm).size()).toString(),
+//				    new Float((float) mpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
+//				    new Integer(mpTermByGeneMapComplete.get(mpTerm).size()).toString(),
+//				    new Float((float) mpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
+//			    mpTable.add(row);
+//		    }
+//
+//		} catch (SolrServerException | InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//		}
+//
+//		res.add(mpTable);
+//
+//		return res;
+//    }
 
 
 //    public List<List<String[]>> getHitsPerParameterAndProcedure(){
@@ -550,69 +548,69 @@ public class ReportsService {
 //    }
 
 
-	/**
-	 * This will return a report of genes with counts of MP term associations.
-	 * The count is
-	 *   - Sexes are collapsed,
-	 *     if both sexes have the same MP call, count once
-	 *     if one sex has an MP call, but the other doesn't, count once
-	 *     if one sex has an MP call, and the other has a different call, count twice
-	 *
-	 * @return list of string arrays for populating a CSV file
-	 */
-	public List<String[]> getHitsPerGene(){
-
-		List<String[]> res = new ArrayList<>();
-		String[] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
-		res.add(headerParams);
-
-		try {
-
-			List<GenotypePhenotypeDTO> gps = gpService.getAllGenotypePhenotypes(resources);
-
-			Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
-
-			for (GenotypePhenotypeDTO gp : gps) {
-
-				// Exclude LacZ calls
-				if(gp.getParameterStableId().contains("ALZ")) {
-					continue;
-				}
-
-				if( ! geneToPhenotypes.containsKey(gp.getMarkerSymbol())) {
-					geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<String>());
-				}
-
-				geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
-			}
-
-			Set<String> allGenes = new HashSet<>(oService.getGenesWithMoreProcedures(1, resources));
-			allGenes.removeAll(geneToPhenotypes.keySet());
-
-			for (String geneSymbol : geneToPhenotypes.keySet()) {
-				String[] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol),": ")};
-				res.add(row);
-			}
-
-			for (String geneSymbol : allGenes) {
-				String[] row = {geneSymbol, "0", ""};
-				res.add(row);
-			}
-
-		} catch (SolrServerException | InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
-
-		return res;
-
-	}
+//	/**
+//	 * This will return a report of genes with counts of MP term associations.
+//	 * The count is
+//	 *   - Sexes are collapsed,
+//	 *     if both sexes have the same MP call, count once
+//	 *     if one sex has an MP call, but the other doesn't, count once
+//	 *     if one sex has an MP call, and the other has a different call, count twice
+//	 *
+//	 * @return list of string arrays for populating a CSV targetFile
+//	 */
+//	public List<String[]> getHitsPerGene(){
+//
+//		List<String[]> res = new ArrayList<>();
+//		String[] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
+//		res.add(headerParams);
+//
+//		try {
+//
+//			List<GenotypePhenotypeDTO> gps = gpService.getAllGenotypePhenotypes(resources);
+//
+//			Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
+//
+//			for (GenotypePhenotypeDTO gp : gps) {
+//
+//				// Exclude LacZ calls
+//				if(gp.getParameterStableId().contains("ALZ")) {
+//					continue;
+//				}
+//
+//				if( ! geneToPhenotypes.containsKey(gp.getMarkerSymbol())) {
+//					geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<String>());
+//				}
+//
+//				geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
+//			}
+//
+//			Set<String> allGenes = new HashSet<>(oService.getGenesWithMoreProcedures(1, resources));
+//			allGenes.removeAll(geneToPhenotypes.keySet());
+//
+//			for (String geneSymbol : geneToPhenotypes.keySet()) {
+//				String[] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol),": ")};
+//				res.add(row);
+//			}
+//
+//			for (String geneSymbol : allGenes) {
+//				String[] row = {geneSymbol, "0", ""};
+//				res.add(row);
+//			}
+//
+//		} catch (SolrServerException | InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return res;
+//
+//	}
 
 
 	/**
 	 * This will return a report of genes with MP term associations brokwn down by zygosity..  It will also list
 	 * the viability call(s) for that gene.
 	 *
-	 * @return list of string arrays for populating a CSV file
+	 * @return list of string arrays for populating a CSV targetFile
 	 */
 	public List<String[]> getGeneByZygosity() {
 
@@ -622,7 +620,7 @@ public class ReportsService {
 		Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
 		Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
 
-		String[] headerParams  ={"MP Term", "Zygosity", "# Genes", "Genes" };
+		String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Genes"};
 		res.add(headerParams);
 
 		try {
@@ -633,12 +631,12 @@ public class ReportsService {
 			for (GenotypePhenotypeDTO gp : gps) {
 
 				// Exclude Viability calls from the counts of genes by zygosity
-				if(gp.getParameterStableId().contains("VIA")) {
+				if (gp.getParameterStableId().contains("VIA")) {
 					continue;
 				}
 
 				// Exclude LacZ calls
-				if(gp.getParameterStableId().contains("ALZ")) {
+				if (gp.getParameterStableId().contains("ALZ")) {
 					continue;
 				}
 
@@ -646,12 +644,12 @@ public class ReportsService {
 				final ZygosityType zygosity = ZygosityType.valueOf(gp.getZygosity());
 				final List<String> topLevelMpTermName = gp.getTopLevelMpTermName();
 
-				if (topLevelMpTermName==null) continue;
+				if (topLevelMpTermName == null) continue;
 
 				// Collect top level MP term information
 				for (String mp : topLevelMpTermName) {
 					Pair<String, ZygosityType> k = new ImmutablePair<>(mp, zygosity);
-					if ( ! mps.containsKey(k)) {
+					if (!mps.containsKey(k)) {
 						mps.put(k, new HashSet<String>());
 					}
 					mps.get(k).add(symbol);
@@ -662,7 +660,7 @@ public class ReportsService {
 				g.setGeneSymbol(symbol);
 				g.setZygosity(ZygosityType.valueOf(gp.getZygosity()));
 				g.setPhenotypeCenter(gp.getPhenotypingCenter());
-				if( ! data.containsKey(g)) {
+				if (!data.containsKey(g)) {
 					data.put(g, new ArrayList<String>());
 				}
 
@@ -674,7 +672,7 @@ public class ReportsService {
 				final String symbol = k.getLeft();
 				final String zygosity = k.getRight().getName();
 
-				String[] row = {symbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mps.get(k), ": ") };
+				String[] row = {symbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mps.get(k), ": ")};
 				res.add(row);
 			}
 
@@ -687,7 +685,7 @@ public class ReportsService {
 
 
 				// Skip records that are not for the resources we are interested in
-				if ( ! resources.contains(obs.getDataSourceName())) {
+				if (!resources.contains(obs.getDataSourceName())) {
 					continue;
 				}
 
@@ -697,7 +695,7 @@ public class ReportsService {
 				g.setGeneSymbol(symbol);
 				g.setZygosity(ZygosityType.valueOf(obs.getZygosity()));
 				g.setPhenotypeCenter(obs.getPhenotypingCenter());
-				if( ! viabilityData.containsKey(g)) {
+				if (!viabilityData.containsKey(g)) {
 					viabilityData.put(g, new ArrayList<String>());
 				}
 
@@ -706,7 +704,7 @@ public class ReportsService {
 			}
 
 
-			String[] resetHeaderParams = {"Marker symbol", "Center", "Viability", "Hom", "Het", "Hemi", "Link to Gene page" };
+			String[] resetHeaderParams = {"Marker symbol", "Center", "Viability", "Hom", "Het", "Hemi", "Link to Gene page"};
 			res.add(resetHeaderParams);
 
 			Set<String> geneSymbols = new HashSet<>();
@@ -736,26 +734,26 @@ public class ReportsService {
 					candidate.setGeneSymbol(geneSymbol);
 
 					candidate.setZygosity(ZygosityType.homozygote);
-					String homCount = (data.get(candidate)!=null) ? Integer.toString(data.get(candidate).size()) : "";
+					String homCount = (data.get(candidate) != null) ? Integer.toString(data.get(candidate).size()) : "";
 					if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
 					include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
 
 					candidate.setZygosity(ZygosityType.heterozygote);
-					String hetCount = (data.get(candidate)!=null) ? Integer.toString(data.get(candidate).size()) : "";
+					String hetCount = (data.get(candidate) != null) ? Integer.toString(data.get(candidate).size()) : "";
 					if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
 					include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
 
 					candidate.setZygosity(ZygosityType.hemizygote);
-					String hemiCount = (data.get(candidate)!=null) ? Integer.toString(data.get(candidate).size()) : "";
+					String hemiCount = (data.get(candidate) != null) ? Integer.toString(data.get(candidate).size()) : "";
 					if (viabilityData.containsKey(candidate)) via.addAll(viabilityData.get(candidate));
 					include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
 
 					String geneLink = "";
-					if (gene!=null) {
+					if (gene != null) {
 						geneLink = drupalBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
 					}
 
-					String[] row = {geneSymbol, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink };
+					String[] row = {geneSymbol, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink};
 					if (include) res.add(row);
 
 				}

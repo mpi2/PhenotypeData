@@ -17,9 +17,12 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,18 +33,17 @@ import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Hits per parameter and procedure report.
+ * Phenotype Overview Per Gene report.
  *
  * Created by mrelac on 24/07/2015.
  */
 @SpringBootApplication
 @Component
-public class HitsPerParameterAndProcedureReport extends AbstractReport {
+public class PhenotypeOverviewPerGeneReport extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -50,14 +52,14 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
     PostQcService genotypePhenotypeService;
 
     @Autowired
+    ObservationService observationService;
 
-
-    public HitsPerParameterAndProcedureReport() {
+    public PhenotypeOverviewPerGeneReport() {
         super();
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(HitsPerParameterAndProcedureReport.class, args);
+        SpringApplication.run(PhenotypeOverviewPerGeneReport.class, args);
     }
 
     @Override
@@ -71,24 +73,43 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        //Columns:
-        //	parameter name | parameter stable id | number of significant hits
+        List<String[]> result = new ArrayList<>();
+        String[] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
+        result.add(headerParams);
 
-        List<List<String[]>> result = new ArrayList<>();
         try {
-            List<String[]> parameters = new ArrayList<>();
-            String[] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
-            parameters.add(headerParams);
-            parameters.addAll(genotypePhenotypeService.getHitsDistributionByParameter(resources));
 
-            List<String[]> procedures = new ArrayList<>();
-            String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
-            procedures.add(headerProcedures);
-            procedures.addAll(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
+            List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
 
-            result.add(parameters);
-            result.add(procedures);
-            csvWriter.writeAllMulti(result);
+            Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
+
+            for (GenotypePhenotypeDTO gp : gps) {
+
+                // Exclude LacZ calls
+                if(gp.getParameterStableId().contains("ALZ")) {
+                    continue;
+                }
+
+                if( ! geneToPhenotypes.containsKey(gp.getMarkerSymbol())) {
+                    geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<String>());
+                }
+
+                geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
+            }
+
+            Set<String> allGenes = new HashSet<>(observationService.getGenesWithMoreProcedures(1, resources));
+            allGenes.removeAll(geneToPhenotypes.keySet());
+
+            for (String geneSymbol : geneToPhenotypes.keySet()) {
+                String[] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol), ": ")};
+                result.add(row);
+            }
+
+            for (String geneSymbol : allGenes) {
+                String[] row = {geneSymbol, "0", ""};
+                result.add(row);
+            }
+            csvWriter.writeAll(result);
 
         } catch (SolrServerException | InterruptedException | ExecutionException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
