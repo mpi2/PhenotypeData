@@ -13,19 +13,24 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package org.mousephenotype.cda.solr.bean;
+package org.mousephenotype.cda.solr.service.dto;
 
 /**
  * Class to act as Map value DTO for impress data
  */
-public class ImpressBean {
-	public Integer id;
-	public String stableKey;
-	public String stableId;
-	public String name;
+public class ImpressBaseDTO {
+	
+	private Integer id;
+	private Integer stableKey;
+	private String stableId;
+	private String name;
 
 
-	public ImpressBean(Integer id, String stableKey, String stableId, String name){
+	public ImpressBaseDTO(){
+		
+	}
+	
+	public ImpressBaseDTO(Integer id, Integer stableKey, String stableId, String name){
 	
 		this.id = id;
 		this.stableId = stableId;
@@ -46,13 +51,13 @@ public class ImpressBean {
 	}
 
 
-	public String getStableKey() {
+	public Integer getStableKey() {
 
 		return stableKey;
 	}
 
 
-	public void setStableKey(String stableKey) {
+	public void setStableKey(Integer stableKey) {
 
 		this.stableKey = stableKey;
 	}
@@ -80,4 +85,12 @@ public class ImpressBean {
 
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		return "ImpressBaseDTO [id=" + id + ", stableKey=" + stableKey + ", stableId=" + stableId + ", name=" + name
+				+ "]";
+	}
+	
+	
 }

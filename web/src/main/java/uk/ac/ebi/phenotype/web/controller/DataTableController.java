@@ -1321,7 +1321,7 @@ public class DataTableController {
 
                     List<String> rowData = new ArrayList<String>();
 
-                    Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString()); //MA:xxx, MP:xxx, MGI:xxx, exp
+                    Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString(), request.getAttribute("baseUrl").toString()); //MA:xxx, MP:xxx, MGI:xxx, exp
                     String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
                     String facetField = hm.get("field").toString();
 

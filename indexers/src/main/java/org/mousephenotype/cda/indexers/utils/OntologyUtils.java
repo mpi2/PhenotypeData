@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 
 /**
  *
@@ -41,8 +41,8 @@ public class OntologyUtils {
      * 
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ImpressBean> populateImpressPipeline(Connection connection) throws SQLException {
-        Map<Integer, ImpressBean> impressMap;
+    public static Map<Integer, ImpressBaseDTO> populateImpressPipeline(Connection connection) throws SQLException {
+        Map<Integer, ImpressBaseDTO> impressMap;
 
         String query = "SELECT id, stable_key, name, stable_id FROM phenotype_pipeline";
         try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -62,8 +62,8 @@ public class OntologyUtils {
      *
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ImpressBean> populateImpressProcedure(Connection connection) throws SQLException {
-        Map<Integer, ImpressBean> impressMap;
+    public static Map<Integer, ImpressBaseDTO> populateImpressProcedure(Connection connection) throws SQLException {
+        Map<Integer, ImpressBaseDTO> impressMap;
 
         String query = "SELECT id, stable_key, name, stable_id FROM phenotype_procedure";
 
@@ -84,8 +84,8 @@ public class OntologyUtils {
      *
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ImpressBean> populateImpressParameter(Connection connection) throws SQLException {
-        Map<Integer, ImpressBean> impressMap;
+    public static Map<Integer, ImpressBaseDTO> populateImpressParameter(Connection connection) throws SQLException {
+        Map<Integer, ImpressBaseDTO> impressMap;
 
         String query = "SELECT id, stable_key, name, stable_id FROM phenotype_parameter";
 
@@ -132,13 +132,16 @@ public class OntologyUtils {
     // PRIVATE METHODS
 
     
-    private static Map<Integer, ImpressBean> populateImpressMap(PreparedStatement p) throws SQLException {
+    private static Map<Integer, ImpressBaseDTO> populateImpressMap(PreparedStatement p) throws SQLException {
 
-        Map<Integer, ImpressBean> impressMap = new HashMap<>();
+        Map<Integer, ImpressBaseDTO> impressMap = new HashMap<>();
         ResultSet resultSet = p.executeQuery();
 
         while (resultSet.next()) {
-            ImpressBean b = new ImpressBean(resultSet.getInt("id"), resultSet.getString("stable_key"), resultSet.getString("stable_id"), resultSet.getString("name"));
+            ImpressBaseDTO b = new ImpressBaseDTO(resultSet.getInt("id"), 
+            		resultSet.getInt("stable_key"), 
+            		resultSet.getString("stable_id"), 
+            		resultSet.getString("name"));
             impressMap.put(resultSet.getInt("id"), b);
         }
 

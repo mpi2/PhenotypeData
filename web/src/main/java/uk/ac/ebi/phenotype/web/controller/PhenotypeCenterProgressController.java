@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
-import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -80,8 +80,8 @@ public class PhenotypeCenterProgressController {
 
 
 	private void processPhenotypeCenterProgress(Model model) {
-		Map<String, Map<String, List<ProcedureBean>>> centerDataMap=null;
-		Map<String, Map<String, List<ProcedureBean>>> preQcCenterDataMap=null;
+		Map<String, Map<String, List<ProcedureDTO>>> centerDataMap=null;
+		Map<String, Map<String, List<ProcedureDTO>>> preQcCenterDataMap=null;
 		try {
 			centerDataMap = phenCenterProgress.getCentersProgressInformation();
 		} catch (SolrServerException e) {
@@ -107,11 +107,11 @@ public class PhenotypeCenterProgressController {
 		model.addAttribute("preQcCenterDataMap", preQcCenterDataMap);
 	}
 
-	private void getPostOrPreQcData(Map<String, Map<String, List<ProcedureBean>>> centerDataMap, Map<String, JSONArray> centerDataJSON) {
+	private void getPostOrPreQcData(Map<String, Map<String, List<ProcedureDTO>>> centerDataMap, Map<String, JSONArray> centerDataJSON) {
 
 		for(String center:centerDataMap.keySet()){
 			List<Pair> pairsList=new ArrayList<>();
-			Map<String, List<ProcedureBean>> strainsToProcedures=centerDataMap.get(center);
+			Map<String, List<ProcedureDTO>> strainsToProcedures=centerDataMap.get(center);
 
 			for(String strain: strainsToProcedures.keySet()){
 				Pair pair=new Pair();

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -132,7 +133,7 @@ public class Tools {
 		return result;
 	}
 	
-	public static String[][] composeXlsTableData(List<String> rows) {
+	public static String[][] composeXlsTableData(List<String> rows) throws UnsupportedEncodingException {
         int rowNum = rows.size();
         int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0; // title row, tells how many columns
        
@@ -142,13 +143,19 @@ public class Tools {
             String[] colVals = rows.get(i).split("\t");
             
             for (int j = 0; j < colVals.length; j++) {
-                tableData[i][j] = colVals[j];
+            	String currVal = colVals[j];
+            	if ( currVal.startsWith("http:")){
+            		currVal = currVal.replaceAll(" ", "%20");
+            		currVal = currVal.replaceAll("\"", "%22");
+            	}
+                tableData[i][j] = currVal;
             }
         }
        
         return tableData;
     }
-	
+//http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=*:*&q=*:*%20AND%20symbol:"2010107G12Rik"&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath
+
 	public static String fetchOutputFieldsCheckBoxesHtml(String corename) {
 		
 		corename = (corename == null) ? "gene" : corename; 
