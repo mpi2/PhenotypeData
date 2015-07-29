@@ -85,4 +85,12 @@ public class ImpressBaseDTO {
 
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		return "ImpressBaseDTO [id=" + id + ", stableKey=" + stableKey + ", stableId=" + stableId + ", name=" + name
+				+ "]";
+	}
+	
+	
 }
