@@ -18,38 +18,35 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.ImageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.IOException;
+import java.io.File;
 import java.util.List;
 
 /**
- * lac-z expression report.
+ * Bone mineral stats (Fasted blood glucose concentration) report.
  *
- * Created by mrelac on 24/07/2015.
+ * Created by mrelac on 28/07/2015.
  */
 @SpringBootApplication
 @Component
-public class LacZExpressionReport extends AbstractReport {
+public class BmdStatsGlucoseConcentrationReport extends BoneMineralAbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    ImageService imageService;
+    public static final String parameter = "IMPC_IPG_010_001";
 
-    public LacZExpressionReport() {
+    public BmdStatsGlucoseConcentrationReport() {
         super();
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(LacZExpressionReport.class, args);
+        SpringApplication.run(BmdStatsGlucoseConcentrationReport.class, args);
     }
 
     @Override
@@ -59,18 +56,14 @@ public class LacZExpressionReport extends AbstractReport {
 
     @Override
     public void run(String[] args) throws ReportException {
+        File file = null;
+
+        List<String> errors = parser.validate(parser.parse(args));
         initialise(args);
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result = imageService.getLaczExpressionSpreadsheet();
-        csvWriter.writeAll(result);
-
-        try {
-            csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
-        }
+        super.run(parameter);
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
