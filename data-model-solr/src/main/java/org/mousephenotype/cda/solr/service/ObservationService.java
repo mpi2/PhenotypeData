@@ -43,10 +43,10 @@ import org.mousephenotype.cda.enumerations.BatchClassification;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.bean.ImpressBean;
-import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
@@ -118,17 +118,15 @@ public class ObservationService extends BasicService {
      * @param pipelineStableId
      * @param dataType
      * @param resource
-     * @return
+     * @return List<ProcedureBean>
      */
-	public List<ProcedureBean> getProceduresByPipeline(String pipelineStableId, String observationType, String resource){
+	public List<ImpressBaseDTO> getProceduresByPipeline(String pipelineStableId, String observationType, String resource, Integer minParameterNumber){
 		
-		List<ProcedureBean> procedures = new ArrayList<>();
+		List<ImpressBaseDTO> procedures = new ArrayList<>();
 		
 		try {
 			SolrQuery query = new SolrQuery()
-				.setQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-				.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType)
-				.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource)
+				.setQuery("*:*")
 				.addField(ObservationDTO.PROCEDURE_ID)
 				.addField(ObservationDTO.PROCEDURE_NAME)
 				.addField(ObservationDTO.PROCEDURE_STABLE_ID);
@@ -136,18 +134,62 @@ public class ObservationService extends BasicService {
 			query.set("group.field", ObservationDTO.PROCEDURE_NAME);
 			query.setRows(10000);
 			query.set("group.limit", 1);
-
+			
+			if (pipelineStableId != null){
+				query.addFilterQuery(ObservationDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+			}
+			if (observationType != null){
+				query.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType);
+			}
+			if (resource != null){
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+			}
+			
+			String pivotField = ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_NAME;
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				
+				query.setFacet(true);
+				query.setFacetMinCount(1);
+				query.set("facet.pivot.mincount", minParameterNumber);
+				query.set("facet.pivot", pivotField);
+				
+			}			
+			
 			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
 			
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				//group.getResult();
-				ProcedureBean procedure = new ProcedureBean(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString(), 
-															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString(),
-															group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID).toString(), null);
+
+				ImpressBaseDTO procedure = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_ID).toString()), 
+						null,
+						group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_STABLE_ID ).toString(),
+						group.getResult().get(0).getFirstValue(ObservationDTO.PROCEDURE_NAME).toString());
 				procedures.add(procedure);
 			}
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				// get procedureList with more than minParameterNumber 
+				// remove from procedures the ones not in procedureList
+				List<Map<String, String>> res = getFacetPivotResults(response, false);
+				HashSet<String> proceduresWithMinCount = new HashSet<>(); 
+				
+				for (Map<String, String> pivot : res ){
+					proceduresWithMinCount.addAll(pivot.values());
+				}
+				
+				List<ImpressBaseDTO> proceduresToReturn = new ArrayList<>();
+				
+				for (ImpressBaseDTO proc : procedures){
+					if (proceduresWithMinCount.contains(proc.getName())){
+						proceduresToReturn.add(proc);
+					}
+				}
+				procedures = proceduresToReturn;
+				
+			}
+			
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -155,7 +197,58 @@ public class ObservationService extends BasicService {
 		
 		return procedures;
 	}
-    
+	
+	
+
+    /**
+     * @author tudose
+     * @since 2015/07/28
+     * @return List of parameters with data for the given procedure.
+     */
+	public  List<ImpressBaseDTO> getParameters(String procedureName, String observationType, String resource){
+		
+		List<ImpressBaseDTO> parameters = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery("*:*")
+				.addField(ObservationDTO.PARAMETER_ID)
+				.addField(ObservationDTO.PARAMETER_STABLE_ID)
+				.addField(ObservationDTO.PARAMETER_NAME);
+			query.set("group", true);
+			query.set("group.field", ObservationDTO.PARAMETER_NAME);
+			query.setRows(10000);
+			query.set("group.limit", 1);
+			
+			if (procedureName != null){
+				query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + procedureName + "\"");
+			}
+			if (observationType != null){
+				query.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":" + observationType);
+			}
+			if (resource != null){
+				query.addFilterQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+			}
+									
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+
+				ImpressBaseDTO parameter = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_ID).toString()), 
+						null,
+						group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_STABLE_ID ).toString(),
+						group.getResult().get(0).getFirstValue(ObservationDTO.PARAMETER_NAME).toString());
+				parameters.add(parameter);
+			}			
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return parameters;
+	}
+	
+	
     /**
      * @author tudose
      * @since 2015/07/14
@@ -1855,10 +1948,10 @@ public class ObservationService extends BasicService {
      * @return List of pipelines with data for the given parameters.
      * @throws SolrServerException 
      */    
-    public List<ImpressBean> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource) 
+    public List<ImpressBaseDTO> getPipelines(String alleleAccession, String phenotypingCenter, List<String> resource) 
     throws SolrServerException{
     	
-    	List<ImpressBean> pipelines = new ArrayList<>();
+    	List<ImpressBaseDTO> pipelines = new ArrayList<>();
 		
     	SolrQuery query = new SolrQuery()
 			.setQuery("*:*")
@@ -1885,7 +1978,10 @@ public class ObservationService extends BasicService {
 		for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
 			SolrDocument doc = group.getResult().get(0);
-			ImpressBean pipeline = new ImpressBean(null, doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString(), doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
+			ImpressBaseDTO pipeline = new ImpressBaseDTO();
+			pipeline.setId(Integer.getInteger(doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString()));
+			pipeline.setStableId(doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString());
+			pipeline.setName(doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
 			pipelines.add(pipeline);
 			
 		}

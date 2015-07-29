@@ -23,8 +23,8 @@ import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.solr.bean.ProcedureBean;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,9 +154,9 @@ public class PhenotypeCenterService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public List<ProcedureBean> getProceduresPerStrainForCenter(String center,String strain) throws SolrServerException {
+	public List<ProcedureDTO> getProceduresPerStrainForCenter(String center,String strain) throws SolrServerException {
 
-		List<ProcedureBean> procedures=new ArrayList<>();
+		List<ProcedureDTO> procedures=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
 		 .setQuery(ObservationDTO.COLONY_ID+":\""+strain+"\"")
 		 .addFilterQuery(ObservationDTO.PHENOTYPING_CENTER+":\""+center+"\"")
@@ -172,7 +172,10 @@ public class PhenotypeCenterService {
 		QueryResponse response = solr.query(query);
 		List<FacetField> fields = response.getFacetFields();
 		for(int i=0; i< fields.get(0).getValues().size(); i++){
-			procedures.add(new ProcedureBean(fields.get(0).getValues().get(i).getName(), fields.get(1).getValues().get(i).getName()));
+			ProcedureDTO procedure = new ProcedureDTO();
+			procedure.setName(fields.get(0).getValues().get(i).getName());
+			procedure.setStableId(fields.get(1).getValues().get(i).getName());
+			procedures.add(procedure);
 		}
 
 		return procedures;
@@ -234,18 +237,18 @@ public class PhenotypeCenterService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public Map<String, Map<String, List<ProcedureBean>>> getCentersProgressInformation() throws SolrServerException {
+	public Map<String, Map<String, List<ProcedureDTO>>> getCentersProgressInformation() throws SolrServerException {
 
 		//map of centers to a map of strain to procedures list
-		Map<String,Map<String, List<ProcedureBean>>> centerData = new HashMap<>();
+		Map<String,Map<String, List<ProcedureDTO>>> centerData = new HashMap<>();
 		List<String> centers = this.getPhenotypeCenters();
 
 		for(String center:centers){
 			List<String> strains = this.getStrainsForCenter(center);
-			Map<String,List<ProcedureBean>> strainsToProcedures = new HashMap<>();
+			Map<String,List<ProcedureDTO>> strainsToProcedures = new HashMap<>();
 
 			for(String strain:strains){
-				List<ProcedureBean> procedures = this.getProceduresPerStrainForCenter(center, strain);
+				List<ProcedureDTO> procedures = this.getProceduresPerStrainForCenter(center, strain);
 				strainsToProcedures.put(strain, procedures);
 			}
 			centerData.put(center, strainsToProcedures);
