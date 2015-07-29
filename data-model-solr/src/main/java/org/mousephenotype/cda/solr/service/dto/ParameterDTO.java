@@ -155,6 +155,15 @@ public class ParameterDTO  extends ImpressBaseDTO{
 		}
 		this.mpIds.add(mpId);
 	}
+	@Override
+	public String toString() {
+		return "ParameterDTO [id=" + getId() + ", stableKey=" + getStableKey() + ", stableId=" + getStableId() + ", name=" + getName()  
+				+ "increment=" + increment + ", metadata=" + metadata + ", options=" + options + ", derived="
+				+ derived + ", required=" + required + ", media=" + media + ", dataType=" + dataType
+				+ ", parameterType=" + parameterType + ", maId=" + maId + ", maName=" + maName + ", unit=" + unit
+				+ ", observationType=" + observationType + ", procedureStableIds=" + procedureStableIds
+				+ ", categories=" + categories + ", mpIds=" + mpIds + "]";
+	}
 	
 	
 }

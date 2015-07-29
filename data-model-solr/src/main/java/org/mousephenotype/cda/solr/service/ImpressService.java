@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -133,10 +134,11 @@ public class ImpressService {
 				procedure.setStableKey(	Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()));
 				
 				for (SolrDocument doc : group.getResult()){
-					ImpressBaseDTO parameter = new ImpressBaseDTO((Integer)doc.getFirstValue(ImpressDTO.PARAMETER_ID), 
-							Integer.getInteger(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString()),
-							doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString(), 
-							doc.getFirstValue(ImpressDTO.PARAMETER_NAME).toString());
+					ParameterDTO parameter = new ParameterDTO();
+					parameter.setId((Integer)doc.getFirstValue(ImpressDTO.PARAMETER_ID));
+					parameter.setStableKey(	Integer.getInteger(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString()));
+					parameter.setStableId(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString()); 
+					parameter.setName(doc.getFirstValue(ImpressDTO.PARAMETER_NAME).toString());
 					procedure.addParameter(parameter);
 				}
 			}

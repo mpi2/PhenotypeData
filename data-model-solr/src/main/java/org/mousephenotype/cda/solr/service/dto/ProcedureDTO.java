@@ -35,7 +35,7 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	private String procNameId;
 	private String observationType;	
 	private String description;
-	private List<ImpressBaseDTO> parameters;
+	private List<ParameterDTO> parameters;
 	
 	public ProcedureDTO(Integer id, Integer stableKey, String stableId, String name){
 		
@@ -48,7 +48,7 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	}
 	
 	
-	public void addParameter(ImpressBaseDTO parameter){
+	public void addParameter(ParameterDTO parameter){
 		if (this.parameters == null){
 			this.parameters = new ArrayList<>();
 		}
@@ -56,12 +56,12 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	}
 
 
-	public List<ImpressBaseDTO> getParameters() {
+	public List<ParameterDTO> getParameters() {
 	
 		return parameters;
 	}
 	
-	public void setParameters(List<ImpressBaseDTO> parameters) {
+	public void setParameters(List<ParameterDTO> parameters) {
 	
 		this.parameters = parameters;
 	}

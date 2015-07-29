@@ -483,7 +483,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	
 	public Map<String,String> populateParameterStableIdToMaIdMap() throws SQLException{
     	System.out.println("populating parameterStableId to MA map");
-		 Map<String,String> paramToMa = new HashMap<String, String>();
+		Map<String,String> paramToMa = new HashMap<String, String>();
 		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)){
 		    ResultSet resultSet = statement.executeQuery();
@@ -491,7 +491,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			while (resultSet.next()) {
 				String parameterStableId=resultSet.getString("stable_id");
 				String maAcc=resultSet.getString("ontology_acc");
-				System.out.println("adding "+parameterStableId+" "+maAcc);
 				paramToMa.put(parameterStableId, maAcc);
 			}
 		}

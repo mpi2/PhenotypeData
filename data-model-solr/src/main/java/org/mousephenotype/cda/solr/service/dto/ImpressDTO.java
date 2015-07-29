@@ -803,6 +803,10 @@ public class ImpressDTO {
 				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maId=" + maId + ", maTerm="
 				+ maTerm + "]";
 	}
+	
+	public ImpressDTO(){
+		
+	}
 
 
 }
