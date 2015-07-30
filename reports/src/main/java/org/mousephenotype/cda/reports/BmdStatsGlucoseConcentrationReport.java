@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Bone mineral stats (Fasted blood glucose concentration) report.
+ * Bone Mineral Stats (Fasted blood glucose concentration) report.
  *
  * Created by mrelac on 28/07/2015.
  */

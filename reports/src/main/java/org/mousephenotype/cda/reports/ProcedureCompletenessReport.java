@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Procedure completeness report.
+ * Procedure Completeness report.
  *
  * Created by mrelac on 24/07/2015.
  */

@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Sexual dimorphism no body weight report.
+ * Sexual Dimorphism No Body Weight report.
  *
  * Created by mrelac on 24/07/2015.
  */

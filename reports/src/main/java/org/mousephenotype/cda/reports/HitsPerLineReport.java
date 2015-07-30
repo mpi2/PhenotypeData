@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Hits per line report.
+ * Hits Per Line report.
  *
  * Created by mrelac on 24/07/2015.
  */
