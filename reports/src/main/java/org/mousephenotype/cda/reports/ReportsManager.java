@@ -31,6 +31,8 @@ import java.io.File;
 import java.util.List;
 
 /**
+ * Class to kick off reports from the command-line.
+ *
  * Created by mrelac on 23/06/2015.
  */
 
@@ -59,10 +61,10 @@ public class ReportsManager implements CommandLineRunner {
     protected HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
 
     @Autowired
-    protected ImpcPValueReport impcPValueReport;
+    protected ImpcPValuesReport impcPValuesReport;
 
     @Autowired
-    protected LacZExpressionReport lacZExpressionReport;
+    protected LaczExpressionReport lacZExpressionReport;
 
     @Autowired
     protected PhenotypeHitsReport phenotypeHitsReport;
@@ -85,47 +87,9 @@ public class ReportsManager implements CommandLineRunner {
     @Autowired
     ZygosityReport zygosityReport;
 
-
+    private FileUtils fileUtils = new FileUtils();
     private ReportsManagerParser parser = new ReportsManagerParser();
-
-
-
-
-
-//    @Autowired(required = true)
-//    ObservationRepository observations;
-//
-//    @Autowired
-//    @Deprecated
-//    ReportsService reportsService;
-
-//    @Autowired
-//    PhenotypeCenterService phenotypeCenterService;
-
-//    @Autowired
-//    SexualDimorphismDAO sexualDimorphismDAO;
-
-//@Autowired
-//ReportGenerator reportGenerator;
-
-//    @NotNull
-//    @Value("${drupalBaseUrl}")
-//    protected String drupalBaseUrl;
-
-    FileUtils fileUtils = new FileUtils();
-
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
-
-
-//    private static final String PROPERTIES_FILE_ARG = "propertiesFile";
-//    private static final String TARGET_DIRECTORY_ARG = "targetDirectory";
-//    private static final String REPORTS_ARG = "reports";
-//    private static final String HELP_ARG = "help";
-
-//    private List<ReportType> reports = new ArrayList<>();
-//    private String targetDirectory;
-//    private PropertiesConfiguration props;
-//    private boolean showHelp;
 
     public enum ReportType {
         BMD_STATS("bmdStats", "BMD stats (Bone Mineral Content, excluding skull) report"),
@@ -134,7 +98,7 @@ public class ReportsManager implements CommandLineRunner {
         DATA_OVERVIEW("dataOverview", "Data overview report"),
         PHENOTYPE_HITS("phenotypeHits", "Distribution of phenotype hits report"),
         FERTILITY("fertility", "Fertility report"),
-        HITS_PER_LINE("hitsPerLineReport", "Hits per line report"),
+        HITS_PER_LINE("hitsPerLine", "Hits per line report"),
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
         IMPC_P_VALUES("impcPvalues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
@@ -148,7 +112,7 @@ public class ReportsManager implements CommandLineRunner {
         String tag;
         String description;
 
-        private ReportType(String reportTag, String description) {
+        ReportType(String reportTag, String description) {
             this.tag = reportTag;
             this.description = description;
         }
@@ -270,8 +234,8 @@ public class ReportsManager implements CommandLineRunner {
                         break;
 
                     case IMPC_P_VALUES:
-                        impcPValueReport.run(args);
-                        file = impcPValueReport.targetFile;
+                        impcPValuesReport.run(args);
+                        file = impcPValuesReport.targetFile;
                         break;
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:
@@ -351,62 +315,6 @@ public class ReportsManager implements CommandLineRunner {
         System.out.println(ReportType.toStringAll());
     }
 
-//    /**
-//     * Returns an empty list if parameters are valid; else returns a list of strings containing the error text.
-//     *
-//     * @param ps A valid <code>PropertySource</code> instance of this program's parsed arguments.
-//     * @return an empty list if paramters are valid; else returns a list of strings containing the error text.
-//     */
-//    private List<String> parseAndValidate(PropertySource ps) {
-//        List<String> retVal = new ArrayList<>();
-//
-//        showHelp = (ps.containsProperty(HELP) ? true : false);
-//
-//        if (ps.containsProperty(PROPERTIES_FILE_ARG)) {
-//            try {
-//                props = new PropertiesConfiguration((String) ps.getProperty(PROPERTIES_FILE_ARG));
-//            } catch( ConfigurationException e) {
-//                retVal.add("Expected required properties targetFile.");
-//            }
-//        } else {
-//            retVal.add("Expected required properties targetFile.");
-//        }
-//
-//        if (ps.containsProperty(TARGET_DIRECTORY_ARG)) {
-//            targetDirectory = (String) ps.getProperty(TARGET_DIRECTORY_ARG);
-//        } else {
-//            retVal.add("Expected required target directory.");
-//        }
-//        Path path = Paths.get((String) ps.getProperty(TARGET_DIRECTORY_ARG));
-//        if (!Files.exists(path)) {
-//            retVal.add("Target directory " + path.toAbsolutePath() + " does not exist.");
-//        }
-//        if ( ! Files.isWritable(path)) {
-//            retVal.add("Target directory " + path.toAbsolutePath() + " is not writeable.");
-//        }
-//
-//        if (ps.containsProperty(REPORTS_ARG)) {
-//            String reportsCsl = (String) ps.getProperty(REPORTS_ARG);
-//            String[] reportTags = reportsCsl.split(",");
-//            for (String reportTag : reportTags) {                                                                       // Validate the tag.
-//                if (reportTag.isEmpty()) {
-//                    reports.addAll(Arrays.asList(ReportType.values()));
-//                } else {
-//                    try {
-//                        ReportType reportType = ReportType.fromTag(reportTag);
-//                        reports.add(reportType);
-//                    } catch (IllegalArgumentException | NullPointerException e) {
-//                        retVal.add("Unknown report tag '" + reportTag + "'.");
-//                    }
-//                }
-//            }
-//        } else {
-//            reports.addAll(Arrays.asList(ReportType.values()));
-//        }
-//
-//        return retVal;
-//    }
-
     private void logInputParameters() {
         log.info("Reports:          " + StringUtils.join(parser.getReports(), ","));
         log.info("Target directory: " + parser.getTargetDirectory());
@@ -414,46 +322,4 @@ public class ReportsManager implements CommandLineRunner {
         log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
         log.info("Prefix:           " + (parser.getPrefix() == null                ? "<omitted>" : parser.getPrefix()));
     }
-
-//    public Map<String, List<String>> parse(String[] args) {
-//        PropertySource ps = new SimpleCommandLinePropertySource(args);
-//        Map<String, List<String>> propertyMap = new HashMap<>();
-//
-//        if (ps.containsProperty(HELP_ARG)) {
-//            propertyMap.put(HELP_ARG, new ArrayList<>());
-//        }
-//
-//        if (ps.containsProperty(REPORTS_ARG)) {
-//            propertyMap.put(REPORTS_ARG, Arrays.asList(ps.getProperty(REPORTS_ARG).toString().split(",")));
-//        }
-//
-//        return propertyMap;
-//    }
-//
-//    public List<String> validate(Map<String, List<String>> propertyMap) {
-//        List<String> retVal = new ArrayList<>();
-//
-//        showHelp = (propertyMap.containsKey(HELP_ARG) ? true : false);
-//
-//
-//        if (propertyMap.containsKey(REPORTS_ARG)) {
-//            List<String> reportNames = propertyMap.get(REPORTS_ARG);
-//            for (String reportName : reportNames) {
-//                if (reportName.isEmpty()) {
-//                    reports.addAll(Arrays.asList(ReportType.values()));
-//                } else {
-//                    try {
-//                        ReportType reportType = ReportType.fromTag(reportName);
-//                        reports.add(reportType);
-//                    } catch (IllegalArgumentException | NullPointerException e) {
-//                        retVal.add("Unknown report name '" + reportName + "'.");
-//                    }
-//                }
-//            }
-//        } else {
-//            reports.addAll(Arrays.asList(ReportType.values()));
-//        }
-//
-//        return retVal;
-//    }
 }
