@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * IMPC p-value report.
+ * IMPC P-Value report.
  *
  * Created by mrelac on 24/07/2015.
  */

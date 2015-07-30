@@ -36,7 +36,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Fertility report.
+ * Phenotype Hits report.
  *
  * Created by mrelac on 24/07/2015.
  */

@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Fertility report.
+ * Data Overview report.
  *
  * Created by mrelac on 24/07/2015.
  */

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Hits per parameter and procedure report.
+ * Hits Per Parameter And Procedure report.
  *
  * Created by mrelac on 24/07/2015.
  */

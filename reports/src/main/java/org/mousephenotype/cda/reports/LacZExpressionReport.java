@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * lac-z expression report.
+ * Lac-Z Expression report.
  *
  * Created by mrelac on 24/07/2015.
  */

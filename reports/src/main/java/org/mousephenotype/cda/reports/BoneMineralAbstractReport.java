@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
+ * Base class for Bone Mineral Density (Bmd) reports.
+ *
  * Created by mrelac on 28/07/2015.
  */
 public abstract class BoneMineralAbstractReport extends AbstractReport {

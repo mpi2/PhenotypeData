@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 import java.beans.Introspector;
 
 /**
- * Bone mineral stats (Area under the curve glucose response) report.
+ * Bone Mineral Stats (Area under the curve glucose response) report.
  *
  * Created by mrelac on 28/07/2015.
  */
