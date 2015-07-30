@@ -39,7 +39,7 @@ import java.util.List;
 public class ReportsManager implements CommandLineRunner {
 
     @Autowired
-    BmdStatsReport bmdStatsReport;
+    BMDStatsReport bmdStatsReport;
 
     @Autowired
     BmdStatsGlucoseConcentrationReport bmdStatsGlucoseConcentrationReport;

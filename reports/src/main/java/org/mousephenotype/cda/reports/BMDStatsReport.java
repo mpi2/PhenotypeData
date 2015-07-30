@@ -25,8 +25,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.File;
-import java.util.List;
 
 /**
  * Bone Mineral Stats report.
@@ -35,12 +33,12 @@ import java.util.List;
  */
 @SpringBootApplication
 @Component
-public class BmdStatsReport  extends BoneMineralAbstractReport {
+public class BMDStatsReport extends BoneMineralAbstractReport {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String parameter = "IMPC_DXA_004_001";
 
-    public BmdStatsReport() {
+    public BMDStatsReport() {
         super();
     }
 
@@ -50,14 +48,11 @@ public class BmdStatsReport  extends BoneMineralAbstractReport {
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(BmdStatsReport.class, args);
+        SpringApplication.run(BMDStatsReport.class, args);
     }
 
     @Override
     public void run(String[] args) throws ReportException {
-        File file = null;
-
-        List<String> errors = parser.validate(parser.parse(args));
         initialise(args);
 
         long start = System.currentTimeMillis();
