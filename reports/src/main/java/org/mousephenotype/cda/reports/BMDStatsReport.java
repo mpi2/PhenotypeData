@@ -36,7 +36,6 @@ import java.util.List;
 @SpringBootApplication
 @Component
 public class BmdStatsReport extends BoneMineralAbstractReport {
-
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String parameter = "IMPC_DXA_004_001";
