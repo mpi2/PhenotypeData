@@ -39,18 +39,18 @@ import java.util.*;
  */
 @SpringBootApplication
 @Component
-public class ImpcPValueReport extends AbstractReport {
+public class ImpcPValuesReport extends AbstractReport {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     StatisticalResultService statisticalResultService;
 
-    public ImpcPValueReport() {
+    public ImpcPValuesReport() {
         super();
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(ImpcPValueReport.class, args);
+        SpringApplication.run(ImpcPValuesReport.class, args);
     }
 
     @Override

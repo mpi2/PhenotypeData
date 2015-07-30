@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Bone mineral stats report.
+ * Bone Mineral Stats report.
  *
  * Created by mrelac on 28/07/2015.
  */

@@ -37,19 +37,19 @@ import java.util.List;
  */
 @SpringBootApplication
 @Component
-public class LacZExpressionReport extends AbstractReport {
+public class LaczExpressionReport extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ImageService imageService;
 
-    public LacZExpressionReport() {
+    public LaczExpressionReport() {
         super();
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(LacZExpressionReport.class, args);
+        SpringApplication.run(LaczExpressionReport.class, args);
     }
 
     @Override
