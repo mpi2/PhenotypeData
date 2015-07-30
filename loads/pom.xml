@@ -14,9 +14,12 @@
     <artifactId>loads</artifactId>
     <packaging>jar</packaging>
 
-
     <name>loads</name>
     <description>Code for generating the indexes needed for the www.mousephenotype.org post qc part of the websit and associated stats underneath</description>
+
+    <properties>
+        <start-class>org.mousephenotype.cda.reports.ReportsManager</start-class>
+    </properties>
 
     <dependencies>
 
