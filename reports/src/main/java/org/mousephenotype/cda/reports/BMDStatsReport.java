@@ -35,12 +35,12 @@ import java.util.List;
  */
 @SpringBootApplication
 @Component
-public class BmdStatsReport extends BoneMineralAbstractReport {
+public class BMDStatsReport extends BoneMineralAbstractReport {
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String parameter = "IMPC_DXA_004_001";
 
-    public BmdStatsReport() {
+    public BMDStatsReport() {
         super();
     }
 
@@ -50,7 +50,7 @@ public class BmdStatsReport extends BoneMineralAbstractReport {
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(BmdStatsReport.class, args);
+        SpringApplication.run(BMDStatsReport.class, args);
     }
 
     @Override
