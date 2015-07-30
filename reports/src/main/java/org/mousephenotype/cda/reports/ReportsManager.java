@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.FileUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.reports.support.ReportsManagerParser;
 import org.slf4j.Logger;
@@ -87,7 +86,6 @@ public class ReportsManager implements CommandLineRunner {
     @Autowired
     ZygosityReport zygosityReport;
 
-    private FileUtils fileUtils = new FileUtils();
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
 
@@ -299,12 +297,12 @@ public class ReportsManager implements CommandLineRunner {
             , "   [--" + ReportsManagerParser.HELP_ARG             + "]"
         };
         String[] defaults = {
-            "Default is all reports"
-                , "Default is " + ReportsManagerParser.DEFAULT_TARGET_DIRECTORY
-                , "Default is " + ReportsManagerParser.DEFAULT_REPORT_FORMAT
-                , "Default is " + ReportsManagerParser.DEFAULT_PROPERTIES_FILE
-                , "Default is none"
-                , ""
+              "Default is all reports"
+            , "Default is " + ReportsManagerParser.DEFAULT_TARGET_DIRECTORY
+            , "Default is " + ReportsManagerParser.DEFAULT_REPORT_FORMAT
+            , "Default is " + ReportsManagerParser.DEFAULT_PROPERTIES_FILE
+            , "Default is none"
+            , ""
         };
         System.out.println("Usage:");
         for (int i = 0; i < commands.length; i++) {
@@ -320,6 +318,6 @@ public class ReportsManager implements CommandLineRunner {
         log.info("Target directory: " + parser.getTargetDirectory());
         log.info("Report format:    " + parser.getReportFormat());
         log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
-        log.info("Prefix:           " + (parser.getPrefix() == null                ? "<omitted>" : parser.getPrefix()));
+        log.info("Prefix:           " + (parser.getPrefix() == null ? "<omitted>" : parser.getPrefix()));
     }
 }
