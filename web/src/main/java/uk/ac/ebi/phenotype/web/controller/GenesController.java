@@ -246,7 +246,8 @@ public class GenesController {
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
 			model.addAttribute("hasPreQcData", hasPreQc);
 
-			Map<String, String> prod = geneService.getProductionStatus(acc, request.getAttribute("mappedHostname").toString());
+			System.out.println("mapped: " + request.getAttribute("mappedHostname").toString() + " unmapped  " +  request.getAttribute("baseUrl").toString());
+			Map<String, String> prod = geneService.getProductionStatus(acc,  request.getAttribute("mappedHostname").toString()+request.getAttribute("baseUrl").toString());
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 		} catch (SolrServerException e2) {
