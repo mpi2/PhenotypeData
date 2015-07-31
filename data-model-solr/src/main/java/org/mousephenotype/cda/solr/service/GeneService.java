@@ -202,13 +202,12 @@ public class GeneService {
 	public Map<String, String> getProductionStatus(String geneId, String hostname)
 	throws SolrServerException{
 
-		String geneUrl = baseUrl + "/genes/" + geneId;
+		String geneUrl = hostname + baseUrl + "/genes/" + geneId;
 		SolrQuery query = new SolrQuery();
 		query.setQuery("mgi_accession_id:\"" + geneId + "\"");
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
 
-		System.out.println("Mapped host name " + hostname + " Base Url : " + geneUrl);
 		return getStatusFromDoc(doc, hostname, geneUrl);
 
 	}
