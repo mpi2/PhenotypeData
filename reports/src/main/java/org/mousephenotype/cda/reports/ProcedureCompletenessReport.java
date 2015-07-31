@@ -22,8 +22,6 @@ import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
@@ -35,7 +33,6 @@ import java.util.List;
  *
  * Created by mrelac on 24/07/2015.
  */
-@SpringBootApplication
 @Component
 public class ProcedureCompletenessReport extends AbstractReport {
 
@@ -48,16 +45,11 @@ public class ProcedureCompletenessReport extends AbstractReport {
         super();
     }
 
-    public static void main(String args[]) {
-        SpringApplication.run(ProcedureCompletenessReport.class, args);
-    }
-
     @Override
     public String getDefaultFilename() {
-        return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass().getSuperclass()));
+        return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
     }
 
-    @Override
     public void run(String[] args) throws ReportException {
         initialise(args);
 
