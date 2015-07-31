@@ -39,52 +39,52 @@ import java.util.List;
 public class ReportsManager implements CommandLineRunner {
 
     @Autowired
-    BmdStatsReport bmdStatsReport;
+    private BmdStatsReport bmdStatsReport;
 
     @Autowired
-    BmdStatsGlucoseConcentrationReport bmdStatsGlucoseConcentrationReport;
+    private BmdStatsGlucoseConcentrationReport bmdStatsGlucoseConcentrationReport;
 
     @Autowired
-    BmdStatsGlucoseResponseReport bmdStatsGlucoseResponseReport;
+    private BmdStatsGlucoseResponseReport bmdStatsGlucoseResponseReport;
 
     @Autowired
-    DataOverviewReport dataOverviewReport;
+    private DataOverviewReport dataOverviewReport;
 
     @Autowired
-    FertilityReport fertilityReport;
+    private FertilityReport fertilityReport;
 
     @Autowired
-    protected HitsPerLineReport hitsPerLineReport;
+    private HitsPerLineReport hitsPerLineReport;
 
     @Autowired
-    protected HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
+    private  HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
 
     @Autowired
-    protected ImpcPValuesReport impcPValuesReport;
+    private  ImpcPValuesReport impcPValuesReport;
 
     @Autowired
-    protected LaczExpressionReport lacZExpressionReport;
+    private  LaczExpressionReport lacZExpressionReport;
 
     @Autowired
-    protected PhenotypeHitsReport phenotypeHitsReport;
+    private  PhenotypeHitsReport phenotypeHitsReport;
 
     @Autowired
-    protected PhenotypeOverviewPerGeneReport phenotypeOverviewPerGeneReport;
+    private  PhenotypeOverviewPerGeneReport phenotypeOverviewPerGeneReport;
 
     @Autowired
-    ProcedureCompletenessReport procedureCompletenessReport;
+    private ProcedureCompletenessReport procedureCompletenessReport;
 
     @Autowired
-    SexualDimorphismNoBodyWeightReport sexualDimorphismNoBodyWeightReport;
+    private SexualDimorphismNoBodyWeightReport sexualDimorphismNoBodyWeightReport;
 
     @Autowired
-    SexualDimorphismWithBodyWeightReport sexualDimorphismWithBodyWeightReport;
+    private SexualDimorphismWithBodyWeightReport sexualDimorphismWithBodyWeightReport;
 
     @Autowired
-    ViabilityReport viabilityReport;
+    private ViabilityReport viabilityReport;
 
     @Autowired
-    ZygosityReport zygosityReport;
+    private ZygosityReport zygosityReport;
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);

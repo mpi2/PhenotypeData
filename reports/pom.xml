@@ -17,9 +17,11 @@
     <name>reports</name>
     <description>IMPC report product</description>
 
-    <properties>
-        <start-class>org.mousephenotype.cda.reports.ReportsManager</start-class>
-    </properties>
+    <!-- Commented out, but left as an example of how to declare the effective main when
+         there are multiple main methods in a module. -->
+    <!--<properties>-->
+        <!--<start-class>org.mousephenotype.cda.reports.ReportsManager</start-class>-->
+    <!--</properties>-->
 
     <dependencies>
 
