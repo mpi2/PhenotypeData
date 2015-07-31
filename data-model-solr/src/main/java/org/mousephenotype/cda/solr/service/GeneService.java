@@ -231,6 +231,10 @@ public class GeneService {
 		String phenotypeStatusHTMLRepresentation = "";
 		String webStatus = "";
 		List<String> statusList = new ArrayList<>();
+		if (toExport){
+			String mgiId = doc.getString("mgi_accession_id");
+			url += "/genes/" + mgiId;
+		}
 		
 		try {	
 		
@@ -245,7 +249,7 @@ public class GeneService {
 				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 				
 				if ( toExport ){
-					phenotypeStatusHTMLRepresentation = url + url+ "#section-associations" + "|" + webStatus;
+					phenotypeStatusHTMLRepresentation = url + "#section-associations" + "|" + webStatus;
 				}
 				else {
 					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + url + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
@@ -263,7 +267,7 @@ public class GeneService {
 						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
 						
 						if ( toExport ){
-							statusList.add(url + url+ "#section-associations" + "|" + webStatus);
+							statusList.add(url + "#section-associations" + "|" + webStatus);
 						}
 						else {
 							phenotypeStatusHTMLRepresentation += "<a class='status done' href='" + url + "#section-associations'><span>"+webStatus+"</span></a>";
@@ -275,7 +279,7 @@ public class GeneService {
 					// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 					
 					if ( toExport ){
-						statusList.add(url + url+ "#section-associations" + "|" + webStatus);
+						statusList.add(url + "#section-associations" + "|" + webStatus);
 					}
 					else {
 						phenotypeStatusHTMLRepresentation += "<a class='status qc' href='" + url + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
@@ -693,11 +697,11 @@ public class GeneService {
 	/**
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
 	 * @param geneIds
-     * @param hostname the host name
+     * @param url the host name
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, String hostname)
+	public Map<String, String> getProductionStatusForGeneSet(Set<String> geneIds, String url)
 			throws SolrServerException {
 			
 		Map<String, String> geneToStatusMap = new HashMap<>();
@@ -716,14 +720,9 @@ public class GeneService {
 			
 			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
 			if (doc.containsKey(GeneDTO.LATEST_MOUSE_STATUS)) {
-				// String field = (String)doc.getFieldValue(GeneDTO.LATEST_MOUSE_STATUS);
-				// productionStatus=this.getMouseProducedForGene(field);
-				String prodStatusIcons = "Neither production nor phenotyping status available ";
-				Map<String, String> prod = this.getProductionStatus(accession, hostname);
+				String prodStatusIcons = "Neither production nor phenotyping status available ";				
+				Map<String, String> prod = this.getProductionStatus(accession, url);
 				prodStatusIcons = ( prod.get("icons").equalsIgnoreCase("") ) ? prodStatusIcons : prod.get("icons") ;
-				// model.addAttribute("orderPossible" , prod.get("orderPossible"));
-				// model.addAttribute("prodStatusIcons" , prodStatusIcons);
-				// System.out.println(prodStatusIcons);
 				geneToStatusMap.put(accession,prodStatusIcons);
 							
 			}

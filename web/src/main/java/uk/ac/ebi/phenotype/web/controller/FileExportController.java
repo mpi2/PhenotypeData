@@ -999,13 +999,13 @@ public class FileExportController {
 
 			// ES/Mice production status
 			boolean toExport = true;
-			String genePageUrl =  request.getAttribute("mappedHostname").toString()+request.getAttribute("baseUrl").toString();
+			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();			
 			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
 			data.add(prodStatus);
 
 			// phenotyping status
-			String phStatus = geneService.getPhenotypingStatus(doc, request.getAttribute("mappedHostname").toString(), toExport, legacyOnly);
+			String phStatus = geneService.getPhenotypingStatus(doc, genePageUrl, toExport, legacyOnly);
 
 			if (phStatus.isEmpty()) {
 				data.add(NO_INFO_MSG);

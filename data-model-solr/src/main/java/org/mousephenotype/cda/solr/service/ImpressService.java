@@ -235,7 +235,7 @@ public class ImpressService {
 	 * @return a string that either has the name of the procedure or and HTML
 	 *         anchor tag to be used by the chart
 	 */
-	/* Temp comment out as pipeline core does not contian all procedures.
+	
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
@@ -247,7 +247,7 @@ public class ImpressService {
 		return anchor;
 	}
 
-*/
+
 	public String getPipelineUrlByStableId(String stableId){
 		Integer pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null ){
