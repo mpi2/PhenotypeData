@@ -209,7 +209,7 @@ public class GeneService {
 		SolrDocument doc = response.getResults().get(0);
 
 		System.out.println("Mapped host name " + hostUrl + " Base Url : " + geneUrl);
-		return getStatusFromDoc(doc, hostUrl, geneUrl);
+		return getStatusFromDoc(doc, geneUrl);
 
 	}
 
@@ -217,7 +217,7 @@ public class GeneService {
 	 * Get the latest phenotyping status for a document.
 	 * 
 	 * @param doc represents a gene with imits status fields
-     * @param hostName the hostname
+     * @param url the hostname
      * @Param toExport export if true; false otherwise
      * @param legacyOnly is legacy only if true; false otherwise
      *
@@ -225,11 +225,8 @@ public class GeneService {
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String getPhenotypingStatus(JSONObject doc, String hostName, boolean toExport, boolean legacyOnly) {
+	public String getPhenotypingStatus(JSONObject doc, String url, boolean toExport, boolean legacyOnly) {
 		
-		String mgiId = doc.getString("mgi_accession_id");
-		String geneUrl = baseUrl + "/genes/" + mgiId;
-
 		final String statusField = GeneDTO.LATEST_PHENOTYPE_STATUS ;
 		String phenotypeStatusHTMLRepresentation = "";
 		String webStatus = "";
@@ -248,10 +245,10 @@ public class GeneService {
 				// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 				
 				if ( toExport ){
-					phenotypeStatusHTMLRepresentation = hostName + geneUrl+ "#section-associations" + "|" + webStatus;
+					phenotypeStatusHTMLRepresentation = url + url+ "#section-associations" + "|" + webStatus;
 				}
 				else {
-					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + url + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 				}	
 			}
 			else {
@@ -266,10 +263,10 @@ public class GeneService {
 						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
 						
 						if ( toExport ){
-							statusList.add(hostName + geneUrl+ "#section-associations" + "|" + webStatus);
+							statusList.add(url + url+ "#section-associations" + "|" + webStatus);
 						}
 						else {
-							phenotypeStatusHTMLRepresentation += "<a class='status done' href='" + geneUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+							phenotypeStatusHTMLRepresentation += "<a class='status done' href='" + url + "#section-associations'><span>"+webStatus+"</span></a>";
 						}
 					}
 				}
@@ -278,10 +275,10 @@ public class GeneService {
 					// <a class='status done' title='Scroll down for phenotype associations.'><span>phenotype data available</span></a>
 					
 					if ( toExport ){
-						statusList.add(hostName + geneUrl+ "#section-associations" + "|" + webStatus);
+						statusList.add(url + url+ "#section-associations" + "|" + webStatus);
 					}
 					else {
-						phenotypeStatusHTMLRepresentation += "<a class='status qc' href='" + geneUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+						phenotypeStatusHTMLRepresentation += "<a class='status qc' href='" + url + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 					}			
 
 					//System.out.println(phenotypeStatusHTMLRepresentation);
@@ -331,11 +328,8 @@ public class GeneService {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells as a string
 	 */
-	public String getEsCellStatus(JSONObject doc, boolean toExport){
-		
-		String mgiId = doc.getString("mgi_accession_id");
-		String geneUrl = baseUrl + "/genes/" + mgiId;
-				
+	public String getEsCellStatus(JSONObject doc, String url, boolean toExport){
+						
 		String status = null;
 		
 		String esCellStatus = "";	
@@ -348,7 +342,7 @@ public class GeneService {
 				// blue es cell status				
 				status = doc.getString(field);
 				if ( status.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
-						esCellStatus = "<a class='status done' href='" + geneUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
+						esCellStatus = "<a class='status done' href='" + url + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
 									 + " <span>ES Cells</span>"
 									 + "</a>";
 						
@@ -387,11 +381,7 @@ public class GeneService {
 	 */
 	public String getLatestProductionStatusForEsCellAndMice(JSONObject doc, boolean toExport, String geneLink){
 		
-		//ObjectMapper mapper = new ObjectMapper();
-		
-		//GeneDTO gene = mapper.readValue(doc.toString(), GeneDTO.class);
-
-		String esCellStatus = getEsCellStatus(doc, toExport);
+		String esCellStatus = getEsCellStatus(doc, geneLink, toExport);
 		
 		String miceStatus = "";		
 		final List<String> exportMiceStatus = new ArrayList<String>();
@@ -415,7 +405,6 @@ public class GeneService {
 				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
 				for ( int j=0; j< alleleNames.size(); j++ ) {
 					String alleleName = alleleNames.get(j).toString();
-					//System.out.println("allele: " + alleleName);
 					if ( !alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("") ){	
 						sh.put("mice production planned", "yes");						
 					}				
@@ -441,8 +430,7 @@ public class GeneService {
 					exportMiceStatus.add("mice production in progress");
 				}				
 			}
-		} 
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.error("Error getting ES cell/Mice status");
 			log.error(e.getLocalizedMessage());
 		}
@@ -460,7 +448,7 @@ public class GeneService {
 	 * @param doc a SOLR Document
 	 * @return
 	 */
-	private Map<String, String> getStatusFromDoc(SolrDocument doc, String hostname, String geneLink) {
+	private Map<String, String> getStatusFromDoc(SolrDocument doc, String geneLink) {
 		
 		String miceStatus = "";
 		String esCellStatusHTMLRepresentation = "";
@@ -505,12 +493,12 @@ public class GeneService {
 			/*
 			 * Get the HTML representation of the ES Cell status
 			 */
-			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, false);
+			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, geneLink, false);
 			
 			/*
 			 * Get the HTML representation of the phenotyping status
 			 */
-			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, hostname, false, false);
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, geneLink, false, false);
 			
 			/*
 			 * Order flag is separated from HTML generation code
@@ -619,9 +607,9 @@ public class GeneService {
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells and all statuses at the allele level for mice as a comma separated string
 	 */
-	public String getProductionStatusForEsCellAndMice(JSONObject doc, boolean toExport){
+	public String getProductionStatusForEsCellAndMice(JSONObject doc, String url, boolean toExport){
 		
-		String esCellStatus = getEsCellStatus(doc, toExport);
+		String esCellStatus = getEsCellStatus(doc, url, toExport);
 		String miceStatus = "";		
 		final List<String> exportMiceStatus = new ArrayList<String>();
 		
