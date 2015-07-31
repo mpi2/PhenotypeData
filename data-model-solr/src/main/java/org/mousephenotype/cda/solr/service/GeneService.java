@@ -199,16 +199,17 @@ public class GeneService {
 	}
 
 	// returns ready formatted icons
-	public Map<String, String> getProductionStatus(String geneId, String hostname)
+	public Map<String, String> getProductionStatus(String geneId, String hostUrl)
 	throws SolrServerException{
 
-		String geneUrl = hostname + baseUrl + "/genes/" + geneId;
+		String geneUrl = hostUrl + "/genes/" + geneId;
 		SolrQuery query = new SolrQuery();
 		query.setQuery("mgi_accession_id:\"" + geneId + "\"");
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
 
-		return getStatusFromDoc(doc, hostname, geneUrl);
+		System.out.println("Mapped host name " + hostUrl + " Base Url : " + geneUrl);
+		return getStatusFromDoc(doc, hostUrl, geneUrl);
 
 	}
 
@@ -389,7 +390,7 @@ public class GeneService {
 		//ObjectMapper mapper = new ObjectMapper();
 		
 		//GeneDTO gene = mapper.readValue(doc.toString(), GeneDTO.class);
-		
+
 		String esCellStatus = getEsCellStatus(doc, toExport);
 		
 		String miceStatus = "";		
