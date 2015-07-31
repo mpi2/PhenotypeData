@@ -999,7 +999,8 @@ public class FileExportController {
 
 			// ES/Mice production status
 			boolean toExport = true;
-			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, toExport);
+			String genePageUrl =  request.getAttribute("mappedHostname").toString()+request.getAttribute("baseUrl").toString();
+			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
 			data.add(prodStatus);
 
