@@ -382,7 +382,7 @@ public class GenePageTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void testAkt2() throws Exception {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testAkt2";
@@ -649,7 +649,7 @@ public class GenePageTest {
 
     // Tests gene page with more than one Production Status [blue] order button.
     @Test
-//@Ignore
+@Ignore
     public void testOrderButtons() throws SolrServerException {
         String testName = "testOrderButtons";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
