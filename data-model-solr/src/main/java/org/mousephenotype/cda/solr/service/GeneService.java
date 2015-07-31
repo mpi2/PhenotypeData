@@ -208,6 +208,7 @@ public class GeneService {
 		QueryResponse response = solr.query(query);
 		SolrDocument doc = response.getResults().get(0);
 
+		System.out.println("Mapped host name " + hostname + " Base Url : " + geneUrl);
 		return getStatusFromDoc(doc, hostname, geneUrl);
 
 	}
