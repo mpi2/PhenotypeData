@@ -203,7 +203,7 @@
         		color: #0978a1 !important;
         		text-decoration: none;
         	}
-          	
+        	          	
         </style>
         
         <script type='text/javascript'>
@@ -532,9 +532,6 @@
             	// deals with duplicates
             	oConf.idlist = getUniqIdsStr(oConf.idlist);
             	
-            	 var myTrigger;
-                 var progressElem = $('#progressCounter');
-            	
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
                     "bSort": true, // true is default 
@@ -570,7 +567,7 @@
                     	var endPoint = baseUrl + '/bqExport';	
                     	
                     	$('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
-                        	+ "<span class='export2'>Export as</span>"
+                    		+ "<span class='export2'>Export as</span>"
                         	+ "<input name='coreName' value='' type='hidden' />"
                        		+ "<input name='fileType' value='' type='hidden' />"
                        		+ "<input name='gridFields' value='' type='hidden' />"
@@ -649,7 +646,15 @@
         		$("form#dnld input[name='idList']").val(idList);
         		
         		if ( isForm ) {
+        			$('button').unbind('click');
         			$("form#dnld").submit();
+        			/*
+        			$('button.xls').click(function() { 
+        			    // submit the form 
+        			    $("form#dnld").ajaxSubmit(); 
+        			    // return false to prevent normal browser submit and page navigation 
+        			    return false; 
+        			});*/
         		}
             }
             
@@ -758,7 +763,6 @@
 								<div class="inner">
 									<div id='infoBlock'></div>
 									<div id='errBlock'></div>
-									<div id='progressCounter'></div>
 								 	<div id='bqResult'></div>
 								 	
 								</div>	
