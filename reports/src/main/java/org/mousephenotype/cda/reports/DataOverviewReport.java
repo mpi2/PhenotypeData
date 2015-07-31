@@ -2,7 +2,7 @@
  * Copyright © 2015 EMBL - European Bioinformatics Institute
  * <p>
  * Licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
+ * "License"); you may not use this targetFile except in compliance
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.reports;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -30,12 +31,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
+import java.beans.Introspector;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Fertility report.
+ * Data Overview report.
  *
  * Created by mrelac on 24/07/2015.
  */
@@ -55,8 +60,8 @@ public class DataOverviewReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-    public DataOverviewReport() throws ReportException {
-
+    public DataOverviewReport() {
+        super();
     }
 
     public static void main(String args[]) {
@@ -65,24 +70,12 @@ public class DataOverviewReport extends AbstractReport {
 
     @Override
     public String getDefaultFilename() {
-        return "dataOverviewReport";
+        return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass().getSuperclass()));
     }
 
     @Override
     public void run(String[] args) throws ReportException {
-        Map<String, String> propertyMap = parse(args);
-        List<String> errors = validate(propertyMap);
-
-        if ( ! errors.isEmpty()) {
-            for (String error : errors) {
-                System.out.println(error);
-            }
-            System.out.println();
-            usage();
-            System.exit(1);
-        }
-
-        logInputParameters();
+        initialise(args);
 
         long start = System.currentTimeMillis();
 
@@ -118,7 +111,7 @@ public class DataOverviewReport extends AbstractReport {
             overview.add(row.toArray(forArrayType));
 
         } catch (SolrServerException e) {
-            e.printStackTrace();
+            throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
         result.add(overview);

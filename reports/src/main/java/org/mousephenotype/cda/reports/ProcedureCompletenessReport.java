@@ -18,7 +18,7 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,25 +31,25 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Lac-Z Expression report.
+ * Procedure Completeness report.
  *
  * Created by mrelac on 24/07/2015.
  */
 @SpringBootApplication
 @Component
-public class LaczExpressionReport extends AbstractReport {
+public class ProcedureCompletenessReport extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ImageService imageService;
+    PhenotypeCenterService phenotypeCenterService;
 
-    public LaczExpressionReport() {
+    public ProcedureCompletenessReport() {
         super();
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(LaczExpressionReport.class, args);
+        SpringApplication.run(ProcedureCompletenessReport.class, args);
     }
 
     @Override
@@ -63,7 +63,13 @@ public class LaczExpressionReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result = imageService.getLaczExpressionSpreadsheet();
+        List<String[]> result;
+        try {
+            result = phenotypeCenterService.getCentersProgressByStrainCsv();
+        } catch (Exception e) {
+            throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
+        }
+
         csvWriter.writeAll(result);
 
         try {

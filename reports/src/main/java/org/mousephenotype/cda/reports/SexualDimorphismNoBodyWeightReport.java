@@ -18,38 +18,44 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.List;
 
 /**
- * Lac-Z Expression report.
+ * Sexual Dimorphism No Body Weight report.
  *
  * Created by mrelac on 24/07/2015.
  */
 @SpringBootApplication
 @Component
-public class LaczExpressionReport extends AbstractReport {
+public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ImageService imageService;
+    SexualDimorphismDAO sexualDimorphismDAO;
 
-    public LaczExpressionReport() {
+    @NotNull
+    @Value("${drupalBaseUrl}")
+    protected String drupalBaseUrl;
+
+    public SexualDimorphismNoBodyWeightReport() {
         super();
     }
 
     public static void main(String args[]) {
-        SpringApplication.run(LaczExpressionReport.class, args);
+        SpringApplication.run(SexualDimorphismNoBodyWeightReport.class, args);
     }
 
     @Override
@@ -63,7 +69,13 @@ public class LaczExpressionReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result = imageService.getLaczExpressionSpreadsheet();
+        List<String[]> result;
+        try {
+            result = sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(drupalBaseUrl);
+        } catch (Exception e) {
+            throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
+        }
+
         csvWriter.writeAll(result);
 
         try {

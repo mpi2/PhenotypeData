@@ -2,7 +2,7 @@
  *  Copyright © 2013 - 2015 EMBL - European Bioinformatics Institute
  *
  *  Licensed under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
+ *  "License"); you may not use this targetFile except in compliance
  *  with the License. You may obtain a copy of the License at
  *  http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,28 +16,22 @@
 
 package org.mousephenotype.cda.reports;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.mousephenotype.cda.reports.support.MpCSVWriter;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.reports.support.ReportParser;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.env.PropertySource;
-import org.springframework.core.env.SimpleCommandLinePropertySource;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Base class for reports.
@@ -47,23 +41,16 @@ import java.util.Map;
 public abstract class AbstractReport implements CommandLineRunner {
     protected PropertiesConfiguration applicationProperties;
     protected MpCSVWriter csvWriter;
-    protected File file;
     protected Logger log = LoggerFactory.getLogger(this.getClass());
-    protected String propertiesFilename;
-    protected ReportFormat reportFormat;
-    protected List<String> resources;
-    protected boolean showHelp;
-    protected String targetDirectory;
+    protected File targetFile;
     protected String targetFilename;
 
-    protected static final String HELP_ARG = "help";
-    protected static final String PROPERTIES_FILE_ARG = "propertiesFile";
-    protected static final String REPORT_FORMAT_ARG = "reportFormat";
-    protected static final String TARGET_DIRECTORY_ARG = "targetDirectory";
-    protected static final String TARGET_FILENAME_ARG = "targetFilename";
+    protected List<String> resources = Arrays.asList(new String[] {"IMPC", "3i"});
 
     @Autowired
     CommonUtils commonUtils;
+
+    protected ReportParser parser = new ReportParser();
 
     public abstract String getDefaultFilename();
 
@@ -74,7 +61,7 @@ public abstract class AbstractReport implements CommandLineRunner {
 
         char separator;
 
-        private ReportFormat(char separator) {
+        ReportFormat(char separator) {
             this.separator = separator;
         }
 
@@ -83,140 +70,84 @@ public abstract class AbstractReport implements CommandLineRunner {
         }
     }
 
-    public AbstractReport() throws ReportException {
-        resources = new ArrayList<>();
-        resources.add("IMPC");
-        resources.add("3i");
-    }
+    public AbstractReport() {
 
-    public Map<String, String> parse(String[] args) {
-        PropertySource ps = new SimpleCommandLinePropertySource(args);
-        Map<String, String> propertyMap = new HashMap<>();
-
-        // Basic expected properties are: help, propertiesFile, targetDirectory, targetFilename, and reportFormat.
-        if (ps.containsProperty(HELP_ARG)) {
-            propertyMap.put(HELP_ARG, "");
-        }
-
-        if ((ps.containsProperty(PROPERTIES_FILE_ARG)) && ps.getProperty(PROPERTIES_FILE_ARG) != null) {
-            propertyMap.put(PROPERTIES_FILE_ARG, ps.getProperty(PROPERTIES_FILE_ARG).toString());
-        }
-
-        if ((ps.containsProperty(TARGET_FILENAME_ARG))  && ps.getProperty(TARGET_FILENAME_ARG) != null) {
-            propertyMap.put(TARGET_FILENAME_ARG, ps.getProperty(TARGET_FILENAME_ARG).toString());
-        }
-
-        if ((ps.containsProperty(TARGET_DIRECTORY_ARG))  && ps.getProperty(TARGET_DIRECTORY_ARG) != null) {
-            propertyMap.put(TARGET_DIRECTORY_ARG, ps.getProperty(TARGET_DIRECTORY_ARG).toString());
-        }
-
-        if ((ps.containsProperty(REPORT_FORMAT_ARG))  && ps.getProperty(REPORT_FORMAT_ARG) != null) {
-            propertyMap.put(REPORT_FORMAT_ARG, ps.getProperty(REPORT_FORMAT_ARG).toString());
-        }
-
-        return propertyMap;
-    }
-
-    public List<String> validate(Map<String, String> propertyMap) {
-        List<String> retVal = new ArrayList<>();
-
-        showHelp = (propertyMap.containsKey(HELP_ARG) ? true : false);
-
-        if (propertyMap.containsKey(PROPERTIES_FILE_ARG)) {
-            try {
-                this.applicationProperties = new PropertiesConfiguration(propertyMap.get(PROPERTIES_FILE_ARG));
-            } catch( ConfigurationException e) {
-                retVal.add("Expected required properties file.");
-            }
-        } else {
-            retVal.add("Expected required properties file.");
-        }
-
-        if (propertyMap.containsKey(TARGET_DIRECTORY_ARG)) {
-            this.targetDirectory = propertyMap.get(TARGET_DIRECTORY_ARG);
-        } else {
-            retVal.add("Expected required target directory.");
-        }
-        Path path = Paths.get((String) targetDirectory);
-        if ( ! Files.exists(path)) {
-            retVal.add("Target directory " + path.toAbsolutePath() + " does not exist.");
-        }
-        if ( ! Files.isWritable(path)) {
-            retVal.add("Target directory " + path.toAbsolutePath() + " is not writeable.");
-        }
-
-        if (propertyMap.containsKey(TARGET_FILENAME_ARG)) {
-            this.targetFilename = propertyMap.get(TARGET_FILENAME_ARG);
-        } else {
-            retVal.add("Expected required target filename.");
-        }
-
-        if (propertyMap.containsKey(REPORT_FORMAT_ARG)) {
-            try {
-                this.reportFormat = ReportFormat.valueOf(propertyMap.get(REPORT_FORMAT_ARG));
-            } catch (IllegalArgumentException | NullPointerException e) {
-                retVal.add("Unknown report format type '" + propertyMap.get(REPORT_FORMAT_ARG) + "'.");
-            }
-        } else {
-            this.reportFormat = ReportFormat.csv;
-        }
-
-        if (retVal.isEmpty()) {
-            this.targetFilename += "." + this.reportFormat.toString();
-            this.file = new File(Paths.get(targetDirectory, targetFilename).toAbsolutePath().toString());
-            try {
-                FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
-                this.csvWriter = new MpCSVWriter(fileWriter, reportFormat.getSeparator());
-            } catch (IOException e) {
-                retVal.add("Exception opening FileWriter: " + e.getLocalizedMessage());
-            }
-        }
-
-        return retVal;
     }
 
     public PropertiesConfiguration getApplicationProperties() {
         return applicationProperties;
     }
 
-    public File getFile() {
-        return file;
+    public File getTargetFile() {
+        return targetFile;
     }
 
-    public String getPropertiesFilename() {
-        return propertiesFilename;
-    }
-
-    public ReportFormat getReportFormat() {
-        return reportFormat;
-    }
-
-    public String getTargetDirectory() {
-        return targetDirectory;
-    }
-
-    public String getTargetFilename() {
-        return targetFilename;
-    }
 
 // PROTECTED METHODS
 
 
+    protected void initialise(String[] args) throws ReportException {
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            for (String error : errors) {
+                System.out.println(error);
+            }
+            System.out.println();
+            usage();
+            System.exit(1);
+        }
+
+        if (parser.showHelp()) {
+            usage();
+            System.exit(0);
+        }
+
+        this.targetFilename =
+                  parser.getPrefix()
+                + (parser.getTargetFilename() != null ? parser.getTargetFilename() : getDefaultFilename())
+                + "."
+                + parser.getReportFormat();
+
+        this.targetFile = new File(Paths.get(parser.getTargetDirectory(), targetFilename).toAbsolutePath().toString());
+        try {
+            FileWriter fileWriter = new FileWriter(targetFile.getAbsoluteFile());
+            this.csvWriter = new MpCSVWriter(fileWriter, parser.getReportFormat().getSeparator());
+        } catch (IOException e) {
+            throw new ReportException("Exception opening FileWriter: " + e.getLocalizedMessage());
+        }
+
+        logInputParameters();
+    }
+
+
     protected void usage() {
+        String[] commands = {
+                  "   [--" + ReportParser.TARGET_FILENAME_ARG + "=target_filename]"
+                , "   [--" + ReportParser.TARGET_DIRECTORY_ARG + "=target_directory]"
+                , "   [--" + ReportParser.REPORT_FORMAT_ARG    + "={csv | tsv}]"
+                , "   [--" + ReportParser.PROPERTIES_FILE_ARG  + "=properties_file]"
+                , "   [--" + ReportParser.PREFIX_ARG           + "=prefix]"
+                , "   [--" + ReportParser.HELP_ARG             + "]"
+        };
+        String[] defaults = {
+                  "Default is " + getDefaultFilename()
+                , "Default is " + ReportParser.DEFAULT_TARGET_DIRECTORY
+                , "Default is " + ReportParser.DEFAULT_REPORT_FORMAT
+                , "Default is " + ReportParser.DEFAULT_PROPERTIES_FILE
+                , "Default is none"
+                , ""
+        };
         System.out.println("Usage:");
-        System.out.println(
-                "--" + PROPERTIES_FILE_ARG       + "=properties_file (no extension)\n" +
-                "--" + TARGET_DIRECTORY_ARG      + "=target_directory\n" +
-                "--" + TARGET_FILENAME_ARG       + "=target_filename\n" +
-                "[--" + REPORT_FORMAT_ARG + "=target_report_filename] (default is csv)\n" +
-                "[--" + HELP_ARG + "]\n");
+        for (int i = 0; i < commands.length; i++) {
+            System.out.println(String.format("%-50.50s %-30s", commands[i], defaults[i]));
+        }
         System.out.println();
-        System.out.println("Report Formats: { csv | tsv }\n");
     }
 
     protected void logInputParameters() {
-        log.info("Application properties file: " + this.applicationProperties.getURL());
-        log.info("Target filename:             " + this.file.getAbsolutePath());
-        log.info("Target report format:        " + this.reportFormat);
+        log.info("Target filename:  " + targetFile.getAbsolutePath());
+        log.info("Target directory: " + parser.getTargetDirectory());
+        log.info("Report format:    " + parser.getReportFormat());
+        log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
     }
 }
