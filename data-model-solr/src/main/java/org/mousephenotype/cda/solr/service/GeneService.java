@@ -435,8 +435,8 @@ public class GeneService extends BasicService{
 	public String getLatestProductionStatuses(JSONObject doc, boolean toExport, String geneLink){
 		
 		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
-		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) ? getList (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
-		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) ? getList(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
+		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 		
 		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);		
 		
@@ -460,8 +460,8 @@ public class GeneService extends BasicService{
 		try {
 
 			// Get the HTML representation of the Mouse Production status
-			List<String> alleleNames = getList(doc.getFieldValues(GeneDTO.ALLELE_NAME)); 
-			List<String> mouseStatus = getList(doc.getFieldValues(GeneDTO.MOUSE_STATUS)); 
+			List<String> alleleNames = getListFromCollection(doc.getFieldValues(GeneDTO.ALLELE_NAME)); 
+			List<String> mouseStatus = getListFromCollection(doc.getFieldValues(GeneDTO.MOUSE_STATUS)); 
 			miceStatus = getDetailedMouseProductionStatusButtons(alleleNames, mouseStatus, url);
 			
 			// Get the HTML representation of the ES Cell status
@@ -527,7 +527,7 @@ public class GeneService extends BasicService{
 
 		if (doc.containsKey(GeneDTO.MOUSE_STATUS)) {
 
-			List<String> mouseStatus = getList(doc.getFieldValues(GeneDTO.MOUSE_STATUS));
+			List<String> mouseStatus = getListFromCollection(doc.getFieldValues(GeneDTO.MOUSE_STATUS));
 			for (int i = 0; i < mouseStatus.size(); i++) {
 				
 				String mouseStatusStr = mouseStatus.get(i).toString();	
@@ -557,7 +557,7 @@ public class GeneService extends BasicService{
 			SolrDocument doc = response.getResults().get(0);
 			if (doc.containsKey(GeneDTO.PHENOTYPE_STATUS)) {
 			
-				List<String> statuses = getList(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
+				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
 				for (String status : statuses) {
 				
 					if (status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE)) {
@@ -717,7 +717,7 @@ public class GeneService extends BasicService{
 			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
 			List<String> topLevelMpIds=Collections.emptyList();
 			if (doc.containsKey(GeneDTO.TOP_LEVEL_MP_ID)) {
-				topLevelMpIds = getList(doc.getFieldValues(GeneDTO.TOP_LEVEL_MP_ID));
+				topLevelMpIds = getListFromCollection(doc.getFieldValues(GeneDTO.TOP_LEVEL_MP_ID));
 			}
 			
 			geneToStatusMap.put(accession,topLevelMpIds);

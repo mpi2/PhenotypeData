@@ -149,8 +149,8 @@ public class MpService extends BasicService{
     // get computationally mapped HP terms of MP from Solr json doc of an MP
     public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
     	// this mapping is computational
-    	List<String> hpIds = getList(doc.getJSONArray(HpDTO.HP_ID));
-    	List<String> hpTerms = getList(doc.getJSONArray(HpDTO.HP_TERM));
+    	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
+    	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
 
     	Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
 
