@@ -416,7 +416,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allTopLevelPhenotypes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            List<String> ids = getList(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
+            List<String> ids = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
             for (String id : ids) {
                 allTopLevelPhenotypes.add(id);
             }
@@ -442,7 +442,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allIntermediateLevelPhenotypes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            List<String> ids = getList(doc.getFieldValues(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID));
+            List<String> ids = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID));
             for (String id : ids) {
                 allIntermediateLevelPhenotypes.add(id);
             }
@@ -543,8 +543,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             for (int i = 0; i < result.size(); i ++) {
                 SolrDocument doc = result.get(i);
                 if (doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID) != null) {
-                    List<String> tlTermIDs = getList(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
-                    List<String> tlTermNames = getList(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
+                    List<String> tlTermIDs = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
+                    List<String> tlTermNames = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
                     int len = tlTermIDs.size();
                     for (int k = 0; k < len; k ++) {
                         tl.put(tlTermIDs.get(k), tlTermNames.get(k));

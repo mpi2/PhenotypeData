@@ -170,7 +170,7 @@ public class BasicService {
 	 * @param jsonArray
 	 * @return List representation of the JSONArray
 	 */
-	public List<String> getList(JSONArray jsonArray){
+	public List<String> getListFromJson(JSONArray jsonArray){
 		
 		List<String> list = new ArrayList<>();
 		for (Object obj : jsonArray){
@@ -186,7 +186,7 @@ public class BasicService {
 	 * @param collection
 	 * @return List representation of the collection using toString on individual objects.
 	 */
-	public List<String> getList(Collection<Object> collection){
+	public List<String> getListFromCollection(Collection<Object> collection){
 		
 		List<String> list = new ArrayList<>();
 		for (Object obj : collection){

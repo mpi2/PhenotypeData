@@ -247,7 +247,7 @@ public class ExpressionService extends BasicService{
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
 
 		for (SolrDocument doc : imagesResponse) {
-			List<String> tops = getList(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
+			List<String> tops = getListFromCollection(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
 
 			if (tops == null) {
 				expFacetToDocs.get(noTopMa).add(doc);
@@ -467,7 +467,7 @@ public class ExpressionService extends BasicService{
 		
 		for (SolrDocument doc : controlResponse) {
 			
-			List<String> anatomies = getList(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME));
+			List<String> anatomies = getListFromCollection(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME));
 			if (anatomies != null) {
 				
 				SolrDocumentList anatomyList = null;
