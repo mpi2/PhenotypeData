@@ -231,11 +231,10 @@ public class GeneService {
 		String phenotypeStatusHTMLRepresentation = "";
 		String webStatus = "";
 		List<String> statusList = new ArrayList<>();
-		if (toExport){
-			String mgiId = doc.getString("mgi_accession_id");
-			url += "/genes/" + mgiId;
+		if (toExport == true){
+			url += "/genes/" + doc.getString(GeneDTO.MGI_ACCESSION_ID);
 		}
-		
+						
 		try {	
 		
 			log.debug("getPhenotypingStatus :" + doc.getString(statusField));
@@ -335,6 +334,9 @@ public class GeneService {
 	public String getEsCellStatus(JSONObject doc, String url, boolean toExport){
 						
 		String status = null;
+		if (toExport == true){
+			url += "/genes/" + doc.getString(GeneDTO.MGI_ACCESSION_ID);
+		}
 		
 		String esCellStatus = "";	
 		String exportEsCellStatus = "";	
@@ -452,14 +454,14 @@ public class GeneService {
 	 * @param doc a SOLR Document
 	 * @return
 	 */
-	private Map<String, String> getStatusFromDoc(SolrDocument doc, String geneLink) {
+	private Map<String, String> getStatusFromDoc(SolrDocument doc, String url) {
 		
 		String miceStatus = "";
 		String esCellStatusHTMLRepresentation = "";
 		String phenotypingStatusHTMLRepresentation = "";
 		Boolean order = false;
 		JSONObject jsondoc = JSONObject.fromObject(org.noggit.JSONUtil.toJSON(doc));
-
+		
 		try {
 
 			/* ******** mice production status ******** */
@@ -481,7 +483,7 @@ public class GeneService {
 					if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);
-							miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + geneLink + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
+							miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + url + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
 						}
 						
 					} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
@@ -491,18 +493,17 @@ public class GeneService {
 						}
 					}
 				}
-
 			}
 			
 			/*
 			 * Get the HTML representation of the ES Cell status
 			 */
-			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, geneLink, false);
+			esCellStatusHTMLRepresentation = getEsCellStatus(jsondoc, url, false);
 			
 			/*
 			 * Get the HTML representation of the phenotyping status
 			 */
-			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, geneLink, false, false);
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(jsondoc, url, false, false);
 			
 			/*
 			 * Order flag is separated from HTML generation code
