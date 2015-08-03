@@ -646,15 +646,14 @@ public class DataTableController {
 
             // phenotyping status
             String mgiId = doc.getString("mgi_accession_id");
-            String geneLink = request.getAttribute("baseUrl") + "/genes/" + mgiId;
+            String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 
             // ES cell/mice production status
             boolean toExport = false;
 
             String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, toExport, geneLink);
             rowData.add(prodStatus);
-
-            String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, request.getAttribute("mappedHostname").toString(), toExport, legacyOnly);
+            String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, geneLink, toExport, legacyOnly);
             rowData.add(phenotypeStatusHTMLRepresentation);
 
             // register of interest
