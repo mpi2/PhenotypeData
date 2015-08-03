@@ -72,6 +72,8 @@ public class GeneIndexer extends AbstractIndexer {
     SolrServer imagesCore;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
+    private Map<String, List<Map<String, String>>> genomicFeatureCoordinates = new HashMap<>();
+    private Map<String, List<Map<String, String>>> genomicFeatureXrefs = new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
@@ -506,6 +508,8 @@ public class GeneIndexer extends AbstractIndexer {
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData=populateEmbryoData();
+        this.populateGeneGenomicCoords();
+        this.populateXrefs();
     }
 
     private Map<String, List<EmbryoStrain>> populateEmbryoData() {
@@ -586,6 +590,78 @@ public class GeneIndexer extends AbstractIndexer {
         return phenotypeSummaryGeneAccessionsToPipelineInfo;
 
     }
+    
+    
+    private Map<String, List<Map<String, String>>> populateXrefs() {
+
+        logger.info("populating xref info");
+        String queryString = "select xref_acc, db_id from xref";
+
+        try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+                String gf_acc = resultSet.getString("gf.acc");
+
+                Map<String, String> rowMap = new HashMap<>();
+                rowMap.put(GeneDTO.MGI_ACCESSION_ID, resultSet.getString("acc"));
+                rowMap.put(GeneDTO.XREF_ACC, resultSet.getString("xref_acc"));
+                //ignore db id as they are all 3!
+                //rowMap.put("db_id", resultSet.getString("db_id"));
+               
+                List<Map<String, String>> rows = null;
+
+                if (genomicFeatureXrefs.containsKey(gf_acc)) {
+                    rows = genomicFeatureXrefs.get(gf_acc);
+                } else {
+                    rows = new ArrayList<>();
+                }
+                rows.add(rowMap);
+
+                genomicFeatureXrefs.put(gf_acc, rows);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return genomicFeatureXrefs;
+
+    }
+    private Map<String, List<Map<String, String>>> populateGeneGenomicCoords() {
+
+        logger.info("populating Gene Genomic location info");
+        String queryString = "select  gf.acc, gf.seq_region_id, gf.seq_region_start, gf.seq_region_end, gf.subtype_db_id, gf.db_id from genomic_feature gf";
+
+        try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+                String gf_acc = resultSet.getString("gf.acc");
+
+                Map<String, String> rowMap = new HashMap<>();
+                rowMap.put(GeneDTO.MGI_ACCESSION_ID, resultSet.getString("gf.acc"));
+                rowMap.put(GeneDTO.SEQ_REGION_ID, resultSet.getString("gf.seq_region_id"));
+                rowMap.put(GeneDTO.SEQ_REGION_START, resultSet.getString("gf.seq_region_start"));
+                rowMap.put(GeneDTO.SEQ_REGION_END, resultSet.getString("gf.seq_region_end"));
+                List<Map<String, String>> rows = null;
+
+                if (genomicFeatureCoordinates.containsKey(gf_acc)) {
+                    rows = genomicFeatureCoordinates.get(gf_acc);
+                } else {
+                    rows = new ArrayList<>();
+                }
+                rows.add(rowMap);
+
+                genomicFeatureCoordinates.put(gf_acc, rows);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return genomicFeatureCoordinates;
+
+    }
+
 
     public static void main(String[] args) throws IndexerException {
 
@@ -596,4 +672,12 @@ public class GeneIndexer extends AbstractIndexer {
 
         logger.info("Process finished.  Exiting.");
     }
+    
+//    private class GfBean{
+//    	String acc;
+//    	int start;
+//    	int end;
+//    	String seqRegionId;
+//    	
+//    }
 }
