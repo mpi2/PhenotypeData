@@ -646,13 +646,13 @@ public class DataTableController {
             rowData.add(geneInfo);
 
             // phenotyping status
-            String mgiId = doc.getString("mgi_accession_id");
+            String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
             String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 
             // ES cell/mice production status
             boolean toExport = false;
 
-            String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, toExport, geneLink);
+            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, geneLink);
             rowData.add(prodStatus);
             
 
@@ -664,7 +664,7 @@ public class DataTableController {
 
             // register of interest
             if (registerInterest.loggedIn()) {
-                if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
+                if (registerInterest.alreadyInterested(mgiId)) {
                     String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
                             + "<i class='fa fa-sign-out'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
