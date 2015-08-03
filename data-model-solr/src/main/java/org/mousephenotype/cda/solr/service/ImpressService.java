@@ -205,9 +205,9 @@ public class ImpressService {
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
 				.setFields(ImpressDTO.PIPELINE_STABLE_KEY);
 
-			QueryResponse response = solr.query(query);
+			List<ImpressDTO> response = solr.query(query).getBeans(ImpressDTO.class);
 
-			return response.getBeans(ImpressDTO.class).get(0).getPipelineStableKey();
+			return response.get(0).getPipelineStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
