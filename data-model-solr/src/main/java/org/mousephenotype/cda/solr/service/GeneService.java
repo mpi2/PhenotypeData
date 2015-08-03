@@ -792,11 +792,13 @@ public class GeneService {
 		 
 	}
 
-	public GeneDTO getGeneById(String mgiId) throws SolrServerException {
+	public GeneDTO getGeneById(String mgiId, String ...fields) throws SolrServerException {
+		//GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.EMBRYO_DATA_AVAILABLE
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"")
-			.setRows(1)
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.EMBRYO_DATA_AVAILABLE);
+			.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + mgiId + "\"").setRows(1);
+		if(fields !=null){
+			solrQuery.setFields(fields);
+		}
 
 		QueryResponse rsp = solr.query(solrQuery);
 		if (rsp.getResults().getNumFound() > 0) {
