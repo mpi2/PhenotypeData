@@ -72,8 +72,8 @@ public class GeneIndexer extends AbstractIndexer {
     SolrServer imagesCore;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
-    private Map<String, List<Map<String, String>>> genomicFeatureCoordinates = new HashMap<>();
-    private Map<String, List<Map<String, String>>> genomicFeatureXrefs = new HashMap<>();
+    private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
+    private Map<String, List<String>> genomicFeatureXrefs = new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
@@ -210,6 +210,21 @@ public class GeneIndexer extends AbstractIndexer {
                 		logger.info("setting embryo true");
                 	}
                 	
+                }
+                
+                if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
+                	if(genomicFeatureCoordinates.containsKey(allele.getMgiAccessionId())){
+                		Map<String, String> coordsMap = genomicFeatureCoordinates.get(allele.getMgiAccessionId());
+                		//System.out.println("coords map found:"+coordsMap);
+                		gene.setSeqRegionId(coordsMap.get(GeneDTO.SEQ_REGION_ID));
+                		gene.setSeqRegionStart(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_START)));
+                		gene.setSeqRegionEnd(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_END)));
+                		if(genomicFeatureXrefs.containsKey(allele.getMgiAccessionId())){
+                			List<String> xrefs = genomicFeatureXrefs.get(allele.getMgiAccessionId());
+                			//System.out.println("setting xrefs:"+xrefs);
+                			gene.setXrefs(xrefs);
+                		}
+                	}
                 }
 
 				//gene.setMpId(allele.getM)
@@ -592,33 +607,20 @@ public class GeneIndexer extends AbstractIndexer {
     }
     
     
-    private Map<String, List<Map<String, String>>> populateXrefs() {
+    private Map<String, List<String>> populateXrefs() {
 
         logger.info("populating xref info");
-        String queryString = "select xref_acc, db_id from xref";
+        String queryString = "select acc, xref_acc from xref";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
-                String gf_acc = resultSet.getString("gf.acc");
+                String gf_acc = resultSet.getString("acc");
 
-                Map<String, String> rowMap = new HashMap<>();
-                rowMap.put(GeneDTO.MGI_ACCESSION_ID, resultSet.getString("acc"));
-                rowMap.put(GeneDTO.XREF_ACC, resultSet.getString("xref_acc"));
-                //ignore db id as they are all 3!
-                //rowMap.put("db_id", resultSet.getString("db_id"));
-               
-                List<Map<String, String>> rows = null;
-
-                if (genomicFeatureXrefs.containsKey(gf_acc)) {
-                    rows = genomicFeatureXrefs.get(gf_acc);
-                } else {
-                    rows = new ArrayList<>();
-                }
-                rows.add(rowMap);
-
-                genomicFeatureXrefs.put(gf_acc, rows);
+                List<String> xrefs = new ArrayList<>();
+                xrefs.add(resultSet.getString("xref_acc"));
+                genomicFeatureXrefs.put(gf_acc, xrefs);
             }
 
         } catch (Exception e) {
@@ -627,7 +629,7 @@ public class GeneIndexer extends AbstractIndexer {
         return genomicFeatureXrefs;
 
     }
-    private Map<String, List<Map<String, String>>> populateGeneGenomicCoords() {
+    private Map<String, Map<String, String>> populateGeneGenomicCoords() {
 
         logger.info("populating Gene Genomic location info");
         String queryString = "select  gf.acc, gf.seq_region_id, gf.seq_region_start, gf.seq_region_end, gf.subtype_db_id, gf.db_id from genomic_feature gf";
@@ -643,16 +645,13 @@ public class GeneIndexer extends AbstractIndexer {
                 rowMap.put(GeneDTO.SEQ_REGION_ID, resultSet.getString("gf.seq_region_id"));
                 rowMap.put(GeneDTO.SEQ_REGION_START, resultSet.getString("gf.seq_region_start"));
                 rowMap.put(GeneDTO.SEQ_REGION_END, resultSet.getString("gf.seq_region_end"));
-                List<Map<String, String>> rows = null;
+                
 
                 if (genomicFeatureCoordinates.containsKey(gf_acc)) {
-                    rows = genomicFeatureCoordinates.get(gf_acc);
-                } else {
-                    rows = new ArrayList<>();
-                }
-                rows.add(rowMap);
-
-                genomicFeatureCoordinates.put(gf_acc, rows);
+                	System.err.println("Error: Genomic Feature exists in map already!!!!!");       
+                } 
+                genomicFeatureCoordinates.put(gf_acc, rowMap);
+   
             }
 
         } catch (Exception e) {
