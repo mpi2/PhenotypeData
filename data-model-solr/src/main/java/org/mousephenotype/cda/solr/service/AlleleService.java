@@ -55,7 +55,6 @@ public class AlleleService {
 
 		if (geneIds != null){
 			String geneQuery = AlleleDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
-			System.out.println("geneQuery: " + geneQuery);
 			solrQuery.setQuery(geneQuery);
 		}else {
 			solrQuery.setQuery("*:*");
@@ -65,7 +64,6 @@ public class AlleleService {
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-//			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				res.put(c.getName(), c.getCount());
@@ -95,7 +93,6 @@ public class AlleleService {
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-//			System.out.println("--getStatusCount-- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything

@@ -80,8 +80,8 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
             }
             request.setAttribute("mappedHostname", config.get("drupalBaseUrl"));
         }
-        log.info("baseUrl: " + request.getAttribute("baseUrl"));
-        log.info("mappedHostname: " + request.getAttribute("mappedHostname"));
+//        log.info("baseUrl: " + request.getAttribute("baseUrl"));
+//        log.info("mappedHostname: " + request.getAttribute("mappedHostname"));
 
         request.setAttribute("version", config.get("version"));
 
