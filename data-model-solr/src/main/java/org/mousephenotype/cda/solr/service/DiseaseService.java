@@ -15,20 +15,18 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Set;
 
 
 @Service
@@ -37,8 +35,6 @@ public class DiseaseService {
     @Autowired
     @Qualifier("diseaseCore")
     private HttpSolrServer solr;
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     // Disease sources. When modifying these, please modify getAllDiseases() accordingly.
     public static final class DiseaseField {
@@ -63,7 +59,7 @@ public class DiseaseService {
      * @throws SolrServerException
      */
     public Set<String> getAllDiseases() throws SolrServerException {
-        Set<String> results = new HashSet();
+        Set<String> results = new HashSet<String>();
 
         String[] diseaseSources = { DiseaseField.DISEASE_SOURCE_DECIPHER, DiseaseField.DISEASE_SOURCE_OMIM, DiseaseField.DISEASE_SOURCE_ORPHANET };
         for (String diseaseSource : diseaseSources) {
@@ -89,7 +85,7 @@ public class DiseaseService {
         solrQuery.setRows(1000000);
         QueryResponse rsp = solr.query(solrQuery);
         SolrDocumentList res = rsp.getResults();
-        HashSet<String> allDiseases = new HashSet();
+        HashSet<String> allDiseases = new HashSet<String>();
         for (SolrDocument doc : res) {
             allDiseases.add((String) doc.getFieldValue(DiseaseField.DISEASE_ID));
         }

@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.sf.json.JSONArray;
 
 
 
@@ -159,5 +162,38 @@ public class BasicService {
     	}    	
     	return res;
     }
+    
+
+	/**
+	 * @author tudose
+	 * @since 2015/08/03
+	 * @param jsonArray
+	 * @return List representation of the JSONArray
+	 */
+	public List<String> getListFromJson(JSONArray jsonArray){
+		
+		List<String> list = new ArrayList<>();
+		for (Object obj : jsonArray){
+			list.add(obj.toString());
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * @author tudose
+	 * @since 2015/08/03
+	 * @param collection
+	 * @return List representation of the collection using toString on individual objects.
+	 */
+	public List<String> getListFromCollection(Collection<Object> collection){
+		
+		List<String> list = new ArrayList<>();
+		for (Object obj : collection){
+			list.add(obj.toString());
+		}
+		
+		return list;
+	}
     
    }

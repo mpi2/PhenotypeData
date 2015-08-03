@@ -33,6 +33,7 @@ import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -645,48 +646,49 @@ public class DataTableController {
             rowData.add(geneInfo);
 
             // phenotyping status
-            String mgiId = doc.getString("mgi_accession_id");
+            String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
             String geneLink = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;
 
             // ES cell/mice production status
             boolean toExport = false;
 
-            String prodStatus = geneService.getLatestProductionStatusForEsCellAndMice(doc, toExport, geneLink);
+            String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, geneLink);
             rowData.add(prodStatus);
-            String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(doc, geneLink, toExport, legacyOnly);
+            
+
+			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
+			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
+            String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, geneLink, toExport, legacyOnly);
             rowData.add(phenotypeStatusHTMLRepresentation);
 
             // register of interest
             if (registerInterest.loggedIn()) {
-                if (registerInterest.alreadyInterested(doc.getString("mgi_accession_id"))) {
+                if (registerInterest.alreadyInterested(mgiId)) {
                     String uinterest = "<div class='registerforinterest' oldtitle='Unregister interest' title=''>"
                             + "<i class='fa fa-sign-out'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Unregister interest</a>"
                             + "</div>";
 
                     rowData.add(uinterest);
-                    //rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Unregister interest</a>");
-                } else {
+                   } else {
                     String rinterest = "<div class='registerforinterest' oldtitle='Register interest' title=''>"
                             + "<i class='fa fa-sign-in'></i>"
                             + "<a id='" + doc.getString("mgi_accession_id") + "' class='regInterest primary interest' href=''>&nbsp;Register interest</a>"
                             + "</div>";
 
                     rowData.add(rinterest);
-                    //rowData.add("<a id='"+doc.getString("mgi_accession_id")+"' href='' class='btn primary interest'>Register interest</a>");
-                }
+                      }
             } else {
 				// use the login link instead of register link to avoid user clicking on tab which
                 // will strip out destination link that we don't want to see happened
                 String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
                         + "<i class='fa fa-sign-in'></i>"
                         + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
-                        //+ "<a class='regInterest' href='#'>Interest</a>"
-                        + "</div>";
+                         + "</div>";
 
                 rowData.add(interest);
-                //rowData.add("<a href='/user/register' class='btn primary'>Interest</a>");
-            }
+             }
 
             j.getJSONArray("aaData").add(rowData);
         }

@@ -15,9 +15,24 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -46,7 +61,6 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
@@ -58,13 +72,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 
 @Service
@@ -393,7 +403,7 @@ public class ObservationService extends BasicService {
 
     	ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
 
-    	HashMap<String, List<Double>> defaultData = new HashMap(); // <parameter name, <mean values>>
+    	HashMap<String, List<Double>> defaultData = new HashMap<String, List<Double>>(); // <parameter name, <mean values>>
     	for (Parameter param : allParameterNames){
     		defaultData.put(param.getName(), new ArrayList<Double>());
     	}
@@ -1852,16 +1862,16 @@ public class ObservationService extends BasicService {
      * @return a list of <code>count</code> parameter stable ids matching <code>observationType</code>.
      * @throws SolrServerException
      */
-    public List<String> getParameterStableIdsByObservationType(ObservationType observationType, int count) throws SolrServerException {
-        List<String> retVal = new ArrayList();
+    public List<String> getParameterStableIdsByObservationType(ObservationType observationType, int count) 
+    throws SolrServerException {
+    
+    	List<String> retVal = new ArrayList<String>();
 
         if (count < 1)
             return retVal;
 
         SolrQuery query = new SolrQuery();
-        // http://ves-ebi-d0:8090/mi/impc/dev/solr/experiment/select?q=observation_type%3Acategorical&rows=12&wt=json&indent=true&facet=true&facet.field=parameter_stable_id
-        query
-            .setQuery("observation_type:" + observationType.name())
+        query.setQuery("observation_type:" + observationType.name())
             .addFacetField(ObservationDTO.PARAMETER_STABLE_ID)
             .setFacetMinCount(1)
             .setFacet(true)
