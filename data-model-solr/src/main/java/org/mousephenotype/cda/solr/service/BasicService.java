@@ -168,7 +168,7 @@ public class BasicService {
 	 * @author tudose
 	 * @since 2015/08/03
 	 * @param jsonArray
-	 * @return List representation of the JSONArray
+	 * @return List representation of the JSONArray using toString on individual objects
 	 */
 	public List<String> getListFromJson(JSONArray jsonArray){
 		
