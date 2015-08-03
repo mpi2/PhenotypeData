@@ -42,10 +42,6 @@ public class PhenotypeCenterService {
 	@Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO ppDao;
 
-//	public PhenotypeCenterProgress(){
-//		this("https://www.ebi.ac.uk/mi/impc/solr/experiment");//"http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment"); // default
-//	}
-
 
 	public PhenotypeCenterService() {
 	}
