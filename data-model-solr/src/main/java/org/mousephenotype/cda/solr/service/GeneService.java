@@ -323,56 +323,42 @@ public class GeneService {
 	}
 	
 	
-	/**
-	 * Get the simplified production status of ES cells/mice for a document.
-	 * 
-	 * @param doc
-	 *            represents a gene with imits status fields
-	 * @return the latest status at the gene level for both ES cells and alleles
-	 */
-	public String getLatestProductionStatusForEsCellAndMice(JSONObject doc, boolean toExport, String geneLink){
-		
-		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
+	public String getMiceProductionStatusButton(List<String>mouseStatus, List<String> alleleNames, boolean toExport, String geneLink){
+			
 		String miceStatus = "";		
-		
 		final List<String> exportMiceStatus = new ArrayList<String>();		
-		Map<String, String> sh = new HashMap<String, String>();
+		Map<String, String> statusMap = new HashMap<String, String>();
 				
 		try {		
-			// mice production status			
-			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs) 
-			if ( doc.containsKey("mouse_status") ){
-				
-				JSONArray alleleNames = doc.getJSONArray("allele_name");				
-				JSONArray mouseStatus = doc.getJSONArray("mouse_status");
+			if ( mouseStatus != null ){				
 				
 				for ( int i=0; i< mouseStatus.size(); i++ ) {		
 					String mouseStatusStr = mouseStatus.get(i).toString();					
-					sh.put(mouseStatusStr, "yes");
+					statusMap.put(mouseStatusStr, "yes");
 				}		
 								
 				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
 				for ( int j=0; j< alleleNames.size(); j++ ) {
 					String alleleName = alleleNames.get(j).toString();
 					if ( !alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("") ){	
-						sh.put("mice production planned", "yes");						
+						statusMap.put("mice production planned", "yes");						
 					}				
 				}
 				
-				if ( sh.containsKey("Mice Produced") ){
+				if ( statusMap.containsKey("Mice Produced") ){
 					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
 						
 					exportMiceStatus.add("mice produced");
 				}
-				else if ( sh.containsKey("Assigned for Mouse Production and Phenotyping") ){
+				else if ( statusMap.containsKey("Assigned for Mouse Production and Phenotyping") ){
 					miceStatus = "<a class='status inprogress' oldtitle='Mice production in progress' title=''>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
 					exportMiceStatus.add("mice production in progress");
 				}
-				else if ( sh.containsKey("mice production planned") ){
+				else if ( statusMap.containsKey("mice production planned") ){
 					miceStatus = "<a class='status none' oldtitle='Mice production planned' title=''>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
@@ -384,9 +370,30 @@ public class GeneService {
 			log.error(e.getLocalizedMessage());
 		}
 		
+		return miceStatus;
+		
+	}
+	
+	
+	/**
+	 * Get the simplified production status of ES cells/mice for a document.
+	 * 
+	 * @param doc
+	 *            represents a gene with imits status fields
+	 * @return the latest status at the gene level for both ES cells and alleles
+	 */
+	public String getLatestProductionStatusForEsCellAndMice(JSONObject doc, boolean toExport, String geneLink){
+		
+		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
+		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) ? getList (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) ? getList(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
+		
+		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);		
+				
 		if ( toExport ){
-			exportMiceStatus.add(0, esCellStatus); // want to keep this at front
-			return StringUtils.join(exportMiceStatus, ", ");
+//			exportMiceStatus.add(0, esCellStatus); // want to keep this at front
+//			return StringUtils.join(exportMiceStatus, ", ");
+			
 		}
 		return esCellStatus + miceStatus;
 		
@@ -869,5 +876,21 @@ public class GeneService {
 		return geneToHumanOrthologMap;
 	}
 
-
+	/**
+	 * @author tudose
+	 * @since 2015/08/03
+	 * @param jsonArray
+	 * @return List representation of the JSONArray
+	 */
+	public List<String> getList(JSONArray jsonArray){
+		
+		List<String> list = new ArrayList<>();
+		for (Object obj : jsonArray){
+			list.add(obj.toString());
+		}
+		
+		return list;
+	}
+	
+	
 }
