@@ -15,9 +15,16 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -34,9 +41,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
-
 /**
  * Pulled in 2015/07/09
  * by @author tudose
@@ -44,7 +48,7 @@ import java.util.*;
  */
 
 @Service
-public class ExpressionService {
+public class ExpressionService extends BasicService{
 
 	@Autowired @Qualifier("experimentCore")
 	private HttpSolrServer experimentSolr;
@@ -243,8 +247,7 @@ public class ExpressionService {
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
 
 		for (SolrDocument doc : imagesResponse) {
-			ArrayList<String> tops = (ArrayList<String>) doc
-					.get(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM);
+			List<String> tops = getList(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
 
 			if (tops == null) {
 				expFacetToDocs.get(noTopMa).add(doc);
@@ -458,16 +461,18 @@ public class ExpressionService {
 		return row;
 	}
 
-	private Map<String, SolrDocumentList> getAnatomyToDocs(
-			SolrDocumentList controlResponse) {
+	private Map<String, SolrDocumentList> getAnatomyToDocs(	SolrDocumentList controlResponse) {
+		
 		Map<String, SolrDocumentList> anatomyToDocs = new HashMap<>();
+		
 		for (SolrDocument doc : controlResponse) {
-			ArrayList<String> anatomies = (ArrayList<String>) doc
-					.get(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-
+			
+			List<String> anatomies = getList(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME));
 			if (anatomies != null) {
+				
 				SolrDocumentList anatomyList = null;
 				for (String anatomy : anatomies) {
+					
 					if (!anatomyToDocs.containsKey(anatomy)) {
 						anatomyToDocs.put(anatomy, new SolrDocumentList());
 					}

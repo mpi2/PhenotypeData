@@ -64,7 +64,7 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
      * @throws SolrServerException
      */
     public List<GraphTestDTO> getGeneAccessionIds(int count) throws SolrServerException {
-        List<GraphTestDTO> retVal = new ArrayList();
+        List<GraphTestDTO> retVal = new ArrayList<GraphTestDTO>();
 
         if (count < 1)
             return retVal;
