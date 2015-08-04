@@ -70,7 +70,7 @@ public abstract class WebPageImpl implements WebPage {
 
             // Get the download stream and statistics for the TSV stream.
             URL url = new URL(downloadTargetTsv);
-            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
+            DataReader dataReaderTsv = DataReaderFactory.create(url);
 
             // Check that the phenotypes table page line count equals the download stream line count.
             // If the download stream line count is no more than 50% greater than the phenotypes table
@@ -101,7 +101,7 @@ public abstract class WebPageImpl implements WebPage {
 
             // Get the download stream and statistics for the TSV stream.
             url = new URL(downloadTargetXls);
-            DataReaderXls dataReaderXls = new DataReaderXls(url);
+            DataReader dataReaderXls = DataReaderFactory.create(url);
 
             // Check that the table page line count equals the download stream line count.
             // If the download stream line count is no more than 50% greater than the phenotypes table

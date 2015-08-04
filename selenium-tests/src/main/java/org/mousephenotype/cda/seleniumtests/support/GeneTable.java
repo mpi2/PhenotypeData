@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -25,6 +26,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,10 +39,10 @@ import java.util.List;
  * This class encapsulates the code and data necessary for access to the gene
  * page's "genes" HTML table.
  */
+@Component
 public class GeneTable {
     protected WebDriver driver;
     protected WebDriverWait wait;
-    protected String target;
     private GridMap data;       // Contains postQc rows only.
     private List<List<String>> preQcList;
     private List<List<String>> postQcList;
@@ -66,6 +68,8 @@ public class GeneTable {
     public static final String COL_GENES_P_VALUE             = "P Value";
     public static final String COL_GENES_GRAPH               = "Graph";
 
+    private final int TIMEOUT_IN_SECONDS = 4;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
@@ -74,10 +78,10 @@ public class GeneTable {
     @Autowired
     UrlUtils urlUtils;
 
-    public GeneTable(WebDriver driver, WebDriverWait wait, String target) {
-        this.driver = driver;
-        this.wait = wait;
-        this.target = target;
+    @Autowired
+    SeleniumWrapper wrapper;
+
+    public GeneTable() {
         this.data = null;
     }
 
@@ -102,24 +106,30 @@ public class GeneTable {
      * Pulls all rows of data and column access variables from the gene page's
      * 'genes' HTML table.
      *
+     * @param target the gene page target
      * @return <code>numRows</code> rows of data and column access variables
      * from the gene page's 'genes' HTML table.
      */
-    public GridMap load() {
-        return load(null);
+    public GridMap load(String target) throws TestException {
+        return load(target, null);
     }
 
     /**
      * Pulls <code>numRows</code> rows of postQc data and column access
      * variables from the gene page's 'genes' HTML table.
      *
+     * @param target the gene page target
      * @param numRows the number of postQc phenotype table rows to return,
      * including the heading row. To specify all postQc rows, set
      * <code>numRows</code> to null.
      * @return <code>numRows</code> rows of data and column access variables
      * from the gene page's 'genes' HTML table.
      */
-    public GridMap load(Integer numRows) {
+    public GridMap load(String target, Integer numRows) throws TestException {
+        this.driver = wrapper.getDriver();
+        this.wait = new WebDriverWait(driver, TIMEOUT_IN_SECONDS);
+        this.data = null;
+
         if (numRows == null)
             numRows = computeTableRowCount();
 

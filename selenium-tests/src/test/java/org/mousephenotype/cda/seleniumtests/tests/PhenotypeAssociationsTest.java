@@ -69,26 +69,29 @@ import java.util.List;
 public class PhenotypeAssociationsTest {
 
     @Autowired
+    protected String baseUrl;
+
+    @Autowired
+    protected CommonUtils commonUtils;
+
+    @Autowired
+    protected WebDriver driver;
+
+    @Autowired
+    protected GenePage genePage;
+
+    @Autowired
 	@Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
 
     @Autowired
-    protected String baseUrl;
-
-    @Autowired
-    protected WebDriver driver;
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
 
     @Autowired
     protected String seleniumUrl;
 
     @Autowired
     protected TestUtils testUtils;
-
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected CommonUtils commonUtils;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
@@ -147,7 +150,7 @@ public class PhenotypeAssociationsTest {
         int sumOfPhenotypeCounts = 0;
         int expectedMinimumResultCount = -1;
         try {
-            GenePage genePage = new GenePage(driver, wait, target, geneId, baseUrl);
+            genePage.load(target, geneId);
             genePage.selectGenesLength(100);
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
