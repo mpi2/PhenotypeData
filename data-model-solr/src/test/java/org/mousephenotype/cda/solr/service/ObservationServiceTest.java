@@ -59,5 +59,4 @@ public class ObservationServiceTest  extends AbstractTransactionalJUnit4SpringCo
 		assertTrue(procedures.size() > 19);
 	}
 	
-	
 }

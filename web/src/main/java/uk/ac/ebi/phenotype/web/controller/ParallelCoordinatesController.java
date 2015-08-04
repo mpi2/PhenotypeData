@@ -32,6 +32,8 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -68,14 +70,16 @@ public class ParallelCoordinatesController {
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
+		long time = System.currentTimeMillis();
 		if (procedureIds == null){
 			
 			model.addAttribute("procedure", "");	
 			
 		} else {
 			
-			String data = srs.getGenotypeEffectFor(procedureIds , false);
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds , false));
 			model.addAttribute("dataJs", data + ";");
+
 			String title = "";
 			for (int i = 0;  i < procedureIds.size()-1; i++){
 				String p = procedureIds.get(i);
@@ -85,7 +89,42 @@ public class ParallelCoordinatesController {
 			
 			model.addAttribute("procedure", title);
 		}
+		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - time) + " ms.");
 
 		return "parallelFrag";
+	}
+	
+
+	/**
+	 * @author tudose
+	 * @since 2015/08/04
+	 * @param row
+	 * @return
+	 */
+	protected String getJsonForParallelCoordinates(HashMap<String, ParallelCoordinatesDTO> row){
+		
+		String res = "[";
+		String defaultMeans = "";
+		int i = 0;
+    	for (String key: row.keySet()){
+    		ParallelCoordinatesDTO bean = row.get(key);
+    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
+	    		i++;
+	    		String currentRow = bean.toString(false);
+	    		if (!currentRow.equals("")){
+		    		res += "{" + currentRow + "}";
+		    		if (i < row.values().size()){
+		    			res += ", ";
+		    		}
+	    		}
+    		}
+    		else {
+    			String currentRow = bean.toString(false);
+    			defaultMeans += "{" + currentRow + "}\n";
+    		}
+    	}
+    	res += "]";
+
+    	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
 	}
 }
