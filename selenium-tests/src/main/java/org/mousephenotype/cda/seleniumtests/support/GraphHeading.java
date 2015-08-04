@@ -20,7 +20,7 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -87,9 +87,9 @@ public class GraphHeading {
      * @param graphUrl the url of the graph page (used for error/warning reporting)
      * @param chartType the chart type. Used to determine which validator to use.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public GraphHeading(WebDriverWait wait, WebElement chartElement, String graphUrl, ChartType chartType) throws GraphTestException {
+    public GraphHeading(WebDriverWait wait, WebElement chartElement, String graphUrl, ChartType chartType) throws TestException {
         this.wait = wait;
         this.chartElement = chartElement;
         this.graphUrl = graphUrl;
@@ -104,9 +104,9 @@ public class GraphHeading {
      * 
      * @return status
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
         boolean validatePipeline;
         boolean validateSop;
@@ -140,7 +140,7 @@ public class GraphHeading {
                 break;
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
         
         if (validatePipeline) {
@@ -270,7 +270,7 @@ public class GraphHeading {
     /**
      * Parse the heading.
      */
-    private void parse(ChartType chartType) throws GraphTestException {
+    private void parse(ChartType chartType) throws TestException {
         // Wait for all charts to load.
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
         
@@ -309,9 +309,9 @@ public class GraphHeading {
     /**
      * Set the mutant and control keys based on chart type.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    private void setKeys() throws GraphTestException {
+    private void setKeys() throws TestException {
                 
         switch (chartType) {
             case CATEGORICAL_STACKED_COLUMN:
@@ -362,7 +362,7 @@ public class GraphHeading {
                 break;
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
     }
     
@@ -445,7 +445,7 @@ public class GraphHeading {
         private String parameterStableId = "";
         private WebElement sopLinkElement = null;
         
-        public ParameterParser(ChartType chartType) throws GraphTestException {
+        public ParameterParser(ChartType chartType) throws TestException {
             List<WebElement> elements;
             WebElement element;
             
@@ -490,7 +490,7 @@ public class GraphHeading {
                     break;
                     
                 default:
-                    throw new GraphTestException("Unknown chart type " + chartType);
+                    throw new TestException("Unknown chart type " + chartType);
             }
         }
             

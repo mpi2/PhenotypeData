@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -68,14 +68,14 @@ public class GraphSectionABR extends GraphSection {
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the ABR chart section.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public GraphSectionABR(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws GraphTestException {
+    public GraphSectionABR(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
         super(driver, wait, graphUrl, chartElement);
     }
     
     @Override
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.
         
         status.add(validateDownload());                                         // Validate download streams.
@@ -98,9 +98,9 @@ public class GraphSectionABR extends GraphSection {
      * 
      * @return validation results
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    private PageStatus validateDownload() throws GraphTestException {
+    private PageStatus validateDownload() throws TestException {
         PageStatus status = new PageStatus();
         GraphHeading heading = getHeading();
         

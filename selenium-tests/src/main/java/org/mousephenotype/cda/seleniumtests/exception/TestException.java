@@ -22,21 +22,21 @@ package org.mousephenotype.cda.seleniumtests.exception;
  *
  * @author mrelac
  */
-public class GraphTestException extends Exception {
+public class TestException extends Exception {
 
-    public GraphTestException() {
+    public TestException() {
         super("");
     }
 
-    public GraphTestException(String message) {
+    public TestException(String message) {
         super(message);
     }
     
-    public GraphTestException(Exception e) {
+    public TestException(Exception e) {
         super(e);
     }
     
-    public GraphTestException(String message, Exception e) {
+    public TestException(String message, Exception e) {
         super(message, e);
     }
 }

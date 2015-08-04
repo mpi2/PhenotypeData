@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
@@ -24,7 +25,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.net.URL;
 import java.util.*;
 
@@ -35,45 +39,85 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent a Phenotype
  * Archive gene page for Selenium testing.
  */
+@Component
 public class GenePage {
-    private final WebDriver driver;
-    private final WebDriverWait wait;
-    private final String target;
-    private final String geneId;
-    private final String baseUrl;
-    private final GeneTable geneTable;
+    private String target;
+    private String geneId;
     
     private boolean hasImages;
     private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
     private int resultsCount;
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    private final int TIMEOUT_IN_SECONDS = 4;
+
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
 
     @Autowired
     protected CommonUtils commonUtils;
 
     @Autowired
+    protected GeneTable geneTable;
+
+    @Autowired
     protected TestUtils testUtils;
+
+    @Autowired
+    SeleniumWrapper wrapper;
+
+
     /**
      * Creates a new <code>GenePage</code> instance
-     * @param driver A valid <code>WebDriver</code> instance
-     * @param wait A valid <code>WebDriverWait</code> instance
-     * @param target This page's target url
-     * @param geneId This page's gene id
-     * @param baseUrl A fully-qualified hostname and path, such as
-     *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, String baseUrl) {
-        this.driver = driver;
-        this.wait = wait;
+    public GenePage() {
+
+    }
+
+
+    /**
+     * Waits for the gene page to load.
+     *
+     * NOTE: target and geneId are null until this method is called.
+     */
+    public void load(String target, String geneId) throws TestException {
+        driver = wrapper.getDriver();
+        wait = new WebDriverWait(driver, TIMEOUT_IN_SECONDS);
         this.target = target;
         this.geneId = geneId;
-        this.baseUrl = baseUrl;
-        this.geneTable = new GeneTable(driver, wait, target);
-        
-        load();
+        driver.get(target);
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+
+        List<WebElement> elements;
+        // Determine if this page has images.
+        elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
+        hasImages = ! elements.isEmpty();
+
+        List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
+        hasImpcImages= ! impcElements.isEmpty();
+
+        // Determine if this page has phenotype associations. If it does, get the results count.
+        try {
+            elements = driver.findElements(By.xpath("//table[@id='genes']"));
+            hasGenesTable = ! elements.isEmpty();
+            if (hasGenesTable) {
+                elements = driver.findElements(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']"));
+                String totResultsString = elements.get(0).getText();
+                int index = totResultsString.lastIndexOf(":");
+                String count = totResultsString.substring(index + 1).trim();
+                resultsCount = commonUtils.tryParseInt(count);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found. Reason: " + e.getLocalizedMessage());
+        }
+
+        hasGraphs = (resultsCount > 0);
     }
-    
+
     /**
      * 
      * @return A list of top level MP terms.
@@ -144,11 +188,12 @@ public class GenePage {
     }
 
     /**
-     * 
-     * @return the gene ID
+     * Return the gene page's url.
+     *
+     * @return the gene page's url
      */
-    public String getGeneId() {
-        return geneId;
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
     }
     
     /**
@@ -156,12 +201,12 @@ public class GenePage {
      * @return a <code>List&lt;String&gt;</code> of this page's graph urls. The
      * list will be empty if this page doesn't have any graph urls.
      */
-    public List<String> getGraphUrls() {
+    public List<String> getGraphUrls() throws TestException {
         List<String> urls = new ArrayList();
         
         if (hasGraphs) {
             if (geneTable.genesTableIsNotEmpty()) {
-                geneTable.load();
+                geneTable.load(target);
                 GridMap map = geneTable.getData();
                 for (int i = 0; i < map.getBody().length; i++) {
                     urls.add(map.getCell(i, GeneTable.COL_INDEX_GENES_GRAPH_LINK));
@@ -182,12 +227,12 @@ public class GenePage {
      * @return a list of this page's graph urls matching the given procedure and 
      * parameter names.
      */
-    public List<String> getGraphUrls(String procedureName, String parameterName) {
+    public List<String> getGraphUrls(String procedureName, String parameterName) throws TestException {
         List<String> urls = new ArrayList();
         
         if (hasGraphs()) {
             if (geneTable.genesTableIsNotEmpty()) {
-                geneTable.load();
+                geneTable.load(target);
                 List<List<String>> preAndPostQcList = geneTable.getPreAndPostQcList();
                 for (List<String> row : preAndPostQcList) {
                     if (row.get(GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER).equals(procedureName + " | " + parameterName)) {
@@ -246,15 +291,16 @@ public class GenePage {
         
         return sectionTitles;
     }
-    
+
     /**
-     * 
-     * @return The target URL
+     * Return the target.
+     *
+     * @return the target
      */
     public String getTarget() {
         return target;
     }
-    
+
     /**
      * 
      * @return the title ('Gene: Akt2')
@@ -339,7 +385,7 @@ public class GenePage {
      * is no phenotype HTML table.
      * @return validation status
      */
-    public PageStatus validate(boolean genesTableRequired) {
+    public PageStatus validate(boolean genesTableRequired) throws TestException {
         PageStatus status = new PageStatus();
         
         // Validate title starts with 'Gene:'
@@ -357,7 +403,7 @@ public class GenePage {
         
         // If there is a 'genes' HTML table, validate it.
         if (hasGenesTable) {
-            geneTable.load();                                                   // Load all of the genes table pageMap data. Use preAndPostQcList.
+            geneTable.load(target);                                                   // Load all of the genes table pageMap data. Use preAndPostQcList.
             List<List<String>> preAndPostQcList = geneTable.getPreAndPostQcList();
             String cell;
             int i = 0;
@@ -416,40 +462,7 @@ public class GenePage {
     
     
     // PRIVATE METHODS
-    
-    
-    /**
-     * Waits for the gene page to load.
-     */
-    private void load() {
-        driver.get(target);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
 
-        List<WebElement> elements;
-        // Determine if this page has images.
-        elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
-        hasImages = ! elements.isEmpty();
-        
-        List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
-        hasImpcImages= ! impcElements.isEmpty();
- 
-        // Determine if this page has phenotype associations. If it does, get the results count.
-        try {
-            elements = driver.findElements(By.xpath("//table[@id='genes']"));
-            hasGenesTable = ! elements.isEmpty();
-            if (hasGenesTable) {
-                elements = driver.findElements(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']"));
-                String totResultsString = elements.get(0).getText();
-                int index = totResultsString.lastIndexOf(":");
-                String count = totResultsString.substring(index + 1).trim();
-                resultsCount = commonUtils.tryParseInt(count);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
-        }
-        
-        hasGraphs = (resultsCount > 0);
-    }
     
     /**
      * Compares a single row of a pageMap grid selected by pageMapIndex to a
@@ -533,11 +546,10 @@ public class GenePage {
     
     /**
      * Get the full TSV data store
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param status Indicates the success or failure of the operation
      * @return the full TSV data store
      */
-    private GridMap getDownloadTsv(String baseUrl, PageStatus status) {
+    private GridMap getDownloadTsv(PageStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
         
@@ -575,11 +587,10 @@ public class GenePage {
     
     /**
      * Get the full XLS data store
-     * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param status Indicates the success or failure of the operation
      * @return the full XLS data store
      */
-    private GridMap getDownloadXls(String baseUrl, PageStatus status) {
+    private GridMap getDownloadXls(PageStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
         
@@ -624,12 +635,12 @@ public class GenePage {
      * 
      * @return page status instance
      */
-    private PageStatus validateDownload() {
+    private PageStatus validateDownload() throws TestException {
         PageStatus status = new PageStatus();
-        GridMap pageMap = geneTable.load();                                        // Load all of the genes table pageMap data.
+        GridMap pageMap = geneTable.load(target);       // Load all of the genes table pageMap data.
         
         // Test the TSV.
-        GridMap downloadData = getDownloadTsv(baseUrl, status);
+        GridMap downloadData = getDownloadTsv(status);
         if (status.hasErrors()) {
             return status;
         }
@@ -640,7 +651,7 @@ public class GenePage {
         }
         
         // Test the XLS.
-        downloadData = getDownloadXls(baseUrl, status);
+        downloadData = getDownloadXls(status);
         if (status.hasErrors()) {
             return status;
         }

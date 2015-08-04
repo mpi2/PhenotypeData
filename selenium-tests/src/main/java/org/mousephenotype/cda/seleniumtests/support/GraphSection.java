@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.*;
@@ -76,9 +76,9 @@ public abstract class GraphSection {
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public GraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws GraphTestException {
+    public GraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
         this.driver = driver;
         this.wait = wait;
         /* NOT USED - ANNOTATION NOW USED INSTEAD.
@@ -91,7 +91,7 @@ public abstract class GraphSection {
         load();
     }
     
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
         
         // Verify title contains 'Allele'.
@@ -152,9 +152,9 @@ public abstract class GraphSection {
      * @return the ChartType
      * @param chartElement The chart <code>WebElement</code>.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public static ChartType getChartType(WebElement chartElement) throws GraphTestException {
+    public static ChartType getChartType(WebElement chartElement) throws TestException {
         ChartType chartTypeLocal = null;
         String graphUrlTag = chartElement.getAttribute("graphurl");
         String[] parts = graphUrlTag.split(Pattern.quote("&"));
@@ -169,7 +169,7 @@ public abstract class GraphSection {
         }
         
         if (chartTypeLocal == null) {
-            throw new GraphTestException("GraphSection.getChartType: Invalid chart type '" + chartTypeValue + "'.");
+            throw new TestException("GraphSection.getChartType: Invalid chart type '" + chartTypeValue + "'.");
         }
         
         return chartTypeLocal;
@@ -178,7 +178,7 @@ public abstract class GraphSection {
     /**
      * Load the section data.
      */
-    private void load() throws GraphTestException {
+    private void load() throws TestException {
         
         try {
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
@@ -212,7 +212,7 @@ public abstract class GraphSection {
         } catch (Exception e) {
             String message = "EXCEPTION processing page: " + e.getLocalizedMessage() + ". Graph URL:\n\t" + graphUrl;
             System.out.println(message);
-            throw new GraphTestException(message, e);
+            throw new TestException(message, e);
         }
     }
     

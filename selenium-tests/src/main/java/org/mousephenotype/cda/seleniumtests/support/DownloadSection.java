@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.DownloadType;
 import org.mousephenotype.cda.web.ExperimentGroup;
@@ -161,9 +161,9 @@ public class DownloadSection {
      * @return a set of all [non-heading] mutant and control rows using the
      * fields from the defined chart type and download type.
      * 
-     * @throws GraphTestException for unknown chart types
+     * @throws TestException for unknown chart types
      */
-    public final Set<String> getKeys(ChartType chartType, DownloadType downloadType)  throws GraphTestException {
+    public final Set<String> getKeys(ChartType chartType, DownloadType downloadType)  throws TestException {
         Set<String> retVal = new HashSet();
         
         // Build a set of mutant and control data from the input parameters.
@@ -183,7 +183,7 @@ public class DownloadSection {
     // PRIVATE METHODS
     
     
-    private String makeKey(ChartType chartType, ExperimentGroup group, List<String> row) throws GraphTestException {
+    private String makeKey(ChartType chartType, ExperimentGroup group, List<String> row) throws TestException {
         int[] columnIndexes = new int[0];
         
         switch (chartType) {
@@ -244,7 +244,7 @@ public class DownloadSection {
                 break;
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
         
         return testUtils.makeKey(columnIndexes, row);

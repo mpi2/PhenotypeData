@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,7 +56,7 @@ public class SeleniumWrapper {
         return browserName;
     }
 
-    public RemoteWebDriver getDriver() throws MalformedURLException {
+    public RemoteWebDriver getDriver() throws TestException {
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
 
         desiredCapabilities.setBrowserName(browserName);
@@ -68,6 +69,10 @@ public class SeleniumWrapper {
             desiredCapabilities.setPlatform(org.openqa.selenium.Platform.valueOf(browserPlatform.toUpperCase()));
         }
 
-        return new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
+        try {
+            return new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
+        } catch (MalformedURLException e) {
+            throw new TestException("Unable to get driver from wrapper. Reason: " + e.getLocalizedMessage());
+        }
     }
 }
