@@ -20,6 +20,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -31,16 +32,18 @@ import java.util.*;
  * components of a search page 'maGrid' HTML table for anatomy.
  */
 public class SearchAnatomyTable extends SearchFacetTable {
-    
+
+    private final List<AnatomyRow> bodyRows = new ArrayList();
+
+    @Autowired
+    protected GridMap pageData;
+
+    private static final Map<TableComponent, By> map = new HashMap();
     public static final int COL_INDEX_ANATOMY_TERM     = 0;
     public static final int COL_INDEX_ANATOMY_ID       = 1;
     public static final int COL_INDEX_ANATOMY_SYNONYMS = 2;
     public static final int COL_INDEX_LAST = COL_INDEX_ANATOMY_SYNONYMS;        // Should always point to the last (highest-numbered) index.
-    
-    private final List<AnatomyRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
-    
-    private final static Map<TableComponent, By> map = new HashMap();
+
     static {
         map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='maGrid']"));
         map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='maGrid']/tbody/tr"));
@@ -144,8 +147,10 @@ public class SearchAnatomyTable extends SearchFacetTable {
                 bodyRows.add(anatomyRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        pageData.load(pageArray, driver.getCurrentUrl());
+
+        return pageData;
     }
     
     

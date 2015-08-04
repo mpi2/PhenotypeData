@@ -59,19 +59,23 @@ public class GraphSectionCategorical extends GraphSection {
     public final int METADATA_GROUP      = 21;
     public final int CATEGORY            = 22;
 
+    public GraphSectionCategorical() {
+
+    }
+
     /**
-     * Creates a new <code>GraphSectionCategorical</code> instance
-     * 
+     * Loads the <code>GraphSectionCategorical</code> instance
+     *
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
-     *                     div.chart element of the categorical chart section.
-     * 
+     *                     div.chart element of the unidimensional chart section.
+     *
      * @throws TestException
      */
-    public GraphSectionCategorical(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
-        super(driver, wait, graphUrl, chartElement);
+    public void load(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
+        super.load(graphUrl, chartElement, timeoutInSeconds);
     }
     
     @Override

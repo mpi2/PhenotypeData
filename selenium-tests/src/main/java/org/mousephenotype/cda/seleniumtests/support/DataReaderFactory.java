@@ -18,6 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
@@ -25,15 +26,20 @@ import java.net.URL;
  *
  * @author mrelac
  */
+@Component
 public class DataReaderFactory {
 
-    @Autowired
-    protected static DataReaderTsv dataReaderTsv;
+    protected DataReader dataReader;
 
     @Autowired
-    protected static DataReaderXls dataReaderXls;
+    protected DataReaderTsv dataReaderTsv;
 
-    static DataReader dataReader;
+    @Autowired
+    protected DataReaderXls dataReaderXls;
+
+    public DataReaderFactory() {
+
+    }
 
     /**
      * Given a URL, this method returns a <code>DataReader</code> of the correct
@@ -44,7 +50,7 @@ public class DataReaderFactory {
      * identified by <code>url</code>.
      * @throws TestException
      */
-    public static DataReader create(URL url) throws TestException {
+    public DataReader create(URL url) throws TestException {
         String query = url.getQuery();
         String[] queryArray = query.split("&");
         for (String s : queryArray) {

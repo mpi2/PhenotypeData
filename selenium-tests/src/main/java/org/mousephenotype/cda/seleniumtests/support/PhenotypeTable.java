@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -23,6 +24,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,14 +37,14 @@ import java.util.List;
  * This class encapsulates the code and data necessary for access to the phenotype
  * page's "phenotypes" HTML table.
  */
+@Component
 public class PhenotypeTable {
-    private final WebDriver driver;
-    private final WebDriverWait wait;
-    private final String target;
-    private GridMap data;       // Contains postQc rows only.
-    private List<List<String>> preQcList;
-    private List<List<String>> postQcList;
-    private List<List<String>> preAndPostQcList;
+    protected WebDriver driver;
+    protected String target;
+    protected WebDriverWait wait;
+    protected List<List<String>> preQcList;
+    protected List<List<String>> postQcList;
+    protected List<List<String>> preAndPostQcList;
 
     public static final int COL_INDEX_PHENOTYPES_GENE_ALLELE         =  0;
     public static final int COL_INDEX_PHENOTYPES_ZYGOSITY            =  1;
@@ -65,23 +67,19 @@ public class PhenotypeTable {
     public static final String COL_PHENOTYPES_GRAPH               = "Graph";
 
     @Autowired
+    protected GridMap pageData;
+
+    @Autowired
     protected TestUtils testUtils;
 
     @Autowired
     protected UrlUtils urlUtils;
-    
-    /**
-     * Creates a new, empty <code>PhenotypeTablePheno</code> instance. Call <code>
-     * load(<b>numRows</b>)</code> to load <code>numRows</code> rows of data.
-     * @param driver <code>WebDriver</code> instance
-     * @param wait<code>WebDriverWait</code> instance
-     * @param target the calling page's target url
-     */
-    public PhenotypeTable(WebDriver driver, WebDriverWait wait, String target) {
-        this.driver = driver;
-        this.wait = wait;
-        this.target = target;
-        this.data = null;
+
+    @Autowired
+    SeleniumWrapper wrapper;
+
+    public PhenotypeTable() {
+
     }
     
     /**
@@ -89,7 +87,7 @@ public class PhenotypeTable {
      * variables that were loaded by the last call to <code>load()</code>.
      */
     public GridMap getData() {
-        return data;
+        return pageData;
     }
 
     /**
@@ -98,20 +96,21 @@ public class PhenotypeTable {
      * @return all rows of data and column access variables from
      * the pheno page's 'phenotypes' HTML table.
      */
-    public GridMap load() {
-        return load(null);
+    public GridMap load(String target, long timeoutInSeconds) throws TestException {
+        return load(target, null, timeoutInSeconds);
     }
 
     /**
-     * Pulls <code>numRows</code> rows of postQc data and column access variables from
-     * the pheno page's 'phenotypes' HTML table.
+     * Load phenotype table data
      *
-     * @param numRows the number of postQc phenotype table rows to return, including
-     * the heading row. To specify all postQc rows, set <code>numRows</code> to null.
-     * @return <code>numRows</code> rows of data and column access variables
-     * from the pheno page's 'phenotypes' HTML table.
+     * @return <code>numRows</code> rows of data and column access variables from the phenotype page's 'phenotypes'
+     * HTML table.
      */
-    public GridMap load(Integer numRows) {
+    public GridMap load(String target, Integer numRows, long timeoutInSeconds) throws TestException {
+        driver = wrapper.getDriver();
+        wait = new WebDriverWait(driver, timeoutInSeconds);
+        this.target = target;
+
         if (numRows == null)
             numRows = computeTableRowCount();
         
@@ -202,8 +201,7 @@ public class PhenotypeTable {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the postQc list.
                     if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
-                        data = new GridMap(postQcList, target);
-                        return data;
+                        return pageData.load(postQcList, target);
                     }
                 }
             }
@@ -211,9 +209,7 @@ public class PhenotypeTable {
             sourceRowIndex++;
         }
 
-        data = new GridMap(postQcList, target);
-        
-        return data;
+        return pageData.load(postQcList, target);
     }
 
     public List<List<String>> getPreQcList() {

@@ -23,6 +23,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -34,6 +35,7 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'mpGrid' HTML table for phenotypes.
  */
+@Component
 public class SearchPhenotypeTable extends SearchFacetTable {
     
     public static final int COL_INDEX_COMP_MAPPED_HP_TERMS = 0;
@@ -47,7 +49,6 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPING_CALLS;       // Should always point to the last (highest-numbered) index.
     
     private final List<PhenotypeRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
     
     private final static Map<TableComponent, By> map = new HashMap();
     static {
@@ -57,10 +58,13 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     }
 
     @Autowired
-    TestUtils testUtils;
+    CommonUtils commonUtils;
 
     @Autowired
-    CommonUtils commonUtils;
+    GridMap pageData;
+
+    @Autowired
+    TestUtils testUtils;
     
     /**
      * Creates a new <code>SearchPhenotypeTable</code> instance.
@@ -199,8 +203,8 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 bodyRows.add(phenotypeRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        return pageData.load(pageArray, driver.getCurrentUrl());
     }
     
     

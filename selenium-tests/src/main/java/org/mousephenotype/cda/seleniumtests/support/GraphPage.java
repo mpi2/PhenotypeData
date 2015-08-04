@@ -26,7 +26,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -45,39 +47,34 @@ import java.util.*;
  * GraphPageCategorical and GraphPageUnidimensional.
  */
 public class GraphPage {
-    protected final WebDriver driver;
-    protected final WebDriverWait wait;
-    protected final String graphUrl;
-    protected final String baseUrl;
+    protected WebDriver driver;
     protected final List<GraphSection> graphSections = new ArrayList<>();
+    protected WebDriverWait wait;
 
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
 
     @Autowired
     protected CommonUtils commonUtils;
 
     @Autowired
+    DataReaderFactory dataReaderFactory;
+
+    @Autowired
+    DownloadSection downloadSection;
+
+    @Autowired
+    GraphSectionFactory graphSectionFactory;
+
+    @Autowired
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
     protected TestUtils testUtils;
-    
-    /**
-     * Creates a new <code>GraphPage</code> instance
-     * 
-     * @param driver <code>WebDriver</code> instance
-     * @param wait <code>WebDriverWait</code> instance
-     * @param graphUrl url of graph page to load
-     * @param baseUrl the base url pointing to the downloads
-     * @throws TestException
-     */
-    public GraphPage(WebDriver driver, WebDriverWait wait, String graphUrl, String baseUrl) throws TestException {
-        this.driver = driver;
-        this.wait = wait;
-        this.graphUrl = graphUrl;
-        this.baseUrl = baseUrl;
-        
-        driver.get(graphUrl);
-        load();
-    }
+
+    @Autowired
+    SeleniumWrapper wrapper;
     
     public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
@@ -104,11 +101,18 @@ public class GraphPage {
         List<WebElement> elements = driver.findElements(By.xpath("//div[@id='exportIconsDivGlobal']"));
         return ( ! elements.isEmpty());
     }
-    
+
     /**
-     * Load the page and its section and tsv/xls download data.
+     * Loads the page and its section and tsv/xls download data.
+     *
+     * @param graphUrl the graph url
+     * @param timeoutInSeconds the wait timeout
+     *
+     * @throws TestException
      */
-    private void load() throws TestException {
+    public void load(String graphUrl, long timeoutInSeconds) throws TestException {
+        driver = wrapper.getDriver();
+        wait = new WebDriverWait(driver, timeoutInSeconds);
         String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
         List<WebElement> chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
         
@@ -128,7 +132,7 @@ public class GraphPage {
         
         // Load the GraphSections.
         for (WebElement chartElement : chartElements) {
-            GraphSection graphSection = GraphSectionFactory.createGraphSection(driver, wait, graphUrl, chartElement);
+            GraphSection graphSection = graphSectionFactory.createGraphSection(graphUrl, chartElement, timeoutInSeconds);
             graphSections.add(graphSection);
         }
         
@@ -208,10 +212,9 @@ public class GraphPage {
         String[][] data;
         DataReader dataReader;
 
-
         try {
             URL downloadUrl = new URL(downloadTargetTsv);
-            dataReader = DataReaderFactory.create(downloadUrl);
+            dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
             downloadBlockTsv = parseDownloadStream(data);
             
@@ -223,7 +226,7 @@ public class GraphPage {
         
         try {
             URL downloadUrl = new URL(downloadTargetXls);
-            dataReader = DataReaderFactory.create(downloadUrl);
+            dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
             downloadBlockXls = parseDownloadStream(data);
             
@@ -236,12 +239,13 @@ public class GraphPage {
             
             downloadDataMap.put(DownloadType.TSV, downloadBlockTsv.get(i));
             downloadDataMap.put(DownloadType.XLS, downloadBlockXls.get(i));
-            DownloadSection downloadSection = new DownloadSection(downloadDataMap);
+            downloadSection.load(downloadDataMap);
             retVal.add(downloadSection);
         }
         
         return retVal;
     }
+
     /**
      * Given the full download data set, this method parses it, separating it
      * into a separate dataset for each graph. Each graph's dataset is preceeded

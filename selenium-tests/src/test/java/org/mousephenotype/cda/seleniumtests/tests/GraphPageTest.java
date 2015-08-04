@@ -96,6 +96,9 @@ public class GraphPageTest {
     protected GeneService geneService;
 
     @Autowired
+    protected GraphPage graphPage;
+
+    @Autowired
     @Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
 
@@ -121,13 +124,13 @@ public class GraphPageTest {
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    private WebDriverWait wait; // = new WebDriverWait(driver, timeout_in_seconds);
+    private WebDriverWait wait; // = new WebDriverWait(driver, timeoutInSeconds);
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
     private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
 
-    private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
@@ -135,12 +138,12 @@ public class GraphPageTest {
     @Before
     public void setup() {
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
+            timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         testUtils.printTestEnvironment(driver, seleniumUrl);
-        wait = new WebDriverWait(driver, timeout_in_seconds);
+        wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
         commonUtils.sleep(thread_wait_in_ms);
@@ -183,7 +186,7 @@ public class GraphPageTest {
                 continue;
 
             try {
-                GraphPage graphPage = new GraphPage(driver, wait, graphUrl, baseUrl);
+                graphPage.load(graphUrl, timeoutInSeconds);
                 status.add(graphPage.validate());
                 if ( ! status.hasErrors()) {
                     successCount++;
@@ -225,7 +228,7 @@ public class GraphPageTest {
             if (graphUrls.isEmpty())
                 continue;
             try {
-                GraphPage graphPage = new GraphPage(driver, wait, graphUrls.get(0), baseUrl);
+                graphPage.load(graphUrls.get(0), timeoutInSeconds);
                 PageStatus status = graphPage.validate();
                 if ( ! status.hasErrors()) {
                     successCount++;

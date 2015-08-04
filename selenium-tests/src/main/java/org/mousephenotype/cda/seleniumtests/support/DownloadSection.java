@@ -21,6 +21,7 @@ import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.DownloadType;
 import org.mousephenotype.cda.web.ExperimentGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -33,27 +34,27 @@ import java.util.*;
  * 
  * @author mrelac
  */
+@Component
 public class DownloadSection {
     
     protected Map<DownloadType, List<List<String>>> dataBlockMap = new HashMap();
 
     @Autowired
     protected TestUtils testUtils;
-    
+
     public DownloadSection() {
-        
+
     }
     
     /**
-     * Creates a new instance initialised with <code>downloadType</code> and
-     * <code>data</code>
+     * Loads the download section data.
      * 
      * @param dataBlockMap a map keyed by download type containing the data to be added
      */
-    public DownloadSection(Map<DownloadType, List<List<String>>> dataBlockMap) {
+    public void load(Map<DownloadType, List<List<String>>> dataBlockMap) {
         this.dataBlockMap = dataBlockMap;
     }
-    
+
         // Download column offsets.
     public static final int PIPELINE_NAME_COL_INDEX       =  0;
     public static final int PIPELINE_STABLE_ID_COL_INDEX  =  1;

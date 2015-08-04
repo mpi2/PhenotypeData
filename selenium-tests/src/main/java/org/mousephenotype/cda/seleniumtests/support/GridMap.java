@@ -20,6 +20,7 @@ import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -34,9 +35,10 @@ import java.util.*;
  * and either column index or column name, which must match exactly. No
  * IndexOutOfBounds exception checking is done.
  */
+@Component
 public class GridMap {
     private String[][] data;
-    private final String target;
+    private String target;
     private final HashMap<String, Integer> colNameHash = new HashMap();
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -46,13 +48,17 @@ public class GridMap {
     @Autowired
     protected UrlUtils urlUtils;
 
+    public GridMap() {
+
+    }
+
     /**
-     * Creates a <code>GridMap</code> instance
+     * Loads the <code>GridMap</code> instance
      *
      * @param data the data store
      * @param target the target url of the page containing the data
      */
-    public GridMap(String[][] data, String target) {
+    public GridMap load(String[][] data, String target) {
         this.data = data;
         this.target = target;
 
@@ -60,15 +66,17 @@ public class GridMap {
         for (String colHeading : data[0]) {
             colNameHash.put(colHeading, i);
         }
+
+        return this;
     }
 
     /**
-     * Creates a <code>GridMap</code> instance
+     * loads the <code>GridMap</code> instance
      *
      * @param dataList the data store
      * @param target the target URL of the page containing the data
      */
-    public GridMap(List<List<String>> dataList, String target) {
+    public GridMap load(List<List<String>> dataList, String target) {
             data = new String[0][0];
         try {
             data = new String[dataList.size()][dataList.get(0).size()];
@@ -89,6 +97,8 @@ public class GridMap {
         }
 
         this.target = target;
+
+        return this;
     }
 
     /**
@@ -127,7 +137,7 @@ public class GridMap {
             }
         }
 
-        GridMap retVal = new GridMap(localData, target);
+        GridMap retVal = load(localData, target);
 
         return retVal;
     }

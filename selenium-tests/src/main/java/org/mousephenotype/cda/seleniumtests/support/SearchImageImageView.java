@@ -20,6 +20,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,11 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'imagesGrid' HTML table (image view) for images.
  */
+@Component
 public class SearchImageImageView extends SearchFacetTable {
+
+    @Autowired
+    GridMap pageData;
     
     public final static int COL_INDEX_GENE_TERMS      =  0;
     public final static int COL_INDEX_MA_TERMS        =  1;
@@ -53,9 +59,8 @@ public class SearchImageImageView extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_IMAGE_LINK;              // Should always point to the last (highest-numbered) index.
     
     private final List<ImageRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
     private Map<TableComponent, By> map;
-    
+
     public enum AnnotationType {
         Gene,
         MA,
@@ -179,8 +184,10 @@ public class SearchImageImageView extends SearchFacetTable {
                 bodyRows.add(bodyRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        pageData.load(pageArray, driver.getCurrentUrl());
+
+        return pageData;
     }
     
     
