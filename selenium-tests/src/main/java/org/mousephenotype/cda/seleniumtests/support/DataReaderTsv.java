@@ -18,6 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.List;
  * 
  * This <code>DataReader</code> implementation handles tab-separated streams.
  */
+@Component
 public class DataReaderTsv extends DataReader {
 
     private BufferedReader bufferedReader = null;

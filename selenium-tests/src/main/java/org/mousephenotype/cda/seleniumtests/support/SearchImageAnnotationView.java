@@ -23,6 +23,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,17 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'imagesGrid' HTML table (annotation view) for images.
  */
+@Component
 public class SearchImageAnnotationView extends SearchFacetTable {
+
+    @Autowired
+    protected CommonUtils commonUtils;
+
+    @Autowired
+    protected GridMap pageData;
+
+    @Autowired
+    protected UrlUtils urlUtils;
     
     public static final int COL_INDEX_ANNOTATION_TYPE     = 0;
     public static final int COL_INDEX_ANNOTATION_TERM     = 1;
@@ -44,14 +55,7 @@ public class SearchImageAnnotationView extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_RELATED_IMAGE_COUNT;     // Should always point to the last (highest-numbered) index.
     
     private final List<ImageRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
     private Map<TableComponent, By> map;
-
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    protected UrlUtils urlUtils;
     
     /**
      * Creates a new <code>SearchImageTable</code> instance.
@@ -156,8 +160,10 @@ public class SearchImageAnnotationView extends SearchFacetTable {
                 bodyRows.add(bodyRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        pageData.load(pageArray, driver.getCurrentUrl());
+
+        return pageData;
     }
     
     

@@ -25,6 +25,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
@@ -36,6 +37,7 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page.
  */
+@Component
 public class SearchPage {
     private final WebDriver            driver;
     private final int                  timeoutInSeconds;
@@ -72,6 +74,9 @@ public class SearchPage {
 
     @Autowired
     protected CommonUtils commonUtils;
+
+    @Autowired
+    DataReaderFactory dataReaderFactory;
 
     @Autowired
     protected PhenotypePipelineDAO phenotypePipelineDAO;
@@ -1231,7 +1236,7 @@ public class SearchPage {
             downloadUrlBase = downloadUrlBase.substring(pos);
             String downloadTarget = baseUrl + downloadUrlBase;
             URL downloadUrl = new URL(downloadTarget);
-            DataReader dataReader = DataReaderFactory.create(downloadUrl);
+            DataReader dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
 
         } catch (NoSuchElementException | TimeoutException te) {
