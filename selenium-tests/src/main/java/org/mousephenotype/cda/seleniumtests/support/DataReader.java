@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URL;
@@ -32,6 +33,9 @@ import java.util.List;
 public abstract class DataReader {
     
     protected URL url;
+
+    @Autowired
+    DataReaderFactory dataReaderFactory;
     
     public DataReader() {
 
@@ -71,7 +75,7 @@ public abstract class DataReader {
         String[][] data = new String[maxRows][];
         DataReader dataReader = null;
         try {
-            dataReader = DataReaderFactory.create(url);
+            dataReader = dataReaderFactory.create(url);
  //System.out.println("After create()");
             dataReader.open();
  //System.out.println("After open()");
@@ -128,7 +132,7 @@ public abstract class DataReader {
         int lineCount = 0;
         DataReader dataReader = null;
         try {
-            dataReader = DataReaderFactory.create(url);
+            dataReader = dataReaderFactory.create(url);
             dataReader.open();
             
             while ((dataReader.getLine()) != null) {

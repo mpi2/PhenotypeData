@@ -73,6 +73,9 @@ public class GeneTable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
+    protected GridMap pageData;
+
+    @Autowired
     TestUtils testUtils;
 
     @Autowired
@@ -216,7 +219,8 @@ public class GeneTable {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
                     if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
-                        data = new GridMap(postQcList, target);
+                        data = pageData.load(postQcList, target);
+
                         return data;
                     }
                 }
@@ -225,7 +229,8 @@ public class GeneTable {
             sourceRowIndex++;
         }
 
-        data = new GridMap(postQcList, target);
+        data = pageData.load(postQcList, target);
+
         return data;
     }
 
