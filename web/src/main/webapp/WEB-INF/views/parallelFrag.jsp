@@ -17,7 +17,6 @@
 <script type="text/javascript" src="${baseUrl}/js/vendor/underscore.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/vendor/backbone.js"></script>
 
-<script type="text/javascript" src="${baseUrl}/js/data/IMPC_CBC.js"></script>
 <script src="${baseUrl}/js/vendor/jquery/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="${baseUrl}/js/charts/parallel/filter.js"></script>
 
