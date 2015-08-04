@@ -645,23 +645,24 @@ public class GenesController {
 		List<String> ncbiIds = new ArrayList<String>();
 		List<String> ccdsIds = new ArrayList<String>();
 
-//		List<String> xrefs = gene.getXrefs();
-//		for (Xref xref : xrefs) {
-//			if (xref.getXrefDatabaseId() == ensembl.getId()) {
-//				ensemblIds.add(xref.getXrefAccession());
-//			} else if (xref.getXrefDatabaseId() == vega.getId()) {
-//				vegaIds.add(xref.getXrefAccession());
-//			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
-//				ncbiIds.add(xref.getXrefAccession());
-//			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
-//				ccdsIds.add(xref.getXrefAccession());
-//			}
-//		}
-//
-//		model.addAttribute("ensemblIds", ensemblIds);
-//		model.addAttribute("vegaIds", vegaIds);
-//		model.addAttribute("ncbiIds", ncbiIds);
-//		model.addAttribute("ccdsIds", ccdsIds);
+		List<String> xrefs = gene.getXrefs();
+		if(gene.getEnsemblGeneIds()!=null){
+			ensemblIds=gene.getEnsemblGeneIds();
+		}
+		if(gene.getVegaIds()!=null){
+			vegaIds=gene.getVegaIds();
+		}
+		if(gene.getCcdsIds()!=null){
+			ccdsIds=gene.getCcdsIds();
+		}
+		if(gene.getNcbiIds()!=null){
+			gene.getNcbiIds();
+		}
+
+		model.addAttribute("ensemblIds", ensemblIds);
+		model.addAttribute("vegaIds", vegaIds);
+		model.addAttribute("ncbiIds", ncbiIds);
+		model.addAttribute("ccdsIds", ccdsIds);
 
 		model.addAttribute("gene", gene);
 		return "genomeBrowser";
