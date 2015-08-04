@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import net.sf.json.JSONObject;
@@ -42,10 +43,10 @@ public class ParallelCoordinatesDTO {
 	String geneSymbol;
 	String geneAccession;
 	HashMap<String, MeanBean> means;
-	List<Parameter> allColumns;
+	List<ParameterDTO> allColumns;
  	
 	
-	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, List<Parameter> allColumns){
+	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, List<ParameterDTO> allColumns){
 		
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
@@ -53,7 +54,7 @@ public class ParallelCoordinatesDTO {
 		means = new HashMap<>();
 		this.allColumns = allColumns;
 		
-		for (Parameter parameter: allColumns){
+		for (ParameterDTO parameter: allColumns){
 			if (sortMap.get(parameter.getStableId()) % 100 != 0){
 				means.put(parameter.getName(), new MeanBean( null, parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
 			} 

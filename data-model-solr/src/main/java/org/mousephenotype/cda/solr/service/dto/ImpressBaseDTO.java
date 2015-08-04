@@ -114,5 +114,22 @@ public class ImpressBaseDTO {
 		return comp;
 	}  
 	
+	/**
+	 * @author tudose
+	 * @since 2015/08/04
+	 * @return
+	 */
+	public static Comparator<ImpressBaseDTO> getComparatorByStableId()
+	{   
+		Comparator<ImpressBaseDTO> comp = new Comparator<ImpressBaseDTO>(){
+	    @Override
+	    public int compare(ImpressBaseDTO a, ImpressBaseDTO b)
+	    {
+	        return a.getStableId().compareTo(b.getStableId());
+	    }        
+		};
+		return comp;
+	}  
+	
 	
 }
