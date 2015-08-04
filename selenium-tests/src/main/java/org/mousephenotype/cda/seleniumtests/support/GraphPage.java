@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.exception.DownloadException;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.DownloadType;
@@ -191,9 +190,9 @@ public class GraphPage {
      * value contains a list of download data by section, where a section is
      * identified as starting with a column heading.
      * 
-     * @throws DownloadException
+     * @throws TestException
      */
-    public List<DownloadSection> loadAllDownloadData() throws DownloadException {
+    public List<DownloadSection> loadAllDownloadData() throws TestException {
         List<DownloadSection> retVal = new ArrayList<>();
         
         // Extract the TSV data.
@@ -206,27 +205,30 @@ public class GraphPage {
         // Get the download stream data.
         List<List<List<String>>> downloadBlockTsv;
         List<List<List<String>>> downloadBlockXls;
-        
+        String[][] data;
+        DataReader dataReader;
+
+
         try {
-            URL url = new URL(downloadTargetTsv);
-            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-            String[][] allGraphData = dataReaderTsv.getData();
-            downloadBlockTsv = parseDownloadStream(allGraphData);
+            URL downloadUrl = new URL(downloadTargetTsv);
+            dataReader = DataReaderFactory.create(downloadUrl);
+            data = dataReader.getData();
+            downloadBlockTsv = parseDownloadStream(data);
             
         } catch (IOException e) {
-            throw new DownloadException("Error parsing TSV", e);
+            throw new TestException("Error parsing TSV", e);
         }
         // Extract the XLS data.
         String downloadTargetXls = testUtils.patchUrl(baseUrl, downloadTargetUrlBase + "xls", "/export?");
         
         try {
-            URL url = new URL(downloadTargetXls);
-            DataReaderXls dataReaderXls = new DataReaderXls(url);
-            String[][] allGraphData = dataReaderXls.getData();
-            downloadBlockXls = parseDownloadStream(allGraphData);
+            URL downloadUrl = new URL(downloadTargetXls);
+            dataReader = DataReaderFactory.create(downloadUrl);
+            data = dataReader.getData();
+            downloadBlockXls = parseDownloadStream(data);
             
         } catch (IOException e) {
-            throw new DownloadException("Error parsing XLS", e);
+            throw new TestException("Error parsing XLS", e);
         }
         
         for (int i = 0; i < downloadBlockTsv.size(); i++) {
