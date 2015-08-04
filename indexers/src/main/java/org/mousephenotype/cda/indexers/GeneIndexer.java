@@ -523,8 +523,8 @@ public class GeneIndexer extends AbstractIndexer {
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData=populateEmbryoData();
-        this.populateGeneGenomicCoords();
-        this.populateXrefs();
+        genomicFeatureCoordinates=this.populateGeneGenomicCoords();
+        genomicFeatureXrefs=this.populateXrefs();
     }
 
     private Map<String, List<EmbryoStrain>> populateEmbryoData() {
@@ -562,7 +562,7 @@ public class GeneIndexer extends AbstractIndexer {
     }
 
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
-
+    	Map<String, List<Map<String, String>>> localPhenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
         logger.info("populating PCS pipeline info");
         String queryString = "select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"
                 + " from phenotype_call_summary pcs"
@@ -589,48 +589,52 @@ public class GeneIndexer extends AbstractIndexer {
                 rowMap.put("proc_param_stable_id", resultSet.getString("proc.stable_id") + "___" + resultSet.getString("param.stable_id"));
                 List<Map<String, String>> rows = null;
 
-                if (phenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(gf_acc)) {
-                    rows = phenotypeSummaryGeneAccessionsToPipelineInfo.get(gf_acc);
+                if (localPhenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(gf_acc)) {
+                    rows = localPhenotypeSummaryGeneAccessionsToPipelineInfo.get(gf_acc);
                 } else {
                     rows = new ArrayList<>();
                 }
                 rows.add(rowMap);
 
-                phenotypeSummaryGeneAccessionsToPipelineInfo.put(gf_acc, rows);
+                localPhenotypeSummaryGeneAccessionsToPipelineInfo.put(gf_acc, rows);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return phenotypeSummaryGeneAccessionsToPipelineInfo;
+        return localPhenotypeSummaryGeneAccessionsToPipelineInfo;
 
     }
     
     
     private Map<String, List<String>> populateXrefs() {
-
+    	
+        Map<String, List<String>> localGenomicFeatureXrefs = new HashMap<>();
         logger.info("populating xref info");
         String queryString = "select acc, xref_acc from xref";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
-
+            List<String> xrefs = null;
             while (resultSet.next()) {
                 String gf_acc = resultSet.getString("acc");
-
-                List<String> xrefs = new ArrayList<>();
+                if(!localGenomicFeatureXrefs.containsKey(gf_acc)){
+                	xrefs = new ArrayList<>();
+                }
+                
                 xrefs.add(resultSet.getString("xref_acc"));
-                genomicFeatureXrefs.put(gf_acc, xrefs);
+                localGenomicFeatureXrefs.put(gf_acc, xrefs);
             }
+           
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return genomicFeatureXrefs;
+        return localGenomicFeatureXrefs;
 
     }
     private Map<String, Map<String, String>> populateGeneGenomicCoords() {
-
+    	Map<String, Map<String, String>> localGenomicFeatureCoordinates = new HashMap<>();
         logger.info("populating Gene Genomic location info");
         String queryString = "select  gf.acc, gf.seq_region_id, gf.seq_region_start, gf.seq_region_end, gf.subtype_db_id, gf.db_id from genomic_feature gf";
 
@@ -647,17 +651,17 @@ public class GeneIndexer extends AbstractIndexer {
                 rowMap.put(GeneDTO.SEQ_REGION_END, resultSet.getString("gf.seq_region_end"));
                 
 
-                if (genomicFeatureCoordinates.containsKey(gf_acc)) {
+                if (localGenomicFeatureCoordinates.containsKey(gf_acc)) {
                 	System.err.println("Error: Genomic Feature exists in map already!!!!!");       
                 } 
-                genomicFeatureCoordinates.put(gf_acc, rowMap);
+                localGenomicFeatureCoordinates.put(gf_acc, rowMap);
    
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return genomicFeatureCoordinates;
+        return localGenomicFeatureCoordinates;
 
     }
 
