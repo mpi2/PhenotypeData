@@ -500,7 +500,7 @@ public class SolrIndex2 {
     }
 
     private String getAllProductsUrl(String accession, String allele_name) {
-        log.info("#### getAllProductsUrl");
+
         String qallele_name = "";
 
         if (allele_name != null) {
@@ -519,7 +519,7 @@ public class SolrIndex2 {
     }
 
     private String getAllProductsUrl(String accession, String cassette, String design) {
-        log.info("#### getAllProductsUrl");
+    	
         String qallele_search = "";
 
         if (cassette != null && design != null) {
@@ -537,7 +537,7 @@ public class SolrIndex2 {
     }
 
     private String getMiceAndEsCellsUrl(String accession, String allele_name) {
-        log.info("#### getMiceAndEsCellsUrl");
+
         String qallele_name = "";
 
         if (allele_name != null) {
@@ -586,7 +586,7 @@ public class SolrIndex2 {
 
 
     private String getAlleleUrl(String accession, String allele_name) {
-        log.info("#### getMiceAndEsCellsUrl");
+        
         String qallele_name = "";
 
         if (allele_name != null) {

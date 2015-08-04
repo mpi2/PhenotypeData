@@ -181,11 +181,11 @@ public class GenesController {
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		// see if the gene exists first:
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		GeneDTO geneDto=geneService.getGeneById(acc);
-		model.addAttribute("geneDTO",geneDto);
+		//GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
+		GeneDTO gene=geneService.getGeneById(acc);
+		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
-			log.warn("Gene object from database for " + acc + " can't be found.");
+			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 
@@ -246,8 +246,10 @@ public class GenesController {
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
 			model.addAttribute("hasPreQcData", hasPreQc);
 
-			Map<String, String> prod = geneService.getProductionStatus(acc, request.getAttribute("mappedHostname").toString());
+			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
@@ -294,7 +296,7 @@ public class GenesController {
 		boolean ikmcError = false;
 
 		try {
-			countIKMCAlleles = solrIndex.getNumFound("allele_name:" + gene.getSymbol(), solrCoreName, mode, "");
+			countIKMCAlleles = solrIndex.getNumFound("allele_name:" + gene.getMarkerSymbol(), solrCoreName, mode, "");
 		} catch (Exception e) {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();

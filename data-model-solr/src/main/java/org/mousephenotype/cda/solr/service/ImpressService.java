@@ -205,9 +205,9 @@ public class ImpressService {
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
 				.setFields(ImpressDTO.PIPELINE_STABLE_KEY);
 
-			QueryResponse response = solr.query(query);
+			List<ImpressDTO> response = solr.query(query).getBeans(ImpressDTO.class);
 
-			return response.getBeans(ImpressDTO.class).get(0).getPipelineStableKey();
+			return response.get(0).getPipelineStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -235,7 +235,7 @@ public class ImpressService {
 	 * @return a string that either has the name of the procedure or and HTML
 	 *         anchor tag to be used by the chart
 	 */
-	/* Temp comment out as pipeline core does not contian all procedures.
+	
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
@@ -247,7 +247,7 @@ public class ImpressService {
 		return anchor;
 	}
 
-*/
+
 	public String getPipelineUrlByStableId(String stableId){
 		Integer pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null ){
