@@ -89,9 +89,6 @@ public class GenesController {
 	private PhenotypeSummaryDAO phenSummary;
 
 	@Autowired
-	private GenomicFeatureDAO genesDao;
-
-	@Autowired
 	private GwasDAO gwasDao;
 
 	@Autowired
@@ -630,13 +627,13 @@ public class GenesController {
 	 */
 	@RequestMapping("/genomeBrowser/{acc}")
 	public String genomeBrowser(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException{
 
-		System.out.println("genome browser called");
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		System.out.println("gene in browser=" + gene);
+		GeneDTO gene=geneService.getGeneById(acc);
+		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
-			log.warn("Gene status for " + acc + " can't be found.");
+			log.warn("Gene object from solr for " + acc + " can't be found.");
+			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
 		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
@@ -648,23 +645,23 @@ public class GenesController {
 		List<String> ncbiIds = new ArrayList<String>();
 		List<String> ccdsIds = new ArrayList<String>();
 
-		List<Xref> xrefs = gene.getXrefs();
-		for (Xref xref : xrefs) {
-			if (xref.getXrefDatabaseId() == ensembl.getId()) {
-				ensemblIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == vega.getId()) {
-				vegaIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
-				ncbiIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
-				ccdsIds.add(xref.getXrefAccession());
-			}
-		}
-
-		model.addAttribute("ensemblIds", ensemblIds);
-		model.addAttribute("vegaIds", vegaIds);
-		model.addAttribute("ncbiIds", ncbiIds);
-		model.addAttribute("ccdsIds", ccdsIds);
+//		List<String> xrefs = gene.getXrefs();
+//		for (Xref xref : xrefs) {
+//			if (xref.getXrefDatabaseId() == ensembl.getId()) {
+//				ensemblIds.add(xref.getXrefAccession());
+//			} else if (xref.getXrefDatabaseId() == vega.getId()) {
+//				vegaIds.add(xref.getXrefAccession());
+//			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
+//				ncbiIds.add(xref.getXrefAccession());
+//			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
+//				ccdsIds.add(xref.getXrefAccession());
+//			}
+//		}
+//
+//		model.addAttribute("ensemblIds", ensemblIds);
+//		model.addAttribute("vegaIds", vegaIds);
+//		model.addAttribute("ncbiIds", ncbiIds);
+//		model.addAttribute("ccdsIds", ccdsIds);
 
 		model.addAttribute("gene", gene);
 		return "genomeBrowser";
