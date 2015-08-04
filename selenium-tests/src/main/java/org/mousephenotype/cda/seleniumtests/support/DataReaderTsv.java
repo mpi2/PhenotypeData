@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,11 +42,9 @@ public class DataReaderTsv extends DataReader {
     /**
      * Instantiates a new <code>DataReader</code> that knows how to serve up
      * tab-separated streams
-     * 
-     * @param url The url defining the input stream
      */
-    public DataReaderTsv(URL url) {
-        super(url);
+    public DataReaderTsv() {
+
     }
     
     /**
@@ -108,17 +105,4 @@ public class DataReaderTsv extends DataReader {
     public DataType getType() {
         return DataType.TSV;
     }
-    
-    
-    // GETTERS
-    
-    
-    /**
-     * Returns the url
-     * @return the url
-     */
-    public URL getUrl() {
-        return url;
-    }
-    
 }

@@ -560,12 +560,13 @@ public class GenePage {
             int pos = downloadUrlBase.indexOf("/export?");
             downloadUrlBase = downloadUrlBase.substring(pos);
             String downloadTarget = baseUrl + downloadUrlBase + "tsv";
+            DataReader dataReader;
 
             // Get the download stream and statistics for the TSV stream.
-            URL url = new URL(downloadTarget);
-            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
-            
-            data = dataReaderTsv.getData();
+            URL downloadUrl = new URL(downloadTarget);
+            dataReader = DataReaderFactory.create(downloadUrl);
+            data = dataReader.getData();
+
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + geneId + "(" + target + ") but found none.";
             status.addError(message);
@@ -601,12 +602,13 @@ public class GenePage {
             int pos = downloadUrlBase.indexOf("/export?");
             downloadUrlBase = downloadUrlBase.substring(pos);
             String downloadTarget = baseUrl + downloadUrlBase + "xls";
+            DataReader dataReader;
 
             // Get the download stream and statistics for the XLS stream.
-            URL url = new URL(downloadTarget);
-            DataReaderXls dataReaderXls = new DataReaderXls(url);
-            
-            data = dataReaderXls.getData();
+            URL downloadUrl = new URL(downloadTarget);
+            dataReader = DataReaderFactory.create(downloadUrl);
+            data = dataReader.getData();
+
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + geneId + "(" + target + ") but found none.";
             status.addError(message);
