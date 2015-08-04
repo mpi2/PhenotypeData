@@ -19,7 +19,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 //import org.mousephenotype.cda.enumerations.ObservationType;
 
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -71,14 +71,14 @@ public class GraphSectionTimeSeries extends GraphSection {
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the categorical chart section.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public GraphSectionTimeSeries(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws GraphTestException {
+    public GraphSectionTimeSeries(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
         super(driver, wait, graphUrl, chartElement);
     }
     
     @Override
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.
         
         if (getHeading().getObservationType() != ObservationType.time_series) {

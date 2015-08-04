@@ -79,19 +79,22 @@ public class GenePageTest {
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
-    private SeleniumWrapper wrapper;
+    protected CommonUtils commonUtils;
+
+    @Autowired
+    protected GenePage genePage;
 
     @Autowired
     protected TestUtils testUtils;
 
     @Autowired
-    CommonUtils commonUtils;
-
-    protected WebDriver driver;
+    protected SeleniumWrapper wrapper;
 
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
+
+    protected WebDriver driver;
 
     @PostConstruct
     public void initialise() throws Exception {
@@ -153,7 +156,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testForBadGeneIds() throws Exception {
         PageStatus status = new PageStatus();
         String testName = "testForBadGeneIds";
@@ -210,7 +213,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList(geneService.getAllGenes());
@@ -230,7 +233,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -256,7 +259,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -282,7 +285,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -308,7 +311,7 @@ public class GenePageTest {
      * @throws SolrServerException [
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -328,7 +331,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
@@ -382,7 +385,7 @@ public class GenePageTest {
     }
 
     @Test
-//    @Ignore
+//@Ignore
     public void testAkt2() throws Exception {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testAkt2";
@@ -403,10 +406,9 @@ public class GenePageTest {
         String geneId = "MGI:104874";
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("URL: " + target);
-        GenePage genePage;
 
         try {
-            genePage = new GenePage(driver, wait, target, geneId, baseUrl);
+            genePage.load(target, geneId);
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
             System.out.println(message);
@@ -649,7 +651,7 @@ public class GenePageTest {
 
     // Tests gene page with more than one Production Status [blue] order button.
     @Test
-@Ignore
+//@Ignore
     public void testOrderButtons() throws SolrServerException {
         String testName = "testOrderButtons";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
@@ -665,10 +667,9 @@ public class GenePageTest {
         String geneId = "MGI:1353431";
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("URL: " + target);
-        GenePage genePage;
 
         try {
-            genePage = new GenePage(driver, wait, target, geneId, baseUrl);
+            genePage.load(target, geneId);
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
             System.out.println(message);
@@ -685,7 +686,7 @@ public class GenePageTest {
                 buttonElement.click();
 
                 // Verify that we're in the order section.
-                boolean expectedUrlEnding = driver.getCurrentUrl().endsWith("#order2");
+                boolean expectedUrlEnding = genePage.getCurrentUrl().endsWith("#order2");
                 if ( ! expectedUrlEnding) {
                     status.addError("Expected url to end in '#order2'. URL: " + driver.getCurrentUrl());
                 }
@@ -724,16 +725,11 @@ public class GenePageTest {
             }
             i++;
 
-//if (i == 1) geneId = "MGI:104874";
-//if (i == 2) geneId = "MGI:1096574";
-//if (i == 3) geneId = "MGI:1352464";
             target = baseUrl + "/genes/" + geneId;
             logger.debug("gene[" + i + "] URL: " + target);
 
             try {
-                driver.get(target);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
-                GenePage genePage = new GenePage(driver, wait, target, geneId, baseUrl);
+                genePage.load(target, geneId);
                 boolean phenotypesTableRequired = false;
                 genePage.validate(phenotypesTableRequired);
             } catch (NoSuchElementException | TimeoutException te) {
