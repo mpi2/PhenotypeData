@@ -24,6 +24,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -44,51 +45,47 @@ import java.util.regex.Pattern;
  *     'continuousTable')</li>
  * </ul>
  */
+@Component
 public abstract class GraphSection {
-    protected final WebElement chartElement;
-    protected DownloadSection downloadSection;
-    protected final WebDriver driver;
-    protected final String graphUrl;
-    protected final WebDriverWait wait;
-    
-    private GraphCatTable catTable = null;
-    private GraphContinuousTable continuousTable;
-    private GraphGlobalTestTable globalTestTable;
-    private GraphHeading heading;
-    private MoreStatisticsLink moreStatisticsLink;
-    private ChartType chartType = null;
+    protected WebElement chartElement;
+    protected ChartType chartType = null;
+    protected WebDriver driver;
+    protected String graphUrl;
+    protected MoreStatisticsLink moreStatisticsLink;
+    protected WebDriverWait wait;
 
     @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    protected GraphCatTable catTable;
 
     @Autowired
     protected CommonUtils commonUtils;
 
     @Autowired
-    protected TestUtils testUtils;
-    
-    /**
-     * Creates a new <code>GraphSection</code> instance
-     * 
-     * @param driver <code>WebDriver</code> instance
-     * @param wait <code>WebDriverWait</code> instance
-     * @param graphUrl the graph url
-     * @param chartElement <code>WebElement</code> pointing to the HTML
-     *                     div.chart element
-     * 
-     * @throws TestException
-     */
-    public GraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
-        this.driver = driver;
-        this.wait = wait;
-        /* NOT USED - ANNOTATION NOW USED INSTEAD.
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
-        */
-        this.graphUrl = graphUrl;
-        this.chartElement = chartElement;
-        this.chartType = getChartType(chartElement);
+    protected GraphContinuousTable continuousTable;
 
-        load();
+    @Autowired
+    protected DownloadSection downloadSection;
+
+    @Autowired
+    protected GraphGlobalTestTable globalTestTable;
+
+    @Autowired
+    GraphCatTable graphCatTable;
+
+    @Autowired
+    protected GraphHeading heading;
+
+    @Autowired
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
+    protected TestUtils testUtils;
+
+    @Autowired
+    SeleniumWrapper wrapper;
+
+    public GraphSection() {
+
     }
     
     public PageStatus validate() throws TestException {
@@ -174,23 +171,34 @@ public abstract class GraphSection {
         
         return chartTypeLocal;
     }
-    
+
     /**
      * Load the section data.
+     *
+     * @param graphUrl the graph url
+     * @param chartElement the chart <code>WebElement</code>
+     * @param timeoutInSeconds the wait timeout
+     *
+     * @throws TestException
      */
-    private void load() throws TestException {
-        
+    public void load(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
+        this.driver = wrapper.getDriver();
+        this.wait = new WebDriverWait(driver, timeoutInSeconds);
+        this.graphUrl = graphUrl;
+        this.chartElement = chartElement;
+        this.chartType = getChartType(chartElement);
+
         try {
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
             
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {
-                this.catTable = new GraphCatTable(elements.get(0));
+                graphCatTable.load(elements.get(0));
             }
             
             elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'continuousTable')]"));
             if ( ! elements.isEmpty()) {
-                this.continuousTable = new GraphContinuousTable(elements.get(0));
+                this.continuousTable = continuousTable.load(elements.get(0));
             }
             
             // Scrape this graph's data off the page.

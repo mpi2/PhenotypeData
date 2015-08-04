@@ -20,6 +20,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +35,11 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'diseaseGrid' HTML table for diseases.
  */
+@Component
 public class SearchDiseaseTable extends SearchFacetTable {
+
+    @Autowired
+    protected GridMap pageData;
     
     public static final int COL_INDEX_DISEASE_ID      = 0;
     public static final int COL_INDEX_DISEASE_NAME    = 1;
@@ -45,7 +51,6 @@ public class SearchDiseaseTable extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_CANDIDATE_MGI;           // Should always point to the last (highest-numbered) index.
     
     private final List<DiseaseRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
 
     private final static Map<TableComponent, By> map = new HashMap();
     static {
@@ -157,10 +162,11 @@ public class SearchDiseaseTable extends SearchFacetTable {
                 bodyRows.add(diseaseRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        pageData.load(pageArray, driver.getCurrentUrl());
+
+        return pageData;
     }
-    
     
     
     // PRIVATE CLASSES
