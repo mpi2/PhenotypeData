@@ -44,7 +44,7 @@ public class DataReaderXls extends DataReader {
      * @param url The url defining the input stream
      */
     public DataReaderXls(URL url) {
-        super(url);
+
     }
     
     /**
@@ -108,16 +108,4 @@ public class DataReaderXls extends DataReader {
     public DataType getType() {
         return DataType.XLS;
     }
-    
-    // GETTERS
-    
-    
-    /**
-     * Returns the url
-     * @return the url
-     */
-    public URL getUrl() {
-        return url;
-    }
-    
 }

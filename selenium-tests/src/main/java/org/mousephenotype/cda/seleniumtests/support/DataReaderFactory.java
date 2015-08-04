@@ -14,9 +14,10 @@
  * License.
  *******************************************************************************/
 
-
-
 package org.mousephenotype.cda.seleniumtests.support;
+
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URL;
 
@@ -25,6 +26,15 @@ import java.net.URL;
  * @author mrelac
  */
 public class DataReaderFactory {
+
+    @Autowired
+    protected static DataReaderTsv dataReaderTsv;
+
+    @Autowired
+    protected static DataReaderXls dataReaderXls;
+
+    static DataReader dataReader;
+
     /**
      * Given a URL, this method returns a <code>DataReader</code> of the correct
      * type to handle the stream identified by <code>url</code>.
@@ -32,8 +42,9 @@ public class DataReaderFactory {
      * create the correctly typed <code>DataReader</code>)
      * @return a <code>DataReader</code> capable of correctly handling the stream
      * identified by <code>url</code>.
+     * @throws TestException
      */
-    public static DataReader create(URL url) {
+    public static DataReader create(URL url) throws TestException {
         String query = url.getQuery();
         String[] queryArray = query.split("&");
         for (String s : queryArray) {
@@ -41,17 +52,20 @@ public class DataReaderFactory {
                 String filetype = s.replace("fileType=", "");
                 switch (filetype) {
                     case "tsv":
-                        return new DataReaderTsv(url);
+                        dataReader = dataReaderTsv;
+                        break;
                         
                     case "xls":
-                        return new DataReaderXls(url);
+                        dataReader = dataReaderXls;
                         
                     default:
                         throw new RuntimeException("Unknown stream type '" + filetype + "'.");
                 }
+
+                dataReader.setUrl(url);
             }
         }
         
-        throw new RuntimeException("Expected url query with substring 'fileType'. url query = '" + query + "'.");
+        throw new TestException("Expected url query with substring 'fileType'. url query = '" + query + "'.");
     }
 }

@@ -1231,22 +1231,9 @@ public class SearchPage {
             downloadUrlBase = downloadUrlBase.substring(pos);
             String downloadTarget = baseUrl + downloadUrlBase;
             URL downloadUrl = new URL(downloadTarget);
+            DataReader dataReader = DataReaderFactory.create(downloadUrl);
+            data = dataReader.getData();
 
-            switch (downloadType) {
-                case ALL_TSV:
-                case PAGINATED_TSV:
-                    // Get the download stream and statistics for the TSV stream.
-                    DataReaderTsv dataReaderTsv = new DataReaderTsv(downloadUrl);
-                    data = dataReaderTsv.getData();
-                    break;
-
-                case ALL_XLS:
-                case PAGINATED_XLS:
-                    // Get the download stream and statistics for the XLS stream.
-                    DataReaderXls dataReaderXls = new DataReaderXls(downloadUrl);
-                    data = dataReaderXls.getData();
-                    break;
-            }
         } catch (NoSuchElementException | TimeoutException te) {
             throw new RuntimeException("SearchPage.getDownload: Expected page for target: " + target + ".");
         } catch (IllegalArgumentException iae) {
