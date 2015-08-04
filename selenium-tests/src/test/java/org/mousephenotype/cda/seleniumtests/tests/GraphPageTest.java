@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -41,10 +41,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -82,20 +84,26 @@ public class GraphPageTest {
     }
 
     @Autowired
-    protected GeneService geneService;
+    protected CommonUtils commonUtils;
 
     @Autowired
-    protected MpService mpService;
+    protected WebDriver driver;
+
+    @Autowired
+    protected GenePage genePage;
+
+    @Autowired
+    protected GeneService geneService;
 
     @Autowired
     @Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
 
     @Autowired
-    protected String baseUrl;
+    protected MpService mpService;
 
     @Autowired
-    protected WebDriver driver;
+    private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @Autowired
     protected String seleniumUrl;
@@ -104,13 +112,14 @@ public class GraphPageTest {
     protected String solrUrl;
 
     @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
     protected TestUtils testUtils;
 
     @Autowired
-    protected CommonUtils commonUtils;
+    protected SeleniumWrapper wrapper;
+
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
 
     private WebDriverWait wait; // = new WebDriverWait(driver, timeout_in_seconds);
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -156,7 +165,7 @@ public class GraphPageTest {
     // PRIVATE METHODS
 
 
-    private void graphEngine(String testName, List<String> graphUrls) throws GraphTestException {
+    private void graphEngine(String testName, List<String> graphUrls) throws TestException {
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
@@ -181,7 +190,7 @@ public class GraphPageTest {
                 }
                 statuses.add(status);
 
-            } catch (GraphTestException gte) {
+            } catch (TestException gte) {
                 statuses.addError(gte.getLocalizedMessage());
             }
 
@@ -194,7 +203,7 @@ public class GraphPageTest {
         System.out.println();
     }
 
-    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, ChartType chartType) throws GraphTestException {
+    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, ChartType chartType) throws TestException {
         String target;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -208,7 +217,7 @@ public class GraphPageTest {
         for (GraphTestDTO geneGraph : geneGraphs) {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
 
-            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), baseUrl);
+            genePage.load(target, geneGraph.getMgiAccessionId());
             genePage.selectGenesLength(100);
             List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName());
 
@@ -243,7 +252,7 @@ public class GraphPageTest {
     // Tests known graph URLs that have historically been broken or are interesting cases, such as 2 graphs per page.
     @Test
 //@Ignore
-    public void testKnownGraphs() throws GraphTestException {
+    public void testKnownGraphs() throws TestException {
         String testName = "testKnownGraphs";
         List<String> graphUrls = Arrays.asList( new String[] {
             "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
@@ -265,7 +274,7 @@ public class GraphPageTest {
 
     @Test
 //@Ignore
-    public void testPreQcGraphs() throws GraphTestException {
+    public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PREQC, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
@@ -281,7 +290,7 @@ public class GraphPageTest {
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), baseUrl);
+            genePage.load(target, geneGraph.getMgiAccessionId());
             genePage.selectGenesLength(100);
             GraphValidatorPreqc validator = new GraphValidatorPreqc();
             PageStatus status = validator.validate(driver, genePage, geneGraph);
@@ -296,7 +305,7 @@ public class GraphPageTest {
 
     @Test
 //@Ignore
-    public void testCategoricalGraphs() throws GraphTestException {
+    public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
@@ -306,7 +315,7 @@ public class GraphPageTest {
 
     @Test
 //@Ignore
-    public void testUnidimensionalGraphs() throws GraphTestException {
+    public void testUnidimensionalGraphs() throws TestException {
         String testName = "testUnidimensionalGraphs";
 
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
@@ -316,7 +325,7 @@ public class GraphPageTest {
 
     @Test
 //@Ignore
-    public void testABRGraphs() throws GraphTestException {
+    public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
@@ -326,7 +335,7 @@ public class GraphPageTest {
 
     @Test
 //@Ignore
-    public void testPieGraphs() throws GraphTestException {
+    public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PIE, 100);
@@ -336,7 +345,7 @@ public class GraphPageTest {
 
     @Test
 //@Ignore
-    public void testTimeSeriesGraphs() throws GraphTestException {
+    public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 
         List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);

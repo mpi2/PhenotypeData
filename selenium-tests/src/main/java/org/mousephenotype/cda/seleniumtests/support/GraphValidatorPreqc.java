@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -41,7 +42,7 @@ public class GraphValidatorPreqc {
     @Autowired
     protected TestUtils testUtils;
 
-    public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) {
+    public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
         PageStatus status = new PageStatus();
         String message;
 

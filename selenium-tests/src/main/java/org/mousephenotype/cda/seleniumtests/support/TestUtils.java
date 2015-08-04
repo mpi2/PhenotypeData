@@ -25,7 +25,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
@@ -63,10 +63,10 @@ public class TestUtils {
 
     public static final String NO_SUPPORTING_DATA = "No supporting data supplied.";
 
-    Map<String, String> testIterationsHash;
+    Map<String, String> testIterationsHash = new HashMap<>();
 
     @Autowired
-    CommonUtils commonUtils;
+    private CommonUtils commonUtils = new CommonUtils();
 
     @Autowired
     ObservationService observationService;
@@ -1050,9 +1050,9 @@ public class TestUtils {
      * @return <em>count</em> <code>GraphTestDTO</code> instances matching genes
      * with graph links of type <code>chartType</code>.
      *
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws GraphTestException {
+    public List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws TestException {
         List<GraphTestDTO> geneGraphs = new ArrayList();
 
         if (count == -1)
@@ -1065,7 +1065,7 @@ public class TestUtils {
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new GraphTestException("TestUtils.getGeneGraphs() CATEGORICAL_STACKED_COLUMN EXCEPTION: " + e.getLocalizedMessage());
+                    throw new TestException("TestUtils.getGeneGraphs() CATEGORICAL_STACKED_COLUMN EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
 
@@ -1075,7 +1075,7 @@ public class TestUtils {
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new GraphTestException("TestUtils.getGeneGraphs() PIE EXCEPTION: " + e.getLocalizedMessage());
+                    throw new TestException("TestUtils.getGeneGraphs() PIE EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
 
@@ -1085,7 +1085,7 @@ public class TestUtils {
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new GraphTestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_ABR_PLOT EXCEPTION: " + e.getLocalizedMessage());
+                    throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_ABR_PLOT EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
 
@@ -1096,7 +1096,7 @@ public class TestUtils {
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new GraphTestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
+                    throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
                 }
                 break;
 
@@ -1105,7 +1105,7 @@ public class TestUtils {
                     geneGraphs = preQcService.getGeneAccessionIds(count);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new GraphTestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
+                    throw new TestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
                 }
             break;
 
@@ -1119,7 +1119,7 @@ public class TestUtils {
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new GraphTestException("TestUtils.getGeneGraphs() TIME_SERIES_XXX EXCEPTION: " + e.getLocalizedMessage());
+                    throw new TestException("TestUtils.getGeneGraphs() TIME_SERIES_XXX EXCEPTION: " + e.getLocalizedMessage());
                 }
             break;
 
