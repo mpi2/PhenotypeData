@@ -29,9 +29,11 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.TreeSet;
 
 @Controller
 public class ParallelCoordinatesController {
@@ -53,7 +55,8 @@ public class ParallelCoordinatesController {
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
-		List<ImpressBaseDTO> procedures = os.getProceduresByPipeline(null, "unidimensional", "IMPC", 2);
+		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
+		procedures.addAll(os.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay));
 		model.addAttribute("procedures", procedures);
 		
 		return "parallel2";
@@ -66,9 +69,11 @@ public class ParallelCoordinatesController {
 	throws SolrServerException{
 
 		if (procedureIds == null){
-			model.addAttribute("procedure", "");			
-		}
-		else {
+			
+			model.addAttribute("procedure", "");	
+			
+		} else {
+			
 			String data = srs.getGenotypeEffectFor(procedureIds , false);
 			model.addAttribute("dataJs", data + ";");
 			String title = "";

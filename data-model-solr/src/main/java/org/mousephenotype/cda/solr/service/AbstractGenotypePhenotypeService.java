@@ -1041,4 +1041,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public SolrServer getSolrServer() {
         return solr;
     }
+    	
+    
 }

@@ -15,8 +15,13 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import java.util.Comparator;
+
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
+
 /**
  * Class to act as Map value DTO for impress data
+ * @author tudose
  */
 public class ImpressBaseDTO {
 	
@@ -91,6 +96,23 @@ public class ImpressBaseDTO {
 		return "ImpressBaseDTO [id=" + id + ", stableKey=" + stableKey + ", stableId=" + stableId + ", name=" + name
 				+ "]";
 	}
+	
+	/**
+	 * @author tudose
+	 * @since 2015/08/04
+	 * @return
+	 */
+	public static Comparator<ImpressBaseDTO> getComparatorByName()
+	{   
+		Comparator<ImpressBaseDTO> comp = new Comparator<ImpressBaseDTO>(){
+	    @Override
+	    public int compare(ImpressBaseDTO a, ImpressBaseDTO b)
+	    {
+	        return a.getName().compareTo(b.getName());
+	    }        
+		};
+		return comp;
+	}  
 	
 	
 }

@@ -130,7 +130,7 @@ public class ObservationService extends BasicService {
      * @param resource
      * @return List<ProcedureBean>
      */
-	public List<ImpressBaseDTO> getProceduresByPipeline(String pipelineStableId, String observationType, String resource, Integer minParameterNumber){
+	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip){
 		
 		List<ImpressBaseDTO> procedures = new ArrayList<>();
 		
@@ -165,9 +165,7 @@ public class ObservationService extends BasicService {
 				query.set("facet.pivot", pivotField);
 				
 			}			
-			
-			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
-			
+						
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
@@ -193,7 +191,9 @@ public class ObservationService extends BasicService {
 				
 				for (ImpressBaseDTO proc : procedures){
 					if (proceduresWithMinCount.contains(proc.getName())){
-						proceduresToReturn.add(proc);
+						if (proceduresToSkip != null && !proceduresToSkip.contains(proc.getStableId()) || proceduresToSkip == null ){
+							proceduresToReturn.add(proc);
+						}
 					}
 				}
 				procedures = proceduresToReturn;
