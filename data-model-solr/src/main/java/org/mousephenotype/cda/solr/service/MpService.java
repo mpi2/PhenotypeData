@@ -15,7 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONObject;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -26,20 +31,18 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import net.sf.json.JSONObject;
 
 @Service
-public class MpService {
+public class MpService extends BasicService{
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
 	@Qualifier("mpCore")
@@ -91,7 +94,7 @@ public class MpService {
         QueryResponse rsp;
         rsp = solr.query(solrQuery);
         List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-        Set<String> allPhenotypes = new HashSet();
+        Set<String> allPhenotypes = new HashSet<String>();
 
         for (MpDTO mp : mps) {
             allPhenotypes.add(mp.getMpId());
@@ -107,7 +110,6 @@ public class MpService {
 		solrQuery.setRows(0);
 		QueryResponse rsp = solr.query(solrQuery);
 		System.out.println("solr query in basicbean="+solrQuery);
-		SolrDocumentList res = rsp.getResults();
 
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
@@ -147,10 +149,10 @@ public class MpService {
     // get computationally mapped HP terms of MP from Solr json doc of an MP
     public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
     	// this mapping is computational
-    	List<String> hpIds = doc.getJSONArray("hp_id");
-    	List<String> hpTerms = doc.getJSONArray("hp_term");
+    	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
+    	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
 
-    	Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
+    	Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
 
     	for ( int i=0; i< hpIds.size(); i++  ){
     		SimpleOntoTerm term = new SimpleOntoTerm();

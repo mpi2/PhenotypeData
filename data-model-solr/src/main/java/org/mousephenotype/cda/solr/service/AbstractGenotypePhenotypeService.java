@@ -333,7 +333,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public List<String> getGenesAssocByParamAndMp(String parameterStableId, String phenotype_id)
         throws SolrServerException {
 
-        List<String> res = new ArrayList();
+        List<String> res = new ArrayList<String>();
         SolrQuery query = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\""
             + phenotype_id + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\") AND ("
             + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\") AND "
@@ -416,7 +416,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allTopLevelPhenotypes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            List<String> ids = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+            List<String> ids = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
             for (String id : ids) {
                 allTopLevelPhenotypes.add(id);
             }
@@ -442,7 +442,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrDocumentList res = rsp.getResults();
         HashSet<String> allIntermediateLevelPhenotypes = new HashSet<String>();
         for (SolrDocument doc : res) {
-            List<String> ids = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
+            List<String> ids = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID));
             for (String id : ids) {
                 allIntermediateLevelPhenotypes.add(id);
             }
@@ -543,8 +543,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             for (int i = 0; i < result.size(); i ++) {
                 SolrDocument doc = result.get(i);
                 if (doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID) != null) {
-                    List<String> tlTermIDs = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
-                    List<String> tlTermNames = (List<String>) doc.getFieldValue(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+                    List<String> tlTermIDs = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
+                    List<String> tlTermNames = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
                     int len = tlTermIDs.size();
                     for (int k = 0; k < len; k ++) {
                         tl.put(tlTermIDs.get(k), tlTermNames.get(k));

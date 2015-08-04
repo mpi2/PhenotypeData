@@ -37,7 +37,7 @@ a.filter_control{
 }
 .widgets {
   margin: 0 4% 0 0;
-  height: 120px;
+  /*height: 120px;*/
 }
 .widgets h3 {
   float: left;
