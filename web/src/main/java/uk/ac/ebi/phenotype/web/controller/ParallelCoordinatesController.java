@@ -73,7 +73,8 @@ public class ParallelCoordinatesController {
 		long time = System.currentTimeMillis();
 		if (procedureIds == null){
 			
-			model.addAttribute("procedure", "");	
+			model.addAttribute("procedure", "");
+			model.addAttribute("dataJs", getJsonForParallelCoordinates(null) + ";");	
 			
 		} else {
 			
@@ -98,33 +99,41 @@ public class ParallelCoordinatesController {
 	/**
 	 * @author tudose
 	 * @since 2015/08/04
-	 * @param row
+	 * @param rows
 	 * @return
 	 */
-	protected String getJsonForParallelCoordinates(HashMap<String, ParallelCoordinatesDTO> row){
+	protected String getJsonForParallelCoordinates(HashMap<String, ParallelCoordinatesDTO> rows){
 		
-		String res = "[";
+		String data = "[";
 		String defaultMeans = "";
-		int i = 0;
-    	for (String key: row.keySet()){
-    		ParallelCoordinatesDTO bean = row.get(key);
-    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
-	    		i++;
-	    		String currentRow = bean.toString(false);
-	    		if (!currentRow.equals("")){
-		    		res += "{" + currentRow + "}";
-		    		if (i < row.values().size()){
-		    			res += ", ";
+		
+		if (rows != null){
+			int i = 0;
+	    	for (String key: rows.keySet()){
+	    		ParallelCoordinatesDTO bean = rows.get(key);
+	    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
+		    		i++;
+		    		String currentRow = bean.toString(false);
+		    		if (!currentRow.equals("")){
+			    		data += "{" + currentRow + "}";
+			    		if (i < rows.values().size()){
+			    			data += ", ";
+			    		}
 		    		}
 	    		}
-    		}
-    		else {
-    			String currentRow = bean.toString(false);
-    			defaultMeans += "{" + currentRow + "}\n";
-    		}
-    	}
-    	res += "]";
+	    		else {
+	    			String currentRow = bean.toString(false);
+	    			defaultMeans += "{" + currentRow + "}\n";
+	    		}
+	    	}
+	    	data += "]";
 
-    	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
+	    	return "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
+	    	
+		} else {
+			
+	    	return "var foods = []; \nvar defaults = {};" ;
+	    	
+		}
 	}
 }
