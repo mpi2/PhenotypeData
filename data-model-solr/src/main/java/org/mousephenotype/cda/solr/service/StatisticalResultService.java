@@ -195,25 +195,26 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":unidimensional");
     	query.setFacet(true);
     	query.setFacetMinCount(1);
-    	query.setFacetLimit(100000);
+    	query.setFacetLimit(-1);
     	query.addFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID);
     	query.addFacetField(StatisticalResultDTO.PARAMETER_NAME);
-
-
+    	
 		List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
-		List<Parameter> parameterNames = new ArrayList<>();
+		List<Parameter> parameters = new ArrayList<>();
 
     	for (String parameterStableId: parameterStableIds){
         	Parameter p = pipelineDAO.getParameterByStableId(parameterStableId);
         	if (p.isRequiredFlag() || !requiredParamsOnly){
-        		parameterNames.add(p);
+        		parameters.add(p);
+        	} else {
+        		System.out.println("Skipping 2 == "+ p.getStableId());
         	}
     	}
 
     	int i = 0;
 
-    	for (i = 0; i < parameterNames.size(); i++){
-    		Parameter p = parameterNames.get(i);
+    	for (i = 0; i < parameters.size(); i++){
+    		Parameter p = parameters.get(i);
     		query = new SolrQuery();
         	query.setQuery("*:*");
         	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
@@ -229,10 +230,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
         	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
 
-        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameterNames);
+        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameters);
     	}
 
-    	row = addDefaultValues(row, parameterNames);
+    	row = addDefaultValues(row, parameters);
 
 		String res = "[";
 		String defaultMeans = "";
@@ -262,7 +263,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
 	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, List<Parameter> allParameterNames) {
 
-		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, null, allParameterNames);
 
 	    for (Parameter param : allParameterNames){
 	        currentBean.addMean(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), new Double(0.0));

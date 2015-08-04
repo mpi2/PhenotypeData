@@ -55,7 +55,7 @@ public class ObservationServiceTest  extends AbstractTransactionalJUnit4SpringCo
 	 */
 	@Test
 	public void testGetProceduresByPipeline(){
-		List<ImpressBaseDTO> procedures = os.getProceduresByPipeline("IMPC_001", "unidimensional", "IMPC", null);
+		List<ImpressBaseDTO> procedures = os.getProcedures("IMPC_001", "unidimensional", "IMPC", null, null);
 		assertTrue(procedures.size() > 19);
 	}
 	
