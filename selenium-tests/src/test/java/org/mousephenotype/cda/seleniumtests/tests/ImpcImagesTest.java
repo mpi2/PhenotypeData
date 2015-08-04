@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
@@ -33,10 +32,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,7 +45,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import org.mousephenotype.cda.seleniumtests.tests.TestConfig;
 
 /**
  *
@@ -79,16 +79,16 @@ public class ImpcImagesTest {
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     @Autowired
-    protected GeneService geneService;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected String baseUrl;
+    protected CommonUtils commonUtils;
 
     @Autowired
     protected WebDriver driver;
+
+    @Autowired
+    protected GenePage genePage;
+
+    @Autowired
+    protected GeneService geneService;
 
     @Autowired
     protected String seleniumUrl;
@@ -96,8 +96,9 @@ public class ImpcImagesTest {
     @Autowired
     protected TestUtils testUtils;
 
-    @Autowired
-    protected CommonUtils commonUtils;
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
 
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 20;
@@ -240,7 +241,7 @@ public class ImpcImagesTest {
                 driver.get(target);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By
                         .cssSelector("span#enu")));
-                GenePage genePage = new GenePage(driver, wait, target, geneId, baseUrl);
+                genePage.load(target, geneId);
                 boolean hasImpcImages = genePage.hasImpcImages();
                 if ( ! hasImpcImages) {
                     String localMessage = "no impc images for gene " + geneId;

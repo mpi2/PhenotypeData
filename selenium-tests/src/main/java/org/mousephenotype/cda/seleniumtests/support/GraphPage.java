@@ -18,7 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.DownloadException;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
@@ -68,9 +68,9 @@ public class GraphPage {
      * @param wait <code>WebDriverWait</code> instance
      * @param graphUrl url of graph page to load
      * @param baseUrl the base url pointing to the downloads
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public GraphPage(WebDriver driver, WebDriverWait wait, String graphUrl, String baseUrl) throws GraphTestException {
+    public GraphPage(WebDriver driver, WebDriverWait wait, String graphUrl, String baseUrl) throws TestException {
         this.driver = driver;
         this.wait = wait;
         this.graphUrl = graphUrl;
@@ -80,7 +80,7 @@ public class GraphPage {
         load();
     }
     
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
         
         for (GraphSection graphSection : graphSections) {
@@ -109,7 +109,7 @@ public class GraphPage {
     /**
      * Load the page and its section and tsv/xls download data.
      */
-    private void load() throws GraphTestException {
+    private void load() throws TestException {
         String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
         List<WebElement> chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
         
@@ -143,7 +143,7 @@ public class GraphPage {
             } catch (Exception e) {
                 message = "Exception. URL: " + graphUrl;
                 System.out.println(message);
-                throw new GraphTestException(message,  e);
+                throw new TestException(message,  e);
             }
             
             // For each GraphSection, compare the heading's pageKey with the set
@@ -175,7 +175,7 @@ public class GraphPage {
                     message = "ERROR: target " + graphUrl + "\nExpected page mutantKey '" + pageKey
                             + "' but was not found. Set:\n" + setContents;
                     System.out.println(message);
-                    throw new GraphTestException(message);
+                    throw new TestException(message);
                 }
             }
         }

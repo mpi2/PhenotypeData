@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -39,10 +39,10 @@ public class GraphSectionFactory {
      * 
      * @return 
      * 
-     * @throws GraphTestException a new <code>GraphPage</code> instance of the type specified
+     * @throws TestException a new <code>GraphPage</code> instance of the type specified
      * by <code>chartType</code>.
      */
-    public static GraphSection createGraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws GraphTestException {
+    public static GraphSection createGraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
         ChartType chartType = GraphSection.getChartType(chartElement);
         switch (chartType) {
             case CATEGORICAL_STACKED_COLUMN:
@@ -63,7 +63,7 @@ public class GraphSectionFactory {
                 return new GraphSectionUnidimensional(driver, wait, graphUrl, chartElement);
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
     }
 }

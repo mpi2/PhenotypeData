@@ -14,14 +14,14 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.solr.service;
+package org.mousephenotype.cda.db.dao;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.dao.OntologyDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class encapsulates the code and data necessary to serve a Human
@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author mrelac
  */
-public class HpOntologyService extends OntologyDAO {
+public class HpOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public HpOntologyService() throws SQLException {
+    public HpOntologyDAO() throws SQLException {
         
     }
     
