@@ -18,6 +18,9 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.pojo.Datasource;
+import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
@@ -70,10 +73,13 @@ public class GeneIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("sangerImagesIndexing")
     SolrServer imagesCore;
+    
+    @Autowired
+	private DatasourceDAO datasourceDao;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
-    private Map<String, List<String>> genomicFeatureXrefs = new HashMap<>();
+    private Map<String, List<Xref>> genomicFeatureXrefs = new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
@@ -122,6 +128,12 @@ public class GeneIndexer extends AbstractIndexer {
     @Override
     public void run() throws IndexerException {
 
+    	
+    	Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
+		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
+		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
+		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
+		
         long startTime = System.currentTimeMillis();
         try {
             logger.info("Starting Gene Indexer...");
@@ -219,10 +231,31 @@ public class GeneIndexer extends AbstractIndexer {
                 		gene.setSeqRegionId(coordsMap.get(GeneDTO.SEQ_REGION_ID));
                 		gene.setSeqRegionStart(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_START)));
                 		gene.setSeqRegionEnd(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_END)));
+                		List<String> ensemblIds = new ArrayList<String>();
+        				List<String> vegaIds = new ArrayList<String>();
+        				List<String> ncbiIds = new ArrayList<String>();
+        				List<String> ccdsIds = new ArrayList<String>();
+        				List<String> xrefAccessions=new ArrayList<>();
                 		if(genomicFeatureXrefs.containsKey(allele.getMgiAccessionId())){
-                			List<String> xrefs = genomicFeatureXrefs.get(allele.getMgiAccessionId());
-                			//System.out.println("setting xrefs:"+xrefs);
-                			gene.setXrefs(xrefs);
+                			List<Xref> xrefs = genomicFeatureXrefs.get(allele.getMgiAccessionId());
+                			for(Xref xref:xrefs){
+                				String xrefAccession=xref.getXrefAccession();
+                				System.out.println("setting xrefs:"+xrefAccession);
+                				
+                        			if (xref.getXrefDatabaseId() == ensembl.getId()) {
+                        				ensemblIds.add(xref.getXrefAccession());
+                        			} else if (xref.getXrefDatabaseId() == vega.getId()) {
+                        				vegaIds.add(xref.getXrefAccession());
+                        			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
+                        				ncbiIds.add(xref.getXrefAccession());
+                        			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
+                        				ccdsIds.add(xref.getXrefAccession());
+                        			}	
+                			}
+                			gene.setXrefs(xrefAccessions);
+                			gene.setNcbiIds(ncbiIds);
+                			gene.setVegaIds(vegaIds);
+                			gene.setCcdsIds(ccdsIds);
                 		}
                 	}
                 }
@@ -607,22 +640,36 @@ public class GeneIndexer extends AbstractIndexer {
     }
     
     
-    private Map<String, List<String>> populateXrefs() {
-    	
-        Map<String, List<String>> localGenomicFeatureXrefs = new HashMap<>();
+    private Map<String, List<Xref>> populateXrefs() {
+    	   	
+        Map<String, List<Xref>> localGenomicFeatureXrefs = new HashMap<>();
         logger.info("populating xref info");
-        String queryString = "select acc, xref_acc from xref";
+        String queryString = "select acc, xref_acc, xref_db_id from xref";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
-            List<String> xrefs = null;
+            List<Xref> xrefs = null;
             while (resultSet.next()) {
                 String gf_acc = resultSet.getString("acc");
+                
+                
+                List<String> ensemblIds = new ArrayList<String>();
+        		List<String> vegaIds = new ArrayList<String>();
+        		List<String> ncbiIds = new ArrayList<String>();
+        		List<String> ccdsIds = new ArrayList<String>();
+
+
+                
                 if(!localGenomicFeatureXrefs.containsKey(gf_acc)){
                 	xrefs = new ArrayList<>();
                 }
+                String xrefAcc=resultSet.getString("xref_acc");
+                int xrefDbId=resultSet.getInt("xref_db_id");
+                Xref xref=new Xref();
+                xref.setXrefAccession(xrefAcc);
+                xref.setXrefDatabaseId(xrefDbId);
                 
-                xrefs.add(resultSet.getString("xref_acc"));
+                xrefs.add(xref);
                 localGenomicFeatureXrefs.put(gf_acc, xrefs);
             }
            

@@ -152,7 +152,42 @@ public class GeneDTO {
 	public static final String SEQ_REGION_START = "seq_region_start";
 	public static final String SEQ_REGION_END = "seq_region_end";
 	public static final String XREF = "xref";
-	public static final String XREF_ACC = "xref_acc"; 
+	public static final String XREF_ACC = "xref_acc";
+	private static final String VEGA_IDS = "vega_id";
+	private static final String NCBI_IDS = "ncbi_id";
+	private static final String CCDS_IDS = "ccds_id"; 
+	
+	@Field(VEGA_IDS)
+	private List<String> vegaIds;
+	public List<String> getVegaIds() {
+		return vegaIds;
+	}
+
+	public void setVegaIds(List<String> vegaIds) {
+		this.vegaIds = vegaIds;
+	}
+
+	public List<String> getNcbiIds() {
+		return ncbiIds;
+	}
+
+	public void setNcbiIds(List<String> ncbiIds) {
+		this.ncbiIds = ncbiIds;
+	}
+
+	public List<String> getCcdsIds() {
+		return ccdsIds;
+	}
+
+	public void setCcdsIds(List<String> ccdsIds) {
+		this.ccdsIds = ccdsIds;
+	}
+
+	@Field(NCBI_IDS)
+	private List<String> ncbiIds;
+	@Field(CCDS_IDS)
+	private List<String> ccdsIds;
+		
 	
 	@Field(SEQ_REGION_ID)
 	private String seqRegionId;
