@@ -27,6 +27,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -39,6 +40,7 @@ import java.util.*;
  * all such search page facet tables. Subclasses need only implement <code>
  * validateDownload(String[][] data)</code>.
  */
+@Component
 public abstract class SearchFacetTable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -261,7 +263,7 @@ public abstract class SearchFacetTable {
             downloadDataList.add(rowList);
         }
 
-        GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
+        GridMap downloadData = pageData.load(downloadDataList, driver.getCurrentUrl());
 
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.

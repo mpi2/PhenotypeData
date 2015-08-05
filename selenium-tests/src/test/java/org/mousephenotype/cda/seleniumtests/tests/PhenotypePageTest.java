@@ -17,30 +17,32 @@
 package org.mousephenotype.cda.seleniumtests.tests;
 
  import org.apache.log4j.Logger;
- import org.apache.solr.client.solrj.SolrServerException;
- import org.junit.*;
- import org.junit.runner.RunWith;
- import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
- import org.mousephenotype.cda.seleniumtests.support.PageStatus;
- import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
- import org.mousephenotype.cda.seleniumtests.support.TestUtils;
- import org.mousephenotype.cda.solr.service.MpService;
- import org.mousephenotype.cda.solr.service.PostQcService;
- import org.mousephenotype.cda.utilities.CommonUtils;
- import org.openqa.selenium.*;
- import org.openqa.selenium.support.ui.ExpectedConditions;
- import org.openqa.selenium.support.ui.WebDriverWait;
- import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
+import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
+import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+ import org.springframework.beans.factory.annotation.Value;
  import org.springframework.boot.test.SpringApplicationConfiguration;
- import org.springframework.test.context.TestPropertySource;
- import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+ import javax.validation.constraints.NotNull;
  import java.text.DateFormat;
- import java.text.SimpleDateFormat;
- import java.util.ArrayList;
- import java.util.Date;
- import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -66,33 +68,35 @@ package org.mousephenotype.cda.seleniumtests.tests;
 @TestPropertySource("classpath:testConfig.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageTest {
+    protected WebDriver driver;
 
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
-    @Autowired
-	@Qualifier("postqcService")
-    protected PostQcService genotypePhenotypeService;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected MpService mpService;
-
-    @Autowired
-    protected String baseUrl;
-
-    @Autowired
-    protected WebDriver driver;
-
-    @Autowired
-    protected String seleniumUrl;
 
     @Autowired
     protected CommonUtils commonUtils;
 
     @Autowired
+    @Qualifier("postqcService")
+    protected PostQcService genotypePhenotypeService;
+
+    @Autowired
+    protected MpService mpService;
+
+    @Autowired
+    protected PhenotypePage phenotypePage;
+
+    @Autowired
     protected TestUtils testUtils;
+
+    @Autowired
+    protected SeleniumWrapper wrapper;
+
+
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
@@ -100,17 +104,17 @@ public class PhenotypePageTest {
     private final int TIMEOUT_IN_SECONDS = 4;
     private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
 
-    private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
     @Before
     public void setup() {
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
+            timeoutInSeconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
 
         driver.navigate().refresh();
         try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
@@ -183,7 +187,7 @@ public class PhenotypePageTest {
 
             try {
                 driver.get(target);
-                phenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
+                phenotypeLink = (new WebDriverWait(driver, timeoutInSeconds))
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
@@ -305,7 +309,7 @@ public class PhenotypePageTest {
 
         try {
             driver.get(target);
-            List<WebElement> phenotypeLinks = (new WebDriverWait(driver, timeout_in_seconds))
+            List<WebElement> phenotypeLinks = (new WebDriverWait(driver, timeoutInSeconds))
                     .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.node h1")));
             if (phenotypeLinks == null) {
                 message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
@@ -355,7 +359,7 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int errorCount = 0;
 
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 3 of a total of 3 records.");
@@ -365,7 +369,7 @@ public class PhenotypePageTest {
             logger.debug("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], baseUrl);
+                phenotypePage.load(target, phenotypeIdArray[i], timeoutInSeconds);
                 phenotypePage.selectPhenotypesLength(100);
                 String definition = phenotypePage.getDefinition();
                 if (definition.isEmpty()) {
@@ -408,7 +412,7 @@ public class PhenotypePageTest {
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
         int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
@@ -426,7 +430,7 @@ public class PhenotypePageTest {
             System.out.println("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, baseUrl);
+                phenotypePage.load(target, phenotypeId, timeoutInSeconds);
                 if (phenotypePage.hasPhenotypesTable()) {
                     phenotypePage.selectPhenotypesLength(100);
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));

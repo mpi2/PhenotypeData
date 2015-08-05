@@ -17,9 +17,8 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.stereotype.Component;
 
 /**
  *
@@ -28,21 +27,25 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * This class encapsulates the code and data necessary to validate a Pie graph 
  * section.
  */
+@Component
 public class GraphSectionPie extends GraphSection {
-    
+
+    public GraphSectionPie() {
+
+    }
+
     /**
-     * Creates a new <code>GraphSectionPie</code> instance
-     * 
-     * @param driver <code>WebDriver</code> instance
-     * @param wait <code>WebDriverWait</code> instance
+     * Loads the <code>GraphSectionPie</code> instance
+     *
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the pie chart section.
-     * 
+     * @param timeoutInSeconds the wait timeout
+     *
      * @throws TestException
      */
-    public GraphSectionPie(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
-        super(driver, wait, graphUrl, chartElement);
+    public void load(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
+        super.load(graphUrl, chartElement, timeoutInSeconds);
     }
     
     @Override

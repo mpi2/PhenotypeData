@@ -22,6 +22,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +37,11 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'geneGrid' HTML table for genes.
  */
+@Component
 public class SearchGeneTable extends SearchFacetTable {
+
+    @Autowired
+    protected GridMap pageData;
     
     public static final int COL_INDEX_GENE_ID               = 0;
     public static final int COL_INDEX_GENE_SYMBOL           = 1;
@@ -48,7 +54,6 @@ public class SearchGeneTable extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPE_STATUS;        // Should always point to the last (highest-numbered) index.
     
     private final List<GeneRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
     
     private final static Map<TableComponent, By> map = new HashMap();
     static {
@@ -161,8 +166,10 @@ public class SearchGeneTable extends SearchFacetTable {
                 bodyRows.add(geneRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        pageData.load(pageArray, driver.getCurrentUrl());
+
+        return pageData;
     }
     
     

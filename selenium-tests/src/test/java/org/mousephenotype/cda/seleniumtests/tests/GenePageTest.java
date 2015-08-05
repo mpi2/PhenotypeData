@@ -76,7 +76,10 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
 @TestPropertySource("classpath:testConfig.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GenePageTest {
+    protected WebDriver driver;
+
     private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+
 
     @Autowired
     protected CommonUtils commonUtils;
@@ -90,11 +93,11 @@ public class GenePageTest {
     @Autowired
     protected SeleniumWrapper wrapper;
 
+
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    protected WebDriver driver;
 
     @PostConstruct
     public void initialise() throws Exception {
