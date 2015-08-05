@@ -649,7 +649,6 @@ public class GenesController {
 		List<String> ncbiIds = new ArrayList<String>();
 		List<String> ccdsIds = new ArrayList<String>();
 
-		List<String> xrefs = gene.getXrefs();
 		if(gene.getEnsemblGeneIds()!=null){
 			ensemblIds=gene.getEnsemblGeneIds();
 		}
@@ -660,7 +659,7 @@ public class GenesController {
 			ccdsIds=gene.getCcdsIds();
 		}
 		if(gene.getNcbiIds()!=null){
-			gene.getNcbiIds();
+			ncbiIds=gene.getNcbiIds();
 		}
 
 		model.addAttribute("ensemblIds", ensemblIds);
