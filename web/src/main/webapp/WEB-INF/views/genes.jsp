@@ -696,8 +696,8 @@ div.ui-tabs-panel {
  							<!-- section for expression data here -->
  							<div id="tabs">
  							<ul class='tabs'>
-							    <li><a href="#tabs-1">Expression Data Overview</a></li>
 							    <li><a href="#tabs-2">Expression Images View</a></li>
+							    <li><a href="#tabs-1">Expression Data Overview</a></li>
 							</ul>
 							
 							
