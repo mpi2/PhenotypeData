@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
@@ -24,7 +25,10 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.net.URL;
 import java.util.*;
 
@@ -35,49 +39,84 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent a Phenotype
  * Archive phenotype page for Selenium testing.
  */
+@Component
 public class PhenotypePage {
-    private final WebDriver driver;
-    private final WebDriverWait wait;
-    private final String target;
-    private final String phenotypeId;
-    private final String baseUrl;
-    private final PhenotypeTable ptPhenotype;
+    private WebDriver driver;
+    private String phenotypeId;
+    private String target;
+    private long timeoutInSeconds;
+    private WebDriverWait wait;
     
     private boolean hasGraphs;
     private boolean hasImages;
     private boolean hasPhenotypesTable;
     private int resultsCount;
 
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
     @Autowired
     protected CommonUtils commonUtils;
+
+    @Autowired
+    DataReaderFactory dataReaderFactory;
+
+    @Autowired
+    protected GridMap pageData;
+
+    @Autowired
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
+    PhenotypeTable phenotypeTable;
 
     @Autowired
     protected TestUtils testUtils;
 
     @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    SeleniumWrapper wrapper;
+
+    public PhenotypePage() {
+
+    }
+
     /**
-     * Creates a new <code>GenePage</code> instance
-     * @param driver A valid <code>WebDriver</code> instance
-     * @param wait A valid <code>WebDriverWait</code> instance
-     * @param target This page's target url
-     * @param phenotypeId This page's phenotype id
-     * @param baseUrl A fully-qualified hostname and path, such as
-     *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     *
      */
-    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, String phenotypeId, String baseUrl) {
-        this.driver = driver;
-        this.wait = wait;
+    /**
+     * Waits for the phenotype page to load.
+     * NOTE: target and phenotypeId are null until this method is called.
+     *
+     * @param target the target url
+     * @param phenotypeId the phenotype id
+     * @param timeoutInSeconds the selenium wait timeout
+     *
+     * @throws TestException
+     */
+    public PhenotypePage load(String target, String phenotypeId, long timeoutInSeconds) throws TestException {
+        driver = wrapper.getDriver();
+        wait = new WebDriverWait(driver, timeoutInSeconds);
         this.target = target;
         this.phenotypeId = phenotypeId;
-        this.baseUrl = baseUrl;
-        this.ptPhenotype = new PhenotypeTable(driver, wait, target);
-        
-        load();
+        this.timeoutInSeconds = timeoutInSeconds;
+
+        driver.get(target);
+
+        return this;
     }
 
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    /**
+     * Return the page's url.
+     *
+     * @return the page's url
+     */
+    public String getCurrentUrl() {
+        return driver.getCurrentUrl();
     }
     
     /**
@@ -104,12 +143,12 @@ public class PhenotypePage {
      * @return a <code>List&lt;String&gt;</code> of this page's graph urls. The
      * list will be empty if this page doesn't have any graph urls.
      */
-    public List<String> getGraphUrls() {
+    public List<String> getGraphUrls() throws TestException {
         List<String> urls = new ArrayList();
         
         if (hasGraphs) {
-            ptPhenotype.load();
-            GridMap map = ptPhenotype.getData();
+            phenotypeTable.load(target, timeoutInSeconds);
+            GridMap map = phenotypeTable.getData();
             for (int i = 0; i < map.getBody().length; i++) {
                 urls.add(map.getCell(i, PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK));
             }
@@ -197,7 +236,7 @@ public class PhenotypePage {
      * </ul>
      * @return validation status
      */
-    public PageStatus validate() {
+    public PageStatus validate()throws TestException {
         PageStatus status = new PageStatus();
         
         // Validate title starts with 'Phenotype:'
@@ -218,8 +257,8 @@ public class PhenotypePage {
         // If there is a 'phenotypes' HTML table, validate it.
         if (hasPhenotypesTable) {
             // Validate that there is a 'pheontypes' HTML table by loading it.
-            ptPhenotype.load();                                                 // Load all of the phenotypes table pageMap data.
-            List<List<String>> preAndPostQcList = ptPhenotype.getPreAndPostQcList();
+            phenotypeTable.load(target, timeoutInSeconds);
+            List<List<String>> preAndPostQcList = phenotypeTable.getPreAndPostQcList();
             String cell;
             int i = 0;
             for (List<String> row : preAndPostQcList) {
@@ -279,7 +318,7 @@ public class PhenotypePage {
 
             // Get the download stream and statistics for the TSV stream.
             URL downloadUrl = new URL(downloadTarget);
-            DataReader dataReader = DataReaderFactory.create(downloadUrl);
+            DataReader dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
 
         } catch (NoSuchElementException | TimeoutException te) {
@@ -289,8 +328,10 @@ public class PhenotypePage {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
-        
-        return new GridMap(data, target);
+
+        pageData.load(data, target);
+
+        return pageData;
     }
     
     /**
@@ -320,7 +361,7 @@ public class PhenotypePage {
 
             // Get the download stream and statistics for the XLS stream.
             URL downloadUrl = new URL(downloadTarget);
-            DataReader dataReader = DataReaderFactory.create(downloadUrl);
+            DataReader dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
 
         } catch (NoSuchElementException | TimeoutException te) {
@@ -330,8 +371,10 @@ public class PhenotypePage {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
-        
-        return new GridMap(data, target);
+
+        pageData.load(data, target);
+
+        return pageData;
     }
     
     /**
@@ -390,9 +433,9 @@ public class PhenotypePage {
      * 
      * @return page status instance
      */
-    private PageStatus validateDownload() {
+    private PageStatus validateDownload() throws TestException {
         PageStatus status = new PageStatus();
-        GridMap pageMap = ptPhenotype.load();                                   // Load all of the phenotypes table pageMap data.
+        GridMap pageMap = phenotypeTable.load(target, timeoutInSeconds);
         
         // Test the TSV.
         GridMap downloadData = getDownloadTsv(status);

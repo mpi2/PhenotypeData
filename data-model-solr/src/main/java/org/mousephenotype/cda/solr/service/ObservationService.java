@@ -61,6 +61,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
@@ -130,7 +131,7 @@ public class ObservationService extends BasicService {
      * @param resource
      * @return List<ProcedureBean>
      */
-	public List<ImpressBaseDTO> getProceduresByPipeline(String pipelineStableId, String observationType, String resource, Integer minParameterNumber){
+	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip){
 		
 		List<ImpressBaseDTO> procedures = new ArrayList<>();
 		
@@ -165,9 +166,7 @@ public class ObservationService extends BasicService {
 				query.set("facet.pivot", pivotField);
 				
 			}			
-			
-			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
-			
+						
 			QueryResponse response = solr.query(query);
 			
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
@@ -193,7 +192,9 @@ public class ObservationService extends BasicService {
 				
 				for (ImpressBaseDTO proc : procedures){
 					if (proceduresWithMinCount.contains(proc.getName())){
-						proceduresToReturn.add(proc);
+						if (proceduresToSkip != null && !proceduresToSkip.contains(proc.getStableId()) || proceduresToSkip == null ){
+							proceduresToReturn.add(proc);
+						}
 					}
 				}
 				procedures = proceduresToReturn;
@@ -320,141 +321,7 @@ public class ObservationService extends BasicService {
         return dto;
         
     }
-    
-
-    public String getMeansFor(String procedueStableId, boolean requiredParametersOnly)
-    throws SolrServerException{
-
-    	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
-    	// get parameterStableId facets for  procedueStableId
-
-    	SolrQuery query = new SolrQuery();
-    	query.setQuery("*:*");
-    	query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedueStableId);
-    	query.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":unidimensional");
-    	query.setFacet(true);
-    	query.setFacetMinCount(1);
-    	query.setFacetLimit(100000);
-    	query.addFacetField(ObservationDTO.PARAMETER_STABLE_ID);
-    	query.addFacetField(ObservationDTO.PARAMETER_NAME);
-
-
-        List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(ObservationDTO.PARAMETER_STABLE_ID).keySet());
-        List<Parameter> parameterNames = new ArrayList<>();
-
-    	for (String parameterStableId: parameterStableIds){
-        	Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
-        	if (p.isRequiredFlag()){
-        		parameterNames.add(p);
-        	}
-    	}
-
-    	// query for each parameter
-
-    	int i = 0;
-
-    	for (Parameter p: parameterNames){
-    		
-    		query = new SolrQuery();
-        	query.setQuery("*:*");
-        	query.setFilterQueries(ObservationDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
-        	query.set("group", true);
-        	query.set("group.limit", 10000);
-        	query.set("group.field", ObservationDTO.GENE_SYMBOL);
-        	query.setFields(ObservationDTO.DATA_POINT);
-        	query.setRows(100000);
-
-        	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
-
-        	row = addMeans(solr.query(query), row, p, parameterNames);
-    
-    	}
-
-    	row = addDefaultMean(row, parameterNames);
-
-		String res = "[";
-		String defaultMeans = "";
-		i = 0;
-    	for (String key: row.keySet()){
-    		ParallelCoordinatesDTO bean = row.get(key);
-    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
-	    		i++;
-	    		String currentRow = bean.toString(false);
-	    		if (!currentRow.equals("")){
-		    		res += "{" + currentRow + "}";
-		    		if (i < row.values().size()){
-		    			res += ", ";
-		    		}
-	    		}
-    		}
-    		else {
-    			String currentRow = bean.toString(false);
-    			defaultMeans += "{" + currentRow + "}";
-    		}
-    	}
-    	res += "]";
-
-    	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
-
-    }
-
-
-    private HashMap<String, ParallelCoordinatesDTO> addDefaultMean(HashMap<String, ParallelCoordinatesDTO> beans, List<Parameter> allParameterNames) {
-
-    	ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
-
-    	HashMap<String, List<Double>> defaultData = new HashMap<String, List<Double>>(); // <parameter name, <mean values>>
-    	for (Parameter param : allParameterNames){
-    		defaultData.put(param.getName(), new ArrayList<Double>());
-    	}
-
-    	for (String key : beans.keySet()){
-    		ParallelCoordinatesDTO pc = beans.get(key);
-    		for ( String meanKey : pc.getMeans().keySet()){
-    			defaultData.get(meanKey).add(pc.getMeans().get(meanKey).getMean());
-    		}
-    	}
-
-    	for (String key : defaultData.keySet()){
-    		Double mean = new Double(0);
-    		int sum = 0;
-    		for (Double value : defaultData.get(key)){
-    			if (value != null){
-    				mean += value;
-    				sum ++;
-    		}
-    		}
-    		mean = mean / sum;
-            currentBean.addMean(null, null, key, null, mean);
-    	}
-
-        beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
-
-    	return beans;
-
-    }
-
-
-    private HashMap<String, ParallelCoordinatesDTO> addMeans(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, List<Parameter> allParameterNames) {
-
-    	 List<Group> groups = response.getGroupResponse().getValues().get(0).getValues();
-         for (Group gr : groups) {
-             SolrDocumentList resDocs = gr.getResult();
-             Double sum = (double) 0;
-             for (int i = 0; i < resDocs.getNumFound(); i ++) {
-                 SolrDocument doc = resDocs.get(i);
-                 sum += new Double(doc.getFieldValue(ObservationDTO.DATA_POINT).toString());
-             }
-             String gene = gr.getGroupValue();
-             String group = (gene == null) ? "WT" : "Mutant";
-             ParallelCoordinatesDTO currentBean = beans.containsKey(gene)? beans.get(gene) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
-             Double mean = sum/resDocs.size();
-             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, mean);
-             beans.put(gene, currentBean);
-         }
-         return beans;
-	}
-
+   
 
 	public List<String> getGenesWithMoreProcedures(int n, List<String> resourceName)
     throws SolrServerException, InterruptedException, ExecutionException {

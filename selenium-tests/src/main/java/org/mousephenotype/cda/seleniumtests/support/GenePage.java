@@ -41,18 +41,18 @@ import java.util.*;
  */
 @Component
 public class GenePage {
-    private String target;
-    private String geneId;
-    
-    private boolean hasImages;
-    private boolean hasImpcImages;
-    private boolean hasGraphs;
-    private boolean hasGenesTable;
-    private int resultsCount;
-    private WebDriver driver;
-    private WebDriverWait wait;
+    protected String target;
+    protected String geneId;
 
-    private final int TIMEOUT_IN_SECONDS = 4;
+    protected boolean hasImages;
+    protected boolean hasImpcImages;
+    protected boolean hasGraphs;
+    protected boolean hasGenesTable;
+    protected int resultsCount;
+    protected WebDriver driver;
+    protected WebDriverWait wait;
+
+    protected final int TIMEOUT_IN_SECONDS = 4;
 
     @NotNull
     @Value("${baseUrl}")
@@ -62,7 +62,13 @@ public class GenePage {
     protected CommonUtils commonUtils;
 
     @Autowired
+    DataReaderFactory dataReaderFactory;
+
+    @Autowired
     protected GeneTable geneTable;
+
+    @Autowired
+    protected GridMap pageData;
 
     @Autowired
     protected TestUtils testUtils;
@@ -188,9 +194,9 @@ public class GenePage {
     }
 
     /**
-     * Return the gene page's url.
+     * Return the page's url.
      *
-     * @return the gene page's url
+     * @return the page's url
      */
     public String getCurrentUrl() {
         return driver.getCurrentUrl();
@@ -564,7 +570,7 @@ public class GenePage {
 
             // Get the download stream and statistics for the TSV stream.
             URL downloadUrl = new URL(downloadTarget);
-            dataReader = DataReaderFactory.create(downloadUrl);
+            dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
 
         } catch (NoSuchElementException | TimeoutException te) {
@@ -574,8 +580,10 @@ public class GenePage {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
-        
-        return new GridMap(data, target);
+
+        pageData.load(data, target);
+
+        return pageData;
     }
     
     /**
@@ -606,7 +614,7 @@ public class GenePage {
 
             // Get the download stream and statistics for the XLS stream.
             URL downloadUrl = new URL(downloadTarget);
-            dataReader = DataReaderFactory.create(downloadUrl);
+            dataReader = dataReaderFactory.create(downloadUrl);
             data = dataReader.getData();
 
         } catch (NoSuchElementException | TimeoutException te) {
@@ -616,8 +624,10 @@ public class GenePage {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
         }
-        
-        return new GridMap(data, target);
+
+        pageData.load(data, target);
+
+        return pageData;
     }
     
     /**

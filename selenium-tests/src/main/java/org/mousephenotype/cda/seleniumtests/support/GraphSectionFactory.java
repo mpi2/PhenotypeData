@@ -21,49 +21,88 @@ import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author mrelac
  */
+@Component
 public class GraphSectionFactory {
-    
+
+    protected WebDriver driver;
+    protected WebDriverWait wait;
+
+    @Autowired
+    GraphSectionABR graphSectionABR;
+
+    @Autowired
+    GraphSectionCategorical graphSectionCategorical;
+
+    @Autowired
+    GraphSectionPie graphSectionPie;
+
+    @Autowired
+    GraphSectionTimeSeries graphSectionTimeSeries;
+
+    @Autowired
+    GraphSectionUnidimensional graphSectionUnidimensional;
+
+    @Autowired
+    SeleniumWrapper wrapper;
+
+    public GraphSectionFactory() {
+
+    }
+
     /**
      * Creates a new <code>GraphPage</code> instance of the type specified
      * by <code>chartType</code>.
-     * 
-     * @param driver <code>WebDriver</code> instance
-     * @param wait <code>WebDriverWait</code> instance
+     *
      * @param graphUrl the graph url
      * @param chartElement The ABR <code>WebElement</code>
+     * @param timeoutInSeconds the wait timeout
      * 
-     * @return 
+     * @return the graph section appropriate to the chart type as defined by the chart element.
      * 
      * @throws TestException a new <code>GraphPage</code> instance of the type specified
      * by <code>chartType</code>.
      */
-    public static GraphSection createGraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
+    public GraphSection createGraphSection(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
+        this.driver = wrapper.getDriver();
+        this.wait = new WebDriverWait(driver, timeoutInSeconds);
         ChartType chartType = GraphSection.getChartType(chartElement);
+        GraphSection graphSection;
+
         switch (chartType) {
             case CATEGORICAL_STACKED_COLUMN:
-                return new GraphSectionCategorical(driver, wait, graphUrl, chartElement);
+                graphSection = graphSectionCategorical;
+                break;
                 
             case PIE:
-                return new GraphSectionPie(driver, wait, graphUrl, chartElement);
+                graphSection = graphSectionPie;
+                break;
                 
             case TIME_SERIES_LINE:
             case TIME_SERIES_LINE_BODYWEIGHT:
-                return new GraphSectionTimeSeries(driver, wait, graphUrl, chartElement);
+                graphSection = graphSectionTimeSeries;
+                break;
                 
             case UNIDIMENSIONAL_ABR_PLOT:
-                return new GraphSectionABR(driver, wait, graphUrl, chartElement);
+                graphSection = graphSectionABR;
+                break;
                 
             case UNIDIMENSIONAL_BOX_PLOT:
             case UNIDIMENSIONAL_SCATTER_PLOT:
-                return new GraphSectionUnidimensional(driver, wait, graphUrl, chartElement);
+                graphSection = graphSectionUnidimensional;
+                break;
                 
             default:
                 throw new TestException("Unknown chart type " + chartType);
         }
+
+        graphSection.load(graphUrl, chartElement, timeoutInSeconds);
+        return graphSection;
     }
 }

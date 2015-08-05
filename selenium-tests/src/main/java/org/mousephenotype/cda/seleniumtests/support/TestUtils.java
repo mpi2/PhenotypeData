@@ -57,16 +57,18 @@ import static org.junit.Assert.fail;
  */
 @Component
 public class TestUtils {
-    public final int DEFAULT_COUNT = 10;
-    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private Map<String, String> testIterationsHash = new HashMap<>();
 
+    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    public final int DEFAULT_COUNT = 10;
     public static final String NO_SUPPORTING_DATA = "No supporting data supplied.";
-
-    Map<String, String> testIterationsHash = new HashMap<>();
 
     @Autowired
     private CommonUtils commonUtils = new CommonUtils();
+
+    @Autowired
+    GridMap pageData;
 
     @Autowired
     ObservationService observationService;
@@ -636,7 +638,7 @@ public class TestUtils {
             }
         }
 
-        return new GridMap(dataOut, input.getTarget());
+        return pageData.load(dataOut, input.getTarget());
     }
 
     /**
