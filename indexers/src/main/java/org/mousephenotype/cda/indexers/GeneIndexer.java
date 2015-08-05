@@ -241,7 +241,7 @@ public class GeneIndexer extends AbstractIndexer {
                 			for(Xref xref:xrefs){
                 				String xrefAccession=xref.getXrefAccession();
                 				xrefAccessions.add(xrefAccession);
-                				System.out.println("setting xrefs:"+xrefAccession);
+                				//System.out.println("setting xrefs:"+xrefAccession);
                 				
                         			if (xref.getXrefDatabaseId() == ensembl.getId()) {
                         				ensemblIds.add(xref.getXrefAccession());
