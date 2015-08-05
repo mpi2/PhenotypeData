@@ -75,7 +75,7 @@ public class GeneIndexer extends AbstractIndexer {
     SolrServer imagesCore;
     
     @Autowired
-	private DatasourceDAO datasourceDao;
+	DatasourceDAO datasourceDAO;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
@@ -129,10 +129,10 @@ public class GeneIndexer extends AbstractIndexer {
     public void run() throws IndexerException {
 
     	
-    	Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
+    	Datasource ensembl = datasourceDAO.getDatasourceByShortName("Ensembl");
+		Datasource vega = datasourceDAO.getDatasourceByShortName("VEGA");
+		Datasource ncbi = datasourceDAO.getDatasourceByShortName("EntrezGene");
+		Datasource ccds = datasourceDAO.getDatasourceByShortName("cCDS");
 		
         long startTime = System.currentTimeMillis();
         try {
