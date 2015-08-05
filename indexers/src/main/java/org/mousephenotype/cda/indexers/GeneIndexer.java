@@ -240,6 +240,7 @@ public class GeneIndexer extends AbstractIndexer {
                 			List<Xref> xrefs = genomicFeatureXrefs.get(allele.getMgiAccessionId());
                 			for(Xref xref:xrefs){
                 				String xrefAccession=xref.getXrefAccession();
+                				xrefAccessions.add(xrefAccession);
                 				System.out.println("setting xrefs:"+xrefAccession);
                 				
                         			if (xref.getXrefDatabaseId() == ensembl.getId()) {
