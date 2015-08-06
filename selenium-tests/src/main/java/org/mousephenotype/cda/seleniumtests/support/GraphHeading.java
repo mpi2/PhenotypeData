@@ -27,8 +27,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -44,12 +42,13 @@ import java.util.List;
  *     Center, Pipeline, etc. Not all components are required)</li>
  * </ul>
  */
-@Component
 public class GraphHeading {
-    protected final WebElement chartElement;
-    protected final WebDriverWait wait;
 
-    private final Utilities impressUtils = new Utilities();
+    protected final WebElement chartElement;
+    protected final Utilities impressUtils = new Utilities();
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    protected final TestUtils testUtils = new TestUtils();
+    protected final WebDriverWait wait;
 
     // Heading variables
     protected String title = "";
@@ -74,26 +73,22 @@ public class GraphHeading {
     protected ObservationType observationType;
     protected Parameter parameterObject;
 
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected TestUtils testUtils;
-
     /**
      * Creates a new <code>GraphPage</code> instance
      * 
      * @param wait <code>WebDriverWait</code> instance
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
+     * @param phenotypePipelineDAO the <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the url of the graph page (used for error/warning reporting)
      * @param chartType the chart type. Used to determine which validator to use.
      * 
      * @throws TestException
      */
-    public GraphHeading(WebDriverWait wait, WebElement chartElement, String graphUrl, ChartType chartType) throws TestException {
+    public GraphHeading(WebDriverWait wait, WebElement chartElement, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, ChartType chartType) throws TestException {
         this.wait = wait;
         this.chartElement = chartElement;
+        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.chartType = chartType;
         

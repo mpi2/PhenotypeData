@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -45,7 +46,7 @@ public class SearchImpcImageTable extends SearchImageTable {
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      */
-    public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds) {
+    public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds) throws TestException {
         super(driver, timeoutInSeconds, map);
     }
 }

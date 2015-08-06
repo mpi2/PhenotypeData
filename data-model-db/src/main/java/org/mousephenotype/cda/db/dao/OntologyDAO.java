@@ -59,25 +59,23 @@ import java.util.Map.Entry;
  */
 public abstract class OntologyDAO {
 
-    @Autowired
-    @Qualifier("ontodbDataSource")
-    DataSource ontodbDataSource;
+    protected Map<String, OntologyTermBean>   allTermsMap = null;
+    protected Map<String, List<List<String>>> ancestorGraphsMap = null;
+    protected final HashMap<Integer, String>  ancestorMap = new HashMap();
+    protected CommonUtils                     commonUtils = new CommonUtils();
+    protected Connection                      connection;
+    protected final Map<String, List<String>> id2nodesMap = new HashMap();
+    protected final HashMap<String, String>   node2termMap = new HashMap();
+    protected Map<String, List<String>>       synonymsMap = null;
 
-    @Autowired
-    CommonUtils commonUtils;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final int MAX_ROWS = 1000000;
     public static final int BATCH_SIZE = 50;
 
-    protected Connection                      connection;
-    protected Map<String, OntologyTermBean>   allTermsMap = null;
-    protected Map<String, List<List<String>>> ancestorGraphsMap = null;
-    protected final HashMap<Integer, String>  ancestorMap = new HashMap();
-    protected final Map<String, List<String>> id2nodesMap = new HashMap();
-    protected final HashMap<String, String>   node2termMap = new HashMap();
-    protected Map<String, List<String>>       synonymsMap = null;
-    
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    @Qualifier("ontodbDataSource")
+    DataSource ontodbDataSource;
 
     public OntologyDAO() {
         

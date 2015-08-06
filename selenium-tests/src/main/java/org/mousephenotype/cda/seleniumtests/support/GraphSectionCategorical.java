@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.WebDriver;
@@ -33,6 +34,8 @@ import java.util.Map.Entry;
  * graph section.
  */
 public class GraphSectionCategorical extends GraphSection {
+
+    protected TestUtils testUtils = new TestUtils();
     
     // Download column offsets.
     public final int PIPELINE_NAME       =  0;
@@ -59,23 +62,20 @@ public class GraphSectionCategorical extends GraphSection {
     public final int METADATA_GROUP      = 21;
     public final int CATEGORY            = 22;
 
-    public GraphSectionCategorical() {
-
-    }
-
     /**
-     * Loads the <code>GraphSectionCategorical</code> instance
+     * Creates a new <code>GraphSectionCategorical</code> instance
      *
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
-     *                     div.chart element of the unidimensional chart section.
+     *                     div.chart element of the categorical chart section.
      *
      * @throws TestException
      */
-    public void load(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
-        super.load(graphUrl, chartElement, timeoutInSeconds);
+    public GraphSectionCategorical(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
     }
     
     @Override

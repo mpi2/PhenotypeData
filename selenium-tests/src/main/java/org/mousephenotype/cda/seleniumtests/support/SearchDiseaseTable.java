@@ -16,12 +16,11 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,10 +34,10 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'diseaseGrid' HTML table for diseases.
  */
-@Component
 public class SearchDiseaseTable extends SearchFacetTable {
 
-    @Autowired
+    private final List<DiseaseRow> bodyRows = new ArrayList();
+    private static final Map<TableComponent, By> map = new HashMap();
     protected GridMap pageData;
     
     public static final int COL_INDEX_DISEASE_ID      = 0;
@@ -49,28 +48,25 @@ public class SearchDiseaseTable extends SearchFacetTable {
     public static final int COL_INDEX_CANDIDATE_IMPC  = 5;
     public static final int COL_INDEX_CANDIDATE_MGI   = 6;
     public static final int COL_INDEX_LAST = COL_INDEX_CANDIDATE_MGI;           // Should always point to the last (highest-numbered) index.
-    
-    private final List<DiseaseRow> bodyRows = new ArrayList();
 
-    private final static Map<TableComponent, By> map = new HashMap();
     static {
         map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='diseaseGrid']"));
         map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='diseaseGrid']/tbody/tr"));
         map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='diseaseGrid_length']"));
     }
-    
+
     /**
      * Creates a new <code>SearchDiseaseTable</code> instance.
-     * @param driver A <code>WebDriver</code> instance pointing to the search
-     * facet table with thead and tbody definitions.
-     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     *
+     * @param driver A valid <code>WebDriver</code> instance
+     * @param timeoutInSeconds timeout
      */
-    public SearchDiseaseTable(WebDriver driver, int timeoutInSeconds) {
-        super(driver, timeoutInSeconds, SearchDiseaseTable.map);
-        
+    public SearchDiseaseTable(WebDriver driver, int timeoutInSeconds) throws TestException {
+        super(driver, timeoutInSeconds, map);
+
         pageData = load();
     }
-    
+
     /**
      * Validates download data against this <code>SearchAnatomyTable</code>
      * instance.
@@ -93,52 +89,49 @@ public class SearchDiseaseTable extends SearchFacetTable {
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
     /**
-     * Pulls all rows of data and column access variables from the search page's
-     * 'diseaseGrid' HTML table.
+     * Pulls all rows of data and column access variables from the search page's 'diseaseGrid' HTML table.
      *
-     * @return <code>numRows</code> rows of data and column access variables
-     * from the search page's 'diseaseGrid' HTML table.
+     * @return <code>numRows</code> rows of data and column access variables from the search page's phenotype HTML table.
      */
     private GridMap load() {
         return load(null);
     }
 
     /**
-     * Pulls <code>numRows</code> rows of search page gene facet data and column
-     * access variables from the search page's 'diseaseGrid' HTML table.
+     * Pulls <code>numRows</code> rows of search page gene facet data and column access variables from the search page's
+     * 'diseaseGrid' HTML table.
      *
-     * @param numRows the number of <code>GridMap</code> table rows to return,
-     * including the heading row. To specify all rows, set <code>numRows</code>
-     * to null.
-     * @return <code>numRows</code> rows of search page gene facet data and
-     * column access variables from the search page's 'diseaseGrid' HTML table.
+     * @param numRows the number of <code>GridMap</code> table rows to return, including the heading row. To specify all
+     *                rows, set <code>numRows</code> to null.
+     *
+     * @return <code>numRows</code> rows of search page gene facet data and column access variables from the search
+     * page's 'diseaseGrid' HTML table.
      */
     private GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
-        
+
         String[][] pageArray;
-        
+
         // Wait for page.
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#diseaseGrid")));
         int numCols = COL_INDEX_LAST + 1;
-        
+
         pageArray = new String[numRows][numCols];                               // Allocate space for the data.
         for (int i = 0; i < numCols; i++) {
             pageArray[0][i] = "Column_" + i;                                    // Set the headings.
         }
-        
+
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
-        
+
             pageArray[sourceRowIndex][COL_INDEX_DISEASE_ID] = "";               // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_DISEASE_NAME] = "";             // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_SOURCE] = "";                   // Insure there is always a non-null value.
@@ -148,27 +141,25 @@ public class SearchDiseaseTable extends SearchFacetTable {
                 WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));        // Get 'Disease' element.
                 diseaseRow.diseaseIdLink = element.getAttribute("href");
                 int pos = diseaseRow.diseaseIdLink.lastIndexOf("/");
-                
+
                 diseaseRow.diseaseId = diseaseRow.diseaseIdLink.substring(pos + 1);                     // Add diseaseId   to row element 0 from 'Disease' element.
                 pageArray[sourceRowIndex][COL_INDEX_DISEASE_ID] = diseaseRow.diseaseId;
-                
-                diseaseRow.diseaseName = element.getText();   
+
+                diseaseRow.diseaseName = element.getText();
                 pageArray[sourceRowIndex][COL_INDEX_DISEASE_NAME] = diseaseRow.diseaseName;
-                
-                diseaseRow.source = bodyRowElementList.get(1).getText();     
+
+                diseaseRow.source = bodyRowElementList.get(1).getText();
                 pageArray[sourceRowIndex][COL_INDEX_SOURCE] = diseaseRow.source;                           // Add source      to row element 2 from 'Source' element.
-                
+
                 sourceRowIndex++;
                 bodyRows.add(diseaseRow);
             }
         }
 
-        pageData.load(pageArray, driver.getCurrentUrl());
-
-        return pageData;
+        return new GridMap(pageArray, target);
     }
-    
-    
+
+
     // PRIVATE CLASSES
     
     

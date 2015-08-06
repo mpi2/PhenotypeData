@@ -81,8 +81,7 @@ import java.util.*;
 @Controller
 public class FileExportController {
 
-	@Autowired
-	protected CommonUtils commonUtils;
+	protected CommonUtils commonUtils = new CommonUtils();
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
