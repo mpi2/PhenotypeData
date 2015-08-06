@@ -18,6 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
@@ -62,8 +63,9 @@ public class GenePage {
      * @param geneId This page's gene id
      * @param phenotypePipelineDAO a <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
+     * @throws TestException
      */
-    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
+    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) throws TestException {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
@@ -422,9 +424,13 @@ public class GenePage {
     /**
      * Waits for the gene page to load.
      */
-    private void load() {
-        driver.get(target);
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+    private void load() throws TestException {
+        try {
+            driver.get(target);
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
+        } catch (Exception e) {
+            throw new TestException("GenePage: failed to load url. Reason: " + e.getLocalizedMessage() + "\nURL: " + target);
+        }
 
         List<WebElement> elements;
         // Determine if this page has images.
@@ -446,7 +452,7 @@ public class GenePage {
                 resultsCount = commonUtils.tryParseInt(count);
             }
         } catch (Exception e) {
-            throw new RuntimeException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
+            throw new TestException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
         }
 
         hasGraphs = (resultsCount > 0);
