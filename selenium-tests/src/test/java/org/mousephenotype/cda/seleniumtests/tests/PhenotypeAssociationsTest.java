@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -85,6 +86,9 @@ public class PhenotypeAssociationsTest {
     private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
 
     @Autowired
 	@Qualifier("postqcService")
@@ -196,7 +200,7 @@ public class PhenotypeAssociationsTest {
 
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
 
         // Loop through all genes, testing each one for valid page load.

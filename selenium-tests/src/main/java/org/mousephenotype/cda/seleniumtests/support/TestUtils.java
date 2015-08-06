@@ -30,6 +30,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -98,32 +99,27 @@ public class TestUtils {
      * the collection is shuffled (i.e. randomized)</b></p>
      * <ul>
      * <li>if there is a system property matching <i>testMethodName</i>, that value is used</li>
-     * <li>else if <i>testMethodName</i> appears in the <code>testIterations.properties</code> file, that value is used</li>
+     * <li>else if <i>testMethodName</i> appears in any test properties file, that value is used</li>
      * <li>else if <i>defaultCount</i> is not null, it is used</li>
      * <li>else the value defined by <i>DEFAULT_COUNT</i> is used</li>
      * </ul>
+     * @param env the env hash of environment variables that could contain testMethodName.
      * @param testMethodName the method to which the target count applies
      * @param collection the collection to be tested (used for maximum size when target count of -1 is specified)
      * @param defaultCount if not null, the value to use if it was not specified as a -D parameter on the command line
      *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
      * @return target count
      */
-    public int getTargetCount(String testMethodName, List collection, Integer defaultCount) {
+    public int getTargetCount(Environment env, String testMethodName, List collection, Integer defaultCount) {
         Integer targetCount = null;
 
-        if (defaultCount != null)
-            targetCount = defaultCount;
-
-        if (testIterationsHash.containsKey(testMethodName)) {
-            if (tryParseInt(testIterationsHash.get(testMethodName)) != null) {
-                targetCount = tryParseInt(testIterationsHash.get(testMethodName));
-            }
-        }
         if (tryParseInt(System.getProperty(testMethodName)) != null) {
             targetCount = tryParseInt(System.getProperty(testMethodName));
-        }
-
-        if (targetCount == null) {
+        } else if (tryParseInt(env.getProperty(testMethodName)) != null) {
+            targetCount = tryParseInt(env.getProperty(testMethodName));
+        } else if (defaultCount != null) {
+            targetCount = defaultCount;
+        } else {
             targetCount = DEFAULT_COUNT;
         }
 

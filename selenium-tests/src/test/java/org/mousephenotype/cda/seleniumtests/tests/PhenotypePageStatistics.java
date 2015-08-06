@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -93,6 +94,9 @@ public class PhenotypePageStatistics {
 
     private final String NO_PHENOTYPE_ASSOCIATIONS = "Phenotype associations to genes and alleles will be available once data has completed quality control.";
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
 
     @Autowired
     protected SeleniumWrapper wrapper;
@@ -164,7 +168,7 @@ public class PhenotypePageStatistics {
         int pagesWithBoth = 0;
         List<String> urlsWithNeitherPhenotypeTableNorImage = new ArrayList();
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
