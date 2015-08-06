@@ -118,12 +118,6 @@ public class GraphPageTest {
     @Autowired
     PreQcService preQcService;
 
-//    @Autowired
-//    protected String seleniumUrl;
-//
-//    @Autowired
-//    protected String solrUrl;
-
     @Autowired
     protected SeleniumWrapper wrapper;
 
@@ -374,7 +368,7 @@ public class GraphPageTest {
      *
      * @throws TestException
      */
-    public List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws TestException {
+    private List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws TestException {
         List<GraphTestDTO> geneGraphs = new ArrayList();
 
         if (count == -1)
