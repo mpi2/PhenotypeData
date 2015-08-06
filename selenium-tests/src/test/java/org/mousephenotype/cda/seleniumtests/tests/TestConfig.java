@@ -40,8 +40,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
-@ComponentScan({"org.mousephenotype.cda", "org.mousephenotype.cda.seleniumtests.support"})
 @Configuration
+@ComponentScan({"org.mousephenotype.cda"})
 @EnableAutoConfiguration
 public class TestConfig {
 
