@@ -19,8 +19,6 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +31,11 @@ import java.util.List;
  * important components of a graph page 'continuousTable' HTML table. NOTE: A
  * unidimensional graph page can contain more than one GraphContinuousTable.
  */
-@Component
 public class GraphContinuousTable {
-    private String[][] data;
+
     private final List<Row> bodyRowsList = new ArrayList();
+    private CommonUtils commonUtils = new CommonUtils();
+    private String[][] data;
     private final List<String> headingList = new ArrayList();
     
     // Column offsets
@@ -45,13 +44,6 @@ public class GraphContinuousTable {
     public final int COL_INDEX_STANDARD_ERROR = 2;
     public final int COL_INDEX_COUNT = 3;
 
-    @Autowired
-    CommonUtils commonUtils;
-
-    public GraphContinuousTable() {
-
-    }
-
     /**
      * Loads the <code>ContinuousGraphTable</code> instance.
      * 
@@ -59,7 +51,7 @@ public class GraphContinuousTable {
      * to an HTML table with id 'continuousTable' with thead and tbody
      * definitions.
      */
-    public GraphContinuousTable load(WebElement continuousTableElement) {
+    public GraphContinuousTable(WebElement continuousTableElement) {
         data = new String[0][0];
         List<WebElement> bodyRowList = continuousTableElement.findElements(By.cssSelector("tbody tr"));
 
@@ -105,8 +97,6 @@ public class GraphContinuousTable {
                 bodyRowsList.add(new Row(row, headingList));
             }
         }
-
-        return this;
     }
 
     public List<Row> getBodyRowsList() {

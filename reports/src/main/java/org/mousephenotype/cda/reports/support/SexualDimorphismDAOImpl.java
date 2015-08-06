@@ -38,11 +38,10 @@ import java.util.List;
 @Transactional
 public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualDimorphismDAO {
 
+	protected UrlUtils urlUtils = new UrlUtils();
+
 	@Autowired
 	ObservationService observationService;
-
-    @Autowired
-    UrlUtils urlUtils;
 
 	public SexualDimorphismDAOImpl() {
 

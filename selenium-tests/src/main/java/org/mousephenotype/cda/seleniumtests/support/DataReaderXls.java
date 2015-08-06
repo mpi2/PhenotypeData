@@ -18,10 +18,10 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,16 +32,21 @@ import java.util.List;
  * 
  * This <code>DataReader</code> implementation handles Microsoft Excel streams.
  */
-@Component
 public class DataReaderXls extends DataReader {
     
     private Iterator<Row> rowIterator = null;
     Workbook workbook;
 
-    public DataReaderXls() {
-
+    /**
+     * Instantiates a new <code>DataReader</code> that knows how to serve up
+     * Microsoft Excel XLS streams
+     *
+     * @param url The url defining the input stream
+     */
+    public DataReaderXls(URL url) {
+        super(url);
     }
-    
+
     /**
      * Opens the stream defined by the url used in the constructor.
      * @throws IOException
