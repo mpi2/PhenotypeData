@@ -16,16 +16,16 @@
 
 package org.mousephenotype.cda.utilities;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mrelac on 13/07/2015.
+ *
+ * NOTE: Please do not add any methods here that require being wired in to Spring. Keep this file spring-free, as it
+ *       is used in many places that are not spring-dependent.
  */
-@Component
 public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;

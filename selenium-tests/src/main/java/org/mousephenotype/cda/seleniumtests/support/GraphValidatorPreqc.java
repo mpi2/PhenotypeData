@@ -23,8 +23,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -36,17 +34,11 @@ import java.util.List;
  * graph. Since this is not an EBI graph, there is no need to extend from
  * GraphValidator.
  */
-@Component
 public class GraphValidatorPreqc {
 
+    protected final TestUtils testUtils = new TestUtils();
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    public GraphValidatorPreqc() {
-
-    }
 
     public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
         PageStatus status = new PageStatus();

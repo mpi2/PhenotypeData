@@ -16,9 +16,11 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.springframework.stereotype.Component;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,8 +33,9 @@ import java.util.Set;
  * This class encapsulates the code and data necessary to validate an ABR
  * graph section.
  */
-@Component
 public class GraphSectionABR extends GraphSection {
+
+    protected TestUtils testUtils = new TestUtils();
     
     // Download column offsets.
     public final int PIPELINE_NAME       =  0;
@@ -59,24 +62,22 @@ public class GraphSectionABR extends GraphSection {
     public final int METADATA_GROUP      = 21;
     public final int CATEGORY            = 22;
 
-    public GraphSectionABR() {
-
-    }
-
     /**
-     * Loads the <code>GraphSectionABR</code> instance
+     * Creates a new <code>GraphSectionABR</code> instance
      *
+     * @param driver <code>WebDriver</code> instance
+     * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the ABR chart section.
-     * @param timeoutInSeconds the wait timeout
      *
      * @throws TestException
      */
-    public void load(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
-        super.load(graphUrl, chartElement, timeoutInSeconds);
+    public GraphSectionABR(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
     }
-    
+
     @Override
     public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.

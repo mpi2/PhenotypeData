@@ -23,7 +23,6 @@ import org.mousephenotype.cda.reports.support.ReportParser;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -38,16 +37,15 @@ import java.util.List;
  * Created by mrelac on 24/07/2015.
  */
 public abstract class AbstractReport {
+
     protected PropertiesConfiguration applicationProperties;
+    protected CommonUtils commonUtils = new CommonUtils();
     protected MpCSVWriter csvWriter;
     protected Logger log = LoggerFactory.getLogger(this.getClass());
     protected File targetFile;
     protected String targetFilename;
 
     protected List<String> resources = Arrays.asList(new String[] {"IMPC", "3i"});
-
-    @Autowired
-    CommonUtils commonUtils;
 
     protected ReportParser parser = new ReportParser();
 

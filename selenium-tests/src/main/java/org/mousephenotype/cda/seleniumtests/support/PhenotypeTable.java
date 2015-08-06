@@ -16,15 +16,13 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
+
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,18 +31,21 @@ import java.util.List;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary for access to the phenotype
  * page's "phenotypes" HTML table.
  */
-@Component
 public class PhenotypeTable {
-    protected WebDriver driver;
-    protected String target;
-    protected WebDriverWait wait;
-    protected List<List<String>> preQcList;
-    protected List<List<String>> postQcList;
-    protected List<List<String>> preAndPostQcList;
+
+    private GridMap data;       // Contains postQc rows only.
+    private final WebDriver driver;
+    private List<List<String>> postQcList;
+    private List<List<String>> preAndPostQcList;
+    private List<List<String>> preQcList;
+    private final String target;
+    private final TestUtils testUtils = new TestUtils();
+    private final UrlUtils urlUtils = new UrlUtils();
+    private final WebDriverWait wait;
 
     public static final int COL_INDEX_PHENOTYPES_GENE_ALLELE         =  0;
     public static final int COL_INDEX_PHENOTYPES_ZYGOSITY            =  1;
@@ -55,7 +56,7 @@ public class PhenotypeTable {
     public static final int COL_INDEX_PHENOTYPES_SOURCE              =  6;
     public static final int COL_INDEX_PHENOTYPES_P_VALUE             =  7;
     public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK          =  8;
-    
+
     public static final String COL_PHENOTYPES_GENE_ALLELE         = "Gene / Allele";
     public static final String COL_PHENOTYPES_ZYGOSITY            = "Zygosity";
     public static final String COL_PHENOTYPES_SEX                 = "Sex";
@@ -66,28 +67,26 @@ public class PhenotypeTable {
     public static final String COL_PHENOTYPES_P_VALUE             = "P Value";
     public static final String COL_PHENOTYPES_GRAPH               = "Graph";
 
-    @Autowired
-    protected GridMap pageData;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
-    protected UrlUtils urlUtils;
-
-    @Autowired
-    SeleniumWrapper wrapper;
-
-    public PhenotypeTable() {
-
+    /**
+     * Creates a new, empty <code>PhenotypeTablePheno</code> instance. Call <code>
+     * load(<b>numRows</b>)</code> to load <code>numRows</code> rows of data.
+     * @param driver <code>WebDriver</code> instance
+     * @param wait<code>WebDriverWait</code> instance
+     * @param target the calling page's target url
+     */
+    public PhenotypeTable(WebDriver driver, WebDriverWait wait, String target) {
+        this.driver = driver;
+        this.wait = wait;
+        this.target = target;
+        this.data = null;
     }
-    
+
     /**
      * @return a <code>GridMap</code> containing the data and column access
      * variables that were loaded by the last call to <code>load()</code>.
      */
     public GridMap getData() {
-        return pageData;
+        return data;
     }
 
     /**
@@ -96,30 +95,29 @@ public class PhenotypeTable {
      * @return all rows of data and column access variables from
      * the pheno page's 'phenotypes' HTML table.
      */
-    public GridMap load(String target, long timeoutInSeconds) throws TestException {
-        return load(target, null, timeoutInSeconds);
+    public GridMap load() {
+        return load(null);
     }
 
     /**
-     * Load phenotype table data
+     * Pulls <code>numRows</code> rows of postQc data and column access variables from
+     * the pheno page's 'phenotypes' HTML table.
      *
-     * @return <code>numRows</code> rows of data and column access variables from the phenotype page's 'phenotypes'
-     * HTML table.
+     * @param numRows the number of postQc phenotype table rows to return, including
+     * the heading row. To specify all postQc rows, set <code>numRows</code> to null.
+     * @return <code>numRows</code> rows of data and column access variables
+     * from the pheno page's 'phenotypes' HTML table.
      */
-    public GridMap load(String target, Integer numRows, long timeoutInSeconds) throws TestException {
-        driver = wrapper.getDriver();
-        wait = new WebDriverWait(driver, timeoutInSeconds);
-        this.target = target;
-
+    public GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
-        
+
         String[][] dataArray;
         preQcList = new ArrayList();
         postQcList = new ArrayList();
         preAndPostQcList = new ArrayList();
         String value;
-        
+
         // Wait for page.
         WebElement phenotypesTable = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#phenotypes")));
 
@@ -141,7 +139,7 @@ public class PhenotypeTable {
         // Loop through all of the tr objects for this page, gathering the data.
         int sourceRowIndex = 1;
 //int rowIndex = 0;
-        for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {    
+        for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             boolean isPreQcLink = false;
             sourceColIndex = 0;
@@ -152,7 +150,7 @@ public class PhenotypeTable {
                 if (sourceColIndex == COL_INDEX_PHENOTYPES_GENE_ALLELE) {
                     String rawAllele = cell.findElement(By.cssSelector("span.smallerAlleleFont")).getText();
                     List<WebElement> alleleElements = cell.findElements(By.cssSelector("sup"));
-                    
+
                     if (alleleElements.isEmpty()) {
                         value = rawAllele;                                      // Some genes don't have allele markers. Save the gene symbol.
                     } else {
@@ -179,7 +177,7 @@ public class PhenotypeTable {
                         graphLinks = cell.findElements(By.cssSelector("i"));
                         if ( ! graphLinks.isEmpty()) {
                             value = graphLinks.get(0).getAttribute("oldtitle");
-                            if (value.contains(testUtils.NO_SUPPORTING_DATA)) {
+                            if (value.contains(TestUtils.NO_SUPPORTING_DATA)) {
                                 skipLink = true;
                             }
                         }
@@ -189,7 +187,7 @@ public class PhenotypeTable {
                 } else {
                     value = cell.getText();
                 }
-                
+
                 dataArray[sourceRowIndex][sourceColIndex] = value;
                 sourceColIndex++;
             }
@@ -201,7 +199,8 @@ public class PhenotypeTable {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the postQc list.
                     if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
-                        return pageData.load(postQcList, target);
+                        data = new GridMap(postQcList, target);
+                        return data;
                     }
                 }
             }
@@ -209,7 +208,8 @@ public class PhenotypeTable {
             sourceRowIndex++;
         }
 
-        return pageData.load(postQcList, target);
+        data = new GridMap(postQcList, target);
+        return data;
     }
 
     public List<List<String>> getPreQcList() {
@@ -223,21 +223,20 @@ public class PhenotypeTable {
     public List<List<String>> getPreAndPostQcList() {
         return preAndPostQcList;
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
+
     /**
-     * 
+     *
      * @return the number of rows in the "phenotypes" table. Always include 1 extra for the heading.
      */
     private int computeTableRowCount() {
         // Wait for page.
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDiv'][@data-exporturl]")));
-        
+
         List<WebElement> elements = driver.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"));
         return elements.size() + 1;
     }
-    
 }

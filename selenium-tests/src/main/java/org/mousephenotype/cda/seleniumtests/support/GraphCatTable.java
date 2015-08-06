@@ -18,7 +18,6 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,16 +31,12 @@ import java.util.List;
  * important components of a graph page 'catTable' HTML table. NOTE: A
  * categorical graph page can contain more than one GraphCatTable.
  */
-@Component
 public class GraphCatTable {
+
     private final List<Row> bodyRowsList = new ArrayList();
     private final List<String> headingList = new ArrayList();
 
-    public GraphCatTable() {
-
-    }
-
-    public void load(WebElement catTableElement) {
+    public GraphCatTable(WebElement catTableElement) {
 
         // Save the heading values.
         List<WebElement> headingElementList = catTableElement.findElements(By.cssSelector("thead tr th"));
