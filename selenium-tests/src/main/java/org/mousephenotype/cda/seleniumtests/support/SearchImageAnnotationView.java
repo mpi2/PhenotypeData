@@ -16,14 +16,13 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,40 +35,25 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'imagesGrid' HTML table (annotation view) for images.
  */
-@Component
 public class SearchImageAnnotationView extends SearchFacetTable {
 
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
+    private final List<ImageRow> bodyRows = new ArrayList();
+    protected final CommonUtils commonUtils = new CommonUtils();
+    private Map<TableComponent, By> map;
     protected GridMap pageData;
+    protected final UrlUtils urlUtils = new UrlUtils();
 
-    @Autowired
-    protected UrlUtils urlUtils;
-    
     public static final int COL_INDEX_ANNOTATION_TYPE     = 0;
     public static final int COL_INDEX_ANNOTATION_TERM     = 1;
     public static final int COL_INDEX_ANNOTATION_ID       = 2;
     public static final int COL_INDEX_RELATED_IMAGE_COUNT = 3;
     public static final int COL_INDEX_LAST = COL_INDEX_RELATED_IMAGE_COUNT;     // Should always point to the last (highest-numbered) index.
-    
-    private final List<ImageRow> bodyRows = new ArrayList();
-    private Map<TableComponent, By> map;
-    
-    /**
-     * Creates a new <code>SearchImageTable</code> instance.
-     * 
-     * @param driver A <code>WebDriver</code> instance pointing to the search
-     * facet table with thead and tbody definitions.
-     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
-     * @param map a map of HTML table-related definitions, keyed by <code>
-     * TableComponent</code>.
-     */
-    public SearchImageAnnotationView(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> map) {
+
+
+    public SearchImageAnnotationView(WebDriver driver, long timeoutInSeconds, Map<TableComponent, By> map) throws TestException {
         super(driver, timeoutInSeconds, map);
         this.map = map;
-        
+
         pageData = load();
     }
 
@@ -98,72 +82,69 @@ public class SearchImageAnnotationView extends SearchFacetTable {
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
+
     /**
-     * Pulls all rows of data and column access variables from the search page's
-     * 'maGrid' HTML table.
+     * Pulls all rows of data and column access variables from the search page's image annotation view.
      *
-     * @return <code>numRows</code> rows of data and column access variables
-     * from the search page's 'maGrid' HTML table.
+     * @return <code>numRows</code> rows of data and column access variables from the search page's image annotation
+     * view.
      */
     private GridMap load() {
         return load(null);
     }
 
     /**
-     * Pulls <code>numRows</code> rows of search page gene facet data and column
-     * access variables from the search page's 'maGrid' HTML table.
+     * Pulls <code>numRows</code> rows of search page gene facet data and column access variables from the search page's
+     * image annotation view.
      *
-     * @param numRows the number of <code>GridMap</code> table rows to return,
-     * including the heading row. To specify all rows, set <code>numRows</code>
-     * to null.
-     * @return <code>numRows</code> rows of search page gene facet data and
-     * column access variables from the search page's 'maGrid' HTML table.
+     * @param numRows the number of <code>GridMap</code> table rows to return, including the heading row. To specify
+     *                all rows, set <code>numRows</code> to null.
+     *
+     * @return <code>numRows</code> rows of search page gene facet data and column access variables from the search
+     * page's image annotation view.
      */
     private GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
-        
+
         String[][] pageArray;
-        
+
         // Wait for page.
         wait.until(ExpectedConditions.presenceOfElementLocated(map.get(TableComponent.BY_TABLE)));
         int numCols = COL_INDEX_LAST + 1;
-        
+
         pageArray = new String[numRows][numCols];                               // Allocate space for the data.
         for (int i = 0; i < numCols; i++) {
             pageArray[0][i] = "Column_" + i;                                    // Set the headings.
         }
-        
+
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
-            
+
             pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = "";            // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = "";
             pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TYPE] = "";
             pageArray[sourceRowIndex][COL_INDEX_RELATED_IMAGE_COUNT] = "";
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 ImageRow bodyRow = new ImageRowFactory(bodyRowElements).getImageRow();
-                
+
                 pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = bodyRow.getAnnotationId();
                 pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = bodyRow.getAnnotationTerm();
                 pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TYPE] = bodyRow.getAnnotationType();
                 pageArray[sourceRowIndex][COL_INDEX_RELATED_IMAGE_COUNT] = Integer.toString(bodyRow.getRelatedImageCount());
-                
+
                 sourceRowIndex++;
                 bodyRows.add(bodyRow);
             }
         }
 
-        pageData.load(pageArray, driver.getCurrentUrl());
-
-        return pageData;
+        return new GridMap(pageArray, target);
     }
     
     
