@@ -189,8 +189,12 @@ public class BasicService {
 	public List<String> getListFromCollection(Collection<Object> collection){
 		
 		List<String> list = new ArrayList<>();
-		for (Object obj : collection){
-			list.add(obj.toString());
+		if (collection != null){
+			for (Object obj : collection){
+				if (obj != null){
+					list.add(obj.toString());
+				}
+			}
 		}
 		
 		return list;
