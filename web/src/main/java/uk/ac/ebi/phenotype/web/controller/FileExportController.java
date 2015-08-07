@@ -1474,28 +1474,28 @@ public class FileExportController {
 		rowData.add(gridFields);
 
 		for (GwasDTO gw : gwasMappings) {
-			String traitName = gw.getGwasDiseaseTrait();
+			String traitName = gw.getDiseaseTrait();
 
 			if (currentTraitName != null && !traitName.equals(currentTraitName)) {
 				continue;
 			}
 
 			List<String> data = new ArrayList();
-			data.add(gw.getGwasMgiGeneSymbol());
-			data.add(gw.getGwasMgiGeneId());
-			data.add(gw.getGwasMgiAlleleId());
-			data.add(gw.getGwasMgiAlleleName());
-			data.add(gw.getGwasMouseGender());
-			data.add(gw.getGwasMpTermId());
-			data.add(gw.getGwasMpTermName());
+			data.add(gw.getMgiGeneSymbol());
+			data.add(gw.getMgiGeneId());
+			data.add(gw.getMgiAlleleId());
+			data.add(gw.getMgiAlleleName());
+			data.add(gw.getMouseGender());
+			data.add(gw.getMpTermId());
+			data.add(gw.getMpTermName());
 			data.add(traitName);
-			data.add(gw.getGwasSnpId());
-			data.add(Float.toString(gw.getGwasPvalue()));
-			data.add(gw.getGwasMappedGene());
-			data.add(gw.getGwasReportedGene());
-			data.add(gw.getGwasUpstreamGene());
-			data.add(gw.getGwasDownstreamGene());
-			data.add(gw.getGwasPhenoMappingCategory());
+			data.add(gw.getSnpId());
+			data.add(Float.toString(gw.getPvalue()));
+			data.add(gw.getMappedGene());
+			data.add(gw.getReportedGene());
+			data.add(gw.getUpstreamGene());
+			data.add(gw.getDownstreamGene());
+			data.add(gw.getPhenoMappingCategory());
 
 			rowData.add(StringUtils.join(data, "\t"));
 		}

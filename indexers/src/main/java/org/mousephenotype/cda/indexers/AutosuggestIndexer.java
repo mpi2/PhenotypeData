@@ -655,16 +655,16 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateGwasAutosuggestTerms() throws SolrServerException, IOException, SQLException {
 
         List<String> gwasFields = Arrays.asList(
-        		GwasDTO.GWAS_MGI_GENE_ID, 
-        		GwasDTO.GWAS_MGI_GENE_SYMBOL,
-        		GwasDTO.GWAS_MP_TERM_ID,
-        		GwasDTO.GWAS_MP_TERM_NAME,
-        		GwasDTO.GWAS_DISEASE_TRAIT,
-        		GwasDTO.GWAS_SNP_ID,
-        		GwasDTO.GWAS_REPORTED_GENE,
-        		GwasDTO.GWAS_MAPPED_GENE,
-        		GwasDTO.GWAS_UPSTREAM_GENE,
-        		GwasDTO.GWAS_DOWNSTREAM_GENE
+        		GwasDTO.MGI_GENE_ID, 
+        		GwasDTO.MGI_GENE_SYMBOL,
+        		GwasDTO.MP_TERM_ID,
+        		GwasDTO.MP_TERM_NAME,
+        		GwasDTO.DISEASE_TRAIT,
+        		GwasDTO.SNP_ID,
+        		GwasDTO.REPORTED_GENE,
+        		GwasDTO.MAPPED_GENE,
+        		GwasDTO.UPSTREAM_GENE,
+        		GwasDTO.DOWNSTREAM_GENE
                 );
        
         List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
@@ -678,51 +678,51 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 a.setDocType("gwas");
 
                 switch (field) {
-                	case GwasDTO.GWAS_MGI_GENE_ID:
-                		mapKey = gw.getGwasMgiGeneId();
+                	case GwasDTO.MGI_GENE_ID:
+                		mapKey = gw.getMgiGeneId();
                 		if (gwasMgiGeneIdSet.add(mapKey)) {
 	                        a.setGwasMgiGeneId(mapKey);
 	                        beans.add(a);
 	                    }
 	                    break;
-                    case GwasDTO.GWAS_MGI_GENE_SYMBOL:
-                        mapKey = gw.getGwasMgiGeneSymbol();
+                    case GwasDTO.MGI_GENE_SYMBOL:
+                        mapKey = gw.getMgiGeneSymbol();
                         if (gwasMgiGeneSymbolSet.add(mapKey)) {
                             a.setGwasMgiGeneSymbol(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case GwasDTO.GWAS_MP_TERM_ID:
-                    	mapKey = gw.getGwasMpTermId();
+                    case GwasDTO.MP_TERM_ID:
+                    	mapKey = gw.getMpTermId();
                         if (gwasMpIdSet.add(mapKey)) {
                             a.setGwasMpTermId(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case GwasDTO.GWAS_MP_TERM_NAME:
-                    	mapKey = gw.getGwasMpTermName();
+                    case GwasDTO.MP_TERM_NAME:
+                    	mapKey = gw.getMpTermName();
                         if (gwasMpTermSet.add(mapKey)) {
                             a.setGwasMpTermName(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case GwasDTO.GWAS_DISEASE_TRAIT:
-                        mapKey = gw.getGwasDiseaseTrait();
+                    case GwasDTO.DISEASE_TRAIT:
+                        mapKey = gw.getDiseaseTrait();
                         if (gwasTraitSet.add(mapKey)) {
                             a.setGwasDiseaseTrait(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case GwasDTO.GWAS_SNP_ID:
-                    	mapKey = gw.getGwasSnpId();
+                    case GwasDTO.SNP_ID:
+                    	mapKey = gw.getSnpId();
                         if (gwasSnipIdSet.add(mapKey)) {
                             a.setGwasSnpId(mapKey);
                             beans.add(a);
                         }
                         break;
-                    case GwasDTO.GWAS_REPORTED_GENE:	
-                        if ( !gw.getGwasReportedGene().isEmpty()) {
-                        	mapKey = gw.getGwasReportedGene();
+                    case GwasDTO.REPORTED_GENE:	
+                        if ( !gw.getReportedGene().isEmpty()) {
+                        	mapKey = gw.getReportedGene();
                             if (gwasReportedGeneSymbolSet.add(mapKey)) {
                             	a.setGwasReportedGene(mapKey);
                                 beans.add(a);
@@ -730,9 +730,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         }
                         break;
                         
-                    case GwasDTO.GWAS_MAPPED_GENE:
-                    	if ( !gw.getGwasMappedGene().isEmpty()) {
-	                    	mapKey = gw.getGwasMappedGene();
+                    case GwasDTO.MAPPED_GENE:
+                    	if ( !gw.getMappedGene().isEmpty()) {
+	                    	mapKey = gw.getMappedGene();
 	                        if (gwasMappedGeneSymbolSet.add(mapKey)) {
 	                        	a.setGwasMappedGene(mapKey);
 	                            beans.add(a);
@@ -740,18 +740,18 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     	}
                     	break;
                        
-                    case GwasDTO.GWAS_DOWNSTREAM_GENE:
-                    	if ( !gw.getGwasDownstreamGene().isEmpty()) {
-	                    	mapKey = gw.getGwasDownstreamGene();
+                    case GwasDTO.DOWNSTREAM_GENE:
+                    	if ( !gw.getDownstreamGene().isEmpty()) {
+	                    	mapKey = gw.getDownstreamGene();
 	                        if (gwasDownstreamGeneSymbolSet.add(mapKey)) {
 	                        	a.setGwasDownstreamGene(mapKey);
 	                            beans.add(a);
 	                        }
                     	}
                     	break;
-                    case GwasDTO.GWAS_UPSTREAM_GENE:
-                    	if ( !gw.getGwasUpstreamGene().isEmpty()) {
-	                    	mapKey = gw.getGwasUpstreamGene();
+                    case GwasDTO.UPSTREAM_GENE:
+                    	if ( !gw.getUpstreamGene().isEmpty()) {
+	                    	mapKey = gw.getUpstreamGene();
 	                        if (gwasUpstreamGeneSymbolSet.add(mapKey)) {
 	                        	a.setGwasUpstreamGene(mapKey);
 	                            beans.add(a);
