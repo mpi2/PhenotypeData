@@ -335,36 +335,31 @@ public class PhenotypePage {
      * Waits for the pheno page to load.
      */
     private void load() {
+        final String NOT_AVAILABLE = "Phenotype associations to genes and alleles will be available once data has completed quality control.";
+
         driver.get(target);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h2[@id='gene-variants']")));
 
-        // Get results count. [NOTE: pages with no matches don't have totals]
-        Integer i;
-        try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
-            String totResultsString = element.getText();
-            int index = totResultsString.lastIndexOf(":");
-            String count = totResultsString.substring(index + 1);
-            i = commonUtils.tryParseInt(count);
-        } catch (Exception e) {
-            i = null;
+        // Get results count. [NOTE: pages with no phenotype associations don't have totals]
+        Integer i = null;
+        List<WebElement> elements = driver.findElements(By.cssSelector("div#phenotypesDiv div.alert"));
+        if (elements.isEmpty()) {
+            elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']")));
+            if ( ! elements.isEmpty()) {
+                String totResultsString = elements.get(0).getText();
+                int index = totResultsString.lastIndexOf(":");
+                String count = totResultsString.substring(index + 1);
+                i = commonUtils.tryParseInt(count);
+            }
         }
 
         // Determine if this page has images.
-        try {
-            WebElement we = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/div[@class='accordion-group']/div[@class='accordion-heading']")));
-            hasImages = (we.getText().trim().equals("Phenotype Associated Images"));
-        } catch (Exception e) {
-            hasImages = false;
-        }
+        elements = driver.findElements(By.xpath("//*[@id='imagesSection']/div/div/div"));
+        hasImages = ! elements.isEmpty();
 
         // Determine if this page has phenotype associations.
-        try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[@id='phenotypes']")));
-            hasPhenotypesTable = true;
-        } catch (Exception e) {
-            hasPhenotypesTable = false;
-        }
+        elements = driver.findElements(By.xpath("//table[@id='phenotypes']"));
+        hasPhenotypesTable = ! elements.isEmpty();
 
         resultsCount = (i == null ? 0 : i);
         hasGraphs = (resultsCount > 0);

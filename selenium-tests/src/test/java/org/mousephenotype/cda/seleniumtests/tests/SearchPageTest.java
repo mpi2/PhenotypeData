@@ -979,6 +979,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             this.solrTarget = solrTarget;
         }
     }
+
     // Here's a good site to use for decoding: http://meyerweb.com/eric/tools/dencoder/
     SearchTermGroup[] staticSearchTermGroups = {
           new SearchTermGroup("leprot", "leprot")           // leprot
@@ -1023,6 +1024,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         , new SearchTermGroup("ü",      "\\%C3%BC")         // ü    %C3%BC
         , new SearchTermGroup("ö",      "\\%C3%B6")         // ö    %C3%B6
     };
+
     @Test
 @Ignore
     public void testFacetCountsSpecialCharacters() throws Exception {
