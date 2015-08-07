@@ -153,7 +153,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException {
         PageStatus status = new PageStatus();
         String testName = "testMGI_MPLinksAreValid";
@@ -260,7 +260,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryTopLevelMPTermId";
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
@@ -279,7 +279,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
@@ -292,7 +292,7 @@ public class PhenotypePageTest {
      *
      * @throws SolrServerException
      */
-@Ignore
+//@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         PageStatus status = new PageStatus();
@@ -342,7 +342,7 @@ public class PhenotypePageTest {
         testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
     }
 
-@Ignore
+//@Ignore
     @Test
     public void testDefinitionAndSynonymCount() throws SolrServerException {
         PageStatus status = new PageStatus();
