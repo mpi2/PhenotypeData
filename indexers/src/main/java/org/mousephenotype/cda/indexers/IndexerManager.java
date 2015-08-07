@@ -50,6 +50,8 @@ import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
  * @author mrelac
  */
 public class IndexerManager {
+
+    protected CommonUtils commonUtils = new CommonUtils();
     private static final Logger logger = LoggerFactory.getLogger(IndexerManager.class);
 
     // core names.
@@ -177,9 +179,6 @@ public class IndexerManager {
 
     @Autowired
     AutosuggestIndexer autosuggestIndexer;
-
-    @Autowired
-    CommonUtils commonUtilities;
 
     private IndexerItem[] indexerItems;
 
@@ -737,7 +736,7 @@ public class IndexerManager {
             StringBuilder sb = new StringBuilder();
             Formatter formatter = new Formatter(sb);
             long millis = endTimeInMs - startTimeInMs;
-            String elapsed = commonUtilities.msToHms(millis);
+            String elapsed = commonUtils.msToHms(millis);
             formatter.format("%20s started %s. Finished (%s) %s. Elapsed time: %s",
                              coreName, dateFormatter.format(startTimeInMs), status.name(),
                              dateFormatter.format(endTimeInMs), elapsed);
@@ -771,7 +770,7 @@ public class IndexerManager {
                 }
                 sb.append("\n");
                 sb.append("Total build time: ");
-                String elapsed = commonUtilities.msToHms(rows.get(rows.size() - 1).endTimeInMs - rows.get(0).startTimeInMs);
+                String elapsed = commonUtils.msToHms(rows.get(rows.size() - 1).endTimeInMs - rows.get(0).startTimeInMs);
                 sb.append(elapsed);
             }
 

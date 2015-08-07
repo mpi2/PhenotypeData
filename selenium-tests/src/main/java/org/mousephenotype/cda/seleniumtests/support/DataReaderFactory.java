@@ -14,9 +14,9 @@
  * License.
  *******************************************************************************/
 
-
-
 package org.mousephenotype.cda.seleniumtests.support;
+
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 
 import java.net.URL;
 
@@ -25,6 +25,7 @@ import java.net.URL;
  * @author mrelac
  */
 public class DataReaderFactory {
+
     /**
      * Given a URL, this method returns a <code>DataReader</code> of the correct
      * type to handle the stream identified by <code>url</code>.
@@ -32,8 +33,9 @@ public class DataReaderFactory {
      * create the correctly typed <code>DataReader</code>)
      * @return a <code>DataReader</code> capable of correctly handling the stream
      * identified by <code>url</code>.
+     * @throws TestException
      */
-    public static DataReader create(URL url) {
+    public DataReader create(URL url) throws TestException {
         String query = url.getQuery();
         String[] queryArray = query.split("&");
         for (String s : queryArray) {
@@ -52,6 +54,6 @@ public class DataReaderFactory {
             }
         }
         
-        throw new RuntimeException("Expected url query with substring 'fileType'. url query = '" + query + "'.");
+        throw new TestException("Expected url query with substring 'fileType'. url query = '" + query + "'.");
     }
 }

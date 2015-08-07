@@ -15,24 +15,29 @@
  */
 package org.mousephenotype.cda.seleniumtests.tests;
 
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,55 +73,56 @@ import java.util.List;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypeAssociationsTest {
 
+    private CommonUtils commonUtils = new CommonUtils();
+    private WebDriver driver;
+    private List<String> successList = new ArrayList<>();
+    protected TestUtils testUtils = new TestUtils();
+    private WebDriverWait wait;
+
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
+
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
+    private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
+
     @Autowired
 	@Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
 
     @Autowired
-    protected String baseUrl;
-
-    @Autowired
-    protected WebDriver driver;
-
-    @Autowired
-    protected String seleniumUrl;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
     protected PhenotypePipelineDAO phenotypePipelineDAO;
 
     @Autowired
-    protected CommonUtils commonUtils;
+    protected SeleniumWrapper wrapper;
 
-    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
 
-    private final int TIMEOUT_IN_SECONDS = 4;
-    private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
 
-    private final String ANCHOR_STRING = "Total number of results: ";
-
-    private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
-    private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
-
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
-
-    private final List<String> errorList = new ArrayList();
-    private final List<String> successList = new ArrayList();
-    private final List<String> exceptionList = new ArrayList();
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
     @Before
     public void setup() {
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
+            timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
-            thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
+            threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
-        try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+        commonUtils.sleep(threadWaitInMilliseconds);
     }
 
     @After
@@ -147,7 +153,7 @@ public class PhenotypeAssociationsTest {
         int sumOfPhenotypeCounts = 0;
         int expectedMinimumResultCount = -1;
         try {
-            GenePage genePage = new GenePage(driver, wait, target, geneId, baseUrl);
+            GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             // Make sure this page has phenotype associations.
             List<WebElement> phenotypeAssociationElements = driver.findElements(By.cssSelector("div.inner ul li a.filterTrigger"));
@@ -201,24 +207,23 @@ public class PhenotypeAssociationsTest {
 
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
 
         // Loop through all genes, testing each one for valid page load.
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (String geneId : geneIds) {
- if (i == 0) geneId = "MGI:103253";
- if (i == 1) geneId = "MGI:2142624";
-// if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
+// if (i == 0) geneId = "MGI:1922257";
+// if (i == 1) geneId = "MGI:1933966";
             if (i >= targetCount) {
                 break;
             }
+
+            status.add(processRow(wait, geneId, i));
             i++;
 
-            status = processRow(wait, geneId, i);
-
-            commonUtils.sleep(thread_wait_in_ms);
+            commonUtils.sleep(threadWaitInMilliseconds);
         }
 
         if ( ! status.hasErrors()) {

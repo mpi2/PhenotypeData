@@ -16,13 +16,13 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -36,12 +36,11 @@ import java.util.List;
  */
 public class GraphValidatorPreqc {
 
+    protected final TestUtils testUtils = new TestUtils();
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    @Autowired
-    protected TestUtils testUtils;
-
-    public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) {
+    public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
         PageStatus status = new PageStatus();
         String message;
 

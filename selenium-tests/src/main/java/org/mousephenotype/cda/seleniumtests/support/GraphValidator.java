@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 
 /**
  * This abstract class encapsulates the common code and data necessary to
@@ -25,12 +25,12 @@ import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
  * 
  * @author mrelac
  */
-
 public abstract class GraphValidator {
+
     protected GraphSection pageSection;
     public static final String IMPC_PIPELINE = "IMPC Pipeline";
     public GraphValidator() {
-        
+
     }
 
     public GraphSection getPageSection() {
@@ -40,9 +40,9 @@ public abstract class GraphValidator {
     public void setPageSection(GraphSection pageSection) {
         this.pageSection = pageSection;
     }
-    
-    
-    public PageStatus validate() throws GraphTestException {
+
+
+    public PageStatus validate() throws TestException {
         return pageSection.getHeading().validate();
     }
 }

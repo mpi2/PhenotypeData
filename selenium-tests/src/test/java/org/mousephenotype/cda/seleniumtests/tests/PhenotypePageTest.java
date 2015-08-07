@@ -16,31 +16,36 @@
 
 package org.mousephenotype.cda.seleniumtests.tests;
 
- import org.apache.log4j.Logger;
  import org.apache.solr.client.solrj.SolrServerException;
- import org.junit.*;
- import org.junit.runner.RunWith;
- import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
- import org.mousephenotype.cda.seleniumtests.support.PageStatus;
- import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
- import org.mousephenotype.cda.seleniumtests.support.TestUtils;
- import org.mousephenotype.cda.solr.service.MpService;
- import org.mousephenotype.cda.solr.service.PostQcService;
- import org.mousephenotype.cda.utilities.CommonUtils;
- import org.openqa.selenium.*;
- import org.openqa.selenium.support.ui.ExpectedConditions;
- import org.openqa.selenium.support.ui.WebDriverWait;
- import org.springframework.beans.factory.annotation.Autowired;
- import org.springframework.beans.factory.annotation.Qualifier;
- import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
+import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
+import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+ import org.springframework.core.env.Environment;
  import org.springframework.test.context.TestPropertySource;
- import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
- import java.text.DateFormat;
- import java.text.SimpleDateFormat;
- import java.util.ArrayList;
- import java.util.Date;
- import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -67,53 +72,57 @@ package org.mousephenotype.cda.seleniumtests.tests;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageTest {
 
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    private CommonUtils commonUtils = new CommonUtils();
+    private WebDriver driver;
+    protected TestUtils testUtils = new TestUtils();
+    private WebDriverWait wait;
+
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
+
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
+    private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-	@Qualifier("postqcService")
+    Environment env;
+
+    @Autowired
+    @Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @Autowired
     protected MpService mpService;
 
     @Autowired
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
+    protected SeleniumWrapper wrapper;
+
+    @NotNull
+    @Value("${baseUrl}")
     protected String baseUrl;
 
-    @Autowired
-    protected WebDriver driver;
 
-    @Autowired
-    protected String seleniumUrl;
-
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final Logger log = Logger.getLogger(this.getClass().getCanonicalName());
-
-    private final int TIMEOUT_IN_SECONDS = 4;
-    private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
-
-    private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
-    private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
     @Before
     public void setup() {
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
+            timeoutInSeconds = 60;                                            // Use 1 minute rather than the default 4 seconds, as some of the pages take a long time to load.
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
-            thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
+            threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
 
         driver.navigate().refresh();
-        try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+        try { Thread.sleep(threadWaitInMilliseconds); } catch (Exception e) { }
     }
 
     @After
@@ -157,7 +166,7 @@ public class PhenotypePageTest {
         String message;
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
@@ -183,12 +192,12 @@ public class PhenotypePageTest {
 
             try {
                 driver.get(target);
-                phenotypeLink = (new WebDriverWait(driver, timeout_in_seconds))
+                phenotypeLink = (new WebDriverWait(driver, timeoutInSeconds))
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                 status.addError(message);
-                commonUtils.sleep(thread_wait_in_ms);
+                commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
             }
             try {
@@ -215,7 +224,7 @@ public class PhenotypePageTest {
                 successList.add(message);
             }
 
-            commonUtils.sleep(thread_wait_in_ms);
+            commonUtils.sleep(threadWaitInMilliseconds);
         }
 
         testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, phenotypeIds.size());
@@ -305,7 +314,7 @@ public class PhenotypePageTest {
 
         try {
             driver.get(target);
-            List<WebElement> phenotypeLinks = (new WebDriverWait(driver, timeout_in_seconds))
+            List<WebElement> phenotypeLinks = (new WebDriverWait(driver, timeoutInSeconds))
                     .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.node h1")));
             if (phenotypeLinks == null) {
                 message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
@@ -355,7 +364,7 @@ public class PhenotypePageTest {
         List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int errorCount = 0;
 
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 3 of a total of 3 records.");
@@ -365,7 +374,7 @@ public class PhenotypePageTest {
             logger.debug("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], baseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
                 phenotypePage.selectPhenotypesLength(100);
                 String definition = phenotypePage.getDefinition();
                 if (definition.isEmpty()) {
@@ -408,9 +417,9 @@ public class PhenotypePageTest {
         List<String> successList = new ArrayList();
         List<String> exceptionList = new ArrayList();
         Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeout_in_seconds);
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through all phenotypes, testing each one for valid page load.
@@ -426,7 +435,7 @@ public class PhenotypePageTest {
             System.out.println("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, baseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
                 if (phenotypePage.hasPhenotypesTable()) {
                     phenotypePage.selectPhenotypesLength(100);
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));

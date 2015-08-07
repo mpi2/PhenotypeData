@@ -17,8 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.exception.DownloadException;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
@@ -26,95 +25,97 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
 /**
- *
  * @author mrelac
- * 
- * This abstract class encapsulates the code and data necessary to represent the important,
- * common components of a graph page, such as: allele, background, phenotyping center,
- * pipeline name, metadata group, procedure name and parameter name, and
- * parameterStableId.
- * 
- * Currently there are no collections or links shared by all
- * graphs; for those, consult subclasses such as
- * GraphPageCategorical and GraphPageUnidimensional.
+ *         <p>
+ *         This abstract class encapsulates the code and data necessary to represent the important,
+ *         common components of a graph page, such as: allele, background, phenotyping center,
+ *         pipeline name, metadata group, procedure name and parameter name, and
+ *         parameterStableId.
+ *         <p>
+ *         Currently there are no collections or links shared by all
+ *         graphs; for those, consult subclasses such as
+ *         GraphPageCategorical and GraphPageUnidimensional.
  */
 public class GraphPage {
-    protected final WebDriver driver;
-    protected final WebDriverWait wait;
-    protected final String graphUrl;
+
     protected final String baseUrl;
-    protected final List<GraphSection> graphSections = new ArrayList<>();
+    protected final CommonUtils commonUtils = new CommonUtils();
+    protected final WebDriver driver;
+    protected final List<GraphSection> graphSections = new ArrayList();
+    protected final String graphUrl;
+    protected final PhenotypePipelineDAO phenotypePipelineDAO;
+    protected final TestUtils testUtils = new TestUtils();
+    protected final WebDriverWait wait;
 
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    protected TestUtils testUtils;
-    
     /**
      * Creates a new <code>GraphPage</code> instance
-     * 
-     * @param driver <code>WebDriver</code> instance
-     * @param wait <code>WebDriverWait</code> instance
-     * @param graphUrl url of graph page to load
-     * @param baseUrl the base url pointing to the downloads
-     * @throws GraphTestException
+     *
+     * @param driver               <code>WebDriver</code> instance
+     * @param wait                 <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
+     * @param graphUrl             url of graph page to load
+     * @param baseUrl              the base url pointing to the downloads
+     * @throws TestException
      */
-    public GraphPage(WebDriver driver, WebDriverWait wait, String graphUrl, String baseUrl) throws GraphTestException {
+    public GraphPage(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, String baseUrl) throws TestException {
         this.driver = driver;
         this.wait = wait;
+        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.baseUrl = baseUrl;
-        
+
         driver.get(graphUrl);
         load();
     }
-    
-    public PageStatus validate() throws GraphTestException {
+
+    public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
-        
+
         for (GraphSection graphSection : graphSections) {
             status.add(graphSection.validate());
         }
-        
+
         return status;
     }
-    
-    
+
+
     // GETTERS AND SETTERS
+
 
     public List<GraphSection> getGraphSections() {
         return graphSections;
     }
-    
-    
+
+
     // PRIVATE METHODS
 
-    
+
     private boolean hasDownloadLinks() {
         List<WebElement> elements = driver.findElements(By.xpath("//div[@id='exportIconsDivGlobal']"));
-        return ( ! elements.isEmpty());
+        return (!elements.isEmpty());
     }
-    
+
     /**
      * Load the page and its section and tsv/xls download data.
      */
-    private void load() throws GraphTestException {
-        String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
-        List<WebElement> chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
-        
+    private void load() throws TestException {
         String message;
-        
+        List<WebElement> chartElements;
+
+        String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
+        try {
+            chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
+        } catch (Exception e) {
+            message = "EXCEPTION loading GraphPage. Reason: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl();
+            throw new TestException(message, e);
+        }
+
         // Wait for page to load. Sometimes the chart isn't loaded when the 'wait()' ends, so try a few times.
         for (int i = 0; i < 10; i++) {
             try {
@@ -126,13 +127,13 @@ public class GraphPage {
                 commonUtils.sleep(10);
             }
         }
-        
+
         // Load the GraphSections.
         for (WebElement chartElement : chartElements) {
-            GraphSection graphSection = GraphSectionFactory.createGraphSection(driver, wait, graphUrl, chartElement);
+            GraphSection graphSection = GraphSectionFactory.createGraphSection(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
             graphSections.add(graphSection);
         }
-        
+
         // If the page has download links, parse each download section into its
         // own DownloadSection. Each such section contains a map with two keys:
         // "tsv" and "xls". Each value points to its [tsv or xls] data.
@@ -143,9 +144,9 @@ public class GraphPage {
             } catch (Exception e) {
                 message = "Exception. URL: " + graphUrl;
                 System.out.println(message);
-                throw new GraphTestException(message,  e);
+                throw new TestException(message, e);
             }
-            
+
             // For each GraphSection, compare the heading's pageKey with the set
             // of keys for each download section until found. If found, bind
             // that download section to the graph section; otherwise, throw an
@@ -154,8 +155,8 @@ public class GraphPage {
                 GraphHeading heading = graphSection.getHeading();
                 graphSection.setDownloadSection(null);
                 String pageKey = heading.getMutantKey();
-                
-                List<Set<String>> downloadKeysSet = new ArrayList<>();
+
+                List<Set<String>> downloadKeysSet = new ArrayList();
                 for (DownloadSection downloadSection : downloadSections) {
                     Set<String> downloadKeys = downloadSection.getKeys(heading.chartType, DownloadType.XLS);
                     if (downloadKeys.contains(pageKey)) {
@@ -168,14 +169,14 @@ public class GraphPage {
                 if (graphSection.getDownloadSection() == null) {
                     String setContents = "";
                     for (Set<String> downloadKeys : downloadKeysSet) {
-                        if ( ! setContents.isEmpty())
+                        if (!setContents.isEmpty())
                             setContents += "\n\n";
                         setContents += testUtils.dumpSet(downloadKeys);
                     }
                     message = "ERROR: target " + graphUrl + "\nExpected page mutantKey '" + pageKey
                             + "' but was not found. Set:\n" + setContents;
                     System.out.println(message);
-                    throw new GraphTestException(message);
+                    throw new TestException(message);
                 }
             }
         }
@@ -186,16 +187,15 @@ public class GraphPage {
      * map will contain two key/value pairs: one keyed "tsv" and one keyed
      * "xls". Each value contains a list of download data by section, where a
      * section is identified as starting with a column heading.
-     * 
+     *
      * @return two key/value pairs: one keyed "tsv" and one keyed "xls". Each
      * value contains a list of download data by section, where a section is
      * identified as starting with a column heading.
-     * 
-     * @throws DownloadException
+     * @throws TestException
      */
-    public List<DownloadSection> loadAllDownloadData() throws DownloadException {
-        List<DownloadSection> retVal = new ArrayList<>();
-        
+    public List<DownloadSection> loadAllDownloadData() throws TestException {
+        List<DownloadSection> retVal = new ArrayList();
+
         // Extract the TSV data.
         // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
         // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
@@ -204,104 +204,102 @@ public class GraphPage {
         String downloadTargetTsv = testUtils.patchUrl(baseUrl, downloadTargetUrlBase + "tsv", "/export?");
 
         // Get the download stream data.
-        List<List<List<String>>> downloadBlockTsv;
-        List<List<List<String>>> downloadBlockXls;
-        
+        List<List<List<String>>> downloadBlockTsv = new ArrayList();
+        List<List<List<String>>> downloadBlockXls = new ArrayList();
+
         try {
             URL url = new URL(downloadTargetTsv);
             DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
             String[][] allGraphData = dataReaderTsv.getData();
             downloadBlockTsv = parseDownloadStream(allGraphData);
-            
+
         } catch (IOException e) {
-            throw new DownloadException("Error parsing TSV", e);
+            throw new TestException("Error parsing TSV", e);
         }
         // Extract the XLS data.
         String downloadTargetXls = testUtils.patchUrl(baseUrl, downloadTargetUrlBase + "xls", "/export?");
-        
+
         try {
             URL url = new URL(downloadTargetXls);
             DataReaderXls dataReaderXls = new DataReaderXls(url);
             String[][] allGraphData = dataReaderXls.getData();
             downloadBlockXls = parseDownloadStream(allGraphData);
-            
+
         } catch (IOException e) {
-            throw new DownloadException("Error parsing XLS", e);
+            throw new TestException("Error parsing XLS", e);
         }
-        
+
         for (int i = 0; i < downloadBlockTsv.size(); i++) {
-            Map<DownloadType, List<List<String>>> downloadDataMap = new HashMap<>();
-            
+            Map<DownloadType, List<List<String>>> downloadDataMap = new HashMap();
+
             downloadDataMap.put(DownloadType.TSV, downloadBlockTsv.get(i));
             downloadDataMap.put(DownloadType.XLS, downloadBlockXls.get(i));
             DownloadSection downloadSection = new DownloadSection(downloadDataMap);
             retVal.add(downloadSection);
         }
-        
+
         return retVal;
     }
+
     /**
      * Given the full download data set, this method parses it, separating it
      * into a separate dataset for each graph. Each graph's dataset is preceeded
      * by row of column headings.
-     * 
+     * <p>
      * Dependency: This code depends on the first column of the first row
-     *             matching the string 'pipeline name'.
-     * 
+     * matching the string 'pipeline name'.
+     *
      * @param allGraphData the full download data set
-     * 
      * @return a list of download data set chunks, one for every graph
      */
     private List<List<List<String>>> parseDownloadStream(String[][] allGraphData) {
         List<List<List<String>>> retVal = new ArrayList<>();
         List<List<String>> dataBlock = new ArrayList<>();
-        
+
         for (String[] row : allGraphData) {
             if (isHeading(row)) {
-                if ( ! dataBlock.isEmpty()) {
+                if (!dataBlock.isEmpty()) {
                     retVal.add(dataBlock);
                     dataBlock = new ArrayList<>();
                 }
             }
-        
-            if ( ! isBlank(row)) {                                              // Skip blank lines.
+
+            if (!isBlank(row)) {                                              // Skip blank lines.
                 dataBlock.add(Arrays.asList(row));
             }
         }
-        
-        if ( ! dataBlock.isEmpty()) {
+
+        if (!dataBlock.isEmpty()) {
             retVal.add(dataBlock);
         }
-        
+
         return retVal;
     }
-    
+
     /**
      * Returns true if the line described by <code>row</code> is a heading;
      * false otherwise.
-     * 
+     *
      * @param row the line to be queried for a heading
-     * 
      * @return true if the line described by <code>row</code> is a heading;
-     *         false otherwise.
+     * false otherwise.
      */
     public static boolean isHeading(String[] row) {
         return (row[0].equals("pipeline name"));
     }
-    
+
     /**
      * Returns true if the line described by <code>row</code> is a heading;
      * false otherwise.
-     * 
+     *
      * @param row the line to be queried for a heading
-     * 
      * @return true if the line described by <code>row</code> is a heading;
-     *         false otherwise.
+     * false otherwise.
      */
     public static boolean isHeading(List<String> row) {
         return isHeading(row.toArray(new String[0]));
     }
-    
+
     public static boolean isBlank(String[] row) {
         return ((row == null) || (row[0].isEmpty()));
     }

@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,15 +34,13 @@ import java.util.List;
  */
 public class DataReaderTsv extends DataReader {
 
+    private CommonUtils commonUtils = new CommonUtils();
     private BufferedReader bufferedReader = null;
 
-    @Autowired
-    protected CommonUtils commonUtils;
-    
     /**
      * Instantiates a new <code>DataReader</code> that knows how to serve up
      * tab-separated streams
-     * 
+     *
      * @param url The url defining the input stream
      */
     public DataReaderTsv(URL url) {
@@ -108,17 +105,4 @@ public class DataReaderTsv extends DataReader {
     public DataType getType() {
         return DataType.TSV;
     }
-    
-    
-    // GETTERS
-    
-    
-    /**
-     * Returns the url
-     * @return the url
-     */
-    public URL getUrl() {
-        return url;
-    }
-    
 }

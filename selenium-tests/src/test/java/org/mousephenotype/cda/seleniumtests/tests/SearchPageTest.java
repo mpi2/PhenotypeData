@@ -22,10 +22,10 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
@@ -37,6 +37,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +55,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 /**
@@ -84,70 +84,29 @@ import static org.junit.Assert.*;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 
-    @Autowired
-    protected GeneService geneService;
-
-    @Autowired
-    private SeleniumWrapper wrapper;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
-
-    @NotNull
-    @Value("baseUrl")
-    protected String baseUrl;
-
-    @NotNull
-    @Value("solrUrl")
-    protected String solrUrl;
-
-
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
-
-    protected WebDriver driver;
-
+    private CommonUtils commonUtils = new CommonUtils();
+    private WebDriver driver;
+    protected TestUtils testUtils = new TestUtils();
+    private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
 
-    // These constants define the default number of iterations for each that uses them. -1 means iterate over all.
-    private final int MAX_MGI_LINK_CHECK_COUNT = 5;                             // -1 means test all links.
-    private final int MAX_PHENOTYPE_TEST_PAGE_COUNT = 10;                       // -1 means test all pages.
-    private final int TIMEOUT_IN_SECONDS = 120;
-    private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
+    private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
 
-    // These variables define the actual number of iterations for each test that uses them.
-    // They use default values defined above but may be overridden on the command line using -Dxxx.
-    private final int max_mgi_link_check_count = MAX_MGI_LINK_CHECK_COUNT;
-    private final int max_phenotype_test_page_count = MAX_PHENOTYPE_TEST_PAGE_COUNT;
-    private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
-    private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
-
-    private final StringBuffer verificationErrors = new StringBuffer();
-
-    private final ArrayList<String> errLog = new ArrayList();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final HashMap<String, String> params = new HashMap();
     private final List<String> paramList = new ArrayList();
     private final List<String> cores = new ArrayList();
     private final List<String> errorList = new ArrayList();
-    private final List<String> exceptionList = new ArrayList();
     private final List<String> successList = new ArrayList();
     private final static List<String> sumErrorList = new ArrayList();
     private final static List<String> sumSuccessList = new ArrayList();
     private static String startTime;
     private static int testCount;
-    private WebDriverWait wait;
     protected Connection komp2Connection;
 
     private static final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
@@ -164,19 +123,45 @@ public class SearchPageTest {
         impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
     }
 
+    @Autowired
+    protected GeneService geneService;
+
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
+
+    @Autowired
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+
+    @Autowired
+    protected SeleniumWrapper wrapper;
+
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
+    @NotNull
+    @Value("${solr.host}")
+    protected String solrUrl;
+
+
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
+
     @Before
     public void setup() {
-        wait = new WebDriverWait(driver, timeout_in_seconds);
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
+            timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
-            thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
+            threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
         testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
-        driver.manage().timeouts().setScriptTimeout(timeout_in_seconds, TimeUnit.SECONDS);
-        try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+        commonUtils.sleep(threadWaitInMilliseconds);
 
         params.put("gene","fq=*:*");
         params.put("mp", "fq=top_level_mp_term:*");
@@ -281,7 +266,7 @@ public class SearchPageTest {
             String target = baseUrl + "/search";
             logger.info("target: " + target);
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, map);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
             if (! searchString.isEmpty()) {
                 searchPage.submitSearch(searchString + "\n");
             }
@@ -352,7 +337,7 @@ public class SearchPageTest {
             return status;
         }
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, map);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
 
         // Verify that the core counts returned by solr match the facet counts on the page and the page.
         for (String core : cores) {
@@ -468,7 +453,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         for (String geneSymbol : geneSymbols) {
             String target = baseUrl + "/search";
 
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             System.out.println("Testing symbol " + geneSymbol + ":\t. URL: " + driver.getCurrentUrl());
 
             List<SearchPage.AutosuggestRow> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
@@ -546,7 +531,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         errorList.clear();
         String target = baseUrl + "/search";
         logger.debug("target Page URL: " + target);
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
 
         // For each core:
         //   Click the first subfacet.
@@ -665,7 +650,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             for (int i = 0; i<size; i++) {
                 String geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
 
-                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+                SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.submitSearch(geneSymbol1);
                 commonUtils.sleep(5000);                                          // Sleep for a bit to allow autocomplete to catch up.
 
@@ -756,7 +741,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
                     errorList.add(mgiId);
                     continue;
                 }
-                try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+                commonUtils.sleep(threadWaitInMilliseconds);
             }
             System.out.println();
             if (successList.size() == nbRows ){
@@ -822,7 +807,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         try {
             target = baseUrl + "/search?q=MGI%3A1353431#fq=*:*&facet=gene";
             logger.info("target: " + target);
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, impcImageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
             // Use the first gene div element in the search results.
             List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
@@ -887,13 +872,12 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
         successList.clear();
         errorList.clear();
-        exceptionList.clear();
 
         for (String core : cores ){
             target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
             System.out.println("Testing URL: " + target);
             try {
-                SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+                SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.clickFacetById(core);
 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
@@ -926,7 +910,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             }
         }
 
-        if ((errorList.isEmpty()) && (exceptionList.isEmpty())) {
+        if (errorList.isEmpty()) {
             System.out.println("[PASSED] - " + testName);
             sumSuccessList.add("passed");
         }
@@ -967,7 +951,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
                 continue;
 
             recordCount++;
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             int facetCountFromSolr = (int)solrCoreCountMap.get(core);
             int resultCount = searchPage.getResultCount();
 
@@ -978,7 +962,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             }
         }
 
-        if ((errorList.isEmpty()) && (exceptionList.isEmpty())) {
+        if (errorList.isEmpty()) {
             System.out.println("[PASSED] - " + testName);
             sumSuccessList.add("passed");
         }
@@ -995,6 +979,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             this.solrTarget = solrTarget;
         }
     }
+
     // Here's a good site to use for decoding: http://meyerweb.com/eric/tools/dencoder/
     SearchTermGroup[] staticSearchTermGroups = {
           new SearchTermGroup("leprot", "leprot")           // leprot
@@ -1039,6 +1024,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         , new SearchTermGroup("ü",      "\\%C3%BC")         // ü    %C3%BC
         , new SearchTermGroup("ö",      "\\%C3%B6")         // ö    %C3%B6
     };
+
     @Test
 @Ignore
     public void testFacetCountsSpecialCharacters() throws Exception {
@@ -1136,8 +1122,9 @@ if (core.equals(SearchPage.GENE_CORE)) {
             }
         }
 
-        if ((errorList.isEmpty() && (exceptionList.isEmpty())))
+        if (errorList.isEmpty()) {
             successList.add((testName + ": OK"));
+        }
 
         testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
     }
@@ -1165,7 +1152,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             if (! searchString.isEmpty()) {
                 searchPage.submitSearch(searchString + "\n");
             }
@@ -1262,7 +1249,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
@@ -1305,7 +1292,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, impcImageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
             facet = Facet.IMPC_IMAGES;
             searchPage.clickFacet(facet);
@@ -1349,7 +1336,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         try {
             String target = baseUrl + "/search";
 // target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
-            SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             Facet facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
@@ -1383,7 +1370,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
         System.out.println("\n\n----- " + testName + " -----");
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedResult = "wnt1";
@@ -1401,7 +1388,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
         System.out.println("\n\n----- " + testName + " -----");
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
@@ -1422,7 +1409,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
         System.out.println("\n\n----- " + testName + " -----");
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
         System.out.println("\nTesting Gene facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
         List<SearchPage.AutosuggestRow> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
@@ -1447,7 +1434,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
         System.out.println("testMaTermNamesMatchFacetNames");
         String target = baseUrl + "/search";
 
-        SearchPage searchPage = new SearchPage(driver, timeout_in_seconds, target, baseUrl, impcImageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
         String[] pageMaFacetTermNames = searchPage.getFacetNames(Facet.ANATOMY);
         for (int i = 0; i < pageMaFacetTermNames.length; i++) {
             // Remove the newline and facet count.

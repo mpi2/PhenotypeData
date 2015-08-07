@@ -140,6 +140,11 @@
     <field name="marker_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="marker_type" type="string" indexed="true" stored="true" multiValued="false" />
     <field name="ensembl_gene_id" type="string" indexed="true" stored="true" multiValued="true" />
+    
+    <field name="vega_id" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="ncbi_id" type="string" indexed="true" stored="true" multiValued="true" />
+    <field name="ccds_id" type="string" indexed="true" stored="true" multiValued="true" />
+	
    	<field name="imits_phenotype_started" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_complete" type="string" indexed="true" stored="true" multiValued="false"/>
 	<field name="imits_phenotype_status" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -300,6 +305,11 @@
   	
   	
   	<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
+  	
+  	<field name="seq_region_id" type="string" indexed="true" stored="true" multiValued="false"/>
+  	<field name="seq_region_start" type="int" indexed="true" stored="true" multiValued="false"/>
+  	<field name="seq_region_end" type="int" indexed="true" stored="true" multiValued="false"/>
+  	<field name="xref" type="string" indexed="true" stored="true" multiValued="true"/>
 
  </fields>
 

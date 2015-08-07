@@ -147,9 +147,91 @@ public class GeneDTO {
 	public static final String PFAMA_GO_ID = "pfama_go_id"; 
 	public static final String PFAMA_GO_TERM = "pfama_go_term"; 
 	public static final String PFAMA_GO_CAT = "pfama_go_cat"; 
-	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available"; 
+	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available";
+	public static final String SEQ_REGION_ID = "seq_region_id";
+	public static final String SEQ_REGION_START = "seq_region_start";
+	public static final String SEQ_REGION_END = "seq_region_end";
+	public static final String XREF = "xref";
+	public static final String XREF_ACC = "xref_acc";
+	private static final String VEGA_IDS = "vega_id";
+	private static final String NCBI_IDS = "ncbi_id";
+	private static final String CCDS_IDS = "ccds_id"; 
 	
+	@Field(VEGA_IDS)
+	private List<String> vegaIds;
+	public List<String> getVegaIds() {
+		return vegaIds;
+	}
+
+	public void setVegaIds(List<String> vegaIds) {
+		this.vegaIds = vegaIds;
+	}
+
+	public List<String> getNcbiIds() {
+		return ncbiIds;
+	}
+
+	public void setNcbiIds(List<String> ncbiIds) {
+		this.ncbiIds = ncbiIds;
+	}
+
+	public List<String> getCcdsIds() {
+		return ccdsIds;
+	}
+
+	public void setCcdsIds(List<String> ccdsIds) {
+		this.ccdsIds = ccdsIds;
+	}
+
+	@Field(NCBI_IDS)
+	private List<String> ncbiIds;
+	@Field(CCDS_IDS)
+	private List<String> ccdsIds;
+		
 	
+	@Field(SEQ_REGION_ID)
+	private String seqRegionId;
+	
+	public String getSeqRegionId() {
+		return seqRegionId;
+	}
+
+	public void setSeqRegionId(String seqRegionId) {
+		this.seqRegionId = seqRegionId;
+	}
+
+	public int getSeqRegionStart() {
+		return seqRegionStart;
+	}
+
+	public void setSeqRegionStart(int seqRegionStart) {
+		this.seqRegionStart = seqRegionStart;
+	}
+
+	public int getSeqRegionEnd() {
+		return seqRegionEnd;
+	}
+
+	public void setSeqRegionEnd(int seqRegionEnd) {
+		this.seqRegionEnd = seqRegionEnd;
+	}
+
+	public List<String> getXrefs() {
+		return xrefs;
+	}
+
+	public void setXrefs(List<String> xrefs) {
+		this.xrefs = xrefs;
+	}
+
+	@Field(SEQ_REGION_START)
+	private int seqRegionStart;
+	
+	@Field(SEQ_REGION_END)
+	private int seqRegionEnd;
+	
+	@Field(XREF)
+	List<String> xrefs;
 	
 	// <!-- gene level fields -->
 	@Field(IMPC_NOVEL_PREDICTED_IN_LOCUS)

@@ -19,7 +19,6 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,10 @@ import java.util.List;
  * unidimensional graph page can contain more than one GraphContinuousTable.
  */
 public class GraphContinuousTable {
-    private String[][] data;
+
     private final List<Row> bodyRowsList = new ArrayList();
+    private CommonUtils commonUtils = new CommonUtils();
+    private String[][] data;
     private final List<String> headingList = new ArrayList();
     
     // Column offsets
@@ -43,12 +44,8 @@ public class GraphContinuousTable {
     public final int COL_INDEX_STANDARD_ERROR = 2;
     public final int COL_INDEX_COUNT = 3;
 
-    @Autowired
-    CommonUtils commonUtils;
-    
     /**
-     * Creates a new <code>ContinuousGraphTable</code> instance initialized with
-     * data.
+     * Loads the <code>ContinuousGraphTable</code> instance.
      * 
      * @param continuousTableElement A <code>WebElement</code> instance pointing
      * to an HTML table with id 'continuousTable' with thead and tbody

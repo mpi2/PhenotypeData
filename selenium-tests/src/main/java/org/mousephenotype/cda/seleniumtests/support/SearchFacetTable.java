@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
@@ -26,7 +27,6 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -40,67 +40,62 @@ import java.util.*;
  * validateDownload(String[][] data)</code>.
  */
 public abstract class SearchFacetTable {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    public final String graphUrl;
+    protected Map<TableComponent, By> byMap;
+    protected WebDriver driver;
+    protected final CommonUtils commonUtils = new CommonUtils();
     private boolean hasTable;
     protected String[] pageHeading;
     protected WebElement table;
-    protected final WebDriver driver;
-    protected final int timeoutInSeconds;
-    protected final WebDriverWait wait;
+    protected String target;
+    protected final TestUtils testUtils = new TestUtils();
+    protected long timeoutInSeconds;
+    protected final UrlUtils urlUtils = new UrlUtils();
+    protected WebDriverWait wait;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     public static final String NO_INFO_AVAILABLE    = "No information available";
     public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
 
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
-    protected UrlUtils urlUtils;
-
     // byHash String keys:
     public enum TableComponent {
         BY_TABLE("byTable")
-      , BY_TABLE_TR("byTableTr")
-      , BY_SELECT_GRID_LENGTH("bySelectGridLength");
+        , BY_TABLE_TR("byTableTr")
+        , BY_SELECT_GRID_LENGTH("bySelectGridLength");
 
-      private final String mapKey;
+        private final String mapKey;
 
-      private TableComponent(final String mapKey) {
+        private TableComponent(final String mapKey) {
           this.mapKey = mapKey;
-      }
+        }
 
-      @Override
-      public String toString() {
+        @Override
+        public String toString() {
           return mapKey;
-      }
+        }
     };
 
-    protected final Map<TableComponent, By> byMap;
 
     /**
-     * Initializes the generic components of a <code>SearchFacetTable</code>.
-     * @param driver A <code>WebDriver</code> instance pointing to the search
-     * facet table with thead and tbody definitions.
-     * <code>By</code> definitions for: table, tabletr, and selectxxGridLength.
+     * Creates a new instance (called by descendent classes).
+     *
+     * @param driver A valid <code>WebDriver</code> instance
      * @param timeoutInSeconds timeout
-     * @param byMap a map of HTML table-related definitions, keyed by <code>
-     * TableComponent</code>.
+     * @param byMap a map of HTML table-related definitions, keyed by <code> TableComponent</code>.
+     *
+     * @throws TestException
      */
-    public SearchFacetTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) {
-        graphUrl = driver.getCurrentUrl();
+    public SearchFacetTable (WebDriver driver, long timeoutInSeconds, Map<TableComponent, By> byMap) throws TestException {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, timeoutInSeconds);
+        this.target = driver.getCurrentUrl();
         this.timeoutInSeconds = timeoutInSeconds;
+        this.wait = new WebDriverWait(driver, timeoutInSeconds);
         this.byMap = byMap;
         try {
             setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
         } catch (Exception e) {
-            logger.error("URL: " + graphUrl);
+            logger.error("URL: " + target);
             throw e;
         }
     }
@@ -261,7 +256,7 @@ public abstract class SearchFacetTable {
             downloadDataList.add(rowList);
         }
 
-        GridMap downloadData = new GridMap(downloadDataList, driver.getCurrentUrl());
+        GridMap downloadData = new GridMap(downloadDataList, target);
 
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.

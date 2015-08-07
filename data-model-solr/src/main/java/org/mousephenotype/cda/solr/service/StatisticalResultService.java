@@ -42,7 +42,9 @@ import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
@@ -84,6 +86,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	@Qualifier("postqcService")
     AbstractGenotypePhenotypeService gpService;
 
+    @Autowired
+    ImpressService impressService;
+    
     @Autowired
     ProjectDAO projectDAO;
 
@@ -163,7 +168,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     		q.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.name());
     	}
 
-    	q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[" + this.P_VALUE_THRESHOLD + " TO 1]");
+    	q.addFilterQuery(GenotypePhenotypeDTO.P_VALUE+ ":[" + StatisticalResultService.P_VALUE_THRESHOLD + " TO 1]");
 
     	q.addFacetField(StatisticalResultDTO.COLONY_ID);
     	q.setFacetMinCount(1);
@@ -182,12 +187,100 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	return res;
 
 	}
+	
+	
+	 /**
+     * @author tudose
+     * @since 2015/07/21
+     * @param pipelineStableId
+     * @param dataType
+     * @param resource
+     * @return List<ProcedureBean>
+     */
+	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip, String status){
+		
+		List<ImpressBaseDTO> procedures = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery("*:*")
+				.addField(StatisticalResultDTO.PROCEDURE_ID)
+				.addField(StatisticalResultDTO.PROCEDURE_NAME)
+				.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID);
+			query.set("group", true);
+			query.set("group.field", StatisticalResultDTO.PROCEDURE_NAME);
+			query.setRows(10000);
+			query.set("group.limit", 1);
+			
+			if (pipelineStableId != null){
+				query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+			}
+			if (observationType != null){
+				query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":" + observationType);
+			}
+			if (resource != null){
+				query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resource);
+			}
+			if (status != null){
+				query.addFilterQuery(StatisticalResultDTO.STATUS + ":" + status);
+			}
+			String pivotField = StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PARAMETER_NAME;
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				
+				query.setFacet(true);
+				query.setFacetMinCount(1);
+				query.set("facet.pivot.mincount", minParameterNumber);
+				query.set("facet.pivot", pivotField);
+				
+			}			
+						
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
-	public String getGenotypeEffectFor(List<String> procedueStableId, Boolean requiredParamsOnly)
+				ImpressBaseDTO procedure = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()), 
+						null,
+						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_ID ).toString(),
+						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
+				procedures.add(procedure);
+			}
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				// get procedureList with more than minParameterNumber 
+				// remove from procedures the ones not in procedureList
+				List<Map<String, String>> res = getFacetPivotResults(response, false);
+				HashSet<String> proceduresWithMinCount = new HashSet<>(); 
+				
+				for (Map<String, String> pivot : res ){
+					proceduresWithMinCount.addAll(pivot.values());
+				}
+				
+				List<ImpressBaseDTO> proceduresToReturn = new ArrayList<>();
+				
+				for (ImpressBaseDTO proc : procedures){
+					if (proceduresWithMinCount.contains(proc.getName())){
+						if (proceduresToSkip != null && !proceduresToSkip.contains(proc.getStableId()) || proceduresToSkip == null ){
+							proceduresToReturn.add(proc);
+						}
+					}
+				}
+				procedures = proceduresToReturn;
+				
+			}			
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return procedures;
+	}
+	
+
+	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, Boolean requiredParamsOnly)
 	throws SolrServerException{
 
     	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
-    	// get parameterStableId facets for  procedueStableId
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
@@ -195,25 +288,23 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":unidimensional");
     	query.setFacet(true);
     	query.setFacetMinCount(1);
-    	query.setFacetLimit(100000);
+    	query.setFacetLimit(-1);
     	query.addFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID);
     	query.addFacetField(StatisticalResultDTO.PARAMETER_NAME);
-
-
+    	
 		List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
-		List<Parameter> parameterNames = new ArrayList<>();
+		TreeSet<ParameterDTO> parameterUniqueByStableId = new TreeSet<>(ParameterDTO.getComparatorByName());
 
-    	for (String parameterStableId: parameterStableIds){
-        	Parameter p = pipelineDAO.getParameterByStableId(parameterStableId);
-        	if (p.isRequiredFlag() || !requiredParamsOnly){
-        		parameterNames.add(p);
+    	for (ParameterDTO param : impressService.getParametersByProcedure(procedueStableId, "unidimensional")){
+    		if (parameterStableIds.contains(param.getStableId()) && (param.isRequired() || !requiredParamsOnly) && !parameterUniqueByStableId.contains(param)){
+    			parameterUniqueByStableId.add(param);
         	}
     	}
 
-    	int i = 0;
-
-    	for (i = 0; i < parameterNames.size(); i++){
-    		Parameter p = parameterNames.get(i);
+    	List<ParameterDTO> parameters = new ArrayList<>(parameterUniqueByStableId);
+    	
+    	for (ParameterDTO p: parameters){
+    		
     		query = new SolrQuery();
         	query.setQuery("*:*");
         	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
@@ -227,44 +318,21 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
         	query.setRows(100000);
 
-        	System.out.println("-- Get means:  " + solr.getBaseURL() + "/select?" + query);
-
-        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameterNames);
+        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameters);
     	}
 
-    	row = addDefaultValues(row, parameterNames);
-
-		String res = "[";
-		String defaultMeans = "";
-		i = 0;
-    	for (String key: row.keySet()){
-    		ParallelCoordinatesDTO bean = row.get(key);
-    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
-	    		i++;
-	    		String currentRow = bean.toString(false);
-	    		if (!currentRow.equals("")){
-		    		res += "{" + currentRow + "}";
-		    		if (i < row.values().size()){
-		    			res += ", ";
-		    		}
-	    		}
-    		}
-    		else {
-    			String currentRow = bean.toString(false);
-    			defaultMeans += "{" + currentRow + "}\n";
-    		}
-    	}
-    	res += "]";
-
-    	return "var foods = " + res.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
+    	row = addDefaultValues(row, parameters);
+    	
+    	return row;
+	
 	}
 
 
-	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, List<Parameter> allParameterNames) {
+	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
 
-		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT,  null, null, allParameterNames);
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, null, allParameterNames);
 
-	    for (Parameter param : allParameterNames){
+	    for (ParameterDTO param : allParameterNames){
 	        currentBean.addMean(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), new Double(0.0));
 	    }
 
@@ -275,7 +343,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, Parameter p, List<Parameter> allParameterNames) {
+    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, ParameterDTO p, List<ParameterDTO> allParameterNames) {
 
     	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
 
@@ -527,7 +595,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	throws SolrServerException, InterruptedException, ExecutionException {
 
 		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
-		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.COLONY_ID;
 		SolrQuery q = new SolrQuery();
 
@@ -566,7 +633,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	throws SolrServerException, InterruptedException, ExecutionException {
 
 		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
-		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery();
 
@@ -1074,7 +1140,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if (pipelineSrableId != null){
         	q.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":\"" + pipelineSrableId + "\"");
         }
-		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PROCEDURE_NAME  + "," + StatisticalResultDTO.PARAMETER_STABLE_ID;
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
@@ -1098,7 +1163,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     public List<BasicBean> getProceduresForDataSource(String resourceName){
 
-    	List<BasicBean> res = new ArrayList();
+    	List<BasicBean> res = new ArrayList<BasicBean>();
     	SolrQuery q = new SolrQuery()
           	.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":\"" + resourceName + "\"")
           	.setRows(10000);
@@ -1184,7 +1249,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	throws SolrServerException, InterruptedException, ExecutionException {
 
 		Map<String, List<String>> res = new ConcurrentHashMap<>(); //<parameter, <genes>>
-		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
 		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" +
@@ -1211,7 +1275,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	public void addGenesForBothSexes()
 	throws SolrServerException, InterruptedException, ExecutionException {
 
-		Long time = System.currentTimeMillis();
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
 		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");

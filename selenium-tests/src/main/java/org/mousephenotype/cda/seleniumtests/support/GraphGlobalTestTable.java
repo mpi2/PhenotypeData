@@ -19,7 +19,6 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +31,12 @@ import java.util.List;
  * components of a graph page 'globalTest' HTML table.
  */
 public class GraphGlobalTestTable {
+
+    private CommonUtils commonUtils = new CommonUtils();
     private final String graphUrl;
     private Double mpAssociationPvalue = null;
     private final List<String> sexEffectPvalues = new ArrayList();
     private final List<String> sexEffects = new ArrayList();
-
-    @Autowired
-    CommonUtils commonUtils;
     
     /**
      * Creates a new <code>GraphGlobalTestTable</code> instance. Some have a

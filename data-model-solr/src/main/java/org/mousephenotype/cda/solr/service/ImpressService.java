@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -30,6 +31,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -198,6 +200,47 @@ public class ImpressService {
 	}
 
 
+	/**
+	 * @author tudose
+	 * @since 2015/08/04
+	 * @param procedureStableIds
+	 * @param observationType
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<ParameterDTO> getParametersByProcedure(List<String> procedureStableIds, String observationType)
+	throws SolrServerException{
+
+		List<ParameterDTO> parameters = new ArrayList<>(); 
+		SolrQuery query = new SolrQuery().setQuery("*:*");
+		
+		if (procedureStableIds != null){
+			query.setFilterQueries(ImpressDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedureStableIds, "* OR " + ImpressDTO.PROCEDURE_STABLE_ID + ":") + "*");
+		}
+		query.setFields(ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.PARAMETER_STABLE_KEY,
+				ImpressDTO.UNIT, ImpressDTO.REQUIRED);
+		if (observationType != null){
+			query.addFilterQuery(ImpressDTO.OBSERVATION_TYPE + ":" + observationType);
+		}
+		query.setRows(1000000);
+		
+		QueryResponse response = solr.query(query);
+
+		for (ImpressDTO doc: response.getBeans(ImpressDTO.class)){
+			ParameterDTO param = new ParameterDTO();
+			param.setStableId(doc.getParameterStableId());
+			param.setStableKey(doc.getParameterStableKey());
+			param.setName(doc.getParameterName());
+			param.setId(doc.getParameterId());
+			param.setUnit(doc.getUnit());
+			param.setRequired(doc.isRequired());
+			parameters.add(param);
+		}
+		
+		return parameters;
+	}
+	
+	
 	public Integer getPipelineStableKey(String pipelineStableId) {
 
 		try {
@@ -205,9 +248,9 @@ public class ImpressService {
 				.setQuery(ImpressDTO.PIPELINE_STABLE_ID + ":\"" + pipelineStableId + "\"")
 				.setFields(ImpressDTO.PIPELINE_STABLE_KEY);
 
-			QueryResponse response = solr.query(query);
+			List<ImpressDTO> response = solr.query(query).getBeans(ImpressDTO.class);
 
-			return response.getBeans(ImpressDTO.class).get(0).getPipelineStableKey();
+			return response.get(0).getPipelineStableKey();
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -235,7 +278,7 @@ public class ImpressService {
 	 * @return a string that either has the name of the procedure or and HTML
 	 *         anchor tag to be used by the chart
 	 */
-	/* Temp comment out as pipeline core does not contian all procedures.
+	
 	public String getAnchorForProcedure(String procedureName, String procedureStableId) {
 
 		String anchor = procedureName;
@@ -247,7 +290,7 @@ public class ImpressService {
 		return anchor;
 	}
 
-*/
+
 	public String getPipelineUrlByStableId(String stableId){
 		Integer pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null ){

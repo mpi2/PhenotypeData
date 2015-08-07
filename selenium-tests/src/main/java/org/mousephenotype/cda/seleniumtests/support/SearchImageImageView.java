@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -33,6 +34,10 @@ import java.util.Map;
  * components of a search page 'imagesGrid' HTML table (image view) for images.
  */
 public class SearchImageImageView extends SearchFacetTable {
+
+    private final List<ImageRow> bodyRows = new ArrayList();
+    private Map<TableComponent, By> map;
+    protected GridMap pageData;
     
     public final static int COL_INDEX_GENE_TERMS      =  0;
     public final static int COL_INDEX_MA_TERMS        =  1;
@@ -51,11 +56,7 @@ public class SearchImageImageView extends SearchFacetTable {
     
     public final static int COL_INDEX_IMAGE_LINK      = 12;
     public static final int COL_INDEX_LAST = COL_INDEX_IMAGE_LINK;              // Should always point to the last (highest-numbered) index.
-    
-    private final List<ImageRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
-    private Map<TableComponent, By> map;
-    
+
     public enum AnnotationType {
         Gene,
         MA,
@@ -68,20 +69,20 @@ public class SearchImageImageView extends SearchFacetTable {
         Link,
         Term
     }
-    
+
     /**
      * Creates a new <code>SearchImageTable</code> instance.
-     * 
+     *
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      * @param map a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      */
-    public SearchImageImageView(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> map) {
+    public SearchImageImageView(WebDriver driver, long timeoutInSeconds, Map<TableComponent, By> map) throws TestException {
         super(driver, timeoutInSeconds, map);
         this.map = map;
-        
+
         pageData = load();
     }
     
@@ -113,52 +114,50 @@ public class SearchImageImageView extends SearchFacetTable {
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
+
     /**
-     * Pulls all rows of data and column access variables from the search page's
-     * 'maGrid' HTML table.
+     * Pulls all rows of data and column access variables from the search page's image image view.
      *
      * @return <code>numRows</code> rows of data and column access variables
-     * from the search page's 'maGrid' HTML table.
+     * from the search page's image image view.
      */
     private GridMap load() {
         return load(null);
     }
 
     /**
-     * Pulls <code>numRows</code> rows of search page gene facet data and column
-     * access variables from the search page's 'maGrid' HTML table.
+     * Pulls <code>numRows</code> rows of search page gene facet data and column access variables from the search page's
+     * image image view.
      *
-     * @param numRows the number of <code>GridMap</code> table rows to return,
-     * including the heading row. To specify all rows, set <code>numRows</code>
-     * to null.
-     * @return <code>numRows</code> rows of search page gene facet data and
-     * column access variables from the search page's 'maGrid' HTML table.
+     * @param numRows the number of <code>GridMap</code> table rows to return, including the heading row. To specify
+     *                all rows, set <code>numRows</code> to null.
+     * @return <code>numRows</code> rows of search page gene facet data and column access variables from the search
+     * page's image image view.
      */
     private GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
-        
+
         String[][] pageArray;
-        
+
         // Wait for page.
         wait.until(ExpectedConditions.presenceOfElementLocated(map.get(TableComponent.BY_TABLE)));
         int numCols = COL_INDEX_LAST + 1;
-        
+
         pageArray = new String[numRows][numCols];                               // Allocate space for the data.
         for (int i = 0; i < numCols; i++) {
             pageArray[0][i] = "Column_" + i;                                    // Set the headings.
         }
-        
+
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
-            
+
             pageArray[sourceRowIndex][COL_INDEX_PROCEDURE_TERMS] = "";         // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_GENE_TERMS] = "";
             pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = "";
@@ -167,22 +166,22 @@ public class SearchImageImageView extends SearchFacetTable {
             pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = "";
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 ImageRow bodyRow = new ImageRow(bodyRowElements);
-                
+
                 pageArray[sourceRowIndex][COL_INDEX_PROCEDURE_TERMS] = bodyRow.toStringDetailList(bodyRow.procedureDetails, ComponentType.Term).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_GENE_TERMS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Term).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Link).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_MA_TERMS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Term).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_MA_LINKS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Link).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = bodyRow.getImageLink();
-                
+
                 sourceRowIndex++;
                 bodyRows.add(bodyRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        return new GridMap(pageArray, target);
     }
-    
+
     
     // PRIVATE CLASSES
     

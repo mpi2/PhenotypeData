@@ -22,21 +22,21 @@ package org.mousephenotype.cda.seleniumtests.exception;
  *
  * @author mrelac
  */
-public class DownloadException extends Exception {
+public class TestException extends Exception {
 
-    public DownloadException() {
+    public TestException() {
         super("");
     }
 
-    public DownloadException(String message) {
+    public TestException(String message) {
         super(message);
     }
     
-    public DownloadException(Exception e) {
+    public TestException(Exception e) {
         super(e);
     }
     
-    public DownloadException(String message, Exception e) {
+    public TestException(String message, Exception e) {
         super(message, e);
     }
 }

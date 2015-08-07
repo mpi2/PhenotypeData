@@ -20,14 +20,13 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -44,10 +43,12 @@ import java.util.List;
  * </ul>
  */
 public class GraphHeading {
-    protected final WebElement chartElement;
-    protected final WebDriverWait wait;
 
-    private final Utilities impressUtils = new Utilities();
+    protected final WebElement chartElement;
+    protected final Utilities impressUtils = new Utilities();
+    protected PhenotypePipelineDAO phenotypePipelineDAO;
+    protected final TestUtils testUtils = new TestUtils();
+    protected final WebDriverWait wait;
 
     // Heading variables
     protected String title = "";
@@ -72,26 +73,22 @@ public class GraphHeading {
     protected ObservationType observationType;
     protected Parameter parameterObject;
 
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected TestUtils testUtils;
-
     /**
      * Creates a new <code>GraphPage</code> instance
      * 
      * @param wait <code>WebDriverWait</code> instance
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
+     * @param phenotypePipelineDAO the <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the url of the graph page (used for error/warning reporting)
      * @param chartType the chart type. Used to determine which validator to use.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public GraphHeading(WebDriverWait wait, WebElement chartElement, String graphUrl, ChartType chartType) throws GraphTestException {
+    public GraphHeading(WebDriverWait wait, WebElement chartElement, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, ChartType chartType) throws TestException {
         this.wait = wait;
         this.chartElement = chartElement;
+        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.chartType = chartType;
         
@@ -104,9 +101,9 @@ public class GraphHeading {
      * 
      * @return status
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
         boolean validatePipeline;
         boolean validateSop;
@@ -140,7 +137,7 @@ public class GraphHeading {
                 break;
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
         
         if (validatePipeline) {
@@ -270,7 +267,7 @@ public class GraphHeading {
     /**
      * Parse the heading.
      */
-    private void parse(ChartType chartType) throws GraphTestException {
+    private void parse(ChartType chartType) throws TestException {
         // Wait for all charts to load.
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
         
@@ -309,9 +306,9 @@ public class GraphHeading {
     /**
      * Set the mutant and control keys based on chart type.
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    private void setKeys() throws GraphTestException {
+    private void setKeys() throws TestException {
                 
         switch (chartType) {
             case CATEGORICAL_STACKED_COLUMN:
@@ -362,7 +359,7 @@ public class GraphHeading {
                 break;
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
     }
     
@@ -445,7 +442,7 @@ public class GraphHeading {
         private String parameterStableId = "";
         private WebElement sopLinkElement = null;
         
-        public ParameterParser(ChartType chartType) throws GraphTestException {
+        public ParameterParser(ChartType chartType) throws TestException {
             List<WebElement> elements;
             WebElement element;
             
@@ -490,7 +487,7 @@ public class GraphHeading {
                     break;
                     
                 default:
-                    throw new GraphTestException("Unknown chart type " + chartType);
+                    throw new TestException("Unknown chart type " + chartType);
             }
         }
             

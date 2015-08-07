@@ -17,9 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.utilities.UrlUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -31,20 +29,18 @@ import java.util.*;
  * to a two-dimensional data grid composed of type <code>String</code>. Callers
  * pass in a <code>String[][]</code> containing the data store where the first
  * line is a heading. The class then serves up access to the data by row index
- * and either column index or column name, which must match exactly. No
+ * and either column index or column name, which must match exactly. No 
  * IndexOutOfBounds exception checking is done.
  */
 public class GridMap {
+
+    private final HashMap<String, Integer> colNameHash = new HashMap();
     private String[][] data;
     private final String target;
-    private final HashMap<String, Integer> colNameHash = new HashMap();
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private TestUtils testUtils = new TestUtils();
+    private UrlUtils urlUtils = new UrlUtils();
 
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
-    protected UrlUtils urlUtils;
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Creates a <code>GridMap</code> instance
@@ -69,7 +65,7 @@ public class GridMap {
      * @param target the target URL of the page containing the data
      */
     public GridMap(List<List<String>> dataList, String target) {
-            data = new String[0][0];
+        data = new String[0][0];
         try {
             data = new String[dataList.size()][dataList.get(0).size()];
             for (int rowIndex = 0; rowIndex <  dataList.size(); rowIndex++) {

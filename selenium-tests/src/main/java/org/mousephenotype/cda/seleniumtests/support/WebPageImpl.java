@@ -20,6 +20,8 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
@@ -31,11 +33,15 @@ import java.net.URL;
  * leaving the page-specific implementations derived from this class to implement
  * page-specific functionality.
  */
+@Component
 public abstract class WebPageImpl implements WebPage {
     protected final String pageTarget;
     protected final WebDriverWait wait;
     protected final WebDriver driver;
     protected final String id;
+
+    @Autowired
+    protected DataReaderFactory dataReaderFactory;
     
     public abstract String getDownloadTargetUrlBase();
     
@@ -70,7 +76,7 @@ public abstract class WebPageImpl implements WebPage {
 
             // Get the download stream and statistics for the TSV stream.
             URL url = new URL(downloadTargetTsv);
-            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
+            DataReader dataReaderTsv = dataReaderFactory.create(url);
 
             // Check that the phenotypes table page line count equals the download stream line count.
             // If the download stream line count is no more than 50% greater than the phenotypes table
@@ -101,7 +107,7 @@ public abstract class WebPageImpl implements WebPage {
 
             // Get the download stream and statistics for the TSV stream.
             url = new URL(downloadTargetXls);
-            DataReaderXls dataReaderXls = new DataReaderXls(url);
+            DataReader dataReaderXls = dataReaderFactory.create(url);
 
             // Check that the table page line count equals the download stream line count.
             // If the download stream line count is no more than 50% greater than the phenotypes table

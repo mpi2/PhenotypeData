@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.apache.commons.lang.StringUtils;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -36,6 +37,8 @@ import java.util.Map;
  * components of a search page 'geneGrid' HTML table for genes.
  */
 public class SearchGeneTable extends SearchFacetTable {
+
+    protected GridMap pageData;
     
     public static final int COL_INDEX_GENE_ID               = 0;
     public static final int COL_INDEX_GENE_SYMBOL           = 1;
@@ -48,7 +51,6 @@ public class SearchGeneTable extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPE_STATUS;        // Should always point to the last (highest-numbered) index.
     
     private final List<GeneRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
     
     private final static Map<TableComponent, By> map = new HashMap();
     static {
@@ -56,19 +58,19 @@ public class SearchGeneTable extends SearchFacetTable {
         map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='geneGrid']/tbody/tr"));
         map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='geneGrid_length']"));
     }
-    
+
     /**
      * Creates a new <code>SearchGeneTable</code> instance.
-     * @param driver A <code>WebDriver</code> instance pointing to the search
-     * facet table with thead and tbody definitions.
-     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     *
+     * @param driver A valid <code>WebDriver</code> instance
+     * @param timeoutInSeconds timeout
      */
-    public SearchGeneTable(WebDriver driver, int timeoutInSeconds) {
+    public SearchGeneTable(WebDriver driver, int timeoutInSeconds) throws TestException {
         super(driver, timeoutInSeconds, map);
-        
+
         pageData = load();
     }
-    
+
     /**
      * Validates download data against this <code>SearchDiseaseTable</code>
      * instance.
@@ -93,52 +95,50 @@ public class SearchGeneTable extends SearchFacetTable {
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
+
     /**
-     * Pulls all rows of data and column access variables from the search page's
-     * 'geneGrid' HTML table.
+     * Pulls all rows of data and column access variables from the search page's 'geneGrid' HTML table.
      *
-     * @return <code>numRows</code> rows of data and column access variables
-     * from the search page's 'geneGrid' HTML table.
+     * @return <code>numRows</code> rows of data and column access variables from the search page's phenotype HTML table.
      */
     private GridMap load() {
         return load(null);
     }
 
     /**
-     * Pulls <code>numRows</code> rows of search page gene facet data and column
-     * access variables from the search page's 'geneGrid' HTML table.
+     * Pulls <code>numRows</code> rows of search page gene facet data and column access variables from the search page's
+     * 'geneGrid' HTML table.
      *
-     * @param numRows the number of <code>GridMap</code> table rows to return,
-     * including the heading row. To specify all rows, set <code>numRows</code>
-     * to null.
-     * @return <code>numRows</code> rows of search page gene facet data and
-     * column access variables from the search page's 'geneGrid' HTML table.
+     * @param numRows the number of <code>GridMap</code> table rows to return, including the heading row. To specify all
+     *                rows, set <code>numRows</code> to null.
+     *
+     * @return <code>numRows</code> rows of search page gene facet data and column access variables from the search
+     * page's phenotype HTML table.
      */
     private GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
-        
+
         String[][] pageArray;
-        
+
         // Wait for page.
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("table#geneGrid")));
         int numCols = COL_INDEX_LAST + 1;
-        
+
         pageArray = new String[numRows][numCols];                               // Allocate space for the data.
         for (int i = 0; i < numCols; i++) {
             pageArray[0][i] = "Column_" + i;                                    // Set the headings.
         }
-        
+
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
-            
+
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 GeneRow geneRow = new GeneRow();
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
@@ -149,23 +149,23 @@ public class SearchGeneTable extends SearchFacetTable {
                 pageArray[sourceRowIndex][COL_INDEX_GENE_ID] = geneRow.geneId;
                 geneRow.geneSymbol = titleDivElement.findElement(By.cssSelector("span.gSymbol")).getText().trim();  // geneSymbol.
                 pageArray[sourceRowIndex][COL_INDEX_GENE_SYMBOL] = geneRow.geneSymbol;
-                
+
                 WebElement geneColElement = bodyRowElementList.get(0).findElement(By.cssSelector("div.geneCol"));
                 GeneDetails geneDetails = new GeneDetails(geneColElement);
                 geneRow.geneName = geneDetails.name;                                                                // geneName.
                 pageArray[sourceRowIndex][COL_INDEX_GENE_NAME] = geneRow.geneName;
                 geneRow.humanOrthologs = geneDetails.humanOrthologs;                                                // humanOrtholog list.
                 pageArray[sourceRowIndex][COL_INDEX_HUMAN_ORTHOLOG] = StringUtils.join(geneRow.humanOrthologs, "|");
-                
+
                 sourceRowIndex++;
                 bodyRows.add(geneRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        return new GridMap(pageArray, target);
     }
-    
-    
+
+
     // PRIVATE CLASSES
     
     

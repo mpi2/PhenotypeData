@@ -24,8 +24,7 @@
 			<tr>
 				<th class="headerSort">Allele</th>
 				<th class="headerSort">Center</th>
-				<th class="headerSort">Procedure</th>
-				<th class="headerSort">Parameter</th>
+				<th class="headerSort">Procedure / Parameter</th>
 				<th class="headerSort">Zygosity</th>
 				<th class="headerSort">Mutants</th>
 				<th class="headerSort">Statistical<br/>Method</th>
@@ -43,8 +42,7 @@
 					<tr>
 						<td><t:formatAllele>${pValueItem.getAlleleSymbol()}</t:formatAllele></td>
 						<td>${pValueItem.getPhenotypingCenter()}</td>
-						<td>${pValueItem.getProcedureName()}</td>
-						<td>${pValueItem.getParameterName()}</td>
+						<td>${pValueItem.getProcedureName()} / ${pValueItem.getParameterName()}</td>
 						<td>${pValueItem["zygosity"].substring(0,3).toUpperCase()}</td>
 						<td>${pValueItem.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
 						<td>${pValueItem.statisticalMethod}</td>
@@ -83,6 +81,6 @@
 						"bPaginate":false
 			  });
 			  // Sort immediately with p-value column starting with the lowest one
-			  oTable.fnSort( [ [7,'asc'] ] );
+			  oTable.fnSort( [ [6,'asc'] ] );
 			} );	
 		</script>
