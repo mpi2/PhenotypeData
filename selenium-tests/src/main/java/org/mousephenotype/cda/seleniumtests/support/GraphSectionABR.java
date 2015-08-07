@@ -16,7 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -33,6 +34,8 @@ import java.util.Set;
  * graph section.
  */
 public class GraphSectionABR extends GraphSection {
+
+    protected TestUtils testUtils = new TestUtils();
     
     // Download column offsets.
     public final int PIPELINE_NAME       =  0;
@@ -58,24 +61,25 @@ public class GraphSectionABR extends GraphSection {
     public final int METADATA            = 20;
     public final int METADATA_GROUP      = 21;
     public final int CATEGORY            = 22;
-    
+
     /**
      * Creates a new <code>GraphSectionABR</code> instance
-     * 
+     *
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the ABR chart section.
-     * 
-     * @throws GraphTestException
+     *
+     * @throws TestException
      */
-    public GraphSectionABR(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws GraphTestException {
-        super(driver, wait, graphUrl, chartElement);
+    public GraphSectionABR(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
     }
-    
+
     @Override
-    public PageStatus validate() throws GraphTestException {
+    public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.
         
         status.add(validateDownload());                                         // Validate download streams.
@@ -98,9 +102,9 @@ public class GraphSectionABR extends GraphSection {
      * 
      * @return validation results
      * 
-     * @throws GraphTestException
+     * @throws TestException
      */
-    private PageStatus validateDownload() throws GraphTestException {
+    private PageStatus validateDownload() throws TestException {
         PageStatus status = new PageStatus();
         GraphHeading heading = getHeading();
         

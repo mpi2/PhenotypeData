@@ -28,22 +28,27 @@
 
 package org.mousephenotype.cda.seleniumtests.tests;
 
-import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
+import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,47 +80,54 @@ import java.util.List;
 @TestPropertySource("classpath:testConfig.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageStatistics {
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+
+    private CommonUtils commonUtils = new CommonUtils();
+    private WebDriver driver;
+    protected TestUtils testUtils = new TestUtils();
+    private WebDriverWait wait;
+
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
+
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
+    private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
+
+    private final String NO_PHENOTYPE_ASSOCIATIONS = "Phenotype associations to genes and alleles will be available once data has completed quality control.";
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
 
     @Autowired
     protected MpService mpService;
 
     @Autowired
+    protected SeleniumWrapper wrapper;
+
+    @NotNull
+    @Value("${baseUrl}")
     protected String baseUrl;
 
-    @Autowired
-    protected WebDriver driver;
 
-    @Autowired
-    protected String seleniumUrl;
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-
-    private final int TIMEOUT_IN_SECONDS = 4;
-    private final int THREAD_WAIT_IN_MILLISECONDS = 1000;
-
-    private int timeout_in_seconds = TIMEOUT_IN_SECONDS;
-    private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
-
-    private final String NO_PHENOTYPE_ASSOCIATIONS = "Phenotype associations to genes and alleles will be available once data has completed quality control.";
 
     @Before
     public void setup() {
         if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
-            timeout_in_seconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
+            timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
-            thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
+            threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
-        try { Thread.sleep(thread_wait_in_ms); } catch (Exception e) { }
+        commonUtils.sleep(threadWaitInMilliseconds);
     }
 
     @After
@@ -162,7 +174,7 @@ public class PhenotypePageStatistics {
         int pagesWithBoth = 0;
         List<String> urlsWithNeitherPhenotypeTableNorImage = new ArrayList();
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
@@ -181,7 +193,7 @@ public class PhenotypePageStatistics {
 
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeout_in_seconds))
+                (new WebDriverWait(driver, timeoutInSeconds))
                         .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
                 found = true;
             } catch (NoSuchElementException | TimeoutException te) {
@@ -235,7 +247,7 @@ public class PhenotypePageStatistics {
                 status.addError(message);
             }
 
-            commonUtils.sleep(thread_wait_in_ms);
+            commonUtils.sleep(threadWaitInMilliseconds);
         }
 
         System.out.println("\nPhenotype pages with tables but no images: " + pagesWithPhenotypeTableCount);

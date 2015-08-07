@@ -81,8 +81,7 @@ import java.util.*;
 @Controller
 public class FileExportController {
 
-	@Autowired
-	protected CommonUtils commonUtils;
+	protected CommonUtils commonUtils = new CommonUtils();
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -999,19 +998,22 @@ public class FileExportController {
 
 			// ES/Mice production status
 			boolean toExport = true;
-			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, toExport);
+			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();			
+			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
 			data.add(prodStatus);
+			
+			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
+			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;     
+			String phenotypeStatus = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
 
-			// phenotyping status
-			String phStatus = geneService.getPhenotypingStatus(doc, request.getAttribute("mappedHostname").toString(), toExport, legacyOnly);
-
-			if (phStatus.isEmpty()) {
+			if (phenotypeStatus.isEmpty()) {
 				data.add(NO_INFO_MSG);
 				data.add(NO_INFO_MSG); // link column
-			} else if (phStatus.contains("___")) {
+			} else if (phenotypeStatus.contains("___")) {
 				// multiple phenotyping statusses, eg, complete and legacy
-				String[] phStatuses = phStatus.split("___");
+				String[] phStatuses = phenotypeStatus.split("___");
 
 				List<String> labelList = new ArrayList<>();
 				List<String> urlList = new ArrayList<>();
@@ -1030,11 +1032,11 @@ public class FileExportController {
 				}
 				data.add(StringUtils.join(labelList, "|"));
 				data.add(StringUtils.join(urlList, "|"));
-			} else if (phStatus.startsWith("http://") || phStatus.startsWith("https://")) {
+			} else if (phenotypeStatus.startsWith("http://") || phenotypeStatus.startsWith("https://")) {
 
-				String[] parts = phStatus.split("\\|");
+				String[] parts = phenotypeStatus.split("\\|");
 				if (parts.length != 2) {
-					System.out.println("fileExport: '" + phStatus + "' --- Expeced length 2 but got " + parts.length);
+					System.out.println("fileExport: '" + phenotypeStatus + "' --- Expeced length 2 but got " + parts.length);
 				} else {
 					String url = parts[0].replace("https", "http");
 					String label = parts[1];
@@ -1043,7 +1045,7 @@ public class FileExportController {
 					data.add(url);
 				}
 			} else {
-				data.add(phStatus);
+				data.add(phenotypeStatus);
 			}
 
 			// put together as tab delimited

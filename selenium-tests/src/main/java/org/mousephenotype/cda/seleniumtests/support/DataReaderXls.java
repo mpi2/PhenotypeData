@@ -36,17 +36,17 @@ public class DataReaderXls extends DataReader {
     
     private Iterator<Row> rowIterator = null;
     Workbook workbook;
-    
+
     /**
      * Instantiates a new <code>DataReader</code> that knows how to serve up
      * Microsoft Excel XLS streams
-     * 
+     *
      * @param url The url defining the input stream
      */
     public DataReaderXls(URL url) {
         super(url);
     }
-    
+
     /**
      * Opens the stream defined by the url used in the constructor.
      * @throws IOException
@@ -108,16 +108,4 @@ public class DataReaderXls extends DataReader {
     public DataType getType() {
         return DataType.XLS;
     }
-    
-    // GETTERS
-    
-    
-    /**
-     * Returns the url
-     * @return the url
-     */
-    public URL getUrl() {
-        return url;
-    }
-    
 }

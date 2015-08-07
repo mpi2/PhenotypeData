@@ -32,17 +32,12 @@ import java.util.List;
  * categorical graph page can contain more than one GraphCatTable.
  */
 public class GraphCatTable {
+
     private final List<Row> bodyRowsList = new ArrayList();
     private final List<String> headingList = new ArrayList();
-    
-    /**
-     * Creates a new <code>GraphCatTable</code> instance.
-     *
-     * @param catTableElement A <code>WebElement</code> instance pointing to an
-     * HTML table with id 'catTable' with thead and tbody definitions.
-     */
+
     public GraphCatTable(WebElement catTableElement) {
-        
+
         // Save the heading values.
         List<WebElement> headingElementList = catTableElement.findElements(By.cssSelector("thead tr th"));
         if ( ! headingElementList.isEmpty()) {

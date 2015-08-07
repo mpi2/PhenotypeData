@@ -16,11 +16,10 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.DownloadType;
 import org.mousephenotype.cda.web.ExperimentGroup;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -34,26 +33,19 @@ import java.util.*;
  * @author mrelac
  */
 public class DownloadSection {
-    
-    protected Map<DownloadType, List<List<String>>> dataBlockMap = new HashMap();
 
-    @Autowired
-    protected TestUtils testUtils;
-    
-    public DownloadSection() {
-        
-    }
+    protected Map<DownloadType, List<List<String>>> dataBlockMap = new HashMap();
+    protected final TestUtils testUtils = new TestUtils();
     
     /**
-     * Creates a new instance initialised with <code>downloadType</code> and
-     * <code>data</code>
+     * Loads the download section data.
      * 
      * @param dataBlockMap a map keyed by download type containing the data to be added
      */
     public DownloadSection(Map<DownloadType, List<List<String>>> dataBlockMap) {
         this.dataBlockMap = dataBlockMap;
     }
-    
+
         // Download column offsets.
     public static final int PIPELINE_NAME_COL_INDEX       =  0;
     public static final int PIPELINE_STABLE_ID_COL_INDEX  =  1;
@@ -161,9 +153,9 @@ public class DownloadSection {
      * @return a set of all [non-heading] mutant and control rows using the
      * fields from the defined chart type and download type.
      * 
-     * @throws GraphTestException for unknown chart types
+     * @throws TestException for unknown chart types
      */
-    public final Set<String> getKeys(ChartType chartType, DownloadType downloadType)  throws GraphTestException {
+    public final Set<String> getKeys(ChartType chartType, DownloadType downloadType)  throws TestException {
         Set<String> retVal = new HashSet();
         
         // Build a set of mutant and control data from the input parameters.
@@ -183,7 +175,7 @@ public class DownloadSection {
     // PRIVATE METHODS
     
     
-    private String makeKey(ChartType chartType, ExperimentGroup group, List<String> row) throws GraphTestException {
+    private String makeKey(ChartType chartType, ExperimentGroup group, List<String> row) throws TestException {
         int[] columnIndexes = new int[0];
         
         switch (chartType) {
@@ -244,7 +236,7 @@ public class DownloadSection {
                 break;
                 
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
         
         return testUtils.makeKey(columnIndexes, row);

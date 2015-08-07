@@ -24,7 +24,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,13 +37,16 @@ import java.util.List;
  * page's "genes" HTML table.
  */
 public class GeneTable {
-    protected WebDriver driver;
-    protected WebDriverWait wait;
-    protected String target;
+
     private GridMap data;       // Contains postQc rows only.
-    private List<List<String>> preQcList;
+    protected WebDriver driver;
     private List<List<String>> postQcList;
     private List<List<String>> preAndPostQcList;
+    private List<List<String>> preQcList;
+    protected String target;
+    protected TestUtils testUtils = new TestUtils();
+    protected UrlUtils urlUtils = new UrlUtils();
+    protected WebDriverWait wait;
 
     public static final int COL_INDEX_GENES_PHENOTYPE           =  0;
     public static final int COL_INDEX_GENES_ALLELE              =  1;
@@ -66,13 +68,9 @@ public class GeneTable {
     public static final String COL_GENES_P_VALUE             = "P Value";
     public static final String COL_GENES_GRAPH               = "Graph";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    public static final String NO_SUPPORTING_DATA                 = "No supporting data supplied.";
 
-    @Autowired
-    TestUtils testUtils;
-
-    @Autowired
-    UrlUtils urlUtils;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public GeneTable(WebDriver driver, WebDriverWait wait, String target) {
         this.driver = driver;
@@ -184,7 +182,7 @@ public class GeneTable {
                         graphLinks = cell.findElements(By.cssSelector("i"));
                         if ( ! graphLinks.isEmpty()) {
                             value = graphLinks.get(0).getAttribute("oldtitle");
-                            if (value.contains(TestUtils.NO_SUPPORTING_DATA)) {
+                            if (value.contains(NO_SUPPORTING_DATA)) {
                                 skipLink = true;
                             }
                         }

@@ -29,9 +29,13 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 @Controller
 public class ParallelCoordinatesController {
@@ -53,7 +57,8 @@ public class ParallelCoordinatesController {
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
-		List<ImpressBaseDTO> procedures = os.getProceduresByPipeline(null, "unidimensional", "IMPC", 2);
+		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
+		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success"));
 		model.addAttribute("procedures", procedures);
 		
 		return "parallel2";
@@ -65,12 +70,17 @@ public class ParallelCoordinatesController {
 	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
+		long time = System.currentTimeMillis();
 		if (procedureIds == null){
-			model.addAttribute("procedure", "");			
-		}
-		else {
-			String data = srs.getGenotypeEffectFor(procedureIds , false);
+			
+			model.addAttribute("procedure", "");
+			model.addAttribute("dataJs", getJsonForParallelCoordinates(null) + ";");	
+			
+		} else {
+			
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds , false));
 			model.addAttribute("dataJs", data + ";");
+
 			String title = "";
 			for (int i = 0;  i < procedureIds.size()-1; i++){
 				String p = procedureIds.get(i);
@@ -80,7 +90,50 @@ public class ParallelCoordinatesController {
 			
 			model.addAttribute("procedure", title);
 		}
+		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - time) + " ms.");
 
 		return "parallelFrag";
+	}
+	
+
+	/**
+	 * @author tudose
+	 * @since 2015/08/04
+	 * @param rows
+	 * @return
+	 */
+	protected String getJsonForParallelCoordinates(HashMap<String, ParallelCoordinatesDTO> rows){
+		
+		String data = "[";
+		String defaultMeans = "";
+		
+		if (rows != null){
+			int i = 0;
+	    	for (String key: rows.keySet()){
+	    		ParallelCoordinatesDTO bean = rows.get(key);
+	    		if (key == null || !key.equalsIgnoreCase(ParallelCoordinatesDTO.DEFAULT)){
+		    		i++;
+		    		String currentRow = bean.toString(false);
+		    		if (!currentRow.equals("")){
+			    		data += "{" + currentRow + "}";
+			    		if (i < rows.values().size()){
+			    			data += ", ";
+			    		}
+		    		}
+	    		}
+	    		else {
+	    			String currentRow = bean.toString(false);
+	    			defaultMeans += "{" + currentRow + "}\n";
+	    		}
+	    	}
+	    	data += "]";
+
+	    	return "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
+	    	
+		} else {
+			
+	    	return "var foods = []; \nvar defaults = {};" ;
+	    	
+		}
 	}
 }

@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -25,7 +26,7 @@ import java.util.Map;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'imagesGrid' HTML table common to all Image facet
  * views.
@@ -33,7 +34,8 @@ import java.util.Map;
 public class SearchImageTable extends SearchFacetTable {
     private SearchImageAnnotationView searchImageAnnotationView = null;
     private SearchImageImageView      searchImageImageView      = null;
-    
+    protected final TestUtils         testUtils                 = new TestUtils();
+
     public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";
     public static final String SHOW_IMAGE_VIEW      = "Show Image View";
 
@@ -44,28 +46,30 @@ public class SearchImageTable extends SearchFacetTable {
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      * @param byMap a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
-     * 
+     *
+     * @throws TestException
+     *
      * NOTE: This constructor was needed to <code>SearchImpcImageTable</code> to
      * extend from this class in order to send the correct map to the parent.
-     * 
+     *
      */
-    public SearchImageTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) {
+    public SearchImageTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) throws TestException {
         super(driver, timeoutInSeconds, byMap);
-        
+
         searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, byMap);
     }
-    
+
     public enum ImageFacetView {
         ANNOTATION_VIEW,
         IMAGE_VIEW
     }
-    
+
     public final ImageFacetView getCurrentView() {
         String imgViewSwitcherText = driver.findElement(By.cssSelector("span#imgViewSwitcher")).getText();
         return (imgViewSwitcherText.equals(SHOW_IMAGE_VIEW) ? ImageFacetView.ANNOTATION_VIEW : ImageFacetView.IMAGE_VIEW);
     }
-    
-    public void setCurrentView(ImageFacetView view) {
+
+    public void setCurrentView(ImageFacetView view) throws TestException {
         if (getCurrentView() != view) {
             SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
             clickToolbox(SearchPage.WindowState.CLOSED);
@@ -77,14 +81,14 @@ public class SearchImageTable extends SearchFacetTable {
                 clickToolbox(toolboxState);
         }
     }
-    
+
     /**
      * This method is meant to be called after any change to the image table,
      * such as changing between annotation and image view, or changing
      * pagination pages. It is required to keep the image table internals in
      * sync with what is seen on the page.
      */
-    public void updateImageTableAfterChange() {
+    public void updateImageTableAfterChange() throws TestException {
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
                 searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, byMap);
@@ -96,24 +100,24 @@ public class SearchImageTable extends SearchFacetTable {
                 searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, byMap);
                 break;
         }
-        
+
         setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
     }
-    
+
     @Override
     public PageStatus validateDownload(String[][] data) {
         PageStatus status = new PageStatus();
-        
+
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
                 status = searchImageAnnotationView.validateDownload(data);
                 break;
-                
+
             case IMAGE_VIEW:
                 status = searchImageImageView.validateDownload(data);
                 break;
         }
-        
+
         return status;
     }
 }

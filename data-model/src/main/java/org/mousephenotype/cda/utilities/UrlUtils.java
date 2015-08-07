@@ -17,16 +17,17 @@
 package org.mousephenotype.cda.utilities;
 
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.springframework.stereotype.Component;
 
 import java.net.URLDecoder;
 
 /**
  * This class encapsulates the code and data necessary to manage the composition of url strings.
  *
+ * NOTE: Please do not add any methods here that require being wired in to Spring. Keep this file spring-free, as it
+ *       is used in places that are not spring-dependent.
+ *
  * Created by mrelac on 02/07/2015.
  */
-@Component
 public class UrlUtils {
 
     public String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {

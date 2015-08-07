@@ -22,6 +22,10 @@
 	<!-- <bean id="dccConvertMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" 
 		/> -->
 
+<bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">
+		<constructor-arg ref="sessionFactory" />
+	</bean>
+	
 	<!-- Get the datasources from the filesystem overrides -->
 	<!-- Creates a MySQL Datasource -->
 	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -90,7 +94,7 @@
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="komp2DataSource" />
-		<property name="packagesToScan" value="uk.ac.ebi.phenotype" />
+		<property name="packagesToScan" value="org.mousephenotype.cda" />
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>

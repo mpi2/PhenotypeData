@@ -16,7 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.GraphTestException;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -27,43 +28,46 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * @author mrelac
  */
 public class GraphSectionFactory {
-    
+
+    protected TestUtils testUtils = new TestUtils();
+
     /**
      * Creates a new <code>GraphPage</code> instance of the type specified
      * by <code>chartType</code>.
-     * 
+     *
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement The ABR <code>WebElement</code>
-     * 
-     * @return 
-     * 
-     * @throws GraphTestException a new <code>GraphPage</code> instance of the type specified
+     *
+     * @return
+     *
+     * @throws TestException a new <code>GraphPage</code> instance of the type specified
      * by <code>chartType</code>.
      */
-    public static GraphSection createGraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws GraphTestException {
+    public static GraphSection createGraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
         ChartType chartType = GraphSection.getChartType(chartElement);
         switch (chartType) {
             case CATEGORICAL_STACKED_COLUMN:
-                return new GraphSectionCategorical(driver, wait, graphUrl, chartElement);
-                
+                return new GraphSectionCategorical(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+
             case PIE:
-                return new GraphSectionPie(driver, wait, graphUrl, chartElement);
-                
+                return new GraphSectionPie(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+
             case TIME_SERIES_LINE:
             case TIME_SERIES_LINE_BODYWEIGHT:
-                return new GraphSectionTimeSeries(driver, wait, graphUrl, chartElement);
-                
+                return new GraphSectionTimeSeries(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+
             case UNIDIMENSIONAL_ABR_PLOT:
-                return new GraphSectionABR(driver, wait, graphUrl, chartElement);
-                
+                return new GraphSectionABR(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+
             case UNIDIMENSIONAL_BOX_PLOT:
             case UNIDIMENSIONAL_SCATTER_PLOT:
-                return new GraphSectionUnidimensional(driver, wait, graphUrl, chartElement);
-                
+                return new GraphSectionUnidimensional(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+
             default:
-                throw new GraphTestException("Unknown chart type " + chartType);
+                throw new TestException("Unknown chart type " + chartType);
         }
     }
 }

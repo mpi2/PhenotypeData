@@ -16,16 +16,15 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
-
 
 /**
  *
@@ -35,6 +34,12 @@ import java.util.*;
  * components of a search page 'mpGrid' HTML table for phenotypes.
  */
 public class SearchPhenotypeTable extends SearchFacetTable {
+
+    private final List<PhenotypeRow> bodyRows = new ArrayList();
+    protected final CommonUtils commonUtils = new CommonUtils();
+    private final static Map<TableComponent, By> map = new HashMap();
+    private GridMap pageData;
+    protected final TestUtils testUtils = new TestUtils();
     
     public static final int COL_INDEX_COMP_MAPPED_HP_TERMS = 0;
     public static final int COL_INDEX_DEFINITION           = 1;
@@ -45,32 +50,22 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     public static final int COL_INDEX_TOP_LEVEL_MP_TERM    = 6;
     public static final int COL_INDEX_PHENOTYPING_CALLS    = 7;
     public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPING_CALLS;       // Should always point to the last (highest-numbered) index.
-    
-    private final List<PhenotypeRow> bodyRows = new ArrayList();
-    private final GridMap pageData;
-    
-    private final static Map<TableComponent, By> map = new HashMap();
+
     static {
         map.put(TableComponent.BY_TABLE, By.xpath("//table[@id='mpGrid']"));
         map.put(TableComponent.BY_TABLE_TR, By.xpath("//table[@id='mpGrid']/tbody/tr"));
         map.put(TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='mpGrid_length']"));
     }
-
-    @Autowired
-    TestUtils testUtils;
-
-    @Autowired
-    CommonUtils commonUtils;
     
     /**
      * Creates a new <code>SearchPhenotypeTable</code> instance.
-     * @param driver A <code>WebDriver</code> instance pointing to the search
-     * facet table with thead and tbody definitions.
-     * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     *
+     * @param driver A valid <code>WebDriver</code> instance
+     * @param timeoutInSeconds timeout
      */
-    public SearchPhenotypeTable(WebDriver driver, int timeoutInSeconds) {
+    public SearchPhenotypeTable(WebDriver driver, int timeoutInSeconds) throws TestException {
         super(driver, timeoutInSeconds, map);
-        
+
         pageData = load();
     }
     
@@ -115,25 +110,23 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     
     
     /**
-     * Pulls all rows of data and column access variables from the search page's
-     * 'mpGrid' HTML table.
+     * Pulls all rows of data and column access variables from the search page's phenotype HTML table.
      *
-     * @return <code>numRows</code> rows of data and column access variables
-     * from the search page's 'mpGrid' HTML table.
+     * @return <code>numRows</code> rows of data and column access variables from the search page's phenotype HTML table.
      */
     private GridMap load() {
         return load(null);
     }
 
     /**
-     * Pulls <code>numRows</code> rows of search page gene facet data and column
-     * access variables from the search page's 'mpGrid' HTML table.
+     * Pulls <code>numRows</code> rows of search page gene facet data and column access variables from the search page's
+     * phenotype HTML table.
      *
-     * @param numRows the number of <code>GridMap</code> table rows to return,
-     * including the heading row. To specify all rows, set <code>numRows</code>
-     * to null.
-     * @return <code>numRows</code> rows of search page gene facet data and
-     * column access variables from the search page's 'mpGrid' HTML table.
+     * @param numRows the number of <code>GridMap</code> table rows to return, including the heading row. To specify all
+     *                rows, set <code>numRows</code> to null.
+     *
+     * @return <code>numRows</code> rows of search page gene facet data and column access variables from the search
+     * page's phenotype HTML table.
      */
     private GridMap load(Integer numRows) {
         if (numRows == null)
@@ -199,8 +192,8 @@ public class SearchPhenotypeTable extends SearchFacetTable {
                 bodyRows.add(phenotypeRow);
             }
         }
-        
-        return new GridMap(pageArray, driver.getCurrentUrl());
+
+        return new GridMap(pageArray, target);
     }
     
     

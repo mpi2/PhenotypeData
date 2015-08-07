@@ -21,6 +21,7 @@ package org.mousephenotype.cda.seleniumtests.support;
  * @author mrelac
  */
 public class AlleleParser {
+
     String gene;
     String alleleSub;
 

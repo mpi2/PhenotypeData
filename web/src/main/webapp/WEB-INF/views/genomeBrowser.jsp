@@ -29,7 +29,7 @@ ga('send', 'pageview');
                                          <div id="genomebrowser">
 											<div class="floatright"><a href="http://www.biodalliance.org/" target="_blank" title="More information on using this browser"><i class="icon-question-sign"></i></a> <a title="This browser is clickable please experiment by clicking. Click on features to get more info, click on zoom bar etc. To reset click on 'lightning button'">This a an interactive genomic browser</a>
 											</div>  
-											Gene&nbsp;Location: Chr<span id='chr'>${gene.sequenceRegion.name}</span>:<span  id='geneStart'>${gene.start}</span>-<span  id='geneEnd'>${gene.end}</span> <br/> Gene Type: ${gene.subtype.name}
+											Gene&nbsp;Location: Chr<span id='chr'>${gene.seqRegionId}</span>:<span  id='geneStart'>${gene.seqRegionStart}</span>-<span  id='geneEnd'>${gene.seqRegionEnd}</span> <br/> Gene Type: ${gene.markerType}
 												<!-- <p><img class="fullimg" src="img/dummy/genebrowser.jpg" /></p> -->
 											<div id="svgHolder"></div>
 											

@@ -3,9 +3,9 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
-	<jsp:attribute name="title">Gene details for ${gene.name}</jsp:attribute>
+	<jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.symbol}</jsp:attribute>
+			href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
 	</jsp:attribute>
@@ -88,13 +88,13 @@
 																				/* identifier of <div> node that will host the heatmap */
 																				'container' : 'phenodcc-heatmap',
 																				/* colony identifier (MGI identifier) */
-																				'mgiid' : '${gene.id.accession}',
+																				'mgiid' : '${gene.mgiAccessionId}',
 																				/* default usage mode: ontological or procedural */
 																				'mode' : 'ontological',
 																				/* number of phenotype columns to use per section */
 																				'ncol' : 5,
 																				/* heatmap title to use */
-																				'title' : '${gene.symbol}',
+																				'title' : '${gene.markerSymbol}',
 																				'url' : {
 																					/* the base URL of the heatmap javascript source */
 																					'jssrc' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
@@ -232,7 +232,7 @@ div.ui-tabs-panel {
                 <div class="block">
                     <div class="content">
                         <div class="node node-gene">
-                            <h1 class="title" id="top">Gene: ${gene.symbol}</h1>
+                            <h1 class="title" id="top">Gene: ${gene.markerSymbol}</h1>
                             <div class="section">
                                 <div class="inner">
                                     <!--  login interest button -->
@@ -261,16 +261,16 @@ div.ui-tabs-panel {
 
                                     <p class="with-label no-margin">
                                         <span class="label">Name</span>
-                                        ${gene.name}
+                                        ${gene.markerName}
                                     </p>
 
                                     <c:if
-									test="${!(empty gene.synonyms)}">
+									test="${!(empty gene.markerSynonym)}">
                                         <p class="with-label no-margin">
                                             <span class="label">Synonyms</span>
                                             <c:forEach var="synonym"
-											items="${gene.synonyms}" varStatus="loop">
-                                                ${synonym.symbol}
+											items="${gene.markerSynonym}" varStatus="loop">
+                                                ${synonym}
                                                 <c:if
 												test="${!loop.last}">, </c:if>
                                                 <c:if
@@ -282,7 +282,7 @@ div.ui-tabs-panel {
                                     <p class="with-label">
                                         <span class="label">MGI Id</span>
                                         <a
-										href="http://www.informatics.jax.org/marker/${gene.id.accession}">${gene.id.accession}</a>
+										href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
                                     </p>
 
                                     <c:if
@@ -295,13 +295,13 @@ div.ui-tabs-panel {
                                     <p class="with-label">
                                         <span class="label">ENSEMBL Links</span>
                                         <a
-										href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.id.accession}"><i
+										href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"><i
 										class="fa fa-external-link"></i>&nbsp;Gene&nbsp;View</a>&nbsp;&nbsp;
                                         <a
-										href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.id.accession};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels"><i
+										href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels"><i
 										class="fa fa-external-link"></i>&nbsp;Location&nbsp;View</a>&nbsp;&nbsp;     
                                         <a
-										href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.id.accession}"><i
+										href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}"><i
 										class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a> 
                                     </p>
 
@@ -349,7 +349,7 @@ div.ui-tabs-panel {
                             <div class="section">
 
                                 <h2 class="title "
-								id="section-associations"> Phenotype associations for ${gene.symbol} 
+								id="section-associations"> Phenotype associations for ${gene.markerSymbol} 
                                     <span class="documentation"><a
 									href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span> <!--  this works, but need js to drive tip position -->
                                 </h2>		
@@ -460,7 +460,7 @@ div.ui-tabs-panel {
 												style="clear: both">
 	                                         	<p>
 													<a class="btn"
-														href='${baseUrl}/experiments?geneAccession=${gene.id.accession}'
+														href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
 														style="margin: 10px">All Adult Data</a>
 												</p>
                                           	</div>
@@ -541,17 +541,23 @@ div.ui-tabs-panel {
 
                                         </c:when>
                                         <c:when test="${summaryNumber == 0}">
+                                        
+                                         <div class="alert alert-info">
+                                            <h5>No Significant Phenotype Associations Found</h5>
+                                            <p>No significant phenotype associations were found, but you can click on the "All Adult Data" button to see all the adult data that didn't meet the significance threshold.</p>
+                                        </div>
+                                        
                                          <c:if
 											test="${!(empty dataMapList)}">
                                           	<br />
                                           	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 	                                      	<div class="floatright"
 												style="clear: both">
-	                                         	<p>
+	                                         	
 													<a class="btn"
-														href='${baseUrl}/experiments?geneAccession=${gene.id.accession}'
-														style="margin: 10px">All Adult Data</a>
-												</p>
+														href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
+														style="margin: 0px">All Adult Data</a>
+												
                                           	</div>
                                           </c:if>
                                           
@@ -569,7 +575,7 @@ div.ui-tabs-panel {
                                         </c:when>
                                         <c:otherwise>
                                             <div
-											class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.symbol} </div> <br />
+											class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.markerSymbol} </div> <br />
                                         </c:otherwise>
                                     </c:choose>
 
@@ -673,11 +679,12 @@ div.ui-tabs-panel {
 									<strong>Warning!</strong>${imageErrors }</div>
                                 </div>
                             </c:if>
-
+                            
+<c:if test="${not empty impcExpressionImageFacets}"> 
 <div class="section">
   <h2 class="title " id="impc-expression">Expression</h2>
 	<div class="inner" style="display: block;">
-		<c:if test="${not empty impcExpressionImageFacets}"> 
+		
 		<c:set var="expressionIcon" scope="page" value="fa fa-check" />
 		<c:set var="noTissueIcon" scope="page" value="fa fa-circle-o" />
 		<c:set var="noExpressionIcon" scope="page" value="fa fa-times" />
@@ -696,8 +703,8 @@ div.ui-tabs-panel {
  							<!-- section for expression data here -->
  							<div id="tabs">
  							<ul class='tabs'>
-							    <li><a href="#tabs-1">Expression Data Overview</a></li>
 							    <li><a href="#tabs-2">Expression Images View</a></li>
+							    <li><a href="#tabs-1">Expression Data Overview</a></li>
 							</ul>
 							
 							
@@ -805,7 +812,7 @@ div.ui-tabs-panel {
                                      		<c:if
 																test="${mutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
                                      			<a
-																	href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.symbol}")'><i
+																	href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.markerSymbol}")'><i
 																	title="Images available (click on this icon to view images)"
 																	class="fa fa-image" alt="Images">(${mutantImagesAnatomyToRow[mapEntry.key].numberOfImages})</i>
                                      			</a>
@@ -857,10 +864,11 @@ div.ui-tabs-panel {
                       	</div>
 										<!-- end of tabs -->
                       
-								</c:if>
+								
               </div> 
                       
         </div>
+        </c:if><!-- end of expression section if -->
 						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
         </div>
 					<!--  end of section -->

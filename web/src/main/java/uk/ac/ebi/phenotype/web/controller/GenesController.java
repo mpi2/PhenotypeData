@@ -15,7 +15,24 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONException;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -25,19 +42,19 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.json.JSONArray;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.pojo.Datasource;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.ExpressionService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PreQcService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
@@ -56,6 +73,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import net.sf.json.JSONException;
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
@@ -67,15 +87,6 @@ import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.*;
-
 @Controller
 public class GenesController {
 
@@ -83,13 +94,7 @@ public class GenesController {
 	private static final int numberOfImagesToDisplay = 5;
 
 	@Autowired
-	private DatasourceDAO datasourceDao;
-
-	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
-
-	@Autowired
-	private GenomicFeatureDAO genesDao;
 
 	@Autowired
 	private GwasDAO gwasDao;
@@ -181,11 +186,11 @@ public class GenesController {
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		// see if the gene exists first:
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		GeneDTO geneDto=geneService.getGeneById(acc);
-		model.addAttribute("geneDTO",geneDto);
+		//GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
+		GeneDTO gene=geneService.getGeneById(acc);
+		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
-			log.warn("Gene object from database for " + acc + " can't be found.");
+			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 
@@ -246,8 +251,10 @@ public class GenesController {
 			boolean hasPreQc = (preqcService.getPhenotypes(acc).size() > 0);
 			model.addAttribute("hasPreQcData", hasPreQc);
 
-			Map<String, String> prod = geneService.getProductionStatus(acc, request.getAttribute("mappedHostname").toString());
+			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
@@ -294,7 +301,7 @@ public class GenesController {
 		boolean ikmcError = false;
 
 		try {
-			countIKMCAlleles = solrIndex.getNumFound("allele_name:" + gene.getSymbol(), solrCoreName, mode, "");
+			countIKMCAlleles = solrIndex.getNumFound("allele_name:" + gene.getMarkerSymbol(), solrCoreName, mode, "");
 		} catch (Exception e) {
 			model.addAttribute("countIKMCAllelesError", Boolean.TRUE);
 			e.printStackTrace();
@@ -628,35 +635,31 @@ public class GenesController {
 	 */
 	@RequestMapping("/genomeBrowser/{acc}")
 	public String genomeBrowser(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException{
 
-		System.out.println("genome browser called");
-		GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		System.out.println("gene in browser=" + gene);
+		GeneDTO gene=geneService.getGeneById(acc);
+		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
-			log.warn("Gene status for " + acc + " can't be found.");
+			log.warn("Gene object from solr for " + acc + " can't be found.");
+			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
-		Datasource ensembl = datasourceDao.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDao.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDao.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDao.getDatasourceByShortName("cCDS");
-
+		
 		List<String> ensemblIds = new ArrayList<String>();
 		List<String> vegaIds = new ArrayList<String>();
 		List<String> ncbiIds = new ArrayList<String>();
 		List<String> ccdsIds = new ArrayList<String>();
 
-		List<Xref> xrefs = gene.getXrefs();
-		for (Xref xref : xrefs) {
-			if (xref.getXrefDatabaseId() == ensembl.getId()) {
-				ensemblIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == vega.getId()) {
-				vegaIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ncbi.getId()) {
-				ncbiIds.add(xref.getXrefAccession());
-			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
-				ccdsIds.add(xref.getXrefAccession());
-			}
+		if(gene.getEnsemblGeneIds()!=null){
+			ensemblIds=gene.getEnsemblGeneIds();
+		}
+		if(gene.getVegaIds()!=null){
+			vegaIds=gene.getVegaIds();
+		}
+		if(gene.getCcdsIds()!=null){
+			ccdsIds=gene.getCcdsIds();
+		}
+		if(gene.getNcbiIds()!=null){
+			ncbiIds=gene.getNcbiIds();
 		}
 
 		model.addAttribute("ensemblIds", ensemblIds);

@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -28,9 +30,10 @@ import java.util.List;
  * stream-specific  customizations to the derived classes.
  */
 public abstract class DataReader {
-    
-    protected final URL url;
-    
+
+    protected DataReaderFactory dataReaderFactory = new DataReaderFactory();
+    protected URL url;
+
     public DataReader(URL url) {
         this.url = url;
     }
@@ -45,9 +48,9 @@ public abstract class DataReader {
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
      * 
-     * @throws IOException
+     * @throws TestException
      */
-    public String[][] getData() throws IOException {
+    public String[][] getData() throws TestException {
         return getData(null);
     }
     
@@ -58,17 +61,18 @@ public abstract class DataReader {
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
      * 
-     * @throws IOException
+     * @throws TestException
      */
-    public String[][] getData(Integer maxRows) throws IOException {
-        
+    public String[][] getData(Integer maxRows) throws TestException {
+        String message;
+
         if (maxRows == null)
             maxRows = lineCount();
         
         String[][] data = new String[maxRows][];
         DataReader dataReader = null;
         try {
-            dataReader = DataReaderFactory.create(url);
+            dataReader = dataReaderFactory.create(url);
  //System.out.println("After create()");
             dataReader.open();
  //System.out.println("After open()");
@@ -84,46 +88,63 @@ public abstract class DataReader {
                 }
             }
         } catch (IOException e) {
-            System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
-            throw e;
+            message = "EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url;
+            throw new TestException(message);
         } finally {
             try {
                 if (dataReader != null)
                     dataReader.close();
             } catch (IOException e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
-            throw e;
+                message = "EXCEPTION. dataReader.close() failed. Reason: " + e.getLocalizedMessage() + "\nURL: " + url;
+                throw new TestException(message);
             }
         }
         
         return data;
     }
-    
+
+    /**
+     * Get the url defining the input stream.
+     */
+     public URL getUrl() {
+        return url;
+    }
+
+    /**
+     * Set the url defining the input stream.
+     *
+     * @param url The url defining the input stream
+     */
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
     /**
      * @return the number of lines in this <code>DataReader</code> stream,
      * including headings.
-     * @throws IOException
+     * @throws TestException
      */
-    public int lineCount() throws IOException {
+    public int lineCount() throws TestException {
+        String message;
         int lineCount = 0;
         DataReader dataReader = null;
         try {
-            dataReader = DataReaderFactory.create(url);
+            dataReader = dataReaderFactory.create(url);
             dataReader.open();
             
             while ((dataReader.getLine()) != null) {
                 lineCount++;
             }
         } catch (IOException e) {
-            System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
-            throw e;
+            message = "EXCEPTION in lineCount(): " + e.getLocalizedMessage() + "\nURL: " + url;
+            throw new TestException(message);
         } finally {
             try {
                 if (dataReader != null)
                     dataReader.close();
             } catch (IOException e) {
-                System.out.println("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url);
-                throw e;
+                message = "EXCEPTION in lineCount(). dataReader.close() failed. Reason: " + e.getLocalizedMessage() + "\nURL: " + url;
+                throw new TestException(message);
             }
         }
         
@@ -134,6 +155,4 @@ public abstract class DataReader {
         TSV,
         XLS
     }
-    
-
 }
