@@ -251,7 +251,7 @@ public class GraphPageTest {
 
     // Tests known graph URLs that have historically been broken or are interesting cases, such as 2 graphs per page.
     @Test
-@Ignore
+//@Ignore
     public void testKnownGraphs() throws TestException {
         String testName = "testKnownGraphs";
         List<String> graphUrls = Arrays.asList( new String[] {
@@ -273,7 +273,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
@@ -304,7 +304,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
@@ -324,7 +324,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
@@ -334,7 +334,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
@@ -344,7 +344,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 
