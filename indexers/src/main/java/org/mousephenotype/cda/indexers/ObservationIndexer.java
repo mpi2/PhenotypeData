@@ -326,8 +326,8 @@ public class ObservationIndexer extends AbstractIndexer {
                     if (translateCategoryNames.containsKey(param)) {
 
                         String transCat = translateCategoryNames.get(param).get(cat);
-                        System.out.println("param with cat is="+param+" cat="+cat);
-                        System.out.println("transCat="+transCat);
+                        //System.out.println("param with cat is="+param+" cat="+cat);
+                        //System.out.println("transCat="+transCat);
                         if (transCat != null &&  ! transCat.equals("")) {
                             o.setCategory(transCat);
                         } else {
@@ -596,7 +596,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			while (resultSet.next()) {
 
 				String stableId = resultSet.getString("stable_id");
-				System.out.println("parameter_stable_id for numeric cat=" + stableId);
+				//System.out.println("parameter_stable_id for numeric cat=" + stableId);
 				
 				if (!translateCategoryNames.containsKey(stableId)) {
 					translateCategoryNames.put(stableId, new HashMap<>());
@@ -607,7 +607,7 @@ public class ObservationIndexer extends AbstractIndexer {
 				System.out.println("raw categorical data=" + name + " desc=" + description);
 				if (name.matches("[0-9]+")) {
 					name+=".0";//add .0 onto string as this is what our numerical categories look in solr!!!!
-					System.out.println("adding " + name + " desc" + description);
+					//System.out.println("adding " + name + " desc" + description);
 					translateCategoryNames.get(stableId).put(name, description);
 				}else{
 					System.out.println("not translating non alphebetical category for parameter"+stableId+"name=" + name + " desc=" + description);
