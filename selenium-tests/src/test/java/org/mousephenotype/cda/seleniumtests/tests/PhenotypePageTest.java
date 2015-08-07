@@ -35,7 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.TestPropertySource;
+ import org.springframework.core.env.Environment;
+ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.PostConstruct;
@@ -84,6 +85,9 @@ public class PhenotypePageTest {
     private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
 
     @Autowired
     @Qualifier("postqcService")
@@ -162,7 +166,7 @@ public class PhenotypePageTest {
         String message;
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
@@ -415,7 +419,7 @@ public class PhenotypePageTest {
         Date start = new Date();
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through all phenotypes, testing each one for valid page load.

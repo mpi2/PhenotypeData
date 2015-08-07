@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -91,6 +92,9 @@ public class GenePageTest {
     private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
 
     @Autowired
     protected GeneService geneService;
@@ -155,7 +159,7 @@ public class GenePageTest {
         String message;
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
 
         // Loop through all genes, testing each one for valid page load.
@@ -289,7 +293,7 @@ public class GenePageTest {
         String message;
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
 
         // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
