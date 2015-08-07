@@ -159,7 +159,7 @@ public class GwasDTO {
 	@Field(SNP_ID_CI)
 	private String snp_id_ci;
 
-	public String getmgiGeneId() {
+	public String getMgiGeneId() {
 		return mgi_gene_id;
 	}
 

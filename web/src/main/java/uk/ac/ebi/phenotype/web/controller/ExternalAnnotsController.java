@@ -178,24 +178,24 @@ public class ExternalAnnotsController {
         	count++;
         	List<String> tr = new ArrayList<>();
 
-        	String mgi_allele_name = gw.getGwasMgiAlleleName();
-        	String mgi_allele_id = gw.getGwasMgiAlleleId();
+        	String mgi_allele_name = gw.getMgiAlleleName();
+        	String mgi_allele_id = gw.getMgiAlleleId();
         	tr.add("<td>" + mgi_allele_name + "<br>" + mgi_allele_id + "</td>");
-        	tr.add("<td>" + gw.getGwasMouseGender() + "</td>");
-        	tr.add("<td>" + gw.getGwasPhenoMappingCategory() + "</td>");
-        	tr.add("<td>" + gw.getGwasSnpId() + "</td>");
-        	tr.add("<td>" + Float.toString(gw.getGwasPvalue()) + "</td>");
+        	tr.add("<td>" + gw.getMouseGender() + "</td>");
+        	tr.add("<td>" + gw.getPhenoMappingCategory() + "</td>");
+        	tr.add("<td>" + gw.getSnpId() + "</td>");
+        	tr.add("<td>" + Float.toString(gw.getPvalue()) + "</td>");
 
-        	String gwas_reported_gene = gw.getGwasReportedGene().isEmpty() ? NA : gw.getGwasReportedGene();
+        	String gwas_reported_gene = gw.getReportedGene().isEmpty() ? NA : gw.getReportedGene();
         	tr.add("<td>" + gwas_reported_gene  + "</td>");
 
-        	String gwas_mapped_gene = gw.getGwasMappedGene().isEmpty() ? NA : gw.getGwasMappedGene();
+        	String gwas_mapped_gene = gw.getMappedGene().isEmpty() ? NA : gw.getMappedGene();
         	tr.add("<td>" + gwas_mapped_gene + "</td>");
 
-        	String gwas_upstream_gene = gw.getGwasUpstreamGene().isEmpty() ? NA : gw.getGwasUpstreamGene();
+        	String gwas_upstream_gene = gw.getUpstreamGene().isEmpty() ? NA : gw.getUpstreamGene();
         	tr.add("<td>" + gwas_upstream_gene + "</td>");
 
-        	String gwas_downstream_gene = gw.getGwasDownstreamGene().isEmpty() ? NA : gw.getGwasDownstreamGene();
+        	String gwas_downstream_gene = gw.getDownstreamGene().isEmpty() ? NA : gw.getDownstreamGene();
         	tr.add("<td>" + gwas_downstream_gene + "</td>");
 
         	String trClass = count % 2 == 0 ? "even" : "odd";
@@ -224,14 +224,14 @@ public class ExternalAnnotsController {
         int counter = 0;
         for (GwasDTO gw : gwasMappings) {
         	counter++;
-        	String mgi_gene_symbol = gw.getGwasMgiGeneSymbol();
-        	String mgi_gene_id = gw.getGwasMgiGeneId();
+        	String mgi_gene_symbol = gw.getMgiGeneSymbol();
+        	String mgi_gene_id = gw.getMgiGeneId();
         	String geneLink = baseUrl + "/genes/" + mgi_gene_id;
         	//String mgi_gene_symbol_link = "<a href='" + hostName + baseUrl + "/" + geneLink + "'>" + mgi_gene_symbol + "</a>";
         	String mgi_gene_symbol_link = "<a href='" + hostName + geneLink + "'>" + mgi_gene_symbol + "</a>";
 
-        	String mp_term_name = gw.getGwasMpTermName();
-        	String gwas_disease_trait = gw.getGwasDiseaseTrait();
+        	String mp_term_name = gw.getMpTermName();
+        	String gwas_disease_trait = gw.getDiseaseTrait();
 
 
         	List<String> rowData = new ArrayList<String>();
@@ -261,16 +261,16 @@ public class ExternalAnnotsController {
 		System.out.println("ExternalAnnotsController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 
 		GwasDTO gm1 = gwasMappings.get(0);
-		String mgiGeneId = gm1.getGwasMgiGeneId();
-		String mgiGeneSymbol = gm1.getGwasMgiGeneSymbol();
-		String mappingCat = gm1.getGwasPhenoMappingCategory();
+		String mgiGeneId = gm1.getMgiGeneId();
+		String mgiGeneSymbol = gm1.getMgiGeneSymbol();
+		String mappingCat = gm1.getPhenoMappingCategory();
 
 		Set<String> traits = new HashSet<>();
 		Map<String, List<String>> alleleIdData = new HashMap<>();
 		Map<String, List<GwasDTO>> traitGwasMappings = new HashMap<>();
 
 		for ( GwasDTO gw : gwasMappings ) {
-			String traitName = gw.getGwasDiseaseTrait();
+			String traitName = gw.getDiseaseTrait();
 
 			traits.add(traitName);
 			if ( ! traitGwasMappings.containsKey(traitName) ){
@@ -311,7 +311,7 @@ public class ExternalAnnotsController {
 
 			for ( GwasDTO tGw : traitGwasMappings.get(traitName) ){
 
-				String thisAlleleName = tGw.getGwasMgiAlleleName();
+				String thisAlleleName = tGw.getMgiAlleleName();
 				if ( ! alleleNameGwasMappings.containsKey(thisAlleleName) ){
 					alleleNameGwasMappings.put(thisAlleleName, new ArrayList<GwasDTO>());
 				}
@@ -321,7 +321,7 @@ public class ExternalAnnotsController {
 			    List<GwasDTO> aGws = entry.getValue();
 
 			    String thisAlleleName = entry.getKey();
-			    String thisAlleleId = aGws.get(0).getGwasMgiAlleleId();
+			    String thisAlleleId = aGws.get(0).getMgiAlleleId();
 			    String alleleId = thisAlleleId.startsWith("NULL") ? "" : "(" + thisAlleleId + ")";
 
 			   // String caption = " <caption>IMPC allele: " + thisAlleleName + alleleId + "</caption>";
@@ -333,17 +333,17 @@ public class ExternalAnnotsController {
 			    	List<String> tds = new ArrayList<>();
 			    	String mgiBaseLink = baseUrl + "/phenotypes/";
 			    	if ( mode.equals("tool") ){
-			    		tds.add("<td class='impcData'>" + aGw.getGwasMgiGeneSymbol() + "</td>");
-			    		tds.add("<td class='impcData'>" + aGw.getGwasPhenoMappingCategory() + "</td>");
+			    		tds.add("<td class='impcData'>" + aGw.getMgiGeneSymbol() + "</td>");
+			    		tds.add("<td class='impcData'>" + aGw.getPhenoMappingCategory() + "</td>");
 			    	}
-					tds.add("<td class='impcData'><a href='" + mgiBaseLink + aGw.getGwasMpTermId() + "'>" + aGw.getGwasMpTermName() + "</a></td>");
-					tds.add("<td class='impcData'>" + aGw.getGwasMouseGender() + "</td>");
-					tds.add("<td>" + aGw.getGwasSnpId() + "</td>");
-					tds.add("<td>" + Float.toString(aGw.getGwasPvalue()) + "</td>");
-					tds.add("<td>" + aGw.getGwasReportedGene() + "</td>");
-					tds.add("<td>" + aGw.getGwasMappedGene() + "</td>");
-					tds.add("<td>" + aGw.getGwasUpstreamGene() + "</td>");
-					tds.add("<td>" + aGw.getGwasDownstreamGene() + "</td>");
+					tds.add("<td class='impcData'><a href='" + mgiBaseLink + aGw.getMpTermId() + "'>" + aGw.getMpTermName() + "</a></td>");
+					tds.add("<td class='impcData'>" + aGw.getMouseGender() + "</td>");
+					tds.add("<td>" + aGw.getSnpId() + "</td>");
+					tds.add("<td>" + Float.toString(aGw.getPvalue()) + "</td>");
+					tds.add("<td>" + aGw.getReportedGene() + "</td>");
+					tds.add("<td>" + aGw.getMappedGene() + "</td>");
+					tds.add("<td>" + aGw.getUpstreamGene() + "</td>");
+					tds.add("<td>" + aGw.getDownstreamGene() + "</td>");
 
 					String td = StringUtils.join(tds, "");
 					trs.add("<tr>" + td + "</tr>");
