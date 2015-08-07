@@ -173,8 +173,10 @@ public class BasicService {
 	public List<String> getListFromJson(JSONArray jsonArray){
 		
 		List<String> list = new ArrayList<>();
-		for (Object obj : jsonArray){
-			list.add(obj.toString());
+		if (jsonArray != null){
+			for (Object obj : jsonArray){
+				list.add(obj.toString());
+			}
 		}
 		
 		return list;
