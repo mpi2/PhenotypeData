@@ -47,6 +47,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -99,15 +100,20 @@ public class PhenotypePageStatistics {
     Environment env;
 
     @Autowired
+    protected MpService mpService;
+
+    @Autowired
     protected SeleniumWrapper wrapper;
 
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    @Autowired
-    protected MpService mpService;
 
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
 
     @Before

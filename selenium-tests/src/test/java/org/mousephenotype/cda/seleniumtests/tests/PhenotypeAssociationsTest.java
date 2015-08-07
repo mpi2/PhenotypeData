@@ -36,6 +36,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -103,6 +104,12 @@ public class PhenotypeAssociationsTest {
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
+
+
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
     @Before
     public void setup() {
@@ -207,15 +214,14 @@ public class PhenotypeAssociationsTest {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (String geneId : geneIds) {
- if (i == 0) geneId = "MGI:103253";
- if (i == 1) geneId = "MGI:2142624";
-// if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
+// if (i == 0) geneId = "MGI:1922257";
+// if (i == 1) geneId = "MGI:1933966";
             if (i >= targetCount) {
                 break;
             }
-            i++;
 
-            status = processRow(wait, geneId, i);
+            status.add(processRow(wait, geneId, i));
+            i++;
 
             commonUtils.sleep(threadWaitInMilliseconds);
         }
