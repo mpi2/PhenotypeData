@@ -105,10 +105,16 @@ public class GraphPage {
      * Load the page and its section and tsv/xls download data.
      */
     private void load() throws TestException {
-        String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
-        List<WebElement> chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
-
         String message;
+        List<WebElement> chartElements;
+
+        String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
+        try {
+            chartElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
+        } catch (Exception e) {
+            message = "EXCEPTION loading GraphPage. Reason: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl();
+            throw new TestException(message, e);
+        }
 
         // Wait for page to load. Sometimes the chart isn't loaded when the 'wait()' ends, so try a few times.
         for (int i = 0; i < 10; i++) {

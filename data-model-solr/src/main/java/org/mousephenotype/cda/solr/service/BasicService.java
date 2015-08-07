@@ -173,8 +173,10 @@ public class BasicService {
 	public List<String> getListFromJson(JSONArray jsonArray){
 		
 		List<String> list = new ArrayList<>();
-		for (Object obj : jsonArray){
-			list.add(obj.toString());
+		if (jsonArray != null){
+			for (Object obj : jsonArray){
+				list.add(obj.toString());
+			}
 		}
 		
 		return list;
@@ -189,8 +191,12 @@ public class BasicService {
 	public List<String> getListFromCollection(Collection<Object> collection){
 		
 		List<String> list = new ArrayList<>();
-		for (Object obj : collection){
-			list.add(obj.toString());
+		if (collection != null){
+			for (Object obj : collection){
+				if (obj != null){
+					list.add(obj.toString());
+				}
+			}
 		}
 		
 		return list;

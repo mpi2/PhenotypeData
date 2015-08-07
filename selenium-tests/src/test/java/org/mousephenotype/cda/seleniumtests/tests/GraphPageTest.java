@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -50,9 +51,7 @@ import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -95,6 +94,9 @@ public class GraphPageTest {
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    Environment env;
 
     @Autowired
     protected GeneService geneService;
@@ -208,7 +210,7 @@ public class GraphPageTest {
         PageStatus statuses = new PageStatus();
         int successCount = 0;
 
-        int targetCount = testUtils.getTargetCount(testName, geneGraphs, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
 
         int i = 1;
@@ -282,7 +284,7 @@ public class GraphPageTest {
         PageStatus statuses = new PageStatus();
         int successCount = 0;
 
-        int targetCount = testUtils.getTargetCount(testName, geneGraphs, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graphs.");
 
         for (int i = 0; i < targetCount; i++) {

@@ -43,9 +43,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -95,15 +97,23 @@ public class PhenotypePageStatistics {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    Environment env;
+
+    @Autowired
+    protected MpService mpService;
+
+    @Autowired
     protected SeleniumWrapper wrapper;
 
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    @Autowired
-    protected MpService mpService;
 
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
 
     @Before
@@ -164,7 +174,7 @@ public class PhenotypePageStatistics {
         int pagesWithBoth = 0;
         List<String> urlsWithNeitherPhenotypeTableNorImage = new ArrayList();
 
-        int targetCount = testUtils.getTargetCount(testName, phenotypeIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.

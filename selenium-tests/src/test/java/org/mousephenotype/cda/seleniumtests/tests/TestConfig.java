@@ -31,17 +31,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
-@ComponentScan({"org.mousephenotype.cda", "org.mousephenotype.cda.seleniumtests.support"})
 @Configuration
+@ComponentScan({"org.mousephenotype.cda"})
 @EnableAutoConfiguration
 public class TestConfig {
 
@@ -70,10 +68,10 @@ public class TestConfig {
 		return factory;
 	}
 
-	@Bean(name = "komp2TxManager")
-	public PlatformTransactionManager txManager() {
-		return new DataSourceTransactionManager(komp2DataSource());
-	}
+//	@Bean(name = "komp2TxManager")
+//	public PlatformTransactionManager txManager() {
+//		return new DataSourceTransactionManager(komp2DataSource());
+//	}
 
 	@Bean
 	@ConfigurationProperties(prefix = "datasource.admintools")

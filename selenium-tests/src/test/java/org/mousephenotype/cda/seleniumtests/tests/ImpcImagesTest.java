@@ -211,7 +211,7 @@ public class ImpcImagesTest {
 
 
     @Test
-// @Ignore
+//@Ignore
     public void testImpcImagesOnGenePage() throws Exception {
 
         String testName = "testImpcImagesOnGenePage";
@@ -262,7 +262,7 @@ public class ImpcImagesTest {
     }
 
     @Test
-// @Ignore
+//@Ignore
     public void testImpcImagesOnaSpecificGenePage() throws Exception {
 
         String testName = "testImpcImagesOnGenePage";

@@ -32,9 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -87,6 +89,9 @@ public class PhenotypeAssociationsTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    Environment env;
+
+    @Autowired
 	@Qualifier("postqcService")
     protected PostQcService genotypePhenotypeService;
 
@@ -99,6 +104,12 @@ public class PhenotypeAssociationsTest {
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
+
+
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
     @Before
     public void setup() {
@@ -196,22 +207,21 @@ public class PhenotypeAssociationsTest {
 
         Date start = new Date();
 
-        int targetCount = testUtils.getTargetCount(testName, geneIds, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
 
         // Loop through all genes, testing each one for valid page load.
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (String geneId : geneIds) {
- if (i == 0) geneId = "MGI:103253";
- if (i == 1) geneId = "MGI:2142624";
-// if (i == 0) geneId = "MGI:2443601";        // This one doesn't exist.
+// if (i == 0) geneId = "MGI:1922257";
+// if (i == 1) geneId = "MGI:1933966";
             if (i >= targetCount) {
                 break;
             }
-            i++;
 
-            status = processRow(wait, geneId, i);
+            status.add(processRow(wait, geneId, i));
+            i++;
 
             commonUtils.sleep(threadWaitInMilliseconds);
         }
