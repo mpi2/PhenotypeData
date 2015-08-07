@@ -17,15 +17,14 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.util.*;
@@ -37,14 +36,17 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page.
  */
-@Component
 public class SearchPage {
+
+    private final String               baseUrl;
+    protected final CommonUtils        commonUtils = new CommonUtils();
     private final WebDriver            driver;
+    private final PhenotypePipelineDAO phenotypePipelineDAO;
+    private Random                     random = new Random();
+    private String                     target;
+    protected final TestUtils          testUtils = new TestUtils();
     private final int                  timeoutInSeconds;
-    private final String baseUrl;
     private final WebDriverWait        wait;
-    private String target;
-    private Random random = new Random();
 
     private SearchGeneTable      geneTable;
     private SearchPhenotypeTable phenotypeTable;
@@ -70,28 +72,10 @@ public class SearchPage {
     public static final String IMPC_IMAGES_ID = "impc_images";
     public static final String IMAGES_ID      = "images";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    protected CommonUtils commonUtils;
 
-    @Autowired
-    DataReaderFactory dataReaderFactory;
-
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    public enum DownloadType {
-        PAGINATED_TSV,
-        PAGINATED_XLS,
-        ALL_TSV,
-        ALL_XLS
-    }
     // The facets shown on the left.
-
     public enum Facet {
         GENES(GENE_CORE),
         PHENOTYPES(PHENOTYPE_CORE),
@@ -175,13 +159,14 @@ public class SearchPage {
      * Creates a new <code>SearchPage</code> instance. No web page is loaded.
      * @param driver Web driver
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
+     * @param phenotypePipelineDAO
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param map a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) {
-        this(driver, timeoutInSeconds, null, baseUrl, map);
+    public SearchPage(WebDriver driver, int timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) {
+        this(driver, timeoutInSeconds, null, phenotypePipelineDAO, baseUrl, map);
         this.target = driver.getCurrentUrl();
         this.map = map;
     }
@@ -192,6 +177,7 @@ public class SearchPage {
      * @param driver Web driver
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      * @param target target search URL
+     * @param phenotypePipelineDAO
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param map a map of HTML table-related definitions, keyed by <code>
@@ -199,7 +185,7 @@ public class SearchPage {
      *
      * @throws RuntimeException If the target cannot be set
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws RuntimeException {
+    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws RuntimeException {
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
@@ -291,7 +277,7 @@ public class SearchPage {
      * Opens the specified facet if it is not already open.
      * @param facet the facet to open.
      */
-    public void openFacet(Facet facet) {
+    public void openFacet(Facet facet) throws TestException {
         if (getFacetState(facet) == WindowState.CLOSED) {
             clickFacet(facet);
         }
@@ -301,7 +287,7 @@ public class SearchPage {
      * Closes the specified facet if it is not already closed.
      * @param facet the facet to close.
      */
-    public void closeFacet(Facet facet) {
+    public void closeFacet(Facet facet) throws TestException {
         if (getFacetState(facet) == WindowState.OPEN) {
             clickFacet(facet);
         }
@@ -329,13 +315,9 @@ public class SearchPage {
         String className = "";
 
         switch (downloadType) {
-            case PAGINATED_TSV: className = "tsv_grid"; break;
+            case TSV: className = "tsv_grid"; break;
 
-            case PAGINATED_XLS: className = "xls_grid"; break;
-
-            case ALL_TSV:       className = "all_tsv";  break;
-
-            case ALL_XLS:       className = "all_xls";  break;
+            case XLS: className = "xls_grid"; break;
         }
 
         driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).click();
@@ -348,7 +330,7 @@ public class SearchPage {
      * @param facet desired facet to click
      * @return the [total] results count
      */
-    public int clickFacet(Facet facet) {
+    public int clickFacet(Facet facet) throws TestException {
         return clickFacetById(getFacetId(facet));
     }
 
@@ -359,7 +341,7 @@ public class SearchPage {
      * @param facetId HTML 'li' id of desired facet to click
      * @return the [total] results count
      */
-    public int clickFacetById(String facetId) {
+    public int clickFacetById(String facetId) throws TestException {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
 
         try {
@@ -494,7 +476,7 @@ public class SearchPage {
      * @return Returns the anatomy table [maGrid], if there is one; or an
      * empty one if there is not
      */
-    public SearchAnatomyTable getAnatomyTable() {
+    public SearchAnatomyTable getAnatomyTable() throws TestException {
         if (hasAnatomyTable()) {
             if (anatomyTable == null) {
                 anatomyTable = new SearchAnatomyTable(driver, timeoutInSeconds);
@@ -580,7 +562,7 @@ public class SearchPage {
      * @return Returns the disease table [diseaseGrid], if there is one; or an
      * empty one if there is not
      */
-    public SearchDiseaseTable getDiseaseTable() {
+    public SearchDiseaseTable getDiseaseTable() throws TestException {
         if (hasDiseaseTable()) {
             if (diseaseTable == null) {
                 diseaseTable = new SearchDiseaseTable(driver, timeoutInSeconds);
@@ -722,9 +704,9 @@ public class SearchPage {
 
     /**
      * @return Returns the GENES table [geneGrid], if there is one; or an
- empty one if there is not
+    empty one if there is not
      */
-    public SearchGeneTable getGeneTable() {
+    public SearchGeneTable getGeneTable() throws TestException {
         if (hasGeneTable()) {
             if (geneTable == null) {
                 geneTable = new SearchGeneTable(driver, timeoutInSeconds);
@@ -738,7 +720,7 @@ public class SearchPage {
      * @return Returns the impc_images table [impc_imagesGrid], if there is one;
      * or an empty one if there is not
      */
-    public SearchImpcImageTable getImpcImageTable() {
+    public SearchImpcImageTable getImpcImageTable() throws TestException {
         if (hasImpcImageTable()) {
             if (impcImageTable == null) {
                 impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
@@ -752,7 +734,7 @@ public class SearchPage {
      * @return Returns the images table [imagesGrid], if there is one; or an
      * empty one if there is not
      */
-    public SearchImageTable getImageTable() {
+    public SearchImageTable getImageTable() throws TestException {
         if (hasImageTable()) {
             if (imageTable == null) {
                 imageTable = new SearchImageTable(driver, timeoutInSeconds, map);
@@ -861,7 +843,7 @@ public class SearchPage {
      * @return Returns the phenotype table [mpGrid], if there is one; or an
      * empty one if there is not
      */
-    public SearchPhenotypeTable getPhenotypeTable() {
+    public SearchPhenotypeTable getPhenotypeTable() throws TestException {
         if (hasPhenotypeTable()) {
             if (phenotypeTable == null) {
                 phenotypeTable = new SearchPhenotypeTable(driver, timeoutInSeconds);
@@ -1008,7 +990,7 @@ public class SearchPage {
     /**
      * Sets the facet table based on the current-showing facet.
      */
-    public void setFacetTable() {
+    public void setFacetTable() throws TestException {
         if (hasAnatomyTable()) {
             anatomyTable = new SearchAnatomyTable(driver, timeoutInSeconds);
         } else if (hasDiseaseTable()) {
@@ -1024,7 +1006,7 @@ public class SearchPage {
         }
     }
 
-    public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) {
+    public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) throws TestException {
         getImageTable().setCurrentView(desiredView);
     }
 
@@ -1058,15 +1040,12 @@ public class SearchPage {
      * @param facet facet
      * @return page status instance
      */
-    public PageStatus validateDownload(Facet facet) {
+    public PageStatus validateDownload(Facet facet) throws TestException {
         PageStatus status = new PageStatus();
 
         DownloadType[] downloadTypes = {
-              DownloadType.PAGINATED_TSV
-            , DownloadType.PAGINATED_XLS
-    // Don't test the 'ALL_xxx' download types as they are known to be broken in both production and testing; the server rejects streams that are too long.
-//            , DownloadType.ALL_TSV
-//            , DownloadType.ALL_XLS
+              DownloadType.TSV
+            , DownloadType.XLS
         };
 
         String[][] data;
@@ -1122,7 +1101,7 @@ public class SearchPage {
      * @return the number of entries currently showing in the 'entries'
      * drop-down box.
      */
-    public int getNumEntries() {
+    public int getNumEntries() throws TestException {
         int numEntries;
         if (hasAnatomyTable()) {
             numEntries = getAnatomyTable().getNumEntries();
@@ -1157,7 +1136,7 @@ public class SearchPage {
      *
      * @param entriesSelect The new value for the number of entries to show.
      */
-    public void setNumEntries(SearchFacetTable.EntriesSelect entriesSelect) {
+    public void setNumEntries(SearchFacetTable.EntriesSelect entriesSelect) throws TestException {
         if (hasAnatomyTable()) {
             logger.info("Setting AnatomyTable entries to " + entriesSelect.getValue() + ".");
             getAnatomyTable().setNumEntries(entriesSelect);
@@ -1236,9 +1215,20 @@ public class SearchPage {
             downloadUrlBase = downloadUrlBase.substring(pos);
             String downloadTarget = baseUrl + downloadUrlBase;
             URL downloadUrl = new URL(downloadTarget);
-            DataReader dataReader = dataReaderFactory.create(downloadUrl);
-            data = dataReader.getData();
 
+            switch (downloadType) {
+                case TSV:
+                    // Get the download stream and statistics for the TSV stream.
+                    DataReaderTsv dataReaderTsv = new DataReaderTsv(downloadUrl);
+                    data = dataReaderTsv.getData();
+                    break;
+
+                case XLS:
+                    // Get the download stream and statistics for the XLS stream.
+                    DataReaderXls dataReaderXls = new DataReaderXls(downloadUrl);
+                    data = dataReaderXls.getData();
+                    break;
+            }
         } catch (NoSuchElementException | TimeoutException te) {
             throw new RuntimeException("SearchPage.getDownload: Expected page for target: " + target + ".");
         } catch (IllegalArgumentException iae) {
@@ -1267,10 +1257,8 @@ public class SearchPage {
         String className = "";
 
         switch (downloadType) {
-            case PAGINATED_TSV: className = "tsv_grid"; break;
-            case PAGINATED_XLS: className = "xls_grid"; break;
-            case ALL_TSV:       className = "tsv_all";  break;
-            case ALL_XLS:       className = "xls_all";  break;
+            case TSV: className = "tsv_grid"; break;
+            case XLS: className = "xls_grid"; break;
         }
 
         return driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).getAttribute("data-exporturl");
@@ -1281,7 +1269,7 @@ public class SearchPage {
      * @param facet facet
      * @return The matching generic <code>SearchFacetTable</code>.
      */
-    private SearchFacetTable getFacetTable(Facet facet) {
+    private SearchFacetTable getFacetTable(Facet facet) throws TestException {
         switch (facet) {
             case ANATOMY:       return getAnatomyTable();
             case DISEASES:      return getDiseaseTable();

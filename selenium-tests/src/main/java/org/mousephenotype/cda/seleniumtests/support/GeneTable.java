@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -25,8 +24,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,14 +36,17 @@ import java.util.List;
  * This class encapsulates the code and data necessary for access to the gene
  * page's "genes" HTML table.
  */
-@Component
 public class GeneTable {
-    protected WebDriver driver;
-    protected WebDriverWait wait;
+
     private GridMap data;       // Contains postQc rows only.
-    private List<List<String>> preQcList;
+    protected WebDriver driver;
     private List<List<String>> postQcList;
     private List<List<String>> preAndPostQcList;
+    private List<List<String>> preQcList;
+    protected String target;
+    protected TestUtils testUtils = new TestUtils();
+    protected UrlUtils urlUtils = new UrlUtils();
+    protected WebDriverWait wait;
 
     public static final int COL_INDEX_GENES_PHENOTYPE           =  0;
     public static final int COL_INDEX_GENES_ALLELE              =  1;
@@ -68,23 +68,14 @@ public class GeneTable {
     public static final String COL_GENES_P_VALUE             = "P Value";
     public static final String COL_GENES_GRAPH               = "Graph";
 
-    private final int TIMEOUT_IN_SECONDS = 4;
+    public static final String NO_SUPPORTING_DATA                 = "No supporting data supplied.";
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    protected GridMap pageData;
-
-    @Autowired
-    TestUtils testUtils;
-
-    @Autowired
-    UrlUtils urlUtils;
-
-    @Autowired
-    SeleniumWrapper wrapper;
-
-    public GeneTable() {
+    public GeneTable(WebDriver driver, WebDriverWait wait, String target) {
+        this.driver = driver;
+        this.wait = wait;
+        this.target = target;
         this.data = null;
     }
 
@@ -109,30 +100,24 @@ public class GeneTable {
      * Pulls all rows of data and column access variables from the gene page's
      * 'genes' HTML table.
      *
-     * @param target the gene page target
      * @return <code>numRows</code> rows of data and column access variables
      * from the gene page's 'genes' HTML table.
      */
-    public GridMap load(String target) throws TestException {
-        return load(target, null);
+    public GridMap load() {
+        return load(null);
     }
 
     /**
      * Pulls <code>numRows</code> rows of postQc data and column access
      * variables from the gene page's 'genes' HTML table.
      *
-     * @param target the gene page target
      * @param numRows the number of postQc phenotype table rows to return,
      * including the heading row. To specify all postQc rows, set
      * <code>numRows</code> to null.
      * @return <code>numRows</code> rows of data and column access variables
      * from the gene page's 'genes' HTML table.
      */
-    public GridMap load(String target, Integer numRows) throws TestException {
-        this.driver = wrapper.getDriver();
-        this.wait = new WebDriverWait(driver, TIMEOUT_IN_SECONDS);
-        this.data = null;
-
+    public GridMap load(Integer numRows) {
         if (numRows == null)
             numRows = computeTableRowCount();
 
@@ -197,7 +182,7 @@ public class GeneTable {
                         graphLinks = cell.findElements(By.cssSelector("i"));
                         if ( ! graphLinks.isEmpty()) {
                             value = graphLinks.get(0).getAttribute("oldtitle");
-                            if (value.contains(TestUtils.NO_SUPPORTING_DATA)) {
+                            if (value.contains(NO_SUPPORTING_DATA)) {
                                 skipLink = true;
                             }
                         }
@@ -219,8 +204,7 @@ public class GeneTable {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
                     if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
-                        data = pageData.load(postQcList, target);
-
+                        data = new GridMap(postQcList, target);
                         return data;
                     }
                 }
@@ -229,8 +213,7 @@ public class GeneTable {
             sourceRowIndex++;
         }
 
-        data = pageData.load(postQcList, target);
-
+        data = new GridMap(postQcList, target);
         return data;
     }
 

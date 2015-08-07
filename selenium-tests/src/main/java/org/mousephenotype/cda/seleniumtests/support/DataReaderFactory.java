@@ -17,8 +17,6 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.net.URL;
 
@@ -26,20 +24,7 @@ import java.net.URL;
  *
  * @author mrelac
  */
-@Component
 public class DataReaderFactory {
-
-    protected DataReader dataReader;
-
-    @Autowired
-    protected DataReaderTsv dataReaderTsv;
-
-    @Autowired
-    protected DataReaderXls dataReaderXls;
-
-    public DataReaderFactory() {
-
-    }
 
     /**
      * Given a URL, this method returns a <code>DataReader</code> of the correct
@@ -58,17 +43,14 @@ public class DataReaderFactory {
                 String filetype = s.replace("fileType=", "");
                 switch (filetype) {
                     case "tsv":
-                        dataReader = dataReaderTsv;
-                        break;
+                        return new DataReaderTsv(url);
                         
                     case "xls":
-                        dataReader = dataReaderXls;
+                        return new DataReaderXls(url);
                         
                     default:
                         throw new RuntimeException("Unknown stream type '" + filetype + "'.");
                 }
-
-                dataReader.setUrl(url);
             }
         }
         

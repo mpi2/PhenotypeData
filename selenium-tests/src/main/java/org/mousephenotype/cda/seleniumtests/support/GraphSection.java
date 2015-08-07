@@ -23,8 +23,6 @@ import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -32,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  *
  * @author mrelac
- * 
+ *
  * This class encapsulates the code and data necessary to represent a single
  * graph page section containing one graph. A GraphSection contains the
  * following:
@@ -45,64 +43,59 @@ import java.util.regex.Pattern;
  *     'continuousTable')</li>
  * </ul>
  */
-@Component
 public abstract class GraphSection {
-    protected WebElement chartElement;
-    protected ChartType chartType = null;
-    protected WebDriver driver;
-    protected String graphUrl;
-    protected MoreStatisticsLink moreStatisticsLink;
-    protected WebDriverWait wait;
 
-    @Autowired
-    protected GraphCatTable catTable;
-
-    @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    protected GraphContinuousTable continuousTable;
-
-    @Autowired
+    protected final WebElement chartElement;
+    protected final CommonUtils commonUtils = new CommonUtils();
     protected DownloadSection downloadSection;
+    protected final WebDriver driver;
+    protected final String graphUrl;
+    protected final PhenotypePipelineDAO phenotypePipelineDAO;
+    protected final WebDriverWait wait;
 
-    @Autowired
-    protected GraphGlobalTestTable globalTestTable;
+    private GraphCatTable catTable = null;
+    private GraphContinuousTable continuousTable;
+    private GraphGlobalTestTable globalTestTable;
+    private GraphHeading heading;
+    private MoreStatisticsLink moreStatisticsLink;
+    private ChartType chartType = null;
 
-    @Autowired
-    GraphCatTable graphCatTable;
+    /**
+     * Creates a new <code>GraphSection</code> instance
+     *
+     * @param driver <code>WebDriver</code> instance
+     * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
+     * @param graphUrl the graph url
+     * @param chartElement <code>WebElement</code> pointing to the HTML
+     *                     div.chart element
+     */
+    public GraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+        this.driver = driver;
+        this.wait = wait;
+        this.phenotypePipelineDAO = phenotypePipelineDAO;
+        this.graphUrl = graphUrl;
+        this.chartElement = chartElement;
+        this.chartType = getChartType(chartElement);
 
-    @Autowired
-    protected GraphHeading heading;
-
-    @Autowired
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    @Autowired
-    SeleniumWrapper wrapper;
-
-    public GraphSection() {
-
+        load();
     }
-    
+
     public PageStatus validate() throws TestException {
         PageStatus status = new PageStatus();
-        
+
         // Verify title contains 'Allele'.
         if ( ! getHeading().title.startsWith("Allele -")) {
             status.addError("ERROR: expected title to start with 'Allele -'. Title is '" + getHeading().title + "'. URL: " + graphUrl);
         }
-        
+
         return status;
     }
-    
-    
+
+
     // SETTERS AND GETTERS
 
-    
+
     public WebElement getChartElement() {
         return chartElement;
     }
@@ -138,17 +131,17 @@ public abstract class GraphSection {
     public MoreStatisticsLink getMoreStatisticsLink() {
         return moreStatisticsLink;
     }
-    
-    
+
+
     // PRIVATE METHODS
 
-    
+
     /**
      * Given a chart element, returns the ChartType.
-     * 
+     *
      * @return the ChartType
      * @param chartElement The chart <code>WebElement</code>.
-     * 
+     *
      * @throws TestException
      */
     public static ChartType getChartType(WebElement chartElement) throws TestException {
@@ -156,7 +149,7 @@ public abstract class GraphSection {
         String graphUrlTag = chartElement.getAttribute("graphurl");
         String[] parts = graphUrlTag.split(Pattern.quote("&"));
         String chartTypeValue = "";
-        
+
         for (String part : parts) {
             if (part.startsWith("chart_type")) {
                 chartTypeValue = part.replace("chart_type=", "");
@@ -164,56 +157,45 @@ public abstract class GraphSection {
                 break;
             }
         }
-        
+
         if (chartTypeLocal == null) {
             throw new TestException("GraphSection.getChartType: Invalid chart type '" + chartTypeValue + "'.");
         }
-        
+
         return chartTypeLocal;
     }
 
     /**
      * Load the section data.
-     *
-     * @param graphUrl the graph url
-     * @param chartElement the chart <code>WebElement</code>
-     * @param timeoutInSeconds the wait timeout
-     *
-     * @throws TestException
      */
-    public void load(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
-        this.driver = wrapper.getDriver();
-        this.wait = new WebDriverWait(driver, timeoutInSeconds);
-        this.graphUrl = graphUrl;
-        this.chartElement = chartElement;
-        this.chartType = getChartType(chartElement);
+    private void load() throws TestException {
 
         try {
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
-            
+
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {
-                graphCatTable.load(elements.get(0));
+                this.catTable = new GraphCatTable(elements.get(0));
             }
-            
+
             elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'continuousTable')]"));
             if ( ! elements.isEmpty()) {
-                this.continuousTable = continuousTable.load(elements.get(0));
+                this.continuousTable = new GraphContinuousTable(elements.get(0));
             }
-            
+
             // Scrape this graph's data off the page.
-            this.heading = new GraphHeading(wait, chartElement, graphUrl, chartType);
-            
+            this.heading = new GraphHeading(wait, chartElement, phenotypePipelineDAO, graphUrl, chartType);
+
             elements = chartElement.findElements(By.xpath("./p/a/i[starts-with(@id, 'toggle_table_buttondivChart_')]"));
             if ( ! elements.isEmpty()) {
                 moreStatisticsLink = new MoreStatisticsLink(chartElement);
             }
-            
+
             elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'globalTest')]"));
             if ( ! elements.isEmpty()) {
                 this.globalTestTable = new GraphGlobalTestTable(graphUrl, elements.get(0));
             }
-            
+
         } catch (NoSuchElementException | TimeoutException te ) {
             System.out.println("Expected graph page url but found none. Graph URL:\n\t" + graphUrl);
             throw te;
@@ -223,7 +205,7 @@ public abstract class GraphSection {
             throw new TestException(message, e);
         }
     }
-    
+
     /**
      * This class encapsulates the code and data to represent the
      * 'More statistics' WebElement link.
@@ -231,13 +213,13 @@ public abstract class GraphSection {
     public class MoreStatisticsLink {
         private final WebElement chartElement;
         private final String moreStatisticsIXpath   = ".//p/a/i[starts-with(@id, 'toggle_table_buttondivChart_')]"; // xpath to this section's 'more statistics' link.
-                                                                                                                    // xpath to this section's 'more statistics' link contents.
+        // xpath to this section's 'more statistics' link contents.
         private final String moreStatisticsDivXpath = ".//div[starts-with(@id, 'toggle_tabledivChart_')] | .//div[starts-with(@id, 'toggle_timetabledivChart_')]";
-    
+
         public MoreStatisticsLink(WebElement chartElement) {
             this.chartElement = chartElement;
         }
-        
+
         public PageStatus validate() {
             PageStatus status = new PageStatus();
             List<WebElement> moreStatisticsList = chartElement.findElements(By.xpath(moreStatisticsIXpath));
@@ -257,7 +239,7 @@ public abstract class GraphSection {
                     status.addError("ERROR: Expected 'More statistics' drop-down to be expanded.");
 
                 moreStatisticsIElement.click();
-                
+
                 // Sometimes the following 'wait' doesn't wait long enough. Wrap it in a loop.
                 for (int i = 0; i < 10; i++) {
                     wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(moreStatisticsDivXpath)));
@@ -270,7 +252,7 @@ public abstract class GraphSection {
                 if ( ! style.contains("display: none;"))
                     status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
             }
-            
+
             return status;
         }
     }

@@ -164,6 +164,8 @@ public class ObservationIndexer extends AbstractIndexer {
         logger.info("Populating experiment solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
 
     }
+    
+
 
     public void populateObservationSolrCore() throws SQLException, IOException, SolrServerException {
 
@@ -324,6 +326,8 @@ public class ObservationIndexer extends AbstractIndexer {
                     if (translateCategoryNames.containsKey(param)) {
 
                         String transCat = translateCategoryNames.get(param).get(cat);
+                        System.out.println("param with cat is="+param+" cat="+cat);
+                        System.out.println("transCat="+transCat);
                         if (transCat != null &&  ! transCat.equals("")) {
                             o.setCategory(transCat);
                         } else {
@@ -578,29 +582,40 @@ public class ObservationIndexer extends AbstractIndexer {
      *
      * @throws SQLException when a database exception occurs
      */
-    public void populateCategoryNamesDataMap() throws SQLException {
+	public void populateCategoryNamesDataMap() throws SQLException {
 
-        String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp \n"
-                + "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id\n"
-                + "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id \n"
-                + "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!=''";
+		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp \n"
+				+ "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id\n"
+				+ "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id \n"
+				+ "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!=''";
 
-        try (PreparedStatement p = connection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 
-            ResultSet resultSet = p.executeQuery();
+			ResultSet resultSet = p.executeQuery();
 
-            while (resultSet.next()) {
+			while (resultSet.next()) {
 
-                String stableId = resultSet.getString("stable_id");
-                if ( ! translateCategoryNames.containsKey(stableId)) {
-                    translateCategoryNames.put(stableId, new HashMap<>());
-                }
+				String stableId = resultSet.getString("stable_id");
+				System.out.println("parameter_stable_id for numeric cat=" + stableId);
+				
+				if (!translateCategoryNames.containsKey(stableId)) {
+					translateCategoryNames.put(stableId, new HashMap<>());
+				}
 
-                translateCategoryNames.get(stableId).put(resultSet.getString("name"), resultSet.getString("description"));
+				String name = resultSet.getString("name");
+				String description = resultSet.getString("description");
+				System.out.println("raw categorical data=" + name + " desc=" + description);
+				if (name.matches("[0-9]+")) {
+					name+=".0";//add .0 onto string as this is what our numerical categories look in solr!!!!
+					System.out.println("adding " + name + " desc" + description);
+					translateCategoryNames.get(stableId).put(name, description);
+				}else{
+					System.out.println("not translating non alphebetical category for parameter"+stableId+"name=" + name + " desc=" + description);
+				}
 
-            }
-        }
-    }
+			}
+		}
+	}
 
     public void populateParameterAssociationMap() throws SQLException {
 

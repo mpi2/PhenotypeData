@@ -60,8 +60,7 @@ import java.util.*;
  */
 public class AlleleIndexer extends AbstractIndexer {
 
-    @Autowired
-    protected CommonUtils commonUtils;
+    protected CommonUtils commonUtils = new CommonUtils();
 
     private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
     public static final int PHENODIGM_BATCH_SIZE = 50000;

@@ -16,9 +16,11 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.springframework.stereotype.Component;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  *
@@ -27,31 +29,28 @@ import org.springframework.stereotype.Component;
  * This class encapsulates the code and data necessary to validate a Pie graph 
  * section.
  */
-@Component
 public class GraphSectionPie extends GraphSection {
 
-    public GraphSectionPie() {
-
-    }
-
     /**
-     * Loads the <code>GraphSectionPie</code> instance
+     * Creates a new <code>GraphSectionPie</code> instance
      *
+     * @param driver <code>WebDriver</code> instance
+     * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the pie chart section.
-     * @param timeoutInSeconds the wait timeout
      *
      * @throws TestException
      */
-    public void load(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
-        super.load(graphUrl, chartElement, timeoutInSeconds);
+    public GraphSectionPie(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
     }
-    
+
     @Override
     public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.
-        
+
         return status;
     }
 }

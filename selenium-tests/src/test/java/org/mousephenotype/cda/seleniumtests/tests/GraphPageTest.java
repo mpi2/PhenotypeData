@@ -25,32 +25,33 @@
 package org.mousephenotype.cda.seleniumtests.tests;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import org.apache.log4j.Logger;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.seleniumtests.support.*;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.web.TimeSeriesParameters;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -80,23 +81,25 @@ import static org.junit.Assert.assertTrue;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GraphPageTest {
 
-    public GraphPageTest() {
-    }
+    private CommonUtils commonUtils = new CommonUtils();
+    private WebDriver driver;
+    protected TestUtils testUtils = new TestUtils();
+    private WebDriverWait wait;
+
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
+
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
+    private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    protected CommonUtils commonUtils;
-
-    @Autowired
-    protected WebDriver driver;
-
-    @Autowired
-    protected GenePage genePage;
+    Environment env;
 
     @Autowired
     protected GeneService geneService;
-
-    @Autowired
-    protected GraphPage graphPage;
 
     @Autowired
     @Qualifier("postqcService")
@@ -106,16 +109,16 @@ public class GraphPageTest {
     protected MpService mpService;
 
     @Autowired
+    ObservationService observationService;
+
+    @Autowired
     private PhenotypePipelineDAO phenotypePipelineDAO;
 
     @Autowired
-    protected String seleniumUrl;
+    PostQcService postQcService;
 
     @Autowired
-    protected String solrUrl;
-
-    @Autowired
-    protected TestUtils testUtils;
+    PreQcService preQcService;
 
     @Autowired
     protected SeleniumWrapper wrapper;
@@ -124,16 +127,10 @@ public class GraphPageTest {
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    private WebDriverWait wait; // = new WebDriverWait(driver, timeoutInSeconds);
-    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-
-    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
-    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
-
-    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
-    private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
-
-    private final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    @PostConstruct
+    public void initialise() throws Exception {
+        driver = wrapper.getDriver();
+    }
 
     @Before
     public void setup() {
@@ -142,7 +139,7 @@ public class GraphPageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -186,7 +183,7 @@ public class GraphPageTest {
                 continue;
 
             try {
-                graphPage.load(graphUrl, timeoutInSeconds);
+                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
                 status.add(graphPage.validate());
                 if ( ! status.hasErrors()) {
                     successCount++;
@@ -213,14 +210,14 @@ public class GraphPageTest {
         PageStatus statuses = new PageStatus();
         int successCount = 0;
 
-        int targetCount = testUtils.getTargetCount(testName, geneGraphs, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
 
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
 
-            genePage.load(target, geneGraph.getMgiAccessionId());
+            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName());
 
@@ -228,7 +225,7 @@ public class GraphPageTest {
             if (graphUrls.isEmpty())
                 continue;
             try {
-                graphPage.load(graphUrls.get(0), timeoutInSeconds);
+                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
                 PageStatus status = graphPage.validate();
                 if ( ! status.hasErrors()) {
                     successCount++;
@@ -279,7 +276,7 @@ public class GraphPageTest {
 //@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
-        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PREQC, 100);
+        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         String target;
         Date start = new Date();
@@ -287,13 +284,13 @@ public class GraphPageTest {
         PageStatus statuses = new PageStatus();
         int successCount = 0;
 
-        int targetCount = testUtils.getTargetCount(testName, geneGraphs, 10);
+        int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graphs.");
 
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-            genePage.load(target, geneGraph.getMgiAccessionId());
+            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             GraphValidatorPreqc validator = new GraphValidatorPreqc();
             PageStatus status = validator.validate(driver, genePage, geneGraph);
@@ -311,7 +308,7 @@ public class GraphPageTest {
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
-        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
+        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, ChartType.CATEGORICAL_STACKED_COLUMN);
     }
@@ -321,7 +318,7 @@ public class GraphPageTest {
     public void testUnidimensionalGraphs() throws TestException {
         String testName = "testUnidimensionalGraphs";
 
-        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
+        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_BOX_PLOT);
     }
@@ -331,7 +328,7 @@ public class GraphPageTest {
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
-        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
+        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_ABR_PLOT);
     }
@@ -341,7 +338,7 @@ public class GraphPageTest {
     public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
-        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.PIE, 100);
+        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PIE, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, ChartType.PIE);
     }
@@ -351,8 +348,101 @@ public class GraphPageTest {
     public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 
-        List<GraphTestDTO> geneGraphs = testUtils.getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
+        List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         testEngine(testName, geneGraphs, ChartType.TIME_SERIES_LINE);
+    }
+
+
+    // PRIVATE METHODS
+
+
+    /**
+     * Returns <em>count</em> <code>GraphTestDTO</code> instances matching genes
+     * with graph links of type <code>chartType</code>.
+     *
+     * @param chartType the desired chart type
+     * @param count the desired number of instances to be returned. If -1,
+     * MAX_INT instances will be returned.
+     *
+     * @return <em>count</em> <code>GraphTestDTO</code> instances matching genes
+     * with graph links of type <code>chartType</code>.
+     *
+     * @throws TestException
+     */
+    private List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws TestException {
+        List<GraphTestDTO> geneGraphs = new ArrayList();
+
+        if (count == -1)
+            count = Integer.MAX_VALUE;
+
+        switch (chartType) {
+            case CATEGORICAL_STACKED_COLUMN:
+                try {
+                    List<String> parameterStableIds = observationService.getParameterStableIdsByObservationType(ObservationType.categorical, count);
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new TestException("TestUtils.getGeneGraphs() CATEGORICAL_STACKED_COLUMN EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+
+            case PIE:
+                try {
+                    List<String> parameterStableIds = java.util.Arrays.asList(new String[]{"*_VIA_*"});
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new TestException("TestUtils.getGeneGraphs() PIE EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+
+            case UNIDIMENSIONAL_ABR_PLOT:
+                try {
+                    List<String> parameterStableIds = java.util.Arrays.asList(new String[]{"*_ABR_*"});
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_ABR_PLOT EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+
+            case UNIDIMENSIONAL_BOX_PLOT:
+            case UNIDIMENSIONAL_SCATTER_PLOT:
+                try {
+                    List<String> parameterStableIds = observationService.getParameterStableIdsByObservationType(ObservationType.unidimensional, count);
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+
+            case PREQC:
+                try {
+                    geneGraphs = preQcService.getGeneAccessionIds(count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new TestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+
+            case TIME_SERIES_LINE:
+            case TIME_SERIES_LINE_BODYWEIGHT:
+                try {
+                    List<String> parameterStableIds = new ArrayList();
+                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_701);
+                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_702);
+                    parameterStableIds.addAll(TimeSeriesParameters.IMPC_BWT);
+                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new TestException("TestUtils.getGeneGraphs() TIME_SERIES_XXX EXCEPTION: " + e.getLocalizedMessage());
+                }
+                break;
+
+        }
+
+        return geneGraphs;
     }
 }

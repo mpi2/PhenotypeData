@@ -42,10 +42,10 @@
     </description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-web</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -84,15 +84,15 @@
             <version>${selenium.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.mousephenotype.cda</groupId>-->
+            <!--<artifactId>data-model</artifactId>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-db</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.mousephenotype.cda</groupId>-->
+            <!--<artifactId>data-model-db</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
@@ -110,6 +110,12 @@
                     <artifactId>xml-apis</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.7</version>
         </dependency>
 
     </dependencies>

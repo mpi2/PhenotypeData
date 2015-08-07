@@ -51,13 +51,11 @@ import java.util.concurrent.TimeUnit;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
 
+    protected WebDriver driver;
+    protected TestUtils testUtils = new TestUtils();
+
     @Autowired
     private SeleniumWrapper wrapper;
-
-    @Autowired
-    private TestUtils testUtils;
-
-    protected WebDriver driver;
 
     @NotNull
     @Value("${baseUrl}")

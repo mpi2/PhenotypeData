@@ -33,6 +33,7 @@ import java.util.List;
  * sections have a summary HTML table with id 'continuousTable', etc.)
  */
 public class GraphSummary {
+
     private final List<Row> bodyRowsList = new ArrayList();
     private final List<String> headingList = new ArrayList();
     
