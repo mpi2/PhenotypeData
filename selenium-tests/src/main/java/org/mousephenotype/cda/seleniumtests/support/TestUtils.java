@@ -24,21 +24,13 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesParameters;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.core.env.Environment;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -52,48 +44,23 @@ import static org.junit.Assert.fail;
 /**
  * This class is intended to hold methods useful for testing but not worthy of their own class.
  *
+ * NOTE: Please do not add any methods here that require being wired in to Spring. Keep this file spring-free, as it
+ *       is used in places that are not spring-dependent.
+ *
  * @author mrelac
  *
  */
-@Component
 public class TestUtils {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
+    private CommonUtils commonUtils = new CommonUtils();
     private Map<String, String> testIterationsHash = new HashMap<>();
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
     public final int DEFAULT_COUNT = 10;
     public static final String NO_SUPPORTING_DATA = "No supporting data supplied.";
 
-    @Autowired
-    private CommonUtils commonUtils = new CommonUtils();
-
-    @Autowired
-    GridMap pageData;
-
-    @Autowired
-    ObservationService observationService;
-
-    @Autowired
-    PostQcService postQcService;
-
-    @Autowired
-    PreQcService preQcService;
-
-//    /**
-//     * Adds <code>snippet</code> to <code>source</code>, delmited by <code>
-//     * delimiter</code> if <code>source</code> is not empty.
-//     * @param source
-//     * @param snippet
-//     * @param delimiter
-//     * @return The string, delimited as appropriate (i.e. not delimited if <code>
-//     * source</code> was empty)
-//     */
-//    public static String addTo(String source, String snippet, String delimiter) {
-//        if ( ! source.isEmpty())
-//            source += delimiter;
-//
-//        return source + snippet;
-//    }
 
     /**
      * Counts and returns the number of sex icons in <code>table</code>
@@ -132,32 +99,27 @@ public class TestUtils {
      * the collection is shuffled (i.e. randomized)</b></p>
      * <ul>
      * <li>if there is a system property matching <i>testMethodName</i>, that value is used</li>
-     * <li>else if <i>testMethodName</i> appears in the <code>testIterations.properties</code> file, that value is used</li>
+     * <li>else if <i>testMethodName</i> appears in any test properties file, that value is used</li>
      * <li>else if <i>defaultCount</i> is not null, it is used</li>
      * <li>else the value defined by <i>DEFAULT_COUNT</i> is used</li>
      * </ul>
+     * @param env the env hash of environment variables that could contain testMethodName.
      * @param testMethodName the method to which the target count applies
      * @param collection the collection to be tested (used for maximum size when target count of -1 is specified)
      * @param defaultCount if not null, the value to use if it was not specified as a -D parameter on the command line
      *                     and no match was found for <i>testMethodName</i> in <code>testIterations.properties</code>
      * @return target count
      */
-    public int getTargetCount(String testMethodName, List collection, Integer defaultCount) {
+    public int getTargetCount(Environment env, String testMethodName, List collection, Integer defaultCount) {
         Integer targetCount = null;
 
-        if (defaultCount != null)
-            targetCount = defaultCount;
-
-        if (testIterationsHash.containsKey(testMethodName)) {
-            if (tryParseInt(testIterationsHash.get(testMethodName)) != null) {
-                targetCount = tryParseInt(testIterationsHash.get(testMethodName));
-            }
-        }
         if (tryParseInt(System.getProperty(testMethodName)) != null) {
             targetCount = tryParseInt(System.getProperty(testMethodName));
-        }
-
-        if (targetCount == null) {
+        } else if (tryParseInt(env.getProperty(testMethodName)) != null) {
+            targetCount = tryParseInt(env.getProperty(testMethodName));
+        } else if (defaultCount != null) {
+            targetCount = defaultCount;
+        } else {
             targetCount = DEFAULT_COUNT;
         }
 
@@ -638,7 +600,7 @@ public class TestUtils {
             }
         }
 
-        return pageData.load(dataOut, input.getTarget());
+        return new GridMap(dataOut, input.getTarget());
     }
 
     /**
@@ -659,54 +621,6 @@ public class TestUtils {
         int idx = url.indexOf(tokenMatch);
         return baseUrl + url.substring(idx);
     }
-
-//    /**
-//     * Given a test name, test start time, error list, exception list, success list,
-//     * and total number of expected records to be processed, writes the given
-//     * information to stdout.
-//     *
-//     * @param testName the test name (must not be null)
-//     * @param start the test start time (must not be null)
-//     * @param errorList the error list
-//     * @param exceptionList the exception list
-//     * @param successList the success list
-//     * @param totalRecords the total number of expected records to process
-//     * @param totalPossible the total number of possible records to process
-//     * @Deprecated Please use the printEpilogue that contains a PageStatus.
-//     */
-//    @Deprecated
-//    public static void printEpilogue(String testName, Date start, List<String> errorList, List<String> exceptionList, List<String> successList, int totalRecords, int totalPossible) {
-//        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-//        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-//        Date stop;
-//
-//        if (errorList == null) errorList = new ArrayList();
-//        if (exceptionList == null) exceptionList = new ArrayList();
-//        if (successList == null) successList = new ArrayList();
-//
-//        if ( ! errorList.isEmpty()) {
-//            System.out.println(errorList.size() + " errors:");
-//            for (String s : errorList) {
-//                System.out.println("\t" + s);
-//            }
-//        }
-//
-//        if ( ! exceptionList.isEmpty()) {
-//            System.out.println(exceptionList.size() + " records caused exceptions to be thrown:");
-//            for (String s : exceptionList) {
-//                System.out.println("\t" + s);
-//            }
-//        }
-//
-//        stop = new Date();
-//        System.out.println(dateFormat.format(stop) + ": " + successList.size() + " of " + totalRecords + " (" + totalPossible + ") records successfully processed in " + Tools.formatDateDifference(start, stop) + ".");
-//
-//        if (errorList.size() + exceptionList.size() > 0) {
-//            fail("ERRORS: " + errorList.size() + ". EXCEPTIONS: " + exceptionList.size());
-//        }
-//
-//        System.out.println();
-//    }
 
     /**
      * Given a test name, test start time, error list, exception list, success list,
@@ -885,17 +799,6 @@ public class TestUtils {
         commonUtils.sleep(100);
     }
 
-//    /**
-//     * Sleeps the thread for <code>thread_wait_in_ms</code> milliseconds.
-//     * If <code>threadWaitInMs</code> is null or 0, no sleep is executed.
-//     *
-//     * @param threadWaitInMs length of time, in milliseconds, to sleep.
-//     */
-//    public static void sleep(Integer threadWaitInMs) {
-//        if ((threadWaitInMs != null) && (threadWaitInMs > 0))
-//            try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
-//    }
-
     /**
      * Sorts <code>delimitedString</code> alphabetically, first splitting the
      * string into separate segments, delimited by <code>delimiter</code>.
@@ -1040,94 +943,4 @@ public class TestUtils {
 
         return new ArrayList(geneIds);
     }
-
-    /**
-     * Returns <em>count</em> <code>GraphTestDTO</code> instances matching genes
-     * with graph links of type <code>chartType</code>.
-     *
-     * @param chartType the desired chart type
-     * @param count the desired number of instances to be returned. If -1,
-     * MAX_INT instances will be returned.
-     *
-     * @return <em>count</em> <code>GraphTestDTO</code> instances matching genes
-     * with graph links of type <code>chartType</code>.
-     *
-     * @throws TestException
-     */
-    public List<GraphTestDTO> getGeneGraphs(ChartType chartType, int count) throws TestException {
-        List<GraphTestDTO> geneGraphs = new ArrayList();
-
-        if (count == -1)
-            count = Integer.MAX_VALUE;
-
-        switch (chartType) {
-            case CATEGORICAL_STACKED_COLUMN:
-                try {
-                    List<String> parameterStableIds = observationService.getParameterStableIdsByObservationType(ObservationType.categorical, count);
-                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() CATEGORICAL_STACKED_COLUMN EXCEPTION: " + e.getLocalizedMessage());
-                }
-                break;
-
-            case PIE:
-                try {
-                    List<String> parameterStableIds = Arrays.asList(new String[]{"*_VIA_*"});
-                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() PIE EXCEPTION: " + e.getLocalizedMessage());
-                }
-                break;
-
-            case UNIDIMENSIONAL_ABR_PLOT:
-                try {
-                    List<String> parameterStableIds = Arrays.asList(new String[]{"*_ABR_*"});
-                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_ABR_PLOT EXCEPTION: " + e.getLocalizedMessage());
-                }
-                break;
-
-            case UNIDIMENSIONAL_BOX_PLOT:
-            case UNIDIMENSIONAL_SCATTER_PLOT:
-                try {
-                    List<String> parameterStableIds = observationService.getParameterStableIdsByObservationType(ObservationType.unidimensional, count);
-                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() UNIDIMENSIONAL_XXX EXCEPTION: " + e.getLocalizedMessage());
-                }
-                break;
-
-            case PREQC:
-                try {
-                    geneGraphs = preQcService.getGeneAccessionIds(count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() PREQC EXCEPTION: " + e.getLocalizedMessage());
-                }
-            break;
-
-            case TIME_SERIES_LINE:
-            case TIME_SERIES_LINE_BODYWEIGHT:
-                try {
-                    List<String> parameterStableIds = new ArrayList();
-                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_701);
-                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_702);
-                    parameterStableIds.addAll(TimeSeriesParameters.IMPC_BWT);
-                    geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new TestException("TestUtils.getGeneGraphs() TIME_SERIES_XXX EXCEPTION: " + e.getLocalizedMessage());
-                }
-            break;
-
-        }
-
-        return geneGraphs;
-    }
-
 }

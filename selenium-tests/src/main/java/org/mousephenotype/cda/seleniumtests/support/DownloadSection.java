@@ -20,8 +20,6 @@ import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.DownloadType;
 import org.mousephenotype.cda.web.ExperimentGroup;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -34,24 +32,17 @@ import java.util.*;
  * 
  * @author mrelac
  */
-@Component
 public class DownloadSection {
-    
+
     protected Map<DownloadType, List<List<String>>> dataBlockMap = new HashMap();
-
-    @Autowired
-    protected TestUtils testUtils;
-
-    public DownloadSection() {
-
-    }
+    protected final TestUtils testUtils = new TestUtils();
     
     /**
      * Loads the download section data.
      * 
      * @param dataBlockMap a map keyed by download type containing the data to be added
      */
-    public void load(Map<DownloadType, List<List<String>>> dataBlockMap) {
+    public DownloadSection(Map<DownloadType, List<List<String>>> dataBlockMap) {
         this.dataBlockMap = dataBlockMap;
     }
 

@@ -541,17 +541,23 @@ div.ui-tabs-panel {
 
                                         </c:when>
                                         <c:when test="${summaryNumber == 0}">
+                                        
+                                         <div class="alert alert-info">
+                                            <h5>No Significant Phenotype Associations Found</h5>
+                                            <p>No significant phenotype associations were found, but you can click on the "All Adult Data" button to see all the adult data that didn't meet the significance threshold.</p>
+                                        </div>
+                                        
                                          <c:if
 											test="${!(empty dataMapList)}">
                                           	<br />
                                           	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 	                                      	<div class="floatright"
 												style="clear: both">
-	                                         	<p>
+	                                         	
 													<a class="btn"
 														href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-														style="margin: 10px">All Adult Data</a>
-												</p>
+														style="margin: 0px">All Adult Data</a>
+												
                                           	</div>
                                           </c:if>
                                           
@@ -673,11 +679,12 @@ div.ui-tabs-panel {
 									<strong>Warning!</strong>${imageErrors }</div>
                                 </div>
                             </c:if>
-
+                            
+<c:if test="${not empty impcExpressionImageFacets}"> 
 <div class="section">
   <h2 class="title " id="impc-expression">Expression</h2>
 	<div class="inner" style="display: block;">
-		<c:if test="${not empty impcExpressionImageFacets}"> 
+		
 		<c:set var="expressionIcon" scope="page" value="fa fa-check" />
 		<c:set var="noTissueIcon" scope="page" value="fa fa-circle-o" />
 		<c:set var="noExpressionIcon" scope="page" value="fa fa-times" />
@@ -696,8 +703,8 @@ div.ui-tabs-panel {
  							<!-- section for expression data here -->
  							<div id="tabs">
  							<ul class='tabs'>
-							    <li><a href="#tabs-1">Expression Data Overview</a></li>
 							    <li><a href="#tabs-2">Expression Images View</a></li>
+							    <li><a href="#tabs-1">Expression Data Overview</a></li>
 							</ul>
 							
 							
@@ -857,10 +864,11 @@ div.ui-tabs-panel {
                       	</div>
 										<!-- end of tabs -->
                       
-								</c:if>
+								
               </div> 
                       
         </div>
+        </c:if><!-- end of expression section if -->
 						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
         </div>
 					<!--  end of section -->

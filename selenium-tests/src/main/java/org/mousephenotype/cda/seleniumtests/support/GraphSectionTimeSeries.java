@@ -16,12 +16,12 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-//import org.mousephenotype.cda.enumerations.ObservationType;
-
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.springframework.stereotype.Component;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.HashSet;
 import java.util.List;
@@ -34,9 +34,10 @@ import java.util.Set;
  * This class encapsulates the code and data necessary to validate a time series
  * graph section.
  */
-@Component
 public class GraphSectionTimeSeries extends GraphSection {
-    
+
+    protected TestUtils testUtils = new TestUtils();
+
     // Download column offsets.
     public final int PIPELINE_NAME       =  0;
     public final int PIPELINE_STABLE_ID  =  1;
@@ -62,32 +63,30 @@ public class GraphSectionTimeSeries extends GraphSection {
     public final int METADATA_GROUP      = 21;
     public final int CATEGORY            = 22;
 
-    public GraphSectionTimeSeries() {
-
-    }
-
     /**
-     * Loads the <code>GraphSectionTimeSeries</code> instance
+     * Creates a new <code>GraphSectionTimeSeries</code> instance
      *
+     * @param driver <code>WebDriver</code> instance
+     * @param wait <code>WebDriverWait</code> instance
+     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
-     *                     div.chart element of the time series chart section.
-     * @param timeoutInSeconds the wait timeout
+     *                     div.chart element of the categorical chart section.
      *
      * @throws TestException
      */
-    public void load(String graphUrl, WebElement chartElement, long timeoutInSeconds) throws TestException {
-        super.load(graphUrl, chartElement, timeoutInSeconds);
+    public GraphSectionTimeSeries(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
     }
-    
+
     @Override
     public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.
-        
+
         if (getHeading().getObservationType() != ObservationType.time_series) {
             status.addError("ERROR: Expected time series graph but found " + getHeading().getObservationType().name());
         }
-        
+
         // Validate that there is a 'More statistics' link, click it and validate it.
         GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
         if (moreStatisticsLink == null) {
@@ -95,65 +94,65 @@ public class GraphSectionTimeSeries extends GraphSection {
         } else {
             status.add(moreStatisticsLink.validate());
         }
-        
+
         status.add(validateDownload());                                         // Validate download streams.
-        
+
         return status;
     }
-    
-    
+
+
     // PRIVATE METHODS
-    
-    
+
+
     /**
      * Validates what is displayed on the page with the TSV and XLS download
      * streams. Any errors are returned in a new <code>PageStatus</code> instance.
-     * 
+     *
      * Time series graphs need to test the following:
      * <ul><li>that the TSV and XLS links create a download stream</li>
      * <li>that the graph page parameters, such as <code>pipeline name</code>,
      * <code>pipelineStableId</code>, <code>parameterName</code>, etc. match</li>
-     * 
+     *
      * @return validation results
      */
-     private PageStatus validateDownload() {
+    private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
         GraphHeading heading = getHeading();
-        
+
         // For all download types in the map, walk each download section, using
         // the key defined by the group. When found, add the rows to a set.
         Set<String> keySet = new HashSet();
-        
+
         for (List<List<String>> block : downloadSection.dataBlockMap.values()) {
             for (List<String> row : block) {
                 if (GraphPage.isHeading(row))                                   // Skip headings.
                     continue;
-                
+
                 String group = row.get(GROUP);
                 switch (group) {
                     case "control":
                         keySet.add(testUtils.makeKey(DownloadSection.DOWNLOAD_CONTROL_KEYS_TIME_SERIES_LINE_COLUMN_INDEXES, row));
                         break;
-                        
+
                     default:
                         keySet.add(testUtils.makeKey(DownloadSection.DOWNLOAD_MUTANT_KEYS_TIME_SERIES_LINE_COLUMN_INDEXES, row));
                         break;
                 }
             }
         }
-        
+
         // Remove the control and mutant keys from the set. If the set is empty,
         // validation succeeds; otherwise, validation fails.
         keySet.remove(heading.controlKey);
         keySet.remove(heading.mutantKey);
-        
+
         if (! keySet.isEmpty()) {
             status.addError("Key mismatch. URL: " + graphUrl
-                          + "\ncontrolKey = " + heading.controlKey
-                          + "\nmutantKey  = " + heading.mutantKey
-                          + "\nset        = " + testUtils.dumpSet(keySet));
+                    + "\ncontrolKey = " + heading.controlKey
+                    + "\nmutantKey  = " + heading.mutantKey
+                    + "\nset        = " + testUtils.dumpSet(keySet));
         }
-        
+
         return status;
     }
 }

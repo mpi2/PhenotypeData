@@ -17,8 +17,6 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * This abstract class encapsulates the common code and data necessary to
@@ -27,28 +25,24 @@ import org.springframework.stereotype.Component;
  * 
  * @author mrelac
  */
-@Component
 public abstract class GraphValidator {
 
-    @Autowired
-    protected GraphSection graphSection;
-
+    protected GraphSection pageSection;
     public static final String IMPC_PIPELINE = "IMPC Pipeline";
-
     public GraphValidator() {
-        
+
     }
 
-    public GraphSection getGraphSection() {
-        return graphSection;
+    public GraphSection getPageSection() {
+        return pageSection;
     }
 
-    public void setGraphSection(GraphSection graphSection) {
-        this.graphSection = graphSection;
+    public void setPageSection(GraphSection pageSection) {
+        this.pageSection = pageSection;
     }
-    
-    
+
+
     public PageStatus validate() throws TestException {
-        return graphSection.getHeading().validate();
+        return pageSection.getHeading().validate();
     }
 }

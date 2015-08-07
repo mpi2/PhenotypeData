@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URL;
@@ -31,14 +30,12 @@ import java.util.List;
  * stream-specific  customizations to the derived classes.
  */
 public abstract class DataReader {
-    
+
+    protected DataReaderFactory dataReaderFactory = new DataReaderFactory();
     protected URL url;
 
-    @Autowired
-    DataReaderFactory dataReaderFactory;
-    
-    public DataReader() {
-
+    public DataReader(URL url) {
+        this.url = url;
     }
     
     public abstract void open() throws IOException;
