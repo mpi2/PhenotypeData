@@ -323,6 +323,7 @@ public class FileExportController {
 				}
 			} catch (Exception e) {
 				log.error("Error getting value of q");
+				e.printStackTrace();
 			}
 		}
 
@@ -998,7 +999,8 @@ public class FileExportController {
 
 			// ES/Mice production status
 			boolean toExport = true;
-			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();			
+            String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
+			String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;			
 			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
 			data.add(prodStatus);
@@ -1909,10 +1911,12 @@ public class FileExportController {
 					output.close();
 				} catch (IOException ioe) {
 					log.error("ExcelWorkBook Error: " + ioe.getMessage());
+					ioe.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
 			log.error("Error: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }

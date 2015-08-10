@@ -165,7 +165,7 @@ public class SearchPage {
      * @param map a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) {
+    public SearchPage(WebDriver driver, int timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         this(driver, timeoutInSeconds, null, phenotypePipelineDAO, baseUrl, map);
         this.target = driver.getCurrentUrl();
         this.map = map;
@@ -183,9 +183,9 @@ public class SearchPage {
      * @param map a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      *
-     * @throws RuntimeException If the target cannot be set
+     * @throws TestException If the target cannot be set
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws RuntimeException {
+    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
@@ -200,6 +200,7 @@ public class SearchPage {
                 throw new RuntimeException("EXCEPTION: " + e.getLocalizedMessage() + "\ntarget: '" + target + "'");
             }
             this.target = target;
+            commonUtils.sleep(5000);
         }
     }
 
