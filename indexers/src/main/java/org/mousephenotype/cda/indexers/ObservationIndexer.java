@@ -604,7 +604,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 				String name = resultSet.getString("name");
 				String description = resultSet.getString("description");
-				System.out.println("raw categorical data=" + name + " desc=" + description);
+				//System.out.println("raw categorical data=" + name + " desc=" + description);
 				if (name.matches("[0-9]+")) {
 					name+=".0";//add .0 onto string as this is what our numerical categories look in solr!!!!
 					//System.out.println("adding " + name + " desc" + description);
