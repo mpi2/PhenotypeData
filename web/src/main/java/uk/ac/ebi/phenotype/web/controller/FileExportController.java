@@ -323,6 +323,7 @@ public class FileExportController {
 				}
 			} catch (Exception e) {
 				log.error("Error getting value of q");
+				e.printStackTrace();
 			}
 		}
 
@@ -1909,10 +1910,12 @@ public class FileExportController {
 					output.close();
 				} catch (IOException ioe) {
 					log.error("ExcelWorkBook Error: " + ioe.getMessage());
+					ioe.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
 			log.error("Error: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }
