@@ -42,6 +42,7 @@ import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
@@ -186,6 +187,95 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	return res;
 
 	}
+	
+	
+	 /**
+     * @author tudose
+     * @since 2015/07/21
+     * @param pipelineStableId
+     * @param dataType
+     * @param resource
+     * @return List<ProcedureBean>
+     */
+	public List<ImpressBaseDTO> getProcedures(String pipelineStableId, String observationType, String resource, Integer minParameterNumber, List<String> proceduresToSkip, String status){
+		
+		List<ImpressBaseDTO> procedures = new ArrayList<>();
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery("*:*")
+				.addField(StatisticalResultDTO.PROCEDURE_ID)
+				.addField(StatisticalResultDTO.PROCEDURE_NAME)
+				.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID);
+			query.set("group", true);
+			query.set("group.field", StatisticalResultDTO.PROCEDURE_NAME);
+			query.setRows(10000);
+			query.set("group.limit", 1);
+			
+			if (pipelineStableId != null){
+				query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+			}
+			if (observationType != null){
+				query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":" + observationType);
+			}
+			if (resource != null){
+				query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resource);
+			}
+			if (status != null){
+				query.addFilterQuery(StatisticalResultDTO.STATUS + ":" + status);
+			}
+			String pivotField = StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PARAMETER_NAME;
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				
+				query.setFacet(true);
+				query.setFacetMinCount(1);
+				query.set("facet.pivot.mincount", minParameterNumber);
+				query.set("facet.pivot", pivotField);
+				
+			}			
+						
+			QueryResponse response = solr.query(query);
+			
+			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
+
+				ImpressBaseDTO procedure = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()), 
+						null,
+						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_ID ).toString(),
+						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
+				procedures.add(procedure);
+			}
+			
+			if (minParameterNumber != null && minParameterNumber > 0){
+				// get procedureList with more than minParameterNumber 
+				// remove from procedures the ones not in procedureList
+				List<Map<String, String>> res = getFacetPivotResults(response, false);
+				HashSet<String> proceduresWithMinCount = new HashSet<>(); 
+				
+				for (Map<String, String> pivot : res ){
+					proceduresWithMinCount.addAll(pivot.values());
+				}
+				
+				List<ImpressBaseDTO> proceduresToReturn = new ArrayList<>();
+				
+				for (ImpressBaseDTO proc : procedures){
+					if (proceduresWithMinCount.contains(proc.getName())){
+						if (proceduresToSkip != null && !proceduresToSkip.contains(proc.getStableId()) || proceduresToSkip == null ){
+							proceduresToReturn.add(proc);
+						}
+					}
+				}
+				procedures = proceduresToReturn;
+				
+			}			
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return procedures;
+	}
+	
 
 	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, Boolean requiredParamsOnly)
 	throws SolrServerException{
