@@ -91,7 +91,7 @@ public class ExcelWorkBook {
 				    cellStr = new URI(cellStr).toASCIIString();
     				cellStr = cellStr.replace("%3F","?");  // so that url link would work
     				
-    				System.out.println("chk cellStr: " + cellStr);
+    				//System.out.println("chk cellStr: " + cellStr);
     				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
     				
     				url_link.setAddress(cellStr);
