@@ -9,8 +9,8 @@
         <property name="locations">
             <list>
                 <value>classpath:appConfig.properties</value>
-                <value>file:${user.home}/configfiles/liveDatasourcesConfig.properties</value>
-                <value>file:${user.home}/configfiles/liveAppConfig.properties</value>
+                <value>file:${user.home}/configfiles/live/liveDatasourcesConfig.properties</value>
+                <value>file:${user.home}/configfiles/live/liveAppConfig.properties</value>
             </list>
         </property>
     </bean>
