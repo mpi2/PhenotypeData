@@ -1006,6 +1006,9 @@ public class FileExportController {
 			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
 			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
 			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;     
+			String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
++			String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;			
+
 			String phenotypeStatus = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
 
 			if (phenotypeStatus.isEmpty()) {
