@@ -200,7 +200,7 @@ public class SearchPage {
                 throw new RuntimeException("EXCEPTION: " + e.getLocalizedMessage() + "\ntarget: '" + target + "'");
             }
             this.target = target;
-            commonUtils.sleep(5000);
+            commonUtils.sleep(10000);
         }
     }
 
