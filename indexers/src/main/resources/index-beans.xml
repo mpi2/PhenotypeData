@@ -236,6 +236,14 @@
 		<constructor-arg index="1" value="50000" /> <!--Queue size -->
 		<constructor-arg index="2" value="6" /> <!--Num threads -->
 	</bean>
+	
+	<!-- IMPC to GWAS similarity annotation indexing core -->
+	<bean id="gwasIndexing"
+		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gwas" />
+		<constructor-arg index="1" value="10000" /> <!--Queue size -->
+		<constructor-arg index="2" value="3" /> <!--Num threads -->
+	</bean>
 
 	<!-- Global configuration parameters -->
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">

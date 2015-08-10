@@ -58,7 +58,7 @@ public class ParallelCoordinatesController {
 	throws SolrServerException{
 
 		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
-		procedures.addAll(os.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay));
+		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success"));
 		model.addAttribute("procedures", procedures);
 		
 		return "parallel2";
