@@ -56,14 +56,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
         request.setAttribute("baseUrl", request.getContextPath());
         request.setAttribute("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
 
-        String protocol = "";
-        if (request.getProtocol().contains("HTTP/")){
-        	protocol = "http:";
-        } else if (request.getProtocol().contains("HTTPS/")){
-        	protocol = "https:";
-        }
-        String mappedHostname = protocol + "//" + (String)request.getServerName(); 
-        System.out.println("\n\n\n PROTOCOL \n" + protocol);
+        String mappedHostname =  "//" + (String)request.getServerName(); 
         
         if (request.getServerPort() != 80) {
             mappedHostname += ":" + request.getServerPort();
