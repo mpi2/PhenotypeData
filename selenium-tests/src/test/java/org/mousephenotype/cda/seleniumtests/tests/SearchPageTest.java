@@ -233,7 +233,7 @@ public class SearchPageTest {
 
     // PRIVATE METHODS
 
-        @PostConstruct
+    @PostConstruct
     public void initialize() throws RuntimeException {
         try {
             komp2Connection = komp2DataSource.getConnection();
@@ -1429,8 +1429,8 @@ if (core.equals(SearchPage.GENE_CORE)) {
      *
      * @throws Exception
      */
-@Ignore
     @Test
+@Ignore
     public void testMaTermNamesMatchFacetNames() throws Exception {
         System.out.println("testMaTermNamesMatchFacetNames");
         String target = baseUrl + "/search";
