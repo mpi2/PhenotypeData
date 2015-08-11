@@ -55,7 +55,7 @@ public class GwasDAO {
     	List<GwasDTO> mappedList = new ArrayList<>();
 
         for (GwasDTO gwasMapping : gwasMappings) {
-            if (gwasMapping.getGwasMgiGeneSymbol().equals(mgiGeneSymbol)) {
+            if (gwasMapping.getMgiGeneSymbol().equals(mgiGeneSymbol)) {
                 mappedList.add(gwasMapping);
             }
 
@@ -87,16 +87,16 @@ public class GwasDAO {
 
                  GwasDTO gwasMappingRow = new GwasDTO();
 
-                 gwasMappingRow.setGwasMgiAlleleName(resultSet.getString("mgi_allele_name"));
-                 gwasMappingRow.setGwasMgiAlleleId(resultSet.getString("mgi_allele_id"));
-                 gwasMappingRow.setGwasMouseGender(resultSet.getString("impc_mouse_gender"));
-                 gwasMappingRow.setGwasPhenoMappingCategory(resultSet.getString("pheno_mapping_category"));
-                 gwasMappingRow.setGwasSnpId(resultSet.getString("gwas_snp_id"));
-                 gwasMappingRow.setGwasPvalue(resultSet.getFloat("gwas_p_value"));
-                 gwasMappingRow.setGwasReportedGene(resultSet.getString("gwas_reported_gene"));
-                 gwasMappingRow.setGwasMappedGene(resultSet.getString("gwas_mapped_gene"));
-                 gwasMappingRow.setGwasUpstreamGene(resultSet.getString("gwas_upstream_gene"));
-                 gwasMappingRow.setGwasDownstreamGene(resultSet.getString("gwas_downstream_gene"));
+                 gwasMappingRow.setMgiAlleleName(resultSet.getString("mgi_allele_name"));
+                 gwasMappingRow.setMgiAlleleId(resultSet.getString("mgi_allele_id"));
+                 gwasMappingRow.setMouseGender(resultSet.getString("impc_mouse_gender"));
+                 gwasMappingRow.setPhenoMappingCategory(resultSet.getString("pheno_mapping_category"));
+                 gwasMappingRow.setSnpId(resultSet.getString("gwas_snp_id"));
+                 gwasMappingRow.setPvalue(resultSet.getFloat("gwas_p_value"));
+                 gwasMappingRow.setReportedGene(resultSet.getString("gwas_reported_gene"));
+                 gwasMappingRow.setMappedGene(resultSet.getString("gwas_mapped_gene"));
+                 gwasMappingRow.setUpstreamGene(resultSet.getString("gwas_upstream_gene"));
+                 gwasMappingRow.setDownstreamGene(resultSet.getString("gwas_downstream_gene"));
 
                  results.add(gwasMappingRow);
              }
@@ -179,8 +179,8 @@ public class GwasDAO {
         		ps.setString(4, value);
         		ps.setString(5, value);
         		ps.setString(6, value);
-        		ps.setFloat(7, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
-        		ps.setString(8, value);
+        		ps.setString(7, value);
+        		ps.setFloat(8, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
         		ps.setString(9, value);
         		ps.setString(10, value);
         		ps.setString(11, value);
@@ -188,6 +188,8 @@ public class GwasDAO {
         		ps.setString(13, value);
         		ps.setString(14, value);
         		ps.setString(15, value);
+        		ps.setString(16, value);
+        		ps.setString(17, value);
         	}
         	else if ( ! value.isEmpty()) {
                 // Replace parameter holder ? with the value.
@@ -199,10 +201,10 @@ public class GwasDAO {
 
                 GwasDTO gwasMappingRow = new GwasDTO();
 
-                gwasMappingRow.setGwasMgiGeneId(resultSet.getString("mgi_gene_id"));
-                gwasMappingRow.setGwasMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
-                gwasMappingRow.setGwasDiseaseTrait(resultSet.getString("gwas_disease_trait"));
-                gwasMappingRow.setGwasMpTermName(resultSet.getString("mp_term_name"));
+                gwasMappingRow.setMgiGeneId(resultSet.getString("mgi_gene_id"));
+                gwasMappingRow.setMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
+                gwasMappingRow.setDiseaseTrait(resultSet.getString("gwas_disease_trait"));
+                gwasMappingRow.setMpTermName(resultSet.getString("mp_term_name"));
 
                 results.add(gwasMappingRow);
             }
@@ -218,8 +220,6 @@ public class GwasDAO {
         return results;
 
     }
-
-
 
     /**
      * Fetch all gwas mapping rows.
@@ -299,8 +299,8 @@ public class GwasDAO {
         		ps.setString(4, value);
         		ps.setString(5, value);
         		ps.setString(6, value);
-        		ps.setFloat(7, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
-        		ps.setString(8, value);
+        		ps.setString(7, value);
+        		ps.setFloat(8, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
         		ps.setString(9, value);
         		ps.setString(10, value);
         		ps.setString(11, value);
@@ -308,6 +308,8 @@ public class GwasDAO {
         		ps.setString(13, value);
         		ps.setString(14, value);
         		ps.setString(15, value);
+        		ps.setString(16, value);
+        		ps.setString(17, value);
         	}
         	else if ( ! value.isEmpty()) {
                 // Replace parameter holder ? with the value.
@@ -319,21 +321,23 @@ public class GwasDAO {
 
                 GwasDTO gwasMappingRow = new GwasDTO();
 
-                gwasMappingRow.setGwasMgiGeneId(resultSet.getString("mgi_gene_id"));
-                gwasMappingRow.setGwasMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
-                gwasMappingRow.setGwasMgiAlleleId(resultSet.getString("mgi_allele_id"));
-                gwasMappingRow.setGwasMgiAlleleName(resultSet.getString("mgi_allele_name"));
-                gwasMappingRow.setGwasPhenoMappingCategory(resultSet.getString("pheno_mapping_category"));
-                gwasMappingRow.setGwasDiseaseTrait(resultSet.getString("gwas_disease_trait"));
-                gwasMappingRow.setGwasPvalue(resultSet.getFloat("gwas_p_value"));
-                gwasMappingRow.setGwasReportedGene(resultSet.getString("gwas_reported_gene"));
-                gwasMappingRow.setGwasMappedGene(resultSet.getString("gwas_mapped_gene"));
-                gwasMappingRow.setGwasUpstreamGene(resultSet.getString("gwas_upstream_gene"));
-                gwasMappingRow.setGwasDownstreamGene(resultSet.getString("gwas_downstream_gene"));
-                gwasMappingRow.setGwasMpTermId(resultSet.getString("mp_term_id"));
-                gwasMappingRow.setGwasMpTermName(resultSet.getString("mp_term_name"));
-                gwasMappingRow.setGwasMouseGender(resultSet.getString("impc_mouse_gender"));
-                gwasMappingRow.setGwasSnpId(resultSet.getString("gwas_snp_id"));
+                gwasMappingRow.setMgiGeneId(resultSet.getString("mgi_gene_id"));
+                gwasMappingRow.setMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
+                gwasMappingRow.setMgiAlleleId(resultSet.getString("mgi_allele_id"));
+                gwasMappingRow.setMgiAlleleName(resultSet.getString("mgi_allele_name"));
+                gwasMappingRow.setPhenoMappingCategory(resultSet.getString("pheno_mapping_category"));
+                gwasMappingRow.setDiseaseTrait(resultSet.getString("gwas_disease_trait"));
+                gwasMappingRow.setDiseaseTraitIdUrl(resultSet.getString("gwas_disease_trait_id_url"));
+                gwasMappingRow.setPvalue(resultSet.getFloat("gwas_p_value"));
+                gwasMappingRow.setReportedGene(resultSet.getString("gwas_reported_gene"));
+                gwasMappingRow.setMappedGene(resultSet.getString("gwas_mapped_gene"));
+                gwasMappingRow.setUpstreamGene(resultSet.getString("gwas_upstream_gene"));
+                gwasMappingRow.setDownstreamGene(resultSet.getString("gwas_downstream_gene"));
+                gwasMappingRow.setMpTermId(resultSet.getString("mp_term_id"));
+                gwasMappingRow.setMpTermIdUrl(resultSet.getString("mp_term_id_url"));
+                gwasMappingRow.setMpTermName(resultSet.getString("mp_term_name"));
+                gwasMappingRow.setMouseGender(resultSet.getString("impc_mouse_gender"));
+                gwasMappingRow.setSnpId(resultSet.getString("gwas_snp_id"));
 
                 results.add(gwasMappingRow);
             }

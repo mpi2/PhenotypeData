@@ -26,6 +26,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
@@ -232,7 +233,7 @@ public class SearchPageTest {
 
     // PRIVATE METHODS
 
-        @PostConstruct
+    @PostConstruct
     public void initialize() throws RuntimeException {
         try {
             komp2Connection = komp2DataSource.getConnection();
@@ -313,7 +314,7 @@ public class SearchPageTest {
      * @param map image map
      * @return page status
      */
-    private PageStatus facetCountEngine(String target, Map<SearchFacetTable.TableComponent, By> map) {
+    private PageStatus facetCountEngine(String target, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         return facetCountEngine(target, null, map);
     }
 
@@ -324,7 +325,7 @@ public class SearchPageTest {
      * @map image map
      * @return page status
      */
-    private PageStatus facetCountEngine(String target, SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) {
+    private PageStatus facetCountEngine(String target, SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         PageStatus status = new PageStatus();
         String message;
 
@@ -516,7 +517,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -1428,8 +1429,8 @@ if (core.equals(SearchPage.GENE_CORE)) {
      *
      * @throws Exception
      */
-//@Ignore
     @Test
+@Ignore
     public void testMaTermNamesMatchFacetNames() throws Exception {
         System.out.println("testMaTermNamesMatchFacetNames");
         String target = baseUrl + "/search";

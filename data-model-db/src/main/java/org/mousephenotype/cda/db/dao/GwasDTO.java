@@ -28,208 +28,318 @@ import org.apache.solr.client.solrj.beans.Field;
  */
 public class GwasDTO {
 	
-	public static final String GWAS_MGI_GENE_ID = "gwasMgiGeneId";
-	public static final String GWAS_MGI_GENE_SYMBOL = "gwasMgiGeneSymbol";
-	public static final String GWAS_MGI_ALLELE_ID = "gwasMgiAlleleId";
-	public static final String GWAS_MGI_ALLELE_NAME = "gwasMgiAlleleName";
-	public static final String GWAS_PHENO_MAPPING_CATEGORY = "gwasPhenoMappingCategory";
+	public static final String MGI_GENE_ID = "mgi_gene_id";
+	public static final String MGI_GENE_ID_CI = "mgi_gene_id_ci";
 	
-	public static final String GWAS_MP_TERM_ID = "gwasMpTermId";
-	public static final String GWAS_MP_TERM_NAME = "gwasMpTermName";
-	public static final String GWAS_MOUSE_GENDER = "gwasMouseGender";
+	public static final String MGI_GENE_SYMBOL = "mgi_gene_symbol";
+	public static final String MGI_GENE_SYMBOL_CI = "mgi_gene_symbol_ci";
 	
-	public static final String GWAS_PVALUE = "gwasPvalue";
-	public static final String GWAS_DISEASE_TRAIT = "gwasDiseaseTrait";
-	public static final String GWAS_REPORTED_GENE = "gwasReportedGene";
-	public static final String GWAS_MAPPED_GENE = "gwasMappedGene";
-	public static final String GWAS_UPSTREAM_GENE = "gwasUpstreamGene";
-	public static final String GWAS_DOWNSTREAM_GENE = "gwasDownstreamGene";
-	public static final String GWAS_SNP_ID = "gwasSnpId";
+	public static final String MGI_ALLELE_ID = "mgi_allele_id";
+	public static final String MGI_ALLELE_ID_CI = "mgi_allele_id_ci";
+	
+	public static final String MGI_ALLELE_NAME = "mgi_allele_name";
+	public static final String MGI_ALLELE_NAME_CI = "mgi_allele_name_ci";
+	
+	public static final String PHENO_MAPPING_CATEGORY = "pheno_mapping_category";
+	
+	public static final String MP_TERM_ID = "mp_term_id";
+	public static final String MP_TERM_ID_CI = "mp_term_id_ci";
+	public static final String MP_TERM_ID_URL = "mp_term_id_url";
+	
+	public static final String MP_TERM_NAME = "mp_term_name";
+	public static final String MP_TERM_NAME_CI = "mp_term_name_ci";
+	
+	public static final String MOUSE_GENDER = "mouse_gender";
+	
+	public static final String PVALUE = "p_value";
+	
+	public static final String DISEASE_TRAIT = "disease_trait";
+	public static final String DISEASE_TRAIT_CI = "disease_trait_ci";
+	public static final String DISEASE_TRAIT_ID_URL = "disease_trait_id_url";
+
+	public static final String REPORTED_GENE = "reported_gene";
+	public static final String REPORTED_GENE_CI = "reported_gene_ci";
+	
+	public static final String MAPPED_GENE = "mapped_gene";
+	public static final String MAPPED_GENE_CI = "mapped_gene_ci";
+	
+	public static final String UPSTREAM_GENE = "upstream_gene";
+	public static final String UPSTREAM_GENE_CI = "upstream_gene_ci";
+	
+	public static final String DOWNSTREAM_GENE = "downstream_gene";
+	public static final String DOWNSTREAM_GENE_CI = "downstream_gene_ci";
+	
+	public static final String SNP_ID = "snp_id";
+	public static final String SNP_ID_CI = "snp_id_ci";
     
-	@Field(GWAS_MGI_GENE_ID)
-	private String gwasMgiGeneId;
-
-	@Field(GWAS_MGI_GENE_SYMBOL)
-	private String gwasMgiGeneSymbol;
-
-	@Field(GWAS_MGI_ALLELE_ID)
-	private String gwasMgiAlleleId;
-
-	@Field(GWAS_MGI_ALLELE_NAME)
-	private String gwasMgiAlleleName;
+	@Field(MGI_GENE_ID)
+	private String mgi_gene_id;
 	
-	@Field(GWAS_PHENO_MAPPING_CATEGORY)
-	private String gwasPhenoMappingCategory;
+	@Field(MGI_GENE_ID_CI)
+	private String mgi_gene_id_ci;
+
+	@Field(MGI_GENE_SYMBOL)
+	private String mgi_gene_symbol;
 	
-	@Field(GWAS_MP_TERM_ID)
-	private String gwasMpTermId;
+	@Field(MGI_GENE_SYMBOL_CI)
+	private String mgi_gene_symbol_ci;
+
+	@Field(MGI_ALLELE_ID)
+	private String mgi_allele_id;
 	
-	@Field(GWAS_MP_TERM_NAME)
-	private String gwasMpTermName;
+	@Field(MGI_ALLELE_ID_CI)
+	private String mgi_allele_id_ci;
+
+	@Field(MGI_ALLELE_NAME)
+	private String mgi_allele_name;
 	
-	@Field(GWAS_MOUSE_GENDER)
-	private String gwasMouseGender;
+	@Field(MGI_ALLELE_NAME_CI)
+	private String mgi_allele_name_ci;
 	
-	@Field(GWAS_PVALUE)
-	private float gwasPvalue;
+	@Field(PHENO_MAPPING_CATEGORY)
+	private String pheno_mapping_category;
 	
-	@Field(GWAS_DISEASE_TRAIT)
-	private String gwasDiseaseTrait;
+	@Field(MP_TERM_ID)
+	private String mp_term_id;
 	
-	@Field(GWAS_REPORTED_GENE)
-	private String gwasReportedGene;
+	@Field(MP_TERM_ID_CI)
+	private String mp_term_id_ci;
 	
-	@Field(GWAS_MAPPED_GENE)
-	private String gwasMappedGene;
+	@Field(MP_TERM_ID_URL)
+	private String mp_term_id_url;
 	
-	@Field(GWAS_UPSTREAM_GENE)
-	private String gwasUpstreamGene;
+	@Field(MP_TERM_NAME)
+	private String mp_term_name;
 	
-	@Field(GWAS_DOWNSTREAM_GENE)
-	private String gwasDownstreamGene;
+	@Field(MP_TERM_NAME_CI)
+	private String mp_term_name_ci;
 	
-	@Field(GWAS_SNP_ID)
-	private String gwasSnpId;
+	@Field(MOUSE_GENDER)
+	private String mouse_gender;
+	
+	@Field(PVALUE)
+	private float p_value;
+	
+	@Field(DISEASE_TRAIT)
+	private String disease_trait;
+	
+	@Field(DISEASE_TRAIT_CI)
+	private String disease_trait_ci;
+	
+	@Field(DISEASE_TRAIT_ID_URL)
+	private String disease_trait_id_url;
+	
+	@Field(REPORTED_GENE)
+	private String reported_gene;
+	
+	@Field(REPORTED_GENE_CI)
+	private String reported_gene_ci;
+	
+	@Field(MAPPED_GENE)
+	private String mapped_gene;
+	
+	@Field(MAPPED_GENE_CI)
+	private String mapped_geneCi;
+	
+	@Field(UPSTREAM_GENE)
+	private String upstream_gene;
+	
+	@Field(UPSTREAM_GENE_CI)
+	private String upstream_gene_ci;
+	
+	@Field(DOWNSTREAM_GENE)
+	private String downstream_gene;
+	
+	@Field(DOWNSTREAM_GENE_CI)
+	private String downstream_gene_ci;
+	
+	@Field(SNP_ID)
+	private String snp_id;
+	
+	@Field(SNP_ID_CI)
+	private String snp_id_ci;
 
-	public String getGwasMgiGeneId() {
-		return gwasMgiGeneId;
+	public String getMgiGeneId() {
+		return mgi_gene_id;
 	}
 
-	public void setGwasMgiGeneId(String gwasMgiGeneId) {
-		this.gwasMgiGeneId = gwasMgiGeneId;
+	public void setMgiGeneId(String mgi_gene_id) {
+		this.mgi_gene_id = mgi_gene_id;
+		this.mgi_gene_id_ci = mgi_gene_id;
+	}
+	
+	public String getMgiGeneSymbol() {
+		return mgi_gene_symbol;
 	}
 
-	public String getGwasMgiGeneSymbol() {
-		return gwasMgiGeneSymbol;
+	public void setMgiGeneSymbol(String mgi_gene_symbol) {
+		this.mgi_gene_symbol = mgi_gene_symbol;
+		this.mgi_gene_symbol_ci = mgi_gene_symbol;
 	}
 
-	public void setGwasMgiGeneSymbol(String gwasMgiGeneSymbol) {
-		this.gwasMgiGeneSymbol = gwasMgiGeneSymbol;
+	public String getMgiAlleleId() {
+		return mgi_allele_id;
 	}
 
-	public String getGwasMgiAlleleId() {
-		return gwasMgiAlleleId;
+	public void setMgiAlleleId(String mgi_allele_id) {
+		this.mgi_allele_id = mgi_allele_id;
+		this.mgi_allele_id_ci = mgi_allele_id;
 	}
 
-	public void setGwasMgiAlleleId(String gwasMgiAlleleId) {
-		this.gwasMgiAlleleId = gwasMgiAlleleId;
+	public String getMgiAlleleName() {
+		return mgi_allele_name;
 	}
 
-	public String getGwasMgiAlleleName() {
-		return gwasMgiAlleleName;
+	public void setMgiAlleleName(String mgi_allele_name) {
+		this.mgi_allele_name = mgi_allele_name;
+		this.mgi_allele_name_ci = mgi_allele_name;
 	}
 
-	public void setGwasMgiAlleleName(String gwasMgiAlleleName) {
-		this.gwasMgiAlleleName = gwasMgiAlleleName;
+	public String getPhenoMappingCategory() {
+		return pheno_mapping_category;
 	}
 
-	public String getGwasPhenoMappingCategory() {
-		return gwasPhenoMappingCategory;
+	public void setPhenoMappingCategory(String pheno_mapping_category) {
+		this.pheno_mapping_category = pheno_mapping_category;
 	}
 
-	public void setGwasPhenoMappingCategory(String gwasPhenoMappingCategory) {
-		this.gwasPhenoMappingCategory = gwasPhenoMappingCategory;
+	public String getMpTermId() {
+		return mp_term_id;
+	}
+	
+	public void setMpTermId(String mp_term_id) {
+		this.mp_term_id = mp_term_id;
+		this.mp_term_id_ci = mp_term_id;
 	}
 
-	public String getGwasMpTermId() {
-		return gwasMpTermId;
+	public String getMpTermIdUrl() {
+		return mp_term_id_url;
+	}
+	
+	public void setMpTermIdUrl(String mp_term_id_url) {
+		this.mp_term_id_url = mp_term_id_url;
+	}
+	
+	public String getMpTermName() {
+		return mp_term_name;
 	}
 
-	public void setGwasMpTermId(String gwasMpTermId) {
-		this.gwasMpTermId = gwasMpTermId;
+	public void setMpTermName(String mp_term_name) {
+		this.mp_term_name = mp_term_name;
+		this.mp_term_name_ci = mp_term_name;
 	}
 
-	public String getGwasMpTermName() {
-		return gwasMpTermName;
+	public String getMouseGender() {
+		return mouse_gender;
 	}
 
-	public void setGwasMpTermName(String gwasMpTermName) {
-		this.gwasMpTermName = gwasMpTermName;
+	public void setMouseGender(String mouse_gender) {
+		this.mouse_gender = mouse_gender;
 	}
 
-	public String getGwasMouseGender() {
-		return gwasMouseGender;
+	public float getPvalue() {
+		return p_value;
 	}
 
-	public void setGwasMouseGender(String gwasMouseGender) {
-		this.gwasMouseGender = gwasMouseGender;
+	public void setPvalue(float p_value) {
+		this.p_value = p_value;
 	}
 
-	public float getGwasPvalue() {
-		return gwasPvalue;
+	public String getDiseaseTrait() {
+		return disease_trait;
 	}
 
-	public void setGwasPvalue(float gwasPvalue) {
-		this.gwasPvalue = gwasPvalue;
+	public void setDiseaseTrait(String disease_trait) {
+		this.disease_trait = disease_trait;
+		this.disease_trait_ci = disease_trait;
 	}
 
-	public String getGwasDiseaseTrait() {
-		return gwasDiseaseTrait;
+	public String getDiseaseTraitIdUrl() {
+		return disease_trait_id_url;
 	}
 
-	public void setGwasDiseaseTrait(String gwasDiseaseTrait) {
-		this.gwasDiseaseTrait = gwasDiseaseTrait;
+	public void setDiseaseTraitIdUrl(String disease_trait_id_url) {
+		this.disease_trait_id_url = disease_trait_id_url;
+	}
+	
+	public String getReportedGene() {
+		return reported_gene;
 	}
 
-	public String getGwasReportedGene() {
-		return gwasReportedGene;
+	public void setReportedGene(String reported_gene) {
+		this.reported_gene = reported_gene;
+		this.reported_gene = reported_gene;
 	}
 
-	public void setGwasReportedGene(String gwasReportedGene) {
-		this.gwasReportedGene = gwasReportedGene;
+	public String getMappedGene() {
+		return mapped_gene;
 	}
 
-	public String getGwasMappedGene() {
-		return gwasMappedGene;
+	public void setMappedGene(String mapped_gene) {
+		this.mapped_gene = mapped_gene;
+		this.mapped_geneCi = mapped_gene;
 	}
 
-	public void setGwasMappedGene(String gwasMappedGene) {
-		this.gwasMappedGene = gwasMappedGene;
+	public String getUpstreamGene() {
+		return upstream_gene;
 	}
 
-	public String getGwasUpstreamGene() {
-		return gwasUpstreamGene;
+	public void setUpstreamGene(String upstream_gene) {
+		this.upstream_gene = upstream_gene;
+		this.upstream_gene_ci = upstream_gene;
 	}
 
-	public void setGwasUpstreamGene(String gwasUpstreamGene) {
-		this.gwasUpstreamGene = gwasUpstreamGene;
+	public String getDownstreamGene() {
+		return downstream_gene;
 	}
 
-	public String getGwasDownstreamGene() {
-		return gwasDownstreamGene;
+	public void setDownstreamGene(String downstream_gene) {
+		this.downstream_gene = downstream_gene;
+		this.downstream_gene_ci = downstream_gene;
 	}
 
-	public void setGwasDownstreamGene(String gwasDownstreamGene) {
-		this.gwasDownstreamGene = gwasDownstreamGene;
+	public String getSnpId() {
+		return snp_id;
 	}
 
-	public String getGwasSnpId() {
-		return gwasSnpId;
-	}
-
-	public void setGwasSnpId(String gwasSnpId) {
-		this.gwasSnpId = gwasSnpId;
+	public void setSnpId(String snp_id) {
+		this.snp_id = snp_id;
+		this.snp_id_ci = snp_id;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((gwasDiseaseTrait == null) ? 0 : gwasDiseaseTrait.hashCode());
-		result = prime * result + ((gwasDownstreamGene == null) ? 0 : gwasDownstreamGene.hashCode());
-		result = prime * result + ((gwasMappedGene == null) ? 0 : gwasMappedGene.hashCode());
-		result = prime * result + ((gwasMgiAlleleId == null) ? 0 : gwasMgiAlleleId.hashCode());
-		result = prime * result + ((gwasMgiAlleleName == null) ? 0 : gwasMgiAlleleName.hashCode());
-		result = prime * result + ((gwasMgiGeneId == null) ? 0 : gwasMgiGeneId.hashCode());
-		result = prime * result + ((gwasMgiGeneSymbol == null) ? 0 : gwasMgiGeneSymbol.hashCode());
-		result = prime * result + ((gwasMouseGender == null) ? 0 : gwasMouseGender.hashCode());
-		result = prime * result + ((gwasMpTermId == null) ? 0 : gwasMpTermId.hashCode());
-		result = prime * result + ((gwasMpTermName == null) ? 0 : gwasMpTermName.hashCode());
-		result = prime * result + ((gwasPhenoMappingCategory == null) ? 0 : gwasPhenoMappingCategory.hashCode());
-		result = prime * result + Float.floatToIntBits(gwasPvalue);
-		result = prime * result + ((gwasReportedGene == null) ? 0 : gwasReportedGene.hashCode());
-		result = prime * result + ((gwasSnpId == null) ? 0 : gwasSnpId.hashCode());
-		result = prime * result + ((gwasUpstreamGene == null) ? 0 : gwasUpstreamGene.hashCode());
+		result = prime * result + ((disease_trait == null) ? 0 : disease_trait.hashCode());
+		result = prime * result + ((disease_trait_ci == null) ? 0 : disease_trait_ci.hashCode());
+		result = prime * result + ((disease_trait_id_url == null) ? 0 : disease_trait_id_url.hashCode());
+		result = prime * result + ((downstream_gene == null) ? 0 : downstream_gene.hashCode());
+		result = prime * result + ((downstream_gene_ci == null) ? 0 : downstream_gene_ci.hashCode());
+		result = prime * result + ((mapped_gene == null) ? 0 : mapped_gene.hashCode());
+		result = prime * result + ((mapped_geneCi == null) ? 0 : mapped_geneCi.hashCode());
+		result = prime * result + ((mgi_allele_id == null) ? 0 : mgi_allele_id.hashCode());
+		result = prime * result + ((mgi_allele_id_ci == null) ? 0 : mgi_allele_id_ci.hashCode());
+		result = prime * result + ((mgi_allele_name == null) ? 0 : mgi_allele_name.hashCode());
+		result = prime * result + ((mgi_allele_name_ci == null) ? 0 : mgi_allele_name_ci.hashCode());
+		result = prime * result + ((mgi_gene_id == null) ? 0 : mgi_gene_id.hashCode());
+		result = prime * result + ((mgi_gene_id_ci == null) ? 0 : mgi_gene_id_ci.hashCode());
+		result = prime * result + ((mgi_gene_symbol == null) ? 0 : mgi_gene_symbol.hashCode());
+		result = prime * result + ((mgi_gene_symbol_ci == null) ? 0 : mgi_gene_symbol_ci.hashCode());
+		result = prime * result + ((mouse_gender == null) ? 0 : mouse_gender.hashCode());
+		result = prime * result + ((mp_term_id == null) ? 0 : mp_term_id.hashCode());
+		result = prime * result + ((mp_term_id_ci == null) ? 0 : mp_term_id_ci.hashCode());
+		result = prime * result + ((mp_term_id_url == null) ? 0 : mp_term_id_url.hashCode());
+		result = prime * result + ((mp_term_name == null) ? 0 : mp_term_name.hashCode());
+		result = prime * result + ((mp_term_name_ci == null) ? 0 : mp_term_name_ci.hashCode());
+		result = prime * result + Float.floatToIntBits(p_value);
+		result = prime * result + ((pheno_mapping_category == null) ? 0 : pheno_mapping_category.hashCode());
+		result = prime * result + ((reported_gene == null) ? 0 : reported_gene.hashCode());
+		result = prime * result + ((reported_gene_ci == null) ? 0 : reported_gene_ci.hashCode());
+		result = prime * result + ((snp_id == null) ? 0 : snp_id.hashCode());
+		result = prime * result + ((snp_id_ci == null) ? 0 : snp_id_ci.hashCode());
+		result = prime * result + ((upstream_gene == null) ? 0 : upstream_gene.hashCode());
+		result = prime * result + ((upstream_gene_ci == null) ? 0 : upstream_gene_ci.hashCode());
 		return result;
 	}
 
@@ -242,91 +352,167 @@ public class GwasDTO {
 		if (getClass() != obj.getClass())
 			return false;
 		GwasDTO other = (GwasDTO) obj;
-		if (gwasDiseaseTrait == null) {
-			if (other.gwasDiseaseTrait != null)
+		if (disease_trait == null) {
+			if (other.disease_trait != null)
 				return false;
-		} else if (!gwasDiseaseTrait.equals(other.gwasDiseaseTrait))
+		} else if (!disease_trait.equals(other.disease_trait))
 			return false;
-		if (gwasDownstreamGene == null) {
-			if (other.gwasDownstreamGene != null)
+		if (disease_trait_ci == null) {
+			if (other.disease_trait_ci != null)
 				return false;
-		} else if (!gwasDownstreamGene.equals(other.gwasDownstreamGene))
+		} else if (!disease_trait_ci.equals(other.disease_trait_ci))
 			return false;
-		if (gwasMappedGene == null) {
-			if (other.gwasMappedGene != null)
+		if (disease_trait_id_url == null) {
+			if (other.disease_trait_id_url != null)
 				return false;
-		} else if (!gwasMappedGene.equals(other.gwasMappedGene))
+		} else if (!disease_trait_id_url.equals(other.disease_trait_id_url))
 			return false;
-		if (gwasMgiAlleleId == null) {
-			if (other.gwasMgiAlleleId != null)
+		if (downstream_gene == null) {
+			if (other.downstream_gene != null)
 				return false;
-		} else if (!gwasMgiAlleleId.equals(other.gwasMgiAlleleId))
+		} else if (!downstream_gene.equals(other.downstream_gene))
 			return false;
-		if (gwasMgiAlleleName == null) {
-			if (other.gwasMgiAlleleName != null)
+		if (downstream_gene_ci == null) {
+			if (other.downstream_gene_ci != null)
 				return false;
-		} else if (!gwasMgiAlleleName.equals(other.gwasMgiAlleleName))
+		} else if (!downstream_gene_ci.equals(other.downstream_gene_ci))
 			return false;
-		if (gwasMgiGeneId == null) {
-			if (other.gwasMgiGeneId != null)
+		if (mapped_gene == null) {
+			if (other.mapped_gene != null)
 				return false;
-		} else if (!gwasMgiGeneId.equals(other.gwasMgiGeneId))
+		} else if (!mapped_gene.equals(other.mapped_gene))
 			return false;
-		if (gwasMgiGeneSymbol == null) {
-			if (other.gwasMgiGeneSymbol != null)
+		if (mapped_geneCi == null) {
+			if (other.mapped_geneCi != null)
 				return false;
-		} else if (!gwasMgiGeneSymbol.equals(other.gwasMgiGeneSymbol))
+		} else if (!mapped_geneCi.equals(other.mapped_geneCi))
 			return false;
-		if (gwasMouseGender == null) {
-			if (other.gwasMouseGender != null)
+		if (mgi_allele_id == null) {
+			if (other.mgi_allele_id != null)
 				return false;
-		} else if (!gwasMouseGender.equals(other.gwasMouseGender))
+		} else if (!mgi_allele_id.equals(other.mgi_allele_id))
 			return false;
-		if (gwasMpTermId == null) {
-			if (other.gwasMpTermId != null)
+		if (mgi_allele_id_ci == null) {
+			if (other.mgi_allele_id_ci != null)
 				return false;
-		} else if (!gwasMpTermId.equals(other.gwasMpTermId))
+		} else if (!mgi_allele_id_ci.equals(other.mgi_allele_id_ci))
 			return false;
-		if (gwasMpTermName == null) {
-			if (other.gwasMpTermName != null)
+		if (mgi_allele_name == null) {
+			if (other.mgi_allele_name != null)
 				return false;
-		} else if (!gwasMpTermName.equals(other.gwasMpTermName))
+		} else if (!mgi_allele_name.equals(other.mgi_allele_name))
 			return false;
-		if (gwasPhenoMappingCategory == null) {
-			if (other.gwasPhenoMappingCategory != null)
+		if (mgi_allele_name_ci == null) {
+			if (other.mgi_allele_name_ci != null)
 				return false;
-		} else if (!gwasPhenoMappingCategory.equals(other.gwasPhenoMappingCategory))
+		} else if (!mgi_allele_name_ci.equals(other.mgi_allele_name_ci))
 			return false;
-		if (Float.floatToIntBits(gwasPvalue) != Float.floatToIntBits(other.gwasPvalue))
-			return false;
-		if (gwasReportedGene == null) {
-			if (other.gwasReportedGene != null)
+		if (mgi_gene_id == null) {
+			if (other.mgi_gene_id != null)
 				return false;
-		} else if (!gwasReportedGene.equals(other.gwasReportedGene))
+		} else if (!mgi_gene_id.equals(other.mgi_gene_id))
 			return false;
-		if (gwasSnpId == null) {
-			if (other.gwasSnpId != null)
+		if (mgi_gene_id_ci == null) {
+			if (other.mgi_gene_id_ci != null)
 				return false;
-		} else if (!gwasSnpId.equals(other.gwasSnpId))
+		} else if (!mgi_gene_id_ci.equals(other.mgi_gene_id_ci))
 			return false;
-		if (gwasUpstreamGene == null) {
-			if (other.gwasUpstreamGene != null)
+		if (mgi_gene_symbol == null) {
+			if (other.mgi_gene_symbol != null)
 				return false;
-		} else if (!gwasUpstreamGene.equals(other.gwasUpstreamGene))
+		} else if (!mgi_gene_symbol.equals(other.mgi_gene_symbol))
+			return false;
+		if (mgi_gene_symbol_ci == null) {
+			if (other.mgi_gene_symbol_ci != null)
+				return false;
+		} else if (!mgi_gene_symbol_ci.equals(other.mgi_gene_symbol_ci))
+			return false;
+		if (mouse_gender == null) {
+			if (other.mouse_gender != null)
+				return false;
+		} else if (!mouse_gender.equals(other.mouse_gender))
+			return false;
+		if (mp_term_id == null) {
+			if (other.mp_term_id != null)
+				return false;
+		} else if (!mp_term_id.equals(other.mp_term_id))
+			return false;
+		if (mp_term_id_ci == null) {
+			if (other.mp_term_id_ci != null)
+				return false;
+		} else if (!mp_term_id_ci.equals(other.mp_term_id_ci))
+			return false;
+		if (mp_term_id_url == null) {
+			if (other.mp_term_id_url != null)
+				return false;
+		} else if (!mp_term_id_url.equals(other.mp_term_id_url))
+			return false;
+		if (mp_term_name == null) {
+			if (other.mp_term_name != null)
+				return false;
+		} else if (!mp_term_name.equals(other.mp_term_name))
+			return false;
+		if (mp_term_name_ci == null) {
+			if (other.mp_term_name_ci != null)
+				return false;
+		} else if (!mp_term_name_ci.equals(other.mp_term_name_ci))
+			return false;
+		if (Float.floatToIntBits(p_value) != Float.floatToIntBits(other.p_value))
+			return false;
+		if (pheno_mapping_category == null) {
+			if (other.pheno_mapping_category != null)
+				return false;
+		} else if (!pheno_mapping_category.equals(other.pheno_mapping_category))
+			return false;
+		if (reported_gene == null) {
+			if (other.reported_gene != null)
+				return false;
+		} else if (!reported_gene.equals(other.reported_gene))
+			return false;
+		if (reported_gene_ci == null) {
+			if (other.reported_gene_ci != null)
+				return false;
+		} else if (!reported_gene_ci.equals(other.reported_gene_ci))
+			return false;
+		if (snp_id == null) {
+			if (other.snp_id != null)
+				return false;
+		} else if (!snp_id.equals(other.snp_id))
+			return false;
+		if (snp_id_ci == null) {
+			if (other.snp_id_ci != null)
+				return false;
+		} else if (!snp_id_ci.equals(other.snp_id_ci))
+			return false;
+		if (upstream_gene == null) {
+			if (other.upstream_gene != null)
+				return false;
+		} else if (!upstream_gene.equals(other.upstream_gene))
+			return false;
+		if (upstream_gene_ci == null) {
+			if (other.upstream_gene_ci != null)
+				return false;
+		} else if (!upstream_gene_ci.equals(other.upstream_gene_ci))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return String
-				.format("GwasDTO [gwasMgiGeneId=%s, gwasMgiGeneSymbol=%s, gwasMgiAlleleId=%s, gwasMgiAlleleName=%s, gwasPhenoMappingCategory=%s, gwasMpTermId=%s, gwasMpTermName=%s, gwasMouseGender=%s, gwasPvalue=%s, gwasDiseaseTrait=%s, gwasReportedGene=%s, gwasMappedGene=%s, gwasUpstreamGene=%s, gwasDownstreamGene=%s, gwasSnpId=%s]",
-						gwasMgiGeneId, gwasMgiGeneSymbol, gwasMgiAlleleId, gwasMgiAlleleName, gwasPhenoMappingCategory, gwasMpTermId, gwasMpTermName,
-						gwasMouseGender, gwasPvalue, gwasDiseaseTrait, gwasReportedGene, gwasMappedGene, gwasUpstreamGene, gwasDownstreamGene, gwasSnpId);
+		return "GwasDTO [mgi_gene_id=" + mgi_gene_id + ", mgi_gene_id_ci=" + mgi_gene_id_ci + ", mgi_gene_symbol="
+				+ mgi_gene_symbol + ", mgi_gene_symbol_ci=" + mgi_gene_symbol_ci + ", mgi_allele_id=" + mgi_allele_id
+				+ ", mgi_allele_id_ci=" + mgi_allele_id_ci + ", mgi_allele_name=" + mgi_allele_name
+				+ ", mgi_allele_name_ci=" + mgi_allele_name_ci + ", pheno_mapping_category=" + pheno_mapping_category
+				+ ", mp_term_id=" + mp_term_id + ", mp_term_id_ci=" + mp_term_id_ci + ", mp_term_id_url="
+				+ mp_term_id_url + ", mp_term_name=" + mp_term_name + ", mp_term_name_ci=" + mp_term_name_ci
+				+ ", mouse_gender=" + mouse_gender + ", p_value=" + p_value + ", disease_trait=" + disease_trait
+				+ ", disease_trait_ci=" + disease_trait_ci + ", disease_trait_id_url=" + disease_trait_id_url
+				+ ", reported_gene=" + reported_gene + ", reported_gene_ci=" + reported_gene_ci + ", mapped_gene="
+				+ mapped_gene + ", mapped_geneCi=" + mapped_geneCi + ", upstream_gene=" + upstream_gene
+				+ ", upstream_gene_ci=" + upstream_gene_ci + ", downstream_gene=" + downstream_gene
+				+ ", downstream_gene_ci=" + downstream_gene_ci + ", snp_id=" + snp_id + ", snp_id_ci=" + snp_id_ci
+				+ "]";
 	}
 
 	
-
-	
-   
 }

@@ -225,7 +225,8 @@ public class GeneService extends BasicService{
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public String getPhenotypingStatus(String statusField, Integer hasQc, Integer legacyPhenotypeStatus, String genePageUrl, boolean toExport, boolean legacyOnly) {
+	public String getPhenotypingStatus(String statusField, Integer hasQc, Integer legacyPhenotypeStatus, String genePageUrl, 
+	boolean toExport, boolean legacyOnly) {
 		
 		String phenotypeStatusHTMLRepresentation = "";
 		String webStatus = "";
