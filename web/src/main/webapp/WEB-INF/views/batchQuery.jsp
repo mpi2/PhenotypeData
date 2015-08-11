@@ -317,7 +317,7 @@
                             	//chkboxAllert();
                             },
                             error: function() {
-                                window.alert('AJAX error trying to register interest');
+                                window.alert('AJAX error trying to fetch data');
                             }
                         });
                 	} 
@@ -526,11 +526,15 @@
             	var ids = inputIdListStr.split(",");
             	return $.fn.getUnique(ids).join(",");
             }
+            function getFirstTenUniqIdsStr(inputIdListStr) {
+            	var ids = inputIdListStr.split(",");
+            	return $.fn.getUnique(ids.slice(0,10)).join(",");
+            }
             
             function fetchBatchQueryDataTable(oConf) {
             	
-            	// deals with duplicates
-            	oConf.idlist = getUniqIdsStr(oConf.idlist);
+            	// deals with duplicates and take a max of first 10 records to show the users
+            	oConf.idlist = getFirstTenUniqIdsStr(oConf.idlist);
             	
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({

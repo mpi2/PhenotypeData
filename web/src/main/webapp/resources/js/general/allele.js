@@ -26,13 +26,13 @@ jQuery(document).ready(	function() {
             $.ajax({
                     url: baseUrl + '/genesAllele2/' + gene_id,
 
-                    timeout: 2000,
+                    timeout: 5000,
                     success: function (response) {
 
                         $('#allele2').html(response);
                     }
                     ,error: function(x, t, m) {
-                        var errorMsg='<td>ENU Link:</td><td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
+                        var errorMsg='<td class="gene-data" id="allele_links"><font color="red"><font color="red">Error trying to retrieve allele product infomation</font></td>';
                         $('#allele2').html(errorMsg);
                     }
             });
