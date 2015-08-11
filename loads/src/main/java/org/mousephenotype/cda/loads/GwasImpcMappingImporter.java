@@ -79,6 +79,7 @@ public class GwasImpcMappingImporter {
 	private static Map<String, String> allele2Gene = new HashMap<>();
 	private static Map<String, String> symbol2Gene = new HashMap<>();
 	private static Map<String, String> allele2Name = new HashMap<>();
+	private static Map<String, String> trait2EfoId = new HashMap<>();
 	
 	private static PreparedStatement insertStatement;
 	  
@@ -104,10 +105,67 @@ public class GwasImpcMappingImporter {
 		connection.setAutoCommit(false); // start transaction
 		
 		createGwasAnnotationTable();
+		assignEfoIdToDiseaseTrait();
 		alleleGeneAccMapping();
 		parseGwasPhenotypeMapping();
 		
 	}
+	
+	public void assignEfoIdToDiseaseTrait(){
+		
+		String eboBaseUrl = "http://www.ebi.ac.uk/efo/";
+		
+		trait2EfoId.put("Aging (facial)", "http://purl.obolibrary.org/obo/GO_0007568");
+		trait2EfoId.put("Antibody status in Tripanosoma cruzi seropositivity", eboBaseUrl + "EFO_0004556");  
+		
+		trait2EfoId.put("Behavioural disinhibition (generation interaction)", eboBaseUrl + "EFO_0005430");
+		trait2EfoId.put("Bilirubin levels", eboBaseUrl + "EFO_0004570");
+		trait2EfoId.put("Body mass index", eboBaseUrl + "EFO_0004340");
+		trait2EfoId.put("Bone mineral density", eboBaseUrl + "EFO_0003923");
+		trait2EfoId.put("Bone mineral density (paediatric, lower limb)", eboBaseUrl + "EFO_0003923");
+		trait2EfoId.put("Bone mineral density (paediatric, total body less head)", eboBaseUrl + "EFO_0003923");
+		
+		trait2EfoId.put("Corneal structure", eboBaseUrl + "EFO_0004345");
+		trait2EfoId.put("Coronary heart disease", eboBaseUrl + "EFO_0001645");
+		trait2EfoId.put("Crohn's disease", eboBaseUrl + "EFO_0000384");
+		                   
+		trait2EfoId.put("Digit length ratio", eboBaseUrl + "EFO_0004841");
+		
+		trait2EfoId.put("Electrocardiographic traits", eboBaseUrl + "EFO_0004682");
+		
+		trait2EfoId.put("HDL cholesterol", eboBaseUrl + "EFO_0004612");
+		trait2EfoId.put("Height", eboBaseUrl + "EFO_0004339");
+		trait2EfoId.put("Hematological parameters", eboBaseUrl + "EFO_0004526");
+		trait2EfoId.put("Hypertriglyceridemia", eboBaseUrl + "EFO_0004530");
+		
+		trait2EfoId.put("Immune response to smallpox vaccine (IL-6)", eboBaseUrl + "EFO_0004645");
+		trait2EfoId.put("Inflammatory bowel disease", eboBaseUrl + "EFO_0003767");
+		
+		trait2EfoId.put("Longevity", eboBaseUrl + "EFO_0004300");
+		
+		trait2EfoId.put("Major depressive disorder", eboBaseUrl + "EFO_0003761");
+		
+		trait2EfoId.put("Obesity-related traits", eboBaseUrl + "EFO_0004627");
+		
+		trait2EfoId.put("Plasma homocysteine levels (post-methionine load test)", eboBaseUrl + "EFO_0004578");
+		trait2EfoId.put("Platelet counts", eboBaseUrl + "EFO_0004309");
+		trait2EfoId.put("Primary biliary cirrhosis", eboBaseUrl + "EFO_0004267");
+		
+		trait2EfoId.put("QT interval", eboBaseUrl + "EFO_0004682");
+		
+		trait2EfoId.put("Red blood cell traits", eboBaseUrl + "EFO_0004527");
+		trait2EfoId.put("Rheumatoid arthritis", eboBaseUrl + "EFO_0000685");
+		
+		trait2EfoId.put("Schizophrenia", eboBaseUrl + "EFO_0000692");
+		trait2EfoId.put("Serum dimethylarginine levels (asymmetric/symetric ratio)", eboBaseUrl + "EFO_0005418");
+		trait2EfoId.put("Smoking quantity", eboBaseUrl + "EFO_0005671"); 
+		
+		trait2EfoId.put("Type 1 diabetes nephropathy", eboBaseUrl + "EFO_0004996");
+		
+		trait2EfoId.put("Waist circumference", eboBaseUrl + "EFO_0004342");
+		
+	}
+	
 	
 	public void createGwasAnnotationTable() throws SQLException{
 		 
@@ -120,12 +178,14 @@ public class GwasImpcMappingImporter {
 			   +        "mgi_allele_name varchar(255) NOT NULL,"
 			   +		"pheno_mapping_category varchar(25),"
 			   +        "gwas_disease_trait varchar(255),"
+			   +        "gwas_disease_trait_id_url varchar(255),"
 			   +        "gwas_p_value float(2),"
 			   +        "gwas_reported_gene varchar(255) NOT NULL,"
 			   +        "gwas_mapped_gene varchar(255) NOT NULL,"
 			   +        "gwas_upstream_gene varchar(255) NOT NULL,"
 			   +        "gwas_downstream_gene varchar(255) NOT NULL,"
 			   +        "mp_term_id varchar(255) NOT NULL,"
+			   +        "mp_term_id_url varchar(255) NOT NULL,"
 			   +        "mp_term_name varchar(255) NOT NULL,"
 			   +        "impc_mouse_gender enum('male', 'female', 'both') default NULL,"
 			   +		"gwas_snp_id varchar(255) NOT NULL)",
@@ -223,8 +283,10 @@ public class GwasImpcMappingImporter {
 	 	 	
 	    System.out.println("PARSING IMPC PHENOTYPE TO GWAS DISEASE TRAIT MAPPING:");
 
-	    insertStatement = connection.prepareStatement("INSERT IGNORE INTO impc2gwas (mgi_gene_id, mgi_gene_symbol, mgi_allele_id, mgi_allele_name, pheno_mapping_category, gwas_disease_trait, gwas_p_value, gwas_reported_gene, gwas_mapped_gene, gwas_upstream_gene, gwas_downstream_gene, mp_term_id, mp_term_name, impc_mouse_gender, gwas_snp_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	    insertStatement = connection.prepareStatement("INSERT IGNORE INTO impc2gwas (mgi_gene_id, mgi_gene_symbol, mgi_allele_id, mgi_allele_name, pheno_mapping_category, gwas_disease_trait, gwas_disease_trait_id_url, gwas_p_value, gwas_reported_gene, gwas_mapped_gene, gwas_upstream_gene, gwas_downstream_gene, mp_term_id, mp_term_id_url, mp_term_name, impc_mouse_gender, gwas_snp_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		
+	    String mpTermIdOwlBaseUrl = "http://purl.obolibrary.org/obo/";
+	    
 	    // dis.available() returns 0 if the file does not have more lines.
 		while (dis.available() != 0) {
 			String line = dis.readLine();
@@ -254,36 +316,42 @@ public class GwasImpcMappingImporter {
 			String gwas_disease_trait = fd.get(2).replaceAll("\"", "");
     		insertStatement.setString(6, gwas_disease_trait);
 			
+    		// hash for gwas trait to EFO id
+    		insertStatement.setString(7, trait2EfoId.containsKey(gwas_disease_trait) ? trait2EfoId.get(gwas_disease_trait) : "");
+			
     		int gwas_p_value_mantissa = Integer.parseInt(fd.get(3));
     		float gwas_p_value_exp = Float.parseFloat(fd.get(4));
     		String sciNote = (gwas_p_value_mantissa + "E" + gwas_p_value_exp).replace(".0","");
     		BigDecimal bd = new BigDecimal(sciNote);
     		float pVal = bd.floatValue();
-			insertStatement.setFloat(7, pVal);
+			insertStatement.setFloat(8, pVal);
 			
 			String gwas_reported_gene = fd.get(9).trim();
-			insertStatement.setString(8, gwas_reported_gene);
+			insertStatement.setString(9, gwas_reported_gene);
 			
 			String gwas_mapped_gene = fd.get(10).trim();
-			insertStatement.setString(9, gwas_mapped_gene);
+			insertStatement.setString(10, gwas_mapped_gene);
 			
 			String gwas_upstream_gene = fd.get(11).trim();
-			insertStatement.setString(10, gwas_upstream_gene);
+			insertStatement.setString(11, gwas_upstream_gene);
 			
 			String gwas_downstream_gene = fd.get(12).trim();
-			insertStatement.setString(11, gwas_downstream_gene);
+			insertStatement.setString(12, gwas_downstream_gene);
 			
 			String mp_term_id = fd.get(17);
-			insertStatement.setString(12, mp_term_id);
+			insertStatement.setString(13, mp_term_id);
+			
+			String mpTermIdEfo = mp_term_id.replace(":",  "_");
+			insertStatement.setString(14, mpTermIdOwlBaseUrl + mpTermIdEfo);
 			
 			String mp_term_name = fd.get(16).replaceAll("\"","");
-			insertStatement.setString(13, mp_term_name);
+			insertStatement.setString(15, mp_term_name);
 			
 			String impc_mouse_gender = fd.get(15);
-			insertStatement.setString(14, impc_mouse_gender);
+			insertStatement.setString(16, impc_mouse_gender);
 			
 			String gwas_snp_id = fd.get(5);
-			insertStatement.setString(15, gwas_snp_id);
+			insertStatement.setString(17, gwas_snp_id);
 			
 			insertStatement.executeUpdate();
 			
@@ -357,6 +425,8 @@ public class GwasImpcMappingImporter {
 						insertStatement.setString(13, "");
 						insertStatement.setString(14, "");
 						insertStatement.setString(15, "");
+						insertStatement.setString(16, "");
+						insertStatement.setString(17, "");
 						
 						insertStatement.executeUpdate();
 						

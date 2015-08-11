@@ -87,13 +87,11 @@ public class ExcelWorkBook {
     			// make hyperlink in cell
     			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
     				
-    				//need to encode URI for this version of ExcelWorkBook
-//    				cellStr = URIUtil.encodePath(cellStr,"UTF-8");
+    				cellStr = cellStr.replaceAll(" ","%20");  // so that url link would work
 				    cellStr = new URI(cellStr).toASCIIString();
-    				
     				cellStr = cellStr.replace("%3F","?");  // so that url link would work
     				
-    				//System.out.println("cellStr: " + cellStr);
+    				//System.out.println("chk cellStr: " + cellStr);
     				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
     				
     				url_link.setAddress(cellStr);

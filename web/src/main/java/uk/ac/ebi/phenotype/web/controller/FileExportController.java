@@ -323,6 +323,7 @@ public class FileExportController {
 				}
 			} catch (Exception e) {
 				log.error("Error getting value of q");
+				e.printStackTrace();
 			}
 		}
 
@@ -997,8 +998,8 @@ public class FileExportController {
 			}
 
 			// ES/Mice production status
-			boolean toExport = true;	
-			String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
+			boolean toExport = true;
+            String mgiId = doc.getString(GeneDTO.MGI_ACCESSION_ID);
 			String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + mgiId;			
 			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
@@ -1007,7 +1008,6 @@ public class FileExportController {
 			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
 			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
 			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;     
-		
 			String phenotypeStatus = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
 
 			if (phenotypeStatus.isEmpty()) {
@@ -1478,28 +1478,28 @@ public class FileExportController {
 		rowData.add(gridFields);
 
 		for (GwasDTO gw : gwasMappings) {
-			String traitName = gw.getGwasDiseaseTrait();
+			String traitName = gw.getDiseaseTrait();
 
 			if (currentTraitName != null && !traitName.equals(currentTraitName)) {
 				continue;
 			}
 
 			List<String> data = new ArrayList();
-			data.add(gw.getGwasMgiGeneSymbol());
-			data.add(gw.getGwasMgiGeneId());
-			data.add(gw.getGwasMgiAlleleId());
-			data.add(gw.getGwasMgiAlleleName());
-			data.add(gw.getGwasMouseGender());
-			data.add(gw.getGwasMpTermId());
-			data.add(gw.getGwasMpTermName());
+			data.add(gw.getMgiGeneSymbol());
+			data.add(gw.getMgiGeneId());
+			data.add(gw.getMgiAlleleId());
+			data.add(gw.getMgiAlleleName());
+			data.add(gw.getMouseGender());
+			data.add(gw.getMpTermId());
+			data.add(gw.getMpTermName());
 			data.add(traitName);
-			data.add(gw.getGwasSnpId());
-			data.add(Float.toString(gw.getGwasPvalue()));
-			data.add(gw.getGwasMappedGene());
-			data.add(gw.getGwasReportedGene());
-			data.add(gw.getGwasUpstreamGene());
-			data.add(gw.getGwasDownstreamGene());
-			data.add(gw.getGwasPhenoMappingCategory());
+			data.add(gw.getSnpId());
+			data.add(Float.toString(gw.getPvalue()));
+			data.add(gw.getMappedGene());
+			data.add(gw.getReportedGene());
+			data.add(gw.getUpstreamGene());
+			data.add(gw.getDownstreamGene());
+			data.add(gw.getPhenoMappingCategory());
 
 			rowData.add(StringUtils.join(data, "\t"));
 		}
@@ -1911,10 +1911,12 @@ public class FileExportController {
 					output.close();
 				} catch (IOException ioe) {
 					log.error("ExcelWorkBook Error: " + ioe.getMessage());
+					ioe.printStackTrace();
 				}
 			}
 		} catch (Exception e) {
 			log.error("Error: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }
