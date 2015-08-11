@@ -61,7 +61,6 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
         if (request.getServerPort() != 80) {
             mappedHostname += ":" + request.getServerPort();
         }
-        System.out.println("\n\n\nMappedHostName " + mappedHostname);
         request.setAttribute("mappedHostname", mappedHostname);
 
         // If this webapp is being accessed behind a proxy, the
