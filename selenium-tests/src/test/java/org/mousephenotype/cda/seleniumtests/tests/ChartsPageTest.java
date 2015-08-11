@@ -45,9 +45,18 @@ import java.util.concurrent.TimeUnit;
  *
  * Selenium test for graph query coverage ensuring each graph display works for any given gene accession/parameter/zygosity
  * from the Solr core.
+ *
+ * IMPORTANT NOTE: In order to run the tests, you must specify the "platform", a directory under the /configfiles
+ * resource directory, which must contain an application.properties file.
+ *
+ * Examples: /Users/mrelac/configfiles/beta/application.properties,
+ *           /Users/mrelac/configfiles/dev/application.properties,
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
  */
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:testConfig.properties")
+@TestPropertySource("classpath:/${platform}/application.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
 
