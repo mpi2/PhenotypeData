@@ -1884,6 +1884,7 @@ public class FileExportController {
 				PrintWriter output = response.getWriter();
 				for (String line : dataRows) {
 					// System.out.println("line: " + line);
+					line = line.replaceAll("\\t//", "\thttp://");
 					output.println(line);
 				}
 
