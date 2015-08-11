@@ -133,7 +133,7 @@ public class Tools {
 		return result;
 	}
 	
-	public static String[][] composeXlsTableData(List<String> rows) throws UnsupportedEncodingException {
+	public static String[][] composeXlsTableData(List<String> rows) {
         int rowNum = rows.size();
         int colNum = (rows.size() > 0) ? rows.get(0).split("\t").length : 0; // title row, tells how many columns
        
@@ -144,6 +144,9 @@ public class Tools {
             
             for (int j = 0; j < colVals.length; j++) {
             	String currVal = colVals[j];
+            	if ( currVal.startsWith("//")){
+            		currVal = "http:" + currVal;
+            	}
             	if ( currVal.startsWith("http:")){
             		currVal = currVal.replaceAll(" ", "%20");
             		currVal = currVal.replaceAll("\"", "%22");

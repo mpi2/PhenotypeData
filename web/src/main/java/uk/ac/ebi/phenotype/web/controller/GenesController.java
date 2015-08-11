@@ -252,7 +252,6 @@ public class GenesController {
 			model.addAttribute("hasPreQcData", hasPreQc);
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-			System.out.println("---GENE PAGE URL " + genePageUrl);
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
 			
