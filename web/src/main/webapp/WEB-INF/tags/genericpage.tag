@@ -1,6 +1,4 @@
-<%@ tag description="Overall Page template" pageEncoding="UTF-8"
-        import="uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,java.net.URLEncoder"
-        %>
+<%@ tag description="Overall Page template" pageEncoding="UTF-8" import="uk.ac.ebi.phenotype.web.util.DrupalHttpProxy,java.net.URLEncoder" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
@@ -42,7 +40,7 @@
             .replace(request.getContextPath(), baseUrl.substring(1));
 
     jspContext.setAttribute("usermenu", usermenu);
-		jspContext.setAttribute("menu", menus[1]);
+	jspContext.setAttribute("menu", menus[1]);
 %>
 <%@attribute name="header" fragment="true"%>
 <%@attribute name="footer" fragment="true"%>
