@@ -27,10 +27,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 
@@ -38,14 +35,25 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
+/**
+ * IMPORTANT NOTE: In order to run the tests, you must specify the "platform", a directory under the /configfiles
+ * resource directory, which must contain an application.properties file.
+ *
+ * Examples: /Users/mrelac/configfiles/beta/application.properties,
+ *           /Users/mrelac/configfiles/dev/application.properties,
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
+ */
+
 @Configuration
 @ComponentScan({"org.mousephenotype.cda"})
+@PropertySource("classpath:/${platform}/application.properties")
 @EnableAutoConfiguration
 public class TestConfig {
 
 	@Bean
 	@Primary
-	@ConfigurationProperties(prefix = "datasource.komp2")
+    @ConfigurationProperties(prefix = "datasource.komp2")
 	public DataSource komp2DataSource() {
 		return DataSourceBuilder.create().build();
 	}
