@@ -88,7 +88,7 @@ import static org.junit.Assert.*;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:/${platform}/application.properties")
+@TestPropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 
