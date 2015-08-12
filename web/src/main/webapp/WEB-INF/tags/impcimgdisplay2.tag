@@ -27,12 +27,6 @@ allele = allele.replaceAll("##", "</sup>");
          download url here: ${img.download_url }
          <c:choose>
         
-        	<c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
-         	in pdf if statement
-         		<a href="${img.download_url}" >
-         		
-         		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a>
-         	</c:when>
          	
          	<c:when test="${not empty href}">
          		<a href="${href}">
@@ -40,7 +34,12 @@ allele = allele.replaceAll("##", "</sup>");
          		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" style="max-height: 200px;"></a>
          	</c:when>
          	
-         
+         <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
+         	in pdf if statement
+         		<a href="${img.download_url}" >
+         		
+         		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a>
+         	</c:when>
          	
          	<c:otherwise>
          	in otherwise statement
