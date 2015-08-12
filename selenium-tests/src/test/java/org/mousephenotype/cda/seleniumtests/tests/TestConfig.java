@@ -23,18 +23,19 @@ package org.mousephenotype.cda.seleniumtests.tests;
  * Created by mrelac on 29/06/2015.
  */
 
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
@@ -49,17 +50,46 @@ import javax.sql.DataSource;
  *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/applicationTest.properties
  */
 
+// NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
+
 @Configuration
 @ComponentScan({"org.mousephenotype.cda"})
-@TestPropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
+@PropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
 @EnableAutoConfiguration
 public class TestConfig {
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${datasource.komp2.url}")
+    private String datasourceKomp2Url;
+
+    @Value("${phenodigm.solrserver}")
+    private String phenodigmSolrserver;
+
+    @Value("${solr.host}")
+    private String solrHost;
+
+    @Value("${baseUrl}")
+    private String baseUrl;
+
+    @Value("${internalSolrUrl}")
+    private String internalSolrUrl;
+
+    @PostConstruct
+    public void initialise() {
+        logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
+        logger.info("phenodigm.solrserver: " + phenodigmSolrserver);
+        logger.info("solr.host:            " + solrHost);
+        logger.info("baseUrl:              " + baseUrl);
+        logger.info("internalSolrUrl:      " + internalSolrUrl);
+    }
 
 	@Bean
 	@Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
 	public DataSource komp2DataSource() {
-		return DataSourceBuilder.create().build();
+        DataSource ds = DataSourceBuilder.create().build();
+		return ds;
 	}
 
 	@Bean
@@ -80,10 +110,12 @@ public class TestConfig {
 		return factory;
 	}
 
-//	@Bean(name = "komp2TxManager")
-//	public PlatformTransactionManager txManager() {
-//		return new DataSourceTransactionManager(komp2DataSource());
-//	}
+	@Bean(name = "komp2TxManager")
+    @Primary
+	public PlatformTransactionManager txManager() {
+		return new DataSourceTransactionManager(komp2DataSource());
+	}
+
 
 	@Bean
 	@ConfigurationProperties(prefix = "datasource.admintools")
