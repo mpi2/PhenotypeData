@@ -58,6 +58,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.*;
+
 /**
  *
  * @author ckchen@ebi.ac.uk (private methods)
@@ -79,9 +80,15 @@ import static org.junit.Assert.*;
  * Examples:
  * seleniumUrl=http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub
  *      desiredCapabilities=firefoxDesiredCapabilities
+ *
+ * Examples: /Users/mrelac/configfiles/beta/application.properties,
+ *           /Users/mrelac/configfiles/dev/application.properties,
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
  */
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:testConfig.properties")
+@TestPropertySource("classpath:/${platform}/application.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 
@@ -142,7 +149,7 @@ public class SearchPageTest {
     protected String baseUrl;
 
     @NotNull
-    @Value("${solr.host}")
+    @Value("${internalSolrUrl}")
     protected String solrUrl;
 
 

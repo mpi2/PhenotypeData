@@ -74,10 +74,18 @@ import static org.junit.Assert.assertTrue;
  * Examples:
  *      seleniumUrl=http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub
  *      desiredCapabilities=firefoxDesiredCapabilities
+ *
+ * IMPORTANT NOTE: In order to run the tests, you must specify the "platform", a directory under the /configfiles
+ * resource directory, which must contain an application.properties file.
+ *
+ * Examples: /Users/mrelac/configfiles/beta/application.properties,
+ *           /Users/mrelac/configfiles/dev/application.properties,
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:testConfig.properties")
+@TestPropertySource("classpath:/${platform}/application.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GraphPageTest {
 
