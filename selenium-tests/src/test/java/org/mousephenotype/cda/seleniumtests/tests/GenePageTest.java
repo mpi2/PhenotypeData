@@ -599,6 +599,7 @@ public class GenePageTest {
         sectionErrorCount = 0;
         String[] buttonLabelsArray = {"Login to register interest",
                 "Order",
+                "All Adult Data",
                 "KOMP",
                 "EUMMCR",};
         List<String> expectedButtonLabels = Arrays.asList(buttonLabelsArray);
