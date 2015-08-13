@@ -148,12 +148,15 @@ public abstract class SearchFacetTable {
      * Set the number of entries in the 'entries' drop-down box.
      *
      * @param entriesSelect The new value for the number of entries to show.
+     * @deprecated The search page currently is not enabled with a widget to change the page size. Someday it may, so
+     *             we'll leave the code in but just comment it out.
      */
+    @Deprecated
     public void setNumEntries(EntriesSelect entriesSelect) {
-        Select select = new Select(driver.findElement(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH)));
-        select.selectByValue(Integer.toString(entriesSelect.getValue()));
-        wait.until(ExpectedConditions.textToBePresentInElementLocated(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
-        commonUtils.sleep(3000);      // trying to stop timing issues.
+//        Select select = new Select(driver.findElement(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH)));
+//        select.selectByValue(Integer.toString(entriesSelect.getValue()));
+//        wait.until(ExpectedConditions.textToBePresentInElementLocated(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
+//        commonUtils.sleep(3000);      // trying to stop timing issues.
     }
 
     /**
