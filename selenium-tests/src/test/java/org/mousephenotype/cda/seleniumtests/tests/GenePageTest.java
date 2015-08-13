@@ -985,11 +985,12 @@ public class GenePageTest {
           numOccurrences = 0;
 
           final int expectedAssociatedImageSize = 12;
-          List<String> actualAssociatedImageSections = genePage.getAssociatedImageSections();
+          List<String> actualAssociatedImageSections = genePage.getAssociatedImpcImageSections();
           if (actualAssociatedImageSections.size() < expectedAssociatedImageSize) {
               sectionErrorCount++;
-              message = "Associated Image Sections (count): [FAILED]. Expected at least 12 strings but found " + actualAssociatedImageSections.size() + ".";
+              message = "IMPC Phenotype Associated Images (count): [FAILED]. Expected at least 4 strings but found " + actualAssociatedImageSections.size() + ".";
               errorList.add(message);
+              status.addError(message);
               System.out.println(message + "\n");
           } else {
               System.out.println("Associate Image Sections (count): [PASSED]\n");
