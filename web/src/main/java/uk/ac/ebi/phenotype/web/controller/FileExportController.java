@@ -754,6 +754,8 @@ public class FileExportController {
 			String mediaBaseUrl = request.getAttribute("mappedHostname").toString() + baseUrl + "/impcImages/images?";
 			//System.out.println("MEDIABASEURL: "+ mediaBaseUrl);
 			
+			String baseUrl2 = request.getAttribute("mappedHostname").toString() + baseUrl;
+			
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
 																																// names
@@ -772,7 +774,7 @@ public class FileExportController {
 
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
-			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl2);
 
 			int numFacets = annots.size();
 			int start = iDisplayStart; // 2 elements(name, count), hence
