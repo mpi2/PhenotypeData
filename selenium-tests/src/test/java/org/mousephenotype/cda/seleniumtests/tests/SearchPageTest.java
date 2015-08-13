@@ -502,7 +502,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -796,7 +796,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 //commonUtils.sleep(10000);
             // Use the first gene div element in the search results.
- System.out.println("one");
+ System.out.println("one"); // FIXME FIXME FIXME
             List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
 System.out.println("two");
             if (geneElements.isEmpty()) {
@@ -1206,7 +1206,7 @@ System.out.println("eleven");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testBoneDownload() throws Exception {
         String testName = "testBoneDownload";
         String searchString = "bone";
