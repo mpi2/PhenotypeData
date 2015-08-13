@@ -693,12 +693,12 @@ div.ui-tabs-panel {
 		<c:set var="noColor" scope="page" value="gray" />
 		
 		<span title="Expression" class="${expressionIcon}"
-										style="color:${yesColor}">&nbspExpression</span>&nbsp&nbsp
+										style="color:${yesColor}">&nbsp;Expression</span>&nbsp;&nbsp;
 		<span title="No Expression" class="${noExpressionIcon}"
-										style="color: gray">&nbspNo Expression</span>&nbsp&nbsp
+										style="color: gray">&nbsp;No Expression</span>&nbsp;&nbsp;
 		<span title="No Tissue Available" class="${noTissueIcon}"
-										style="color: gray">&nbspNo Tissue Available</span>&nbsp&nbsp
-		<span title="Ambiguous" class="${ambiguousIcon}" style="color: gray">&nbspAmbiguous</span>&nbsp&nbsp
+										style="color: gray">&nbsp;No Tissue Available</span>&nbsp;&nbsp;
+		<span title="Ambiguous" class="${ambiguousIcon}" style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 		
  							<!-- section for expression data here -->
  							<div id="tabs">
@@ -847,33 +847,19 @@ div.ui-tabs-panel {
 															img="${impcExpressionFacetToDocs[entry.name][0]}"
 															impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                     </ul>
-                                                    <!-- </a>&nbsp; -->
-                                                
                                                
-                                        </c:forEach>
-												<!-- solrFacets end -->
-
-                                        
-                                    <!-- </div> -->
-                                
+                                        </c:forEach>	<!-- solrFacets end -->                                       
                                      
-                            </div>
-											<!--  end of tabs-2 -->  
-                                	
+                            </div>	<!--  end of tabs-2 -->                              	
                                 
-                      	</div>
-										<!-- end of tabs -->
-                      
-								
+                      	</div>	<!-- end of tabs -->								
               </div> 
                       
         </div>
+        </div>
         </c:if><!-- end of expression section if -->
 						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
-        </div>
-					<!--  end of section -->
-
-                                    
+                                          
 
                             <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
@@ -901,17 +887,13 @@ div.ui-tabs-panel {
                                                     <div
 												class="accordion-body">
                                                         <ul>
-																<c:set var="href" scope="page"
-														value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
-                                                            <a
-														href="${href}">
-                                                                <t:impcimgdisplay2
-															img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"
-															pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}"
-															count="${entry.count}"></t:impcimgdisplay2>
-                                                                </a>
-
-                                                            </ul>
+															<c:set var="href" scope="page" value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
+                                                            <a href="${href}">
+                                                                <t:impcimgdisplay2	img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"
+																	pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}"
+																	count="${entry.count}"></t:impcimgdisplay2>
+                                                             </a>
+                                                        </ul>
 
 
                                                         <%--  <div class="clear"></div>
