@@ -372,8 +372,9 @@ public class SearchPage {
         try {
             int max = getNumPageButtons();
             int randomPageNumber = random.nextInt(max);
-
+logger.info("one");    // FIXME FIXME FIXME
             WebElement element = getButton(randomPageNumber);
+logger.info("two");
             if (element.getAttribute("class").contains("disabled")) {
                 if (randomPageNumber == 0) {
                     System.out.println("Changing randomPageNumber from 0 to 1.");
@@ -390,14 +391,23 @@ public class SearchPage {
             pageDirective = getPageDirective(randomPageNumber);
 //pageDirective = PageDirective.NEXT;
             System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
-            clickPageButton(pageDirective);
+logger.info("three");
+try {
+    clickPageButton(pageDirective);
+} catch (Exception e) {
+logger.error("SearchPage.clickPageButton(pageDirective) call failed. Reason: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
+}
+logger.info("four");
         } catch (Exception e) {
             System.out.println("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
 
+logger.info("five");
         setFacetTable();
-        getResultCount();                                                       // Called purely to wait for the page to finish loading.
+logger.info("six");
+        getResultCount();
+logger.info("seven");                                                     // Called purely to wait for the page to finish loading.
         return pageDirective;
     }
 
