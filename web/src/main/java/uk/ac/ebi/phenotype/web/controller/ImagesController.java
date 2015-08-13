@@ -86,7 +86,18 @@ public class ImagesController {
 
 
 	@RequestMapping("/images*")
-	public String allImages(@RequestParam(required = false, defaultValue = "0", value = "start") int start, @RequestParam(required = false, defaultValue = "25", value = "length") int length, @RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, @RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, @RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, @RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField, @RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField, @RequestParam(required = false, defaultValue = "", value = "qf") String qf, @RequestParam(required = false, defaultValue = "", value = "defType") String defType, @RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, HttpServletRequest request, Model model)
+	public String allImages(@RequestParam(required = false, defaultValue = "0", value = "start") int start, 
+			@RequestParam(required = false, defaultValue = "25", value = "length") int length, 
+			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, 
+			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, 
+			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, 
+			@RequestParam(required = false, defaultValue = "", value = "fq") String[] filterField, 
+			@RequestParam(required = false, defaultValue = "", value = "facet.field") String facetField, 
+			@RequestParam(required = false, defaultValue = "", value = "qf") String qf, 
+			@RequestParam(required = false, defaultValue = "", value = "defType") String defType, 
+			@RequestParam(required = false, defaultValue = "", value = "anatomy_id") String maId, 
+			HttpServletRequest request, 
+			Model model)
 	throws SolrServerException {
 
 		handleImagesRequest(request, start, length, qIn, mpId, geneId, filterField, qf, defType, maId, model);
