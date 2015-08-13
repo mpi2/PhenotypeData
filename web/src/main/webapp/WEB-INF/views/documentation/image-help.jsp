@@ -37,25 +37,28 @@
 
 
                                 <h4><a name="explore" href='#'>Explore Image Data</a></h4>
-                                <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA) and Mammalian Phenotype (MP) terms. To search for images associated with the gene symbol ""Akt2", type Akt2 into the search box at the top of the page and then click on the images link at the side.
+                                <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA) and procedure terms. To search for images associated with the gene symbol ""Akt2", type Akt2 into the search box at the top of the page and then click on the "IMPC images"" link at the side.
                                     A list with categories of images associated to the Akt2 is then displayed on the left. Click on these categories to see sub-categories and their respective counts of images associated with that category. You can also search for genes using MGI identifiers. 
                                     To search for images associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box. Click <a href="#imported">here</a>  to find out more where the images are from and how they are annotated.
                                     <img src="img/image_facet.png">
                                 </p>
 
                                 <h4><a name="imported" href='#'>Imported Images</a> </h4>
-                                <p>The IMPC portal offers images that are annotated with Mouse Annatomy (MA) and Mammalian Phenotype (MP) terms. Currently images and their annotations are from legacy data from the MGP project at the Wellcome Trust Sanger Institute where the terms were manually annotated by researchers.
-                                    However in the future, the portal will also contain images from the IMPC standardised screens <a href="https://www.mousephenotype.org/impress">https://www.mousephenotype.org/impress</a>. The procedures highlighted in red will have image data collected.
+                                <p>Currently images are from the IMPC standardised screens <a href="https://www.mousephenotype.org/impress">https://www.mousephenotype.org/impress</a> the procedures highlighted in red will have image data collected. Data has been analysed by statistical methods (ususally labelled in the portal with "IMPC images").
+                                The web portal also contains legacy data from the MGP project at the Wellcome Trust Sanger Institute where the terms were manually annotated by researchers (usually just labelled "images" in the web portal).
+                                    
                                     <img src="img/pipelines_with_images.png">
                                 </p>
 
                                 <h4><a name="update_frequency" href='#'>How often are images updated?</a></h4>
                                 <p>
-                                    Images from the MGP resource at Wellcome Trust Sanger Institute are updated as needed. The process of obtaining images from other IMPC centres is still being developed.
+                                IMPC images are released with the other data in the portal which is currently roughly every few months (3-4 months). 
+                                    Images from the MGP resource at Wellcome Trust Sanger Institute are updated as needed at the same time as IMPC data is collected.
                                 </p>
 
                                 <h4><a name="download" href='#'>How do I get image data/ download?</a></h4>
-                                <p>Individual images may be downloaded by right clicking and saving to your hard drive. Batch downloading of images is in development.</p>
+                                <p>Individual images may be downloaded clicking on an image in the normal view where a larger popup image is then displayed together with the option of downloading it underneath.
+                                Individual images can be downloaded from the comparison view (Control images vs experimental)- download links are displayed next to other annotation underneath each image. A spreadsheet containing information and links can be downloaded using the "download" link on the top right corner of the search results.</p>
 
 
                        </div>
