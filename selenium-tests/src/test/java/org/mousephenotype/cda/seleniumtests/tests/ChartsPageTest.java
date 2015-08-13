@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
 
