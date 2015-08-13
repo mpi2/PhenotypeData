@@ -200,7 +200,6 @@ public class SearchPage {
                 throw new RuntimeException("EXCEPTION: " + e.getLocalizedMessage() + "\ntarget: '" + target + "'");
             }
             this.target = target;
-            commonUtils.sleep(10000);
         }
     }
 
@@ -348,13 +347,13 @@ public class SearchPage {
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[contains(@class, 'dataTable')]")));            // Wait for facet to load.
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[contains(@class, 'dataTables_paginate')]")));    // Wait for page buttons to load.
+            setFacetTable();
 
         } catch (Exception e) {
-            System.out.println("SearchPage.clickFacetById: wait timed out: " + e.getLocalizedMessage());
+            System.out.println("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             e.printStackTrace();
         }
 
-        setFacetTable();
         return getResultCount();
     }
 

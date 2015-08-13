@@ -61,34 +61,12 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author ckchen@ebi.ac.uk (private methods)
+ * @author mrelac
  *
- * Generic configuration based on Mike's settings as below:
- *
- * These are selenium-based JUnit web tests that are configured (via the pom.xml) not to
- * run with the default profile because they take too long to complete. To run them,
- * use the 'web-tests' profile.
- *
- * These selenium tests use selenium's WebDriver protocol and thus need a hub
- * against which to run. The url for the hub is defined in the Test Packages
- * /src/test/resources/testConfig.properties file (driven by /src/test/resources/test-config.xml).
- *
- * To run these tests, edit /src/test/resources/testConfig.properties, making sure
- * that the properties 'seleniumUrl' and 'desiredCapabilities' are defined. Consult
- * /src/test/resources/test-config.xml for valid desiredCapabilities bean ids.
- *
- * Examples:
- * seleniumUrl=http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub
- *      desiredCapabilities=firefoxDesiredCapabilities
- *
- * Examples: /Users/mrelac/configfiles/beta/application.properties,
- *           /Users/mrelac/configfiles/dev/application.properties,
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
+ * Selenium test for search coverage ensuring each page works as expected.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:/${platform}/application.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 
@@ -524,7 +502,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -801,7 +779,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     // Tests search page with more than one Production Status [blue] order button.
     // We'll use MGI:1353431 (gene Pcks1n), which has 2 Production Status buttons.
     @Test
-//@Ignore
+@Ignore
     public void testOrderButtons() throws SolrServerException {
         testCount++;
         String testName = "testOrderButtons";
@@ -816,24 +794,34 @@ if (core.equals(SearchPage.GENE_CORE)) {
             target = baseUrl + "/search?q=MGI%3A1353431#fq=*:*&facet=gene";
             logger.info("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
-
+//commonUtils.sleep(10000);
             // Use the first gene div element in the search results.
+ System.out.println("one");
             List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
+System.out.println("two");
             if (geneElements.isEmpty()) {
                 fail("Can't find first 'geneGrid' div element in gene search results list.");
             }
 
             int buttonElementsSize = searchPage.getProductionStatusOrderButtons(geneElements.get(0)).size();
 
+ System.out.println("three");
             if (buttonElementsSize != 2) {
+ System.out.println("four");
                 status.addError("This test expects two order buttons. Number of buttons found: " + buttonElementsSize);
             } else {
                 for (int i = 0; i < buttonElementsSize; i++) {
-                    geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
+System.out.println("five");
+                    String path = "//*[@id='geneGrid']/tbody/tr[1]";
+                    geneElements = driver.findElements(By.xpath(path));
                     WebElement geneElement = geneElements.get(0);
+System.out.println("six");
                     List<WebElement> buttonElements = searchPage.getProductionStatusOrderButtons(geneElement);
+System.out.println("seven");
                     WebElement buttonElement = buttonElements.get(i);
+System.out.println("eight");
                     buttonElement.click();
+System.out.println("nine");
 
                     // Verify that we're in the order section.
                     boolean expectedUrlEnding = driver.getCurrentUrl().endsWith("#order2");
@@ -841,7 +829,10 @@ if (core.equals(SearchPage.GENE_CORE)) {
                         status.addError("Expected url to end in '#order2'. URL: " + driver.getCurrentUrl());
                     }
 
+System.out.println("ten");
                     driver.navigate().back();
+                    wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(path)));
+System.out.println("eleven");
                 }
             }
 

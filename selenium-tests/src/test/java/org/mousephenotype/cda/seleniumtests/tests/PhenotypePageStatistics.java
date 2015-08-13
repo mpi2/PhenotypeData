@@ -59,33 +59,10 @@ import java.util.List;
  *
  * @author mrelac
  *
- * These are selenium-based JUnit web tests that are configured (via the pom.xml) not to
- * run with the default profile because they take too long to complete. To run them,
- * use the 'web-tests' profile.
- *
- * These selenium tests use selenium's WebDriver protocol and thus need a hub
- * against which to run. The url for the hub is defined in the Test Packages
- * /src/test/resources/testConfig.properties file (driven by /src/test/resources/test-config.xml).
- *
- * To run these tests, edit /src/test/resources/testConfig.properties, making sure
- * that the properties 'seleniumUrl' and 'desiredCapabilities' are defined. Consult
- * /src/test/resources/test-config.xml for valid desiredCapabilities bean ids.
- *
- * Examples:
- *      seleniumUrl=http://mi-selenium-win.windows.ebi.ac.uk:4444/wd/hub
- *      desiredCapabilities=firefoxDesiredCapabilities
- *
- * IMPORTANT NOTE: In order to run the tests, you must specify the "platform", a directory under the /configfiles
- * resource directory, which must contain an application.properties file.
- *
- * Examples: /Users/mrelac/configfiles/beta/application.properties,
- *           /Users/mrelac/configfiles/dev/application.properties,
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
+ * Selenium test for phenotype page statistics.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("classpath:/${platform}/application.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageStatistics {
 
