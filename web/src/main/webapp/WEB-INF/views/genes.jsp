@@ -868,12 +868,10 @@ div.ui-tabs-panel {
               </div> 
                       
         </div>
+        </div>
         </c:if><!-- end of expression section if -->
 						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
-        </div>
-					<!--  end of section -->
-
-                                    
+                                          
 
                             <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcImageFacets}">
