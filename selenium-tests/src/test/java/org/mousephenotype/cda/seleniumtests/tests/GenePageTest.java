@@ -57,7 +57,7 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GenePageTest {
 
@@ -597,7 +597,8 @@ public class GenePageTest {
         // Buttons: count and labels
         // ... count
         sectionErrorCount = 0;
-        String[] buttonLabelsArray = {"Login to register interest",
+        String[] buttonLabelsArray = {
+                "Login to register interest",
                 "Order",
                 "All Adult Data",
                 "KOMP",
