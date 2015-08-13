@@ -673,9 +673,10 @@ public class FileExportController {
 					throws IOException, URISyntaxException {
 
 		// currently just use the solr field value
-		// String mediaBaseUrl =
-		// config.get("impcMediaBaseUrl").replace("https:", "http:");
+		// String mediaBaseUrl = config.get("impcMediaBaseUrl").replace("https:", "http:");
 		List<String> rowData = new ArrayList();
+		
+        //String mediaBaseUrl = config.get("mediaBaseUrl");
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 		String mpBaseUrl = baseUrl + "/phenotypes/";
@@ -748,9 +749,13 @@ public class FileExportController {
 		} else {
 
 			// annotation view: images group by annotationTerm per row
-			baseUrl = baseUrl.replace("https:", "http:");
-			String mediaBaseUrl = "http:" + config.get("impcMediaBaseUrl");
-
+			//String mediaBaseUrl = config.get("mediaBaseUrl");
+			// need to add hostname as this is for excel and not browser
+			String mediaBaseUrl = request.getAttribute("mappedHostname").toString() + baseUrl + "/impcImages/images?";
+			//System.out.println("MEDIABASEURL: "+ mediaBaseUrl);
+			
+			String baseUrl2 = request.getAttribute("mappedHostname").toString() + baseUrl;
+			
 			rowData.add(
 					"Annotation type\tAnnotation term\tAnnotation id\tAnnotation id link\tRelated image count\tImages link"); // column
 																																// names
@@ -769,7 +774,7 @@ public class FileExportController {
 
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
-			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl2);
 
 			int numFacets = annots.size();
 			int start = iDisplayStart; // 2 elements(name, count), hence
@@ -808,8 +813,8 @@ public class FileExportController {
 				sb.append(imgCount);
 				data.add(sb.toString());
 
-				String imgSubSetLink = mediaBaseUrl + "?" + thisFqStr;
-
+				String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
+				//System.out.println("IMG LINK: " + imgSubSetLink );
 				data.add(imgSubSetLink);
 
 				rowData.add(StringUtils.join(data, "\t"));
