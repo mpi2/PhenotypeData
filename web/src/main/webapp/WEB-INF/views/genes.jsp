@@ -544,7 +544,7 @@ div.ui-tabs-panel {
                                         
                                          <div class="alert alert-info">
                                             <h5>No Significant Phenotype Associations Found</h5>
-                                            <p>No significant phenotype associations were found, but you can click on the "All Adult Data" button to see all the adult data that didn't meet the significance threshold.</p>
+                                            <p>No significant phenotype associations were found, but you can click on the "All Adult Data" button to see the phenotype data that has been analyzed.</p>
                                         </div>
                                         
                                          <c:if
