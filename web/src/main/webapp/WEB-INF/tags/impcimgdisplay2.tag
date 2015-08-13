@@ -24,21 +24,25 @@ allele = allele.replaceAll("##", "</sup>");
          <!-- href specified as arg to tag as in the case of gene page to image picker links -->
          <!-- pdf annotation not image -->
          <!-- defaults to image -->
+         download url here: ${img.download_url }
          <c:choose>
         
+         	
          	<c:when test="${not empty href}">
          		<a href="${href}">
-         		
+         		href not empty statement
          		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" style="max-height: 200px;"></a>
          	</c:when>
          	
-         	<c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
+         <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
+         	in pdf if statement
          		<a href="${img.download_url}" >
          		
          		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a>
          	</c:when>
          	
          	<c:otherwise>
+         	in otherwise statement
          		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}">
          		
          		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" style="max-height: 200px;"></a>
