@@ -50,7 +50,40 @@
             <li>all images for a specific pipeline</li>
         </ul>
 
-        <p>The impc images data REST API provides the fields described in the table below. Each field may be used for restricting the set of experimental data you wish to receive. The full SOLR select syntax is available for use in querying the REST API. See <a href="http://wiki.apache.org/solr/SolrQuerySyntax">http://wiki.apache.org/solr/SolrQuerySyntax</a> and <a href="http://wiki.apache.org/solr/CommonQueryParameters">http://wiki.apache.org/solr/CommonQueryParameters</a> for a more complete list of query options.</p>
+        <p>The impc images data REST API provides the fields described in the table below which are mostly the same as for the experiment API with some additions. Each field may be used for restricting the set of impc image data you wish to receive. The full SOLR select syntax is available for use in querying the REST API. See <a href="http://wiki.apache.org/solr/SolrQuerySyntax">http://wiki.apache.org/solr/SolrQuerySyntax</a> and <a href="http://wiki.apache.org/solr/CommonQueryParameters">http://wiki.apache.org/solr/CommonQueryParameters</a> for a more complete list of query options.</p>
+		<h3>Image specific parameters:</h3>
+
+ 			<table>
+            <thead>
+                <tr>
+                    <th>Field name</th>
+                    <th>Datatype</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>omero_id</td>
+                    <td>int</td>
+                    <td>the omero image id which uniquely signifies the image in the omero image system </td>
+                </tr>
+                <tr>
+                    <td>download_url</td>
+                    <td>string</td>
+                    <td>Url from where the original image can be downloaded - the format can be one of many including dicom, tiff, jpeg</td>
+                </tr>
+                <tr>
+                    <td>jpeg_url</td>
+                    <td>string</td>
+                    <td>Url where a high resolution jpeg of the image can be obtained</td>
+                </tr>
+                </tbody>
+                </table>
+
+
+		<h3>General experimental parameters:</h3>
+
+
 
         <table>
             <thead>
