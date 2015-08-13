@@ -597,7 +597,8 @@ public class GenePageTest {
         // Buttons: count and labels
         // ... count
         sectionErrorCount = 0;
-        String[] buttonLabelsArray = {"Login to register interest",
+        String[] buttonLabelsArray = {
+                "Login to register interest",
                 "Order",
                 "All Adult Data",
                 "KOMP",
