@@ -66,7 +66,7 @@ import static org.junit.Assert.*;
  * Selenium test for search coverage ensuring each page works as expected.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 

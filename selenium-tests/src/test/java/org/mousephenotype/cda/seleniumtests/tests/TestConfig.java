@@ -41,7 +41,7 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 /**
- * IMPORTANT NOTE: In order to run the tests, you must specify the "platform", a directory under the /configfiles
+ * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
  * resource directory, which must contain an applicationTest.properties file.
  *
  * Examples: /Users/mrelac/configfiles/beta/applicationTest.properties,
@@ -54,7 +54,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan({"org.mousephenotype.cda"})
-@PropertySource("file:${user.home}/configfiles/${platform}/applicationTest.properties")
+@PropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @EnableAutoConfiguration
 public class TestConfig {
 
