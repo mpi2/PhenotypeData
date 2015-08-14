@@ -542,13 +542,19 @@ div.ui-tabs-panel {
                                         </c:when>
                                         <c:when test="${summaryNumber == 0}">
                                         
-                                         <div class="alert alert-info">
-                                            <h5>No Significant Phenotype Associations Found</h5>
-                                            <p>No significant phenotype associations were found, but you can click on the "All Adult Data" button to see the phenotype data that has been analyzed.</p>
+                                        <c:if test="${empty dataMapList}">
+                                        <div class="alert alert-info">
+                                            	<h5>Phenotype data is undergoing quality control</h5>
+                                            	<p>Any phenotype assocations appearing below are preliminary and may change. Links are provided to the Pheno-DCC quality control resource.</p>
                                         </div>
-                                        
+                                        <br/>
+                                        </c:if>
                                          <c:if
 											test="${!(empty dataMapList)}">
+											<div class="alert alert-info">
+                                            	<h5>No Significant Phenotype Associations Found</h5>
+                                            	<p>No significant phenotype associations were found, but you can click on the "All Adult Data" button to see the phenotype data that has been analyzed.</p>
+                                        	</div>
                                           	<br />
                                           	<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 	                                      	<div class="floatright"
