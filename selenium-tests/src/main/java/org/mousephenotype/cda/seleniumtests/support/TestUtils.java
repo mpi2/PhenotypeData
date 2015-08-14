@@ -368,15 +368,19 @@ public class TestUtils {
      *
      * @param name the set name (for display purposes)
      * @param set the set to be dumped
+     * @param sort if true, sort the set before displaying it.
      */
-    public void dumpSet(String name, Set<String> set) {
+    public void dumpSet(String name, Set<String> set, boolean sort) {
         System.out.println("\nDumping set '" + name + "'. Contains " + set.size() + " records:");
         if (set.size() <= 0)
             return;
 
         String[] data = set.toArray(new String[0]);
+        if (sort) {
+            Arrays.sort(data);
+        }
         for (int i = 0; i < set.size(); i++) {
-            System.out.println("[" + i + "]: " + data[i] + "\n");
+            System.out.println("[" + i + "]: " + data[i]);
         }
         System.out.println();
     }

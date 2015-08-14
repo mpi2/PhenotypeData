@@ -272,20 +272,12 @@ public abstract class SearchFacetTable {
         Set difference = testUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("SearchFacetTable.validateDownloadInternal(): Page data/Download data mismatch:");
-            Iterator it = difference.iterator();
-            int i = 0;
-            while (it.hasNext()) {
-                String value = (String)it.next();
-                System.out.println("[" + i + "]:\t page data: " + value);
-                System.out.println("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
-                i++;
-                errorCount++;
-            }
-        }
+            String message = "SearchFacetTable.validateDownloadInternal(): Page/Download data mismatch. \nURL: " + downloadUrl;
 
-        if (errorCount > 0) {
-            status.addError("Mismatch.");
+            boolean sort = true;
+            testUtils.dumpSet("page data", pageSet, sort);
+            testUtils.dumpSet("download data", downloadSet, sort);
+            status.addError(message);
         }
 
         return status;
