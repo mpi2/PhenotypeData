@@ -23,6 +23,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ import java.util.Map;
 public class SearchGeneTable extends SearchFacetTable {
 
     protected GridMap pageData;
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     
     public static final int COL_INDEX_GENE_ID               = 0;
     public static final int COL_INDEX_GENE_SYMBOL           = 1;
@@ -219,7 +222,7 @@ public class SearchGeneTable extends SearchFacetTable {
                     }
                  }
             } catch (Exception e) {
-                System.out.println("EXCEPTION: SearchGeneTable.GeneDetails.GeneDetails() while waiting to hover. Error message: " + e.getLocalizedMessage());
+                logger.error("EXCEPTION: SearchGeneTable.GeneDetails.GeneDetails() while waiting to hover. Error message: " + e.getLocalizedMessage());
                 e.printStackTrace();
             }
         }
