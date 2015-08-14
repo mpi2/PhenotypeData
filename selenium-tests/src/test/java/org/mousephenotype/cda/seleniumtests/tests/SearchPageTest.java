@@ -239,6 +239,8 @@ public class SearchPageTest {
      * @return status
      */
     private void downloadTestEngine(String testName, String searchString, Map<SearchFacetTable.TableComponent, By> map) throws Exception {
+        testCount++;
+        int successCount = 0;
         Date start = new Date();
         PageStatus status = new PageStatus();
 
@@ -258,7 +260,7 @@ public class SearchPageTest {
             }
 
             Facet[] facets = {
-                    Facet.ANATOMY
+                  Facet.ANATOMY
                 , Facet.DISEASES
                 , Facet.GENES
                 , Facet.IMAGES
@@ -271,25 +273,30 @@ public class SearchPageTest {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
-                    commonUtils.sleep(1000);
-//searchPage.clickPageButton(SearchPage.PageDirective.FIFTH_NUMBERED);
-//TestUtils.sleep(5000);
-                    System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
-                    status.add(searchPage.validateDownload(facet));
+
+                    logger.debug("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+                    PageStatus localStatus = searchPage.validateDownload(facet);
+                    if ( ! localStatus.hasErrors()) {
+                        successCount++;
+                    }
+
+                    status.add(localStatus);
                 }
             }
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-            System.out.println(message);
+            logger.error(message);
             e.printStackTrace();
             status.addError(message);
-        } finally {
-            if ( ! status.hasErrors()) {
-                successList.add(testName + ": SUCCESS.");
-            }
-
-            testUtils.printEpilogue(testName, start, status, successList.size(), paramList.size(), paramList.size());
         }
+
+        if (status.hasErrors()) {
+            sumErrorList.add("Fail");
+        } else {
+            sumSuccessList.add("Success");
+        }
+
+        testUtils.printEpilogue(testName, start, status, successCount, paramList.size(), paramList.size());
     }
 
 
@@ -319,7 +326,7 @@ public class SearchPageTest {
         if (solrCoreCountMap == null) {
             message = "FAIL: Unable to get facet count from Solr.";
             status.addError(message);
-            System.out.println(message);
+            logger.error(message);
             return status;
         }
 
@@ -341,7 +348,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
             } else {
                 message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
                 status.addError(message);
-                System.out.println(message);
+                logger.error(message);
             }
         }
 
@@ -375,11 +382,11 @@ if (core.equals(SearchPage.GENE_CORE)) {
                 String facet = cores.get(i);
                 solrCoreCountMap.put(facet, facetCountFromSolr);
             } catch (TimeoutException te) {
-                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts() timeout!");
+                logger.error("ERROR: SearchPageTest.getSolrCoreCounts() timeout!");
                 return null;
             }
             catch(Exception e){
-                System.out.println("ERROR: SearchPageTest.getSolrCoreCounts(): " + e.getLocalizedMessage());
+                logger.error("ERROR: SearchPageTest.getSolrCoreCounts(): " + e.getLocalizedMessage());
                 return null;
             }
         }
@@ -416,7 +423,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
 
     @Test
-@Ignore
+//@Ignore
     public void testAutosuggestForSpecificKnownGenes() throws Exception {
         PageStatus status = new PageStatus();
         testCount++;
@@ -470,7 +477,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testAutosuggestMinCharacters() throws Exception {
     	// test that there is a dropdown when at least 3 letters with match are entered into the input box
     	 testCount++;
@@ -502,7 +509,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTickingFacetFilters() throws Exception {
         testCount++;
         System.out.println();
@@ -606,7 +613,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
     // Verify that random genes appear in the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testQueryingRandomGeneSymbols() throws Exception {
         PageStatus status = new PageStatus();
         testCount++;
@@ -677,7 +684,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testRandomMgiIds() throws Exception {
         testCount++;
         System.out.println();
@@ -744,31 +751,31 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPhrase() throws Exception {
         specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPhraseInQuotes() throws Exception {
         specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testLeadingWildcard() throws Exception {
         specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTrailingWildcard() throws Exception {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTwist1() throws Exception {
         String testName = "testTwist1";
         String searchString = "twist1";
@@ -779,7 +786,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     // Tests search page with more than one Production Status [blue] order button.
     // We'll use MGI:1353431 (gene Pcks1n), which has 2 Production Status buttons.
     @Test
-@Ignore
+//@Ignore
     public void testOrderButtons() throws SolrServerException {
         testCount++;
         String testName = "testOrderButtons";
@@ -794,34 +801,25 @@ if (core.equals(SearchPage.GENE_CORE)) {
             target = baseUrl + "/search?q=MGI%3A1353431#fq=*:*&facet=gene";
             logger.info("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
-//commonUtils.sleep(10000);
+
             // Use the first gene div element in the search results.
- System.out.println("one"); // FIXME FIXME FIXME
             List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
-System.out.println("two");
             if (geneElements.isEmpty()) {
                 fail("Can't find first 'geneGrid' div element in gene search results list.");
             }
 
             int buttonElementsSize = searchPage.getProductionStatusOrderButtons(geneElements.get(0)).size();
 
- System.out.println("three");
             if (buttonElementsSize != 2) {
- System.out.println("four");
                 status.addError("This test expects two order buttons. Number of buttons found: " + buttonElementsSize);
             } else {
                 for (int i = 0; i < buttonElementsSize; i++) {
-System.out.println("five");
                     String path = "//*[@id='geneGrid']/tbody/tr[1]";
                     geneElements = driver.findElements(By.xpath(path));
                     WebElement geneElement = geneElements.get(0);
-System.out.println("six");
                     List<WebElement> buttonElements = searchPage.getProductionStatusOrderButtons(geneElement);
-System.out.println("seven");
                     WebElement buttonElement = buttonElements.get(i);
-System.out.println("eight");
                     buttonElement.click();
-System.out.println("nine");
 
                     // Verify that we're in the order section.
                     boolean expectedUrlEnding = driver.getCurrentUrl().endsWith("#order2");
@@ -829,10 +827,8 @@ System.out.println("nine");
                         status.addError("Expected url to end in '#order2'. URL: " + driver.getCurrentUrl());
                     }
 
-System.out.println("ten");
                     driver.navigate().back();
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(path)));
-System.out.println("eleven");
                 }
             }
 
@@ -853,7 +849,7 @@ System.out.println("eleven");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPagination() throws Exception {
         PageStatus status = new PageStatus();
         testCount++;
@@ -918,7 +914,7 @@ System.out.println("eleven");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testFacetCountsNoSearchTerm() throws Exception {
         PageStatus status = new PageStatus();
         testCount++;
@@ -1025,7 +1021,7 @@ System.out.println("eleven");
     };
 
     @Test
-@Ignore
+//@Ignore
     public void testFacetCountsSpecialCharacters() throws Exception {
         testCount++;
         System.out.println();
@@ -1090,7 +1086,7 @@ System.out.println("eleven");
      * @throws Exception
      */
     @Test
-@Ignore
+//@Ignore
     public void testMPII_806() throws Exception {
         PageStatus status = new PageStatus();
         Date start = new Date();
@@ -1135,7 +1131,7 @@ System.out.println("eleven");
      * @throws Exception
      */
     @Test
-@Ignore
+//@Ignore
     public void testMPII_1175() throws Exception {
         String testName = "testMPII_1175";
         String searchString = null;
@@ -1197,7 +1193,7 @@ System.out.println("eleven");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testDefaultDownload() throws Exception {
         String testName = "testDefaultDownload";
         String searchString = null;
@@ -1215,7 +1211,7 @@ System.out.println("eleven");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testBrachydactyly() throws Exception {
         String testName = "testBrachydactyly";
         String searchString = "brachydactyly";
@@ -1224,7 +1220,7 @@ System.out.println("eleven");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testLegDownload() throws Exception {
         String testName = "testLegDownload";
         String searchString = "leg";
@@ -1235,7 +1231,7 @@ System.out.println("eleven");
     // This test doesn't use the download test engine as it requires an extra
     // click to switch to the Image facet's 'Image' view.
     @Test
-@Ignore
+//@Ignore
     public void testImageFacetImageView() throws Exception {
         String testName = "testImageFacetImageView";
         String searchString = "";
@@ -1273,7 +1269,7 @@ System.out.println("eleven");
     // This test doesn't use the download test engine as it requires an extra
     // click to switch to the Image facet's 'Image' view.
     @Test
-@Ignore
+//@Ignore
     public void testImpcImageFacetImageView() throws Exception {
         String testName = "testImpcImageFacetImageView";
         String searchString = "";
@@ -1323,7 +1319,7 @@ System.out.println("eleven");
     // This test was spawned from testImageFacetImageView() when it came across
     // a 500 response from the server when the last page was selected.
     @Test
-@Ignore
+//@Ignore
     public void testImageFacetImageViewLastPage() throws Exception {
         String testName = "testImageFacetImageViewLastPage";
         String searchString = "";
@@ -1361,7 +1357,7 @@ System.out.println("eleven");
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testWnt1IsAtTop() throws Exception {
         String testName = "testWnt1IsAtTop";
         String searchString = "Wnt1";
@@ -1379,7 +1375,7 @@ System.out.println("eleven");
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testHox() throws Exception {
         String testName = "testHox";
         String searchString = "Hox";
@@ -1400,7 +1396,7 @@ System.out.println("eleven");
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testHoxStar() throws Exception {
         String testName = "testHoxStar";
         String searchString = "Hox*";
@@ -1428,7 +1424,7 @@ System.out.println("eleven");
      * @throws Exception
      */
     @Test
-@Ignore
+//@Ignore
     public void testMaTermNamesMatchFacetNames() throws Exception {
         System.out.println("testMaTermNamesMatchFacetNames");
         String target = baseUrl + "/search";
