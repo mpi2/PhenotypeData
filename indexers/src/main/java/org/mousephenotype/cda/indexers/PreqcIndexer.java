@@ -393,7 +393,7 @@ public class PreqcIndexer extends AbstractIndexer {
         logger.info("time: " + (System.currentTimeMillis() - start));
 
         if (missingPhenotypeTerm.size() > 0) {
-            logger.info("Phenotype terms are missing for ", missingPhenotypeTerm.size(), " record(s):\n", StringUtils.join(missingPhenotypeTerm, ", "));
+            logger.info("Phenotype terms are missing for %s record(s):\n %s", missingPhenotypeTerm.size(), StringUtils.join(missingPhenotypeTerm, ", "));
         }
 
         if (bad.size() > 0) {
