@@ -761,7 +761,7 @@ public class GenePageTest {
     }
     
     @Test
-  //@Ignore
+    @Ignore
       public void testImageThumbnails() throws Exception {
           DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
           String testName = "testImageThumbnails";

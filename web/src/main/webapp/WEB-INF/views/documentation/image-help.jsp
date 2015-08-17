@@ -39,7 +39,7 @@
                                 <h4><a name="explore" href='#'>Explore Image Data</a></h4>
                                 <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA) and procedure terms. To search for images associated with the gene symbol ""Akt2", type Akt2 into the search box at the top of the page and then click on the "IMPC images"" link at the side.
                                     A list with categories of images associated to the Akt2 is then displayed on the left. Click on these categories to see sub-categories and their respective counts of images associated with that category. You can also search for genes using MGI identifiers. 
-                                    To search for images associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box. Click <a href="#imported">here</a>  to find out more where the images are from and how they are annotated.
+                                    To search for images associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box.
                                     <img src="img/image_facet.png">
                                 </p>
 
