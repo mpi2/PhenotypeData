@@ -111,7 +111,7 @@ public class SearchImageImageView extends SearchFacetTable {
             , DownloadSearchMapImagesImageView.COL_INDEX_MA_TERM_LINK
             , DownloadSearchMapImagesImageView.COL_INDEX_IMAGE_LINK
         };
-        
+
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
 
@@ -172,7 +172,9 @@ public class SearchImageImageView extends SearchFacetTable {
                 pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Link).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_MA_TERMS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Term).replace("[", "").replace("]", "");
                 pageArray[sourceRowIndex][COL_INDEX_MA_LINKS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Link).replace("[", "").replace("]", "");
-                pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = bodyRow.getImageLink();
+
+                // The image link urls on the page look like '//www.....'. Insert 'http:' before the double slash.
+                pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = "http:" + bodyRow.getImageLink();
 
                 sourceRowIndex++;
                 bodyRows.add(bodyRow);

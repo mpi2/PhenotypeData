@@ -1034,7 +1034,7 @@ public class SearchPage {
 
     /**
      * Compares each facet's grid (on the right-hand side of the search page)
-     * with each of the four download data streams (page/all and tsv/xls). Any
+     * with each of the download data streams (page/all and tsv/xls). Any
      * errors are returned in the <code>PageStatus</code> instance.
 
      * @param facet facet

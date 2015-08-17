@@ -260,6 +260,16 @@ public abstract class SearchFacetTable {
         }
 
         GridMap downloadData = new GridMap(downloadDataList, target);
+        // Replace any occurrence of more than one space with exactly one space; otherwise, a comparison may fail simply because of an extra space.
+        String[][] downloadDataRows = downloadData.getData();
+        for (String[] row : downloadDataRows) {
+            for (int i = 1; i < row.length; i++) {
+                if (row[i] != null) {
+                    row[i] = row[i].replaceAll("  ", " ");
+                }
+            }
+        }
+        downloadData = new GridMap(downloadDataRows, pageData.getTarget());
 
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
@@ -273,10 +283,19 @@ public abstract class SearchFacetTable {
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
             String message = "SearchFacetTable.validateDownloadInternal(): Page/Download data mismatch. \nURL: " + downloadUrl;
+            Iterator it = difference.iterator();
+            int i = 0;
+            while (it.hasNext()) {
+                String value = (String)it.next();
+                logger.error("[" + i + "]:\t page data: " + value);
+                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                i++;
+                errorCount++;
+            }
 
-            boolean sort = true;
-            testUtils.dumpSet("page data", pageSet, sort);
-            testUtils.dumpSet("download data", downloadSet, sort);
+
+
+
             status.addError(message);
         }
 
