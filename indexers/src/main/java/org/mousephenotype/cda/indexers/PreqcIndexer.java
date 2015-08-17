@@ -70,6 +70,7 @@ public class PreqcIndexer extends AbstractIndexer {
     private static Map<String, String> pipelineSid2NameMapping = new HashMap<>();
     private static Map<String, String> procedureSid2NameMapping = new HashMap<>();
     private static Map<String, String> parameterSid2NameMapping = new HashMap<>();
+    private Set<Integer> missingPhenotypeTerm = new HashSet<>();
 
     private static Map<String, String> projectMap = new HashMap<>();
     private static Map<String, String> resourceMap = new HashMap<>();
@@ -90,9 +91,9 @@ public class PreqcIndexer extends AbstractIndexer {
 
     private Connection conn_komp2 = null;
     private Connection conn_ontodb = null;
-    private String preqcXmlFilename;
 
-    @Override
+
+	@Override
     public void validateBuild() throws IndexerException {
         Long numFound = getDocumentCount(preqcCore);
 
@@ -121,7 +122,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
             conn_komp2 = komp2DataSource.getConnection();
             conn_ontodb = ontodbDataSource.getConnection();
-            preqcXmlFilename = config.get("preqcXmlFilename");
+	        String preqcXmlFilename = config.get("preqcXmlFilename");
 
             doGeneSymbol2IdMapping();
             logger.info(" Finished doGeneSymbol2IdMapping: " + (System.currentTimeMillis() - start));
@@ -240,7 +241,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
                 // Skip this one: phenotypeTerm is null
                 if (phenotypeTerm == null) {
-                    logger.warn("Phenotype term is missing for record with id {}", id);
+                    missingPhenotypeTerm.add(id);
                     continue;
                 }
 
@@ -390,6 +391,11 @@ public class PreqcIndexer extends AbstractIndexer {
         }
 
         logger.info("time: " + (System.currentTimeMillis() - start));
+
+        if (missingPhenotypeTerm.size() > 0) {
+            logger.info("Phenotype terms are missing for %s record(s):\n %s", missingPhenotypeTerm.size(), StringUtils.join(missingPhenotypeTerm, ", "));
+        }
+
         if (bad.size() > 0) {
             logger.warn("found {} unique mps not in ontodb", bad.size());
             logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
@@ -399,8 +405,8 @@ public class PreqcIndexer extends AbstractIndexer {
     public String createFakeIdFromSymbol(String alleleSymbol) {
         String fakeId = null;
 
-        ResultSet rs = null;
-        Statement statement = null;
+        ResultSet rs;
+        Statement statement;
 
         String query = "select CONCAT('NULL-', UPPER(SUBSTR(MD5('" + alleleSymbol + "'),1,10))) as fakeId";
         try {
@@ -419,8 +425,8 @@ public class PreqcIndexer extends AbstractIndexer {
 
     public void doGeneSymbol2IdMapping() {
 
-        ResultSet rs = null;
-        Statement statement = null;
+        ResultSet rs;
+        Statement statement;
 
         String query = "select acc, symbol from genomic_feature";
         try {
@@ -468,8 +474,8 @@ public class PreqcIndexer extends AbstractIndexer {
         impressMapping.put("phenotype_procedure", procedureSid2NameMapping);
         impressMapping.put("phenotype_parameter", parameterSid2NameMapping);
 
-        ResultSet rs = null;
-        Statement statement = null;
+        ResultSet rs;
+        Statement statement;
 
         for (Map.Entry entry : impressMapping.entrySet()) {
             String tableName = entry.getKey().toString();
@@ -502,8 +508,8 @@ public class PreqcIndexer extends AbstractIndexer {
 
     public void doAlleleSymbol2NameIdMapping() {
 
-        ResultSet rs = null;
-        Statement statement = null;
+        ResultSet rs;
+        Statement statement;
 
         String query = "select acc, symbol, name from allele";
         try {
@@ -529,8 +535,8 @@ public class PreqcIndexer extends AbstractIndexer {
 
     public void doStrainId2NameMapping() {
 
-        ResultSet rs = null;
-        Statement statement = null;
+        ResultSet rs;
+        Statement statement;
 
         String query = "select acc, name from strain";
         try {
@@ -551,8 +557,8 @@ public class PreqcIndexer extends AbstractIndexer {
 
     public void doOntologyMapping() {
 
-        ResultSet rs1, rs2, rs3, rs4, rs45 = null;
-        Statement statement = null;
+        ResultSet rs1, rs2, rs3, rs4;
+        Statement statement;
 
         // all MPs
         String query1 = "select ti.term_id, ti.name, nt.node_id from mp_term_infos ti, mp_node2term nt where ti.term_id=nt.term_id and ti.term_id !='MP:0000001'";
@@ -634,7 +640,7 @@ public class PreqcIndexer extends AbstractIndexer {
         if ( ! intermediateMpTerms.containsKey(mpId)) {
 
             // default to empty list
-            intermediateMpTerms.put(mpId, new ArrayList<MpTermDTO>());
+            intermediateMpTerms.put(mpId, new ArrayList<>());
 
             // MP:0012441 -- > 618,732,741,971,1090,1204,1213
             if (mpId2NodeIdsMapping.containsKey(mpId)) {
@@ -642,28 +648,28 @@ public class PreqcIndexer extends AbstractIndexer {
 
                 List<MpTermDTO> mps = new ArrayList<>();
 
-                for (int i = 0; i < nodeIdsStr.length; i ++) {
-                    int childNodeId = Integer.parseInt(nodeIdsStr[i]);
-                    List<MpTermDTO> top = getTopMpTerms(mpId);
+	            for (String aNodeIdsStr : nodeIdsStr) {
+		            int childNodeId = Integer.parseInt(aNodeIdsStr);
+		            List<MpTermDTO> top = getTopMpTerms(mpId);
 
-                    // top level mp do not have intermediate mp
-                    if (mpNodeId2IntermediateNodeIdsMapping.get(childNodeId) != null) {
-                        String[] intermediateNodeIdsStr = mpNodeId2IntermediateNodeIdsMapping.get(childNodeId).split(",");
+		            // top level mp do not have intermediate mp
+		            if (mpNodeId2IntermediateNodeIdsMapping.get(childNodeId) != null) {
+			            String[] intermediateNodeIdsStr = mpNodeId2IntermediateNodeIdsMapping.get(childNodeId).split(",");
 
-                        for (int j = 0; j < intermediateNodeIdsStr.length; j ++) {
-                            int intermediateNodeId = Integer.parseInt(intermediateNodeIdsStr[j]);
+			            for (String anIntermediateNodeIdsStr : intermediateNodeIdsStr) {
+				            int intermediateNodeId = Integer.parseInt(anIntermediateNodeIdsStr);
 
-                            MpTermDTO mp = new MpTermDTO();
-                            mp.id = mpNodeId2MpIdMapping.get(intermediateNodeId);
-                            mp.name = mpId2TermMapping.get(mp.id);
+				            MpTermDTO mp = new MpTermDTO();
+				            mp.id = mpNodeId2MpIdMapping.get(intermediateNodeId);
+				            mp.name = mpId2TermMapping.get(mp.id);
 
-                            // don't want to include self as intermediate parent
-                            if (childNodeId != intermediateNodeId &&  ! top.contains(mp)) {
-                                mps.add(mp);
-                            }
-                        }
-                    }
-                }
+				            // don't want to include self as intermediate parent
+				            if (childNodeId != intermediateNodeId && !top.contains(mp)) {
+					            mps.add(mp);
+				            }
+			            }
+		            }
+	            }
 
                 // added only we got intermediates
                 if (mps.size() != 0) {
@@ -680,7 +686,7 @@ public class PreqcIndexer extends AbstractIndexer {
         if ( ! topMpTerms.containsKey(mpId)) {
 
             // default to empty list
-            topMpTerms.put(mpId, new ArrayList<MpTermDTO>());
+            topMpTerms.put(mpId, new ArrayList<>());
 
             // MP:0012441 -- > 618,732,741,971,1090,1204,1213
             if (mpId2NodeIdsMapping.containsKey(mpId)) {
@@ -689,21 +695,21 @@ public class PreqcIndexer extends AbstractIndexer {
 
                 List<MpTermDTO> mps = new ArrayList<>();
 
-                for (int i = 0; i < nodeIdsStr.length; i ++) {
+	            for (String aNodeIdsStr : nodeIdsStr) {
 
-                    int topLevelMpNodeId = Integer.parseInt(nodeIdsStr[i]);
-					// System.out.println(mpId + " - top_level_node_id: " +
-                    // topLevelMpNodeId);
+		            int topLevelMpNodeId = Integer.parseInt(aNodeIdsStr);
+		            // System.out.println(mpId + " - top_level_node_id: " +
+		            // topLevelMpNodeId);
 
-                    if (mpNodeId2TopLevelMapping.containsKey(topLevelMpNodeId)) {
+		            if (mpNodeId2TopLevelMapping.containsKey(topLevelMpNodeId)) {
 
-                        MpTermDTO mp = new MpTermDTO();
-                        mp.id = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermId;
-                        mp.name = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermName;
-                        mps.add(mp);
-                    }
+			            MpTermDTO mp = new MpTermDTO();
+			            mp.id = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermId;
+			            mp.name = mpNodeId2TopLevelMapping.get(topLevelMpNodeId).topLevelMpTermName;
+			            mps.add(mp);
+		            }
 
-                }
+	            }
 
                 topMpTerms.put(mpId, mps);
 
@@ -757,7 +763,6 @@ public class PreqcIndexer extends AbstractIndexer {
 
     private class AlleleDTO {
 
-        String symbol;
         String acc;
         String name;
     }

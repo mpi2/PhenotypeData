@@ -44,6 +44,10 @@
 
                             <h4><a name="experiment" href='#'>Statistical results API</a></h4>
                             <p>Please see the <a href="statistical-results-api-help">Statistical results API documentation</a> </p>
+                            
+                             <h4><a name="impc_images" href='#'>IMPC images API</a></h4>
+                            <p>Please see the <a href="impc-images-api-help">IMPC images API documentation</a> </p>
+                            
 
                         </div><%-- end of content div--%>
                     </div>

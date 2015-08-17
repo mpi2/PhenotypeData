@@ -13,6 +13,7 @@
                                     <li type="circle" style="padding-left: 15px"><a href="genotype-phenotype-api-help">Genotype-Phenotype API</a></li>
                                     <li type="circle" style="padding-left: 15px"><a href="experimental-api-help">Experimental Observation API</a></li>
                                     <li type="circle" style="padding-left: 15px"><a href="statistical-results-api-help">Statistical Results API</a></li>
+                                    <li type="circle" style="padding-left: 15px"><a href="impc-images-api-help">IMPC Images API</a></li>
                                 </ul>
                                 </li>
                             </ul>

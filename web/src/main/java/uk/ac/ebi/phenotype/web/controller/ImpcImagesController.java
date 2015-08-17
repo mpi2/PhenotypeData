@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -223,8 +224,6 @@ public class ImpcImagesController {
 			throws SolrServerException, IOException, URISyntaxException {
 
 		// http://localhost:8080/phenotype-archive/impcImages?q=observation_type:image_record&rows=100
-		String solrQueryString = request.getQueryString();
-		System.out.println("impcImages query=" + solrQueryString);
 		System.out.println("calling impcImages web page");
 
 		this.sendQueryStringToSolr(request, model);
@@ -234,8 +233,7 @@ public class ImpcImagesController {
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
 			throws IOException, URISyntaxException, SolrServerException {
 		String titleString = "";
-		String queryString = request.getQueryString();
-		System.out.println("QUERY: " + queryString);
+		
 		String startString = "0";
 		String rowsString = "25";// the number of images passed back for each
 									// solr request
@@ -310,6 +308,9 @@ public class ImpcImagesController {
 		String qBaseStr = newQueryString;
 		newQueryString += "&start=" + startString + "&rows=" + rowsString;
 		newQueryString+="&sort=parameter_name asc";
+		newQueryString = URLDecoder.decode(newQueryString, "UTF-8");  // before it gets passed to SOLR
+		
+		System.out.println("new query str: " + newQueryString);
 		QueryResponse imageResponse = imageService
 				.getResponseForSolrQuery(newQueryString);
 		if (imageResponse.getResults() != null) {

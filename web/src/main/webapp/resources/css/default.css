@@ -120,7 +120,7 @@ input.auto              { width: auto; }
 #mn li li:hover > a     { background: none; color: #000; text-decoration: underline; }
 #mn li:first-child a    { border-left: none; }
 #mn ul                  { padding: 0; margin: 0; text-transform: uppercase; }
-#mn ul ul               { transform: rotateX(30deg); height: 30px; overflow: hidden; text-transform: none; opacity: 0; position: absolute; top: auto; z-index: 3000; padding-top: 0.4em; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.3s ease-in-out; -o-transition: all 0.3s ease-in-out; transition: all 0.3s ease-in-out; }
+#mn ul ul               { transform: rotateX(30deg); height: 0px; overflow: hidden; text-transform: none; opacity: 0; position: absolute; top: auto; z-index: 3000; padding-top: 0.4em; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.3s ease-in-out; -o-transition: all 0.3s ease-in-out; transition: all 0.3s ease-in-out; }
 #mn li:hover ul         { transform: rotateX(0deg); height: auto; opacity: 1; top: auto; }
 #mn li li:last-child    { padding-bottom: 0.3em; border-bottom: #ccc 1px solid; }
 #mn li li + li          { border-top: #ccc 1px dotted; }
@@ -738,4 +738,3 @@ div.dataTables_info, div.dataTables_paginate {
     height: auto;
     /* background-color: #999; */
 }
-
