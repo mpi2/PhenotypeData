@@ -120,3 +120,6 @@ local.properties
 
 # Ignore maven generated classes
 */target/**
+
+# Ignore any datasources properties file
+datasources-config.xml
