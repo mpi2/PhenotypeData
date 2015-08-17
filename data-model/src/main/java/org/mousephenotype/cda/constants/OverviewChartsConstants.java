@@ -10,6 +10,6 @@ import java.util.Arrays;
 public class OverviewChartsConstants {
 
 	// B6N strains to use for the overview & stats , see https://www.ebi.ac.uk/panda/jira/browse/MPII-781
-	public static final ArrayList<String> OVERVIEW_STRAINS = new ArrayList(Arrays.asList("MGI:2159965", "MGI:2164831", "MGI:3056279", "MGI:2683688"));
+	public static final ArrayList<String> OVERVIEW_STRAINS = new ArrayList<>(Arrays.asList("MGI:2159965", "MGI:2164831", "MGI:3056279", "MGI:2683688"));
 
 }
