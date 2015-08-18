@@ -350,7 +350,7 @@ public class SearchPage {
             setFacetTable();
 
         } catch (Exception e) {
-            System.out.println("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
+            logger.error("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             e.printStackTrace();
         }
 
@@ -372,42 +372,33 @@ public class SearchPage {
         try {
             int max = getNumPageButtons();
             int randomPageNumber = random.nextInt(max);
-logger.info("one");    // FIXME FIXME FIXME
             WebElement element = getButton(randomPageNumber);
-logger.info("two");
+
             if (element.getAttribute("class").contains("disabled")) {
                 if (randomPageNumber == 0) {
-                    System.out.println("Changing randomPageNumber from 0 to 1.");
+                    logger.debug("Changing randomPageNumber from 0 to 1.");
                     randomPageNumber++;
                 } else {
-                    System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
+                    logger.debug("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
                     randomPageNumber--;
                 }
             } else if (element.getText().contains("...")) {
-                System.out.println("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
+                logger.debug("Changing randomPageNumber from " + randomPageNumber + " to " + (randomPageNumber - 1) + ".");
                 randomPageNumber--;
             }
 
             pageDirective = getPageDirective(randomPageNumber);
-//pageDirective = PageDirective.NEXT;
-            System.out.println("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
-logger.info("three");
-try {
-    clickPageButton(pageDirective);
-} catch (Exception e) {
-logger.error("SearchPage.clickPageButton(pageDirective) call failed. Reason: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
-}
-logger.info("four");
+
+            logger.debug("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
+
         } catch (Exception e) {
-            System.out.println("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage());
+            logger.error("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
 
-logger.info("five");
         setFacetTable();
-logger.info("six");
         getResultCount();
-logger.info("seven");                                                     // Called purely to wait for the page to finish loading.
+        // Called purely to wait for the page to finish loading.
         return pageDirective;
     }
 
@@ -452,19 +443,19 @@ logger.info("seven");                                                     // Cal
                     }
                     break;
             }
+
+            // After a new page has been selected, we must update the old, stale image/impc_image table to fetch the new page's data.
+            if (hasImageTable())
+                getImageTable().updateImageTableAfterChange();
+            if (hasImpcImageTable())
+                getImpcImageTable().updateImageTableAfterChange();
+            setFacetTable();
+            getResultCount();                                                       // Allow page to finish loading.
+
         } catch (Exception e) {
-            System.out.println("SearchPage.clickPageButton exception: " + e.getLocalizedMessage());
+            logger.error("SearchPage.clickPageButton exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             throw e;
         }
-
-        if (hasImageTable())
-            getImageTable().updateImageTableAfterChange();                      // Update the images table to keep it in sync.
-
-        setFacetTable();
-        getResultCount();                                                       // Called purely to wait for the page to finish loading.
-
-        // Sometimes we lose the DOM unless we pause for a second. Don't know what to wait on for clickPageButtn().
-        commonUtils.sleep(1000);
     }
 
     public void clickToolbox(WindowState desiredWindowState) {
@@ -786,7 +777,6 @@ logger.info("seven");                                                     // Cal
      * </ul>
      */
     public PageDirective getPageDirective(int buttonIndex) throws IndexOutOfBoundsException {
-//        System.out.println("SearchPage.getPageDirective(): buttonIndex = " + buttonIndex + ". numPageButtons = " + getNumPageButtons());
         switch (getNumPageButtons()) {
             case 3:
                 switch (buttonIndex) {
@@ -874,7 +864,7 @@ logger.info("seven");                                                     // Cal
         try {
             int i = 0;
             while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
-                System.out.println("WAITING[" + i + "]");
+                logger.warn("WAITING[" + i + "]");
                 commonUtils.sleep(500);
                 i++;
                 if (i > 20)
@@ -885,7 +875,7 @@ logger.info("seven");                                                     // Cal
             String sCount = element.getText().substring(0, pos);
             niCount = commonUtils.tryParseInt(sCount);
         } catch (Exception e) {
-            System.out.println("SearchPage.getResultCount(): There was no result count.");
+            logger.error("SearchPage.getResultCount(): There was no result count.");
         }
 
         return (niCount == null ? 0 : niCount);
@@ -1044,7 +1034,7 @@ logger.info("seven");                                                     // Cal
 
     /**
      * Compares each facet's grid (on the right-hand side of the search page)
-     * with each of the four download data streams (page/all and tsv/xls). Any
+     * with each of the download data streams (page/all and tsv/xls). Any
      * errors are returned in the <code>PageStatus</code> instance.
 
      * @param facet facet
@@ -1058,23 +1048,21 @@ logger.info("seven");                                                     // Cal
             , DownloadType.XLS
         };
 
-        String[][] data;
+        String[][] downloadData;
         // Validate the download types for this facet.
         for (DownloadType downloadType : downloadTypes) {
-            data = getDownload(downloadType, baseUrl);                          // Get the data for this download type.
+            downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
             SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
             if (table != null) {
-                status.add(table.validateDownload(data));                       // Validate it.
+                status.add(table.validateDownload(downloadData));                       // Validate it.
             }
         }
 
         if (status.hasErrors()) {
-            System.out.println("VALIDATION ERRORS:\t" + status.toStringErrorMessages());
+            logger.error("TEST for facet '" + facet + "' FAILED");
         } else {
-            System.out.println("TEST for facet '" + facet + "' OK");
+            logger.info("TEST for facet '" + facet + "' OK");
         }
-
-        System.out.println();
 
         return status;
     }
@@ -1147,6 +1135,11 @@ logger.info("seven");                                                     // Cal
      * @param entriesSelect The new value for the number of entries to show.
      */
     public void setNumEntries(SearchFacetTable.EntriesSelect entriesSelect) throws TestException {
+        // Currently (14-Aug-2015), the search page doesn't have a widget for setting the number of entries. Code is left in should this functionality be reimplemented.
+        if (1 == 1) return;
+
+
+
         if (hasAnatomyTable()) {
             logger.info("Setting AnatomyTable entries to " + entriesSelect.getValue() + ".");
             getAnatomyTable().setNumEntries(entriesSelect);
@@ -1243,10 +1236,10 @@ logger.info("seven");                                                     // Cal
             throw new RuntimeException("SearchPage.getDownload: Expected page for target: " + target + ".");
         } catch (IllegalArgumentException iae) {
             // This is thrown when the GENE download stream is large (e.g. 48k rows) on an unfiltered gene list (ALL_XLS).
-            System.out.println("EXCEPTION: SearchPage.getDownload(): " + iae.getLocalizedMessage());
+            logger.error("EXCEPTION: SearchPage.getDownload(): " + iae.getLocalizedMessage());
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPage.getDownload: processing target URL " + target + ": " + e.getLocalizedMessage();
-            System.out.println(message);
+            logger.error(message);
             e.printStackTrace();
             try { throw e; } catch (Exception ee) { throw new RuntimeException(message); }
         }
