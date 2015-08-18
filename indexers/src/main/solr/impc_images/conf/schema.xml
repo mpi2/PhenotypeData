@@ -226,6 +226,13 @@
         <field name="phenotyping_center"                type="string" indexed="true" stored="true" multiValued="false" />
 
         <field name="gene_accession_id"                 type="string" indexed="true" stored="true" multiValued="false" /> 
+       
+        <!--  this id is for embryo procedures that are associated with embryoviewer.  
+              In gene page, adult images are shown via querying gene_accession_id field. 
+              This field is used to make the distinction between embryo and adult images as a temporary solution.
+              -->
+        <field name="embryo_gene_accession_id"                 type="string" indexed="true" stored="true" multiValued="false" /> 
+       
         <field name="gene_symbol"                       type="string" indexed="true" stored="true" multiValued="false" /> 
         <field name="allele_accession_id"               type="string" indexed="true" stored="true" multiValued="false" /> 
         <field name="allele_symbol"                     type="string" indexed="true" stored="true" multiValued="false" /> 

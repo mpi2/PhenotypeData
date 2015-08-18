@@ -73,6 +73,21 @@ public class EmbryoRestGetter {
 					embryoStrain.setMgi(jsonObject.getString("mgi"));
 					embryoStrain.setCentre(jsonObject.getString("centre"));
 					embryoStrain.setUrl(jsonObject.getString("url"));
+					
+					List<String> parameterIds = embryoStrain.getParameterStableKeys();
+					JSONArray jParameterIds = jsonObject.getJSONArray("parameter_id") ;
+					for( int j=0; j<jParameterIds.length(); j++){
+						parameterIds.add(jParameterIds.getJSONObject(j).toString());
+					}
+					embryoStrain.setParameterIds(parameterIds);
+					
+					List<String> procedureIds = embryoStrain.getProcedureStableKeys();
+					JSONArray jProcedureIds = jsonObject.getJSONArray("procedure_id") ;
+					for( int k=0; k<jProcedureIds.length(); k++){
+						procedureIds.add(jProcedureIds.getJSONObject(k).toString());
+					}
+					embryoStrain.setProcedureIds(procedureIds);
+					
 					strains.add(embryoStrain);
 			}
 			
