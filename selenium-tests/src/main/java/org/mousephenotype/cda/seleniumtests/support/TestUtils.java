@@ -589,22 +589,44 @@ public class TestUtils {
      * GridMap</code> instance identical to the input, with empty strings replaced
      * as described.
      *
-     * @param input the <code>GridMap</code> to be scanned and patched
-     * @return a copy of the input <code>GridMap</code>, with empty strings
-     * replaced with 'No information available'.
+     * Replaces any empty cells in <code>input</code> with the string 'No information available'.
+     *
+     * @param dataIn the input collection
+     *
+     * @return a copy of the input collection, with empty strings replaced with 'No information available'.
      */
-    public GridMap patchEmptyFields(GridMap input) {
-        String[][] dataOut = new String[input.getData().length][input.getData()[0].length];
-        String[][] dataIn = input.getData();
-        dataOut[0] = input.getHeading();                                           // Copy heading to output object.
-        for (int rowIndex = 1; rowIndex < dataOut.length; rowIndex++) {
-            String[] row = dataIn[rowIndex];
-            for (int colIndex = 0; colIndex < row.length; colIndex++) {
-                dataOut[rowIndex][colIndex] = ((row[colIndex] == null) || (row[colIndex].isEmpty()) ? "No information available" : row[colIndex]);
+    public String[][] patchEmptyFields(String[][] dataIn) {
+        final String NO_INFO_AVAILABLE = "No information available";
+        String[][] dataOut = new String[dataIn.length][dataIn[0].length];
+
+        for (int rowIndex = 0; rowIndex < dataIn.length; rowIndex++) {
+            for (int colIndex = 0; colIndex < dataIn[rowIndex].length; colIndex++) {
+                String cellIn = dataIn[rowIndex][colIndex];
+                String cellOut = "";
+                if (cellIn == null) {
+                    cellOut = NO_INFO_AVAILABLE;
+                } else {
+                    String[] parts = dataIn[rowIndex][colIndex].split("\\|");
+                    if (parts.length == 0) {
+                        cellOut = NO_INFO_AVAILABLE;
+                    } else {
+                        for (int delimeterIndex = 0; delimeterIndex < parts.length; delimeterIndex++) {
+                            if (delimeterIndex > 0)
+                                cellOut += "|";
+                            String part = parts[delimeterIndex];
+                            if ((part == null) || part.trim().isEmpty())
+                                cellOut += NO_INFO_AVAILABLE;
+                            else
+                                cellOut += part.trim();
+                        }
+                    }
+                }
+
+                dataOut[rowIndex][colIndex] = cellOut;
             }
         }
 
-        return new GridMap(dataOut, input.getTarget());
+        return dataOut;
     }
 
     /**
