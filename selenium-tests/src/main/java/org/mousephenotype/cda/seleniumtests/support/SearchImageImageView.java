@@ -22,9 +22,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -38,23 +36,12 @@ public class SearchImageImageView extends SearchFacetTable {
     private final List<ImageRow> bodyRows = new ArrayList();
     private Map<TableComponent, By> map;
     protected GridMap pageData;
-    
-    public final static int COL_INDEX_GENE_TERMS      =  0;
-    public final static int COL_INDEX_MA_TERMS        =  1;
-    public final static int COL_INDEX_MP_TERMS        =  2;
-    public final static int COL_INDEX_PROCEDURE_TERMS =  3;
-    
-    public final static int COL_INDEX_GENE_IDS        =  4;
-    public final static int COL_INDEX_MA_IDS          =  5;
-    public final static int COL_INDEX_MP_IDS          =  6;
-    public final static int COL_INDEX_PROCEDURE_IDS   =  7;
-    
-    public final static int COL_INDEX_GENE_LINKS      =  8;
-    public final static int COL_INDEX_MA_LINKS        =  9;
-    public final static int COL_INDEX_MP_LINKS        = 10;
-    public final static int COL_INDEX_PROCEDURE_LINKS = 11;
-    
-    public final static int COL_INDEX_IMAGE_LINK      = 12;
+
+    public static final int COL_INDEX_ANNOTATION_TERM    = 0;
+    public static final int COL_INDEX_ANNOTATION_ID      = 1;
+    public static final int COL_INDEX_ANNOTATION_ID_LINK = 2;
+    public static final int COL_INDEX_IMAGE_LINK         = 3;
+
     public static final int COL_INDEX_LAST = COL_INDEX_IMAGE_LINK;              // Should always point to the last (highest-numbered) index.
 
     public enum AnnotationType {
@@ -66,7 +53,8 @@ public class SearchImageImageView extends SearchFacetTable {
     
     public enum ComponentType {
         Id,
-        Link,
+        IdLink,
+        ImageLink,
         Term
     }
 
@@ -87,28 +75,25 @@ public class SearchImageImageView extends SearchFacetTable {
     }
     
     /**
-     * Validates download data against this <code>SearchImageTableAnnotationView</code>
+     * Validates download data against this <code>SearchImageImageView</code>
      * instance.
      * 
      * @param downloadDataArray The download data used for comparison
+     *
      * @return validation status
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
         final Integer[] pageColumns = {
-              COL_INDEX_PROCEDURE_TERMS
-            , COL_INDEX_GENE_TERMS
-            , COL_INDEX_GENE_LINKS
-            , COL_INDEX_MA_TERMS
-            , COL_INDEX_MA_LINKS
+              COL_INDEX_ANNOTATION_TERM
+            , COL_INDEX_ANNOTATION_ID
+            , COL_INDEX_ANNOTATION_ID_LINK
             , COL_INDEX_IMAGE_LINK
         };
         final Integer[] downloadColumns = {
-              DownloadSearchMapImagesImageView.COL_INDEX_PROCEDURE
-            , DownloadSearchMapImagesImageView.COL_INDEX_GENE_SYMBOL
-            , DownloadSearchMapImagesImageView.COL_INDEX_GENE_SYMBOL_LINK
-            , DownloadSearchMapImagesImageView.COL_INDEX_MA_TERM
-            , DownloadSearchMapImagesImageView.COL_INDEX_MA_TERM_LINK
+              DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_TERM
+            , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID
+            , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID_LINK
             , DownloadSearchMapImagesImageView.COL_INDEX_IMAGE_LINK
         };
 
@@ -156,28 +141,13 @@ public class SearchImageImageView extends SearchFacetTable {
         // Save the body values.
         List<WebElement> bodyRowElementsList = table.findElements(By.cssSelector("tbody tr"));
         if ( ! bodyRowElementsList.isEmpty()) {
-            int sourceRowIndex = 1;
+            for (int sourceRowIndex = 0; sourceRowIndex < bodyRowElementsList.size(); sourceRowIndex++) {
+                ImageRow bodyRow = new ImageRow(bodyRowElementsList.get(sourceRowIndex));
 
-            pageArray[sourceRowIndex][COL_INDEX_PROCEDURE_TERMS] = "";         // Insure there is always a non-null value.
-            pageArray[sourceRowIndex][COL_INDEX_GENE_TERMS] = "";
-            pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = "";
-            pageArray[sourceRowIndex][COL_INDEX_MA_TERMS] = "";
-            pageArray[sourceRowIndex][COL_INDEX_MA_LINKS] = "";
-            pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = "";
-            for (WebElement bodyRowElements : bodyRowElementsList) {
-                ImageRow bodyRow = new ImageRow(bodyRowElements);
-
-                pageArray[sourceRowIndex][COL_INDEX_PROCEDURE_TERMS] = bodyRow.toStringDetailList(bodyRow.procedureDetails, ComponentType.Term).replace("[", "").replace("]", "");
-                pageArray[sourceRowIndex][COL_INDEX_GENE_TERMS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Term).replace("[", "").replace("]", "");
-                pageArray[sourceRowIndex][COL_INDEX_GENE_LINKS] = bodyRow.toStringDetailList(bodyRow.geneDetails, ComponentType.Link).replace("[", "").replace("]", "");
-                pageArray[sourceRowIndex][COL_INDEX_MA_TERMS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Term).replace("[", "").replace("]", "");
-                pageArray[sourceRowIndex][COL_INDEX_MA_LINKS] = bodyRow.toStringDetailList(bodyRow.maDetails, ComponentType.Link).replace("[", "").replace("]", "");
-
-                // The image link urls on the page look like '//www.....'. Insert 'http:' before the double slash.
-                pageArray[sourceRowIndex][COL_INDEX_IMAGE_LINK] = "http:" + bodyRow.getImageLink();
-
-                sourceRowIndex++;
-                bodyRows.add(bodyRow);
+                pageArray[sourceRowIndex + 1][COL_INDEX_ANNOTATION_TERM] = bodyRow.toStringTerms();
+                pageArray[sourceRowIndex + 1][COL_INDEX_ANNOTATION_ID] = bodyRow.toStringIds();
+                pageArray[sourceRowIndex + 1][COL_INDEX_ANNOTATION_ID_LINK] = bodyRow.toStringIdLinks();
+                pageArray[sourceRowIndex + 1][COL_INDEX_IMAGE_LINK] = (bodyRow.imageLink.isEmpty() ? "" : bodyRow.getImageLink());
             }
         }
 
@@ -193,23 +163,30 @@ public class SearchImageImageView extends SearchFacetTable {
      */
     private class AnnotationDetail {
         private String id;
-        private String link;
+        private String idLink;
         private String term;
+        private String imageLink;
         
         public AnnotationDetail(String term) {
-            this(term, "", "");
+            this(term, "", "", "");
         }
-        public AnnotationDetail(String term, String id, String link) {
+        public AnnotationDetail(String term, String id, String idLink, String imageLink) {
             this.id = id;
-            this.link = link;
+            this.idLink = idLink;
             this.term = term;
+            this.imageLink = imageLink;
         }
 
         @Override
         public String toString() {
-            return "AnnotationDetail{" + "id=" + id + ", link=" + link + ", term=" + term + '}';
+            return "AnnotationDetail{" +
+                      "id='" + id + '\'' +
+                    ", idLink='" + idLink + '\'' +
+                    ", term='" + term + '\'' +
+                    ", imageLink='" + imageLink + '\'' +
+                    '}';
         }
-        
+
         public String toString(ComponentType componentType) {
             String retVal = "";
             
@@ -219,15 +196,19 @@ public class SearchImageImageView extends SearchFacetTable {
                         retVal = id;
                     break;
                     
-                case Link:
-                    if (link != null)
-                        retVal = link;
+                case IdLink:
+                    if (idLink != null)
+                        retVal = idLink;
                     break;
                     
                 case Term:
                     if (term != null)
                         retVal = term;
                     break;
+
+                case ImageLink:
+                    if (imageLink != null)
+                        retVal = imageLink;
             }
             
             return retVal;
@@ -298,6 +279,116 @@ public class SearchImageImageView extends SearchFacetTable {
             
             return "";
         }
+
+        // Return the terms in this order: MP, MA, Procedure, Gene
+        public String toStringTerms() {
+            String retVal = "";
+
+            for (int i = 0; i < mpDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    String s = "MP:" + mpDetails.get(i).term;
+                    retVal += s;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < maDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    String s = "MA:" + maDetails.get(i).term;
+                    retVal += s;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < procedureDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    String s = "Procedure:" + procedureDetails.get(i).term;
+                    retVal += s;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < geneDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    String s = "Gene:" + geneDetails.get(i).term;
+                    retVal += s;
+                } catch (Exception e) { }
+            }
+
+            return retVal;
+        }
+
+        // Return the ids in this order: MP, MA, Procedure, Gene. Return the same number of piped elements as in
+        // the terms, using empty placeholders if necessary.
+        public String toStringIds() {
+            String retVal = "";
+
+            for (int i = 0; i < mpDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += mpDetails.get(i).id;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < maDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += maDetails.get(i).id;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < procedureDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += procedureDetails.get(i).id;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < geneDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += geneDetails.get(i).id;
+                } catch (Exception e) { }
+            }
+
+            return retVal;
+        }
+
+        // Return the ids in this order: MP, MA, Procedure, Gene
+        public String toStringIdLinks() {
+            String retVal = "";
+
+            for (int i = 0; i < mpDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += mpDetails.get(i).idLink;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < maDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += maDetails.get(i).idLink;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < procedureDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += procedureDetails.get(i).idLink;
+                } catch (Exception e) { }
+            }
+
+            for (int i = 0; i < geneDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += geneDetails.get(i).idLink;
+                } catch (Exception e) { }
+            }
+
+            return retVal;
+        }
         
         
         // PRIVATE METHODS
@@ -355,7 +446,7 @@ public class SearchImageImageView extends SearchFacetTable {
                 parseImageAnnots(imgAnnotsElement);
             }
             
-            imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("fullres");
+            imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("href");
             imageLink = urlUtils.urlDecode(imageLink);                         // Decode the link.
             imageLink = testUtils.setProtocol(imageLink, TestUtils.HTTP_PROTOCOL.http); // remap protocol to http to facilitate match.
         }
@@ -370,7 +461,7 @@ public class SearchImageImageView extends SearchFacetTable {
             WebElement spanAnnotTypeElement = imgAnnotsElement.findElement(By.cssSelector("span.annotType"));
             
             // imgAnnots encapsulates all of the information in the Image view 'Name' column, currently:
-            //      'MA', 'MP', 'Procedure', and 'Gene'.
+            //      'MP', 'MA', 'Procedure', and 'Gene'.
             // annotTypes have, at a minimum, one term type and at least one term. Each
             // term may (but is not required to) have an 'a' with a 'href'. If there are
             // multiple values for a given term, they are wrapped in a <ul> tag. Examples:
@@ -406,10 +497,10 @@ public class SearchImageImageView extends SearchFacetTable {
             if (anchorElements.size() > 0) {
                 for (WebElement anchorElement : anchorElements) {
                     AnnotationDetail annotationDetail = new AnnotationDetail(anchorElement.getText().trim());
-                    annotationDetail.link = anchorElement.getAttribute("href");
-                    annotationDetail.link = urlUtils.urlDecode(annotationDetail.link);                         // Decode the link.
-                    int pos = annotationDetail.link.lastIndexOf("/");
-                    annotationDetail.id = annotationDetail.link.substring(pos + 1).trim();
+                    annotationDetail.idLink = anchorElement.getAttribute("href");
+                    annotationDetail.idLink = urlUtils.urlDecode(annotationDetail.idLink);                         // Decode the link.
+                    int pos = annotationDetail.idLink.lastIndexOf("/");
+                    annotationDetail.id = annotationDetail.idLink.substring(pos + 1).trim();
                     addAnnotationDetail(annotationType, annotationDetail);
                 }
             } else {

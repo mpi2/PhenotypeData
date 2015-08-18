@@ -276,7 +276,7 @@ public abstract class SearchFacetTable {
         int errorCount = 0;
 
         // Create a pair of sets: one from the page, the other from the download.
-        GridMap patchedPageData = testUtils.patchEmptyFields(pageData);
+        GridMap patchedPageData = new GridMap(testUtils.patchEmptyFields(pageData.getBody()), pageData.getTarget());
         Set pageSet = testUtils.createSet(patchedPageData, pageColumns);
         Set downloadSet = testUtils.createSet(downloadData, downloadColumns);
         Set difference = testUtils.cloneStringSet(pageSet);
