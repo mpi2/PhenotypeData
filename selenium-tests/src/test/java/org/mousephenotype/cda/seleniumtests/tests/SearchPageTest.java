@@ -1243,14 +1243,12 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
         try {
             String target = baseUrl + "/search";
-// target = "https://dev.mousephenotype.org/data/search?q=ranbp2#fq=*:*&facet=gene";
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
-//            searchPage.clickPageButton();
-//searchPage.clickPageButton(SearchPage.PageDirective.LAST);
-//TestUtils.sleep(2000);
+            searchPage.clickPageButton();
+
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
 
@@ -1295,9 +1293,6 @@ if (core.equals(SearchPage.GENE_CORE)) {
 
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
 
- searchPage.clickPageButton(SearchPage.PageDirective.LAST);
- searchPage.getImpcImageTable().updateImageTableAfterChange();
- commonUtils.sleep(2000);
             status.add(searchPage.validateDownload(facet));
 
         } catch (Exception e) {
@@ -1336,7 +1331,6 @@ if (core.equals(SearchPage.GENE_CORE)) {
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
             searchPage.clickPageButton(SearchPage.PageDirective.LAST);
-            commonUtils.sleep(2000);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
         } catch (Exception e) {
