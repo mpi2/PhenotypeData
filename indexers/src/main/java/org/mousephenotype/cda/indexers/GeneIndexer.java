@@ -28,6 +28,7 @@ import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.netbeans.lib.cvsclient.commandLine.command.log;
 import org.slf4j.Logger;
@@ -220,6 +221,15 @@ public class GeneIndexer extends AbstractIndexer {
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
                 		logger.info("setting embryo true");
+                		
+                		for( EmbryoStrain strain : embryoStrainsForGene){
+                			for ( String procedureStableKey : strain.getProcedureStableKeys() ){
+                				ImpressService ims = new ImpressService();
+                				ProcedureDTO procedure = ims.getProcedureByStableKey(procedureStableKey);
+                				gene.getProcedureStableId().add(procedure.getStableId());
+                				gene.getProcedureName().add(procedure.getName());
+                			}
+                		}
                 	}
                 	
                 }
@@ -577,7 +587,7 @@ public class GeneIndexer extends AbstractIndexer {
 			if(!mgiToEmbryoMap.containsKey(mgi)){
 				mgiToEmbryoMap.put(mgi,new ArrayList<>());
 			}
-				mgiToEmbryoMap.get(mgi).add(strain);
+			mgiToEmbryoMap.get(mgi).add(strain);
 		}
 		return mgiToEmbryoMap;
 	}
