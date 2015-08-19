@@ -32,13 +32,13 @@ public class  EmbryoStrain{
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	public void setProcedureIds(List<String> procedureStableKeys) {
+	public void setProcedureStableKeys(List<String> procedureStableKeys) {
 		this.procedureStableKeys = procedureStableKeys;
 	}
 	public List<String> getProcedureStableKeys() {
 		return procedureStableKeys;
 	}
-	public void setParameterIds(List<String> parameterStableKeys) {
+	public void setParameterStableKeys(List<String> parameterStableKeys) {
 		this.parameterStableKeys = parameterStableKeys;
 	}
 	public List<String> getParameterStableKeys() {
