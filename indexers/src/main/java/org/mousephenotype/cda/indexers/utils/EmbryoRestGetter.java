@@ -74,19 +74,23 @@ public class EmbryoRestGetter {
 					embryoStrain.setCentre(jsonObject.getString("centre"));
 					embryoStrain.setUrl(jsonObject.getString("url"));
 					
-					List<String> parameterIds = embryoStrain.getParameterStableKeys();
-					JSONArray jParameterIds = jsonObject.getJSONArray("parameter_id") ;
-					for( int j=0; j<jParameterIds.length(); j++){
-						parameterIds.add(jParameterIds.getJSONObject(j).toString());
-					}
-					embryoStrain.setParameterIds(parameterIds);
+					List<String> procedureStableKeys = new ArrayList<String>();
+					List<String> parameterStableKeys = new ArrayList<String>();
 					
-					List<String> procedureIds = embryoStrain.getProcedureStableKeys();
-					JSONArray jProcedureIds = jsonObject.getJSONArray("procedure_id") ;
-					for( int k=0; k<jProcedureIds.length(); k++){
-						procedureIds.add(jProcedureIds.getJSONObject(k).toString());
+					JSONArray jProcParam = jsonObject.getJSONArray("procedures_parameters");
+					for( int j=0; j<jProcParam.length(); j++){
+						
+						JSONObject jo = (JSONObject) jProcParam.get(j);
+						
+						// the procedure_id on the harwell RESTful interface is actually a stable_key
+						String procedure_stable_key = jo.get("procedure_id").toString();
+						String parameter_stable_key = jo.get("parameter_id").toString();
+						//System.out.println(procedure_stable_key + " -- " + parameter_stable_key);
+						procedureStableKeys.add(procedure_stable_key);
+						parameterStableKeys.add(parameter_stable_key);
 					}
-					embryoStrain.setProcedureIds(procedureIds);
+					embryoStrain.setProcedureStableKeys(procedureStableKeys);
+					embryoStrain.setParameterStableKeys(parameterStableKeys);
 					
 					strains.add(embryoStrain);
 			}

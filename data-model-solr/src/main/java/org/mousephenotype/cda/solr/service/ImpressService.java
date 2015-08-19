@@ -178,8 +178,8 @@ public class ImpressService {
 	}
 	
 	public ProcedureDTO getProcedureByStableKey(String procedureStableKey) {
-
-		ProcedureDTO procedure = null;
+		
+		ProcedureDTO procedure = new ProcedureDTO();
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PROCEDURE_STABLE_KEY + ":\"" + procedureStableKey + "\"")
@@ -192,8 +192,8 @@ public class ImpressService {
 
 			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
 			
-			procedure.setStableId(imd.getProcedureStableId());
-			procedure.setName(imd.getProcedureName());
+			procedure.setStableId(imd.getProcedureStableId().toString());
+			procedure.setName(imd.getProcedureName().toString());
 			return procedure;
 
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
