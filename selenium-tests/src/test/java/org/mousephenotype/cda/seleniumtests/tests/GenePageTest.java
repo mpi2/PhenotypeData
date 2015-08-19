@@ -135,9 +135,7 @@ public class GenePageTest {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
         String target = "";
-        List<String> errorList = new ArrayList();
         List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
 
@@ -178,7 +176,7 @@ public class GenePageTest {
             commonUtils.sleep(threadWaitInMilliseconds);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
+        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, geneIds.size());
     }
 
     private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
@@ -248,10 +246,6 @@ public class GenePageTest {
 
     // TESTS
 
-    @Test
-    public void testName() throws Exception {
-        System.out.println("Empty test method placeholder");
-    }
 
     /**
      * Finds all MGI_ACCESSION_IDs in the genotype-phenotype
