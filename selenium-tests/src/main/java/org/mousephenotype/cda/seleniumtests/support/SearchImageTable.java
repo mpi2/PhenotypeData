@@ -49,14 +49,22 @@ public class SearchImageTable extends SearchFacetTable {
      *
      * @throws TestException
      *
-     * NOTE: This constructor was needed to <code>SearchImpcImageTable</code> to
+     * NOTE: This constructor was needed for <code>SearchImpcImageTable</code> to
      * extend from this class in order to send the correct map to the parent.
      *
      */
     public SearchImageTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) throws TestException {
         super(driver, timeoutInSeconds, byMap);
 
-        searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, byMap);
+        switch(getCurrentView()) {
+            case ANNOTATION_VIEW:
+                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, byMap);
+                break;
+
+            case IMAGE_VIEW:
+                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, byMap);
+                break;
+        }
     }
 
     public enum ImageFacetView {

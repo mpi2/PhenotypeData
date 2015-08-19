@@ -368,15 +368,19 @@ public class TestUtils {
      *
      * @param name the set name (for display purposes)
      * @param set the set to be dumped
+     * @param sort if true, sort the set before displaying it.
      */
-    public void dumpSet(String name, Set<String> set) {
+    public void dumpSet(String name, Set<String> set, boolean sort) {
         System.out.println("\nDumping set '" + name + "'. Contains " + set.size() + " records:");
         if (set.size() <= 0)
             return;
 
         String[] data = set.toArray(new String[0]);
+        if (sort) {
+            Arrays.sort(data);
+        }
         for (int i = 0; i < set.size(); i++) {
-            System.out.println("[" + i + "]: " + data[i] + "\n");
+            System.out.println("[" + i + "]: " + data[i]);
         }
         System.out.println();
     }
@@ -585,22 +589,44 @@ public class TestUtils {
      * GridMap</code> instance identical to the input, with empty strings replaced
      * as described.
      *
-     * @param input the <code>GridMap</code> to be scanned and patched
-     * @return a copy of the input <code>GridMap</code>, with empty strings
-     * replaced with 'No information available'.
+     * Replaces any empty cells in <code>input</code> with the string 'No information available'.
+     *
+     * @param dataIn the input collection
+     *
+     * @return a copy of the input collection, with empty strings replaced with 'No information available'.
      */
-    public GridMap patchEmptyFields(GridMap input) {
-        String[][] dataOut = new String[input.getData().length][input.getData()[0].length];
-        String[][] dataIn = input.getData();
-        dataOut[0] = input.getHeading();                                           // Copy heading to output object.
-        for (int rowIndex = 1; rowIndex < dataOut.length; rowIndex++) {
-            String[] row = dataIn[rowIndex];
-            for (int colIndex = 0; colIndex < row.length; colIndex++) {
-                dataOut[rowIndex][colIndex] = ((row[colIndex] == null) || (row[colIndex].isEmpty()) ? "No information available" : row[colIndex]);
+    public String[][] patchEmptyFields(String[][] dataIn) {
+        final String NO_INFO_AVAILABLE = "No information available";
+        String[][] dataOut = new String[dataIn.length][dataIn[0].length];
+
+        for (int rowIndex = 0; rowIndex < dataIn.length; rowIndex++) {
+            for (int colIndex = 0; colIndex < dataIn[rowIndex].length; colIndex++) {
+                String cellIn = dataIn[rowIndex][colIndex];
+                String cellOut = "";
+                if (cellIn == null) {
+                    cellOut = NO_INFO_AVAILABLE;
+                } else {
+                    String[] parts = dataIn[rowIndex][colIndex].split("\\|");
+                    if (parts.length == 0) {
+                        cellOut = NO_INFO_AVAILABLE;
+                    } else {
+                        for (int delimeterIndex = 0; delimeterIndex < parts.length; delimeterIndex++) {
+                            if (delimeterIndex > 0)
+                                cellOut += "|";
+                            String part = parts[delimeterIndex];
+                            if ((part == null) || part.trim().isEmpty())
+                                cellOut += NO_INFO_AVAILABLE;
+                            else
+                                cellOut += part.trim();
+                        }
+                    }
+                }
+
+                dataOut[rowIndex][colIndex] = cellOut;
             }
         }
 
-        return new GridMap(dataOut, input.getTarget());
+        return dataOut;
     }
 
     /**

@@ -142,7 +142,7 @@ public class GraphPage {
             try {
                 downloadSections = loadAllDownloadData();
             } catch (Exception e) {
-                message = "Exception. URL: " + graphUrl;
+                message = "Exception: " + e.getLocalizedMessage() + "\nURL: " + graphUrl;
                 System.out.println(message);
                 throw new TestException(message, e);
             }
