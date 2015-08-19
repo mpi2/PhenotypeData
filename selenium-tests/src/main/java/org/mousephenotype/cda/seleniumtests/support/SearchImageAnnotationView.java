@@ -46,8 +46,10 @@ public class SearchImageAnnotationView extends SearchFacetTable {
     public static final int COL_INDEX_ANNOTATION_TYPE     = 0;
     public static final int COL_INDEX_ANNOTATION_TERM     = 1;
     public static final int COL_INDEX_ANNOTATION_ID       = 2;
-    public static final int COL_INDEX_RELATED_IMAGE_COUNT = 3;
-    public static final int COL_INDEX_LAST = COL_INDEX_RELATED_IMAGE_COUNT;     // Should always point to the last (highest-numbered) index.
+    public static final int COL_INDEX_ANNOTATION_ID_LINK  = 3;
+    public static final int COL_INDEX_RELATED_IMAGE_COUNT = 4;
+    public static final int COL_INDEX_IMAGES_LINK         = 5;
+    public static final int COL_INDEX_LAST = COL_INDEX_IMAGES_LINK;     // Should always point to the last (highest-numbered) index.
 
 
     public SearchImageAnnotationView(WebDriver driver, long timeoutInSeconds, Map<TableComponent, By> map) throws TestException {
@@ -62,22 +64,26 @@ public class SearchImageAnnotationView extends SearchFacetTable {
      * instance.
      * 
      * @param downloadDataArray The download data used for comparison
+     *
      * @return validation status
-     * annotationType, annotationTerm, annotationId, annotationIdLink, relatedImageCount, imagesLink
      */
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray) {
         final Integer[] pageColumns = {
-              COL_INDEX_ANNOTATION_ID
+              COL_INDEX_ANNOTATION_TYPE
             , COL_INDEX_ANNOTATION_TERM
-            , COL_INDEX_ANNOTATION_TYPE
+            , COL_INDEX_ANNOTATION_ID
+            , COL_INDEX_ANNOTATION_ID_LINK
             , COL_INDEX_RELATED_IMAGE_COUNT
+            , COL_INDEX_IMAGES_LINK
         };
         final Integer[] downloadColumns = {
-              DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID
+              DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE
             , DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TERM
-            , DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_TYPE
+            , DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID
+            , DownloadSearchMapImagesAnnotationView.COL_INDEX_ANNOTATION_ID_LINK
             , DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT
+            , DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK
         };
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
@@ -127,17 +133,21 @@ public class SearchImageAnnotationView extends SearchFacetTable {
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
 
-            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = "";            // Insure there is always a non-null value.
-            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = "";
             pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TYPE] = "";
+            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = "";
+            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = "";            // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID_LINK] = "";       // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_RELATED_IMAGE_COUNT] = "";
+            pageArray[sourceRowIndex][COL_INDEX_IMAGES_LINK] = "";
+
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 ImageRow bodyRow = new ImageRowFactory(bodyRowElements).getImageRow();
-
-                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = bodyRow.getAnnotationId();
-                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = bodyRow.getAnnotationTerm();
                 pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TYPE] = bodyRow.getAnnotationType();
+                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_TERM] = bodyRow.getAnnotationTerm();
+                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID] = bodyRow.getAnnotationId();
+                pageArray[sourceRowIndex][COL_INDEX_ANNOTATION_ID_LINK] = bodyRow.getAnnotationIdLink();
                 pageArray[sourceRowIndex][COL_INDEX_RELATED_IMAGE_COUNT] = Integer.toString(bodyRow.getRelatedImageCount());
+                pageArray[sourceRowIndex][COL_INDEX_IMAGES_LINK] = bodyRow.getImagesLink();
 
                 sourceRowIndex++;
                 bodyRows.add(bodyRow);
