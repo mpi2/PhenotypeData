@@ -1,4 +1,5 @@
 /*******************************************************************************
+
  * Copyright 2015 EMBL - European Bioinformatics Institute
  *
  * Licensed under the Apache License, Version 2.0 (the
@@ -302,7 +303,8 @@ public class PhenotypesController {
      * @throws IOException
      * @throws URISyntaxException
      */
-    private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) throws IOException, URISyntaxException {
+    private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
+    throws IOException, URISyntaxException {
 		// This block collapses phenotype rows
         // phenotype term, allele, zygosity, and sex
         // sex is collapsed into a single column
@@ -485,7 +487,8 @@ public class PhenotypesController {
 //if no rule for this return empty map
         return Collections.emptyMap();
     }
-
+   
+    
     public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException { // <sex, percentage>
         PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 
