@@ -239,7 +239,7 @@ public class GraphPageTest {
     //
     // NOTE: This test is configured to run on either BETA or DEV. If the profile is neither, then the test is skipped.
     @Test
-@Ignore
+//@Ignore
     public void testKnownGraphs() throws TestException {
         String profile = env.getProperty("profile");
         if ((profile != null) && (profile.equals("beta") || (profile.equals("dev")))) {
@@ -266,7 +266,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
@@ -297,7 +297,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
@@ -317,7 +317,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
@@ -327,7 +327,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
@@ -337,7 +337,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 
