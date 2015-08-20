@@ -43,9 +43,11 @@
 
 				var qVal = aVals[1];
 				var qField = aVals[0];
+				
+				// lookup the facet from queryField used in url
 				var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
 
-				// console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
+				 //console.log(qField + ' -- '+ qVal + ' for ' + fieldFacet);
 
 				if (typeof MPI2.searchAndFacetConfig.qfield2facet[qField]) {
 					// var kv = aFqs[i].replace(':','|').replace(/\(|\)|"/g,'');
@@ -290,7 +292,7 @@
 				.find('li.fcatsection')
 				.click(
 						function(e) {
-							
+						
 							// when subfacet opens, tick checkbox facet filter
 							// if there is matching summary facet filter
 							// (created from url on page load)
@@ -303,6 +305,7 @@
 											var ffacet = aVals[0];
 											var kv = aVals[1] + '|' + aVals[2];
 
+											
 											// tick only filters in opening
 											// facet
 											if (ffacet == facet) {
@@ -486,6 +489,7 @@
 								// alert('mainFacetDoneReset');
 								MPI2.searchAndFacetConfig.update.rebuilt = true;
 								MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
+								
 								$.fn.rebuildFilters(oUrlParams);
 							}
 						}
@@ -1216,7 +1220,7 @@
 
 	$.fn.composeSummaryFilters = function(oChkbox, q) {
 
-		 console.log(oChkbox.attr('rel').split("|"));
+		//console.log(oChkbox.attr('rel').split("|"));
 		// temp test
 		var aList = oChkbox.attr('rel').split("|");
 		if (aList[0] == 'impc_images') {
@@ -1230,8 +1234,7 @@
 		}
 		if (MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount > 0
 				|| MPI2.searchAndFacetConfig.update.filterAdded) {
-			// console.log("rebuild count: "+
-			// MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount)
+			//console.log("rebuild count: " + MPI2.searchAndFacetConfig.update.rebuildSummaryFilterCount);
 			var smfilter = new SummaryFilter(oChkbox, q);
 			MPI2.searchAndFacetConfig.update.filterObj.push(smfilter);
 
@@ -1274,7 +1277,9 @@
 								&& qField == 'legacy_phenotype_status') {
 							aFilters.push('(legacy_phenotype_status:' + qVal
 									+ ')');
-						} else if (facet == 'pipeline') {
+						} 
+						
+						else if (facet == 'pipeline') {
 							// console.log( qField + ':"' + qVal )
 							var aParts = qVal.split('___');
 							qVal = aParts[1].replace(/"/g, '');
@@ -1353,8 +1358,8 @@
 
 			var filterTxt = qValue;
 			if (facet == 'gene') {
-				console.log("qField: " + qField);
-				console.log("qValue: " + qValue);
+				//console.log("qField: " + qField);
+				//console.log("qValue: " + qValue);
 				if (qValue == '1') {
 					filterTxt = 'Legacy Phenotyping';
 				} else if (qValue == 'Phenotyping Complete') {
