@@ -121,8 +121,10 @@ public class OverviewChartsController {
 			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){
 				CategoricalSet controlSet = os.getCategories(p, null , "control", OVERVIEW_STRAINS, centerToFilter, sex);
 				controlSet.setName("Control");
-				CategoricalSet mutantSet = os.getCategories(p, (ArrayList<String>) genes, "experimental", OVERVIEW_STRAINS, centerToFilter, sex);
+				System.out.println("CONTROL SET " + controlSet);
+				CategoricalSet mutantSet = os.getCategories(p, null, "experimental", OVERVIEW_STRAINS, centerToFilter, sex);
 				mutantSet.setName("Mutant");
+				System.out.println("MUTANT SET " + mutantSet);
 				List<ChartData> chart = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName);
 				if (chart.size() > 0){
 					chartRes = chart.get(0);

@@ -1298,7 +1298,6 @@ public class ObservationService extends BasicService {
             centers.add((String) gr.getGroupValue());
         }
 
-        System.out.println("CENTERS ::: " + centers);
         return centers;
     }
 
@@ -1373,8 +1372,11 @@ public class ObservationService extends BasicService {
         query.set("group", true);
         query.setRows(100);
 
+        System.out.println("URL in getCategories " +  solr.getBaseURL() + "/select?" + query);
+        
         List<String> categories = new ArrayList<String>();
-        List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+        QueryResponse res = solr.query(query, METHOD.POST);
+        List<Group> groups = res.getGroupResponse().getValues().get(0).getValues();
         for (Group gr : groups) {
             categories.add((String) gr.getGroupValue());
             CategoricalDataObject catObj = new CategoricalDataObject();
