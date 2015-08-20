@@ -94,7 +94,6 @@ public class EmbryoRestGetter {
 					
 					strains.add(embryoStrain);
 			}
-			
 
 			data.setStrains(strains);
 		} catch (ClientProtocolException e) {
