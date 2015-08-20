@@ -302,6 +302,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             q.addFilterQuery(GenotypePhenotypeDTO.SEX + ":" + sex);
         }
         QueryResponse results = solr.query(q);
+        
+        System.out.println("Query to get genesByMPid ++++ " + solr.getBaseURL() + "/select?" + q);
         return results.getGroupResponse().getValues().get(0).getValues();
     }
 

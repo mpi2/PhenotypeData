@@ -112,6 +112,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     Map<String, List<String>> maleParamToGene = null;
     Map<String, List<String>> femaleParamToGene = null;
+    Map<String, List<String>> allParamToGene = null;
 
 
 	public StatisticalResultService() {
@@ -1301,12 +1302,24 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			
 			List<String> genes = new ArrayList<>();
 			for (PivotField gene : pivot.getPivot()){
 				genes.add(gene.getValue().toString());
 			}
-			maleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
-			femaleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+			
+			ArrayList<String> mGenes = new  ArrayList<String>(genes);
+			if (maleParamToGene.get(pivot.getValue()) != null){
+				mGenes.addAll(maleParamToGene.get(pivot.getValue()));
+			}
+			
+			ArrayList<String> fGenes = new  ArrayList<String>(genes);
+			if (femaleParamToGene.get(pivot.getValue()) != null){
+				fGenes.addAll(femaleParamToGene.get(pivot.getValue()));
+			}
+			
+			maleParamToGene.put(pivot.getValue().toString(), mGenes);
+			femaleParamToGene.put(pivot.getValue().toString(), fGenes);
 		}
 
 	}
@@ -1329,7 +1342,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
     	
         HashSet<String> res = new HashSet<>();
-        if (femaleParamToGene == null || maleParamToGene == null) {
+        if (femaleParamToGene == null || maleParamToGene == null || allParamToGene == null) {
             fillMaps();
         }
         if (sex == null || sex.equals(SexType.female)) {
