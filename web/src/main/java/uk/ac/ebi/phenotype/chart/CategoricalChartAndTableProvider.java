@@ -15,29 +15,42 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Procedure;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
 
 @Service
 public class CategoricalChartAndTableProvider {
@@ -209,13 +222,15 @@ public class CategoricalChartAndTableProvider {
 		// do the charts
 		ChartData chartData = new ChartData();
 		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
-		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) {
+//		if (mutantSet.getCount() > 0 && controlSet.getCount() > 0) { 
+//		if (mutantSet.getCount() > 0){
+		/* 2015/08/20 Ilinca : Commented out if for empty control sets as the FER an VIA never have control data.  */
 			// if size is greater than one i.e. we have more than the control data then
 			// draw charts and tables
 			String chartNew = this.createCategoricalHighChartUsingObjectsOverview(controlSet, mutantSet, model, parameter, procedureName, chartData);
 			chartData.setChart(chartNew);
 			categoricalResultAndCharts.add(chartData);
-		}
+//		}
 		return categoricalResultAndCharts;
 	}
 
@@ -236,56 +251,60 @@ public class CategoricalChartAndTableProvider {
 		// get a list of unique categories
 		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
 		// keep the order so we have normal first!
-		for (CategoricalDataObject catObject : controlSet.getCatObjects()) {
-			String category = catObject.getCategory();
-			categories.put(category, new ArrayList<Long>());
-		}
-		for (CategoricalDataObject catObject : mutantSet.getCatObjects()) {
-			String category = catObject.getCategory();
-			if (!categories.containsKey(category) && !category.equalsIgnoreCase("no data")) {
+		if (controlSet != null && controlSet.getCount() > 0){
+			for (CategoricalDataObject catObject : controlSet.getCatObjects()) {
+				String category = catObject.getCategory();
 				categories.put(category, new ArrayList<Long>());
 			}
+			xAxisCategoriesArray.put(controlSet.getName());
+		}
+		
+		if (mutantSet != null && mutantSet.getCount() > 0){
+			for (CategoricalDataObject catObject : mutantSet.getCatObjects()) {
+				String category = catObject.getCategory();
+				if (!categories.containsKey(category) && !category.equalsIgnoreCase("no data")) {
+					categories.put(category, new ArrayList<Long>());
+				}
+			}
+			xAxisCategoriesArray.put(mutantSet.getName());
 		}
 
 		for (String categoryLabel : categories.keySet()) {
-
-			if (controlSet.getCategoryByLabel(categoryLabel) != null) {
-				categories.get(categoryLabel).add(controlSet.getCategoryByLabel(categoryLabel).getCount());
+			if (controlSet != null && controlSet.getCount() > 0){
+				if (controlSet.getCategoryByLabel(categoryLabel) != null) {
+					categories.get(categoryLabel).add(controlSet.getCategoryByLabel(categoryLabel).getCount());
+				}
+				else categories.get(categoryLabel).add((long) 0);
 			}
-			else categories.get(categoryLabel).add((long) 0);
 
 			if (mutantSet.getCategoryByLabel(categoryLabel) != null) {
 				categories.get(categoryLabel).add(mutantSet.getCategoryByLabel(categoryLabel).getCount());
 			}
 			else categories.get(categoryLabel).add((long) 0);
 		}
-		xAxisCategoriesArray.put(controlSet.getName());
-		xAxisCategoriesArray.put(mutantSet.getName());
 
 		try {
-			int i = 0;
-			Iterator it = categories.entrySet().iterator();
+			Iterator<Entry<String, List<Long>>> it = categories.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry pairs = (Map.Entry) it.next();
 				List<Long> data = (List<Long>) pairs.getValue();
 				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
 				JSONArray dataset = new JSONArray();
-
 				for (Long singleValue : data) {
 					dataset.put(singleValue);
 				}
 				dataset1.put("data", dataset);
+				
 				seriesArray.put(dataset1);
-				i++;
 			}
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 
-		String chartId = "single-chart-div";// replace space in MRC Harwell with
-											// underscore so valid javascritp
-											// variable
+		String chartId = "single-chart-div";
+		// replace space in MRC Harwell with underscore so valid javascritp variable
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
