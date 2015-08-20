@@ -27,6 +27,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -364,6 +365,33 @@ public class ImpressService {
 		}
 	
 		return idToAbnormalMaId;
+	}
+	
+	
+	/**
+	 * @author tudose
+	 * @since 2015/08/20
+	 * @param stableId
+	 * @return
+	 * @throws SolrServerException 
+	 */
+	public ParameterDTO getParameterByStableId(String stableId) 
+	throws SolrServerException{
+		
+		ParameterDTO param = new ParameterDTO();
+		SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
+				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE)
+				.setRows(1);
+		QueryResponse response = solr.query(query);
+		ImpressDTO dto = response.getBeans(ImpressDTO.class).get(0);
+		param.setId(dto.getParameterId());
+		param.setStableId(dto.getParameterStableId());
+		param.setStableKey(dto.getParameterStableKey());
+		param.setName(dto.getParameterName());
+		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
+		
+		return param;
 	}
 	
 

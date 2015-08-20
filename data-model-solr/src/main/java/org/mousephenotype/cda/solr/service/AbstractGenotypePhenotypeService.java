@@ -281,32 +281,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
 
-    /**
-     *
-     * @param mpId
-     * @return List of parameters that led to at least one association to the
-     * given parameter or some class in its subtree
-     * @throws SolrServerException
-     * @author tudose
-     */
-    public List<Parameter> getParametersForPhenotype(String mpId)
-        throws SolrServerException {
-
-        List<Parameter> res = new ArrayList<>();
-        SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
-        q.set("facet.field", "" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID);
-        q.set("facet", true);
-        q.set("facet.limit", -1);
-        q.set("facet.mincount", 1);
-        QueryResponse response = solr.query(q);
-        for (Count parameter : response.getFacetField(GenotypePhenotypeDTO.PARAMETER_STABLE_ID).getValues()) {
-            // fill genes for each of them
-            // if (parameter.getCount() > 0){
-            res.add(pipelineDAO.getParameterByStableId(parameter.getName()));
-            // }
-        }
-        return res;
-    }
+  
 
     public List<Group> getGenesBy(String mpId, String sex, boolean onlyB6N)
         throws SolrServerException {
@@ -700,7 +675,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         }
         solrUrl += "&sort=p_value%20asc";
 
-        System.out.println("SOLR UR ABSTRACT GENOTYPE PHENOTYPE L 702 " + solrUrl);
         return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
 
     }

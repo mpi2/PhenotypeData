@@ -33,9 +33,10 @@
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
 	    _init: function () {
+	    	
 			var self = this;						
 			self._initFacet();		
-			//$.fn.openFacet(self.options.data.core);			
+			//$.fn.openFacet(self.options.data.core);		
 	    },
 	    
 		_initFacet: function(){
@@ -97,6 +98,7 @@
 	    
 	    _displayGeneSubTypeFacet: function(json){
 	    	//console.log(json);
+	    	
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
@@ -291,7 +293,6 @@
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
-	    		
 	    		
 	    		// embryo view data availabe
 	    		var embryoViewerSect = $("<li class='fcatsection embryo_viewer'></li>");		 
