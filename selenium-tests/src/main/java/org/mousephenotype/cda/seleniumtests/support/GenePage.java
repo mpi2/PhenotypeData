@@ -330,6 +330,23 @@ public class GenePage {
     }
 
     /**
+     * Returns true if this is an 'Oops...' page; false otherwise.
+     *
+     * @return true if this is an 'Oops...' page; false otherwise.
+     */
+    public boolean isOopsPage() {
+        List<WebElement> elements = driver.findElements(By.cssSelector("#main > div.region.region-content > div > div > div > h1"));
+        if ( ! elements.isEmpty()) {
+            for (WebElement element : elements) {
+                if (element.getText().startsWith("Oops!")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    /**
      * Validates that:
      * <ul>
      *     <li>There is a <b><i>Phenotype Association</i></b> section.</li>
@@ -442,6 +459,10 @@ public class GenePage {
     private void load() throws TestException {
         try {
             driver.get(target);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#main > div.region.region-content > div > div > div")));
+            if (isOopsPage()) {
+                throw new TestException("GenePage: Found 'Oops...' page. URL: " + target);
+            }
             wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
         } catch (Exception e) {
             throw new TestException("GenePage: failed to load url. Reason: " + e.getLocalizedMessage() + "\nURL: " + target);
