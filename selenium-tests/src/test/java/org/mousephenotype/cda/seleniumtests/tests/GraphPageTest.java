@@ -189,7 +189,7 @@ public class GraphPageTest {
         System.out.println();
     }
 
-    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, ChartType chartType) throws TestException {
+    private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GenePage.GraphUrlType graphUrlType) throws TestException {
         String target;
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -205,7 +205,7 @@ public class GraphPageTest {
 
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
-            List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName());
+            List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
 
             // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
@@ -303,7 +303,7 @@ public class GraphPageTest {
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.CATEGORICAL_STACKED_COLUMN, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.CATEGORICAL_STACKED_COLUMN);
+        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
     }
 
     @Test
@@ -313,7 +313,7 @@ public class GraphPageTest {
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.UNIDIMENSIONAL_BOX_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_BOX_PLOT);
+        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
     }
 
     @Test
@@ -323,7 +323,7 @@ public class GraphPageTest {
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.UNIDIMENSIONAL_ABR_PLOT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.UNIDIMENSIONAL_ABR_PLOT);
+        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
     }
 
     @Test
@@ -333,7 +333,7 @@ public class GraphPageTest {
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PIE, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.PIE);
+        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
     }
 
     @Test
@@ -343,7 +343,7 @@ public class GraphPageTest {
 
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.TIME_SERIES_LINE_BODYWEIGHT, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
-        testEngine(testName, geneGraphs, ChartType.TIME_SERIES_LINE);
+        testEngine(testName, geneGraphs, GenePage.GraphUrlType.POSTQC);
     }
 
 
