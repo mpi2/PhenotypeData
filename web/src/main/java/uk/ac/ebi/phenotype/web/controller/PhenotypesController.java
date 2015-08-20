@@ -495,7 +495,6 @@ public class PhenotypesController {
         List<String> parameters = new ArrayList<>(mpService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
         nominator = gpService.getGenesBy(phenotype_id, null, true).size();
         total = srService.getTestedGenes(parameters, null).size();
-        System.out.println("PARAMETERS :: " + parameters + " " + total);
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
         pgs.setTotalGenesTested(total);

@@ -1298,7 +1298,6 @@ public class ObservationService extends BasicService {
             centers.add((String) gr.getGroupValue());
         }
 
-        System.out.println("CENTERS ::: " + centers);
         return centers;
     }
 
