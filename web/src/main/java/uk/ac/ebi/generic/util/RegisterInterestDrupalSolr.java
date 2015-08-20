@@ -43,7 +43,9 @@ public class RegisterInterestDrupalSolr {
 	private Boolean loggedIn = null;
 
 	public RegisterInterestDrupalSolr(String drupalBaseUrl, HttpServletRequest request) {
-		this.drupalBaseUrl = drupalBaseUrl;
+
+		// Ensure the drupalBaseUrl uses the https protocol
+		this.drupalBaseUrl = drupalBaseUrl.startsWith("//") ? "https:" + drupalBaseUrl : drupalBaseUrl.replaceAll("http:", "https:");
 		this.drupalProxy = new DrupalHttpProxy(request);
 	}
 
