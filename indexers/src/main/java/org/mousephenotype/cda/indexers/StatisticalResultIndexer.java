@@ -304,7 +304,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             }
 
             // Populate fertility results
-            query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, " +
+            query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', IF(sex IS NULL,'both',sex)) as doc_id, " +
                 "'line' AS data_type, db.id AS db_id, " +
                 "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
                 "parameter.stable_id as dependent_variable, " +
