@@ -150,6 +150,7 @@ config.qfield2facet = {
 	'legacy_phenotype_status'    : 'gene',
 	'status'                     : 'gene',
 	'marker_type'                : 'gene',
+	'embryo_data_available'      : 'gene',
 	'top_level_mp_term'          : 'mp',
 	'selected_top_level_ma_term' : 'ma',
 	'procedure_stable_id'        : 'pipeline',
@@ -184,6 +185,7 @@ config.facetFilterLabel = {
 	'imits_phenotype_status'         : 'phenotyping',
 	'status'                         : 'mouse_production_status',
 	'marker_type'                    : 'gene_subtype',
+	
 	'top_level_mp_term'              : 'top_level_term',
 	'selected_top_level_ma_term'     : 'top_level_term',
 	'procedure_stable_id'            : 'procedure',
