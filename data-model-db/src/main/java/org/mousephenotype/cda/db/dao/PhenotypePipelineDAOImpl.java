@@ -64,7 +64,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 	@Transactional(readOnly = true)
 	public Pipeline getPhenotypePipelineByStableId(String stableId) {
-		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = ?").setString(0, stableId).uniqueResult();
+		return (Pipeline) getCurrentSession().createQuery("from Pipeline as p where p.stableId = :stableId").setString("stableId", stableId).uniqueResult();
 	}
 
 
@@ -75,10 +75,10 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 	@Transactional(readOnly = true)
 	public Pipeline getPhenotypePipelineByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
-		Object o = getCurrentSession().createQuery("from Pipeline as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
-				.setString(0, stableId)
-				.setInteger(1, majorVersion)
-				.setInteger(2, minorVersion)
+		Object o = getCurrentSession().createQuery("from Pipeline as p where p.stableId = :stableId and p.majorVersion = :majorVersion and p.minorVersion = :minorVersion")
+				.setString("stableId", stableId)
+				.setInteger("majorVersion", majorVersion)
+				.setInteger("minorVersion", minorVersion)
 				.uniqueResult();
 		return (o == null) ? null : (Pipeline) o;
 	}
@@ -86,52 +86,52 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 	@Transactional(readOnly = true)
 	public Procedure getProcedureByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
-		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
-				.setString(0, stableId)
-				.setInteger(1, majorVersion)
-				.setInteger(2, minorVersion)
+		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = :stableId and p.majorVersion = :majorVersion and p.minorVersion = :minorVersion")
+				.setString("stableId", stableId)
+				.setInteger("majorVersion", majorVersion)
+				.setInteger("minorVersion", minorVersion)
 				.uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
 	public Procedure getProcedureByStableId(String stableId) {
-		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = ?")
-				.setString(0, stableId)
+		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableId = :stableId")
+				.setString("stableId", stableId)
 				.uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
-	public List<Procedure> getProcedureByMatchingStableId(String pattern) {
-		pattern += "%";
-		List<Procedure> results = getCurrentSession().createQuery("from Procedure as p where p.stableId like ?")
-				.setString(0, pattern)
+	public List<Procedure> getProcedureByMatchingStableId(String stableId) {
+		stableId += "%";
+		List<Procedure> results = getCurrentSession().createQuery("from Procedure as p where p.stableId like :stableId")
+				.setString("stableId", stableId)
 				.list();
 		return results;
 	}
 
 	@Transactional(readOnly = true)
 	public Parameter getParameterByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
-		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = ? and p.majorVersion = ? and p.minorVersion = ?")
-				.setString(0, stableId)
-				.setInteger(1, majorVersion)
-				.setInteger(2, minorVersion)
+		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = :stableId and p.majorVersion = :majorVersion and p.minorVersion = :minorVersion")
+				.setString("stableId", stableId)
+				.setInteger("majorVersion", majorVersion)
+				.setInteger("minorVersion", minorVersion)
 				.uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
 	public Parameter getParameterByStableId(String stableId) {
-		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = ?")
-				.setString(0, stableId)
+		return (Parameter) getCurrentSession().createQuery("from Parameter as p where p.stableId = :stableId")
+				.setString("stableId", stableId)
 				.uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion) {
-		List<Parameter> parameters =   getCurrentSession().createQuery("select param from Parameter as param inner join param.procedure as proc where proc.stableId = ? and param.majorVersion = ? and param.minorVersion = ? and param.metaDataFlag = true")
-				.setString(0, stableId)
-				.setInteger(1, majorVersion)
-				.setInteger(2, minorVersion)
+		List<Parameter> parameters =   getCurrentSession().createQuery("select param from Parameter as param inner join param.procedure as proc where proc.stableId = :stableId and param.majorVersion = :majorVersion and param.minorVersion = :minorVersion and param.metaDataFlag = true")
+				.setString("stableId", stableId)
+				.setInteger("majorVersion", majorVersion)
+				.setInteger("minorVersion", minorVersion)
 				.list();
 		return parameters;
 	}
@@ -197,8 +197,8 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	@Transactional(readOnly = true)
 	public Parameter getParameterById(Integer parameterId) {
 		return (Parameter) getCurrentSession()
-				.createQuery("SELECT p FROM Parameter p WHERE p.id=?")
-				.setInteger(0, parameterId)
+				.createQuery("SELECT p FROM Parameter p WHERE p.id=:parameterId")
+				.setInteger("parameterId", parameterId)
 				.uniqueResult();
 	}
 
@@ -211,9 +211,9 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public Set<Procedure> getProceduresByOntologyTerm(OntologyTerm term) {
 		if (term == null) return null;
 		return (Set<Procedure>) new HashSet<Procedure>(getCurrentSession()
-				.createQuery("SELECT proc FROM Procedure proc INNER JOIN proc.parameters as param INNER JOIN param.annotations as annotations WHERE annotations.ontologyTerm.id.databaseId=? AND annotations.ontologyTerm.id.accession=?")
-				.setInteger(0, term.getId().getDatabaseId())
-				.setString(1, term.getId().getAccession())
+				.createQuery("SELECT proc FROM Procedure proc INNER JOIN proc.parameters as param INNER JOIN param.annotations as annotations WHERE annotations.ontologyTerm.id.databaseId=:databaseId AND annotations.ontologyTerm.id.accession=:accession")
+				.setInteger("databaseId", term.getId().getDatabaseId())
+				.setString("accession", term.getId().getAccession())
 				.list());
 	}
 	
