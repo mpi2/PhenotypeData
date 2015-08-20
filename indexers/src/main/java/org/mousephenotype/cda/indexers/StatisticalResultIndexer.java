@@ -574,7 +574,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         StatisticalResultDTO doc = new StatisticalResultDTO();
 
-        doc.setDocId(r.getString("doc_id"));
+	    String docId = r.getString("doc_id");
+	    if (docId == null) {
+		    docId = String.valueOf(Math.random());
+	    }
+
+	    doc.setDocId(docId);
         doc.setDataType(r.getString("data_type"));
         doc.setResourceId(r.getInt("resource_id"));
         doc.setResourceName(r.getString("resource_name"));
