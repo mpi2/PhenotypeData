@@ -9,10 +9,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * Komp2DatasourceConfig holds the configuration for the komp2 datasource
  */
 
-@Configuration
-@EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf")
-@ComponentScanNonParticipant
+//@Configuration
+//@EnableTransactionManagement
+//@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf")
+//@ComponentScanNonParticipant
 public class Komp2DatasourceConfig {
 
 //	@Bean

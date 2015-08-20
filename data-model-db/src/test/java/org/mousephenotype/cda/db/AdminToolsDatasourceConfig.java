@@ -1,18 +1,13 @@
 package org.mousephenotype.cda.db;
 
-import org.mousephenotype.cda.annotations.ComponentScanNonParticipant;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 /**
  * AdminToolsDatasourceConfig holds the configuration for the admintools datasource
  */
 
-@Configuration
-@EnableTransactionManagement
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
-@ComponentScanNonParticipant
+//@Configuration
+//@EnableTransactionManagement
+//@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db", entityManagerFactoryRef = "emf2")
+//@ComponentScanNonParticipant
 public class AdminToolsDatasourceConfig {
 
 //	@Bean
