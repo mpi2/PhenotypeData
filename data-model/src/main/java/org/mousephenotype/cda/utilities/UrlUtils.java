@@ -61,7 +61,7 @@ public class UrlUtils {
             String decodedValue = URLDecoder.decode(url, "UTF-8");
             retVal = decodedValue;
         } catch (Exception e) {
-            System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed: " + e.getLocalizedMessage());
+            System.out.println("Decoding of value '" + (url == null ? "<null>" : url) + "' failed. URL ignored. Reason: " + e.getLocalizedMessage());
         }
 
         return retVal;

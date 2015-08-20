@@ -306,28 +306,28 @@ div.ui-tabs-panel {
                                     </p>
 
  									
- 									<!-- hide GWAS stuff for now
+ 									<!-- hide GWAS stuff for now 
                                     <c:if test="${gwasPhenoMapping != null }">
                                     	
                                        	<c:if test="${gwasPhenoMapping == 'no mapping' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
-                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
                                				</p>
                                			</c:if>	
                                			<c:if test="${gwasPhenoMapping == 'indirect' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
-                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                    				
                                				</p>
                                			</c:if>
                                			<c:if test="${gwasPhenoMapping == 'direct' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
-                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.symbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                				</p>
                                			</c:if>
                                    		

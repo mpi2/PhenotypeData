@@ -226,6 +226,8 @@
         <field name="phenotyping_center"                type="string" indexed="true" stored="true" multiValued="false" />
 
         <field name="gene_accession_id"                 type="string" indexed="true" stored="true" multiValued="false" /> 
+       
+       	<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
         <field name="gene_symbol"                       type="string" indexed="true" stored="true" multiValued="false" /> 
         <field name="allele_accession_id"               type="string" indexed="true" stored="true" multiValued="false" /> 
         <field name="allele_symbol"                     type="string" indexed="true" stored="true" multiValued="false" /> 

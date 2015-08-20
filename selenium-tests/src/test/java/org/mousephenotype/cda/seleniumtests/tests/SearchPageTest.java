@@ -1164,16 +1164,6 @@ if (core.equals(SearchPage.GENE_CORE)) {
             for (Facet facet : facets) {
                 searchPage.clickFacet(facet);
                 searchPage.clickPageButton();
-// http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/search#fq=top_level_mp_term:*&facet=mp
-//searchPage.clickPageButton(SearchPage.PageDirective.THIRD_NUMBERED);
-//TestUtils.sleep(5000);
-
-//http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/search#fq=*:*&facet=mp
-//searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
-//TestUtils.sleep(5000);
-
-
-
                 searchPage.setNumEntries(SearchFacetTable.EntriesSelect._10);
                 System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                 status.add(searchPage.validateDownload(facet));
@@ -1265,7 +1255,7 @@ if (core.equals(SearchPage.GENE_CORE)) {
     }
 
     // This test doesn't use the download test engine as it requires an extra
-    // click to switch to the Image facet's 'Image' view.
+    // click to switch to the Image facet's 'Image' view. It also tests only the IMPC_IMAGES facet rather than all facets.
     @Test
 //@Ignore
     public void testImpcImageFacetImageView() throws Exception {
@@ -1274,11 +1264,6 @@ if (core.equals(SearchPage.GENE_CORE)) {
         Date start = new Date();
         PageStatus status = new PageStatus();
         Facet facet;
-
-//        Map<SearchFacetTable.TableComponent, By> map = new HashMap();
-//        map.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
-//        map.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
-//        map.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
 
         System.out.println("\n\n----- " + testName + " -----");
 

@@ -293,9 +293,6 @@ public abstract class SearchFacetTable {
                 errorCount++;
             }
 
-
-
-
             status.addError(message);
         }
 
