@@ -176,23 +176,33 @@ public class GenePage {
     }
 
     /**
-     * Return a list of this page's graph urls matching the given procedure and
-     * parameter names.
+     * Return a list of this page's graph urls matching the given procedure, parameter, and graph url type.
      *
      * @param procedureName desired procedure name
      * @param parameterName desired parametr name
+     * @param graphUrlType the graph url type desired: preqc, postqc, or both
      *
-     * @return a list of this page's graph urls matching the given procedure and
-     * parameter names.
+     * @return a list of this page's graph urls matching the given procedure, parameter, and graph url type.
      */
-    public List<String> getGraphUrls(String procedureName, String parameterName) {
+    public List<String> getGraphUrls(String procedureName, String parameterName, GraphUrlType graphUrlType) {
         List<String> urls = new ArrayList();
+        List<List<String>> graphUrlList;
 
         if (hasGraphs()) {
             if (geneTable.genesTableIsNotEmpty()) {
                 geneTable.load();
-                List<List<String>> preAndPostQcList = geneTable.getPreAndPostQcList();
-                for (List<String> row : preAndPostQcList) {
+
+                switch (graphUrlType) {
+                    case POSTQC:        graphUrlList = geneTable.getPostQcList();
+                    break;
+
+                    case PREQC:         graphUrlList = geneTable.getPreQcList();
+                    break;
+
+                    default:            graphUrlList = geneTable.getPreAndPostQcList();
+                }
+
+                for (List<String> row : graphUrlList) {
                     if (row.get(GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER).equals(procedureName + " | " + parameterName)) {
                         urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                     }
@@ -200,6 +210,11 @@ public class GenePage {
             }
         }
         return urls;
+    }
+    public enum GraphUrlType {
+          PREQC
+        , POSTQC
+        , PREQC_AND_POSTQC
     }
 
     /**
@@ -315,6 +330,23 @@ public class GenePage {
     }
 
     /**
+     * Returns true if this is an 'Oops...' page; false otherwise.
+     *
+     * @return true if this is an 'Oops...' page; false otherwise.
+     */
+    public boolean isOopsPage() {
+        List<WebElement> elements = driver.findElements(By.cssSelector("#main > div.region.region-content > div > div > div > h1"));
+        if ( ! elements.isEmpty()) {
+            for (WebElement element : elements) {
+                if (element.getText().startsWith("Oops!")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+    /**
      * Validates that:
      * <ul>
      *     <li>There is a <b><i>Phenotype Association</i></b> section.</li>
@@ -427,6 +459,10 @@ public class GenePage {
     private void load() throws TestException {
         try {
             driver.get(target);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#main > div.region.region-content > div > div > div")));
+            if (isOopsPage()) {
+                throw new TestException("GenePage: Found 'Oops...' page. URL: " + target);
+            }
             wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
         } catch (Exception e) {
             throw new TestException("GenePage: failed to load url. Reason: " + e.getLocalizedMessage() + "\nURL: " + target);

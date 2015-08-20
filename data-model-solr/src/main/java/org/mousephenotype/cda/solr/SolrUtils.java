@@ -193,6 +193,7 @@ public class SolrUtils {
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
             for (SangerImageDTO image : imageList) {
+            	
                 if ( ! map.containsKey(image.getAccession())) {
                     map.put(image.getAccession(), new ArrayList<SangerImageDTO>());
                 }

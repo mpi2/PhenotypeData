@@ -260,32 +260,40 @@ public abstract class SearchFacetTable {
         }
 
         GridMap downloadData = new GridMap(downloadDataList, target);
+        // Replace any occurrence of more than one space with exactly one space; otherwise, a comparison may fail simply because of an extra space.
+        String[][] downloadDataRows = downloadData.getData();
+        for (String[] row : downloadDataRows) {
+            for (int i = 1; i < row.length; i++) {
+                if (row[i] != null) {
+                    row[i] = row[i].replaceAll("  ", " ");
+                }
+            }
+        }
+        downloadData = new GridMap(downloadDataRows, pageData.getTarget());
 
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
         // Create a pair of sets: one from the page, the other from the download.
-        GridMap patchedPageData = testUtils.patchEmptyFields(pageData);
+        GridMap patchedPageData = new GridMap(testUtils.patchEmptyFields(pageData.getBody()), pageData.getTarget());
         Set pageSet = testUtils.createSet(patchedPageData, pageColumns);
         Set downloadSet = testUtils.createSet(downloadData, downloadColumns);
         Set difference = testUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("SearchFacetTable.validateDownloadInternal(): Page data/Download data mismatch:");
+            String message = "SearchFacetTable.validateDownloadInternal(): Page/Download data mismatch. \nURL: " + downloadUrl;
             Iterator it = difference.iterator();
             int i = 0;
             while (it.hasNext()) {
                 String value = (String)it.next();
-                System.out.println("[" + i + "]:\t page data: " + value);
-                System.out.println("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                logger.error("[" + i + "]:\t page data: " + value);
+                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
                 i++;
                 errorCount++;
             }
-        }
 
-        if (errorCount > 0) {
-            status.addError("Mismatch.");
+            status.addError(message);
         }
 
         return status;

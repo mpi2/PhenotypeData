@@ -28,6 +28,7 @@ import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.netbeans.lib.cvsclient.commandLine.command.log;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class GeneIndexer extends AbstractIndexer {
     DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("alleleIndexing")
+    @Qualifier("alleleReadOnlyIndexing")
     SolrServer alleleCore;
 
     @Autowired
@@ -67,16 +68,19 @@ public class GeneIndexer extends AbstractIndexer {
     SolrServer geneCore;
 
     @Autowired
-    @Qualifier("mpIndexing")
+    @Qualifier("mpReadOnlyIndexing")
     SolrServer mpCore;
 
     @Autowired
-    @Qualifier("sangerImagesIndexing")
+    @Qualifier("sangerImagesReadOnlyIndexing")
     SolrServer imagesCore;
     
     @Autowired
 	DatasourceDAO datasourceDAO;
 
+    @Autowired
+    ImpressService ims;
+    
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
     private Map<String, List<Xref>> genomicFeatureXrefs = new HashMap<>();
@@ -112,8 +116,7 @@ public class GeneIndexer extends AbstractIndexer {
     	
         super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-        final String embryoRestUrl=config.get("embryoRestUrl");
-        this.embryoGetter=new EmbryoRestGetter(embryoRestUrl);
+
         try {
 
             komp2DbConnection = komp2DataSource.getConnection();
@@ -143,7 +146,7 @@ public class GeneIndexer extends AbstractIndexer {
             int count = 0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
             logger.info("alleles size=" + alleles.size());
-
+          
             geneCore.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
@@ -215,11 +218,35 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setPfamaJsons(allele.getPfamaJsons());
                 
                 if(embryoRestData!=null){
+                	
                 	List<EmbryoStrain> embryoStrainsForGene = embryoRestData.get(gene.getMgiAccessionId());
                 	//for the moment lets just set an embryo data available flag!
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
                 		logger.info("setting embryo true");
+                		
+                		for( EmbryoStrain strain : embryoStrainsForGene){
+                			for ( String procedureStableKey : strain.getProcedureStableKeys() ){
+                				ProcedureDTO procedure = ims.getProcedureByStableKey(procedureStableKey);
+                				
+                				logger.info("procedure info: " + procedure);
+                				
+                				if ( gene.getProcedureStableId() == null ){
+                					
+                					List<String> procedureStableIds = new ArrayList<String>();
+                					List<String> procedureNames = new ArrayList<String>();
+                					procedureStableIds.add(procedure.getStableId());
+                					gene.setProcedureStableId(procedureStableIds);
+                					
+                					procedureNames.add(procedure.getName());
+                					gene.setProcedureName(procedureNames);
+                				}	
+                				else {
+                					gene.getProcedureStableId().add(procedure.getStableId());
+	                				gene.getProcedureName().add(procedure.getName());
+                				}
+                			}
+                		}
                 	}
                 	
                 }
@@ -280,12 +307,49 @@ public class GeneIndexer extends AbstractIndexer {
                         parameterStableIds.add(row.get(ObservationDTO.PARAMETER_STABLE_ID));
 
                     }
-                    gene.setPipelineName(pipelineNames);
-                    gene.setPipelineStableId(pipelineStableIds);
-                    gene.setProcedureName(procedureNames);
-                    gene.setProcedureStableId(procedureStableIds);
-                    gene.setParameterName(parameterNames);
-                    gene.setParameterStableId(parameterStableIds);
+                    
+                    // pipeline
+                    if ( gene.getPipelineStableId() == null ){
+                    	gene.setPipelineStableId(pipelineStableIds);
+                	}
+                    else {
+                    	gene.getPipelineStableId().addAll(pipelineStableIds);
+                    }
+                    if ( gene.getPipelineName() == null ){
+                    	gene.setPipelineName(pipelineNames);
+                	}
+                    else {
+                    	gene.getPipelineName().addAll(pipelineNames);
+                    }
+                    
+                    // procedure
+                    if ( gene.getProcedureName() == null ){
+                    	gene.setProcedureName(procedureNames);
+                    }
+                    else {
+                    	gene.getProcedureName().addAll(procedureNames);
+                    }
+                    if ( gene.getProcedureStableId() == null ){
+                    	gene.setProcedureStableId(procedureStableIds);
+                    }
+                    else {
+                    	gene.getProcedureStableId().addAll(procedureStableIds);
+                    }
+                    
+                    // parameter
+                    if ( gene.getParameterName() == null ){
+                    	gene.setParameterName(parameterNames);
+                    }
+                    else {
+                    	gene.getParameterName().addAll(parameterNames);
+                    }
+                    if ( gene.getParameterStableId() == null ){
+                    	gene.setParameterStableId(parameterStableIds);
+                    }
+                    else {
+                    	gene.getParameterStableId().addAll(parameterStableIds);
+                    }
+                   
                 }
 
 				//do images core data
@@ -540,6 +604,7 @@ public class GeneIndexer extends AbstractIndexer {
         logger.info("time was " + (endTime - startTime) / 1000);
 
         logger.info("Gene Indexer complete!");
+        System.out.println("Gene Indexer complete!");
     }
 
 	// PROTECTED METHODS
@@ -556,31 +621,11 @@ public class GeneIndexer extends AbstractIndexer {
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
-        embryoRestData=populateEmbryoData();
+        embryoRestData=IndexerMap.populateEmbryoData(config.get("embryoRestUrl"));
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
     }
 
-    private Map<String, List<EmbryoStrain>> populateEmbryoData() {
-    	System.out.println("populating embryo data");
-		EmbryoRestData restData=null;
-		try {
-			restData = embryoGetter.getEmbryoRestData();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		List<EmbryoStrain> strains = restData.getStrains();
-		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
-		for(EmbryoStrain strain: strains){
-			String mgi=strain.getMgi();
-			if(!mgiToEmbryoMap.containsKey(mgi)){
-				mgiToEmbryoMap.put(mgi,new ArrayList<>());
-			}
-				mgiToEmbryoMap.get(mgi).add(strain);
-		}
-		return mgiToEmbryoMap;
-	}
 
 	private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
 

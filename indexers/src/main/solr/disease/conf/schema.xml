@@ -126,6 +126,7 @@
 	<field name="impc_novel_predicted_in_locus" type="boolean" indexed="true" stored="true"/>
 
 	<!-- gene core stuff -->
+	<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
 	<field name="mgi_accession_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />		
 	<field name="marker_symbol" type="string" indexed="true" stored="true" required="false" multiValued="true" />  
 	<field name="marker_name" type="text_general" indexed="true" stored="true" required="false" multiValued="true"  />    
