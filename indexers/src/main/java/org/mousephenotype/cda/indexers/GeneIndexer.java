@@ -116,8 +116,7 @@ public class GeneIndexer extends AbstractIndexer {
     	
         super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-        final String embryoRestUrl=config.get("embryoRestUrl");
-        this.embryoGetter=new EmbryoRestGetter(embryoRestUrl);
+
         try {
 
             komp2DbConnection = komp2DataSource.getConnection();
@@ -225,7 +224,7 @@ public class GeneIndexer extends AbstractIndexer {
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
                 		logger.info("setting embryo true");
-                		logger.info("this gene: " + gene.getMgiAccessionId());
+                		
                 		for( EmbryoStrain strain : embryoStrainsForGene){
                 			for ( String procedureStableKey : strain.getProcedureStableKeys() ){
                 				ProcedureDTO procedure = ims.getProcedureByStableKey(procedureStableKey);
@@ -241,14 +240,10 @@ public class GeneIndexer extends AbstractIndexer {
                 					
                 					procedureNames.add(procedure.getName());
                 					gene.setProcedureName(procedureNames);
-                					System.out.println("proc1 :" +  gene.getProcedureStableId());
-	                				System.out.println("parm1 :" +  gene.getProcedureName());
                 				}	
                 				else {
                 					gene.getProcedureStableId().add(procedure.getStableId());
 	                				gene.getProcedureName().add(procedure.getName());
-	                				System.out.println("proc2 :" +  gene.getProcedureStableId());
-	                				System.out.println("parm2 :" +  gene.getProcedureName());
                 				}
                 			}
                 		}
@@ -626,31 +621,11 @@ public class GeneIndexer extends AbstractIndexer {
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
-        embryoRestData=populateEmbryoData();
+        embryoRestData=IndexerMap.populateEmbryoData(config.get("embryoRestUrl"));
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
     }
 
-    private Map<String, List<EmbryoStrain>> populateEmbryoData() {
-    	System.out.println("populating embryo data");
-		EmbryoRestData restData=null;
-		try {
-			restData = embryoGetter.getEmbryoRestData();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		List<EmbryoStrain> strains = restData.getStrains();
-		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
-		for(EmbryoStrain strain: strains){
-			String mgi=strain.getMgi();
-			if(!mgiToEmbryoMap.containsKey(mgi)){
-				mgiToEmbryoMap.put(mgi,new ArrayList<>());
-			}
-			mgiToEmbryoMap.get(mgi).add(strain);
-		}
-		return mgiToEmbryoMap;
-	}
 
 	private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
 
