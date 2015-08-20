@@ -17,6 +17,7 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import java.util.Comparator;
 
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
 
 /**
@@ -119,14 +120,35 @@ public class ImpressBaseDTO {
 	 * @since 2015/08/04
 	 * @return
 	 */
-	public static Comparator<ImpressBaseDTO> getComparatorByStableId()
-	{   
+	public static Comparator<ImpressBaseDTO> getComparatorByStableId()	{   
 		Comparator<ImpressBaseDTO> comp = new Comparator<ImpressBaseDTO>(){
 	    @Override
 	    public int compare(ImpressBaseDTO a, ImpressBaseDTO b)
 	    {
 	        return a.getStableId().compareTo(b.getStableId());
 	    }        
+		};
+		return comp;
+	}  
+	
+
+	public static Comparator<ImpressBaseDTO> getComparatorByNameImpcFirst()	{   
+		Comparator<ImpressBaseDTO> comp = new Comparator<ImpressBaseDTO>(){
+	    @Override
+	    public int compare(ImpressBaseDTO param1, ImpressBaseDTO param2)
+	    {
+	    	if (isImpc(param1.getStableId()) && !isImpc(param2.getStableId())){
+				return -1;
+			}
+			if (isImpc(param2.getStableId()) && !isImpc(param1.getStableId())){
+				return 1;
+			}
+			return param1.getName().compareTo(param2.getName());
+	    }
+		private boolean isImpc(String param){
+			return param.startsWith("IMPC");
+		}
+		
 		};
 		return comp;
 	}  
