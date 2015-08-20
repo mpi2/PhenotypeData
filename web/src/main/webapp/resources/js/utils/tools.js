@@ -191,7 +191,7 @@
 		}
 
 		// console.log(facetUrls);
-		// console.log(JSON.stringify(facetUrls));
+		//console.log(JSON.stringify(facetUrls));
 		$.ajax({
 			url : baseUrl + '/querybroker',
 			data : {
@@ -270,6 +270,7 @@
 		 * $(this).parent('.fmcat').addClass('open'); } });
 		 */
 		$('div.flist >ul li#' + facet).click(function() {
+			
 			if ($(this).find('span.fcount').text() == 0) {
 				return false; // for facet having no matches, a click does
 								// nothing
@@ -289,7 +290,7 @@
 				.find('li.fcatsection')
 				.click(
 						function(e) {
-
+							
 							// when subfacet opens, tick checkbox facet filter
 							// if there is matching summary facet filter
 							// (created from url on page load)
@@ -364,9 +365,8 @@
 		var caller = thisWidget.element;
 		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;
 
-		caller
-				.click(function() {
-
+		caller.click(function() {
+			
 					if (caller.find('span.fcount').text() != 0) { // initial
 																	// state
 																	// (lives
@@ -681,6 +681,10 @@
 					'marker_type' : {
 						'class' : 'marker_type',
 						'label' : ''
+					},
+					'embryo_data_available' : {
+						'class' : 'embryo_data_available',
+						'label' : ''
 					}
 				};
 
@@ -707,7 +711,8 @@
 					'production' : 0,
 					'latest_production_centre' : 0,
 					'latest_phenotyping_centre' : 0,
-					'marker_type' : 0
+					'marker_type' : 0,
+					'embryo_data_available' : 0
 				};
 
 				for (var n = 0; n < aFacetFields.length; n++) {
@@ -720,35 +725,25 @@
 					for (var i = 0; i < oFacets[fld].length; i = i + 2) {
 
 						var subFacetName = oFacets[fld][i];
+						
 						var facetCount = oFacets[fld][i + 1];
-
+						
 						var isGrayout = facetCount == 0 ? 'grayout' : '';
 
 						if (subFacetName != '') { // skip solr field which
 													// value is an empty string
 							var className = oFields[fld]['class'];
-
+							//console.log(fld + " subfacet: " + subFacetName + " -- " + facetCount + " --- " + className);
 							if (className != 'phenotyping') {
-								$(
-										selectorBase + ' li.' + className
-												+ ' span.flabel')
-										.each(
-												function() {
-													if ($(this).text() == subFacetName) {
-
-														$(this)
-																.parent()
-																.removeClass(
-																		'grayout')
-																.addClass(
-																		isGrayout);
-														$(this)
-																.siblings(
-																		'span.fcount')
-																.text(
-																		facetCount);
-													}
-												});
+								$(selectorBase + ' li.' + className + ' span.flabel').each(function() {
+									var subFacetLabel = $(this).text();
+									
+									if (subFacetLabel == subFacetName || (className == 'embryo_data_available' && subFacetName == 'true') ) {
+										$(this).parent().removeClass('grayout').addClass(isGrayout);
+										$(this).siblings('span.fcount').text(facetCount);
+									}
+									
+								});
 							} else {
 
 								if (subFacetName == 'Phenotype Attempt Registered'
@@ -1221,7 +1216,7 @@
 
 	$.fn.composeSummaryFilters = function(oChkbox, q) {
 
-		// console.log(oChkbox.attr('rel').split("|"));
+		 console.log(oChkbox.attr('rel').split("|"));
 		// temp test
 		var aList = oChkbox.attr('rel').split("|");
 		if (aList[0] == 'impc_images') {
@@ -1368,7 +1363,10 @@
 						|| qField == 'status' || qField == 'marker_type') {
 					// filterTxt = qValue.toLowerCase();
 				}
-
+				else if ( qValue == 'true' && qField == 'embryo_data_available' ){
+					filterTxt = qField;
+				}
+				
 				if (qField == 'latest_production_centre') {
 					filterTxt = 'mice produced at ' + qValue;
 				} else if (qField == 'latest_phenotyping_centre') {

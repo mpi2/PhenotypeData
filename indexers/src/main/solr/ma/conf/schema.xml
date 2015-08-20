@@ -185,6 +185,8 @@
         <!-- allele level fields of a gene -->
         <field name="allele_name" type="text_general" indexed="true" stored="true" multiValued="true"/>
 	
+		<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
+   
         <!-- disease core stuff -->
         <field name="type" type="string" indexed="true" stored="true"  multiValued="true" />
         <field name="disease_id" type="string" indexed="true" stored="true" multiValued="true" />

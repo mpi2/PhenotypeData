@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +59,32 @@ public class IndexerMap {
     // PUBLIC METHODS
 
 
+    public static Map<String, List<EmbryoStrain>> populateEmbryoData(final String embryoRestUrl) {
+    	System.out.println("populating embryo data");
+    	
+    	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoRestUrl);
+    	
+		EmbryoRestData restData=null;
+		try {
+			restData = embryoGetter.getEmbryoRestData();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<EmbryoStrain> strains = restData.getStrains();
+		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
+		for(EmbryoStrain strain: strains){
+			String mgi=strain.getMgi();
+			if(!mgiToEmbryoMap.containsKey(mgi)){
+				mgiToEmbryoMap.put(mgi,new ArrayList<>());
+			}
+			mgiToEmbryoMap.get(mgi).add(strain);
+		}
+		return mgiToEmbryoMap;
+	}
+    
+    
+    
     /**
      * Fetch a map of AlleleDTOs terms indexed by mgi_accession_id
      *

@@ -55,8 +55,6 @@ public class ImpressService {
 	@Qualifier("pipelineCore")
 	private HttpSolrServer solr;
 
-	
-	
 	/**
 	 * @since 2015/07/17
 	 * @author tudose
@@ -179,6 +177,50 @@ public class ImpressService {
 	
 	}
 	
+	public ProcedureDTO getProcedureByStableKey(String procedureStableKey) {
+		
+		ProcedureDTO procedure = new ProcedureDTO();
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PROCEDURE_STABLE_KEY + ":\"" + procedureStableKey + "\"")
+				.setFields(ImpressDTO.PROCEDURE_ID, 
+						ImpressDTO.PROCEDURE_NAME, 
+						ImpressDTO.PROCEDURE_STABLE_ID, 
+						ImpressDTO.PROCEDURE_STABLE_KEY);
+
+			QueryResponse response = solr.query(query);
+
+			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
+			
+			procedure.setStableId(imd.getProcedureStableId().toString());
+			procedure.setName(imd.getProcedureName().toString());
+			return procedure;
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	
+	public Integer getParameterIdByStableKey(String parameterStableKey) {
+
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PARAMETER_STABLE_KEY + ":\"" + parameterStableKey + "\"")
+				.setFields(ImpressDTO.PARAMETER_ID);
+
+			QueryResponse response = solr.query(query);
+
+			return response.getBeans(ImpressDTO.class).get(0).getParameterId();
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 
 
 	public Integer getProcedureStableKey(String procedureStableId) {

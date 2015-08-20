@@ -43,6 +43,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.json.JSONArray;
 import org.mousephenotype.cda.db.dao.GwasDAO;
+import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
@@ -264,14 +265,14 @@ public class GenesController {
 
 		// GWAS Gene to IMPC gene mapping
 		// commented out for now as we are going to use biosolr stuff to do this
-		/*List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getSymbol().toUpperCase());
+		/*
+		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getMarkerSymbol().toUpperCase());
 
 		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){
-			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getGwasPhenoMappingCategory());
+			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 		}
 		*/
-		
 		
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
@@ -308,7 +309,7 @@ public class GenesController {
 		}
 
 		processPhenotypes(acc, model, "", request);
-
+		
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
