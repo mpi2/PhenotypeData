@@ -28,6 +28,8 @@ public class MaDTO {
     public static final String DATA_TYPE = "dataType";
     public static final String MA_ID = "ma_id";
     public static final String MA_TERM = "ma_term";
+    public static final String UBERON_ID = "uberon_id";
+    public static final String EFO_ID = "efo_id";
     public static final String MA_TERM_SYNONYM = "ma_term_synonym";
     public static final String ONTOLOGY_SUBSET = "ontology_subset";
 
@@ -180,6 +182,12 @@ public class MaDTO {
 
     @Field(MA_ID)
     private String maId;
+    
+    @Field(UBERON_ID)
+    private List<String> uberonIds;
+    
+    @Field(EFO_ID)
+    private List<String> efoIds;
 
     @Field(MA_TERM)
     private String maTerm;
@@ -542,6 +550,22 @@ public class MaDTO {
         this.maId = maId;
     }
 
+    public List<String> getUberonIds() {
+        return uberonIds;
+    }
+
+    public void setUberonIds(List<String> uberonIds) {
+        this.uberonIds = uberonIds;
+    }
+    
+    public List<String> getEfoIds() {
+        return uberonIds;
+    }
+
+    public void setEfoIds(List<String> efoIds) {
+        this.efoIds = efoIds;
+    }
+    
     public String getMaTerm() {
         return maTerm;
     }
@@ -1407,462 +1431,748 @@ public class MaDTO {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.dataType);
-        hash = 97 * hash + Objects.hashCode(this.maId);
-        hash = 97 * hash + Objects.hashCode(this.maTerm);
-        hash = 97 * hash + Objects.hashCode(this.maTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.ontologySubset);
-        hash = 97 * hash + Objects.hashCode(this.childMaId);
-        hash = 97 * hash + Objects.hashCode(this.childMaTerm);
-        hash = 97 * hash + Objects.hashCode(this.childMaTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.childMaIdTerm);
-        hash = 97 * hash + Objects.hashCode(this.topLevelMaId);
-        hash = 97 * hash + Objects.hashCode(this.topLevelMaTerm);
-//        hash = 97 * hash + Objects.hashCode(this.topLevelMaTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.selectedTopLevelMaId);
-        hash = 97 * hash + Objects.hashCode(this.selectedTopLevelMaTerm);
-        hash = 97 * hash + Objects.hashCode(this.selectedTopLevelMaTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.hpId);
-        hash = 97 * hash + Objects.hashCode(this.hpTerm);
-        hash = 97 * hash + Objects.hashCode(this.goId);
-        hash = 97 * hash + Objects.hashCode(this.pValue);
-        hash = 97 * hash + Objects.hashCode(this.mgiAccessionId);
-        hash = 97 * hash + Objects.hashCode(this.markerSymbol);
-        hash = 97 * hash + Objects.hashCode(this.markerName);
-        hash = 97 * hash + Objects.hashCode(this.markerSynonym);
-        hash = 97 * hash + Objects.hashCode(this.markerType);
-        hash = 97 * hash + Objects.hashCode(this.humanGeneSymbol);
-        hash = 97 * hash + Objects.hashCode(this.status);
-        hash = 97 * hash + Objects.hashCode(this.imitsPhenotypeStarted);
-        hash = 97 * hash + Objects.hashCode(this.imitsPhenotypeComplete);
-        hash = 97 * hash + Objects.hashCode(this.imitsPhenotypeStatus);
-        hash = 97 * hash + Objects.hashCode(this.latestProductionCentre);
-        hash = 97 * hash + Objects.hashCode(this.latestPhenotypingCentre);
-        hash = 97 * hash + Objects.hashCode(this.latestPhenotypeStatus);
-        hash = 97 * hash + Objects.hashCode(this.legacyPhenotypeStatus);
-        hash = 97 * hash + Objects.hashCode(this.alleleName);
-        hash = 97 * hash + Objects.hashCode(this.type);
-        hash = 97 * hash + Objects.hashCode(this.diseaseId);
-        hash = 97 * hash + Objects.hashCode(this.diseaseSource);
-        hash = 97 * hash + Objects.hashCode(this.diseaseTerm);
-        hash = 97 * hash + Objects.hashCode(this.diseaseAlts);
-        hash = 97 * hash + Objects.hashCode(this.diseaseClasses);
-        hash = 97 * hash + Objects.hashCode(this.diseaseHumanPhenotypes);
-        hash = 97 * hash + Objects.hashCode(this.humanCurated);
-        hash = 97 * hash + Objects.hashCode(this.mouseCurated);
-        hash = 97 * hash + Objects.hashCode(this.mgiPredicted);
-        hash = 97 * hash + Objects.hashCode(this.impcPredicted);
-        hash = 97 * hash + Objects.hashCode(this.mgiPredictedKnownGene);
-        hash = 97 * hash + Objects.hashCode(this.impcPredictedKnownGene);
-        hash = 97 * hash + Objects.hashCode(this.mgiNovelPredictedInLocus);
-        hash = 97 * hash + Objects.hashCode(this.impcNovelPredictedInLocus);
-        hash = 97 * hash + Objects.hashCode(this.annotationTermId);
-        hash = 97 * hash + Objects.hashCode(this.annotationTermName);
-        hash = 97 * hash + Objects.hashCode(this.name);
-        hash = 97 * hash + Objects.hashCode(this.accession);
-        hash = 97 * hash + Objects.hashCode(this.expName);
-        hash = 97 * hash + Objects.hashCode(this.largeThumbnailFilePath);
-        hash = 97 * hash + Objects.hashCode(this.smallThumbnailFilePath);
-        hash = 97 * hash + Objects.hashCode(this.inferredMaTermId);
-        hash = 97 * hash + Objects.hashCode(this.inferredMaTermName);
-        hash = 97 * hash + Objects.hashCode(this.annotatedHigherLevelMaTermId);
-        hash = 97 * hash + Objects.hashCode(this.annotatedHigherLevelMaTermName);
-        hash = 97 * hash + Objects.hashCode(this.annotatedHigherLevelMpTermId);
-        hash = 97 * hash + Objects.hashCode(this.annotatedHigherLevelMpTermName);
-        hash = 97 * hash + Objects.hashCode(this.inferredHigherLevelMaTermId);
-        hash = 97 * hash + Objects.hashCode(this.inferredHigherLevelMaTermName);
-        hash = 97 * hash + Objects.hashCode(this.annotatedOrInferredHigherLevelMaTermName);
-        hash = 97 * hash + Objects.hashCode(this.annotatedOrInferredHigherLevelMaTermId);
-        hash = 97 * hash + Objects.hashCode(this.symbol);
-        hash = 97 * hash + Objects.hashCode(this.sangerSymbol);
-        hash = 97 * hash + Objects.hashCode(this.geneName);
-        hash = 97 * hash + Objects.hashCode(this.subtype);
-        hash = 97 * hash + Objects.hashCode(this.geneSynonyms);
-        hash = 97 * hash + Objects.hashCode(this.maTermId);
-        hash = 97 * hash + Objects.hashCode(this.maTermName);
-        hash = 97 * hash + Objects.hashCode(this.mpTermId);
-        hash = 97 * hash + Objects.hashCode(this.mpTermName);
-        hash = 97 * hash + Objects.hashCode(this.expNameExp);
-        hash = 97 * hash + Objects.hashCode(this.symbolGene);
-        hash = 97 * hash + Objects.hashCode(this.topLevel);
-        hash = 97 * hash + Objects.hashCode(this.alleleSymbol);
-        hash = 97 * hash + Objects.hashCode(this.alleleId);
-        hash = 97 * hash + Objects.hashCode(this.strainName);
-        hash = 97 * hash + Objects.hashCode(this.strainId);
-        hash = 97 * hash + Objects.hashCode(this.geneticBackground);
-        hash = 97 * hash + Objects.hashCode(this.pipelineName);
-        hash = 97 * hash + Objects.hashCode(this.pipelineStableId);
-        hash = 97 * hash + Objects.hashCode(this.pipelineStableKey);
-        hash = 97 * hash + Objects.hashCode(this.procedureName);
-        hash = 97 * hash + Objects.hashCode(this.procedureStableId);
-        hash = 97 * hash + Objects.hashCode(this.procedureStableKey);
-        hash = 97 * hash + Objects.hashCode(this.parameterName);
-        hash = 97 * hash + Objects.hashCode(this.parameterStableId);
-        hash = 97 * hash + Objects.hashCode(this.parameterStableKey);
-        hash = 97 * hash + Objects.hashCode(this.mpId);
-        hash = 97 * hash + Objects.hashCode(this.mpTerm);
-        hash = 97 * hash + Objects.hashCode(this.mpTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.topLevelMpId);
-        hash = 97 * hash + Objects.hashCode(this.topLevelMpTerm);
-        hash = 97 * hash + Objects.hashCode(this.topLevelMpTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.intermediateMpId);
-        hash = 97 * hash + Objects.hashCode(this.intermediateMpTerm);
-        hash = 97 * hash + Objects.hashCode(this.intermediateMpTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.childMpId);
-        hash = 97 * hash + Objects.hashCode(this.childMpTerm);
-        hash = 97 * hash + Objects.hashCode(this.childMpTermSynonym);
-        hash = 97 * hash + Objects.hashCode(this.text);
-        hash = 97 * hash + Objects.hashCode(this.autoSuggest);
-        hash = 97 * hash + Objects.hashCode(this.geneQf);
-        hash = 97 * hash + Objects.hashCode(this.mpQf);
-        hash = 97 * hash + Objects.hashCode(this.diseaseQf);
-        hash = 97 * hash + Objects.hashCode(this.maQf);
-        return hash;
-    }
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accession == null) ? 0 : accession.hashCode());
+		result = prime * result + ((alleleId == null) ? 0 : alleleId.hashCode());
+		result = prime * result + ((alleleName == null) ? 0 : alleleName.hashCode());
+		result = prime * result + ((alleleSymbol == null) ? 0 : alleleSymbol.hashCode());
+		result = prime * result
+				+ ((annotatedHigherLevelMaTermId == null) ? 0 : annotatedHigherLevelMaTermId.hashCode());
+		result = prime * result
+				+ ((annotatedHigherLevelMaTermName == null) ? 0 : annotatedHigherLevelMaTermName.hashCode());
+		result = prime * result
+				+ ((annotatedHigherLevelMpTermId == null) ? 0 : annotatedHigherLevelMpTermId.hashCode());
+		result = prime * result
+				+ ((annotatedHigherLevelMpTermName == null) ? 0 : annotatedHigherLevelMpTermName.hashCode());
+		result = prime * result + ((annotatedOrInferredHigherLevelMaTermId == null) ? 0
+				: annotatedOrInferredHigherLevelMaTermId.hashCode());
+		result = prime * result + ((annotatedOrInferredHigherLevelMaTermName == null) ? 0
+				: annotatedOrInferredHigherLevelMaTermName.hashCode());
+		result = prime * result + ((annotationTermId == null) ? 0 : annotationTermId.hashCode());
+		result = prime * result + ((annotationTermName == null) ? 0 : annotationTermName.hashCode());
+		result = prime * result + ((autoSuggest == null) ? 0 : autoSuggest.hashCode());
+		result = prime * result + ((childMaId == null) ? 0 : childMaId.hashCode());
+		result = prime * result + ((childMaIdTerm == null) ? 0 : childMaIdTerm.hashCode());
+		result = prime * result + ((childMaTerm == null) ? 0 : childMaTerm.hashCode());
+		result = prime * result + ((childMaTermSynonym == null) ? 0 : childMaTermSynonym.hashCode());
+		result = prime * result + ((childMpId == null) ? 0 : childMpId.hashCode());
+		result = prime * result + ((childMpTerm == null) ? 0 : childMpTerm.hashCode());
+		result = prime * result + ((childMpTermSynonym == null) ? 0 : childMpTermSynonym.hashCode());
+		result = prime * result + ((dataType == null) ? 0 : dataType.hashCode());
+		result = prime * result + ((diseaseAlts == null) ? 0 : diseaseAlts.hashCode());
+		result = prime * result + ((diseaseClasses == null) ? 0 : diseaseClasses.hashCode());
+		result = prime * result + ((diseaseHumanPhenotypes == null) ? 0 : diseaseHumanPhenotypes.hashCode());
+		result = prime * result + ((diseaseId == null) ? 0 : diseaseId.hashCode());
+		result = prime * result + ((diseaseQf == null) ? 0 : diseaseQf.hashCode());
+		result = prime * result + ((diseaseSource == null) ? 0 : diseaseSource.hashCode());
+		result = prime * result + ((diseaseTerm == null) ? 0 : diseaseTerm.hashCode());
+		result = prime * result + ((efoIds == null) ? 0 : efoIds.hashCode());
+		result = prime * result + ((expName == null) ? 0 : expName.hashCode());
+		result = prime * result + ((expNameExp == null) ? 0 : expNameExp.hashCode());
+		result = prime * result + ((geneName == null) ? 0 : geneName.hashCode());
+		result = prime * result + ((geneQf == null) ? 0 : geneQf.hashCode());
+		result = prime * result + ((geneSynonyms == null) ? 0 : geneSynonyms.hashCode());
+		result = prime * result + ((geneticBackground == null) ? 0 : geneticBackground.hashCode());
+		result = prime * result + ((goId == null) ? 0 : goId.hashCode());
+		result = prime * result + ((hpId == null) ? 0 : hpId.hashCode());
+		result = prime * result + ((hpTerm == null) ? 0 : hpTerm.hashCode());
+		result = prime * result + ((humanCurated == null) ? 0 : humanCurated.hashCode());
+		result = prime * result + ((humanGeneSymbol == null) ? 0 : humanGeneSymbol.hashCode());
+		result = prime * result + ((imitsPhenotypeComplete == null) ? 0 : imitsPhenotypeComplete.hashCode());
+		result = prime * result + ((imitsPhenotypeStarted == null) ? 0 : imitsPhenotypeStarted.hashCode());
+		result = prime * result + ((imitsPhenotypeStatus == null) ? 0 : imitsPhenotypeStatus.hashCode());
+		result = prime * result + ((impcNovelPredictedInLocus == null) ? 0 : impcNovelPredictedInLocus.hashCode());
+		result = prime * result + ((impcPredicted == null) ? 0 : impcPredicted.hashCode());
+		result = prime * result + ((impcPredictedKnownGene == null) ? 0 : impcPredictedKnownGene.hashCode());
+		result = prime * result + ((inferredHigherLevelMaTermId == null) ? 0 : inferredHigherLevelMaTermId.hashCode());
+		result = prime * result
+				+ ((inferredHigherLevelMaTermName == null) ? 0 : inferredHigherLevelMaTermName.hashCode());
+		result = prime * result + ((inferredMaTermId == null) ? 0 : inferredMaTermId.hashCode());
+		result = prime * result + ((inferredMaTermName == null) ? 0 : inferredMaTermName.hashCode());
+		result = prime * result + ((intermediateMpId == null) ? 0 : intermediateMpId.hashCode());
+		result = prime * result + ((intermediateMpTerm == null) ? 0 : intermediateMpTerm.hashCode());
+		result = prime * result + ((intermediateMpTermSynonym == null) ? 0 : intermediateMpTermSynonym.hashCode());
+		result = prime * result + ((largeThumbnailFilePath == null) ? 0 : largeThumbnailFilePath.hashCode());
+		result = prime * result + ((latestPhenotypeStatus == null) ? 0 : latestPhenotypeStatus.hashCode());
+		result = prime * result + ((latestPhenotypingCentre == null) ? 0 : latestPhenotypingCentre.hashCode());
+		result = prime * result + ((latestProductionCentre == null) ? 0 : latestProductionCentre.hashCode());
+		result = prime * result + ((legacyPhenotypeStatus == null) ? 0 : legacyPhenotypeStatus.hashCode());
+		result = prime * result + ((maId == null) ? 0 : maId.hashCode());
+		result = prime * result + ((maQf == null) ? 0 : maQf.hashCode());
+		result = prime * result + ((maTerm == null) ? 0 : maTerm.hashCode());
+		result = prime * result + ((maTermId == null) ? 0 : maTermId.hashCode());
+		result = prime * result + ((maTermName == null) ? 0 : maTermName.hashCode());
+		result = prime * result + ((maTermSynonym == null) ? 0 : maTermSynonym.hashCode());
+		result = prime * result + ((markerName == null) ? 0 : markerName.hashCode());
+		result = prime * result + ((markerSymbol == null) ? 0 : markerSymbol.hashCode());
+		result = prime * result + ((markerSynonym == null) ? 0 : markerSynonym.hashCode());
+		result = prime * result + ((markerType == null) ? 0 : markerType.hashCode());
+		result = prime * result + ((mgiAccessionId == null) ? 0 : mgiAccessionId.hashCode());
+		result = prime * result + ((mgiNovelPredictedInLocus == null) ? 0 : mgiNovelPredictedInLocus.hashCode());
+		result = prime * result + ((mgiPredicted == null) ? 0 : mgiPredicted.hashCode());
+		result = prime * result + ((mgiPredictedKnownGene == null) ? 0 : mgiPredictedKnownGene.hashCode());
+		result = prime * result + ((mouseCurated == null) ? 0 : mouseCurated.hashCode());
+		result = prime * result + ((mpId == null) ? 0 : mpId.hashCode());
+		result = prime * result + ((mpQf == null) ? 0 : mpQf.hashCode());
+		result = prime * result + ((mpTerm == null) ? 0 : mpTerm.hashCode());
+		result = prime * result + ((mpTermId == null) ? 0 : mpTermId.hashCode());
+		result = prime * result + ((mpTermName == null) ? 0 : mpTermName.hashCode());
+		result = prime * result + ((mpTermSynonym == null) ? 0 : mpTermSynonym.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((ontologySubset == null) ? 0 : ontologySubset.hashCode());
+		result = prime * result + ((pValue == null) ? 0 : pValue.hashCode());
+		result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
+		result = prime * result + ((parameterStableId == null) ? 0 : parameterStableId.hashCode());
+		result = prime * result + ((parameterStableKey == null) ? 0 : parameterStableKey.hashCode());
+		result = prime * result + ((pipelineName == null) ? 0 : pipelineName.hashCode());
+		result = prime * result + ((pipelineStableId == null) ? 0 : pipelineStableId.hashCode());
+		result = prime * result + ((pipelineStableKey == null) ? 0 : pipelineStableKey.hashCode());
+		result = prime * result + ((procedureName == null) ? 0 : procedureName.hashCode());
+		result = prime * result + ((procedureStableId == null) ? 0 : procedureStableId.hashCode());
+		result = prime * result + ((procedureStableKey == null) ? 0 : procedureStableKey.hashCode());
+		result = prime * result + ((sangerSymbol == null) ? 0 : sangerSymbol.hashCode());
+		result = prime * result + ((selectedTopLevelMaId == null) ? 0 : selectedTopLevelMaId.hashCode());
+		result = prime * result + ((selectedTopLevelMaTerm == null) ? 0 : selectedTopLevelMaTerm.hashCode());
+		result = prime * result
+				+ ((selectedTopLevelMaTermSynonym == null) ? 0 : selectedTopLevelMaTermSynonym.hashCode());
+		result = prime * result + ((smallThumbnailFilePath == null) ? 0 : smallThumbnailFilePath.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((strainId == null) ? 0 : strainId.hashCode());
+		result = prime * result + ((strainName == null) ? 0 : strainName.hashCode());
+		result = prime * result + ((subtype == null) ? 0 : subtype.hashCode());
+		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
+		result = prime * result + ((symbolGene == null) ? 0 : symbolGene.hashCode());
+		result = prime * result + ((text == null) ? 0 : text.hashCode());
+		result = prime * result + ((topLevel == null) ? 0 : topLevel.hashCode());
+		result = prime * result + ((topLevelMaId == null) ? 0 : topLevelMaId.hashCode());
+		result = prime * result + ((topLevelMaTerm == null) ? 0 : topLevelMaTerm.hashCode());
+		result = prime * result + ((topLevelMpId == null) ? 0 : topLevelMpId.hashCode());
+		result = prime * result + ((topLevelMpTerm == null) ? 0 : topLevelMpTerm.hashCode());
+		result = prime * result + ((topLevelMpTermSynonym == null) ? 0 : topLevelMpTermSynonym.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((uberonIds == null) ? 0 : uberonIds.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final MaDTO other = (MaDTO) obj;
-        if ( ! Objects.equals(this.dataType, other.dataType)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.maId, other.maId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.maTerm, other.maTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.maTermSynonym, other.maTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.ontologySubset, other.ontologySubset)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMaId, other.childMaId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMaTerm, other.childMaTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMaTermSynonym, other.childMaTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMaIdTerm, other.childMaIdTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.topLevelMaId, other.topLevelMaId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.topLevelMaTerm, other.topLevelMaTerm)) {
-            return false;
-        }
-//        if ( ! Objects.equals(this.topLevelMaTermSynonym, other.topLevelMaTermSynonym)) {
-//            return false;
-//        }
-        if ( ! Objects.equals(this.selectedTopLevelMaId, other.selectedTopLevelMaId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.selectedTopLevelMaTerm, other.selectedTopLevelMaTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.selectedTopLevelMaTermSynonym, other.selectedTopLevelMaTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.hpId, other.hpId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.hpTerm, other.hpTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.goId, other.goId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.pValue, other.pValue)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mgiAccessionId, other.mgiAccessionId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.markerSymbol, other.markerSymbol)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.markerName, other.markerName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.markerSynonym, other.markerSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.markerType, other.markerType)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.humanGeneSymbol, other.humanGeneSymbol)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.status, other.status)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.imitsPhenotypeStarted, other.imitsPhenotypeStarted)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.imitsPhenotypeComplete, other.imitsPhenotypeComplete)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.imitsPhenotypeStatus, other.imitsPhenotypeStatus)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.latestProductionCentre, other.latestProductionCentre)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.latestPhenotypingCentre, other.latestPhenotypingCentre)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.latestPhenotypeStatus, other.latestPhenotypeStatus)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.legacyPhenotypeStatus, other.legacyPhenotypeStatus)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.alleleName, other.alleleName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.type, other.type)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseId, other.diseaseId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseSource, other.diseaseSource)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseTerm, other.diseaseTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseAlts, other.diseaseAlts)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseClasses, other.diseaseClasses)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseHumanPhenotypes, other.diseaseHumanPhenotypes)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.humanCurated, other.humanCurated)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mouseCurated, other.mouseCurated)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mgiPredicted, other.mgiPredicted)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.impcPredicted, other.impcPredicted)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mgiPredictedKnownGene, other.mgiPredictedKnownGene)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.impcPredictedKnownGene, other.impcPredictedKnownGene)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mgiNovelPredictedInLocus, other.mgiNovelPredictedInLocus)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.impcNovelPredictedInLocus, other.impcNovelPredictedInLocus)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotationTermId, other.annotationTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotationTermName, other.annotationTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.accession, other.accession)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.expName, other.expName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.largeThumbnailFilePath, other.largeThumbnailFilePath)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.smallThumbnailFilePath, other.smallThumbnailFilePath)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.inferredMaTermId, other.inferredMaTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.inferredMaTermName, other.inferredMaTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotatedHigherLevelMaTermId, other.annotatedHigherLevelMaTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotatedHigherLevelMaTermName, other.annotatedHigherLevelMaTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotatedHigherLevelMpTermId, other.annotatedHigherLevelMpTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotatedHigherLevelMpTermName, other.annotatedHigherLevelMpTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.inferredHigherLevelMaTermId, other.inferredHigherLevelMaTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.inferredHigherLevelMaTermName, other.inferredHigherLevelMaTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotatedOrInferredHigherLevelMaTermName, other.annotatedOrInferredHigherLevelMaTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.annotatedOrInferredHigherLevelMaTermId, other.annotatedOrInferredHigherLevelMaTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.symbol, other.symbol)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.sangerSymbol, other.sangerSymbol)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.geneName, other.geneName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.subtype, other.subtype)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.geneSynonyms, other.geneSynonyms)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.maTermId, other.maTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.maTermName, other.maTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mpTermId, other.mpTermId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mpTermName, other.mpTermName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.expNameExp, other.expNameExp)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.symbolGene, other.symbolGene)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.topLevel, other.topLevel)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.alleleSymbol, other.alleleSymbol)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.alleleId, other.alleleId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.strainName, other.strainName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.strainId, other.strainId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.geneticBackground, other.geneticBackground)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.pipelineName, other.pipelineName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.pipelineStableId, other.pipelineStableId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.pipelineStableKey, other.pipelineStableKey)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.procedureName, other.procedureName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.procedureStableId, other.procedureStableId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.procedureStableKey, other.procedureStableKey)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.parameterName, other.parameterName)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.parameterStableId, other.parameterStableId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.parameterStableKey, other.parameterStableKey)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mpId, other.mpId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mpTerm, other.mpTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mpTermSynonym, other.mpTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.topLevelMpId, other.topLevelMpId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.topLevelMpTerm, other.topLevelMpTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.topLevelMpTermSynonym, other.topLevelMpTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.intermediateMpId, other.intermediateMpId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.intermediateMpTerm, other.intermediateMpTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.intermediateMpTermSynonym, other.intermediateMpTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMpId, other.childMpId)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMpTerm, other.childMpTerm)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.childMpTermSynonym, other.childMpTermSynonym)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.text, other.text)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.autoSuggest, other.autoSuggest)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.geneQf, other.geneQf)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.mpQf, other.mpQf)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.diseaseQf, other.diseaseQf)) {
-            return false;
-        }
-        if ( ! Objects.equals(this.maQf, other.maQf)) {
-            return false;
-        }
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MaDTO other = (MaDTO) obj;
+		if (accession == null) {
+			if (other.accession != null)
+				return false;
+		} else if (!accession.equals(other.accession))
+			return false;
+		if (alleleId == null) {
+			if (other.alleleId != null)
+				return false;
+		} else if (!alleleId.equals(other.alleleId))
+			return false;
+		if (alleleName == null) {
+			if (other.alleleName != null)
+				return false;
+		} else if (!alleleName.equals(other.alleleName))
+			return false;
+		if (alleleSymbol == null) {
+			if (other.alleleSymbol != null)
+				return false;
+		} else if (!alleleSymbol.equals(other.alleleSymbol))
+			return false;
+		if (annotatedHigherLevelMaTermId == null) {
+			if (other.annotatedHigherLevelMaTermId != null)
+				return false;
+		} else if (!annotatedHigherLevelMaTermId.equals(other.annotatedHigherLevelMaTermId))
+			return false;
+		if (annotatedHigherLevelMaTermName == null) {
+			if (other.annotatedHigherLevelMaTermName != null)
+				return false;
+		} else if (!annotatedHigherLevelMaTermName.equals(other.annotatedHigherLevelMaTermName))
+			return false;
+		if (annotatedHigherLevelMpTermId == null) {
+			if (other.annotatedHigherLevelMpTermId != null)
+				return false;
+		} else if (!annotatedHigherLevelMpTermId.equals(other.annotatedHigherLevelMpTermId))
+			return false;
+		if (annotatedHigherLevelMpTermName == null) {
+			if (other.annotatedHigherLevelMpTermName != null)
+				return false;
+		} else if (!annotatedHigherLevelMpTermName.equals(other.annotatedHigherLevelMpTermName))
+			return false;
+		if (annotatedOrInferredHigherLevelMaTermId == null) {
+			if (other.annotatedOrInferredHigherLevelMaTermId != null)
+				return false;
+		} else if (!annotatedOrInferredHigherLevelMaTermId.equals(other.annotatedOrInferredHigherLevelMaTermId))
+			return false;
+		if (annotatedOrInferredHigherLevelMaTermName == null) {
+			if (other.annotatedOrInferredHigherLevelMaTermName != null)
+				return false;
+		} else if (!annotatedOrInferredHigherLevelMaTermName.equals(other.annotatedOrInferredHigherLevelMaTermName))
+			return false;
+		if (annotationTermId == null) {
+			if (other.annotationTermId != null)
+				return false;
+		} else if (!annotationTermId.equals(other.annotationTermId))
+			return false;
+		if (annotationTermName == null) {
+			if (other.annotationTermName != null)
+				return false;
+		} else if (!annotationTermName.equals(other.annotationTermName))
+			return false;
+		if (autoSuggest == null) {
+			if (other.autoSuggest != null)
+				return false;
+		} else if (!autoSuggest.equals(other.autoSuggest))
+			return false;
+		if (childMaId == null) {
+			if (other.childMaId != null)
+				return false;
+		} else if (!childMaId.equals(other.childMaId))
+			return false;
+		if (childMaIdTerm == null) {
+			if (other.childMaIdTerm != null)
+				return false;
+		} else if (!childMaIdTerm.equals(other.childMaIdTerm))
+			return false;
+		if (childMaTerm == null) {
+			if (other.childMaTerm != null)
+				return false;
+		} else if (!childMaTerm.equals(other.childMaTerm))
+			return false;
+		if (childMaTermSynonym == null) {
+			if (other.childMaTermSynonym != null)
+				return false;
+		} else if (!childMaTermSynonym.equals(other.childMaTermSynonym))
+			return false;
+		if (childMpId == null) {
+			if (other.childMpId != null)
+				return false;
+		} else if (!childMpId.equals(other.childMpId))
+			return false;
+		if (childMpTerm == null) {
+			if (other.childMpTerm != null)
+				return false;
+		} else if (!childMpTerm.equals(other.childMpTerm))
+			return false;
+		if (childMpTermSynonym == null) {
+			if (other.childMpTermSynonym != null)
+				return false;
+		} else if (!childMpTermSynonym.equals(other.childMpTermSynonym))
+			return false;
+		if (dataType == null) {
+			if (other.dataType != null)
+				return false;
+		} else if (!dataType.equals(other.dataType))
+			return false;
+		if (diseaseAlts == null) {
+			if (other.diseaseAlts != null)
+				return false;
+		} else if (!diseaseAlts.equals(other.diseaseAlts))
+			return false;
+		if (diseaseClasses == null) {
+			if (other.diseaseClasses != null)
+				return false;
+		} else if (!diseaseClasses.equals(other.diseaseClasses))
+			return false;
+		if (diseaseHumanPhenotypes == null) {
+			if (other.diseaseHumanPhenotypes != null)
+				return false;
+		} else if (!diseaseHumanPhenotypes.equals(other.diseaseHumanPhenotypes))
+			return false;
+		if (diseaseId == null) {
+			if (other.diseaseId != null)
+				return false;
+		} else if (!diseaseId.equals(other.diseaseId))
+			return false;
+		if (diseaseQf == null) {
+			if (other.diseaseQf != null)
+				return false;
+		} else if (!diseaseQf.equals(other.diseaseQf))
+			return false;
+		if (diseaseSource == null) {
+			if (other.diseaseSource != null)
+				return false;
+		} else if (!diseaseSource.equals(other.diseaseSource))
+			return false;
+		if (diseaseTerm == null) {
+			if (other.diseaseTerm != null)
+				return false;
+		} else if (!diseaseTerm.equals(other.diseaseTerm))
+			return false;
+		if (efoIds == null) {
+			if (other.efoIds != null)
+				return false;
+		} else if (!efoIds.equals(other.efoIds))
+			return false;
+		if (expName == null) {
+			if (other.expName != null)
+				return false;
+		} else if (!expName.equals(other.expName))
+			return false;
+		if (expNameExp == null) {
+			if (other.expNameExp != null)
+				return false;
+		} else if (!expNameExp.equals(other.expNameExp))
+			return false;
+		if (geneName == null) {
+			if (other.geneName != null)
+				return false;
+		} else if (!geneName.equals(other.geneName))
+			return false;
+		if (geneQf == null) {
+			if (other.geneQf != null)
+				return false;
+		} else if (!geneQf.equals(other.geneQf))
+			return false;
+		if (geneSynonyms == null) {
+			if (other.geneSynonyms != null)
+				return false;
+		} else if (!geneSynonyms.equals(other.geneSynonyms))
+			return false;
+		if (geneticBackground == null) {
+			if (other.geneticBackground != null)
+				return false;
+		} else if (!geneticBackground.equals(other.geneticBackground))
+			return false;
+		if (goId == null) {
+			if (other.goId != null)
+				return false;
+		} else if (!goId.equals(other.goId))
+			return false;
+		if (hpId == null) {
+			if (other.hpId != null)
+				return false;
+		} else if (!hpId.equals(other.hpId))
+			return false;
+		if (hpTerm == null) {
+			if (other.hpTerm != null)
+				return false;
+		} else if (!hpTerm.equals(other.hpTerm))
+			return false;
+		if (humanCurated == null) {
+			if (other.humanCurated != null)
+				return false;
+		} else if (!humanCurated.equals(other.humanCurated))
+			return false;
+		if (humanGeneSymbol == null) {
+			if (other.humanGeneSymbol != null)
+				return false;
+		} else if (!humanGeneSymbol.equals(other.humanGeneSymbol))
+			return false;
+		if (imitsPhenotypeComplete == null) {
+			if (other.imitsPhenotypeComplete != null)
+				return false;
+		} else if (!imitsPhenotypeComplete.equals(other.imitsPhenotypeComplete))
+			return false;
+		if (imitsPhenotypeStarted == null) {
+			if (other.imitsPhenotypeStarted != null)
+				return false;
+		} else if (!imitsPhenotypeStarted.equals(other.imitsPhenotypeStarted))
+			return false;
+		if (imitsPhenotypeStatus == null) {
+			if (other.imitsPhenotypeStatus != null)
+				return false;
+		} else if (!imitsPhenotypeStatus.equals(other.imitsPhenotypeStatus))
+			return false;
+		if (impcNovelPredictedInLocus == null) {
+			if (other.impcNovelPredictedInLocus != null)
+				return false;
+		} else if (!impcNovelPredictedInLocus.equals(other.impcNovelPredictedInLocus))
+			return false;
+		if (impcPredicted == null) {
+			if (other.impcPredicted != null)
+				return false;
+		} else if (!impcPredicted.equals(other.impcPredicted))
+			return false;
+		if (impcPredictedKnownGene == null) {
+			if (other.impcPredictedKnownGene != null)
+				return false;
+		} else if (!impcPredictedKnownGene.equals(other.impcPredictedKnownGene))
+			return false;
+		if (inferredHigherLevelMaTermId == null) {
+			if (other.inferredHigherLevelMaTermId != null)
+				return false;
+		} else if (!inferredHigherLevelMaTermId.equals(other.inferredHigherLevelMaTermId))
+			return false;
+		if (inferredHigherLevelMaTermName == null) {
+			if (other.inferredHigherLevelMaTermName != null)
+				return false;
+		} else if (!inferredHigherLevelMaTermName.equals(other.inferredHigherLevelMaTermName))
+			return false;
+		if (inferredMaTermId == null) {
+			if (other.inferredMaTermId != null)
+				return false;
+		} else if (!inferredMaTermId.equals(other.inferredMaTermId))
+			return false;
+		if (inferredMaTermName == null) {
+			if (other.inferredMaTermName != null)
+				return false;
+		} else if (!inferredMaTermName.equals(other.inferredMaTermName))
+			return false;
+		if (intermediateMpId == null) {
+			if (other.intermediateMpId != null)
+				return false;
+		} else if (!intermediateMpId.equals(other.intermediateMpId))
+			return false;
+		if (intermediateMpTerm == null) {
+			if (other.intermediateMpTerm != null)
+				return false;
+		} else if (!intermediateMpTerm.equals(other.intermediateMpTerm))
+			return false;
+		if (intermediateMpTermSynonym == null) {
+			if (other.intermediateMpTermSynonym != null)
+				return false;
+		} else if (!intermediateMpTermSynonym.equals(other.intermediateMpTermSynonym))
+			return false;
+		if (largeThumbnailFilePath == null) {
+			if (other.largeThumbnailFilePath != null)
+				return false;
+		} else if (!largeThumbnailFilePath.equals(other.largeThumbnailFilePath))
+			return false;
+		if (latestPhenotypeStatus == null) {
+			if (other.latestPhenotypeStatus != null)
+				return false;
+		} else if (!latestPhenotypeStatus.equals(other.latestPhenotypeStatus))
+			return false;
+		if (latestPhenotypingCentre == null) {
+			if (other.latestPhenotypingCentre != null)
+				return false;
+		} else if (!latestPhenotypingCentre.equals(other.latestPhenotypingCentre))
+			return false;
+		if (latestProductionCentre == null) {
+			if (other.latestProductionCentre != null)
+				return false;
+		} else if (!latestProductionCentre.equals(other.latestProductionCentre))
+			return false;
+		if (legacyPhenotypeStatus == null) {
+			if (other.legacyPhenotypeStatus != null)
+				return false;
+		} else if (!legacyPhenotypeStatus.equals(other.legacyPhenotypeStatus))
+			return false;
+		if (maId == null) {
+			if (other.maId != null)
+				return false;
+		} else if (!maId.equals(other.maId))
+			return false;
+		if (maQf == null) {
+			if (other.maQf != null)
+				return false;
+		} else if (!maQf.equals(other.maQf))
+			return false;
+		if (maTerm == null) {
+			if (other.maTerm != null)
+				return false;
+		} else if (!maTerm.equals(other.maTerm))
+			return false;
+		if (maTermId == null) {
+			if (other.maTermId != null)
+				return false;
+		} else if (!maTermId.equals(other.maTermId))
+			return false;
+		if (maTermName == null) {
+			if (other.maTermName != null)
+				return false;
+		} else if (!maTermName.equals(other.maTermName))
+			return false;
+		if (maTermSynonym == null) {
+			if (other.maTermSynonym != null)
+				return false;
+		} else if (!maTermSynonym.equals(other.maTermSynonym))
+			return false;
+		if (markerName == null) {
+			if (other.markerName != null)
+				return false;
+		} else if (!markerName.equals(other.markerName))
+			return false;
+		if (markerSymbol == null) {
+			if (other.markerSymbol != null)
+				return false;
+		} else if (!markerSymbol.equals(other.markerSymbol))
+			return false;
+		if (markerSynonym == null) {
+			if (other.markerSynonym != null)
+				return false;
+		} else if (!markerSynonym.equals(other.markerSynonym))
+			return false;
+		if (markerType == null) {
+			if (other.markerType != null)
+				return false;
+		} else if (!markerType.equals(other.markerType))
+			return false;
+		if (mgiAccessionId == null) {
+			if (other.mgiAccessionId != null)
+				return false;
+		} else if (!mgiAccessionId.equals(other.mgiAccessionId))
+			return false;
+		if (mgiNovelPredictedInLocus == null) {
+			if (other.mgiNovelPredictedInLocus != null)
+				return false;
+		} else if (!mgiNovelPredictedInLocus.equals(other.mgiNovelPredictedInLocus))
+			return false;
+		if (mgiPredicted == null) {
+			if (other.mgiPredicted != null)
+				return false;
+		} else if (!mgiPredicted.equals(other.mgiPredicted))
+			return false;
+		if (mgiPredictedKnownGene == null) {
+			if (other.mgiPredictedKnownGene != null)
+				return false;
+		} else if (!mgiPredictedKnownGene.equals(other.mgiPredictedKnownGene))
+			return false;
+		if (mouseCurated == null) {
+			if (other.mouseCurated != null)
+				return false;
+		} else if (!mouseCurated.equals(other.mouseCurated))
+			return false;
+		if (mpId == null) {
+			if (other.mpId != null)
+				return false;
+		} else if (!mpId.equals(other.mpId))
+			return false;
+		if (mpQf == null) {
+			if (other.mpQf != null)
+				return false;
+		} else if (!mpQf.equals(other.mpQf))
+			return false;
+		if (mpTerm == null) {
+			if (other.mpTerm != null)
+				return false;
+		} else if (!mpTerm.equals(other.mpTerm))
+			return false;
+		if (mpTermId == null) {
+			if (other.mpTermId != null)
+				return false;
+		} else if (!mpTermId.equals(other.mpTermId))
+			return false;
+		if (mpTermName == null) {
+			if (other.mpTermName != null)
+				return false;
+		} else if (!mpTermName.equals(other.mpTermName))
+			return false;
+		if (mpTermSynonym == null) {
+			if (other.mpTermSynonym != null)
+				return false;
+		} else if (!mpTermSynonym.equals(other.mpTermSynonym))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (ontologySubset == null) {
+			if (other.ontologySubset != null)
+				return false;
+		} else if (!ontologySubset.equals(other.ontologySubset))
+			return false;
+		if (pValue == null) {
+			if (other.pValue != null)
+				return false;
+		} else if (!pValue.equals(other.pValue))
+			return false;
+		if (parameterName == null) {
+			if (other.parameterName != null)
+				return false;
+		} else if (!parameterName.equals(other.parameterName))
+			return false;
+		if (parameterStableId == null) {
+			if (other.parameterStableId != null)
+				return false;
+		} else if (!parameterStableId.equals(other.parameterStableId))
+			return false;
+		if (parameterStableKey == null) {
+			if (other.parameterStableKey != null)
+				return false;
+		} else if (!parameterStableKey.equals(other.parameterStableKey))
+			return false;
+		if (pipelineName == null) {
+			if (other.pipelineName != null)
+				return false;
+		} else if (!pipelineName.equals(other.pipelineName))
+			return false;
+		if (pipelineStableId == null) {
+			if (other.pipelineStableId != null)
+				return false;
+		} else if (!pipelineStableId.equals(other.pipelineStableId))
+			return false;
+		if (pipelineStableKey == null) {
+			if (other.pipelineStableKey != null)
+				return false;
+		} else if (!pipelineStableKey.equals(other.pipelineStableKey))
+			return false;
+		if (procedureName == null) {
+			if (other.procedureName != null)
+				return false;
+		} else if (!procedureName.equals(other.procedureName))
+			return false;
+		if (procedureStableId == null) {
+			if (other.procedureStableId != null)
+				return false;
+		} else if (!procedureStableId.equals(other.procedureStableId))
+			return false;
+		if (procedureStableKey == null) {
+			if (other.procedureStableKey != null)
+				return false;
+		} else if (!procedureStableKey.equals(other.procedureStableKey))
+			return false;
+		if (sangerSymbol == null) {
+			if (other.sangerSymbol != null)
+				return false;
+		} else if (!sangerSymbol.equals(other.sangerSymbol))
+			return false;
+		if (selectedTopLevelMaId == null) {
+			if (other.selectedTopLevelMaId != null)
+				return false;
+		} else if (!selectedTopLevelMaId.equals(other.selectedTopLevelMaId))
+			return false;
+		if (selectedTopLevelMaTerm == null) {
+			if (other.selectedTopLevelMaTerm != null)
+				return false;
+		} else if (!selectedTopLevelMaTerm.equals(other.selectedTopLevelMaTerm))
+			return false;
+		if (selectedTopLevelMaTermSynonym == null) {
+			if (other.selectedTopLevelMaTermSynonym != null)
+				return false;
+		} else if (!selectedTopLevelMaTermSynonym.equals(other.selectedTopLevelMaTermSynonym))
+			return false;
+		if (smallThumbnailFilePath == null) {
+			if (other.smallThumbnailFilePath != null)
+				return false;
+		} else if (!smallThumbnailFilePath.equals(other.smallThumbnailFilePath))
+			return false;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
+		if (strainId == null) {
+			if (other.strainId != null)
+				return false;
+		} else if (!strainId.equals(other.strainId))
+			return false;
+		if (strainName == null) {
+			if (other.strainName != null)
+				return false;
+		} else if (!strainName.equals(other.strainName))
+			return false;
+		if (subtype == null) {
+			if (other.subtype != null)
+				return false;
+		} else if (!subtype.equals(other.subtype))
+			return false;
+		if (symbol == null) {
+			if (other.symbol != null)
+				return false;
+		} else if (!symbol.equals(other.symbol))
+			return false;
+		if (symbolGene == null) {
+			if (other.symbolGene != null)
+				return false;
+		} else if (!symbolGene.equals(other.symbolGene))
+			return false;
+		if (text == null) {
+			if (other.text != null)
+				return false;
+		} else if (!text.equals(other.text))
+			return false;
+		if (topLevel == null) {
+			if (other.topLevel != null)
+				return false;
+		} else if (!topLevel.equals(other.topLevel))
+			return false;
+		if (topLevelMaId == null) {
+			if (other.topLevelMaId != null)
+				return false;
+		} else if (!topLevelMaId.equals(other.topLevelMaId))
+			return false;
+		if (topLevelMaTerm == null) {
+			if (other.topLevelMaTerm != null)
+				return false;
+		} else if (!topLevelMaTerm.equals(other.topLevelMaTerm))
+			return false;
+		if (topLevelMpId == null) {
+			if (other.topLevelMpId != null)
+				return false;
+		} else if (!topLevelMpId.equals(other.topLevelMpId))
+			return false;
+		if (topLevelMpTerm == null) {
+			if (other.topLevelMpTerm != null)
+				return false;
+		} else if (!topLevelMpTerm.equals(other.topLevelMpTerm))
+			return false;
+		if (topLevelMpTermSynonym == null) {
+			if (other.topLevelMpTermSynonym != null)
+				return false;
+		} else if (!topLevelMpTermSynonym.equals(other.topLevelMpTermSynonym))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		if (uberonIds == null) {
+			if (other.uberonIds != null)
+				return false;
+		} else if (!uberonIds.equals(other.uberonIds))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "MaDTO [dataType=" + dataType + ", maId=" + maId + ", uberonIds=" + uberonIds + ", efoIds=" + efoIds
+				+ ", maTerm=" + maTerm + ", maTermSynonym=" + maTermSynonym + ", ontologySubset=" + ontologySubset
+				+ ", childMaId=" + childMaId + ", childMaTerm=" + childMaTerm + ", childMaTermSynonym="
+				+ childMaTermSynonym + ", childMaIdTerm=" + childMaIdTerm + ", topLevelMaId=" + topLevelMaId
+				+ ", topLevelMaTerm=" + topLevelMaTerm + ", selectedTopLevelMaId=" + selectedTopLevelMaId
+				+ ", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm + ", selectedTopLevelMaTermSynonym="
+				+ selectedTopLevelMaTermSynonym + ", hpId=" + hpId + ", hpTerm=" + hpTerm + ", goId=" + goId
+				+ ", pValue=" + pValue + ", mgiAccessionId=" + mgiAccessionId + ", markerSymbol=" + markerSymbol
+				+ ", markerName=" + markerName + ", markerSynonym=" + markerSynonym + ", markerType=" + markerType
+				+ ", humanGeneSymbol=" + humanGeneSymbol + ", status=" + status + ", imitsPhenotypeStarted="
+				+ imitsPhenotypeStarted + ", imitsPhenotypeComplete=" + imitsPhenotypeComplete
+				+ ", imitsPhenotypeStatus=" + imitsPhenotypeStatus + ", latestProductionCentre="
+				+ latestProductionCentre + ", latestPhenotypingCentre=" + latestPhenotypingCentre
+				+ ", latestPhenotypeStatus=" + latestPhenotypeStatus + ", legacyPhenotypeStatus="
+				+ legacyPhenotypeStatus + ", alleleName=" + alleleName + ", type=" + type + ", diseaseId=" + diseaseId
+				+ ", diseaseSource=" + diseaseSource + ", diseaseTerm=" + diseaseTerm + ", diseaseAlts=" + diseaseAlts
+				+ ", diseaseClasses=" + diseaseClasses + ", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes
+				+ ", humanCurated=" + humanCurated + ", mouseCurated=" + mouseCurated + ", mgiPredicted=" + mgiPredicted
+				+ ", impcPredicted=" + impcPredicted + ", mgiPredictedKnownGene=" + mgiPredictedKnownGene
+				+ ", impcPredictedKnownGene=" + impcPredictedKnownGene + ", mgiNovelPredictedInLocus="
+				+ mgiNovelPredictedInLocus + ", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus
+				+ ", annotationTermId=" + annotationTermId + ", annotationTermName=" + annotationTermName + ", name="
+				+ name + ", accession=" + accession + ", expName=" + expName + ", largeThumbnailFilePath="
+				+ largeThumbnailFilePath + ", smallThumbnailFilePath=" + smallThumbnailFilePath + ", inferredMaTermId="
+				+ inferredMaTermId + ", inferredMaTermName=" + inferredMaTermName + ", annotatedHigherLevelMaTermId="
+				+ annotatedHigherLevelMaTermId + ", annotatedHigherLevelMaTermName=" + annotatedHigherLevelMaTermName
+				+ ", annotatedHigherLevelMpTermId=" + annotatedHigherLevelMpTermId + ", annotatedHigherLevelMpTermName="
+				+ annotatedHigherLevelMpTermName + ", inferredHigherLevelMaTermId=" + inferredHigherLevelMaTermId
+				+ ", inferredHigherLevelMaTermName=" + inferredHigherLevelMaTermName
+				+ ", annotatedOrInferredHigherLevelMaTermName=" + annotatedOrInferredHigherLevelMaTermName
+				+ ", annotatedOrInferredHigherLevelMaTermId=" + annotatedOrInferredHigherLevelMaTermId + ", symbol="
+				+ symbol + ", sangerSymbol=" + sangerSymbol + ", geneName=" + geneName + ", subtype=" + subtype
+				+ ", geneSynonyms=" + geneSynonyms + ", maTermId=" + maTermId + ", maTermName=" + maTermName
+				+ ", mpTermId=" + mpTermId + ", mpTermName=" + mpTermName + ", expNameExp=" + expNameExp
+				+ ", symbolGene=" + symbolGene + ", topLevel=" + topLevel + ", alleleSymbol=" + alleleSymbol
+				+ ", alleleId=" + alleleId + ", strainName=" + strainName + ", strainId=" + strainId
+				+ ", geneticBackground=" + geneticBackground + ", pipelineName=" + pipelineName + ", pipelineStableId="
+				+ pipelineStableId + ", pipelineStableKey=" + pipelineStableKey + ", procedureName=" + procedureName
+				+ ", procedureStableId=" + procedureStableId + ", procedureStableKey=" + procedureStableKey
+				+ ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId
+				+ ", parameterStableKey=" + parameterStableKey + ", mpId=" + mpId + ", mpTerm=" + mpTerm
+				+ ", mpTermSynonym=" + mpTermSynonym + ", topLevelMpId=" + topLevelMpId + ", topLevelMpTerm="
+				+ topLevelMpTerm + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpId="
+				+ intermediateMpId + ", intermediateMpTerm=" + intermediateMpTerm + ", intermediateMpTermSynonym="
+				+ intermediateMpTermSynonym + ", childMpId=" + childMpId + ", childMpTerm=" + childMpTerm
+				+ ", childMpTermSynonym=" + childMpTermSynonym + ", text=" + text + ", autoSuggest=" + autoSuggest
+				+ ", geneQf=" + geneQf + ", mpQf=" + mpQf + ", diseaseQf=" + diseaseQf + ", maQf=" + maQf + "]";
+	}
   
-
+	
 }
