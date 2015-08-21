@@ -27,7 +27,6 @@ package org.mousephenotype.cda.db.dao;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -35,19 +34,11 @@ public interface OntologyTermDAO extends HibernateDAO {
 
 	public List<OntologyTerm> getAllOntologyTerms();
 
-	public List<OntologyTerm> getAllOntologyTermsByDatabaseId(int databaseId);
-
 	public OntologyTerm getOntologyTermByName(String name);
-
-	public OntologyTerm getOntologyTermBySynonym(String name);
-
-	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId);
 
 	public OntologyTerm getOntologyTermByAccession(String accession);
 
 	public OntologyTerm getOntologyTermByAccessionAndDatabaseId(String accession, int databaseId);
-
-	public HashMap<String, OntologyTerm> getAllTerms(int databaseId);
 
 	public int deleteAllTerms(String datasourceName);
 
