@@ -251,24 +251,40 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 logger.info(" added {} categorical beans", count);
             }
 
-            // Populate viability and fertility and manual results
-            query = "SELECT CONCAT(parameter.stable_id, '_', sr.id) as doc_id, " +
-	            "  'line' AS data_type, sr.id AS db_id, " +
-	            "  zygosity as experimental_zygosity, external_db_id, sr.pipeline_id, sr.procedure_id, parameter_id, sr.colony_id, sex, " +
-	            "  (select stable_id from phenotype_parameter where id=parameter_id) as dependent_variable, " +
-	            "  'Success' as status, exp.biological_model_id,  " +
-	            "  p_value as line_p_value, effect_size AS line_effect_size, " +
-	            "  mp_acc, exp.metadata_group, " +
-	            "  db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
-	            "  proj.name as project_name, proj.id as project_id, " +
-	            "  org.name as phenotyping_center, org.id as phenotyping_center_id " +
-	            "FROM phenotype_call_summary sr " +
-	            "INNER JOIN phenotype_parameter parameter ON parameter.id=sr.parameter_id " +
-	            "INNER JOIN external_db db on db.id=sr.external_db_id " +
-	            "INNER JOIN project proj on proj.id=sr.project_id " +
-	            "INNER JOIN organisation org on org.id=sr.organisation_id " +
-	            "  INNER JOIN experiment exp on sr.colony_id=exp.colony_id AND sr.procedure_id=exp.procedure_id " +
-	            "WHERE parameter.stable_id LIKE '%FER%' OR parameter.stable_id LIKE '%VIA%'";
+            // Populate viability results
+            query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, " +
+                "'line' AS data_type, db.id AS db_id, " +
+                "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
+                "parameter.stable_id as dependent_variable, " +
+                "'Success' as status, exp.biological_model_id, " +
+                "p_value as line_p_value, effect_size AS line_effect_size, " +
+                "mp_acc, exp.metadata_group, " +
+                "db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
+                "proj.name as project_name, proj.id as project_id, " +
+                "org.name as phenotyping_center, org.id as phenotyping_center_id, " +
+                "0 AS male_controls, " +
+                "(SELECT uobs2.data_point " +
+                "  FROM observation obs2 " +
+                "  INNER JOIN unidimensional_observation uobs2 ON obs2.id=uobs2.id " +
+                "  INNER JOIN experiment_observation eo2 ON eo2.observation_id=obs2.id " +
+                "  INNER JOIN experiment exp2 ON eo2.experiment_id=exp2.id " +
+                "  WHERE exp2.colony_id=exp.colony_id AND obs2.parameter_stable_id='IMPC_VIA_010_001' limit 1) AS male_mutants, " +
+                "0 AS female_controls, " +
+                "(SELECT uobs2.data_point " +
+                "  FROM observation obs2 " +
+                "  INNER JOIN unidimensional_observation uobs2 ON obs2.id=uobs2.id " +
+                "  INNER JOIN experiment_observation eo2 ON eo2.observation_id=obs2.id " +
+                "  INNER JOIN experiment exp2 ON eo2.experiment_id=exp2.id " +
+                "  WHERE exp2.colony_id=exp.colony_id AND obs2.parameter_stable_id='IMPC_VIA_014_001' limit 1) AS  female_mutants " +
+                "FROM phenotype_parameter parameter " +
+                "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id = 'IMPC_VIA_001_001' " +
+                "INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
+                "INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
+                "INNER JOIN external_db db ON db.id=obs.db_id " +
+                "INNER JOIN project proj ON proj.id=exp.project_id " +
+                "INNER JOIN organisation org ON org.id=exp.organisation_id " +
+                "LEFT OUTER JOIN phenotype_call_summary sr ON (exp.colony_id=sr.colony_id AND sr.parameter_id=parameter.id) " +
+                "WHERE  parameter.stable_id = 'IMPC_VIA_001_001' ";
 
             try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
                 p.setFetchSize(Integer.MIN_VALUE);
@@ -284,7 +300,45 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                         logger.info(" added {} line level parameter beans", count);
                     }
                 }
-                logger.info(" added {} line level parameter beans", count);
+                logger.info(" added {} viability parameter beans", count);
+            }
+
+            // Populate fertility results
+            query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', IF(sex IS NULL,'both',sex)) as doc_id, " +
+                "'line' AS data_type, db.id AS db_id, " +
+                "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
+                "parameter.stable_id as dependent_variable, " +
+                "'Success' as status, exp.biological_model_id, " +
+                "p_value as line_p_value, effect_size AS line_effect_size, " +
+                "mp_acc, exp.metadata_group, " +
+                "db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
+                "proj.name as project_name, proj.id as project_id, " +
+                "org.name as phenotyping_center, org.id as phenotyping_center_id " +
+                "FROM phenotype_parameter parameter " +
+                "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id = 'IMPC_FER_001_001' " +
+                "INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
+                "INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
+                "INNER JOIN external_db db ON db.id=obs.db_id " +
+                "INNER JOIN project proj ON proj.id=exp.project_id " +
+                "INNER JOIN organisation org ON org.id=exp.organisation_id " +
+                "LEFT OUTER JOIN phenotype_call_summary sr ON (exp.colony_id=sr.colony_id AND sr.parameter_id=parameter.id) " +
+                "WHERE  parameter.stable_id = 'IMPC_FER_001_001'";
+
+            try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+                p.setFetchSize(Integer.MIN_VALUE);
+                ResultSet r = p.executeQuery();
+                while (r.next()) {
+
+                    StatisticalResultDTO doc = parseLineResult(r);
+                    documentCount++;
+                    statResultCore.addBean(doc, 30000);
+                    count ++;
+
+                    if (count % 10000 == 0) {
+                        logger.info(" added {} line level parameter beans", count);
+                    }
+                }
+                logger.info(" added {} fertility parameter beans", count);
             }
 
             // Final commit to save the rest of the docs
@@ -424,9 +478,26 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseLineResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseLineResultCommonFields(r);
-        doc.setSex(r.getString("sex"));
-        doc.setpValue(r.getDouble("line_p_value"));
-        doc.setEffectSize(r.getDouble("line_effect_size"));
+
+        String sex = r.getString("sex");
+        if (!r.wasNull()) {
+            doc.setSex(sex);
+        }
+
+        Double line_p_value = r.getDouble("line_p_value");
+        if (!r.wasNull()) {
+            doc.setpValue(line_p_value);
+        } else {
+            doc.setpValue(1.0);
+        }
+
+        Double line_effect_size = r.getDouble("line_effect_size");
+        if (!r.wasNull()) {
+        doc.setEffectSize(line_effect_size);
+        } else {
+            doc.setEffectSize(0.0);
+        }
+
 
         return doc;
 
@@ -503,7 +574,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         StatisticalResultDTO doc = new StatisticalResultDTO();
 
-        doc.setDocId(r.getString("doc_id"));
+	    String docId = r.getString("doc_id");
+	    if (docId == null) {
+		    docId = String.valueOf(Math.random());
+	    }
+
+	    doc.setDocId(docId);
         doc.setDataType(r.getString("data_type"));
         doc.setResourceId(r.getInt("resource_id"));
         doc.setResourceName(r.getString("resource_name"));
@@ -521,8 +597,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	    doc.setStatisticalMethod("Supplied as data");
 	    doc.setMaleControlCount(0);
 	    doc.setFemaleControlCount(0);
-//	    doc.setMaleMutantCount(r.getInt("male_mutants"));
-//	    doc.setFemaleMutantCount(r.getInt("female_mutants"));
 	    doc.setColonyId(r.getString("colony_id"));
 	    doc.setStatus("Success");
 
@@ -535,7 +609,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		    doc.setMetadataGroup("");
 	    }
 
-	    // Impress pipeline data details
+        // Fertility results DO NOT contain the counts of controls/mutants
+        if (r.getString("dependent_variable").equals("IMPC_VIA_001_001")) {
+            doc.setMaleMutantCount(r.getInt("male_mutants"));
+            doc.setFemaleMutantCount(r.getInt("female_mutants"));
+        }
+
+        // Impress pipeline data details
 	    addImpressData(r, doc);
 
 	    // Biological details
@@ -658,7 +738,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 resourceMap.put(resultSet.getString("short_name"), b);
             }
         }
-        logger.info("Populated resource data map with {} entries\n{}", resourceMap.size(), resourceMap);
+        logger.info("Populated resource data map with {} entries", resourceMap.size());
     }
 
     protected class ResourceBean {
