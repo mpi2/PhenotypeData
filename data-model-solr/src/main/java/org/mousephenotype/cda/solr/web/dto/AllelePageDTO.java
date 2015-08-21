@@ -34,8 +34,8 @@ public class AllelePageDTO {
 	List<String> phenotypingCenters;
 	List<String> pipelineNames;
 	Map<String, List<String>> parametersByProcedure = new HashMap<>();
-		
-	
+
+
 	public Map<String, List<String>> getParametersByProcedure() {
 		return parametersByProcedure;
 	}
@@ -48,7 +48,7 @@ public class AllelePageDTO {
 		if (this.parametersByProcedure == null){ this.parametersByProcedure = new HashMap<>();}
 		this.parametersByProcedure.put(key, parametersByProcedure);
 	}
-	
+
 	public String getGeneAccession() {
 		return geneAccession;
 	}
@@ -80,7 +80,7 @@ public class AllelePageDTO {
 		escapedAlleleSymbols = escapedAlleleSymbols == null ? new ArrayList<>() : escapedAlleleSymbols;
 		escapedAlleleSymbols.add(alleleSymbol.replaceAll("<", "&lt;").replaceAll(">", "&gt;"));
 	}
-	
+
 	public List<String> getPhenotypingCenters() {
 		return phenotypingCenters;
 	}
@@ -93,7 +93,7 @@ public class AllelePageDTO {
 		phenotypingCenters = phenotypingCenters == null ? new ArrayList<>() : phenotypingCenters;
 		phenotypingCenters.add(phenotypingCenter);
 	}
-	
+
 	public List<String> getPipelineNames() {
 		return pipelineNames;
 	}
@@ -106,8 +106,8 @@ public class AllelePageDTO {
 		pipelineNames = pipelineNames == null ? new ArrayList<>() : pipelineNames;
 		pipelineNames.add(pipelineName);
 	}
-	
-	
+
+
 	public List<String> getEscapedAlleleSymbols() {
 		return escapedAlleleSymbols;
 	}

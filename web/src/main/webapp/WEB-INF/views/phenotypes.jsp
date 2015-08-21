@@ -7,7 +7,7 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${phenotype.getMpId()} (${phenotype.getMpTerm()}) | IMPC Phenotype Information</jsp:attribute>
-	
+
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=*:*&facet=mp">Phenotypes</a> &raquo; ${phenotype.getMpTerm()}</jsp:attribute>
 
 	<jsp:attribute name="header">
@@ -22,10 +22,10 @@
 		</style-->
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
 
-		
-		
+
+
 		<script type="text/javascript">
-			var phenotypeId = '${phenotype.getMpId()}'; 
+			var phenotypeId = '${phenotype.getMpId()}';
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
 
@@ -33,14 +33,14 @@
 
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
-	
+
 	<jsp:attribute name="addToFooter">
 			<div class="region region-pinned">
-            
+
         <div id="flyingnavi" class="block">
-            
+
             <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-            
+
             <ul>
                 <li><a href="#top">Phenotype</a></li>
                 <c:if test="${genePercentage.getDisplay()}">
@@ -54,15 +54,15 @@
                 <li><a href="#imagesSection">Images</a></li>
                 </c:if>
             </ul>
-            
+
             <div class="clear"></div>
-            
+
         </div>
-        
+
     </div>
-      	
+
     <c:if test="${hasData}">
-			<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>  
+			<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>
 			<script>
 				new dcc.PhenoHeatMap(
 						{
@@ -96,7 +96,7 @@
 						});
 			</script>
 		</c:if>
-		
+
 	</jsp:attribute>
 	<jsp:body>
 
@@ -104,11 +104,11 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-			<h1 class="title" id="top">Phenotype: ${phenotype.getMpTerm()} </h1>	 
-			
+			<h1 class="title" id="top">Phenotype: ${phenotype.getMpTerm()} </h1>
+
 				<div class="section">
 					<div class="inner">
-					
+
 						 <!--  login interest button -->
                          <div class="floatright">
                              <c:choose>
@@ -123,7 +123,7 @@
                                  <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
                              </c:if>
                          </div>
-					
+
 						<c:if test="${not empty phenotype.getMpDefinition()}">
 							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 						</c:if>
@@ -139,14 +139,14 @@
 							<div class="with-label"> <span class="label">Computationally mapped HP term</span>
 								<ul>
 									<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
-										<li>${hpTerm.termName}</li> 
+										<li>${hpTerm.termName}</li>
 										<c:if test="${loop.last}">&nbsp;</c:if>
 									</c:forEach>
 								</ul>
 							</div>
 						</c:if>
-						
-						
+
+
 						<c:if test="${not empty procedures}">
 							<div class="with-label"> <span class="label">Procedure</span>
 								<ul>
@@ -177,14 +177,14 @@
 						</c:if>
 					</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
 					</div>
-				
-				 
+
+
 				<c:if test="${genePercentage.getDisplay()}">
 					<div class="section">
 						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
-						<div class="inner">					
+						<div class="inner">
 							<!-- Phenotype Assoc. summary -->
-							
+
 							<c:if test="${parametersAssociated.size() == 0}">
 								<div class="half">
 									<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
@@ -192,11 +192,11 @@
 									<p class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </p>
 									<p class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</p>
 								</div>
-								<div class="half">	
+								<div class="half">
 									<div id="pieChart">
 										<script type="text/javascript">	${genePercentage.getPieChartCode()}	</script>
 									</div>
-								</div>	
+								</div>
 							</c:if>
 							<c:if test="${parametersAssociated.size() > 0}">
 								<div class="half">
@@ -209,7 +209,7 @@
 												${genePercentage.getPieChartCode()}
 											</script>
 									</div>
-								</div>					
+								</div>
 								<!-- Overview Graphs -->
 								<c:if test="${parametersAssociated.size() > 0}">
 									<div id="chartsHalf" class="half">
@@ -223,15 +223,15 @@
 										</p>
 									</c:if>
 									<br/>
-		
+
 									<div id="chart-container">
 										<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.getMpId()}">
 										</div>
 										<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
 									</div>
-									
+
 									<div id='chartFilters'></div>
-									
+
 								</div>
 							</c:if>
 						</c:if>
@@ -239,16 +239,16 @@
 					</div>
 				</div>
 			</c:if>
-						
+
 			<c:if test="${hasData}">
 				<div class="section">
-				
-			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.getMpTerm()} 	
-			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span> 
+
+			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.getMpTerm()}
+			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span>
 			    </h2>
-				   
-					<div class="inner">	 
-						<div id="phenotypesDiv">	
+
+					<div class="inner">
+						<div id="phenotypesDiv">
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
 									${filterParameters}
@@ -260,16 +260,16 @@
 														<c:forEach var="facet" items="${phenoFacet.value}">
 															<option>${facet.key}</option>
 														</c:forEach>
-													</select> 
+													</select>
 											</c:forEach>
-											
+
 											<div class="clear"></div>
 									</form>
 									<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
 										<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
 									</jsp:include>
 									<br/>
-									<div id="exportIconsDiv"></div>					
+									<div id="exportIconsDiv"></div>
 							</c:if>
 							</div>
 							<c:if test="${empty phenotypes}">
@@ -278,26 +278,26 @@
 						</div>
 					</div>
 				</div><!-- end of section -->
-				
-				
+
+
 				<!--  HEATMAP section -->
 				<div class="section" id="phenotypeHeatmapSection" >
-					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.getMpTerm()} 
-						<span class="documentation" ><a href='https://www.mousephenotype.org/heatmap/manual.html' id='pre-qc' class="fa fa-question-circle pull-right"></a></span> 
+					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.getMpTerm()}
+						<span class="documentation" ><a href='https://www.mousephenotype.org/heatmap/manual.html' id='pre-qc' class="fa fa-question-circle pull-right"></a></span>
 					</h2>
 					<div class="inner">
 						<!-- div id="heatmap-container"-->
 							<div id="phenodcc-heatmap-3"> </div>
-						<!-- /div-->							
+						<!-- /div-->
 	        </div>
 				</div><!-- end of section -->
-			</c:if>	
-				
+			</c:if>
+
 	<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
 				<div class="section" id="imagesSection" >
 						<h2 class="title" id="section">Images <i class="fa fa-question-circle pull-right"></i></h2>
-						<div class="inner">			
+						<div class="inner">
 											<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>
 								<div class="accordion-group">
 										<div class="accordion-heading">
@@ -311,7 +311,7 @@
 		                                                                                    </li>
 		    	  								</c:forEach>
 											</ul>
-											
+
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
 												<p class="textright"><a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a></p>
@@ -322,12 +322,12 @@
 								</div>
 					</div>	<!--  end of images section -->
 			</c:if>
-			
+
 			<%-- <c:if test="${not empty expressionFacets}">
 			<div class="section">
 				<h2 class="title" id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i></h2>
-					<div class="inner">			
-					
+					<div class="inner">
+
 							<!-- thumbnail scroller markup begin -->
 			   						<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
 		  							<div class="accordion-group">
@@ -335,7 +335,7 @@
 												${entry.name}  (${entry.count})
 										</div>
 											<div  class="accordion-body">
-									 			
+
 												<ul>
 												<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
 		                                                                                    <li class="span2">
@@ -349,7 +349,7 @@
 												</c:if>
 											</div>
 									</div>
-								</c:forEach>	
+								</c:forEach>
 					</div>
 			</div>
 			</c:if> --%>

@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -34,19 +34,13 @@ import java.util.List;
 public class Strain {
 
 	@EmbeddedId
-	@AttributeOverrides({
-	@AttributeOverride(name="accession",
-					   column=@Column(name="acc")),
-	@AttributeOverride(name="databaseId",
-	   column=@Column(name="db_id"))
-	})
+	@AttributeOverrides({@AttributeOverride(name = "accession",
+		column = @Column(name = "acc")), @AttributeOverride(name = "databaseId",
+		column = @Column(name = "db_id"))})
 	DatasourceEntityId id;
 
 	@OneToOne
-	@JoinColumns({
-	@JoinColumn(name = "biotype_acc"),
-	@JoinColumn(name = "biotype_db_id"),
-	})
+	@JoinColumns({@JoinColumn(name = "biotype_acc"), @JoinColumn(name = "biotype_db_id"),})
 	private OntologyTerm biotype;
 
 	@Column(name = "name")
@@ -54,14 +48,15 @@ public class Strain {
 
 	// element collections are merged/removed with their parents
 	@ElementCollection
-	   @CollectionTable(name="synonym",
-	   					joinColumns= {@JoinColumn(name="acc"),@JoinColumn(name="db_id"),}
-	   )
+	@CollectionTable(name = "synonym",
+		joinColumns = {@JoinColumn(name = "acc"), @JoinColumn(name = "db_id"),})
 	private List<Synonym> synonyms;
+
 
 	public Strain() {
 		super();
 	}
+
 
 	/**
 	 * @return the synonyms
@@ -77,6 +72,7 @@ public class Strain {
 	public void setSynonyms(List<Synonym> synonyms) {
 		this.synonyms = synonyms;
 	}
+
 
 	public void addSynonym(Synonym synonym) {
 		if (synonyms == null) {
@@ -94,14 +90,12 @@ public class Strain {
 	}
 
 
-
 	/**
 	 * @param id the id to set
 	 */
 	public void setId(DatasourceEntityId id) {
 		this.id = id;
 	}
-
 
 
 	/**
@@ -112,14 +106,12 @@ public class Strain {
 	}
 
 
-
 	/**
 	 * @param biotype the biotype to set
 	 */
 	public void setBiotype(OntologyTerm biotype) {
 		this.biotype = biotype;
 	}
-
 
 
 	/**
@@ -130,7 +122,6 @@ public class Strain {
 	}
 
 
-
 	/**
 	 * @param name the name to set
 	 */
@@ -139,7 +130,7 @@ public class Strain {
 	}
 
 
-
 	public String toString() {
-		return "Id: " + id + "; Name: " + name + ";";}
+		return "Id: " + id + "; Name: " + name + ";";
+	}
 }

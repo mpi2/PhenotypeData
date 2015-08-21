@@ -16,6 +16,8 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 
 import java.util.List;
 
@@ -28,8 +30,8 @@ public class StatisticalResultDTO {
     public final static String DB_ID = "db_id";
     public final static String DATA_TYPE = "data_type";
 
-    public final static String MP_TERM_ID = "mp_term_id"; 
-    public final static String MP_TERM_NAME = "mp_term_name"; 
+    public final static String MP_TERM_ID = "mp_term_id";
+    public final static String MP_TERM_NAME = "mp_term_name";
     public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
     public final static String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
     public final static String INTERMEDIATE_MP_TERM_ID = "intermediate_mp_term_id";
@@ -49,38 +51,38 @@ public class StatisticalResultDTO {
     public final static String FEMALE_INTERMEDIATE_MP_TERM_ID = "female_intermediate_mp_term_id";
     public final static String FEMALE_INTERMEDIATE_MP_TERM_NAME = "female_intermediate_mp_term_name";
 
-    public final static String RESOURCE_NAME = "resource_name"; 
+    public final static String RESOURCE_NAME = "resource_name";
     public final static String RESOURCE_FULLNAME = "resource_fullname";
-    public final static String RESOURCE_ID = "resource_id"; 
+    public final static String RESOURCE_ID = "resource_id";
     public final static String PROJECT_NAME = "project_name";
-    public final static String PHENOTYPING_CENTER = "phenotyping_center"; 
+    public final static String PHENOTYPING_CENTER = "phenotyping_center";
 
-    public final static String PIPELINE_STABLE_ID = "pipeline_stable_id"; 
-    public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key"; 
-    public final static String PIPELINE_NAME = "pipeline_name"; 
-    public final static String PIPELINE_ID = "pipeline_id"; 
+    public final static String PIPELINE_STABLE_ID = "pipeline_stable_id";
+    public final static String PIPELINE_STABLE_KEY = "pipeline_stable_key";
+    public final static String PIPELINE_NAME = "pipeline_name";
+    public final static String PIPELINE_ID = "pipeline_id";
 
     public final static String PROCEDURE_STABLE_ID = "procedure_stable_id";
-    public final static String PROCEDURE_STABLE_KEY = "procedure_stable_key"; 
-    public final static String PROCEDURE_NAME = "procedure_name"; 
-    public final static String PROCEDURE_ID = "procedure_id"; 
+    public final static String PROCEDURE_STABLE_KEY = "procedure_stable_key";
+    public final static String PROCEDURE_NAME = "procedure_name";
+    public final static String PROCEDURE_ID = "procedure_id";
 
     public final static String PARAMETER_STABLE_ID = "parameter_stable_id";
     public final static String PARAMETER_STABLE_KEY = "parameter_stable_key";
     public final static String PARAMETER_NAME = "parameter_name";
     public final static String PARAMETER_ID = "parameter_id";
 
-    public final static String COLONY_ID = "colony_id"; 
+    public final static String COLONY_ID = "colony_id";
     public final static String MARKER_SYMBOL = "marker_symbol";
     public final static String MARKER_ACCESSION_ID = "marker_accession_id";
     public final static String ALLELE_SYMBOL = "allele_symbol";
     public final static String ALLELE_NAME = "allele_name";
     public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
-    public final static String STRAIN_NAME = "strain_name"; 
+    public final static String STRAIN_NAME = "strain_name";
     public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
     public static final String GENETIC_BACKGROUND = "genetic_background";
-    public final static String SEX = "sex"; 
-    public final static String ZYGOSITY = "zygosity"; 
+    public final static String SEX = "sex";
+    public final static String ZYGOSITY = "zygosity";
 
     public final static String CONTROL_SELECTION_METHOD = "control_selection_method";
     public final static String DEPENDENT_VARIABLE = "dependent_variable";
@@ -108,17 +110,17 @@ public class StatisticalResultDTO {
     public final static String CATEGORIES = "categories";
     public final static String CATEGORICAL_P_VALUE = "categorical_p_value";
     public final static String CATEGORICAL_EFFECT_SIZE = "categorical_effect_size";
-    
+
     public final static String BATCH_SIGNIFICANT = "batch_significant";
     public final static String VARIANCE_SIGNIFICANT = "variance_significant";
     public final static String NULL_TEST_P_VALUE = "null_test_p_value";
     public final static String GENOTYPE_EFFECT_P_VALUE = "genotype_effect_p_value";
     public final static String GENOTYPE_EFFECT_STDERR_ESTIMATE = "genotype_effect_stderr_estimate";
     public final static String GENOTYPE_EFFECT_PARAMETER_ESTIMATE = "genotype_effect_parameter_estimate";
-    
+
     public final static String FEMALE_PERCENTAGE_CHANGE = "female_percentage_change";
     public final static String MALE_PERCENTAGE_CHANGE = "male_percentage_change";
-    
+
     public final static String SEX_EFFECT_P_VALUE = "sex_effect_p_value";
     public final static String SEX_EFFECT_STDERR_ESTIMATE = "sex_effect_stderr_estimate";
     public final static String SEX_EFFECT_PARAMETER_ESTIMATE = "sex_effect_parameter_estimate";
@@ -294,7 +296,7 @@ public class StatisticalResultDTO {
 
     @Field(GENETIC_BACKGROUND)
     String geneticBackground;
-    
+
     @Field(SEX)
     private String sex;
 
@@ -390,7 +392,7 @@ public class StatisticalResultDTO {
 
     @Field(MALE_PERCENTAGE_CHANGE)
     private String malePercentageChange;
-    
+
     @Field(SEX_EFFECT_P_VALUE)
     private Double sexEffectPValue;
 
@@ -459,18 +461,22 @@ public class StatisticalResultDTO {
 
     @Field(CLASSIFICATION_TAG)
     private String classificationTag;
-    
+
     @Field(EXTERNAL_DB_ID)
     private Integer externalDbId;
-    
+
     @Field(ORGANISATION_ID)
     private Integer organisationId;
-    
+
     @Field(PHENOTYPING_CENTER_ID)
     private Integer phenotypingCenterId;
-    
+
     @Field(PROJECT_ID)
     private Integer projectId;
+
+    public String getChartUrl (String baseUrl) {
+        return DataTableRow.getChartPageUrlPostQc(baseUrl, markerAccessionId, alleleAccessionId, metadataGroup, (zygosity==null) ? null : ZygosityType.valueOf(zygosity), parameterStableId, pipelineStableId, phenotypingCenter);
+    }
 
     public String getDocId() {
 
