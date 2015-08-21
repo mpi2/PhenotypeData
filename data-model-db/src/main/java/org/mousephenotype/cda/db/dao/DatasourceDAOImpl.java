@@ -54,18 +54,18 @@ public class DatasourceDAOImpl extends HibernateDAOImpl implements DatasourceDAO
 
 	@Transactional(readOnly = true)
 	public Datasource getDatasourceByName(String name) {
-		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.name= ?").setString(0, name).uniqueResult();
+		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.name = :name").setString("name", name).uniqueResult();
 
 	}
 
 	@Transactional(readOnly = true)
 	public Datasource getDatasourceByShortName(String shortName) {
-		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.shortName= ?").setString(0, shortName).uniqueResult();
+		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.shortName = :shortname").setString("shortname", shortName).uniqueResult();
 	}
 
 	@Transactional(readOnly = true)
 	public Datasource getDatasourceById(Integer externalDbId){
-		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.id= ?").setInteger(0, externalDbId).uniqueResult();
+		return (Datasource) getCurrentSession().createQuery("from Datasource as d where d.id = :externaldbid").setInteger("externaldbid", externalDbId).uniqueResult();
 	}
 
 }
