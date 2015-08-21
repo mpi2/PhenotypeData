@@ -142,6 +142,8 @@
         <field name="ma_term" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />	   
         <field name="ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />   
         <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+   		<field name="efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+       	<field name="uberon_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
    
         <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="child_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
