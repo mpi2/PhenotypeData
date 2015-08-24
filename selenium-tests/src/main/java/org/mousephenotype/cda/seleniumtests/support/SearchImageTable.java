@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -112,17 +113,24 @@ public class SearchImageTable extends SearchFacetTable {
         setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
     }
 
+    /**
+     * Validates download data against this search table instance.
+     *
+     * @param data The download data used for comparison
+     * @param downloadType Supported download type - e.g. TSV, XLS
+     * @return validation status
+     */
     @Override
-    public PageStatus validateDownload(String[][] data) {
+    public PageStatus validateDownload(String[][] data, DownloadType downloadType) {
         PageStatus status = new PageStatus();
 
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
-                status = searchImageAnnotationView.validateDownload(data);
+                status = searchImageAnnotationView.validateDownload(data, downloadType);
                 break;
 
             case IMAGE_VIEW:
-                status = searchImageImageView.validateDownload(data);
+                status = searchImageImageView.validateDownload(data, downloadType);
                 break;
         }
 

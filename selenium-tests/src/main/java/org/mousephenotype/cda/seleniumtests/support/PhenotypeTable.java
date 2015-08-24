@@ -182,7 +182,7 @@ public class PhenotypeTable {
                             }
                         }
                     }
-                    value = urlUtils.urlDecode(value);
+
                     isPreQcLink = testUtils.isPreQcLink(value);
                 } else {
                     value = cell.getText();

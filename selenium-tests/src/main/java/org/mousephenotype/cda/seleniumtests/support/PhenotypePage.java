@@ -459,7 +459,7 @@ public class PhenotypePage {
 
         // Create a pair of sets: one from the page, the other from the download.
         Set<String> pageSet = testUtils.createSet(pageData, pageColumns);
-        Set<String> downloadSet = downloadData.urlDecode(Arrays.asList(decodeColumns)).createSet(downloadColumns);
+        Set<String> downloadSet = testUtils.createSet(downloadData, downloadColumns);
 
         Set<String> difference = testUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);

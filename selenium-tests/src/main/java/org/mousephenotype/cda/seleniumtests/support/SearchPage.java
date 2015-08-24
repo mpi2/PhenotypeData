@@ -1054,7 +1054,7 @@ public class SearchPage {
             downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
             SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
             if (table != null) {
-                status.add(table.validateDownload(downloadData));                       // Validate it.
+                status.add(table.validateDownload(downloadData, downloadType)); // Validate it.
             }
         }
 
