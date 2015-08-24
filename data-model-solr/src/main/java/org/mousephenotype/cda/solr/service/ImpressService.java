@@ -27,6 +27,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -55,8 +56,6 @@ public class ImpressService {
 	@Qualifier("pipelineCore")
 	private HttpSolrServer solr;
 
-	
-	
 	/**
 	 * @since 2015/07/17
 	 * @author tudose
@@ -179,6 +178,50 @@ public class ImpressService {
 	
 	}
 	
+	public ProcedureDTO getProcedureByStableKey(String procedureStableKey) {
+		
+		ProcedureDTO procedure = new ProcedureDTO();
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PROCEDURE_STABLE_KEY + ":\"" + procedureStableKey + "\"")
+				.setFields(ImpressDTO.PROCEDURE_ID, 
+						ImpressDTO.PROCEDURE_NAME, 
+						ImpressDTO.PROCEDURE_STABLE_ID, 
+						ImpressDTO.PROCEDURE_STABLE_KEY);
+
+			QueryResponse response = solr.query(query);
+
+			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
+			
+			procedure.setStableId(imd.getProcedureStableId().toString());
+			procedure.setName(imd.getProcedureName().toString());
+			return procedure;
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	
+	public Integer getParameterIdByStableKey(String parameterStableKey) {
+
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PARAMETER_STABLE_KEY + ":\"" + parameterStableKey + "\"")
+				.setFields(ImpressDTO.PARAMETER_ID);
+
+			QueryResponse response = solr.query(query);
+
+			return response.getBeans(ImpressDTO.class).get(0).getParameterId();
+
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 
 
 	public Integer getProcedureStableKey(String procedureStableId) {
@@ -322,6 +365,33 @@ public class ImpressService {
 		}
 	
 		return idToAbnormalMaId;
+	}
+	
+	
+	/**
+	 * @author tudose
+	 * @since 2015/08/20
+	 * @param stableId
+	 * @return
+	 * @throws SolrServerException 
+	 */
+	public ParameterDTO getParameterByStableId(String stableId) 
+	throws SolrServerException{
+		
+		ParameterDTO param = new ParameterDTO();
+		SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
+				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE)
+				.setRows(1);
+		QueryResponse response = solr.query(query);
+		ImpressDTO dto = response.getBeans(ImpressDTO.class).get(0);
+		param.setId(dto.getParameterId());
+		param.setStableId(dto.getParameterStableId());
+		param.setStableKey(dto.getParameterStableKey());
+		param.setName(dto.getParameterName());
+		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
+		
+		return param;
 	}
 	
 

@@ -4,7 +4,7 @@
 
 
 	<p class="resultCount">Total number of results: ${rows}</p>
-	
+
 	<!-- Associations table -->
 	<c:if test="${chart != null}">
 		<!-- chart here -->
@@ -63,8 +63,9 @@
 							</c:otherwise>
 						</c:choose>
 						<td>${pValueItem.status}</td>
-						<td style="text-align: center"><a
-							href='${baseUrl}/charts?accession=${pValueItem.getMarkerAccessionId()}&allele_accession_id=${pValueItem.getAlleleAccessionId()}&parameter_stable_id=${pValueItem.getParameterStableId()}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${pValueItem.getPhenotypingCenter()}'>
+						<td style="text-align: center">
+							<%--<a href='${baseUrl}/charts?accession=${pValueItem.getMarkerAccessionId()}&allele_accession_id=${pValueItem.getAlleleAccessionId()}&parameter_stable_id=${pValueItem.getParameterStableId()}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${pValueItem.getPhenotypingCenter()}'>--%>
+								<a href='${pValueItem.getChartUrl(baseUrl)}'>
 								<i class="fa fa-bar-chart-o" title="Graphs"> </i>
 						</a></td>
 					</tr>
@@ -82,5 +83,5 @@
 			  });
 			  // Sort immediately with p-value column starting with the lowest one
 			  oTable.fnSort( [ [6,'asc'] ] );
-			} );	
+			} );
 		</script>

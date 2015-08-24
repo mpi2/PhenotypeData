@@ -26,9 +26,16 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +48,7 @@ import java.util.Map;
  * @author mrelac
  */
 public class IndexerMap {
+	
     private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
     private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>> allelesMap = null;
@@ -49,14 +57,76 @@ public class IndexerMap {
     private static Map<Integer, ImpressBaseDTO> procedureMap = null;
     private static Map<Integer, ImpressBaseDTO> parameterMap = null;
     private static Map<Integer, OrganisationBean> organisationMap = null;
-
+    private static Map<String, Map<String,List<String>>> maUberonEfoMap = null;
+    
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
-
-
 
     // PUBLIC METHODS
 
+    /**
+	 * ontology mapper: MA term id to UBERON or EFO id
+	 * @throws IOException 
+	 * @returns a map, where key is MA is and value is either UBERON or EFO (can be multi-valued) 
+	 */
+	
+    public static Map<String, Map<String,List<String>>> mapMaToUberronOrEfo(Resource resource) throws SQLException, IOException {
 
+    	if ( maUberonEfoMap == null ){
+    		
+    		maUberonEfoMap = new HashMap<>();
+    		
+	    	InputStreamReader in = new InputStreamReader(resource.getInputStream());
+	    	
+			try (BufferedReader bin = new BufferedReader(in)) {
+			
+				String line;
+				while ((line = bin.readLine()) != null) {
+					String[] kv = line.split(",");
+					String mappedId = kv[0];
+					String maId = kv[1];
+					if ( ! maUberonEfoMap.containsKey(maId) ){
+						maUberonEfoMap.put(maId, new HashMap<>());
+					}	
+					String key = mappedId.startsWith("U") ? "uberon_id" : "efo_id";
+					if ( ! maUberonEfoMap.get(maId).containsKey(key) ){
+						maUberonEfoMap.get(maId).put(key, new ArrayList<>());
+					}
+					maUberonEfoMap.get(maId).get(key).add(mappedId);
+				}	
+			}	
+			
+			logger.info("Converted " + maUberonEfoMap.size() + " MA Ids");
+    	}
+		return maUberonEfoMap;
+	        
+    }
+
+	public static Map<String, List<EmbryoStrain>> populateEmbryoData(final String embryoRestUrl) {
+    	System.out.println("populating embryo data");
+    	
+    	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoRestUrl);
+    	
+		EmbryoRestData restData=null;
+		try {
+			restData = embryoGetter.getEmbryoRestData();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<EmbryoStrain> strains = restData.getStrains();
+		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
+		for(EmbryoStrain strain: strains){
+			String mgi=strain.getMgi();
+			if(!mgiToEmbryoMap.containsKey(mgi)){
+				mgiToEmbryoMap.put(mgi,new ArrayList<>());
+			}
+			mgiToEmbryoMap.get(mgi).add(strain);
+		}
+		return mgiToEmbryoMap;
+	}
+    
+    
+    
     /**
      * Fetch a map of AlleleDTOs terms indexed by mgi_accession_id
      *

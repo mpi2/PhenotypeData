@@ -5,10 +5,10 @@
 
 <%
 String allele = (String) jspContext.getAttribute("theBody");
-allele = allele.replaceAll("<", "££");
+allele = allele.replaceAll("<", "ï¿½ï¿½");
 allele = allele.replaceAll(">", "##");
 
-allele = allele.replaceAll("££", "<sup>");
+allele = allele.replaceAll("ï¿½ï¿½", "<sup>");
 allele = allele.replaceAll("##", "</sup>");
 %>
 
@@ -25,7 +25,7 @@ allele = allele.replaceAll("##", "</sup>");
          <!-- pdf annotation not image -->
          <!-- defaults to image -->
     <c:choose>
-        
+
         <c:when test="${not empty href}">
         <!-- href specified as arg to tag as in the case of gene page to image picker links -->
         	<c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
@@ -33,12 +33,12 @@ allele = allele.replaceAll("##", "</sup>");
          		 <a href="${baseUrl}/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=auto_suggest&defType=edismax&fq=(biological_sample_group:experimental)%20AND%20(parameter_stable_id:${img.parameter_stable_id})%20AND%20gene_symbol:${img.marker_symbol[0]}">
          		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a>
          	</c:if>
-         	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">	
+         	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		 <a href="${href}">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" style="max-height: 200px;"></a>
+         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" style="max-height: 200px;"></a>
          	</c:if>
          </c:when>
-         	
+
          <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          <!-- used pdf images on normal image scrolldown pages -->
          		<a href="${img.download_url}" >
@@ -47,8 +47,8 @@ allele = allele.replaceAll("##", "</sup>");
 
          <c:otherwise>
          <!-- used for lacz expression pages -->
-         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" style="max-height: 200px;"></a>
+         		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
+         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" style="max-height: 200px;"></a>
          </c:otherwise>
       </c:choose>
                                                 <div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
@@ -64,10 +64,9 @@ allele = allele.replaceAll("##", "</sup>");
                                                 	</c:forEach>
                                                 </c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
-                                            
-                                                </div> 
-          
-           
-                                                
-         </li>      
-                                    
+
+                                                </div>
+
+
+
+         </li>
