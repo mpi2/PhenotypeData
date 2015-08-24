@@ -66,4 +66,92 @@ public class UrlUtils {
 
         return retVal;
     }
+
+    /**
+     * Decodes the data in each input row for column <code>columnIndex</code> into UTF-8.
+     *
+     * @param data the data to decode
+     * @param columnIndex the index of the column whose data is to be decoded
+     *
+     * @return A copy of the input data, with column <code>columnIndex</code> url-decoded
+     */
+    public String[][] urlDecodeColumn(String[][] data, int columnIndex) {
+        if (data == null)
+            return data;
+
+        int rowIndex = 0;
+        int colIndex = 0;
+        String cell = "";
+        String[][] retVal = new String[data.length][data[0].length];
+        try {
+            for (rowIndex = 0; rowIndex < data.length; rowIndex++) {
+                String[] row = data[rowIndex];
+                for (colIndex = 0; colIndex < row.length; colIndex++) {
+                    if (data[rowIndex][colIndex] == null) {
+                        retVal[rowIndex][colIndex] = null;
+                    } else {
+                        cell = data[rowIndex][colIndex];
+                        retVal[rowIndex][colIndex] = (colIndex == columnIndex ? urlDecode(cell) : cell);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Decoding of value [" + rowIndex + "][" + colIndex + "] (" + (cell == null ? "<null>" : cell) + ") failed. URL ignored. Reason: " + e.getLocalizedMessage());
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Encode only the following characters:
+     *   ' ' (space)        %20
+     *   '%' (double quote) %22
+     * @param url
+     * @return
+     */
+    private String urlEncode(String url) {
+        String retVal = url;
+
+        try {
+            url = url.replaceAll(" ", "%20").replaceAll("\"", "%22");
+            retVal = url;
+        } catch (Exception e) { }
+
+        return retVal;
+    }
+
+    /**
+     * Encodes the data in each input row for column <code>columnIndex</code> into UTF-8, making it suitable to use as a link.
+     * Invalid url string values are ignored.
+     * @param data the data to encode
+     * @param columnIndex the index of the column whose data is to be encoded
+     *
+     * @return A copy of the input data, with column <code>columnIndex</code> url-encoded
+     */
+    public String[][] urlEncodeColumn(String[][] data, int columnIndex) {
+        if (data == null)
+            return data;
+
+        int rowIndex = 0;
+        int colIndex = 0;
+        String cell = "";
+        String[][] retVal = new String[data.length][data[0].length];
+        try {
+            for (rowIndex = 0; rowIndex < data.length; rowIndex++) {
+                String[] row = data[rowIndex];
+                for (colIndex = 0; colIndex < row.length; colIndex++) {
+                    if (data[rowIndex][colIndex] == null) {
+                        retVal[rowIndex][colIndex] = null;
+                    } else {
+                        cell = data[rowIndex][colIndex];
+                        retVal[rowIndex][colIndex] = (colIndex == columnIndex ? urlEncode(cell) : cell);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Encoding of value [" + rowIndex + "][" + colIndex + "] (" + (cell == null ? "<null>" : cell) + ") failed. URL ignored. Reason: " + e.getLocalizedMessage());
+        }
+
+        return retVal;
+    }
 }

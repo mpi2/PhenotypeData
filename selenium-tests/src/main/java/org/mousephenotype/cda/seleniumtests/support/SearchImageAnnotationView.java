@@ -19,10 +19,12 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +44,8 @@ public class SearchImageAnnotationView extends SearchFacetTable {
     private Map<TableComponent, By> map;
     protected GridMap pageData;
     protected final UrlUtils urlUtils = new UrlUtils();
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final int COL_INDEX_ANNOTATION_TYPE     = 0;
     public static final int COL_INDEX_ANNOTATION_TERM     = 1;
@@ -64,11 +68,12 @@ public class SearchImageAnnotationView extends SearchFacetTable {
      * instance.
      * 
      * @param downloadDataArray The download data used for comparison
+     * @param downloadType Supported download type - e.g. TSV, XLS
      *
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadDataArray) {
+    public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
               COL_INDEX_ANNOTATION_TYPE
             , COL_INDEX_ANNOTATION_TERM
@@ -85,8 +90,16 @@ public class SearchImageAnnotationView extends SearchFacetTable {
             , DownloadSearchMapImagesAnnotationView.COL_INDEX_RELATED_IMAGE_COUNT
             , DownloadSearchMapImagesAnnotationView.COL_INDEX_IMAGES_LINK
         };
-        
-        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());   
+
+        // XLS download links are expected to be encoded.
+        if (downloadType == DownloadType.XLS) {
+            logger.info("Encoding page data for XLS image link comparison.");
+            pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), COL_INDEX_IMAGES_LINK), pageData.getTarget());
+        } else {
+            logger.info("Decoding page data for TSV image link comparison.");
+            pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), COL_INDEX_IMAGES_LINK), pageData.getTarget());
+        }
+        return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
 
 
@@ -220,7 +233,6 @@ public class SearchImageAnnotationView extends SearchFacetTable {
                     
                 case 2:
                     annotationIdLink = anchorElements.get(0).getAttribute("href");                                      // annotationLink.
-                    annotationIdLink = urlUtils.urlDecode(annotationIdLink);                                           //    Decode it.
                     int pos = annotationIdLink.lastIndexOf("/");
                     annotationId = annotationIdLink.substring(pos + 1).trim();                                          // annotationId.
                     imageAnchorElement = anchorElements.get(1);
@@ -229,7 +241,6 @@ public class SearchImageAnnotationView extends SearchFacetTable {
             
             if (imageAnchorElement != null) {
                 imagesLink = imageAnchorElement.getAttribute("href");                                                   // imagesLink.
-                imagesLink = urlUtils.urlDecode(imagesLink);                                                           //    Decode it.
             }
         }
 
