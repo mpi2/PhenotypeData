@@ -185,6 +185,9 @@
         <field name="sangerProcedureName"      type="string"   indexed="true"  stored="true"  multiValued="false"/>
         <field name="sangerProcedureId"      type="int"   indexed="true"  stored="true"  multiValued="false"/>
         <field name="genotypeString"   type="string"   indexed="true"  stored="true"  multiValued="false" />
+		
+		<field name="embryo_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
+   
 
         <!-- from experiment schema as many fields are now the same with new image data -->
         <field name="phenotyping_center_id"   type="int"    indexed="true" stored="true" multiValued="false" />

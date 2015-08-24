@@ -140,7 +140,7 @@
     	    	}
     	    	else {    	    	    		
     	        	// remove all previous facet results before loading new facet results
-
+    	    		
     	    		var defaultCore; 
     	    		
     	    		if ( typeof facetMode == 'undefined' || oFacets.count[facetMode] == 0 ){

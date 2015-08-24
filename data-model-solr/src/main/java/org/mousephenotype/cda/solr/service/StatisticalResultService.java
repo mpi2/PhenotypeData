@@ -15,6 +15,23 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -34,7 +51,11 @@ import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
 import org.mousephenotype.cda.db.dao.ProjectDAO;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.db.pojo.GenomicFeature;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -55,13 +76,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 /**
  * Latest version pulled in 2015/07/07
  * @author tudose
@@ -98,6 +112,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     Map<String, List<String>> maleParamToGene = null;
     Map<String, List<String>> femaleParamToGene = null;
+    Map<String, List<String>> allParamToGene = null;
 
 
 	public StatisticalResultService() {
@@ -1287,12 +1302,24 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
+			
 			List<String> genes = new ArrayList<>();
 			for (PivotField gene : pivot.getPivot()){
 				genes.add(gene.getValue().toString());
 			}
-			maleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
-			femaleParamToGene.put(pivot.getValue().toString(), new ArrayList<String>(genes));
+			
+			ArrayList<String> mGenes = new  ArrayList<String>(genes);
+			if (maleParamToGene.get(pivot.getValue()) != null){
+				mGenes.addAll(maleParamToGene.get(pivot.getValue()));
+			}
+			
+			ArrayList<String> fGenes = new  ArrayList<String>(genes);
+			if (femaleParamToGene.get(pivot.getValue()) != null){
+				fGenes.addAll(femaleParamToGene.get(pivot.getValue()));
+			}
+			
+			maleParamToGene.put(pivot.getValue().toString(), mGenes);
+			femaleParamToGene.put(pivot.getValue().toString(), fGenes);
 		}
 
 	}
@@ -1313,8 +1340,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
+    	
         HashSet<String> res = new HashSet<>();
-        if (femaleParamToGene == null || maleParamToGene == null) {
+        if (femaleParamToGene == null || maleParamToGene == null || allParamToGene == null) {
             fillMaps();
         }
         if (sex == null || sex.equals(SexType.female)) {
@@ -1468,4 +1496,34 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
+    /**
+    *
+    * @param mpId
+    * @return List of stable ids for parameters that led to at least one association to the
+    * given parameter or some class in its subtree
+    * @throws SolrServerException
+    * @author tudose
+    */
+   public List<String> getParametersForPhenotype(String mpId)
+   throws SolrServerException {
+
+       List<String> res = new ArrayList<>();
+       SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + 
+    		   StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + 
+    		   StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + 
+    		   StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + 
+    		   GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
+       q.set("facet.field", "" + StatisticalResultDTO.PARAMETER_STABLE_ID);
+       q.set("facet", true);
+       q.set("facet.limit", -1);
+       q.set("facet.mincount", 1);
+       QueryResponse response = solr.query(q);
+       
+       for (Count parameter : response.getFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID).getValues()) {
+           res.add(parameter.getName());
+       }
+       
+       return res;
+   }
+    
 }

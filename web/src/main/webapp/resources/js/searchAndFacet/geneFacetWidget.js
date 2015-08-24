@@ -33,9 +33,10 @@
     	 	        	
 	    // want to use _init instead of _create to allow the widget being invoked each time by same element
 	    _init: function () {
+	    	
 			var self = this;						
 			self._initFacet();		
-			//$.fn.openFacet(self.options.data.core);			
+			//$.fn.openFacet(self.options.data.core);		
 	    },
 	    
 		_initFacet: function(){
@@ -78,7 +79,8 @@
 				  + '&facet.field=latest_phenotype_status'	// use this field instead of the above three
 				  + '&facet.field=legacy_phenotype_status'
 				  + '&facet.field=latest_production_centre'
-				  + '&facet.field=latest_phenotyping_centre';
+				  + '&facet.field=latest_phenotyping_centre'
+				  + '&facet.field=embryo_data_available';
 	    	
 	    	//console.log('GENE WIDGET: '+ queryParamStr);
 	    	
@@ -96,13 +98,14 @@
 	    
 	    _displayGeneSubTypeFacet: function(json){
 	    	//console.log(json);
+	    	
 	    	var self = this;
 	    	var numFound = json.response.numFound;
 	    	
 	    	/*-------------------------------------------------------*/
 	    	/* ------ displaying sidebar and update dataTable ------ */
 	    	/*-------------------------------------------------------*/	    	  	
-	    	var foundMatch = {'phenotyping':0,'production':0, 'latest_production_centre':0, 'latest_phenotyping_centre':0, 'marker_type':0};
+	    	var foundMatch = {'phenotyping':0,'production':0, 'latest_production_centre':0, 'latest_phenotyping_centre':0, 'marker_type':0, 'embryo_viewer':0};
 	    	
 	    	if (numFound > 0){
 	    		
@@ -290,6 +293,40 @@
 	    		}	    		
 	    		subTypeSect.append(subTypeUlContainer);
 	    		$('div.flist li#gene > ul').append(subTypeSect);
+	    		
+	    		// embryo view data availabe
+	    		var embryoViewerSect = $("<li class='fcatsection embryo_viewer'></li>");		 
+	    		embryoViewerSect.append($('<span></span>').attr({'class':'flabel'}).text('Embryo Image Viewer'));
+	    		
+	    		var embview_facets = json.facet_counts['facet_fields']['embryo_data_available'];
+	    		foundMatch.embryo_viewer = embview_facets.length;
+	    		
+	    		var viewerUlContainer = $("<ul></ul>");
+	    		
+	    		for ( var i=0; i<embview_facets.length; i+=2 ){	
+	    			var type = embview_facets[i];
+	    			if ( type == 'true' ){
+		    			var liContainer = $("<li></li>").attr({'class':'fcat embryo_data_available'});
+						
+						var type_label = 'available';
+						var count = embview_facets[i+1];	
+						var coreField = 'gene|embryo_data_available|';	
+						var isGrayout = count == 0 ? 'grayout' : '';
+						liContainer.removeClass('grayout').addClass(isGrayout);
+						
+						var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|embryo_data_available'});
+						var flabel = $('<span></span>').attr({'class':'flabel'}).text(type_label);
+						var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+												
+						liContainer.append(chkbox, flabel, fcount);
+						
+						viewerUlContainer.append(liContainer);	
+	    			}
+	    		} 
+	    				
+	    		embryoViewerSect.append(viewerUlContainer);
+	    		$('div.flist li#gene > ul').append(embryoViewerSect);
+	    		
 	    		
 	    		$.fn.initFacetToggles('gene');
 	    		

@@ -138,27 +138,29 @@ public class DrupalHttpProxy extends HttpProxy {
 	 *
 	 * @return a concatenated drupal menu as a string separated by "MAIN*MENU*BELOW", or a default if
 	 *         drupal could not be contacted for some reason
-	 * @throws standard Exception
 	 */
-	//public JSONObject getDrupalMenu(String drupalBaseUrl) throws JSONException {
 	public String getDrupalMenu(String drupalBaseUrl) {
+
+		String secureDrupalBaseUrl = drupalBaseUrl;
+
+		if (secureDrupalBaseUrl != null) {
+			secureDrupalBaseUrl = drupalBaseUrl.startsWith("//") ? "https:" + secureDrupalBaseUrl : secureDrupalBaseUrl.replaceAll("http:", "https:");
+		}
+
 		String content = "";
 		Random randomGenerator = new Random();
 
-		// If we can't get the menu, default to the logged out menu
 		try {
 			if (getDrupalSessionCookieString() != null && ! getDrupalSessionCookieString().equals("") ) {
 				log.info("Getting drupal menu.");
-				//URL url = new URL(drupalBaseUrl + "/menudisplaycombined");
-				URL url = new URL(drupalBaseUrl + "/menudisplaycombinedrendered");
+				URL url = new URL(secureDrupalBaseUrl + "/menudisplaycombinedrendered");
 
 				content = this.getContent(url);
 
 			} else {
 				if (publicMenu == null || randomGenerator.nextInt(100) == 1) {
 					log.info("Not logged in, using standard menu.");
-					//URL url = new URL(drupalBaseUrl + "/menudisplaycombined");
-					URL url = new URL(drupalBaseUrl + "/menudisplaycombinedrendered");
+					URL url = new URL(secureDrupalBaseUrl + "/menudisplaycombinedrendered");
 
 					publicMenu = this.getContent(url);
 					content = publicMenu;
@@ -168,13 +170,44 @@ public class DrupalHttpProxy extends HttpProxy {
 				}
 			}
 		} catch (Exception e) {
-			log.error("Cannot retrieve menu from drupal. Using default menu.");
-			content = "<ul class=\"links\"><li class=\"menu-3521 first\"><a href=\"/user/login?current=menudisplaycombinedrendered\" title=\"Login with your account\" id=\"login\">Login</a></li><li class=\"menu-3523 last\"><a href=\"/user/register\" title=\"Register for an account\" id=\"register\">Register</a></li></ul>MAIN*MENU*BELOW<div id=\"block-menu-block-1\" class=\"block block-menu-block\"><div class=\"content\"><div class=\"menu-block-wrapper menu-block-1 menu-name-main-menu parent-mlid-0 menu-level-1\"><ul class=\"menu\"><li class=\"first leaf menu-mlid-3127\"><a href=\"/data/search\">Search</a></li><li class=\"expanded menu-mlid-530\"><a href=\"/goals-and-background\">About IMPC</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-3125\"><a href=\"/goals-and-background\" title=\"\">Goals and Background</a></li><li class=\"leaf menu-mlid-537\"><a href=\"/about-impc/impc-members\">IMPC Members</a></li><li class=\"leaf menu-mlid-3197\"><a href=\"https://www.mousephenotype.org/sites/mousephenotype.org/files/IMPC%20Governance%20and%20Coordination%20v11%20June%202013.pdf\" title=\"\">Governance Documentation</a></li><li class=\"leaf has-children menu-mlid-3525\"><a href=\"/about-impc/coordination\">Coordination</a></li><li class=\"leaf menu-mlid-3229\"><a href=\"/about-impc/industry-sponsors\">Industry Sponsors</a></li><li class=\"leaf menu-mlid-546\"><a href=\"/about-impc/impc-secretariat\">Secretariat</a></li><li class=\"last leaf has-children menu-mlid-3223\"><a href=\"/about-impc/publications\">Additional Information</a></li></ul></li><li class=\"expanded menu-mlid-526\"><a href=\"/news\" title=\"\">News &amp; Events</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-3185\"><a href=\"/news-events/impc-lethal-lines\">IMPC Lethal Lines</a></li><li class=\"leaf menu-mlid-2102\"><a href=\"/news-and-events/meetings-2013\">Meetings</a></li><li class=\"last leaf menu-mlid-3157\"><a href=\"/news-events/phone-conferences\">Phone Conferences</a></li></ul></li><li class=\"leaf menu-mlid-559\"><a href=\"/contact-us\">Contact</a></li><li class=\"last expanded menu-mlid-1220\"><a href=\"/user?current=menudisplaycombinedrendered\" title=\"\">My IMPC</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-1126\"><a href=\"/forum\" title=\"\">IMPC Forum</a></li><li class=\"last leaf menu-mlid-3133\"><a href=\"/my-impc/documentation\">Documentation</a></li></ul></li></ul></div><div class=\"clear\"></div></div></div>";
-		}
 
-		//strip off the drupal <front> tag
-		content = content.replace("<front>", "");
-//		System.out.println(content);
+			// If we can't get the menu, default to the logged out menu
+			log.error("Cannot retrieve menu from drupal. Using default menu.");
+
+			// Menu updated 2015-08-20
+			content = "<ul class=\"links\"><li class=\"menu-3521 first\"><a href=\"/user/login\" title=\"Login with your account\" id=\"login\">Login</a></li>\n" +
+				"<li class=\"menu-3523 last\"><a href=\"/user/register\" title=\"Register for an account\" id=\"register\">Register</a></li>\n" +
+				"</ul>MAIN*MENU*BELOW<div id=\"block-menu-block-1\" class=\"block block-menu-block\">\n" +
+				"<div class=\"content\"><div class=\"menu-block-wrapper menu-block-1 menu-name-main-menu parent-mlid-0 menu-level-1\">\n" +
+				"<ul class=\"menu\"><li class=\"first expanded menu-mlid-3127\"><a href=\"/data/search\">Search</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-4047\"><a href=\"/data/batchQuery\">Batch Query</a></li>\n" +
+				"<li class=\"leaf menu-mlid-4049\"><a href=\"/phenoview\">Phenoview</a></li>\n" +
+				"<li class=\"leaf menu-mlid-4053\"><a href=\"/search/tools\">Tools</a></li>\n" +
+				"<li class=\"last leaf menu-mlid-4051\"><a href=\"/data/documentation/api-help\">API</a></li>\n" +
+				"</ul></li>\n" +
+				"<li class=\"expanded menu-mlid-530\"><a href=\"/goals-and-background\">About IMPC</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-3125\"><a href=\"/goals-and-background\" title=\"\">Goals and Background</a></li>\n" +
+				"<li class=\"leaf menu-mlid-537\"><a href=\"/about-impc/impc-members\">IMPC Members</a></li>\n" +
+				"<li class=\"leaf menu-mlid-3197\"><a href=\"/sites/mousephenotype.org/files/IMPC%20Governance%20and%20Coordination%20v02%20October%202014.pdf\">Governance Documentation</a></li>\n" +
+				"<li class=\"leaf has-children menu-mlid-3525\"><a href=\"/about-impc/coordination\">Coordination</a></li>\n" +
+				"<li class=\"leaf menu-mlid-3229\"><a href=\"/about-impc/industry-sponsors\">Industry Sponsors</a></li>\n" +
+				"<li class=\"leaf menu-mlid-546\"><a href=\"/about-impc/impc-secretariat\">Secretariat</a></li>\n" +
+				"<li class=\"leaf has-children menu-mlid-3223\"><a href=\"/about-impc/publications\">Additional Information</a></li>\n" +
+				"<li class=\"leaf menu-mlid-3983\"><a href=\"/about-impc/arrive-guidelines\">ARRIVE Guidelines</a></li>\n" +
+				"<li class=\"last leaf menu-mlid-3975\"><a href=\"/about-ikmc\">About IKMC</a></li>\n" +
+				"</ul></li>\n" +
+				"<li class=\"expanded menu-mlid-526\"><a href=\"/news\" title=\"\">News &amp; Events</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-3185\"><a href=\"/news-events/impc-lethal-lines\">IMPC Lethal Lines</a></li>\n" +
+				"<li class=\"leaf menu-mlid-2102\"><a href=\"/news-events/meetings\">Meetings</a></li>\n" +
+				"<li class=\"leaf menu-mlid-4041\"><a href=\"/data/alleleref\">References using IKMC and IMPC Resources</a></li>\n" +
+				"<li class=\"last leaf menu-mlid-4043\"><a href=\"/news-events/phone-conferences\">Phone Conferences</a></li>\n" +
+				"</ul></li>\n" +
+				"<li class=\"leaf menu-mlid-559\"><a href=\"/contact-us\">Contact</a></li>\n" +
+				"<li class=\"last expanded menu-mlid-1220\"><a href=\"/user?current=menudisplaycombinedrendered\">My IMPC</a><ul class=\"menu\"><li class=\"first leaf menu-mlid-1126\"><a href=\"/forum\" title=\"\">IMPC Forum</a></li>\n" +
+				"<li class=\"leaf has-children menu-mlid-3133\"><a href=\"/my-impc/documentation\">Documentation</a></li>\n" +
+				"<li class=\"last leaf menu-mlid-4029\"><a href=\"/my-impc/communications-materials\">Communications Materials</a></li>\n" +
+				"</ul></li>\n" +
+				"</ul></div>\n" +
+				"<div class=\"clear\"></div></div>  \n" +
+				"</div>\n";
+		}
 
 		return content;
 	}

@@ -31,12 +31,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
 
 import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,13 +51,16 @@ import java.util.Map;
 public class MAIndexer extends AbstractIndexer {
 
     private static final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
-
+   
+    @Value("classpath:unique_both_sex_uberon_efo.csv")
+	Resource resource;
+    
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
     @Autowired
-    @Qualifier("sangerImagesIndexing")
+    @Qualifier("sangerImagesReadOnlyIndexing")
     SolrServer imagesCore;
 
     @Autowired
@@ -63,9 +69,10 @@ public class MAIndexer extends AbstractIndexer {
 
     @Autowired
     MaOntologyDAO maOntologyService;
-
+    
     private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
-
+    private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap();      // key = term_id.
+    
     public MAIndexer() {
 
     }
@@ -89,9 +96,10 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
-        try {
-            logger.info("Starting MA Indexer...");
+    public void run() throws IndexerException, SQLException {
+    	try {
+    		logger.info("Starting MA Indexer...");
+    		
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
@@ -99,16 +107,31 @@ public class MAIndexer extends AbstractIndexer {
 
             logger.info("Starting indexing loop");
 
+            
+            
             // Add all ma terms to the index.
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
             for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
 
+                String maId = bean.getId();
                 // Set scalars.
                 ma.setDataType("ma");
-                ma.setMaId(bean.getId());
+                ma.setMaId(maId);
                 ma.setMaTerm(bean.getName());
-
+                
+                
+                // index UBERON/EFO id for MA id
+                if ( maUberonEfoMap.containsKey(maId) ){
+                	
+                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
+                		ma.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
+                	}
+                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
+                		ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
+                	}
+                }
+                
                 // Set collections.
                 OntologyTermMaBeanList sourceList = new OntologyTermMaBeanList(maOntologyService, bean.getId());
                 ma.setOntologySubset(sourceList.getSubsets());
@@ -206,15 +229,17 @@ public class MAIndexer extends AbstractIndexer {
 
     private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
 
-    private void initialiseSupportingBeans() throws IndexerException {
+    private void initialiseSupportingBeans() throws IndexerException, SQLException, IOException {
         // Grab all the supporting database content
         maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
         if (logger.isDebugEnabled()) {
             IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
         }
+        
+        maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
     }
 
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) throws IndexerException, SQLException {
         MAIndexer indexer = new MAIndexer();
         indexer.initialise(args);
         indexer.run();
