@@ -99,6 +99,7 @@ public class SearchImageAnnotationView extends SearchFacetTable {
             logger.info("Decoding page data for TSV image link comparison.");
             pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), COL_INDEX_IMAGES_LINK), pageData.getTarget());
         }
+
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
 

@@ -18,14 +18,19 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.*;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -46,10 +51,13 @@ public class PhenotypePage {
     private final PhenotypeTable phenotypeTable;
     protected final TestUtils testUtils = new TestUtils();
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
     private boolean hasGraphs;
     private boolean hasImages;
     private boolean hasPhenotypesTable;
     private int resultsCount;
+    private UrlUtils urlUtils = new UrlUtils();
 
     /**
      * Creates a new <code>GenePage</code> instance
@@ -384,7 +392,10 @@ public class PhenotypePage {
      */
     private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
-        GridMap pageMap = phenotypeTable.load();                                   // Load all of the phenotypes table pageMap data.
+        GridMap pageData = phenotypeTable.load();                                   // Load all of the phenotypes table pageMap data.
+
+        // Decode pageData link columns.
+        pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK), pageData.getTarget());
 
         // Test the TSV.
         GridMap downloadData = getDownloadTsv(status);
@@ -392,7 +403,9 @@ public class PhenotypePage {
             return status;
         }
 
-        status = validateDownload(pageMap, downloadData);
+        // Decode downloadData link columns.
+        downloadData = new GridMap(urlUtils.urlDecodeColumn(downloadData.getData(), DownloadPhenotypeMap.COL_INDEX_GRAPH_LINK), downloadData.getTarget());
+        status = validateDownload(pageData, downloadData);
         if (status.hasErrors()) {
             return status;
         }
@@ -403,7 +416,9 @@ public class PhenotypePage {
             return status;
         }
 
-        status = validateDownload(pageMap, downloadData);
+        // Decode downloadData link columns.
+        downloadData = new GridMap(urlUtils.urlDecodeColumn(downloadData.getData(), DownloadPhenotypeMap.COL_INDEX_GRAPH_LINK), downloadData.getTarget());
+        status = validateDownload(pageData, downloadData);
         if (status.hasErrors()) {
             return status;
         }
@@ -464,12 +479,14 @@ public class PhenotypePage {
         Set<String> difference = testUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            String message = "PhenotypePage.validateDownload(): Page/Download data mismatch. \nURL: " + driver.getCurrentUrl();
             Iterator it = difference.iterator();
             int i = 0;
             while (it.hasNext()) {
-                String value = (String)it.next();
-                System.out.println("[" + i++ + "]: " + value);
+                String value = (String) it.next();
+                logger.error("[" + i + "]:\t page data: " + value);
+                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                i++;
                 errorCount++;
             }
         }
