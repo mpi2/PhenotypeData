@@ -119,10 +119,8 @@
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
 	<bean id="alleleReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/allele" />
-		<constructor-arg index="1" value="10000" /> <!--Queue size -->
-		<constructor-arg index="2" value="3" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/allele" />
 	</bean>
 
 	<bean id="preqcIndexing"
@@ -133,10 +131,8 @@
 	</bean>
 
 	<bean id="preqcReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/preqc" />
-		<constructor-arg index="1" value="10000" /> <!--Queue size -->
-		<constructor-arg index="2" value="3" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/preqc" />
 	</bean>
 
 	<!-- used for concurrently loading the experiment core -->
@@ -148,11 +144,9 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 	<bean id="observationReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/experiment" />
-		<constructor-arg index="1" value="100000" /> <!--Queue size -->
-		<constructor-arg index="2" value="5" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/experiment" />
 	</bean>
 
 	<!-- used for concurrently loading the MA core -->
@@ -163,10 +157,8 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 	<bean id="maReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/ma" />
-		<constructor-arg index="1" value="100000" /> <!--Queue size -->
-		<constructor-arg index="2" value="5" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/ma" />
 	</bean>
 
 	<!-- used for concurrently loading the disease core -->
@@ -178,11 +170,9 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 	<bean id="diseaseReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/disease" />
-		<constructor-arg index="1" value="1000" /> <!--Queue size -->
-		<constructor-arg index="2" value="5" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/disease" />
 	</bean>
 	
 
@@ -194,10 +184,8 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 	<bean id="geneReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/gene" />
-		<constructor-arg index="1" value="1000" /> <!--Queue size -->
-		<constructor-arg index="2" value="5" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/gene" />
 	</bean>
 
 	<!-- used for concurrently loading the genotype phenotype core -->
@@ -211,11 +199,9 @@
 
 	<!-- used for concurrently loading the genotype phenotype core -->
 	<bean id="genotypePhenotypeReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/genotype-phenotype" />
-		<constructor-arg index="1" value="1000" /> <!--Queue size -->
-		<constructor-arg index="2" value="5" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/genotype-phenotype" />
 	</bean>
 
 	<!-- used for concurrently loading the pipeline core -->
@@ -227,11 +213,9 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 	<bean id="pipelineReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/pipeline" />
-		<constructor-arg index="1" value="500" /> <!--Queue size -->
-		<constructor-arg index="2" value="5" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/pipeline" />
 	</bean>
 
 
@@ -243,10 +227,8 @@
 		<constructor-arg index="2" value="2" /> <!--Num threads -->
 	</bean>
 	<bean id="sangerImagesReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/images" />
-		<constructor-arg index="1" value="2000" /> <!--Queue size -->
-		<constructor-arg index="2" value="2" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/images" />
 	</bean>
 
 	<!-- used for concurrently loading the MP core -->
@@ -257,10 +239,8 @@
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
 	<bean id="mpReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/mp" />
-		<constructor-arg index="1" value="200" /> <!--Queue size -->
-		<constructor-arg index="2" value="3" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/mp" />
 	</bean>
 	
 	<!-- used for concurrently loading the autosuggest core -->
@@ -272,11 +252,9 @@
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
 	<bean id="autosuggestReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/autosuggest" />
-		<constructor-arg index="1" value="1000" /> <!--Queue size -->
-		<constructor-arg index="2" value="3" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/autosuggest" />
 	</bean>
 	
 	<!-- used for concurrently loading the impc_images core -->
@@ -288,11 +266,9 @@
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
 	<bean id="impcImagesReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/impc_images" />
-		<constructor-arg index="1" value="10000" /> <!--Queue size -->
-		<constructor-arg index="2" value="3" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/impc_images" />
 	</bean>
 	
 	<!-- used for concurrently loading the statistical results core -->
@@ -304,11 +280,9 @@
 		<constructor-arg index="2" value="6" /> <!--Num threads -->
 	</bean>
 	<bean id="statisticalResultsReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${internalSolrUrl}/statistical-result" />
-		<constructor-arg index="1" value="50000" /> <!--Queue size -->
-		<constructor-arg index="2" value="6" /> <!--Num threads -->
+			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/statistical-result" />
 	</bean>
 	
 	<!-- IMPC to GWAS similarity annotation indexing core -->
@@ -319,10 +293,8 @@
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
 	<bean id="gwasReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
-		<constructor-arg index="0" value="${internalSolrUrl}/gwas" />
-		<constructor-arg index="1" value="10000" /> <!--Queue size -->
-		<constructor-arg index="2" value="3" /> <!--Num threads -->
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/gwas" />
 	</bean>
 	
 
