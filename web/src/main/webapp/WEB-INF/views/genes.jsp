@@ -8,6 +8,7 @@
 			href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
+	
 	</jsp:attribute>
 	<jsp:attribute name="addToFooter">
             <!--  start of floating menu for genes page -->
@@ -64,13 +65,8 @@
 				src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
                 <!--[if !IE]><!-->
                 <script>
-																	dcc.heatmapUrlGenerator = function(
-																			genotype_id,
-																			type) {
-																		return '${drupalBaseUrl}/phenoview?gid='
-																				+ genotype_id
-																				+ '&qeid='
-																				+ type;
+																	dcc.heatmapUrlGenerator = function(genotype_id, type) {
+																		return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
 																	};
 																</script>
                 <!--<![endif]-->
@@ -83,27 +79,26 @@
                 <![endif]-->
                 <script>
 																	//new dcc.PhenoHeatMap('procedural', 'phenodcc-heatmap', 'Fam63a', 'MGI:1922257', 6, '//dev.mousephenotype.org/heatmap/rest/heatmap/');
-																	new dcc.PhenoHeatMap(
-																			{
-																				/* identifier of <div> node that will host the heatmap */
-																				'container' : 'phenodcc-heatmap',
-																				/* colony identifier (MGI identifier) */
-																				'mgiid' : '${gene.mgiAccessionId}',
-																				/* default usage mode: ontological or procedural */
-																				'mode' : 'ontological',
-																				/* number of phenotype columns to use per section */
-																				'ncol' : 5,
-																				/* heatmap title to use */
-																				'title' : '${gene.markerSymbol}',
-																				'url' : {
-																					/* the base URL of the heatmap javascript source */
-																					'jssrc' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-																					/* the base URL of the heatmap data source */
-																					'json' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
-																					/* function that generates target URL for data visualisation */
-																					'viz' : dcc.heatmapUrlGenerator
-																				}
-																			});
+																	new dcc.PhenoHeatMap({
+																		/* identifier of <div> node that will host the heatmap */
+																		'container' : 'phenodcc-heatmap',
+																		/* colony identifier (MGI identifier) */
+																		'mgiid' : '${gene.mgiAccessionId}',
+																		/* default usage mode: ontological or procedural */
+																		'mode' : 'ontological',
+																		/* number of phenotype columns to use per section */
+																		'ncol' : 5,
+																		/* heatmap title to use */
+																		'title' : '${gene.markerSymbol}',
+																		'url' : {
+																			/* the base URL of the heatmap javascript source */
+																			'jssrc' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
+																			/* the base URL of the heatmap data source */
+																			'json' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/rest/',
+																			/* function that generates target URL for data visualisation */
+																			'viz' : dcc.heatmapUrlGenerator
+																		}
+																	});
 																</script>
             </c:if>
 
@@ -115,56 +110,41 @@
             <!-- JavaScript Local Imports -->
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-            <script type="text/javascript"
-			src="${baseUrl}/js/general/allele.js"></script>
+            <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
   
             <script type="text/javascript">
 													var gene_id = '${acc}';
 
 													$(function() {
-														console
-																.log('calling tabs now');
+														console.log('calling tabs now');
 
 														$("#tabs").tabs();
 
-														$('ul.tabs li a')
-																.click(
-																		function() {
-																			$(
-																					'ul.tabs li a')
-																					.css(
-																							{
-																								'border-bottom' : 'none',
-																								'background-color' : '#F4F4F4',
-																								'border' : 'none'
-																							});
-																			$(
-																					this)
-																					.css(
-																							{
-																								'border' : '1px solid #666',
-																								'border-bottom' : '1px solid white',
-																								'background-color' : 'white',
-																								'color' : '#666'
-																							});
-																		});
+														$('ul.tabs li a').click(function() {
+															$('ul.tabs li a').css({
+																'border-bottom' : 'none',
+																'background-color' : '#F4F4F4',
+																'border' : 'none'
+															});
+															$(this).css({
+																'border' : '1px solid #666',
+																'border-bottom' : '1px solid white',
+																'background-color' : 'white',
+																'color' : '#666'
+															});
+														});
 
-														$('ul.tabs li a')
-																.css(
-																		{
-																			'border-bottom' : 'none',
-																			'background-color' : '#F4F4F4',
-																			'border' : 'none'
-																		});
-														$(
-																'ul.tabs li a#ui-id-1')
-																.css(
-																		{
-																			'border' : '1px solid #666',
-																			'border-bottom' : '1px solid white',
-																			'background-color' : 'white',
-																			'color' : '#666'
-																		});
+														$('ul.tabs li a').css({
+															'border-bottom' : 'none',
+															'background-color' : '#F4F4F4',
+															'border' : 'none'
+														});
+														$('ul.tabs li a#ui-id-1').css({
+															'border' : '1px solid #666',
+															'border-bottom' : '1px solid white',
+															'background-color' : 'white',
+															'color' : '#666'
+														});
 
 													});
 												</script>
@@ -356,91 +336,9 @@ div.ui-tabs-panel {
 
                                 <div class="inner">
                                     <c:choose>
-                                        <c:when
-										test="${summaryNumber > 0}">
-                                            <div class="abnormalities">
-                                                <div class="allicons"></div>
-
-                                                <div
-												class="no-sprite sprite_embryogenesis_phenotype"
-												data-hasqtip="27" title="embryogenesis phenotype"></div>
-                                                <div
-												class="no-sprite sprite_reproductive_system_phenotype"
-												data-hasqtip="27" title="reproductive system phenotype"></div>
-                                                <div
-												class="no-sprite sprite_mortality_aging" data-hasqtip="27"
-												title="mortality/aging"></div>
-                                                <div
-												class="no-sprite sprite_growth_size_body_phenotype"
-												data-hasqtip="27" title="growth/size/body phenotype"></div>
-                                                <div
-												class="no-sprite sprite_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype"
-												data-hasqtip="27"
-												title="homeostasis/metabolism phenotype or adipose tissue phenotype"></div>
-
-                                                <div
-												class="no-sprite sprite_behavior_neurological_phenotype_or_nervous_system_phenotype"
-												data-hasqtip="27"
-												title="behavior/neurological phenotype or nervous system phenotype"></div>
-                                                <div
-												class="no-sprite sprite_cardiovascular_system_phenotype"
-												data-hasqtip="27" title="cardiovascular system phenotype"></div>
-                                                <div
-												class="no-sprite sprite_respiratory_system_phenotype"
-												data-hasqtip="27" title="respiratory system phenotype"></div>
-                                                <div
-												class="no-sprite sprite_digestive_alimentary_phenotype_or_liver_biliary_system_phenotype"
-												data-hasqtip="27"
-												title="digestive/alimentary phenotype or liver/biliary system phenotype"></div>
-                                                <div
-												class="no-sprite sprite_renal_urinary_system_phenotype"
-												data-hasqtip="27" title="renal/urinary system phenotype"></div>
-
-                                                <div
-												class="no-sprite sprite_limbs_digits_tail_phenotype"
-												data-hasqtip="27" title="limbs/digits/tail phenotype"></div>
-                                                <div
-												class="no-sprite sprite_skeleton_phenotype"
-												data-hasqtip="27" title="skeleton phenotype"></div>
-                                                <div
-												class="no-sprite sprite_immune_system_phenotype_or_hematopoietic_system_phenotype"
-												data-hasqtip="27"
-												title="immune system phenotype or hematopoietic system phenotype"></div>
-                                                <div
-												class="no-sprite sprite_muscle_phenotype" data-hasqtip="27"
-												title="muscle phenotype"></div>
-                                                <div
-												class="no-sprite sprite_integument_phenotype_or_pigmentation_phenotype"
-												data-hasqtip="27"
-												title="integument phenotype or pigmentation phenotype"></div>
-
-                                                <div
-												class="no-sprite sprite_craniofacial_phenotype "
-												data-hasqtip="27" title="craniofacial phenotype"></div>
-                                                <div
-												class="no-sprite sprite_hearing_vestibular_ear_phenotype "
-												data-hasqtip="27" title="hearing/vestibular/ear phenotype"></div>
-                                                <div
-												class="no-sprite sprite_taste_olfaction_phenotype "
-												data-hasqtip="27" title="taste/olfaction phenotype"></div>
-                                                <div
-												class="no-sprite sprite_endocrine_exocrine_gland_phenotype "
-												data-hasqtip="27" title="endocrine/exocrine gland phenotype"></div>
-                                                <div
-												class="no-sprite sprite_vision_eye_phenotype"
-												data-hasqtip="27" title="vision/eye phenotype"></div>
-
-                                                <c:forEach var="group"
-												items="${topLevelMpGroups}">
-                                                    <c:if
-													test="${group != 'mammalian phenotype' }">
-                                                        <div
-														class="sprite sprite_${group.replaceAll(' |/', '_')}"
-														data-hasqtip="27" title="${group}"></div>
-                                                    </c:if>
-                                                </c:forEach>
-                                                
-                                            </div>
+                                        <c:when	test="${summaryNumber > 0}">
+                                            
+                                            <jsp:include page="phenotype_icons_frag.jsp" />
                                             
                                             <%-- <c:if test="${!(empty dataMapList)}">
 		                                        <p class="with-label no-margin">
@@ -466,7 +364,8 @@ div.ui-tabs-panel {
                                           	</div>
                                           </c:if>
                                           
-                                          <c:if test="${geneDTO.embryoDataAvailable}">
+                                          <c:if
+											test="${geneDTO.embryoDataAvailable}">
                                             <div class="floatright"
 												style="clear: both">
                                             	<a class="btn"
@@ -540,14 +439,16 @@ div.ui-tabs-panel {
                                             
 
                                         </c:when>
-                                        <c:when test="${summaryNumber == 0}">
+                                        <c:when
+										test="${summaryNumber == 0}">
                                         
-                                        <c:if test="${empty dataMapList}">
+                                        <c:if
+											test="${empty dataMapList}">
                                         <div class="alert alert-info">
                                             	<h5>Phenotype data is undergoing quality control</h5>
                                             	<p>Any phenotype assocations appearing below are preliminary and may change. Links are provided to the Pheno-DCC quality control resource.</p>
                                         </div>
-                                        <br/>
+                                        <br />
                                         </c:if>
                                          <c:if
 											test="${!(empty dataMapList)}">
@@ -561,13 +462,14 @@ div.ui-tabs-panel {
 												style="clear: both">
 	                                         	
 													<a class="btn"
-														href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-														style="margin: 0px">All Adult Data</a>
+													href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
+													style="margin: 0px">All Adult Data</a>
 												
                                           	</div>
                                           </c:if>
                                           
-                                          <c:if test="${geneDTO.embryoDataAvailable}">
+                                          <c:if
+											test="${geneDTO.embryoDataAvailable}">
                                             <div class="floatright"
 												style="clear: both">
                                             	<a class="btn"
@@ -863,7 +765,8 @@ div.ui-tabs-panel {
                       
         </div>
         </div>
-        </c:if><!-- end of expression section if -->
+        </c:if>
+						<!-- end of expression section if -->
 						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
                                           
 
@@ -871,33 +774,36 @@ div.ui-tabs-panel {
                             <c:if test="${not empty impcImageFacets}">
                                 <div class="section">
                                     <h2 class="title"
-								id="section-impc-images">IMPC Phenotype Associated Images <i
-									class="fa fa-question-circle pull-right"
-									title="Brief info about this panel"></i>
+									id="section-impc-images">IMPC Phenotype Associated Images <i
+										class="fa fa-question-circle pull-right"
+										title="Brief info about this panel"></i>
 							</h2>
                                 
                                     <div class="inner">
                                         <c:forEach var="entry"
-									items="${impcImageFacets}" varStatus="status">
+										items="${impcImageFacets}" varStatus="status">
 
 
                                             <c:forEach var="doc"
-										items="${impcFacetToDocs[entry.name]}">
+											items="${impcFacetToDocs[entry.name]}">
                                                 <div
-											id="impc-images-heading" class="accordion-group">    
+												id="impc-images-heading" class="accordion-group">    
 
                                                     <div
-												class="accordion-heading">
+													class="accordion-heading">
                                                         ${doc.parameter_name}(${entry.count}) 
                                                     </div>
                                                     <div
-												class="accordion-body">
+													class="accordion-body">
                                                         <ul>
-															<c:set var="href" scope="page" value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
-                                                            <a href="${href}">
-                                                                <t:impcimgdisplay2	img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"
-																	pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}"
-																	count="${entry.count}"></t:impcimgdisplay2>
+															<c:set var="href" scope="page"
+															value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
+                                                            <a
+															href="${href}">
+                                                                <t:impcimgdisplay2
+																img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"
+																pdfThumbnailUrl="${pdfThumbnailUrl}" href="${href}"
+																count="${entry.count}"></t:impcimgdisplay2>
                                                              </a>
                                                         </ul>
 
@@ -925,38 +831,38 @@ div.ui-tabs-panel {
                             <c:if test="${not empty solrFacets}">
                                 <div class="section">
                                     <h2 class="title"
-								id="section-images">Phenotype Associated Images <i
-									class="fa fa-question-circle pull-right"
-									title="Brief info about this panel"></i>
+									id="section-images">Phenotype Associated Images <i
+										class="fa fa-question-circle pull-right"
+										title="Brief info about this panel"></i>
 							</h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
                                         <c:forEach var="entry"
-									items="${solrFacets}" varStatus="status">
+										items="${solrFacets}" varStatus="status">
                                             <div class="accordion-group">
                                                 <div
-											class="accordion-heading">
+												class="accordion-heading">
                                                     ${entry.name} (${entry.count})
                                                 </div>
                                                 <div
-											class="accordion-body">
+												class="accordion-body">
                                                     <ul>
                                                         <c:forEach
-													var="doc" items="${facetToDocs[entry.name]}">
+														var="doc" items="${facetToDocs[entry.name]}">
                                                             <li>
                                                                 <t:imgdisplay
-															img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+																img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
                                                                 </li>
                                                         </c:forEach>
                                                     </ul>
                                                     <div class="clear"></div>
                                                     <c:if
-												test="${entry.count>5}">
+													test="${entry.count>5}">
                                                         <p
-													class="textright">
+														class="textright">
 													<a
-														href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i
-														class="fa fa-caret-right"></i> show all ${entry.count} images</a>
+															href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i
+															class="fa fa-caret-right"></i> show all ${entry.count} images</a>
 												</p>
                                                     </c:if>
                                                 </div>
@@ -973,38 +879,38 @@ div.ui-tabs-panel {
                             <c:if test="${not empty expressionFacets}">
                                 <div class="section">
                                     <h2 class="title"
-								id="section-expression">Expression <i
-									class="fa fa-question-circle pull-right"></i>
+									id="section-expression">Expression <i
+										class="fa fa-question-circle pull-right"></i>
 							</h2>
                                     <div class="inner">			
 
                                         <!-- thumbnail scroller markup begin -->
                                         <c:forEach var="entry"
-									items="${expressionFacets}" varStatus="status">
+										items="${expressionFacets}" varStatus="status">
                                             <div class="accordion-group">
                                                 <div
-											class="accordion-heading">
+												class="accordion-heading">
                                                     ${entry.name}  (${entry.count})
                                                 </div>
                                                 <div
-											class="accordion-body">
+												class="accordion-body">
 
                                                     <ul>
                                                         <c:forEach
-													var="doc" items="${expFacetToDocs[entry.name]}">
+														var="doc" items="${expFacetToDocs[entry.name]}">
                                                             <li>
                                                                 <t:imgdisplay
-															img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+																img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
                                                                 </li>
                                                         </c:forEach>
                                                     </ul>
                                                     <div class="clear"></div>
                                                     <c:if
-												test="${entry.count>5}">
+													test="${entry.count>5}">
                                                         <p
-													class="textright">
+														class="textright">
 													<a
-														href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>show all  ${entry.count} images</a>
+															href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>show all  ${entry.count} images</a>
 												</p>
                                                     </c:if>
                                                 </div>
@@ -1016,57 +922,58 @@ div.ui-tabs-panel {
 
                             <!--Disease Sections-->
                             <c:if
-						test="${not empty orthologousDiseaseAssociations}">                 
+							test="${not empty orthologousDiseaseAssociations}">                 
                                 <div class="section"
-							id="orthologous-diseases">
+								id="orthologous-diseases">
                                     <h2 class="title"
-								id="section-disease-models">Disease Models <small
-									class="sub">associated by gene orthology</small>
+									id="section-disease-models">Disease Models <small
+										class="sub">associated by gene orthology</small>
                                         <a
-									href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+										href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
                                             <a
-									href='${baseUrl}/documentation/disease-help.html#details'
-									class="mpPanel">
+										href='${baseUrl}/documentation/disease-help.html#details'
+										class="mpPanel">
                                                 <i
-										class="fa fa-question-circle pull-right"></i>
+											class="fa fa-question-circle pull-right"></i>
                                             </a>
                                         </span>
                                     </h2>
                                     <div class="inner">
                                         <table
-									id="orthologous_diseases_table"
-									class="table tableSorter disease">
+										id="orthologous_diseases_table"
+										class="table tableSorter disease">
                                             <jsp:include
-										page="genes_orthologous_diseases_table_frag.jsp"></jsp:include>
+											page="genes_orthologous_diseases_table_frag.jsp"></jsp:include>
                                             </table>
                                         </div>
                                     </div>
                             </c:if>
 
                             <c:if
-						test="${not empty phenotypicDiseaseAssociations}">                 
+							test="${not empty phenotypicDiseaseAssociations}">                 
                                 <div class="section"
-							id="predicted-diseases">
+								id="predicted-diseases">
                                     <h2 class="title"
-								id="section-potential-disease-models">Potential Disease Models <small
-									class="sub">predicted by phenotypic similarity</small>
+									id="section-potential-disease-models">Potential Disease Models <small
+										class="sub">predicted by phenotypic similarity</small>
                                         <a
-									href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+										href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
                                             <a
-									href='${baseUrl}/documentation/disease-help.html#details'
-									class="mpPanel">
+										href='${baseUrl}/documentation/disease-help.html#details'
+										class="mpPanel">
                                                 <i
-										class="fa fa-question-circle pull-right"></i>
+											class="fa fa-question-circle pull-right"></i>
                                             </a>
                                         </span>
                                     </h2>
                                     <div class="inner">
                                         <table
-									id="predicted_diseases_table" class="table tableSorter disease">
+										id="predicted_diseases_table"
+										class="table tableSorter disease">
                                             <jsp:include
-										page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
+											page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
                                             </table>
                                         </div>
                                     </div>
@@ -1075,9 +982,9 @@ div.ui-tabs-panel {
                             <div class="section" id="order2">
                                 <h2 class="title documentation">Order Mouse and ES Cells
                                     <a
-								href="${baseUrl}/documentation/gene-help.html#alleles"
-								id='allelePanel' class="fa fa-question-circle pull-right"
-								data-hasqtip="212" aria-describedby="qtip-212"></a> 
+									href="${baseUrl}/documentation/gene-help.html#alleles"
+									id='allelePanel' class="fa fa-question-circle pull-right"
+									data-hasqtip="212" aria-describedby="qtip-212"></a> 
                                 </h2>
                                 <div class="inner">
                                     <div id="allele2"></div>
@@ -1092,31 +999,32 @@ div.ui-tabs-panel {
             <script type="text/javascript"
 			src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
             <script type="text/javascript">
-                    var diseaseTables = [
-                        {id: '#orthologous_diseases_table',
-                            tableConf: {
-                                processing: true,
-                                paging: false,
-                                info: false,
-                                searching: false,
-                                order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-                                "sPaginationType": "bootstrap"
-                            }},
-                        {id: '#predicted_diseases_table',
-                            tableConf: {
-                                order: [[2, 'desc'], [4, 'desc'], [3, 'desc']],
-                                "sPaginationType": "bootstrap"
-                            }}
-                    ];
+													var diseaseTables = [ {
+														id : '#orthologous_diseases_table',
+														tableConf : {
+															processing : true,
+															paging : false,
+															info : false,
+															searching : false,
+															order : [ [ 2, 'desc' ], [ 4, 'desc' ], [ 3, 'desc' ] ],
+															"sPaginationType" : "bootstrap"
+														}
+													}, {
+														id : '#predicted_diseases_table',
+														tableConf : {
+															order : [ [ 2, 'desc' ], [ 4, 'desc' ], [ 3, 'desc' ] ],
+															"sPaginationType" : "bootstrap"
+														}
+													} ];
 
-                    $(document).ready(function () {
-                        for (var i = 0; i < diseaseTables.length; i++) {
-                            var diseaseTable = diseaseTables[i];
-                            var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
-                            $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
-                        }
-                    });
-            </script>
+													$(document).ready(function() {
+														for (var i = 0; i < diseaseTables.length; i++) {
+															var diseaseTable = diseaseTables[i];
+															var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+															$.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+														}
+													});
+												</script>
         </jsp:body>
 
 </t:genericpage>

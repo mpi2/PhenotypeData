@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 import javax.annotation.Resource;
 import java.net.MalformedURLException;
@@ -36,8 +38,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	private Map<String, String> config;
 
 	@Autowired
-	@Qualifier("postqcService")
-	private PostQcService gpService;
+	private StatisticalResultService srService;
 
 	public PhenotypeSummaryDAOImpl() throws MalformedURLException {
 	}
@@ -74,7 +75,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		if (resp.size() > 0) {
 			for (int i = 0; i < resp.size(); i++) {
 				SolrDocument doc = resp.get(i);
-				data.add((String) doc.getFieldValue("resource_name"));
+				data.add((String) doc.getFieldValue(StatisticalResultDTO.RESOURCE_NAME));
 			}
 		}
 		return data;
@@ -85,17 +86,29 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	public PhenotypeSummaryBySex getSummaryObjects(String gene)
 	throws Exception {
 
-		HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, null);
+		HashMap<String, String> summary = srService.getTopLevelMPTerms(gene, null);
 		PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 		for (String id : summary.keySet()) {
-			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, null);
+			SolrDocumentList resp = srService.getPhenotypesForTopLevelTerm(gene, id, null);
 			String sex = getSexesRepresentationForPhenotypesSet(resp);
 			HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 			long n = resp.getNumFound();
-			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
+			boolean significant = isSignificant(resp.get(0));
+			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
 			resSummary.addPhenotye(phen);
 		}
 		return resSummary;
+	}
+	
+	
+	private boolean isSignificant (SolrDocument doc){
+		
+		if (doc != null && doc.containsValue(StatisticalResultDTO.P_VALUE)){
+			return (new Float(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
+		} else {
+			return false;
+		}
+		
 	}
 
 
@@ -104,13 +117,14 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();
 		for (ZygosityType zyg : ZygosityType.values()){
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			HashMap<String, String> summary = gpService.getTopLevelMPTerms(gene, zyg);
+			HashMap<String, String> summary = srService.getTopLevelMPTerms(gene, zyg);
 			for (String id: summary.keySet()){
-				SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(gene, id, zyg);
+				SolrDocumentList resp = srService.getPhenotypesForTopLevelTerm(gene, id, zyg);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 				long n = resp.getNumFound();
-				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds);
+				boolean significant = isSignificant(resp.get(0));
+				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
 			}
 			if (resSummary.getTotalPhenotypesNumber() > 0){

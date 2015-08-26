@@ -219,8 +219,9 @@ public class GenesController {
 		 */
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		HashSet<String> topLevelMpGroups = new HashSet<> ();
-
+		HashSet<String> mpGroupsSignificant = new HashSet<> ();
+		HashSet<String> mpGroupsNotSignificant = new HashSet<> ();
+		
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of triplets of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
@@ -230,13 +231,30 @@ public class GenesController {
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes()){
-					topLevelMpGroups.add(phen.getGroup());
+					if (phen.isSignificant()){
+						mpGroupsSignificant.add(phen.getGroup());
+					} else {
+						mpGroupsNotSignificant.add(phen.getGroup());
+					}
 				}
 				for (PhenotypeSummaryType phen : summary.getMalePhenotypes()){
-					topLevelMpGroups.add(phen.getGroup());
+					if (phen.isSignificant()){
+						mpGroupsSignificant.add(phen.getGroup());
+					} else {
+						mpGroupsNotSignificant.add(phen.getGroup());
+					}
 				}
 				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes()){
-					topLevelMpGroups.add(phen.getGroup());
+					if (phen.isSignificant()){
+						mpGroupsSignificant.add(phen.getGroup());
+					} else {
+						mpGroupsNotSignificant.add(phen.getGroup());
+					}
+				}
+				for (String str : mpGroupsSignificant){
+					if (mpGroupsNotSignificant.contains(str)){
+						mpGroupsNotSignificant.remove(str);
+					}
 				}
 			}
 
@@ -317,7 +335,8 @@ public class GenesController {
 		model.addAttribute("acc", acc);
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
-		model.addAttribute("topLevelMpGroups", topLevelMpGroups);
+		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
+		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		// add in the disease predictions from phenodigm
 		processDisease(acc, model);
 
