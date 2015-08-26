@@ -256,6 +256,7 @@ public class GenesController {
 						mpGroupsNotSignificant.remove(str);
 					}
 				}
+				
 			}
 
 			// add number of top level terms

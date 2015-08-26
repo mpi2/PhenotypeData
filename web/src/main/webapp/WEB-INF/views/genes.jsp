@@ -410,20 +410,19 @@ ul#expList li {
                                                 <p>In <b>${zyg} :</b>
 											</p>
                                                 <ul>
-                                                    <c:if
-													test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
+                                                    <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
                                                         <li><p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
                                                             <ul>
-                                                                <c:forEach
-																var="summaryObj"
-																items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}'>
-                                                                    <li><a
-																	href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach
-																		var="evidence" items="${summaryObj.getDataSources()}"
-																		varStatus="loop"> ${evidence} <c:if
-																			test="${!loop.last}">,&nbsp;</c:if>  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-																	class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)</li>    
-                                                                    </c:forEach>
+                                                                <c:forEach 	var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}'>
+                                                                    <li><a	href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. 
+                                                                    Evidence from 
+                                                                    <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> 
+                                                                    	${evidence} 
+                                                                    	<c:if test="${!loop.last}">,&nbsp;
+                                                                    	</c:if>  
+                                                                    </c:forEach> &nbsp;&nbsp;&nbsp; (<a class="filterTrigger" id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
+                                                                    </li>    
+                                                                </c:forEach>
                                                             </ul>
                                                         </li>
                                                     </c:if>
