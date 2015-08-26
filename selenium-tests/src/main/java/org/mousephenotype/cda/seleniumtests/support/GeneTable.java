@@ -187,7 +187,7 @@ public class GeneTable {
                             }
                         }
                     }
-                    value = urlUtils.urlDecode(value);
+
                     isPreQcLink = testUtils.isPreQcLink(value);
                 } else {
                     value = cell.getText();

@@ -226,14 +226,16 @@ public class ExpressionService extends BasicService{
 			laczResponse = getLaczFacetsForGene(acc, ImageDTO.OMERO_ID,
 					ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
 					ImageDTO.PARAMETER_ASSOCIATION_NAME,
-					ImageDTO.PARAMETER_ASSOCIATION_VALUE);
+					ImageDTO.PARAMETER_ASSOCIATION_VALUE,
+					ImageDTO.MA_ID);
 		} else {
 			laczResponse = getLaczFacetsForGene(acc, ImageDTO.OMERO_ID,
 					ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
 					ImageDTO.PARAMETER_ASSOCIATION_NAME,
 					ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 					ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
-					ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK);
+					ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
+					ImageDTO.MA_ID);
 		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
 
@@ -246,9 +248,27 @@ public class ExpressionService extends BasicService{
 		String noTopMa = "No Top Level MA";
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
 
+		List<String> uberonEfoIds = new ArrayList<>();
+		
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
 
+			// get a list of UBERON/EFO ids for the MA ids annotated to this gene
+			if ( doc.containsKey("uberon_id")){
+				for ( Object mappedId : doc.getFieldValues("uberon_id") ){
+					if ( ! uberonEfoIds.contains(mappedId.toString())){
+						uberonEfoIds.add(mappedId.toString());
+					}
+				}
+			}
+			if ( doc.containsKey("efo_id")){
+				for ( Object mappedId : doc.getFieldValues("efo_id") ){
+					if ( ! uberonEfoIds.contains(mappedId.toString())){
+						uberonEfoIds.add(mappedId.toString());
+					}
+				}
+			}
+			
 			if (tops == null) {
 				expFacetToDocs.get(noTopMa).add(doc);
 			} else {
@@ -265,6 +285,7 @@ public class ExpressionService extends BasicService{
 
 			}
 		}
+		System.out.println("mapped ids: " + uberonEfoIds);
 
 		List<Count> topLevelMaTerms = fields.get(0).getValues();
 		// Count dummyCountForImagesWithNoHigherLevelMa=new Count(new
