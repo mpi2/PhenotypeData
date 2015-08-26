@@ -574,9 +574,10 @@ public class GenesController {
 	 * @param model
 	 *            the model to add the images to
 	 * @throws SolrServerException
+	 * @throws SQLException 
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
-	throws SolrServerException {
+	throws SolrServerException, SQLException {
 		boolean overview=true;
 		boolean expressionOverview=true;
 		expressionService.getLacImageDataForGene(acc, null, overview, expressionOverview, model);

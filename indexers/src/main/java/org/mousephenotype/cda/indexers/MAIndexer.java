@@ -18,6 +18,8 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
@@ -52,7 +54,7 @@ public class MAIndexer extends AbstractIndexer {
 
     private static final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
    
-    @Value("classpath:unique_both_sex_uberon_efo.csv")
+    @Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
     
     @Autowired
@@ -100,6 +102,8 @@ public class MAIndexer extends AbstractIndexer {
     	try {
     		logger.info("Starting MA Indexer...");
     		
+    		
+    		logger.info("Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
