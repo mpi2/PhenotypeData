@@ -25,15 +25,21 @@ public class PhenotypeSummaryType {
 	private String sex;
 	private long  numberOfEntries;
 	private HashSet <String> dataSources;
+	boolean significant;
 	
-	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, HashSet <String> dataSources){
+	public PhenotypeSummaryType (String mpId, String mpName, String sex, long numberOfEntries, HashSet <String> dataSources, Boolean significant){
 		this.id = mpId;
 		this.name = mpName;
 		this.sex = sex;
 		this.numberOfEntries = numberOfEntries;
 		this.dataSources = dataSources;
+		this.significant = significant;
 	}
 
+	public boolean isSignificant(){
+		return significant;
+	}
+	
 	public String getId() {
 		return id;
 	}
