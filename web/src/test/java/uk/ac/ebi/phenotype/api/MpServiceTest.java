@@ -2,11 +2,14 @@ package uk.ac.ebi.phenotype.api;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.TestConfig;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -14,9 +17,10 @@ import java.util.Set;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-
-@ContextConfiguration( locations={ "classpath:test-config.xml" })
-public class MpServiceTest extends  AbstractTransactionalJUnit4SpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
+public class MpServiceTest {
 
 	@Autowired
 	MpService mpService;

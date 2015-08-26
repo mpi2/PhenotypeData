@@ -20,29 +20,26 @@
  * This test class is intended to run healthchecks against the observation table.
  */
 
-
-
 package uk.ac.ebi.phenotype.healthcheck;
+
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.ObservationDAO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenotype.TestConfig;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-import org.mousephenotype.cda.db.dao.ObservationDAO;
 
 /**
  * Mouseinformatics fetches an xml file nightly that contains all of the
@@ -64,8 +61,10 @@ import org.mousephenotype.cda.db.dao.ObservationDAO;
  *
  * @author mrelac
  */
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-config.xml" })
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
 @TransactionConfiguration
 @Transactional
 public class ObservationHealthcheck {
@@ -137,12 +136,12 @@ public class ObservationHealthcheck {
         List<String[]> data = observationDAO.getMissingEmpty();
         System.out.println(dateFormat.format(start) + ": " + testName + " started.");
         if ( ! data.isEmpty()) {
-            System.out.println("ERROR: there were null/empty parameter values for missing data:");
+            System.out.println("WARNING: there were null/empty parameter values for missing data:");
             System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
             for (String[] s : data) {
                 System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", s[0], s[1], s[2], s[3], s[4], s[5]);
             }
-            fail("There were null/empty parameter values for missing data");
+            System.out.println("WARNING: There were null/empty parameter values for missing data");
         } else {
             System.out.println("SUCCESS: " + testName);
         }
@@ -163,12 +162,12 @@ public class ObservationHealthcheck {
         List<String[]> data = observationDAO.getMissingOntologyTerms();
         System.out.println(dateFormat.format(start) + ": " + testName + " started.");
         if ( ! data.isEmpty()) {
-            System.out.println("ERROR: there are ontology.parameter_status terms that do not exist in ontology_term.acc:");
+            System.out.println("WARNING: there are ontology.parameter_status terms that do not exist in ontology_term.acc:");
             System.out.printf("%50s %10s %15s %20s\n", "parameter_status", "acc", "organisation_id", "observation_type");
             for (String[] s : data) {
                 System.out.printf("%50s %10s %15s %20s\n", s[0], s[1], s[2], s[3]);
             }
-            fail("There are ontology.parameter_status terms that do not exist in ontology_term.acc");
+            System.out.println("WARNING: There are ontology.parameter_status terms that do not exist in ontology_term.acc");
         } else {
             System.out.println("SUCCESS: " + testName);
         }

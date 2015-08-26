@@ -7,20 +7,18 @@ import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.phenotype.TestConfig;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-config.xml" })
-@TransactionConfiguration
-@Transactional
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypeCallSummarySolrTest {
 
 	@Autowired

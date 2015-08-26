@@ -18,22 +18,17 @@ package uk.ac.ebi.phenotype.ontology;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.PostQcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.mousephenotype.cda.solr.service.PostQcService;
 
-import javax.annotation.Resource;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 @Service
 public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
-
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
 
 	@Autowired
 	@Qualifier("postqcService")

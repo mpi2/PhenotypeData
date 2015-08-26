@@ -1,42 +1,37 @@
 package uk.ac.ebi.phenotype.ontology;
 
-import static org.junit.Assert.*;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocumentList;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.TestConfig;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAO;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.service.PostQcService;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-config.xml" })
-public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringContextTests{
-
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
+public class PhenotypeSummaryDAOTest {
 
 	@Autowired
 	private PhenotypeSummaryDAO phenotypeSummary;
+
 	@Autowired
 	PostQcService gpService;
+
 	String testGene = "MGI:104874";
 
-//	@Test
+	@Test
 	public void testPhenotypeSummaryForAllGenes(){
 		System.out.println( ">> testPhenotypeSummaryForAllGenes");
 		try {
