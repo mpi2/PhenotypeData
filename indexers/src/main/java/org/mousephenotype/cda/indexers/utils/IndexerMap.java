@@ -84,7 +84,7 @@ public class IndexerMap {
 					String[] kv = line.split(",");
 					if ( kv.length == 2 ){
 						String mappedId = kv[0];
-						String maId = kv[1];
+						String maId = kv[1].replace("_", ":");
 					
 						if ( ! maUberonEfoMap.containsKey(maId) ){
 							maUberonEfoMap.put(maId, new HashMap<>());
