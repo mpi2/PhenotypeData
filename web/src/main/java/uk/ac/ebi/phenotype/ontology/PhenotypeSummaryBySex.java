@@ -31,13 +31,19 @@ public class PhenotypeSummaryBySex {
 	
 	public void addPhenotye ( PhenotypeSummaryType obj) throws Exception{
 		String sex = obj.getSex();
-		if (sex.equals("male"))
-			malePhens.add(obj);
-		else if (sex.equals("female"))
-			femalePhens.add(obj);
-		else if (sex.equals("both sexes"))
+		if (obj.getSex() == null){
 			bothPhens.add(obj);
-		else throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
+		} else {
+			if (sex.equals("male")){
+				malePhens.add(obj);
+			} else if (sex.equals("female")){
+				femalePhens.add(obj);
+			} else if (sex.equals("both sexes")){
+				bothPhens.add(obj);
+			} else { 
+				throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
+			}
+		}
 	}
 	
 	public ArrayList <PhenotypeSummaryType> getMalePhenotypes(){

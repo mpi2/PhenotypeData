@@ -19,6 +19,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -446,16 +447,18 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(query + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\"");
         solrQuery.setRows(1000000);
+        solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.desc);
         if (zygosity != null) {
             solrQuery.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
         }
+        
         SolrDocumentList result = solr.query(solrQuery).getResults();
+
         // mpID might be in mp_id instead of top level field
-        if (result.size() == 0 || result == null) // result = runQuery("marker_accession_id:" + gene.replace(":",
-        // "\\:") + " AND mp_term_id:" + mpID.replace(":", "\\:"));
-        {
-            result = runQuery(query + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpID + "\"");// AND
-        }		// -" + GenotypePhenotypeDTO.RESOURCE_NAME + ":IMPC");
+        if (result.size() == 0 || result == null)  {
+            result = runQuery(query + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpID + "\"");
+        }
+        
         return result;
     }
 
