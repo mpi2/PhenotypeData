@@ -445,19 +445,18 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         }
 
         SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(query + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\"");
+        solrQuery.setQuery(query + "(" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\" OR " + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpID + "\")");
         solrQuery.setRows(1000000);
-        solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.desc);
+        solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
+//        solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.MP_TERM_ID);
+        
         if (zygosity != null) {
             solrQuery.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
         }
         
         SolrDocumentList result = solr.query(solrQuery).getResults();
-
-        // mpID might be in mp_id instead of top level field
-        if (result.size() == 0 || result == null)  {
-            result = runQuery(query + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpID + "\"");
-        }
+        
+        System.out.println("------ URL HERE ----- " + solr.getBaseURL() + "/select?" + solrQuery);
         
         return result;
     }

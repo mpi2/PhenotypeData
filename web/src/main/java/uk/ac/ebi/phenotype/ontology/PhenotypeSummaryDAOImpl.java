@@ -95,9 +95,9 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	
 	
 	private boolean isSignificant (SolrDocumentList res){
-		
-		if (res != null && res.size() > 0 && res.get(0) != null && res.get(0).containsValue(StatisticalResultDTO.P_VALUE)){
-			return (new Float(res.get(0).getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
+				
+		if (res != null && res.size() > 0 && res.get(0) != null && res.get(0).containsKey(StatisticalResultDTO.P_VALUE)){
+			return (new Double(res.get(0).getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
 		} else {
 			return false;
 		}
@@ -107,11 +107,16 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 
 	@Override
 	public HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
+		
 		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();
+		
 		for (ZygosityType zyg : ZygosityType.values()){
+			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 			HashMap<String, String> summary = srService.getTopLevelMPTerms(gene, zyg);
+			
 			for (String id: summary.keySet()){
+			
 				SolrDocumentList resp = srService.getPhenotypesForTopLevelTerm(gene, id, zyg);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
@@ -119,7 +124,9 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 				boolean significant = isSignificant(resp);
 				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
+				
 			}
+			
 			if (resSummary.getTotalPhenotypesNumber() > 0){
 				res.put(zyg, resSummary);
 			}
