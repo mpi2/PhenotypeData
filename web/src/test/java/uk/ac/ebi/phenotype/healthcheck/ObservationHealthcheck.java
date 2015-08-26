@@ -92,7 +92,6 @@ public class ObservationHealthcheck {
     @Autowired
     ObservationDAO observationDAO;
 
-
     /**
      * When <code>missing</code> is zero, <code>parameter_status</code> and
      * <code>parameter_status_message</code> should both be null/empty. Issue
@@ -172,5 +171,4 @@ public class ObservationHealthcheck {
             System.out.println("SUCCESS: " + testName);
         }
     }
-
 }
