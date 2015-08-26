@@ -169,6 +169,7 @@ public class GraphPageTest {
                 continue;
 
             try {
+                logger.info("Testing graph " + graphUrl);
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
                 status.add(graphPage.validate());
                 if ( ! status.hasErrors()) {
@@ -245,6 +246,7 @@ public class GraphPageTest {
         if ((profile != null) && (profile.equals("beta") || (profile.equals("dev")))) {
             String port = (profile.equals("dev") ? "8080" : "18080");
             String testName = "testKnownGraphs";
+            logger.info(testName + ": Testing on platform " + profile + " (port " + port + ")");
             List<String> graphUrls = Arrays.asList(new String[]{
                       "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
                     , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"              // ABR
@@ -261,7 +263,7 @@ public class GraphPageTest {
 
             graphEngine(testName, graphUrls);
         } else {
-            logger.info("ERROR: testKnownGraphs() skipped. It runs only against profiles 'beta' and 'dev', and profile was " + profile);
+            logger.warn("WARNING: testKnownGraphs() skipped. It runs only against profiles 'beta' and 'dev', and profile was " + profile);
         }
     }
 

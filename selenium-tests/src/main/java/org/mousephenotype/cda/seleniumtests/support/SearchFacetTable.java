@@ -19,6 +19,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
+import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -233,9 +234,10 @@ public abstract class SearchFacetTable {
      * Validates download data against this search table instance.
      *
      * @param data The download data used for comparison
+     * @param downloadType Supported download type - e.g. TSV, XLS
      * @return validation status
      */
-    public abstract PageStatus validateDownload(String[][] data);
+    public abstract PageStatus validateDownload(String[][] data, DownloadType downloadType);
 
 
     // PROTECTED METHODS
@@ -249,6 +251,7 @@ public abstract class SearchFacetTable {
      * @param downloadDataArray The download data used for comparison
      * @param downloadColumns The download columns used in the comparison
      * @param downloadUrl The download stream URL
+     *
      * @return validation status
      */
     protected PageStatus validateDownloadInternal(GridMap pageData, Integer[] pageColumns, String[][] downloadDataArray,  Integer[] downloadColumns, String downloadUrl) {
