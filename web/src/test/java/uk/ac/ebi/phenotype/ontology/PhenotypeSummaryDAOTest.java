@@ -1,42 +1,59 @@
+/**
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+/**
+ * Copyright © 2014 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * This test class is intended to run healthchecks against the observation table.
+ */
+
 package uk.ac.ebi.phenotype.ontology;
 
-import static org.junit.Assert.*;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.SolrDocumentList;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.TestConfig;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.mousephenotype.cda.db.dao.PhenotypeCallSummaryDAO;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.service.PostQcService;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-config.xml" })
-public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringContextTests{
-
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
+public class PhenotypeSummaryDAOTest {
 
 	@Autowired
 	private PhenotypeSummaryDAO phenotypeSummary;
+
 	@Autowired
 	PostQcService gpService;
+
 	String testGene = "MGI:104874";
 
-//	@Test
+	@Test
 	public void testPhenotypeSummaryForAllGenes(){
 		System.out.println( ">> testPhenotypeSummaryForAllGenes");
 		try {
@@ -49,7 +66,6 @@ public class PhenotypeSummaryDAOTest  extends AbstractTransactionalJUnit4SpringC
 		}
 		System.out.println(">> done.");
 	}
-
 
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{

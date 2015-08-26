@@ -23,15 +23,19 @@ package uk.ac.ebi.phenotype.api;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.ac.ebi.phenotype.TestConfig;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.fail;
@@ -39,9 +43,10 @@ import static org.junit.Assert.fail;
 /**
  * @author ilinca
  */
-
-@ContextConfiguration( locations={ "classpath:test-config.xml" })
-public class CoreTests extends AbstractTransactionalJUnit4SpringContextTests {
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
+public class CoreTests {
 
     @Autowired
 	@Qualifier("postqcService")
@@ -60,14 +65,18 @@ public class CoreTests extends AbstractTransactionalJUnit4SpringContextTests {
         Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
 
         Set<String> gGenes = gService.getAllGenes();
+        Set<String> mgi3688249 = new HashSet<>();       // For bug MPII-1493
+        mgi3688249.add("MGI:3688249");
 
   //      System.out.println("Before " + gpGenes.size() + "  " + gGenes.size() );
 
+        // Eliminate MGI:3688249 (bug MPII-1493)
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
+        res = CollectionUtils.subtract(res, mgi3688249);
 
   //      System.out.println(" After substract: " + res.size());
 
-        if (res.size() > 0){
+        if (res.size() > 0) {
         	System.out.println("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         }

@@ -290,8 +290,8 @@ public abstract class SearchFacetTable {
             int i = 0;
             while (it.hasNext()) {
                 String value = (String)it.next();
-                logger.error("[" + i + "]:\t page data: " + value);
-                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                logger.error("[" + i + "]:\t page data:\n" + value);
+                logger.error("[" + i + "]:\tdownload data:\n" + testUtils.closestMatch(downloadSet, value) + "\n");
                 i++;
                 errorCount++;
             }
