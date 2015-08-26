@@ -70,8 +70,8 @@ public class ExpressionService extends BasicService{
 	@Autowired
 	ImpressService impressService;
 
-	@Autowired
-    MaService maService;
+	//@Autowired
+    //MaService maService;
 	
 	Map<String, ImpressService.OntologyBean> abnormalMaFromImpress = null;
 
@@ -262,21 +262,11 @@ public class ExpressionService extends BasicService{
 		String noTopMa = "No Top Level MA";
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
 
-		// map: top MA term name as key, MA term Id as values
-		//populateTopMaTermNameMaTermId();
-		
 		Set<String> expressionUberonEfo = new HashSet<>();
 		Set<String> noExpressionUberonEfo = new HashSet<>();
 		
-		//Map<String, Set<String>> topMaTermNameUberonEfo = new HashMap<>();
-		//List<String> uberonEfoIds = new ArrayList<>();
-		
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
-
-//			for ( Object maid : Arrays.asList(doc.getFieldValues("ma_id").toArray()) ){
-//				System.out.println("MA: "+ maid.toString());
-//			}
 			
 			// work out list of uberon/efo ids with/without expressions
 			List<String> maIds = Arrays.asList(doc.getFieldValues("ma_id").toArray());
@@ -314,22 +304,6 @@ public class ExpressionService extends BasicService{
 					}
 				}
 			}
-			
-			// get a list of UBERON/EFO ids for the MA ids annotated to this gene
-//			if ( doc.containsKey("uberon_id")){
-//				for ( Object mappedId : doc.getFieldValues("uberon_id") ){
-//					if ( ! uberonEfoIds.contains(mappedId.toString())){
-//						uberonEfoIds.add(mappedId.toString());
-//					}
-//				}
-//			}
-//			if ( doc.containsKey("efo_id")){
-//				for ( Object mappedId : doc.getFieldValues("efo_id") ){
-//					if ( ! uberonEfoIds.contains(mappedId.toString())){
-//						uberonEfoIds.add(mappedId.toString());
-//					}
-//				}
-//			}
 			
 			if (tops == null) {
 				expFacetToDocs.get(noTopMa).add(doc);
@@ -375,32 +349,6 @@ public class ExpressionService extends BasicService{
 
 	}
         
-    private Map<String, Set<String>> populateTopMaTermNameMaTermId() throws SolrServerException {
-    	
-    	Map<String, List<String>> topMaTermNameMaId = new HashMap<>();
-    	List<MaDTO> maDTOs = maService.getAllMaTerms();
-    	System.out.println("GOT " + maDTOs.size() + " MAs");
-    
-    	for (MaDTO ma : maDTOs) {
-    		System.out.println(ma.toString());
-    		String maTermId = ma.getMaId();
-    		System.out.println("MA id: " + maTermId + " --> TOP: " + ma.getSelectedTopLevelMaTerm());
-    		if ( ma.getSelectedTopLevelMaTerm() != null  ){
-	    		for ( String selectedTopLevelMaTermName : ma.getSelectedTopLevelMaTerm()){
-	    			if ( ! topMaTermNameMaId.containsKey(selectedTopLevelMaTermName) ){
-	    				topMaTermNameMaId.put(selectedTopLevelMaTermName, new ArrayList<String>());
-	    			}
-	    			System.out.println("TOP: "+ selectedTopLevelMaTermName + " vs MA: " +  maTermId);
-	    			topMaTermNameMaId.get(selectedTopLevelMaTermName).add(maTermId);
-	    		}
-    		}
-    		
-    	}
-    	
-    	System.out.println(topMaTermNameMaId.toString());
-    	return null;
-    }
-
 	/**
 	 *
 	 * @param acc
