@@ -141,7 +141,11 @@ public class DrupalHttpProxy extends HttpProxy {
 	 */
 	public String getDrupalMenu(String drupalBaseUrl) {
 
-		String secureDrupalBaseUrl = drupalBaseUrl.startsWith("//") ? "https:" + drupalBaseUrl : drupalBaseUrl.replaceAll("http:", "https:");
+		String secureDrupalBaseUrl = drupalBaseUrl;
+
+		if (secureDrupalBaseUrl != null) {
+			secureDrupalBaseUrl = drupalBaseUrl.startsWith("//") ? "https:" + secureDrupalBaseUrl : secureDrupalBaseUrl.replaceAll("http:", "https:");
+		}
 
 		String content = "";
 		Random randomGenerator = new Random();

@@ -25,6 +25,8 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.*;
@@ -48,6 +50,7 @@ public class GenePage {
     protected final TestUtils testUtils = new TestUtils();
     private final WebDriverWait wait;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     private boolean hasImages;
     private boolean hasImpcImages;
@@ -744,17 +747,19 @@ public class GenePage {
 
         // Create a pair of sets: one from the page, the other from the download.
         Set<String> pageSet = testUtils.createSet(pageData, pageColumns);
-        Set<String> downloadSet = downloadData.urlDecode(Arrays.asList(decodeColumns)).createSet(downloadColumns);
+        Set<String> downloadSet = testUtils.createSet(downloadData, downloadColumns);
 
         Set difference = testUtils.cloneStringSet(pageSet);
         difference.removeAll(downloadSet);
         if ( ! difference.isEmpty()) {
-            System.out.println("ERROR: The following data was found on the page but not in the download:");
+            String message = "GenePage.validateDownload(): Page/Download data mismatch. \nURL: " + driver.getCurrentUrl();
             Iterator it = difference.iterator();
             int i = 0;
             while (it.hasNext()) {
-                String value = (String)it.next();
-                System.out.println("[" + i++ + "]: " + value);
+                String value = (String) it.next();
+                logger.error("[" + i + "]:\t page data: " + value);
+                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                i++;
                 errorCount++;
             }
         }
