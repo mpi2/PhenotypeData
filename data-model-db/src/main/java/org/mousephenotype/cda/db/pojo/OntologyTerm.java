@@ -52,6 +52,10 @@ public class OntologyTerm {
 	@Column(name = "name")
 	private String name;
 
+	@Column(name = "is_obsolete")
+	private Boolean isObsolete;
+
+
 	@ElementCollection
 	@CollectionTable(
 		name="synonym",
@@ -131,9 +135,20 @@ public class OntologyTerm {
 		synonyms.add(synonym);
 	}
 
+
+	public Boolean getIsObsolete() {
+		return isObsolete;
+	}
+
+
+	public void setIsObsolete(Boolean isObsolete) {
+		this.isObsolete = isObsolete;
+	}
+
+
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+		 * @see java.lang.Object#toString()
+		 */
 	@Override
 	public String toString() {
 		return "OntologyTerm [id=" + id + ", name=" + name + "]";
