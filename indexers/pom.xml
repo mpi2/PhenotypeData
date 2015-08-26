@@ -1,113 +1,113 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.0.1</version>
-        <relativePath>../parent/pom.xml</relativePath>
-    </parent>
+	<parent>
+		<groupId>org.mousephenotype.cda</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
 
 
-    <artifactId>indexers</artifactId>
-    <packaging>jar</packaging>
+	<artifactId>indexers</artifactId>
+	<packaging>jar</packaging>
 
-    <name>indexers</name>
-    <description>Code for generating the indexes needed for the www.mousephenotype.org post qc part of the website and
+	<name>indexers</name>
+	<description>Code for generating the indexes needed for the www.mousephenotype.org post qc part of the website and
         associated stats underneath
     </description>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-        <!-- A Java library for parsing command line options - brought in from indexers PA-->
-        <dependency>
-            <groupId>net.sf.jopt-simple</groupId>
-            <artifactId>jopt-simple</artifactId>
-            <version>4.8</version>
-        </dependency>
+		<!-- A Java library for parsing command line options - brought in from 
+			indexers PA -->
+		<dependency>
+			<groupId>net.sf.jopt-simple</groupId>
+			<artifactId>jopt-simple</artifactId>
+			<version>4.8</version>
+		</dependency>
 
-        <!-- JSON Dependencies -->
-        <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <version>2.2.3</version>
-            <classifier>jdk15</classifier>
-        </dependency>
+		<!-- JSON Dependencies -->
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.2.3</version>
+			<classifier>jdk15</classifier>
+		</dependency>
 
-        <!-- orace jdbc driver -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0</version>
-        </dependency>
+		<!-- orace jdbc driver -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc6</artifactId>
+			<version>11.2.0</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.mousephenotype.cda</groupId>
+			<artifactId>data-model</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-solr</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.mousephenotype.cda</groupId>
+			<artifactId>data-model-solr</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-db</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.mousephenotype.cda</groupId>
+			<artifactId>data-model-db</artifactId>
+		</dependency>
 
-        <!-- needed for single db connections DataSource -->
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-        </dependency>
+		<!-- needed for single db connections DataSource -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+		</dependency>
 
-      <!-- for RestTemplate if we use that for getting embryo images, currently using httpclient as json structure not standard
-       <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.2</version>
-            <scope>provided</scope>
-        </dependency> -->
-      <dependency>
-      	<groupId>org.scala-lang</groupId>
-      	<artifactId>scala-library</artifactId>
-      	<version>2.10.4</version>
-      </dependency>
-           
-      
-      <!-- OWL Dependencies -->
+		<!-- for RestTemplate if we use that for getting embryo images, currently 
+			using httpclient as json structure not standard <dependency> <groupId>com.fasterxml.jackson.core</groupId> 
+			<artifactId>jackson-databind</artifactId> </dependency> <dependency> <groupId>org.projectlombok</groupId> 
+			<artifactId>lombok</artifactId> <version>1.16.2</version> <scope>provided</scope> 
+			</dependency> -->
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.10.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<!-- OWL Dependencies -->
 		<dependency>
 			<groupId>net.sourceforge.owlapi</groupId>
 			<artifactId>owlapi-distribution</artifactId>
 			<version>4.0.2</version>
 		</dependency>
 
-	  
-	  <dependency>
-	    <groupId>net.sourceforge.owlapi</groupId>
-	    <artifactId>owlapi-api</artifactId>
-	    <version>4.0.2</version>
-	  </dependency>
-	  
-	  <dependency>
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-api</artifactId>
+			<version>4.0.2</version>
+		</dependency>
+
+		<dependency>
 			<groupId>net.sourceforge.owlapi</groupId>
 			<artifactId>owlapi-apibinding</artifactId>
 			<version>4.0.2</version>
 		</dependency>
-    </dependencies>
+		
+	</dependencies>
 
 
 
