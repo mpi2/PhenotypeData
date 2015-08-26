@@ -190,6 +190,35 @@ ul.tabs li a:hover {
 div.ui-tabs-panel {
 	padding: 0 !important;
 }
+.acontainer {
+	height: auto;
+	overflow: hidden;
+}
+.aright {
+	width: 200px;
+	float: left;
+	text-align: center;
+}
+.aleft {
+	float: none;
+	background: white;
+	width: auto;
+	overflow: hidden;
+	margin-left: 250px;
+}
+ul#expList {
+	/*Dividing long list of <li> tags into columns*/
+    -moz-column-count: 3;
+    -moz-column-gap: 20px;
+    -webkit-column-count: 3;
+    -webkit-column-gap: 20px;
+    column-count: 3;
+    column-gap: 20px;
+}
+ul#expList li {
+	padding-left: 0;
+	width: auto;
+}
 </style>
 
             <c:if test="${phenotypeStarted}">
@@ -587,8 +616,32 @@ div.ui-tabs-panel {
 									<strong>Warning!</strong>${imageErrors }</div>
                                 </div>
                             </c:if>
-                            
+                 
+      
 <c:if test="${not empty impcExpressionImageFacets}"> 
+<div class="section">
+  <h2 class="title " id="impc-expression">Expression in Anatomogram</h2>
+	<div class="inner acontainer" style="display: block;">
+		
+		<div class='aright' id='anatomogram'>
+			Anatomogream<p><p>Expression: ${hasExpression}<p>No Expression:${noExpression}
+		</div>
+		<div class='aleft'>
+			<h6>Investigated tissues / organs:</h6>
+			<ul id='expList'>
+				<c:forEach var="entry" items="${impcExpressionImageFacets}"
+					varStatus="status">
+	        		<c:set var="href"
+						scope="page"
+						value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}">
+					</c:set>
+	                <li>${entry.name}(${entry.count})</li>                     
+	        	</c:forEach> 
+        	</ul>
+        </div>
+	</div> <!-- end of inner div -->
+</div><!-- end of section -->
+	
 <div class="section">
   <h2 class="title " id="impc-expression">Expression</h2>
 	<div class="inner" style="display: block;">
@@ -601,12 +654,13 @@ div.ui-tabs-panel {
 		<c:set var="noColor" scope="page" value="gray" />
 		
 		<span title="Expression" class="${expressionIcon}"
-										style="color:${yesColor}">&nbsp;Expression</span>&nbsp;&nbsp;
+			style="color:${yesColor}">&nbsp;Expression</span>&nbsp;&nbsp;
 		<span title="No Expression" class="${noExpressionIcon}"
-										style="color: gray">&nbsp;No Expression</span>&nbsp;&nbsp;
+			style="color: gray">&nbsp;No Expression</span>&nbsp;&nbsp;
 		<span title="No Tissue Available" class="${noTissueIcon}"
-										style="color: gray">&nbsp;No Tissue Available</span>&nbsp;&nbsp;
-		<span title="Ambiguous" class="${ambiguousIcon}" style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
+			style="color: gray">&nbsp;No Tissue Available</span>&nbsp;&nbsp;
+		<span title="Ambiguous" class="${ambiguousIcon}" 
+			style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 		
  							<!-- section for expression data here -->
  							<div id="tabs">

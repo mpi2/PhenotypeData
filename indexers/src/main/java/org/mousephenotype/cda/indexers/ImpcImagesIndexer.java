@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -56,7 +57,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		.getLogger(ImpcImagesIndexer.class);
 
 	@Autowired
-	@Qualifier("observationIndexing")
+	@Qualifier("observationReadOnlyIndexing")
 	private SolrServer observationService;
 
 	@Autowired
@@ -64,7 +65,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	SolrServer server;
 
 	@Autowired
-	@Qualifier("alleleIndexing")
+	@Qualifier("alleleReadOnlyIndexing")
 	SolrServer alleleIndexing;
 
 	@Autowired
@@ -77,6 +78,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+	
+	@Value("classpath:uberonEfoMa_mappings.txt")
+	org.springframework.core.io.Resource resource;
 
 	private Map<String, List<AlleleDTO>> alleles;
 	private Map<String, ImageBean> imageBeans;
@@ -87,6 +91,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private String impcMediaBaseUrl;
 	private String impcAnnotationBaseUrl;
 
+	private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap();  // key: MA id
+	
 	public ImpcImagesIndexer() {
 		super();
 	}
@@ -107,7 +113,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	}
 
 
-	public static void main(String[] args) throws IndexerException {
+	public static void main(String[] args) throws IndexerException, SQLException {
 
 		ImpcImagesIndexer main = new ImpcImagesIndexer();
 		main.initialise(args);
@@ -119,7 +125,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void run() throws IndexerException {
+	public void run() throws IndexerException, SQLException {
 		int count = 0;
 
 		logger.info("running impc_images indexer");
@@ -145,6 +151,12 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
+		try {
+			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
 		try {
 
 			server.deleteByQuery("*:*");
@@ -224,6 +236,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 								String maTermId = parameterStableIdToMaTermIdMap
 										.get(paramString);
 									maIds.add(maTermId);
+									
 								OntologyTermBean maTermBean = maService
 										.getTerm(maTermId);
 								if (maTermBean != null) {
@@ -262,9 +275,34 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						if (!maIds.isEmpty()) {
 							imageDTO.setMaTermId(maIds);
 							
+							List<String> uberonIds = new ArrayList<>();
+							List<String> efoIds = new ArrayList<>();
+							
 							ArrayList<String>maIdTerms=new ArrayList<>();
 							for( int i=0; i< maIds.size(); i++ ){
 								String maId = maIds.get(i);
+								
+								 // index UBERON/EFO id for MA id
+				                if ( maUberonEfoMap.containsKey(maId) ){
+				                	
+				                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
+				                		if ( imageDTO.getUberonId() == null ){
+				                			imageDTO.setUberonId(maUberonEfoMap.get(maId).get("uberon_id"));
+				                		}
+				                		else {
+				                			imageDTO.getUberonId().addAll(maUberonEfoMap.get(maId).get("uberon_id"));
+				                		}
+				                	}
+				                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
+				                		if ( imageDTO.getEfoId() == null ){
+				                			imageDTO.setEfoId(maUberonEfoMap.get(maId).get("efo_id"));
+				                		}
+				                		else {
+				                			imageDTO.getEfoId().addAll(maUberonEfoMap.get(maId).get("efo_id"));
+				                		}
+				                	}
+				                }
+				                
 								String maTerm = maTerms.get(i);
 								maIdTerms.add(maId+"_"+maTerm);
 							}
