@@ -47,7 +47,7 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
  */
 public class OntologyMapper {
 
-	private static HashMap<String, Set<String>> externalToMa;
+	private static HashMap<String, Set<String>> externalToMa = new HashMap<String, Set<String>>();
 	private static final OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 	private static final OWLDataFactory factory = manager.getOWLDataFactory();
 	public static final OWLAnnotationProperty X_REF = factory.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#hasDbXref"));	
@@ -57,7 +57,6 @@ public class OntologyMapper {
 	public static void main(String[] args) 
 	throws OWLOntologyStorageException, OWLOntologyCreationException, IOException {
 		
-		externalToMa = new HashMap();
 		List<String> res = new ArrayList<>();
 
 		fillHashesFor("/Users/tudose/Documents/ontologies/uberon.owl") ;
