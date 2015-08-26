@@ -36,8 +36,5 @@ public class PhenotypeCallSummarySolrTest {
 		List<PhenotypeCallSummary> phenotypes = phenotypesResult.getPhenotypeCallSummaries();
 		System.out.println(phenotypes.size());
 		System.out.println(phenotypes.get(0).getPhenotypeTerm().getDescription());
-
-
 	}
-
 }
