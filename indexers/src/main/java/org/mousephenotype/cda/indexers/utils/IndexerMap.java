@@ -82,20 +82,24 @@ public class IndexerMap {
 				String line;
 				while ((line = bin.readLine()) != null) {
 					String[] kv = line.split(",");
-					String mappedId = kv[0];
-					String maId = kv[1];
-					if ( ! maUberonEfoMap.containsKey(maId) ){
-						maUberonEfoMap.put(maId, new HashMap<>());
-					}	
-					String key = mappedId.startsWith("U") ? "uberon_id" : "efo_id";
-					if ( ! maUberonEfoMap.get(maId).containsKey(key) ){
-						maUberonEfoMap.get(maId).put(key, new ArrayList<>());
+					if ( kv.length == 2 ){
+						String mappedId = kv[0];
+						String maId = kv[1].replace("_", ":");
+					
+						if ( ! maUberonEfoMap.containsKey(maId) ){
+							maUberonEfoMap.put(maId, new HashMap<>());
+						}	
+						String key = mappedId.startsWith("U") ? "uberon_id" : "efo_id";
+						if ( ! maUberonEfoMap.get(maId).containsKey(key) ){
+							maUberonEfoMap.get(maId).put(key, new ArrayList<>());
+						}
+						maUberonEfoMap.get(maId).get(key).add(mappedId);
 					}
-					maUberonEfoMap.get(maId).get(key).add(mappedId);
 				}	
 			}	
 			
 			logger.info("Converted " + maUberonEfoMap.size() + " MA Ids");
+			logger.info(maUberonEfoMap.toString()); 
     	}
 		return maUberonEfoMap;
 	        
