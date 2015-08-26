@@ -86,7 +86,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 			String sex = getSexesRepresentationForPhenotypesSet(resp);
 			HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 			long n = resp.getNumFound();
-			boolean significant = isSignificant(resp.get(0));
+			boolean significant = isSignificant(resp);
 			PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
 			resSummary.addPhenotye(phen);
 		}
@@ -94,10 +94,10 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 	}
 	
 	
-	private boolean isSignificant (SolrDocument doc){
+	private boolean isSignificant (SolrDocumentList res){
 		
-		if (doc != null && doc.containsValue(StatisticalResultDTO.P_VALUE)){
-			return (new Float(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
+		if (res != null && res.size() > 0 && res.get(0) != null && res.get(0).containsValue(StatisticalResultDTO.P_VALUE)){
+			return (new Float(res.get(0).getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
 		} else {
 			return false;
 		}
@@ -116,7 +116,7 @@ public class PhenotypeSummaryDAOImpl implements PhenotypeSummaryDAO {
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 				long n = resp.getNumFound();
-				boolean significant = isSignificant(resp.get(0));
+				boolean significant = isSignificant(resp);
 				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
 			}
