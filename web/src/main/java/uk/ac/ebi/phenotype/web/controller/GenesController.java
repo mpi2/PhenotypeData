@@ -230,33 +230,29 @@ public class GenesController {
 			// phenSummary.getSummary(acc));
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes()){
-					if (phen.isSignificant()){
-						mpGroupsSignificant.add(phen.getGroup());
-					} else {
-						mpGroupsNotSignificant.add(phen.getGroup());
-					}
+				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
+					mpGroupsSignificant.add(phen.getGroup());
 				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes()){
-					if (phen.isSignificant()){
-						mpGroupsSignificant.add(phen.getGroup());
-					} else {
-						mpGroupsNotSignificant.add(phen.getGroup());
-					}
+				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(false)){
+					mpGroupsNotSignificant.add(phen.getGroup());
 				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes()){
-					if (phen.isSignificant()){
-						mpGroupsSignificant.add(phen.getGroup());
-					} else {
-						mpGroupsNotSignificant.add(phen.getGroup());
-					}
+				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(true)){
+					mpGroupsSignificant.add(phen.getGroup());
+				}
+				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(false)){
+					mpGroupsNotSignificant.add(phen.getGroup());
+				}
+				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(true)){
+					mpGroupsSignificant.add(phen.getGroup());
+				}
+				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(false)){
+					mpGroupsNotSignificant.add(phen.getGroup());
 				}
 				for (String str : mpGroupsSignificant){
 					if (mpGroupsNotSignificant.contains(str)){
 						mpGroupsNotSignificant.remove(str);
 					}
-				}
-				
+				}				
 			}
 
 			// add number of top level terms

@@ -53,19 +53,7 @@ public class PhenotypeSummaryDAOTest {
 
 	String testGene = "MGI:104874";
 
-	@Test
-	public void testPhenotypeSummaryForAllGenes(){
-		System.out.println( ">> testPhenotypeSummaryForAllGenes");
-		try {
-			System.out.println(phenotypeSummary.getSummaryObjects("*").getFemalePhenotypes().size());
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail();
-		}
-		System.out.println(">> done.");
-	}
+
 
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
@@ -92,20 +80,6 @@ public class PhenotypeSummaryDAOTest {
 		}
 	}
 
-	@Test
-	public void testNonExistingGeneName() throws SolrServerException, MalformedURLException{
-		System.out.println("Testing inexisting gene name...");
-		String gene = "ilincasMadeUpGene";
-		phenotypeSummary = new PhenotypeSummaryDAOImpl();
-		try {
-			assertTrue(phenotypeSummary.getSummaryObjects(gene)==null);
-//			assertFalse(phenotypeSummary.getSummaryObjects(gene).getBothPhenotypes().size() > 0 ||
-//					phenotypeSummary.getSummaryObjects(gene).getMalePhenotypes().size() > 0 ||
-//					phenotypeSummary.getSummaryObjects(gene).getFemalePhenotypes().size() > 0);
-		} catch (Exception e) {
-//			e.printStackTrace();
-		}
-	}
 
 
 	//removed this test until the mammalian phenotype top level issue is resolved
