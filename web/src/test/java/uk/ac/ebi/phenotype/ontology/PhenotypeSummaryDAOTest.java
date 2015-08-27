@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
@@ -52,8 +51,6 @@ public class PhenotypeSummaryDAOTest {
 	PostQcService gpService;
 
 	String testGene = "MGI:104874";
-
-
 
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
@@ -79,7 +76,6 @@ public class PhenotypeSummaryDAOTest {
 			assertTrue(dataSources != null);
 		}
 	}
-
 
 
 	//removed this test until the mammalian phenotype top level issue is resolved
