@@ -28,6 +28,7 @@ import org.mousephenotype.cda.db.dao.ObservationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,7 @@ import static org.junit.Assert.fail;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@PropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 @TransactionConfiguration
 @Transactional
