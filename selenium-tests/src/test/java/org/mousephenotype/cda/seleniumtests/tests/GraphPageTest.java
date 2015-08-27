@@ -438,6 +438,18 @@ public class GraphPageTest {
 
         }
 
+        // Remove MGI:3688249 if it exists (MPII-1493)
+        GraphTestDTO mgi3688249 = null;
+        for (GraphTestDTO graphTestDTO : geneGraphs) {
+            if (graphTestDTO.getMgiAccessionId().equals("MGI:3688249")) {
+                mgi3688249 = graphTestDTO;
+                break;
+            }
+        }
+        if (mgi3688249 != null) {
+            geneGraphs.remove(mgi3688249);
+        }
+
         return geneGraphs;
     }
 }
