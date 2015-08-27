@@ -25,7 +25,7 @@ package uk.ac.ebi.phenotype.stats;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.phenotype.TestConfig;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@PropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PercentileComputationTest {
 
