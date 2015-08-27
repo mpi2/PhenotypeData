@@ -48,6 +48,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * Pulled in 2015/07/09
@@ -240,7 +242,9 @@ public class ExpressionService extends BasicService{
 					ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
 					ImageDTO.PARAMETER_ASSOCIATION_NAME,
 					ImageDTO.PARAMETER_ASSOCIATION_VALUE,
-					ImageDTO.MA_ID);
+					ImageDTO.MA_ID,
+					ImageDTO.UBERON_ID,
+					ImageDTO.EFO_ID);
 		} else {
 			laczResponse = getLaczFacetsForGene(acc, ImageDTO.OMERO_ID,
 					ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM,
@@ -248,13 +252,14 @@ public class ExpressionService extends BasicService{
 					ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
 					ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
 					ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
-					ImageDTO.MA_ID);
+					ImageDTO.MA_ID,
+					ImageDTO.UBERON_ID,
+					ImageDTO.EFO_ID);
 		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println(imagesResponse.toString());
 		
 		List<FacetField> fields = laczResponse.getFacetFields();
-		System.out.println("FIELDS: " + fields);
+
 		// we have the unique ma top level terms associated and all the images
 		// now we need lists of images with these top level ma terms in their
 		// annotation
@@ -262,47 +267,66 @@ public class ExpressionService extends BasicService{
 		String noTopMa = "No Top Level MA";
 		expFacetToDocs.put(noTopMa, new SolrDocumentList());
 
-		Set<String> expressionUberonEfo = new HashSet<>();
-		Set<String> noExpressionUberonEfo = new HashSet<>();
+		JSONArray expList = new JSONArray();
+		JSONArray noExpList = new JSONArray();
+		JSONArray allPaths = new JSONArray();
+		List<String> mappedIds = new ArrayList<>();
+		mappedIds.add(ImageDTO.UBERON_ID);
+		mappedIds.add(ImageDTO.EFO_ID);
 		
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
 			
 			// work out list of uberon/efo ids with/without expressions
-			List<String> maIds = Arrays.asList(doc.getFieldValues("ma_id").toArray());
-			
-			for ( int i=0; i<maIds.size(); i++ ){
-				if ( doc.containsKey("parameter_association_value") ){
-					List<String> pav = Arrays.asList(doc.getFieldValues("parameter_association_value").toArray());
-					if ( pav.get(i).equals("expression") ){
-						//expressionUberonEfo.add(maIds.get(i));
-						if ( doc.containsKey("uberon_id")){
-							for ( Object mappedId : doc.getFieldValues("uberon_id") ){
-								expressionUberonEfo.add(mappedId.toString());
+			if ( doc.containsKey(ImageDTO.MA_ID) ){
+				System.out.println(doc.toString());
+				List<String> maIds = Arrays.asList(doc.getFieldValues(ImageDTO.MA_ID).toArray());
+				List<String> maTerms = Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
+				
+				for ( int i=0; i<maIds.size(); i++ ){
+					String ma_term_name = maTerms.get(i).toString();
+					if ( doc.containsKey("parameter_association_value") ){
+						List<String> pav = Arrays.asList(doc.getFieldValues("parameter_association_value").toArray());
+						if ( pav.get(i).equals("expression") ){
+							for( String id : mappedIds ){
+								if ( doc.containsKey(id) ){
+									for ( Object mappedId : doc.getFieldValues(id) ){
+										mappedId = mappedId.toString();
+										JSONObject exp = new JSONObject();
+										exp.put("factorName", ma_term_name);
+						                exp.put("value", "1");
+						                exp.put("svgPathId", mappedId);
+						                if ( !expList.contains(exp) ){
+						                	expList.add(exp);
+						                }
+						                if ( ! allPaths.contains(mappedId)) {
+						                	allPaths.add(mappedId);
+										}
+									}
+								}
 							}
 						}
-						if ( doc.containsKey("efo_id")){
-							for ( Object mappedId : doc.getFieldValues("efo_id") ){
-								expressionUberonEfo.add(mappedId.toString());
+						else if ( pav.get(i).equals("no expression") ){
+							for( String id : mappedIds ){
+								if ( doc.containsKey(id) ){
+									for ( Object mappedId : doc.getFieldValues(id) ){
+										mappedId = mappedId.toString();
+										JSONObject noexp = new JSONObject();
+										//exp.put("factorName", "NA");
+										noexp.put("value", "1");
+										noexp.put("svgPathId", mappedId);
+						                if ( !noExpList.contains(noexp) ){
+						                	noExpList.add(noexp);
+						                }
+										if ( ! allPaths.contains(mappedId)) {
+						                	allPaths.add(mappedId);
+										}
+									}	
+								}
 							}
 						}
-						
 					}
-					else if ( pav.get(i).equals("no expression") ){
-						//noExpressionUberonEfo.add(maIds.get(i));
-						if ( doc.containsKey("uberon_id")){
-							for ( Object mappedId : doc.getFieldValues("uberon_id") ){
-								noExpressionUberonEfo.add(mappedId.toString());
-							}
-						}
-						if ( doc.containsKey("efo_id")){
-							for ( Object mappedId : doc.getFieldValues("efo_id").toArray() ){
-								noExpressionUberonEfo.add(mappedId.toString());
-							}
-						}
-						
-					}
-				}
+				}	
 			}
 			
 			if (tops == null) {
@@ -320,9 +344,14 @@ public class ExpressionService extends BasicService{
 			}
 		}
 		
-		System.out.println("expression: " + expressionUberonEfo);
-		System.out.println("no expression: " + noExpressionUberonEfo);
+		JSONObject anatomogram = new JSONObject();
+		anatomogram.put("expression",  expList);
+		anatomogram.put("noExpression",  noExpList);
+		anatomogram.put("allPaths",  allPaths);
 		
+		System.out.println("expression: " + expList);
+		System.out.println("noExpression: " + noExpList);
+		System.out.println("allPaths: " + allPaths);
 		
 		List<Count> topLevelMaTerms = fields.get(0).getValues();
 		// Count dummyCountForImagesWithNoHigherLevelMa=new Count(new
@@ -344,8 +373,7 @@ public class ExpressionService extends BasicService{
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 		model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
 		model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
-		model.addAttribute("hasExpression", expressionUberonEfo);
-		model.addAttribute("noExpression", noExpressionUberonEfo);
+		model.addAttribute("anatomogram", anatomogram);
 
 	}
         
