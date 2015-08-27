@@ -15,23 +15,116 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.ontology;
 
-import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public interface PhenotypeSummaryDAO {
+@Service
+public class PhenotypeSummaryDAO  {
 
-	// returns one of {male, female, both sexess} for each set of phenotypes
-	public abstract String getSexesRepresentationForPhenotypesSet(SolrDocumentList resp);
+	@Autowired
+	private StatisticalResultService srService;
 
-	// Returns a string concatenation of all data sources for a given set
-	public abstract HashSet<String> getDataSourcesForPhenotypesSet(SolrDocumentList resp);
+	public PhenotypeSummaryDAO() throws MalformedURLException {
+	}
 
-	public abstract PhenotypeSummaryBySex getSummaryObjects(String gene) throws Exception;
+	public String getSexesRepresentationForPhenotypesSet(SolrDocumentList resp) {
+		String resume = "";
+		if (resp.size() > 0) {
 
-	public abstract HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception;
+			for (int i = 0; i < resp.size(); i++) {
+				SolrDocument doc = resp.get(i);
 
+				if ("male".equalsIgnoreCase((String) doc.getFieldValue("sex")))
+					resume += "m";
+				else if ("female".equalsIgnoreCase((String) doc.getFieldValue("sex")))
+					resume += "f";
+
+				if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
+					return "both sexes";
+			}
+
+			if (resume.contains("m") && !resume.contains("f"))
+				return "male";
+
+			if (resume.contains("f") && !resume.contains("m"))
+				return "female";
+		}
+		return null;
+	}
+
+	public HashSet<String> getDataSourcesForPhenotypesSet(SolrDocumentList resp) {
+		HashSet <String> data = new HashSet <String> ();
+		if (resp.size() > 0) {
+			for (int i = 0; i < resp.size(); i++) {
+				SolrDocument doc = resp.get(i);
+				data.add((String) doc.getFieldValue(StatisticalResultDTO.RESOURCE_NAME));
+			}
+		}
+		return data;
+	}
+
+	private long getNumSignificantCalls (SolrDocumentList res){
+		
+		long n = 0; 
+		if (res != null && res.size() > 0 && res.get(0) != null){ 
+			for (SolrDocument doc: res){
+				if (isSignificant(doc)){
+					n ++;
+				} else {
+					break;
+				}
+			}
+		}
+		return n;
+	}
+
+	
+	
+	private boolean isSignificant (SolrDocument res){
+		
+		boolean result = false;
+		if ( res.containsKey(StatisticalResultDTO.P_VALUE)){
+			result = (new Double(res.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
+		} 
+		return result;
+		
+	}
+
+
+	public HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
+		
+		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();
+		
+		for (ZygosityType zyg : ZygosityType.values()){
+			
+			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
+			HashMap<String, String> summary = srService.getTopLevelMPTerms(gene, zyg);
+			
+			for (String id: summary.keySet()){
+			
+				SolrDocumentList resp = srService.getPhenotypesForTopLevelTerm(gene, id, zyg);
+				String sex = getSexesRepresentationForPhenotypesSet(resp);
+				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
+				long n = getNumSignificantCalls(resp);
+				boolean significant = (n > 0)? true : false;
+				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
+				resSummary.addPhenotye(phen);
+				
+			}
+			
+			if (resSummary.getTotalPhenotypesNumber() > 0){
+				res.put(zyg, resSummary);
+			}
+		}
+		return res;
+	}
 }
