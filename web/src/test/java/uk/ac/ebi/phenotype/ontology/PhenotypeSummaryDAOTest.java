@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ebi.phenotype.TestConfig;
 
@@ -38,9 +38,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@PropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypeSummaryDAOTest {
 
@@ -52,21 +53,19 @@ public class PhenotypeSummaryDAOTest {
 
 	String testGene = "MGI:104874";
 
-// This test throws an out-of-memory error.
-
-//	@Test
-//	public void testPhenotypeSummaryForAllGenes(){
-//		System.out.println( ">> testPhenotypeSummaryForAllGenes");
-//		try {
-//			System.out.println(phenotypeSummary.getSummaryObjects("*").getFemalePhenotypes().size());
-//		} catch (SolrServerException e) {
-//			e.printStackTrace();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			fail();
-//		}
-//		System.out.println(">> done.");
-//	}
+	@Test
+	public void testPhenotypeSummaryForAllGenes(){
+		System.out.println( ">> testPhenotypeSummaryForAllGenes");
+		try {
+			System.out.println(phenotypeSummary.getSummaryObjects("*").getFemalePhenotypes().size());
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		System.out.println(">> done.");
+	}
 
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
