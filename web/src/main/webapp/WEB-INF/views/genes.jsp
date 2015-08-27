@@ -410,10 +410,10 @@ ul#expList li {
                                                 <p>In <b>${zyg} :</b>
 											</p>
                                                 <ul>
-                                                    <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes().size() > 0}'>
+                                                    <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
                                                         <li><p> <b>Both sexes</b> have the following phenotypic abnormalities</p>
                                                             <ul>
-                                                                <c:forEach 	var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes()}'>
+                                                                <c:forEach 	var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
                                                                     <li><a	href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. 
                                                                     Evidence from 
                                                                     <c:forEach var="evidence" items="${summaryObj.getDataSources()}" varStatus="loop"> 
@@ -428,12 +428,12 @@ ul#expList li {
                                                     </c:if>
 
                                                     <c:if
-													test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes().size() > 0}'>
+													test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
                                                         <li><p> Following phenotypic abnormalities occured in <b>females</b> only</p>
                                                             <ul>
                                                                 <c:forEach
 																var="summaryObj"
-																items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes()}'> 
+																items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'> 
                                                                     <li><a
 																	href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach
 																		var="evidence" items="${summaryObj.getDataSources()}"
@@ -446,12 +446,12 @@ ul#expList li {
                                                     </c:if>
 
                                                     <c:if
-													test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes().size() > 0}'>
+													test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
                                                         <li><p> Following phenotypic abnormalities occured in <b>males</b> only</p>
                                                             <ul>
                                                                 <c:forEach
 																var="summaryObj"
-																items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes()}'>
+																items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
                                                                     <li><a
 																	href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>. Evidence from <c:forEach
 																		var="evidence" items="${summaryObj.getDataSources()}"
