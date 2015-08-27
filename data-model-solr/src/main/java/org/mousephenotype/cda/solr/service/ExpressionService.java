@@ -281,10 +281,10 @@ public class ExpressionService extends BasicService{
 			if ( doc.containsKey(ImageDTO.MA_ID) ){
 				System.out.println(doc.toString());
 				List<String> maIds = Arrays.asList(doc.getFieldValues(ImageDTO.MA_ID).toArray());
-				List<String> maTerms = Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
+				//List<String> maTerms = Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
 				
 				for ( int i=0; i<maIds.size(); i++ ){
-					String ma_term_name = maTerms.get(i).toString();
+					//String ma_term_name = maTerms.get(i).toString();
 					if ( doc.containsKey("parameter_association_value") ){
 						List<String> pav = Arrays.asList(doc.getFieldValues("parameter_association_value").toArray());
 						if ( pav.get(i).equals("expression") ){
@@ -293,7 +293,7 @@ public class ExpressionService extends BasicService{
 									for ( Object mappedId : doc.getFieldValues(id) ){
 										mappedId = mappedId.toString();
 										JSONObject exp = new JSONObject();
-										exp.put("factorName", ma_term_name);
+										exp.put("factorName", "");
 						                exp.put("value", "1");
 						                exp.put("svgPathId", mappedId);
 						                if ( !expList.contains(exp) ){
