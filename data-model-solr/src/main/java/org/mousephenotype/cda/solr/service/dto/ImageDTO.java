@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ImageDTO extends ObservationDTO {
 
@@ -139,10 +140,10 @@ public class ImageDTO extends ObservationDTO {
 	private List<String> maTermId;
 
 	@Field(EFO_ID)
-	private List<String> efoId;
+	private Set<String> efoId;
 	
 	@Field(UBERON_ID)
-	private List<String> uberonId;
+	private Set<String> uberonId;
 	
 	@Field(MA_TERM)
 	private List<String> maTerm;
@@ -278,22 +279,22 @@ public class ImageDTO extends ObservationDTO {
 		this.maTermId = maTermId;
 	}
 
-	public List<String> getEfoId() {
+	public Set<String> getEfoId() {
 
 		return efoId;
 	}
 
-	public void setEfoId(List<String> efoId) {
+	public void setEfoId(Set<String> efoId) {
 
 		this.efoId = efoId;
 	}
 	
-	public List<String> getUberonId() {
+	public Set<String> getUberonId() {
 
 		return uberonId;
 	}
 
-	public void setUberonId(List<String> uberonId) {
+	public void setUberonId(Set<String> uberonId) {
 
 		this.uberonId = uberonId;
 	}
