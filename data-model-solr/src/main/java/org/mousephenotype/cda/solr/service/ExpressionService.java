@@ -293,7 +293,7 @@ public class ExpressionService extends BasicService{
 									for ( Object mappedId : doc.getFieldValues(id) ){
 										mappedId = mappedId.toString();
 										JSONObject exp = new JSONObject();
-										exp.put("factorName", "");
+										//exp.put("factorName", ""); // not required 
 						                exp.put("value", "1");
 						                exp.put("svgPathId", mappedId);
 						                if ( !expList.contains(exp) ){
@@ -312,7 +312,7 @@ public class ExpressionService extends BasicService{
 									for ( Object mappedId : doc.getFieldValues(id) ){
 										mappedId = mappedId.toString();
 										JSONObject noexp = new JSONObject();
-										//exp.put("factorName", "NA");
+										//exp.put("factorName", "NA"); // not required
 										noexp.put("value", "1");
 										noexp.put("svgPathId", mappedId);
 						                if ( !noExpList.contains(noexp) ){
