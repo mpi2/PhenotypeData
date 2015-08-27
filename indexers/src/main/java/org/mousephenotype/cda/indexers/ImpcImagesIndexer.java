@@ -275,9 +275,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						if (!maIds.isEmpty()) {
 							imageDTO.setMaTermId(maIds);
 							
-							List<String> uberonIds = new ArrayList<>();
-							List<String> efoIds = new ArrayList<>();
-							
 							ArrayList<String>maIdTerms=new ArrayList<>();
 							for( int i=0; i< maIds.size(); i++ ){
 								String maId = maIds.get(i);
