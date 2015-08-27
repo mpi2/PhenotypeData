@@ -52,21 +52,6 @@ public class PhenotypeSummaryDAOTest {
 
 	String testGene = "MGI:104874";
 
-// This test takes a long time to run ( > 15 minutes) and throws an out-of-memory exception with the default memory configuration.
-//	@Test
-//	public void testPhenotypeSummaryForAllGenes(){
-//		System.out.println( ">> testPhenotypeSummaryForAllGenes");
-//		try {
-//			System.out.println(phenotypeSummary.getSummaryObjects("*").getFemalePhenotypes().size());
-//		} catch (SolrServerException e) {
-//			e.printStackTrace();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			fail();
-//		}
-//		System.out.println(">> done.");
-//	}
-
 	@Test
 	public void testGetSexesRepresentationForPhenotypesSet() throws MalformedURLException, SolrServerException{
 		HashMap<String, String> summary;
@@ -89,21 +74,6 @@ public class PhenotypeSummaryDAOTest {
 			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id, null);
 			HashSet<String> dataSources = phenotypeSummary.getDataSourcesForPhenotypesSet(resp);
 			assertTrue(dataSources != null);
-		}
-	}
-
-	@Test
-	public void testNonExistingGeneName() throws SolrServerException, MalformedURLException{
-		System.out.println("Testing non-existent gene name...");
-		String gene = "ilincasMadeUpGene";
-		phenotypeSummary = new PhenotypeSummaryDAOImpl();
-		try {
-			assertTrue(phenotypeSummary.getSummaryObjects(gene)==null);
-//			assertFalse(phenotypeSummary.getSummaryObjects(gene).getBothPhenotypes().size() > 0 ||
-//					phenotypeSummary.getSummaryObjects(gene).getMalePhenotypes().size() > 0 ||
-//					phenotypeSummary.getSummaryObjects(gene).getFemalePhenotypes().size() > 0);
-		} catch (Exception e) {
-//			e.printStackTrace();
 		}
 	}
 
