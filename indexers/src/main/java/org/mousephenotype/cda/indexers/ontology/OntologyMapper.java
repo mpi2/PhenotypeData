@@ -38,6 +38,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+import org.semanticweb.owlapi.search.EntitySearcher;
 
 
 /**
@@ -58,9 +59,10 @@ public class OntologyMapper {
 	throws OWLOntologyStorageException, OWLOntologyCreationException, IOException {
 		
 		List<String> res = new ArrayList<>();
-
-		fillHashesFor("/Users/tudose/Documents/ontologies/uberon.owl") ;
+		// From http://purl.obolibrary.org/obo/uberon/ext.owl
+		fillHashesFor("/Users/tudose/Documents/ontologies/uberon.owl") ;		
 		fillHashesFor("/Users/tudose/Documents/ontologies/efo.owl") ;
+		// From http://purl.obolibrary.org/obo/cl.owl
 		fillHashesFor("/Users/tudose/Documents/ontologies/cl.owl") ;
 		
 		Path path = Paths.get("/Users/tudose/git/PhenotypeData/indexers/src/main/resources/unique_both_sex_uberon_efo.txt");
@@ -89,20 +91,19 @@ public class OntologyMapper {
 					
 			System.out.println("Lading: " + path);
 			OWLOntology ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(path)));
-			        
 			Set<OWLClass> classesSubSet = ontology.getClassesInSignature();		
 			
 			for (OWLClass cls : classesSubSet){
 												
 				if (!cls.getIRI().isNothing()){
 					Set<OWLAnnotation> annotations = null;
-					if (cls.getAnnotations(ontology, X_REF) != null){
-						annotations = cls.getAnnotations(ontology, X_REF);
-					} if (cls.getAnnotations(ontology, MA_DEFINITION_CITATION) != null){
+					if (EntitySearcher.getAnnotations(cls, ontology, X_REF) != null){
+						annotations = (Set<OWLAnnotation>) EntitySearcher.getAnnotations(cls, ontology, X_REF);
+					} if (EntitySearcher.getAnnotations(cls, ontology, MA_DEFINITION_CITATION) != null){
 						if (annotations == null){
-							annotations = cls.getAnnotations(ontology, MA_DEFINITION_CITATION);
+							annotations = (Set<OWLAnnotation>) EntitySearcher.getAnnotations(cls, ontology, MA_DEFINITION_CITATION);
 						} else {
-							annotations.addAll(cls.getAnnotations(ontology, MA_DEFINITION_CITATION));
+							annotations.addAll(EntitySearcher.getAnnotations(cls, ontology, MA_DEFINITION_CITATION));
 						}
 					} 
 					if (annotations != null){
