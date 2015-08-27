@@ -208,17 +208,18 @@ div.ui-tabs-panel {
 }
 ul#expList {
 	/*Dividing long list of <li> tags into columns*/
-    -moz-column-count: 3;
-    -moz-column-gap: 20px;
-    -webkit-column-count: 3;
-    -webkit-column-gap: 20px;
-    column-count: 3;
-    column-gap: 20px;
+    -moz-column-count: 2;
+    -moz-column-gap: 30px;
+    -webkit-column-count: 2;
+    -webkit-column-gap: 30px;
+    column-count: 2;
+    column-gap: 30px;
 }
 ul#expList li {
 	padding-left: 0;
 	width: auto;
 }
+
 </style>
 
             <c:if test="${phenotypeStarted}">
@@ -621,12 +622,9 @@ ul#expList li {
 <div class="section">
   <h2 class="title " id="impc-expression">Expression in Anatomogram</h2>
 	<div class="inner acontainer" style="display: block;">
-		
-		<div class='aright' id='anatomogram'>
-			Anatomogream<p><p>Expression: ${hasExpression}<p>No Expression:${noExpression}
-		</div>
+		<div class='aright' id='anatomogramContainer'></div>
 		<div class='aleft'>
-			<h6>Investigated tissues / organs:</h6>
+			<h6>Annotated tissues / organs:</h6>
 			<ul id='expList'>
 				<c:forEach var="entry" items="${impcExpressionImageFacets}"
 					varStatus="status">
@@ -1048,36 +1046,90 @@ ul#expList li {
                 </div>
           </div>
            
-
-            <script type="text/javascript"
-			src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
+			<script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
+            <script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
+            <script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
+          
             <script type="text/javascript">
-													var diseaseTables = [ {
-														id : '#orthologous_diseases_table',
-														tableConf : {
-															processing : true,
-															paging : false,
-															info : false,
-															searching : false,
-															order : [ [ 2, 'desc' ], [ 4, 'desc' ], [ 3, 'desc' ] ],
-															"sPaginationType" : "bootstrap"
-														}
-													}, {
-														id : '#predicted_diseases_table',
-														tableConf : {
-															order : [ [ 2, 'desc' ], [ 4, 'desc' ], [ 3, 'desc' ] ],
-															"sPaginationType" : "bootstrap"
-														}
-													} ];
+					var diseaseTables = [ {
+						id : '#orthologous_diseases_table',
+						tableConf : {
+							processing : true,
+							paging : false,
+							info : false,
+							searching : false,
+							order : [ [ 2, 'desc' ], [ 4, 'desc' ], [ 3, 'desc' ] ],
+							"sPaginationType" : "bootstrap"
+						}
+					}, {
+						id : '#predicted_diseases_table',
+						tableConf : {
+							order : [ [ 2, 'desc' ], [ 4, 'desc' ], [ 3, 'desc' ] ],
+							"sPaginationType" : "bootstrap"
+						}
+					} ];
 
-													$(document).ready(function() {
-														for (var i = 0; i < diseaseTables.length; i++) {
-															var diseaseTable = diseaseTables[i];
-															var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
-															$.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
-														}
-													});
-												</script>
+
+                    $(document).ready(function () {
+                        for (var i = 0; i < diseaseTables.length; i++) {
+                            var diseaseTable = diseaseTables[i];
+                            var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
+                            $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
+                        }
+                        
+                     	// anatomogram stuff
+                     	var expData = JSON.parse('${anatomogram}');
+                     	
+                        //console.log("no expression: ")
+                        //console.log(expData.noExpression);
+                        console.log("all paths: ")
+                        console.log(expData.allPaths);
+                        
+                        var anatomogramData = {
+                        
+                            "maleAnatomogramFile": "mouse_male.svg",
+                            "toggleButtonMaleImageTemplate": "/resources/images/male",
+                            "femaleAnatomogramFile": "mouse_female.svg",
+                            "toggleButtonFemaleImageTemplate": "/resources/images/female",
+                            "brainAnatomogramFile": "mouse_brain.svg",
+                            "toggleButtonBrainImageTemplate": "/resources/images/brain",
+                          	
+                            // all tested tissues (expressed + tested but not expressed)
+                           	"allSvgPathIds": expData.allPaths,
+                           	// test only
+                           	//"allSvgPathIds": [],
+                           	//"allSvgPathIds": ["UBERON_0000029", "UBERON_0001736", "UBERON_0001831"], // lymph nodes
+                           	//"allSvgPathIds": ["UBERON_0000947", "UBERON_0001981", "UBERON_0001348", "UBERON_0001347", "EFO_0000962"], 
+                           
+                           	"contextRoot": "/gxa"
+                        };
+
+                        // tissues having expressions
+                        var profileRows = [
+                        	{
+                              "name": "tissues with expression",
+                              "expressions": expData.expression
+                        	}
+                        ];
+                        //console.log("profile: ");
+						//console.log(profileRows);
+						
+                        var EventEmitter = window.exposed.EventEmitter;
+                        var eventEmitter = new EventEmitter();
+
+                        var AnatomogramBuilder = window.exposed.AnatomogramBuilder;
+                       
+                        AnatomogramBuilder(
+                                document.getElementById("anatomogramContainer"),
+                                anatomogramData,
+                                profileRows,
+                                "gray",  // all tissues being tested
+                                "blue",  // tissue color when mouseover
+                                eventEmitter);
+                        
+                    });
+            </script>
+
         </jsp:body>
 
 </t:genericpage>
