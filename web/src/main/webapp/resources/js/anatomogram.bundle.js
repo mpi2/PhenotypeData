@@ -4,7 +4,7 @@ webpackJsonp([0],[/*!**************************************************!*\
 function(t,e,i){(function(e){t.exports=e.exposed=i(/*! -!./anatomogram/anatomogram-builder-index.js */1)}).call(e,function(){return this}())},/*!**************************************************!*\
   !*** ./anatomogram/anatomogram-builder-index.js ***!
   \**************************************************/
-function(t,e,i){"use strict";function n(t,e,i,n,o,s){var c={contextRoot:"http://www.ebi.ac.uk/gxa"};r.render(r.createElement(a,{anatomogramData:e,expressedTissueColour:n,hoveredTissueColour:o,heatmapConfig:c,profileRows:i,eventEmitter:s}),t)}var r=i(/*! react */2),o=i(/*! wolfy87-eventemitter */149),a=i(/*! ./src/Anatomogram.jsx */150);e.AnatomogramBuilder=n,e.EventEmitter=o},/*!**************************************!*\
+function(t,e,i){"use strict";function n(t,e,i,n,o,s){var c={contextRoot:"//www.ebi.ac.uk/gxa"};r.render(r.createElement(a,{anatomogramData:e,expressedTissueColour:n,hoveredTissueColour:o,heatmapConfig:c,profileRows:i,eventEmitter:s}),t)}var r=i(/*! react */2),o=i(/*! wolfy87-eventemitter */149),a=i(/*! ./src/Anatomogram.jsx */150);e.AnatomogramBuilder=n,e.EventEmitter=o},/*!**************************************!*\
   !*** ./anatomogram/~/react/react.js ***!
   \**************************************/
 [841,3],/*!******************************************!*\
