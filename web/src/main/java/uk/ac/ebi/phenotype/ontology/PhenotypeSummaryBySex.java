@@ -18,46 +18,92 @@ package uk.ac.ebi.phenotype.ontology;
 import java.util.ArrayList;
 
 public class PhenotypeSummaryBySex {
-	private ArrayList <PhenotypeSummaryType> malePhens;
-	private ArrayList <PhenotypeSummaryType> femalePhens;
-	private ArrayList <PhenotypeSummaryType> bothPhens;
+	
+	private ArrayList <PhenotypeSummaryType> notSignificantMalePhens;
+	private ArrayList <PhenotypeSummaryType> notSignificantFemalePhens;
+	private ArrayList <PhenotypeSummaryType> notSignificantBothPhens;
+	private ArrayList <PhenotypeSummaryType> significantMalePhens;
+	private ArrayList <PhenotypeSummaryType> significantFemalePhens;
+	private ArrayList <PhenotypeSummaryType> significantBothPhens;
 	int total = 0;
 	
 	public PhenotypeSummaryBySex(){
-		malePhens = new ArrayList<PhenotypeSummaryType>();
-		femalePhens = new ArrayList<PhenotypeSummaryType>();
-		bothPhens = new ArrayList<PhenotypeSummaryType>();
+
+		significantMalePhens = new ArrayList<PhenotypeSummaryType>();
+		significantFemalePhens = new ArrayList<PhenotypeSummaryType>();
+		significantBothPhens = new ArrayList<PhenotypeSummaryType>();
+		
+		notSignificantMalePhens = new ArrayList<PhenotypeSummaryType>();
+		notSignificantFemalePhens = new ArrayList<PhenotypeSummaryType>();
+		notSignificantBothPhens = new ArrayList<PhenotypeSummaryType>();
 	}
 	
-	public void addPhenotye ( PhenotypeSummaryType obj) throws Exception{
+	
+	public void addPhenotye ( PhenotypeSummaryType obj) 
+	throws Exception{
+
 		String sex = obj.getSex();
-		if (sex.equals("male"))
-			malePhens.add(obj);
-		else if (sex.equals("female"))
-			femalePhens.add(obj);
-		else if (sex.equals("both sexes"))
-			bothPhens.add(obj);
-		else throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
+		if (obj.getSex() == null){
+			if (obj.isSignificant()){
+				significantBothPhens.add(obj);
+			} else {
+				notSignificantBothPhens.add(obj);
+			}			
+		} else {
+			if (sex.equals("male")){
+				if (obj.isSignificant()){
+					significantMalePhens.add(obj);
+				} else {
+					notSignificantMalePhens.add(obj);					
+				}
+			} else if (sex.equals("female")){
+				if (obj.isSignificant()){
+					significantFemalePhens.add(obj);
+				} else {
+					notSignificantFemalePhens.add(obj);					
+				}
+			} else if (sex.equals("both sexes")){
+				if (obj.isSignificant()){
+					significantBothPhens.add(obj);
+				} else {
+					notSignificantBothPhens.add(obj);
+				}
+			} else { 
+				throw (new Exception("Object of type PhenotypeSummaryTuype recieved without valid sex field."));
+			}
+		}
 	}
 	
-	public ArrayList <PhenotypeSummaryType> getMalePhenotypes(){
-		return malePhens;
+	public ArrayList <PhenotypeSummaryType> getMalePhenotypes(Boolean significant){
+		if (significant){
+			return significantMalePhens;
+		} else {
+			return notSignificantMalePhens;
+		}
 	}
 	
-	public ArrayList <PhenotypeSummaryType> getFemalePhenotypes(){
-		return femalePhens;
+	public ArrayList <PhenotypeSummaryType> getFemalePhenotypes(Boolean significant){
+		if (significant){
+			return significantFemalePhens;
+		} else {
+			return notSignificantFemalePhens;
+		}
 	}
 	
-	public ArrayList <PhenotypeSummaryType> getBothPhenotypes(){
-		return bothPhens;
+	public ArrayList <PhenotypeSummaryType> getBothPhenotypes(Boolean significant){
+		if (significant){
+			return significantBothPhens;
+		} else {
+			return notSignificantBothPhens;
+		}
 	}
 	
 	public int getTotalPhenotypesNumber(){
-		for (PhenotypeSummaryType entry: malePhens)
+		for (PhenotypeSummaryType entry: significantMalePhens)
 			total += entry.getNumberOfEntries();		
-		for (PhenotypeSummaryType entry: femalePhens)
+		for (PhenotypeSummaryType entry: significantFemalePhens)
 			total += entry.getNumberOfEntries();		
-		for (PhenotypeSummaryType entry: bothPhens)
+		for (PhenotypeSummaryType entry: significantBothPhens)
 			total += entry.getNumberOfEntries();
 		return total;
 	}
