@@ -69,28 +69,6 @@ function initTooltips() {
     });
 }
 
-function wdmHeatmap() {
-    /* just pimping the Heatmap, so Ajax Tooltips are shown in this example */
-    $('td.clickable').qtip({
-        show: { event: 'mouseover', effect: false, solo: true },
-        hide: { event: 'mouseleave' },
-        style: { classes: 'qtipimpc autowidth' },
-        position: { my: 'top center', at: 'bottom center' },
-        content: {
-            text: function(event, api) {
-                $.ajax({ url: 'heatmap-tooltip.php' })
-                    .done(function(html) {
-                        api.set('content.text', html)
-                    })
-                    .fail(function(xhr, status, error) {
-                        api.set('content.text', status + ': ' + error)
-                    });    
-                return 'Loading...';
-            }
-        }    
-    });
-}
-
 function initAccordions() {
     /* Accordeon toggle */
     $('.accordion-heading').on('click',function() {
@@ -184,24 +162,6 @@ function initTableFilter() {
     });
 }
 
-function wdmTestumgebung() {
-    /* only for Nicolas to test something */
-    if ($('body').hasClass('searchpage')) {
-        $('#m_search').addClass('active-trail');
-    } else if ($('body').hasClass('page-node')) {
-        $('#m_about').addClass('active-trail');
-        $('#m_members').addClass('active');
-    } else if ($('body').hasClass('front')) {
-        $('#m_home').addClass('active');
-    } else if ($('body').hasClass('page-news')) {
-        $('#m_news').addClass('active');
-    } else if ($('body').hasClass('page-news-only')) {
-        $('#m_newsonly').addClass('active');
-        $('#m_news').addClass('active-trail');        
-    }
-    
-}
-
 function initReduceLongTables() {
     /* Cut long tables and expan them, if needed */
     $('table.reduce').each(function() {
@@ -289,10 +249,6 @@ function initTabs() {
 
 /* Document ready event */
 $(document).ready(function() {
-    
-    /* to delete */
-    wdmTestumgebung();
-    wdmHeatmap();
     
     /* inits */
     initFooterSitemap();
