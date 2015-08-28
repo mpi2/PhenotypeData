@@ -23,6 +23,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,19 +38,29 @@ public class PhenotypeSummaryDAO  {
 	}
 
 	public String getSexesRepresentationForPhenotypesSet(SolrDocumentList resp) {
+		
 		String resume = "";
 		if (resp.size() > 0) {
 
 			for (int i = 0; i < resp.size(); i++) {
+				
 				SolrDocument doc = resp.get(i);
-
-				if ("male".equalsIgnoreCase((String) doc.getFieldValue("sex")))
-					resume += "m";
-				else if ("female".equalsIgnoreCase((String) doc.getFieldValue("sex")))
-					resume += "f";
-
-				if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
-					return "both sexes";
+				
+				if (isSignificant(doc)){
+					if (doc.containsKey(GenotypePhenotypeDTO.SEX)){
+						if ("male".equalsIgnoreCase((String) doc.getFieldValue(GenotypePhenotypeDTO.SEX)))
+							resume += "m";
+						else if ("female".equalsIgnoreCase((String) doc.getFieldValue(GenotypePhenotypeDTO.SEX)))
+							resume += "f";
+		
+						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
+							return "both sexes";
+					} else {
+						return "both sexes";
+					}
+				} else {
+					break; // they're sorted so the significant ones will only be at the top
+				}
 			}
 
 			if (resume.contains("m") && !resume.contains("f"))
@@ -61,7 +72,9 @@ public class PhenotypeSummaryDAO  {
 		return null;
 	}
 
+	
 	public HashSet<String> getDataSourcesForPhenotypesSet(SolrDocumentList resp) {
+		
 		HashSet <String> data = new HashSet <String> ();
 		if (resp.size() > 0) {
 			for (int i = 0; i < resp.size(); i++) {
@@ -70,8 +83,10 @@ public class PhenotypeSummaryDAO  {
 			}
 		}
 		return data;
+		
 	}
 
+	
 	private long getNumSignificantCalls (SolrDocumentList res){
 		
 		long n = 0; 
@@ -85,9 +100,9 @@ public class PhenotypeSummaryDAO  {
 			}
 		}
 		return n;
+		
 	}
 
-	
 	
 	private boolean isSignificant (SolrDocument res){
 		

@@ -1082,6 +1082,8 @@ ul#expList li {
                      	
                         //console.log("no expression: ")
                         //console.log(expData.noExpression);
+                        console.log("all paths: ")
+                        console.log(expData.allPaths);
                         
                         var anatomogramData = {
                         

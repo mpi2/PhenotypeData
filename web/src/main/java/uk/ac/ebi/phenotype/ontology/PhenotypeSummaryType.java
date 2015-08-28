@@ -92,4 +92,12 @@ public class PhenotypeSummaryType {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "PhenotypeSummaryType [id=" + id + ", name=" + name + ", sex=" + sex + ", numberOfEntries="
+				+ numberOfEntries + ", dataSources=" + dataSources + ", significant=" + significant + "]";
+	}
+	
+	
+
 }
