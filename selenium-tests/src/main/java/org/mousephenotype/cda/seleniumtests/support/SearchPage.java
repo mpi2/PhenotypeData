@@ -197,7 +197,7 @@ public class SearchPage {
             try {
                 driver.get(target);
             } catch (Exception e) {
-                throw new RuntimeException("EXCEPTION: " + e.getLocalizedMessage() + "\ntarget: '" + target + "'");
+                throw new TestException("EXCEPTION: " + e.getLocalizedMessage() + "\ntarget: '" + target + "'");
             }
             this.target = target;
         }
@@ -341,7 +341,7 @@ public class SearchPage {
      * @param facetId HTML 'li' id of desired facet to click
      * @return the [total] results count
      */
-    public int clickFacetById(String facetId) throws TestException {
+    public int clickFacetById(String facetId) {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
 
         try {
@@ -364,10 +364,10 @@ public class SearchPage {
      * Calling this method has the side effect of waiting for the page to finish
      * loading.
      *
-     * @throws Exception if no such button exists
+     * @throws TestException if no such button exists
      * @return the <code>PageDirective</code> of the clicked button
      */
-    public PageDirective clickPageButton() throws Exception {
+    public PageDirective clickPageButton() throws TestException {
         PageDirective pageDirective = null;
         try {
             int max = getNumPageButtons();
@@ -392,8 +392,7 @@ public class SearchPage {
             logger.debug("SearchPage.clickPageButton(): max = " + max + ". randomPageNumber = " + randomPageNumber + ". Clicking " + pageDirective + " button.");
 
         } catch (Exception e) {
-            logger.error("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage());
-            e.printStackTrace();
+            throw new TestException("EXCEPTION in SearchPage.clickPageButton: " + e.getLocalizedMessage(), e);
         }
 
         setFacetTable();
@@ -407,9 +406,9 @@ public class SearchPage {
      * the page to finish loading. <b>Note:</b> The pageButton may be disabled
      * or it may be the ellipsis, in which case the form simply won't change.
      * @param pageButton the page button to click
-     * @throws Exception if no such button exists
+     * @throws TestException if no such button exists
      */
-    public void clickPageButton(PageDirective pageButton) throws Exception {
+    public void clickPageButton(PageDirective pageButton) throws TestException {
         List<WebElement> ulElements = driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li"));
         try {
             switch (pageButton) {
@@ -518,18 +517,16 @@ public class SearchPage {
             return results;
 
         submitSearch(searchString);
-        WebElement autosuggestBlock;
-        try {
-            autosuggestBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul#ui-id-1")));
-        } catch (Exception e) {
-            logger.info("SearchPage.getAutosuggest(): no results for search string '" + searchString + "'");
-            return results;
-        }
+        List<WebElement> autosuggestBlockList;
+        commonUtils.sleep(10000);              // Sleep for 10 seconds to let autosuggest complete.
+        autosuggestBlockList = driver.findElements(By.cssSelector("ul#ui-id-1"));
 
-        List<WebElement> autosuggestElements = autosuggestBlock.findElements(By.cssSelector("li"));
-        for (WebElement autosuggestElement : autosuggestElements) {
-            String[] parts = autosuggestElement.getText().split(":");
-            results.add(new AutosuggestRow(parts[0].trim(), parts[1].trim()));
+        if ( ! autosuggestBlockList.isEmpty()) {
+            List<WebElement> autosuggestElements = autosuggestBlockList.get(0).findElements(By.cssSelector("li"));
+            for (WebElement autosuggestElement : autosuggestElements) {
+                String[] parts = autosuggestElement.getText().split(":");
+                results.add(new AutosuggestRow(parts[0].trim(), parts[1].trim()));
+            }
         }
 
         return results;
@@ -663,9 +660,9 @@ public class SearchPage {
      *
      * @return an array of facet names
      *
-     * @throws Exception
+     * @throws TestException
      */
-    public String[] getFacetNames(Facet facet) throws Exception {
+    public String[] getFacetNames(Facet facet) throws TestException {
         ArrayList<String> names = new ArrayList();
         String xpath = "";
 
@@ -673,24 +670,24 @@ public class SearchPage {
 
         switch (facet) {
             case GENES:
-                throw new Exception("Not implemented yet.");
+                throw new TestException("Not implemented yet.");
 
             case PHENOTYPES:
                 xpath = "//*[@id='mp']//li";
                 break;
 
             case DISEASES:
-                throw new Exception("Not implemented yet.");
+                throw new TestException("Not implemented yet.");
 
             case ANATOMY:
                 xpath = "//*[@id='ma']//li";
                 break;
-
+// FIXME FIXME FIXME
             case IMPC_IMAGES:
-                throw new Exception("Not implemented yet.");
+                throw new TestException("Not implemented yet.");
 
             case IMAGES:
-                throw new Exception("Not implemented yet.");
+                throw new TestException("Not implemented yet.");
         }
 
         List<WebElement> elements = driver.findElements(By.xpath(xpath));
@@ -1204,8 +1201,9 @@ public class SearchPage {
      * @param downloadType The download button type (e.g. page/all, tsv/xls)
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @return the full TSV data store
+     * @throws TestException
      */
-    private String[][] getDownload(DownloadType downloadType, String baseUrl) {
+    private String[][] getDownload(DownloadType downloadType, String baseUrl) throws TestException {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase(downloadType);
 
@@ -1241,7 +1239,7 @@ public class SearchPage {
             String message = "EXCEPTION: SearchPage.getDownload: processing target URL " + target + ": " + e.getLocalizedMessage();
             logger.error(message);
             e.printStackTrace();
-            try { throw e; } catch (Exception ee) { throw new RuntimeException(message); }
+            throw new TestException(e);
         }
 
         return data;
