@@ -112,8 +112,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
     Map<String, List<String>> maleParamToGene = null;
     Map<String, List<String>> femaleParamToGene = null;
-    Map<String, List<String>> allParamToGene = null;
-
 
 	public StatisticalResultService() {
 		super();
@@ -1342,7 +1340,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
     	
         HashSet<String> res = new HashSet<>();
-        if (femaleParamToGene == null || maleParamToGene == null || allParamToGene == null) {
+        if (femaleParamToGene == null || maleParamToGene == null) {
             fillMaps();
         }
         if (sex == null || sex.equals(SexType.female)) {
