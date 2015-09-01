@@ -34,6 +34,7 @@ public class OntologyTermBean {
     private String name;
     private String definition;
     private List<String> synonyms=new ArrayList<>();
+    private String topLevelTermId;
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -41,6 +42,20 @@ public class OntologyTermBean {
         
     }
 
+	/**
+	 * @return the topLevelMPTermId
+	 */
+	public String getTopLevelTermId() {
+		return topLevelTermId;
+	}
+
+	/**
+	 * @param topLevelMPTermId the topLevelMPTermId to set
+	 */
+	public void setTopLevelTermId(String topLevelTermId) {
+		this.topLevelTermId = topLevelTermId;
+	}
+    
     public String getId() {
         return id;
     }

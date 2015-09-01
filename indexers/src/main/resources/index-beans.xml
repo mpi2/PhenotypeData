@@ -243,6 +243,18 @@
 		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/mp" />
 	</bean>
 	
+	<!-- used for concurrently loading the EMAP core -->
+	<bean id="emapIndexing"
+		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/emap" />
+		<constructor-arg index="1" value="200" /> <!--Queue size -->
+		<constructor-arg index="2" value="3" /> <!--Num threads -->
+	</bean>
+	<bean id="emapReadOnlyIndexing"
+		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/emap" />
+	</bean>
+	
 	<!-- used for concurrently loading the autosuggest core -->
 	<bean id="autosuggestIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
