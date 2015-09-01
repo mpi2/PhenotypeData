@@ -43,6 +43,7 @@ public class PhenotypeSummaryBySex {
 	throws Exception{
 
 		String sex = obj.getSex();
+		
 		if (obj.getSex() == null){
 			if (obj.isSignificant()){
 				significantBothPhens.add(obj);
