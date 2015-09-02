@@ -8,29 +8,6 @@
 	<jsp:attribute name="bodyTag">
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	<body  class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
 <jsp:include page="doc-pinned-menu.jsp"></jsp:include>
