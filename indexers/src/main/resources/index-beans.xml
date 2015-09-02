@@ -344,6 +344,7 @@
 		class="org.mousephenotype.cda.indexers.GenotypePhenotypeIndexer" />
 	<bean id="mpOntologyService" class="org.mousephenotype.cda.db.dao.MpOntologyDAO" />
 	<bean id="maOntologyDAO" class="org.mousephenotype.cda.db.dao.MaOntologyDAO" />
+	<bean id="emapOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapOntologyDAO" />
 	<bean id="statisticalResultIndexer"
 		class="org.mousephenotype.cda.indexers.StatisticalResultIndexer" />
 	<bean id="preqcIndexer" class="org.mousephenotype.cda.indexers.PreqcIndexer" />

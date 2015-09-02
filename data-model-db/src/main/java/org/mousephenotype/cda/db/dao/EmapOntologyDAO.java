@@ -41,7 +41,6 @@ import org.springframework.stereotype.Component;
  * 
  * @author ckchen based on mrelac
  */
-@Component
 public class EmapOntologyDAO extends OntologyDAO {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
