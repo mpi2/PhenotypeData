@@ -288,6 +288,13 @@ public class ImageDTO extends ObservationDTO {
 		this.efoId = efoId;
 	}
 	
+	public void addEfoId(String id) {
+		if(this.efoId==null){
+			this.efoId=new ArrayList<>();
+		}
+		this.efoId.add(id);
+	}
+	
 	public List<String> getUberonId() {
 
 		return uberonId;
@@ -296,6 +303,13 @@ public class ImageDTO extends ObservationDTO {
 	public void setUberonId(List<String> uberonId) {
 
 		this.uberonId = uberonId;
+	}
+	
+	public void addUberonId(String id) {
+		if(this.uberonId==null){
+			this.uberonId=new ArrayList<>();
+		}
+		this.uberonId.add(id);
 	}
 	
 	public List<String> getMaIdTerm() {
