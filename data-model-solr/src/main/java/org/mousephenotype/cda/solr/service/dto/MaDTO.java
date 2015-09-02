@@ -629,7 +629,7 @@ public class MaDTO {
     public void setTopLevelMaId(List<String> topLevelMaId) {
         this.topLevelMaId = topLevelMaId;
     }
-
+        
     public List<String> getTopLevelMaTerm() {
         return topLevelMaTerm;
     }
