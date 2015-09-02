@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.neo4j.cypher.internal.compiler.v2_1.ast.rewriters.addUniquenessPredicates;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -247,20 +248,24 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 											.getTopLevel(maTermId);
 									for (OntologyTermBean topLevel : topLevels) {
 										//System.out.println(topLevel.getName());
+										if(!topLevelMaIds.contains(topLevel.getId())){
 										topLevelMaIds.add(topLevel.getId());
 										topLevelMaTerm.add(topLevel.getName());
 										topLevelMaTermSynonym.addAll(topLevel
 												.getSynonyms());
+										}
 									}
 									
 									List<OntologyTermBean> intermediateLevels = maService
 											.getIntermediates(maTermId);
 									for (OntologyTermBean intermediateLevel : intermediateLevels) {
 										//System.out.println(topLevel.getName());
+										if(!intermediateLevelMaIds.contains(intermediateLevel.getId())){
 										intermediateLevelMaIds.add(intermediateLevel.getId());
 										intermediateLevelMaTerm.add(intermediateLevel.getName());
 										intermediateLevelMaTermSynonym.addAll(intermediateLevel
 												.getSynonyms());
+										}
 									}
 								}
 //									<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -283,19 +288,13 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				                if ( maUberonEfoMap.containsKey(maId) ){
 				                	
 				                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
-				                		if ( imageDTO.getUberonId() == null ){
-				                			imageDTO.setUberonId(maUberonEfoMap.get(maId).get("uberon_id"));
-				                		}
-				                		else {
-				                			imageDTO.getUberonId().addAll(maUberonEfoMap.get(maId).get("uberon_id"));
+				                		for(String id: maUberonEfoMap.get(maId).get("uberon_id")){
+				                			imageDTO.addUberonId(id);
 				                		}
 				                	}
 				                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
-				                		if ( imageDTO.getEfoId() == null ){
-				                			imageDTO.setEfoId(maUberonEfoMap.get(maId).get("efo_id"));
-				                		}
-				                		else {
-				                			imageDTO.getEfoId().addAll(maUberonEfoMap.get(maId).get("efo_id"));
+				                		for(String id: maUberonEfoMap.get(maId).get("efo_id")){
+				                			imageDTO.addEfoId(id);
 				                		}
 				                	}
 				                }
