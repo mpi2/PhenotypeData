@@ -85,13 +85,16 @@
 
                             <h3 id="phenotype_associations">Phenotype associations</h3>
                             <p>This section shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
-                                                      
 
-                            <h3><a name="phenotype-summary" href='#'>Gene Phenotype Summary</a></h3>
+                            <h4><a name="phenotype-summary" href='#'>Gene Phenotype Summary</a></h4>
 
-                            <p>The section starts with a summary of phenotype top level termsfor this gene with associated counts. The counts indicate the number of calls for
-                            		the current gene, grouped by zygosity, sex and top level M P term. The icons on the right hand side show a visual summary of the same data. </p>
-                            <p> MP terms may have more than one high level parent and so the counts in the summary may not equal the total number of entries in the table.</p>
+                            <p>The section starts with a summary of phenotype top level terms for this gene, with associated counts. The counts indicate the number of calls for
+                            		the current gene, grouped by zygosity, sex and top level MP term. The icons on the right hand side show a visual summary of the same data. </p>
+                            <p>Because MP terms may have more than one high level parent, the counts in the summary may not equal the total number of entries in the table.</p>
+                            <p>The grid at the top right contains icons intended to discover test phenotype status at a glance. Icons in orange indicate significant phenotypes
+                            were discovered. Icons in blue indicate tests were performed but no significant phenotypes were discovered. Icons in gray indicate no phenotype tests
+                             were performed.</p>
+                            <p>To look at all test results for adult data, press the "All Adult Data" button.</p>
                             <img src="img/gene-phenotype-summary.png" />
 														
 
