@@ -527,7 +527,7 @@ a.status.qc, span.status.qc        { background:gray !important; }
 /* Sprite Abnormalities */
 .abnormalities          { float: right; width: 200px; height: 160px; }
 .abnormalities .allicons {  opacity: 0.4; position: absolute; width: 200px; height: 160px; background-image: url(../img/icon/sprite-abnormalities.png); }
-.lt-ie9 .abnormalities .allicons { filter: alpha(opacity=40); }
+.lt-ie9 .abnormalities .abnormalities_legend .allicons { filter: alpha(opacity=40); }
 .abnormalities .sprite_blue  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }
 .abnormalities .sprite_orange  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-orange.png); }
 
@@ -551,6 +551,20 @@ a.status.qc, span.status.qc        { background:gray !important; }
 .abnormalities .sprite-4-3 { margin: 120px 0px 0px 80px; background-position: -80px -120px; }
 .abnormalities .sprite-4-4 { margin: 120px 0px 0px 120px; background-position: -120px -120px; }
 .abnormalities .sprite-4-5 { margin: 120px 0px 0px 160px; background-position: -160px -120px; }
+
+.abnormalities_key div
+{
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    font-size: .8em;
+    width: 185px;
+    height: 30px;
+}
+
+.abnormalities_key span {
+    font-size: .8em;
+}
 
 /* Field: Attachments */
 .field-name-field-attachment        { margin-top: 3em; }
