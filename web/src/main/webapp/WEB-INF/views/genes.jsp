@@ -1076,57 +1076,61 @@ ul#expList li {
                             var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                             $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                         }
-                        
-                     	// anatomogram stuff
-                     	var expData = JSON.parse('${anatomogram}');
-                     	
-                        //console.log("no expression: ")
-                        //console.log(expData.noExpression);
-                        console.log("all paths: ")
-                        console.log(expData.allPaths);
-                        
-                        var anatomogramData = {
-                        
-                            "maleAnatomogramFile": "mouse_male.svg",
-                            "toggleButtonMaleImageTemplate": "/resources/images/male",
-                            "femaleAnatomogramFile": "mouse_female.svg",
-                            "toggleButtonFemaleImageTemplate": "/resources/images/female",
-                            "brainAnatomogramFile": "mouse_brain.svg",
-                            "toggleButtonBrainImageTemplate": "/resources/images/brain",
-                          	
-                            // all tested tissues (expressed + tested but not expressed)
-                           	"allSvgPathIds": expData.allPaths,
-                           	// test only
-                           	//"allSvgPathIds": [],
-                           	//"allSvgPathIds": ["UBERON_0000029", "UBERON_0001736", "UBERON_0001831"], // lymph nodes
-                           	//"allSvgPathIds": ["UBERON_0000947", "UBERON_0001981", "UBERON_0001348", "UBERON_0001347", "EFO_0000962"], 
-                           
-                           	"contextRoot": "/gxa"
-                        };
 
-                        // tissues having expressions
-                        var profileRows = [
-                        	{
-                              "name": "tissues with expression",
-                              "expressions": expData.expression
-                        	}
-                        ];
-                        //console.log("profile: ");
-						//console.log(profileRows);
-						
-                        var EventEmitter = window.exposed.EventEmitter;
-                        var eventEmitter = new EventEmitter();
+						// invoke anatomogram only when
+						// <c:if test="${not empty impcExpressionImageFacets}"> is true
+						if ( $('div#anatomogramContainer').size() == 1){
 
-                        var AnatomogramBuilder = window.exposed.AnatomogramBuilder;
-                       
-                        AnatomogramBuilder(
-                                document.getElementById("anatomogramContainer"),
-                                anatomogramData,
-                                profileRows,
-                                "gray",  // all tissues being tested
-                                "blue",  // tissue color when mouseover
-                                eventEmitter);
-                        
+							// anatomogram stuff
+							var expData = JSON.parse('${anatomogram}');
+
+							//console.log("no expression: ")
+							//console.log(expData.noExpression);
+							//console.log("all paths: ")
+							//console.log(expData.allPaths);
+
+							var anatomogramData = {
+
+								"maleAnatomogramFile": "mouse_male.svg",
+								"toggleButtonMaleImageTemplate": "/resources/images/male",
+								"femaleAnatomogramFile": "mouse_female.svg",
+								"toggleButtonFemaleImageTemplate": "/resources/images/female",
+								"brainAnatomogramFile": "mouse_brain.svg",
+								"toggleButtonBrainImageTemplate": "/resources/images/brain",
+
+								// all tested tissues (expressed + tested but not expressed)
+								"allSvgPathIds": expData.allPaths,
+								// test only
+								//"allSvgPathIds": [],
+								//"allSvgPathIds": ["UBERON_0000029", "UBERON_0001736", "UBERON_0001831"], // lymph nodes
+								//"allSvgPathIds": ["UBERON_0000947", "UBERON_0001981", "UBERON_0001348", "UBERON_0001347", "EFO_0000962"],
+
+								"contextRoot": "/gxa"
+							};
+
+							// tissues having expressions
+							var profileRows = [
+								{
+								  "name": "tissues with expression",
+								  "expressions": expData.expression
+								}
+							];
+							//console.log("profile: ");
+							//console.log(profileRows);
+
+							var EventEmitter = window.exposed.EventEmitter;
+							var eventEmitter = new EventEmitter();
+
+							var AnatomogramBuilder = window.exposed.AnatomogramBuilder;
+
+							AnatomogramBuilder(
+									document.getElementById("anatomogramContainer"),
+									anatomogramData,
+									profileRows,
+									"gray",  // all tissues being tested
+									"blue",  // tissue color when mouseover
+									eventEmitter);
+						}
                     });
             </script>
 
