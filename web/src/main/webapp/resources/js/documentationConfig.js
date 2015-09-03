@@ -43,7 +43,7 @@ MDOC.gene = {
 		'preQcPanel'           : '<p>Preliminary analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
 		'preQcPanelDocUrl'     : baseUrl + '/documentation/gene-help#pre-qc',
 		'mpPanel'              : '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
-		'mpPanelDocUrl'        : baseUrl + '/documentation/gene-help#phenotypes',
+		'mpPanelDocUrl'        : baseUrl + '/documentation/gene-help#phenotype_associations',
 		'imagePanel'           : '<p>Images associated to this gene.  Note that the phenotype associations made in some of the image descriptions have not been verified for accuracy.</p><p>Click the help icon for more detail.</p>',
 		'imagePanelDocUrl'     : baseUrl + '/documentation/gene-help#phenotype-images',
 		'expressionPanel'      : '<p>Expression images associated to this gene.</p>',
