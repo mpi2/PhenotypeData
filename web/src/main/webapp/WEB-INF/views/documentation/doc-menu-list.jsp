@@ -1,6 +1,10 @@
                             <ul>
                                 <li><a href="index">Overview</a></li>
-                                <li><a href="search-help">Search</a></li>
+                                <li><a href="search-help">Search</a>
+                                    <ul>
+                                        <li type="circle" style="padding-left: 15px"><a href="batch-query-help">Batch Query</a></li>
+                                    </ul>
+                                </li>
                                 <li><a href="gene-help">Genes</a></li>
                                 <li><a href="phenotype-help">Phenotypes</a> </li>
                                 <li><a href="disease-help">Diseases</a> </li>

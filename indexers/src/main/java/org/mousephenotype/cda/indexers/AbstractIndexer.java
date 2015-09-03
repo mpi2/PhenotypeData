@@ -46,7 +46,7 @@ public abstract class AbstractIndexer {
 
     protected static final String KOMP2_DATASOURCE_BEAN = "komp2DataSource";
     protected static final String ONTODB_DATASOURCE_BEAN = "ontodbDataSource";
-    protected static final int MINIMUM_DOCUMENT_COUNT = 100;
+    protected static final int MINIMUM_DOCUMENT_COUNT = 80;
 
     protected ApplicationContext applicationContext;
     
