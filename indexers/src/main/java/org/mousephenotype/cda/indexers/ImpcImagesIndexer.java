@@ -234,20 +234,24 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 											.getTopLevel(maTermId);
 									for (OntologyTermBean topLevel : topLevels) {
 										//System.out.println(topLevel.getName());
+										if(!topLevelMaIds.contains(topLevel.getId())){
 										topLevelMaIds.add(topLevel.getId());
 										topLevelMaTerm.add(topLevel.getName());
 										topLevelMaTermSynonym.addAll(topLevel
 												.getSynonyms());
+										}
 									}
 									
 									List<OntologyTermBean> intermediateLevels = maService
 											.getIntermediates(maTermId);
 									for (OntologyTermBean intermediateLevel : intermediateLevels) {
 										//System.out.println(topLevel.getName());
+										if(!intermediateLevelMaIds.contains(intermediateLevel.getId())){
 										intermediateLevelMaIds.add(intermediateLevel.getId());
 										intermediateLevelMaTerm.add(intermediateLevel.getName());
 										intermediateLevelMaTermSynonym.addAll(intermediateLevel
 												.getSynonyms());
+										}
 									}
 								}
 //									<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
