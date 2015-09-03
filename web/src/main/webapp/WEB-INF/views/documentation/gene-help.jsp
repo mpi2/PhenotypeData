@@ -7,7 +7,7 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
 	<jsp:attribute name="bodyTag"><body  class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 	<jsp:attribute name="addToFooter">
-<jsp:include page="doc-pinned-menu.jsp"></jsp:include>
+<%--<jsp:include page="doc-pinned-menu.jsp"></jsp:include>--%>
 	</jsp:attribute>
 	
 
@@ -27,7 +27,7 @@
 
                 <!-- Maincontent -->
 
-                <div class="region region-content">              
+                <div class="region region-content">
 
                     <div class="block block-system">
 
@@ -36,44 +36,65 @@
                             <h1>Gene Page Documentation</h1>
 		
                             
-                            <h3><a name="details" href='#'>Gene Details</a></h3>
-                            <p>The gene details section of the page shows information about the gene.  The information displayed includes:
+                            <h3>Gene Details</h3>
+                            The first section of the page shows detail information about the gene. The information displayed includes:
                             <ul>
-                                <li>Name</li>
-                                <li>Synonyms</li>
-                                <li>MGI ID which links to the corresponding gene detail page at <a href="http://www.informatics.jax.org">Mouse Genome Informatics</a></li>
-                                <li>The latest IMPC production status for this gene.  This aggregates the ES and mouse production statuses as well as phenotyping statuses of all ongoing projects for this gene in
-                                		 <a href="https://www.mousephenotype.org/imits/">iMits</a> and displays the status of the project that is closest to producing a mouse. It also mentions if legacy data 
-                                		 is available too (i.e. from EuroPhenome). Genes with "legacy data available" may as well have IMPC data available. 
-                                		 <img src="img/gene-status-1.png"/>                                 		 
-                                		 </li>
-                                <li>Links to different view of the gene in the Ensembl genome browser: 
-                                    <strong>Gene view</strong> links to the browser centered on the gene, 
-                                    <strong>Location view</strong> links to a view of the chromosome,
-                                    <strong>Comparative Genomics view</strong> links to the Ensembl compara view for this gene</li>
-                                <li>ENU link to the ENU mutant library at the Australian Phenomics Facility</li>   
+                                <li><strong>Name</strong></li>
+                                <li><strong>Synonyms</strong></li>
+                                <li><strong>MGI Id</strong>
+                                    Links to the corresponding gene detail page at <a href="http://www.informatics.jax.org">Mouse Genome Informatics</a>
+                                </li>
+                                <li><strong>Status</strong>
+                                        The latest IMPC production status for this gene.  This aggregates the ES and mouse production statuses as well
+                                        as phenotyping statuses of all ongoing projects for this gene in <a href="https://www.mousephenotype.org/imits/">iMits</a>
+                                        and displays the status of the project that is closest to producing a mouse. It also mentions if legacy data
+                                        is available (i.e. from EuroPhenome). Genes with "legacy data available" may have IMPC data available as well.
+                                        <img src="img/gene-status-1.png"/>
+                                </li>
+                                <li><strong>ENSEMBL Links</strong>
+                                    Links to different views of the gene in the Ensembl genome browser
+                                    <ul>
+                                        <li><strong>Gene view</strong>
+                                            Links to the browser centered on the gene
+                                        </li>
+                                        <li><strong>Location view</strong>
+                                            Links to a view of the chromosome
+                                        </li>
+                                        <li><strong>Compara</strong>
+                                            Links to the Ensembl compara comparative genomics view for this gene
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><strong>Other Links</strong>
+                                    <ul>
+                                        <li><strong>Gene Browser</strong> Interactive graphical gene browser. Clicking
+                                            the link shows a genome browser displaying a graphical view of the gene's location
+                                            and surrounding features.  The browser is interactive and you can use your mouse to zoom and scroll.
+                                            <br/>
+                                            <img src="img/gene-browser.png" />
+                                        </li>
+
+                                        <li><strong>ENU</strong> Links to the ENU mutant library at the Australian Phenomics Facility</li>
+                                    </ul>
+                                </li>
                             </ul>
                             <br/>
                             <img src="img/gene-details.png" />
-														<br/> <br/>
-														
-                            <h3><a name="browser" href='#'>Gene Browser</a></h3>
-                            <p>By clicking the <strong> Gene Browser</strong> link, a genome browser will be shown displaying a graphical view
-                                of the gene's location and surrounding features.  The browser is interactive and you can use your mouse to zoom and scroll. </p>
-														<br/>	
-                            <img src="img/gene-browser.png" />
-														<br/> <br/> <br/>
 
+                            <br /><br />
 
-                            <h3><a name="phenotypes" href='#'>Gene Phenotypes</a></h3>
-                            <p>The gene phenotypes section of a gene page shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
-                                                      
+                            <h3 id="phenotype_associations">Phenotype associations</h3>
+                            <p>This section shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
 
-                            <h3><a name="phenotype-summary" href='#'>Gene Phenotype Summary</a></h3>
+                            <h4><a name="phenotype-summary" href='#'>Gene Phenotype Summary</a></h4>
 
-                            <p>The section starts with a summary of phenotype top level terms for this gene with associated counts. The counts indicate the number of calls for 
+                            <p>The section starts with a summary of phenotype top level terms for this gene, with associated counts. The counts indicate the number of calls for
                             		the current gene, grouped by zygosity, sex and top level MP term. The icons on the right hand side show a visual summary of the same data. </p>
-                            <p> MP terms may have more than one high level parent and so the counts in the summary may not equal the total number of entries in the table.</p>
+                            <p>Because MP terms may have more than one high level parent, the counts in the summary may not equal the total number of entries in the table.</p>
+                            <p>The grid at the top right contains icons intended to discover test phenotype status at a glance. Icons in orange indicate significant phenotypes
+                            were discovered. Icons in blue indicate tests were performed but no significant phenotypes were discovered. Icons in gray indicate no phenotype tests
+                             were performed.</p>
+                            <p>To look at all test results for adult data, press the "All Adult Data" button.</p>
                             <img src="img/gene-phenotype-summary.png" />
 														
 
