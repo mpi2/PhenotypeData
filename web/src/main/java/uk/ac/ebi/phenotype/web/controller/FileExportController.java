@@ -30,7 +30,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.*;
-import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -40,7 +39,9 @@ import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
@@ -554,13 +555,23 @@ public class FileExportController {
 				List<String> termLists = new ArrayList();
 				List<String> link_lists = new ArrayList();
 
-				String[] fields = { "annotationTermId", "expName", "symbol_gene" };
+				String[] fields = { "expName", "annotationTermId", "symbol_gene" };
 				for (String fld : fields) {
 					if (doc.has(fld)) {
 
 						JSONArray list = doc.getJSONArray(fld);
 
-						if (fld.equals("annotationTermId")) {
+						if (fld.equals("expName")) {
+
+							for (int l = 0; l < list.size(); l++) {
+								String value = list.getString(l);
+
+								termLists.add("Procedure:" + value);
+								lists.add(NO_INFO_MSG);
+								link_lists.add(NO_INFO_MSG);
+							}
+						}
+						else if (fld.equals("annotationTermId")) {
 
 							JSONArray termList = doc.containsKey("annotationTermName")
 									? doc.getJSONArray("annotationTermName") : new JSONArray();
@@ -573,14 +584,20 @@ public class FileExportController {
 									link_lists.add(hostName + mpBaseUrl + value);
 									termLists.add("MP:" + termVal);
 								}
-								if (value.startsWith("MA:")) {
+								else if (value.startsWith("MA:")) {
 									link_lists.add(hostName + maBaseUrl + value);
 									termLists.add("MA:" + termVal);
+								}
+								else if (value.startsWith("EMAP:")) {
+									//link_lists.add(hostName + maBaseUrl + value);
+									link_lists.add(NO_INFO_MSG);
+									termLists.add("EMAP:" + termVal);
 								}
 
 								lists.add(value); // id
 							}
-						} else if (fld.equals("symbol_gene")) {
+						}
+						else if (fld.equals("symbol_gene")) {
 							// gene symbol and its link
 							for (int l = 0; l < list.size(); l++) {
 								String[] parts = list.getString(l).split("_");
@@ -589,15 +606,6 @@ public class FileExportController {
 								termLists.add("Gene:" + symbol);
 								lists.add(mgiId);
 								link_lists.add(hostName + geneBaseUrl + mgiId);
-							}
-						} else if (fld.equals("expName")) {
-
-							for (int l = 0; l < list.size(); l++) {
-								String value = list.getString(l);
-
-								termLists.add("Procedure:" + value);
-								lists.add(NO_INFO_MSG);
-								link_lists.add(NO_INFO_MSG);
 							}
 						}
 					}
@@ -1886,8 +1894,11 @@ public class FileExportController {
 
 				PrintWriter output = response.getWriter();
 				for (String line : dataRows) {
-					// System.out.println("line: " + line);
+					System.out.println("line: " + line);
+
 					line = line.replaceAll("\\t//", "\thttp://");
+					line = line.replaceAll("\\|//", "|http://");
+
 					output.println(line);
 				}
 
