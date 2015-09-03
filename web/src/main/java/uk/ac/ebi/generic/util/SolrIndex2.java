@@ -519,7 +519,7 @@ public class SolrIndex2 {
     }
 
     private String getAllProductsUrl(String accession, String cassette, String design) {
-    	
+
         String qallele_search = "";
 
         if (cassette != null && design != null) {
@@ -586,7 +586,7 @@ public class SolrIndex2 {
 
 
     private String getAlleleUrl(String accession, String allele_name) {
-        
+
         String qallele_name = "";
 
         if (allele_name != null) {
@@ -836,7 +836,13 @@ public class SolrIndex2 {
         map2.put("allele_name", jsonObject2.getString("allele_name"));
         map2.put("allele_type", jsonObject2.getString("allele_type"));
         map2.put("es_cell_clone", jsonObject2.getString("name"));
-        map2.put("associated_product_vector_name", jsonObject2.getString("associated_product_vector_name"));
+//        map2.put("associated_product_vector_name", jsonObject2.getString("associated_product_vector_name"));
+
+        map2.put("associated_product_vector_name", "");
+        if (jsonObject2.has("associated_product_vector_name")) {
+            map2.put("associated_product_vector_name", jsonObject2.getString("associated_product_vector_name"));
+        }
+
         map2.put("production_completed", jsonObject2.getString("production_completed"));
         map2.put("orders", getOrderInfo(jsonObject2));
         map2.put("product_url", "alleles/" + jsonObject2.getString("mgi_accession_id") + "/" + jsonObject2.getString("allele_name") + "/");

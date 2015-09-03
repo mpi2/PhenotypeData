@@ -95,6 +95,12 @@ public class SolrServerConfig {
 		return new HttpSolrServer(solrBaseUrl + "/mp");
 	}
 
+	//EMAP
+	@Bean(name = "emapCore")
+	HttpSolrServer getEmapCore() {
+		return new HttpSolrServer(solrBaseUrl + "/emap");
+	}
+	
 
 	//Observation
 	@Bean(name = "experimentCore")
