@@ -171,6 +171,11 @@
 	<field name="production_centre" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="phenotyping_centre" type="string" indexed="true" stored="true" multiValued="true"/>
 
+    <field name="chr_name" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="chr_start" type="int" indexed="true" stored="true" multiValued="false"/>
+    <field name="chr_end" type="int" indexed="true" stored="true" multiValued="false"/>
+    <field name="chr_strand" type="string" indexed="true" stored="true" multiValued="false"/>
+
 	<!-- annotated and inferred mp term -->
 	<field name="p_value" type="float" indexed="true" stored="true" required="false" multiValued="true" />
 

@@ -15,13 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.solr.client.solrj.beans.Field;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Matt Pearce
@@ -64,7 +61,12 @@ public class AlleleDTO {
 	public static final String PHENOTYPE_STATUS = "phenotype_status";
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
-	
+
+	public static final String CHR_NAME = "chr_name";
+	public static final String CHR_START = "chr_start";
+	public static final String CHR_END = "chr_end";
+	public static final String CHR_STRAND = "chr_strand";
+
 	public static final String GO_TERM_ID = "go_term_id";
 	public static final String GO_TERM_NAME = "go_term_name";
 	public static final String GO_TERM_DEF = "go_term_def";
@@ -197,6 +199,15 @@ public class AlleleDTO {
 	private List<String> latestPhenotypingCentre;
 	@Field(LATEST_PRODUCTION_CENTRE)
 	private List<String> latestProductionCentre;
+
+	@Field(CHR_NAME)
+	String chrName;
+	@Field(CHR_START)
+	String chrStart;
+	@Field(CHR_END)
+	String chrEnd;
+	@Field(CHR_STRAND)
+	String chrStrand;
 
 	@Field(ALLELE_NAME)
 	private List<String> alleleName = new ArrayList<>();
@@ -1313,41 +1324,141 @@ public class AlleleDTO {
 	public List<String> getLatestProductionCentre() {
 		return latestProductionCentre;
 	}
-	
-	
-	
+
+	/**
+	 * @return the chr name
+	 */
+	public String getChrName() {
+		return chrName;
+	}
+
+	/**
+	 * set the chr name
+	 */
+	public void setChrName(String chrName) {
+		this.chrName = chrName;
+	}
+
+
+	/**
+	 * @return the chr start
+	 */
+	public String getChrStart() {
+		return chrStart;
+	}
+
+	/**
+ 	* set the chr start
+ 	*/
+	public void setChrStart(String chrStart) {
+		this.chrStart = chrStart;
+	}
+
+	/**
+	 * @return the chr end
+	 */
+	public String getChrEnd() {
+		return chrEnd;
+	}
+
+	/**
+	 * set the chr end
+	 */
+	public void setChrEnd(String chrEnd) {
+		this.chrEnd = chrEnd;
+	}
+
+	/**
+	 * @return the chr strand
+	 */
+	public String getChrStrand() {
+		return chrStrand;
+	}
+
+	/**
+	 * set the chr strand
+	 */
+	public void setChrStrand(String chrStrand) {
+		this.chrStrand = chrStrand;
+	}
+
+
 	@Override
 	public String toString() {
-		return "AlleleDTO [status=" + status + ", type=" + type + ", mgiAccessionId=" + mgiAccessionId + ", dataType="
-				+ dataType + ", markerType=" + markerType + ", markerSymbol=" + markerSymbol
-				+ ", markerSymbolLowercase=" + markerSymbolLowercase + ", markerSynonym=" + markerSynonym
-				+ ", markerSynonymLowercase=" + markerSynonymLowercase + ", markerName=" + markerName
-				+ ", humanGeneSymbol=" + humanGeneSymbol + ", ensemblGeneIds=" + ensemblGeneIds
-				+ ", geneLatestEsCellStatus=" + geneLatestEsCellStatus + ", latestEsCellStatus=" + latestEsCellStatus
-				+ ", geneLatestMouseStatus=" + geneLatestMouseStatus + ", latestMouseStatus=" + latestMouseStatus
-				+ ", latestProjectStatus=" + latestProjectStatus + ", latestProductionStatus=" + latestProductionStatus
-				+ ", imitsPhenotypeStarted=" + imitsPhenotypeStarted + ", imitsPhenotypeComplete="
-				+ imitsPhenotypeComplete + ", latestPhenotypeStatus=" + latestPhenotypeStatus
-				+ ", imitsPhenotypeStatus=" + imitsPhenotypeStatus + ", legacyPhenotypeStatus=" + legacyPhenotypeStatus
-				+ ", gfAcc=" + gfAcc + ", latestPhenotypingCentre=" + latestPhenotypingCentre
-				+ ", latestProductionCentre=" + latestProductionCentre + ", alleleName=" + alleleName
-				+ ", alleleAccessionIds=" + alleleAccessionIds + ", imitsEsCellStatus=" + imitsEsCellStatus
-				+ ", esCellStatus=" + esCellStatus + ", imitsMouseStatus=" + imitsMouseStatus + ", mouseStatus="
-				+ mouseStatus + ", phenotypeStatus=" + phenotypeStatus + ", productionCentre=" + productionCentre
-				+ ", phenotypingCentre=" + phenotypingCentre + ", goTermIds=" + goTermIds + ", goTermNames="
-				+ goTermNames + ", goTermDefs=" + goTermDefs + ", goTermEvids=" + goTermEvids + ", goTermDomains="
-				+ goTermDomains + ", goCount=" + goCount + ", go_uniprot=" + go_uniprot + ", evidCodeRank="
-				+ evidCodeRank + ", uniprotAccs=" + uniprotAccs + ", pfama_jsons=" + pfama_jsons + ", scdb_ids="
-				+ scdb_ids + ", scdb_links=" + scdb_links + ", clan_ids=" + clan_ids + ", clan_accs=" + clan_accs
-				+ ", clan_descs=" + clan_descs + ", pfama_ids=" + pfama_ids + ", pfama_accs=" + pfama_accs
-				+ ", pfama_go_ids=" + pfama_go_ids + ", pfama_go_terms=" + pfama_go_terms + ", pfama_go_cats="
-				+ pfama_go_cats + ", diseaseId=" + diseaseId + ", diseaseSource=" + diseaseSource + ", diseaseTerm="
-				+ diseaseTerm + ", diseaseAlts=" + diseaseAlts + ", diseaseClasses=" + diseaseClasses
-				+ ", humanCurated=" + humanCurated + ", mouseCurated=" + mouseCurated + ", mgiPredicted=" + mgiPredicted
-				+ ", impcPredicted=" + impcPredicted + ", mgiPredictedKnownGene=" + mgiPredictedKnownGene
-				+ ", impcPredictedKnownGene=" + impcPredictedKnownGene + ", mgiNovelPredictedInLocus="
-				+ mgiNovelPredictedInLocus + ", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus
-				+ ", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes + "]";
+		return "AlleleDTO{" +
+				"status='" + status + '\'' +
+				", type=" + type +
+				", mgiAccessionId='" + mgiAccessionId + '\'' +
+				", dataType='" + dataType + '\'' +
+				", markerType='" + markerType + '\'' +
+				", markerSymbol='" + markerSymbol + '\'' +
+				", markerSymbolLowercase='" + markerSymbolLowercase + '\'' +
+				", markerSynonym=" + markerSynonym +
+				", markerSynonymLowercase=" + markerSynonymLowercase +
+				", markerName='" + markerName + '\'' +
+				", humanGeneSymbol=" + humanGeneSymbol +
+				", ensemblGeneIds=" + ensemblGeneIds +
+				", geneLatestEsCellStatus='" + geneLatestEsCellStatus + '\'' +
+				", latestEsCellStatus='" + latestEsCellStatus + '\'' +
+				", geneLatestMouseStatus='" + geneLatestMouseStatus + '\'' +
+				", latestMouseStatus='" + latestMouseStatus + '\'' +
+				", latestProjectStatus='" + latestProjectStatus + '\'' +
+				", latestProductionStatus='" + latestProductionStatus + '\'' +
+				", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
+				", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
+				", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
+				", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
+				", legacyPhenotypeStatus=" + legacyPhenotypeStatus +
+				", gfAcc='" + gfAcc + '\'' +
+				", latestPhenotypingCentre=" + latestPhenotypingCentre +
+				", latestProductionCentre=" + latestProductionCentre +
+				", chrName='" + chrName + '\'' +
+				", chrStart=" + chrStart +
+				", chrEnd=" + chrEnd +
+				", chrStrand='" + chrStrand + '\'' +
+				", alleleName=" + alleleName +
+				", alleleAccessionIds=" + alleleAccessionIds +
+				", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
+				", esCellStatus=" + esCellStatus +
+				", imitsMouseStatus='" + imitsMouseStatus + '\'' +
+				", mouseStatus=" + mouseStatus +
+				", phenotypeStatus=" + phenotypeStatus +
+				", productionCentre=" + productionCentre +
+				", phenotypingCentre=" + phenotypingCentre +
+				", goTermIds=" + goTermIds +
+				", goTermNames=" + goTermNames +
+				", goTermDefs=" + goTermDefs +
+				", goTermEvids=" + goTermEvids +
+				", goTermDomains=" + goTermDomains +
+				", goCount=" + goCount +
+				", go_uniprot=" + go_uniprot +
+				", evidCodeRank=" + evidCodeRank +
+				", uniprotAccs=" + uniprotAccs +
+				", pfama_jsons=" + pfama_jsons +
+				", scdb_ids=" + scdb_ids +
+				", scdb_links=" + scdb_links +
+				", clan_ids=" + clan_ids +
+				", clan_accs=" + clan_accs +
+				", clan_descs=" + clan_descs +
+				", pfama_ids=" + pfama_ids +
+				", pfama_accs=" + pfama_accs +
+				", pfama_go_ids=" + pfama_go_ids +
+				", pfama_go_terms=" + pfama_go_terms +
+				", pfama_go_cats=" + pfama_go_cats +
+				", diseaseId=" + diseaseId +
+				", diseaseSource=" + diseaseSource +
+				", diseaseTerm=" + diseaseTerm +
+				", diseaseAlts=" + diseaseAlts +
+				", diseaseClasses=" + diseaseClasses +
+				", humanCurated=" + humanCurated +
+				", mouseCurated=" + mouseCurated +
+				", mgiPredicted=" + mgiPredicted +
+				", impcPredicted=" + impcPredicted +
+				", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
+				", impcPredictedKnownGene=" + impcPredictedKnownGene +
+				", mgiNovelPredictedInLocus=" + mgiNovelPredictedInLocus +
+				", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
+				", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
+				'}';
 	}
-	
 }
