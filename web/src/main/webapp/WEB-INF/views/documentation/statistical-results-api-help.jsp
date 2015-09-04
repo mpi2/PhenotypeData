@@ -5,15 +5,12 @@
 <t:genericpage>
 	<jsp:attribute name="title">International Mouse Phenotyping Consortium Documentation</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/documentation/index">Documentation</a></jsp:attribute>
-	<jsp:attribute name="bodyTag"><body  class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
-	<jsp:attribute name="addToFooter">
-<jsp:include page="doc-pinned-menu.jsp"></jsp:include>
-	</jsp:attribute>
-	
+	<jsp:attribute name="bodyTag"><body class="page-node searchpage one-sidebar sidebar-first small-header"></body></jsp:attribute>
+	<jsp:attribute name="addToFooter"></jsp:attribute>
 
 	<jsp:attribute name="header">
-            <link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css' />
-        </jsp:attribute>
+        <link type='text/css' rel='stylesheet' href='${baseUrl}/css/custom.css' />
+    </jsp:attribute>
 
 	<jsp:body>
 		
