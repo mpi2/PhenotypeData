@@ -86,12 +86,19 @@ public class ExcelWorkBook {
     			
     			// make hyperlink in cell
     			if ( ( cellStr.startsWith("http://") || cellStr.startsWith("https://") ) && !cellStr.contains("|") ){
-    				
-    				cellStr = cellStr.replaceAll(" ","%20");  // so that url link would work
+					//System.out.println("chk cellStr: " + cellStr);
+
+					if ( cellStr.contains("?") ) {
+						String[] parts = cellStr.split("\\?");
+						String params = parts[1].replaceAll(":", "%3A");
+						params = params.replaceAll("\"","%22");
+						cellStr = parts[0] + "?" + params;
+					}
+
+					cellStr = cellStr.replaceAll(" ","%20");  // so that url link would work
 				    cellStr = new URI(cellStr).toASCIIString();
     				cellStr = cellStr.replace("%3F","?");  // so that url link would work
-    				
-    				//System.out.println("chk cellStr: " + cellStr);
+
     				XSSFHyperlink url_link = (XSSFHyperlink)createHelper.createHyperlink(Hyperlink.LINK_URL);
     				
     				url_link.setAddress(cellStr);
@@ -112,3 +119,4 @@ public class ExcelWorkBook {
 		return this.wb;
 	}	
 }
+
