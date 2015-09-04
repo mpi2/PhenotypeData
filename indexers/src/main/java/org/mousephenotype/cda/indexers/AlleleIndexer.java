@@ -184,7 +184,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             initializeSolrCores();
 
-            SolrQuery query = new SolrQuery("mgi_accession_id:\"MGI:2664636\" OR mgi_accession_id:CGI*");
+            SolrQuery query = new SolrQuery("mgi_accession_id:MGI* OR mgi_accession_id:CGI*");
             query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
 
             query.setRows(BATCH_SIZE);
