@@ -7,36 +7,37 @@ $(document).ready(function () {
 					+ '</p>'
 					+ '<h5>Gene query examples</h5>'
 					+ '<p>'
-					+ '<a href="${baseUrl}/search?q=akt2#fq=*:*&facet=gene">Akt2</a>'
+					+ '<a href="' + baseUrl + '/search?q=akt2#fq=*:*&facet=gene">Akt2</a>'
 					+ '- looking for a specific gene, Akt2'
 					+ '<br>'
-					+ '<a href="${baseUrl}/search?q=*rik#fq=*:*&facet=gene">*rik</a>'
+					+ '<a href="' + baseUrl + '/search?q=*rik#fq=*:*&facet=gene">*rik</a>'
 					+ '- looking for all Riken genes'
 					+ '<br>'
-					+ '<a href="${baseUrl}/search?q=hox*#fq=*:*&facet=gene">hox*</a>'
+					+ '<a href="' + baseUrl + '/search?q=hox*#fq=*:*&facet=gene">hox*</a>'
 					+ '- looking for all hox genes'
 					+ '</p>'
 					+ '<h5>Phenotype query examples</h5>'
 					+ '<p>'					
-					+ '<a href="${baseUrl}/search?q=abnormal skin morphology#fq=top_level_mp_term:*&facet=mp">abnormal skin morphology</a>'
+					+ '<a href="' + baseUrl + '/search?q=abnormal skin morphology#fq=top_level_mp_term:*&facet=mp">abnormal skin morphology</a>'
 					+ '- looking for a specific phenotype'
 					+ '<br>'
-					+ '<a href="${baseUrl}/search?q=ear#fq=top_level_mp_term:*&facet=mp">ear</a>'
+					+ '<a href="' + baseUrl + '/search?q=ear#fq=top_level_mp_term:*&facet=mp">ear</a>'
 					+ '- find all ear related phenotypes'
 					+ '</p>'
-					+ '<h5>Procedure query Example</h5>'
+					/*+ '<h5>Procedure query Example</h5>'
 					+ '<p>'
-					+ '<a href="${baseUrl}/search?q=grip strength#fq=pipeline_stable_id:*&facet=pipeline">grip strength</a>'
+					+ '<a href="' + baseUrl + '/search?q=grip strength#fq=pipeline_stable_id:*&facet=pipeline">grip strength</a>'
 					+ '- looking for a specific procedure'
 					+ '</p>'
+					*/
 					+ '<h5>Phrase query Example</h5>'
 					+ '<p>'
-					+ '<a href="${baseUrl}/search?q=zinc finger protein#fq=*:*&facet=gene">zinc finger protein</a>'
+					+ '<a href="' + baseUrl + '/search?q=zinc finger protein#fq=*:*&facet=gene">zinc finger protein</a>'
 					+ '- looking for genes whose product is zinc finger protein'
 					+ '</p>'
 					+ '<h5>Phrase wildcard query Example</h5>'
 					+ '<p>'
-					+ '<a href="${baseUrl}/search?q=abnormal phy*#fq=top_level_mp_term:*&facet=mp">abnormal phy*</a>'
+					+ '<a href="' + baseUrl + '/search?q=abnormal phy*#fq=top_level_mp_term:*&facet=mp">abnormal phy*</a>'
 					+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
 					+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.<br>NOTE that leading wildcard, eg. *abnormal is not supported.'
 					+ '</p>';
@@ -112,11 +113,14 @@ $(document).ready(function () {
 
 			// generic search input autocomplete javascript
 			var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
-	   		$( "input#s" ).autocomplete({
+
+
+			$( "input#s" ).autocomplete({
 	   			source: function( request, response ) {
+					var qfStr = request.term.indexOf("*") != -1 ? "auto_suggest" : "string auto_suggest";
 	   				$.ajax({
 	   					//url: solrUrl + "/autosuggest/select?wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
-	   					url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=string auto_suggest&defType=edismax" + solrBq,	
+	   					url: solrUrl + "/autosuggest/select?fq=!docType:gwas&wt=json&qf=" + qfStr + "&defType=edismax" + solrBq,
 	   					dataType: "jsonp",
 	   					'jsonp': 'json.wrf',
 	   					data: {

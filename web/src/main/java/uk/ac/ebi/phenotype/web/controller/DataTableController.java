@@ -27,13 +27,13 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +45,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
-
+import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
@@ -1191,7 +1189,8 @@ public class DataTableController {
 
                 List<String> rowData = new ArrayList<String>();
                 JSONObject doc = docs.getJSONObject(i);
-                String annots = "";
+				System.out.println("DOC: " + doc.toString());
+				String annots = "";
 
                 String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
                 String img = "<img src='" + imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
@@ -1202,20 +1201,29 @@ public class DataTableController {
                     ArrayList<String> mp = new ArrayList<String>();
                     ArrayList<String> ma = new ArrayList<String>();
                     ArrayList<String> exp = new ArrayList<String>();
+					ArrayList<String> emap = new ArrayList<String>();
 
                     int counter = 0;
 
                     if (doc.has("annotationTermId")) {
                         JSONArray termIds = doc.getJSONArray("annotationTermId");
-                        JSONArray termNames = doc.getJSONArray("annotationTermName");
+
+						JSONArray termNames = new JSONArray();
+						if ( doc.has("annotationTermName") ) {
+							termNames = doc.getJSONArray("annotationTermName");
+						}
+						else {
+							termNames = termIds; // temporary solution for those term ids that do not have term name
+						}
                         for (Object s : termIds) {
-                            if (s.toString().contains("MA")) {
+                            if (s.toString().startsWith("MA:")) {
                                 log.debug(i + " - MA: " + termNames.get(counter).toString());
                                 String name = termNames.get(counter).toString();
                                 String maid = termIds.get(counter).toString();
                                 String url = request.getAttribute("baseUrl") + "/anatomy/" + maid;
                                 ma.add("<a href='" + url + "'>" + name + "</a>");
-                            } else if (s.toString().contains("MP")) {
+                            }
+							else if (s.toString().startsWith("MP:")) {
                                 log.debug(i + " - MP: " + termNames.get(counter).toString());
                                 log.debug(i + " - MP: " + termIds.get(counter).toString());
                                 String mpid = termIds.get(counter).toString();
@@ -1223,6 +1231,14 @@ public class DataTableController {
                                 String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
                                 mp.add("<a href='" + url + "'>" + name + "</a>");
                             }
+							else if (s.toString().startsWith("EMAP:")) {
+								String emapid = termIds.get(counter).toString();
+								String name = termNames.get(counter).toString();
+								//String url = request.getAttribute("baseUrl") + "/phenotypes/" + mpid;
+								//emap.add("<a href='" + url + "'>" + name + "</a>");
+								emap.add(name);  // we do not have page for emap yet
+							}
+
                             counter ++;
                         }
                     }
@@ -1255,6 +1271,13 @@ public class DataTableController {
                         String list = "<ul class='imgProcedure'><li>" + StringUtils.join(exp, "</li><li>") + "</li></ul>";
                         annots += "<span class='imgAnnots'><span class='annotType'>Procedure</span>: " + list + "</span>";
                     }
+
+					if (emap.size() == 1) {
+						annots += "<span class='imgAnnots'><span class='annotType'>EMAP</span>: " + StringUtils.join(emap, ", ") + "</span>";
+					} else if (exp.size() > 1) {
+						String list = "<ul class='imgEmap'><li>" + StringUtils.join(emap, "</li><li>") + "</li></ul>";
+						annots += "<span class='imgAnnots'><span class='annotType'>EMAP</span>: " + list + "</span>";
+					}
 
                     ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
                     if (gene.size() == 1) {

@@ -15,28 +15,16 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.*;
+import org.mousephenotype.cda.indexers.beans.OntologyTermEmapBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,15 +32,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
 /**
  * @author ckchen based on mike relac's MaIndexer
@@ -140,7 +127,7 @@ public class EmapIndexer extends AbstractIndexer {
         System.out.println("num found: " + numFound);
         if (numFound <= MINIMUM_DOCUMENT_COUNT)
             throw new IndexerException(new ValidationException("Actual emap document count is " + numFound + "."));
-        
+
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " emap documents but SOLR reports " + numFound + " documents.");
         else
@@ -149,15 +136,14 @@ public class EmapIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException, SQLException {
-    	
+
     	//initializeSolrCores();
         initializeDatabaseConnections();
 
     	try {
     		logger.info("Starting EMAP Indexer...");
-    		
-            
-    		initialiseSupportingBeans();
+
+            initialiseSupportingBeans();
 
             List<EmapDTO> emapBatch = new ArrayList(BATCH_SIZE);
             int count = 0;
