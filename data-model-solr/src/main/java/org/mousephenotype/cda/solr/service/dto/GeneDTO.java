@@ -24,7 +24,7 @@ public class GeneDTO {
 
 	public static final String DATA_TYPE = "dataType";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
-	
+
 	public static final String MARKER_SYMBOL = "marker_symbol";
 	public static final String MARKER_SYMBOL_LOWERCASE = "marker_symbol_lowercase";
 	public static final String HUMAN_GENE_SYMBOL = "human_gene_symbol";
@@ -141,18 +141,18 @@ public class GeneDTO {
 	public static final String GO_UNIPROT = "go_uniprot";
 	public static final String EVID_CODE_RANK = "evidCodeRank";
 	public static final String UNIPROT_ACC = "uniprot_acc";
-	
+
 	public static final String PFAMA_JSON = "pfama_json";
 	public static final String SCDB_ID = "scdb_id"; // structural classification db id
-	public static final String SCDB_LINK = "scdb_link"; 
-	public static final String CLAN_ID = "clan_id"; 
-	public static final String CLAN_ACC = "clan_acc"; 
-	public static final String CLAN_DESC = "clan_desc"; 
-	public static final String PFAMA_ID = "pfama_id"; 
-	public static final String PFAMA_ACC = "pfama_acc"; 
-	public static final String PFAMA_GO_ID = "pfama_go_id"; 
-	public static final String PFAMA_GO_TERM = "pfama_go_term"; 
-	public static final String PFAMA_GO_CAT = "pfama_go_cat"; 
+	public static final String SCDB_LINK = "scdb_link";
+	public static final String CLAN_ID = "clan_id";
+	public static final String CLAN_ACC = "clan_acc";
+	public static final String CLAN_DESC = "clan_desc";
+	public static final String PFAMA_ID = "pfama_id";
+	public static final String PFAMA_ACC = "pfama_acc";
+	public static final String PFAMA_GO_ID = "pfama_go_id";
+	public static final String PFAMA_GO_TERM = "pfama_go_term";
+	public static final String PFAMA_GO_CAT = "pfama_go_cat";
 	public static final String EMBRYO_DATA_AVAILABLE = "embryo_data_available";
 	public static final String SEQ_REGION_ID = "seq_region_id";
 	public static final String SEQ_REGION_START = "seq_region_start";
@@ -161,8 +161,8 @@ public class GeneDTO {
 	public static final String XREF_ACC = "xref_acc";
 	private static final String VEGA_IDS = "vega_id";
 	private static final String NCBI_IDS = "ncbi_id";
-	private static final String CCDS_IDS = "ccds_id"; 
-	
+	private static final String CCDS_IDS = "ccds_id";
+
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;
 	public List<String> getVegaIds() {
@@ -193,11 +193,11 @@ public class GeneDTO {
 	private List<String> ncbiIds;
 	@Field(CCDS_IDS)
 	private List<String> ccdsIds;
-		
-	
+
+
 	@Field(SEQ_REGION_ID)
 	private String seqRegionId;
-	
+
 	public String getSeqRegionId() {
 		return seqRegionId;
 	}
@@ -232,64 +232,64 @@ public class GeneDTO {
 
 	@Field(SEQ_REGION_START)
 	private int seqRegionStart;
-	
+
 	@Field(SEQ_REGION_END)
 	private int seqRegionEnd;
-	
+
 	@Field(XREF)
 	List<String> xrefs;
-	
+
 	// <!-- gene level fields -->
 	@Field(IMPC_NOVEL_PREDICTED_IN_LOCUS)
 	private List<Boolean>impcNovelPredictedInLocus;
-	
-	
+
+
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_ID)
 	private List<String> selectedTopLevelMaId;
-	
+
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String>selectedTopLevelMaTermSynonym;
-	
+
 	public List<String> getSelectedTopLevelMaTermSynonym() {
-	
+
 		return selectedTopLevelMaTermSynonym;
 	}
 
 	public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
-	
+
 		this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
 	}
 
 	public List<String> getSelectedTopLevelMaId() {
-	
+
 		return selectedTopLevelMaId;
 	}
 
 	public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaId) {
-	
+
 		this.selectedTopLevelMaId = selectedTopLevelMaId;
 	}
 
 	public List<Boolean> getImpcNovelPredictedInLocus() {
-	
+
 		return impcNovelPredictedInLocus;
 	}
 
 	public void setImpcNovelPredictedInLocus(List<Boolean> impcNovelPredictedInLocus) {
-	
+
 		this.impcNovelPredictedInLocus = impcNovelPredictedInLocus;
 	}
 
 	@Field(MGI_PREDICTED_KNOWN_GENE)
 	private List<Boolean>mgiPredictedKnownGene;
-	
+
 	public List<Boolean> getMgiPredictedKnownGene() {
-	
+
 		return mgiPredictedKnownGene;
 	}
-	
+
 	public void setMgiPredictedKnonwGene(List<Boolean> mgiPredictedKnonwGene) {
-	
+
 		this.mgiPredictedKnownGene = mgiPredictedKnonwGene;
 	}
 
@@ -304,7 +304,7 @@ public class GeneDTO {
 	String markerSymbol;
 	@Field(MARKER_SYMBOL_LOWERCASE)
 	String markerSymbolLowercase;
-	
+
 
 	@Field(HUMAN_GENE_SYMBOL)
 	List<String> humanGeneSymbol;
@@ -322,7 +322,7 @@ public class GeneDTO {
 
 	@Field(ENSEMBL_GENE_ID)
 	List<String> ensemblGeneIds;
-	
+
 	@Field(IMITS_PHENOTYPE_STARTED)
 	String imitsPhenotypeStarted;
 
@@ -368,9 +368,9 @@ public class GeneDTO {
 	@Field(CHR_NAME)
 	String chrName;
 	@Field(CHR_START)
-	String chrStart;
+	Integer chrStart;
 	@Field(CHR_END)
-	String chrEnd;
+	Integer chrEnd;
 	@Field(CHR_STRAND)
 	String chrStrand;
 
@@ -381,7 +381,7 @@ public class GeneDTO {
 
 	@Field(ALLELE_ACCESSION_ID)
 	private List<String> alleleAccessionIds = new ArrayList<>();
-	
+
 	@Field(IMITS_ES_CELL_STATUS)
 	String imitsEsCellStatus;
 
@@ -591,68 +591,68 @@ public class GeneDTO {
 
 	@Field(GO_TERM_ID)
 	private List<String> goTermIds = new ArrayList<>();
-	
+
 	@Field(GO_TERM_NAME)
 	private List<String> goTermNames = new ArrayList<>();
-	
+
 	@Field(GO_TERM_DEF)
 	private List<String> goTermDefs = new ArrayList<>();
-	
+
 	@Field(GO_TERM_EVID)
 	private List<String> goTermEvids = new ArrayList<>();
-	
+
 	@Field(GO_TERM_DOMAIN)
 	private List<String> goTermDomains = new ArrayList<>();
-	
+
 	@Field(GO_COUNT)
 	private Integer goCount;
-	
+
 	@Field(GO_UNIPROT)
 	private List<String> go_uniprot = new ArrayList<>();
-	
+
 	@Field(EVID_CODE_RANK)
 	private Integer evidCodeRank;
-	
+
 	@Field(UNIPROT_ACC)
 	private List<String> uniprotAccs = new ArrayList<>();
-	
+
 	@Field(PFAMA_JSON)
 	private List<String> pfama_jsons = new ArrayList<>();
 
 	@Field(SCDB_ID)
 	private List<String> scdb_ids = new ArrayList<>();
-	
+
 	@Field(SCDB_LINK)
 	private List<String> scdb_links = new ArrayList<>();
-	
+
 	@Field(CLAN_ID)
 	private List<String> clan_ids = new ArrayList<>();
-	
+
 	@Field(CLAN_ACC)
 	private List<String> clan_accs = new ArrayList<>();
-	
+
 	@Field(CLAN_DESC)
 	private List<String> clan_descs = new ArrayList<>();
-	
+
 	@Field(PFAMA_ID)
 	private List<String> pfama_ids = new ArrayList<>();
-	
+
 	@Field(PFAMA_ACC)
 	private List<String> pfama_accs = new ArrayList<>();
-	
+
 	@Field(PFAMA_GO_ID)
 	private List<String> pfama_go_ids = new ArrayList<>();
-	
+
 	@Field(PFAMA_GO_TERM)
 	private List<String> pfama_go_terms = new ArrayList<>();
-	
+
 	@Field(PFAMA_GO_CAT)
 	private List<String> pfama_go_cats = new ArrayList<>();
-	
+
 	@Field(EMBRYO_DATA_AVAILABLE)
 	private boolean isEmbryoDataAvailable;
-	
-	
+
+
 	public boolean isEmbryoDataAvailable() {
 		return this.isEmbryoDataAvailable;
 	}
@@ -766,7 +766,7 @@ public class GeneDTO {
 
 		this.markerSymbolLowercase = markerSymbolLowercase;
 	}
-	
+
 
 	public List<String> getHumanGeneSymbol() {
 
@@ -815,7 +815,7 @@ public class GeneDTO {
 		this.markerType = markerType;
 	}
 
-	
+
 	public List<String> getEnsemblGeneIds() {
 		return ensemblGeneIds;
 	}
@@ -825,7 +825,7 @@ public class GeneDTO {
 		this.ensemblGeneIds = ensemblGeneIds;
 	}
 
-	
+
 	public String getImitsPhenotypeStarted() {
 
 		return imitsPhenotypeStarted;
@@ -969,28 +969,28 @@ public class GeneDTO {
 	/**
 	 * @return the chr start
 	 */
-	public String getChrStart() {
+	public Integer getChrStart() {
 		return chrStart;
 	}
 
 	/**
 	 * set the chr start
 	 */
-	public void setChrStart(String chrStart) {
+	public void setChrStart(Integer chrStart) {
 		this.chrStart = chrStart;
 	}
 
 	/**
 	 * @return the chr end
 	 */
-	public String getChrEnd() {
+	public Integer getChrEnd() {
 		return chrEnd;
 	}
 
 	/**
 	 * set the chr end
 	 */
-	public void setChrEnd(String chrEnd) {
+	public void setChrEnd(Integer chrEnd) {
 		this.chrEnd = chrEnd;
 	}
 
@@ -1052,8 +1052,8 @@ public class GeneDTO {
 	public void setAlleleAccessionIds(List<String> alleleAccessionIds) {
 		this.alleleAccessionIds = alleleAccessionIds;
 	}
-	
-	
+
+
 	public String getImitsEsCellStatus() {
 
 		return imitsEsCellStatus;
@@ -1788,7 +1788,7 @@ public class GeneDTO {
 	public void setGoTermIds(List<String> goTermIds) {
 		this.goTermIds = goTermIds;
 	}
-	
+
 	/**
 	 * @return the goTermNames
 	 */
@@ -1803,7 +1803,7 @@ public class GeneDTO {
 	public void setGoTermNames(List<String> goTermNames) {
 		this.goTermNames = goTermNames;
 	}
-	
+
 	/**
 	 * @return the goTermDefs
 	 */
@@ -1818,8 +1818,8 @@ public class GeneDTO {
 	public void setGoTermDefs(List<String> goTermDefs) {
 		this.goTermDefs = goTermDefs;
 	}
-	
-	
+
+
 	/**
 	 * @return the goTermEvids
 	 */
@@ -1834,7 +1834,7 @@ public class GeneDTO {
 	public void setGoTermEvids(List<String> goTermEvids) {
 		this.goTermEvids = goTermEvids;
 	}
-	
+
 	/**
 	 * @return the goTermDomains
 	 */
@@ -1849,7 +1849,7 @@ public class GeneDTO {
 	public void setGoTermDomains(List<String> goTermDomains) {
 		this.goTermDomains = goTermDomains;
 	}
-	
+
 	/**
 	 * @return the goCount
 	 */
@@ -1864,14 +1864,14 @@ public class GeneDTO {
 	public void setGoCount(Integer goCount) {
 		this.goCount = goCount;
 	}
-	
+
 	/**
 	 * @return the go_uniprot
 	 */
 	public List<String> getGoUniprot() {
 		return go_uniprot;
 	}
-	
+
 	/**
 	 * @param go_uniprot
 	 *            the go_uniprot to set
@@ -1879,14 +1879,14 @@ public class GeneDTO {
 	public void setGoUniprot(List<String> go_uniprot) {
 		this.go_uniprot = go_uniprot;
 	}
-	
+
 	/**
 	 * @return the evidCodeRank
 	 */
 	public Integer getEvidCodeRank() {
 		return evidCodeRank;
 	}
-	
+
 	/**
 	 * @param evidCodeRank
 	 *            the evidCodeRank to set
@@ -1894,8 +1894,8 @@ public class GeneDTO {
 	public void setEvidCodeRank(Integer evidCodeRank) {
 		this.evidCodeRank = evidCodeRank;
 	}
-	
-	
+
+
 	/**
 	 * @return the uniprotAccs
 	 */
@@ -1910,14 +1910,14 @@ public class GeneDTO {
 	public void setUniprotAccs(List<String> uniprotAccs) {
 		this.uniprotAccs = uniprotAccs;
 	}
-	
+
 	/**
 	 * @return the scdb_ids
 	 */
 	public List<String> getScdbIds() {
 		return scdb_ids;
 	}
-	
+
 	/**
 	 * @param scdb_ids
 	 *            the scdb_ids to set
@@ -1925,14 +1925,14 @@ public class GeneDTO {
 	public void setScdbIds(List<String> scdb_ids) {
 		this.scdb_ids = scdb_ids;
 	}
-	
+
 	/**
 	 * @return the scdb_links
 	 */
 	public List<String> getScdbLinks() {
 		return scdb_links;
 	}
-	
+
 	/**
 	 * @param scdb_links
 	 *            the scdb_links to set
@@ -1940,14 +1940,14 @@ public class GeneDTO {
 	public void setScdbLinks(List<String> scdb_links) {
 		this.scdb_links = scdb_links;
 	}
-	
+
 	/**
 	 * @return the clan_ids
 	 */
 	public List<String> getClanIds() {
 		return clan_ids;
 	}
-	
+
 	/**
 	 * @param clan_ids
 	 *            the clan_ids to set
@@ -1955,14 +1955,14 @@ public class GeneDTO {
 	public void setClanIds(List<String> clan_ids) {
 		this.clan_ids = clan_ids;
 	}
-	
+
 	/**
 	 * @return the clan_accs
 	 */
 	public List<String> getClanAccs() {
 		return clan_accs;
 	}
-	
+
 	/**
 	 * @param clan_accs
 	 *            the clan_accs to set
@@ -1970,14 +1970,14 @@ public class GeneDTO {
 	public void setClanAccs(List<String> clan_accs) {
 		this.clan_accs = clan_accs;
 	}
-	
+
 	/**
 	 * @return the clan_descs
 	 */
 	public List<String> getClanDescs() {
 		return clan_descs;
 	}
-	
+
 	/**
 	 * @param clan_descs
 	 *            the clan_descs to set
@@ -1985,14 +1985,14 @@ public class GeneDTO {
 	public void setClanDescs(List<String> clan_descs) {
 		this.clan_descs = clan_descs;
 	}
-	
+
 	/**
 	 * @return the pfama_ids
 	 */
 	public List<String> getPfamaIds() {
 		return pfama_ids;
 	}
-	
+
 	/**
 	 * @param pfama_ids
 	 *            the pfama_ids to set
@@ -2000,14 +2000,14 @@ public class GeneDTO {
 	public void setPfamaIds(List<String> pfama_ids) {
 		this.pfama_ids = pfama_ids;
 	}
-	
+
 	/**
 	 * @return the pfama_accs
 	 */
 	public List<String> getPfamaAccs() {
 		return pfama_accs;
 	}
-	
+
 	/**
 	 * @param pfama_accs
 	 *            the pfama_accs to set
@@ -2015,14 +2015,14 @@ public class GeneDTO {
 	public void setPfamaAccs(List<String> pfama_accs) {
 		this.pfama_accs = pfama_accs;
 	}
-	
+
 	/**
 	 * @return the pfama_go_ids
 	 */
 	public List<String> getPfamaGoIds() {
 		return pfama_go_ids;
 	}
-	
+
 	/**
 	 * @param pfama_go_ids
 	 *            the pfama_go_ids to set
@@ -2030,14 +2030,14 @@ public class GeneDTO {
 	public void setPfamaGoIds(List<String> pfama_go_ids) {
 		this.pfama_go_ids = pfama_go_ids;
 	}
-	
+
 	/**
 	 * @return the pfama_go_terms
 	 */
 	public List<String> getPfamaGoTerms() {
 		return pfama_go_terms;
 	}
-	
+
 	/**
 	 * @param pfama_go_terms
 	 *            the pfama_go_terms to set
@@ -2045,14 +2045,14 @@ public class GeneDTO {
 	public void setPfamaGoTerms(List<String> pfama_go_terms) {
 		this.pfama_go_terms = pfama_go_terms;
 	}
-	
+
 	/**
 	 * @return the pfama_go_cats
 	 */
 	public List<String> getPfamaGoCats() {
 		return pfama_go_cats;
 	}
-	
+
 	/**
 	 * @param pfama_go_cats
 	 *            the pfama_go_cats to set
@@ -2060,7 +2060,7 @@ public class GeneDTO {
 	public void setPfamaGoCats(List<String> pfama_go_cats) {
 		this.pfama_go_cats = pfama_go_cats;
 	}
-	
+
 	/**
 	 * @param pfama_jsons
 	 *            the pfama_jsons to get
@@ -2068,7 +2068,7 @@ public class GeneDTO {
 	public List<String> getPfamaJsons() {
 		return pfama_jsons;
 	}
-	
+
 	/**
 	 * @param pfama_jsons
 	 *            the pfama_jsons to set
@@ -2076,8 +2076,8 @@ public class GeneDTO {
 	public void setPfamaJsons(List<String> pfama_jsons) {
 		this.pfama_jsons = pfama_jsons;
 	}
-	
-	
+
+
 	@Override
 	public boolean equals(Object o) {
 
@@ -2307,7 +2307,7 @@ public class GeneDTO {
 		result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
 		return result;
 	}
-	
+
 
 	@Override
 	public String toString() {
