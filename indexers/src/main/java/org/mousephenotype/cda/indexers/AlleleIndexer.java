@@ -226,7 +226,6 @@ public class AlleleIndexer extends AbstractIndexer {
                 query.setStart(start);
                 QueryResponse response = sangerAlleleCore.query(query);
                 rows = response.getResults().getNumFound();
-                System.out.println("response: "+ response.toString());
                 List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
 
                 // Convert to Allele DTOs
@@ -892,7 +891,7 @@ public class AlleleIndexer extends AbstractIndexer {
         for (SangerGeneBean bean : beans) {
             String id = bean.getMgiAccessionId();
             AlleleDTO dto = new AlleleDTO();
-            System.out.println("BEAN: " + bean.toString());
+
             // Copy the fields
             dto.setMgiAccessionId(id);
             dto.setMarkerType(bean.getFeatureType());
@@ -908,8 +907,13 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setLatestProjectStatus(bean.getLatestProjectStatus());
             dto.setAlleleAccessionIds(bean.getMgiAlleleAccessionIds());
 
-            dto.setChrName(bean.getChrName());
-            dto.setChrStrand(bean.getChrStrand());
+	        if ( bean.getChrName() != null && ! bean.getChrName().equals("null") ) {
+		        dto.setChrName(bean.getChrName());
+	        }
+
+	        if ( bean.getChrStrand() != null && ! bean.getChrStrand().equals("null") ) {
+		        dto.setChrStrand(bean.getChrStrand());
+	        }
 
             if (bean.getChrStart() != null && bean.getChrStart().matches("^\\d*$")) {
                 dto.setChrStart(Integer.parseInt(bean.getChrStart()));
