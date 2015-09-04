@@ -57,11 +57,6 @@ public class GeneDTO {
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
 	public static final String P_VALUE = "p_value";
 
-	public static final String CHR_NAME = "chr_name";
-	public static final String CHR_START = "chr_start";
-	public static final String CHR_END = "chr_end";
-	public static final String CHR_STRAND = "chr_strand";
-
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
 	public static final String MP_TERM_DEFINITION = "mp_term_definition";
@@ -363,16 +358,6 @@ public class GeneDTO {
 
 	@Field(LEGACY_PHENOTYPE_STATUS)
 	Integer legacy_phenotype_status;
-
-
-	@Field(CHR_NAME)
-	String chrName;
-	@Field(CHR_START)
-	Integer chrStart;
-	@Field(CHR_END)
-	Integer chrEnd;
-	@Field(CHR_STRAND)
-	String chrStrand;
 
 	// <!-- allele level fields of a gene -->
 
@@ -951,62 +936,6 @@ public class GeneDTO {
 		return diseaseHumanPhenotypes;
 	}
 
-	/**
-	 * @return the chr name
-	 */
-	public String getChrName() {
-		return chrName;
-	}
-
-	/**
-	 * set the chr name
-	 */
-	public void setChrName(String chrName) {
-		this.chrName = chrName;
-	}
-
-
-	/**
-	 * @return the chr start
-	 */
-	public Integer getChrStart() {
-		return chrStart;
-	}
-
-	/**
-	 * set the chr start
-	 */
-	public void setChrStart(Integer chrStart) {
-		this.chrStart = chrStart;
-	}
-
-	/**
-	 * @return the chr end
-	 */
-	public Integer getChrEnd() {
-		return chrEnd;
-	}
-
-	/**
-	 * set the chr end
-	 */
-	public void setChrEnd(Integer chrEnd) {
-		this.chrEnd = chrEnd;
-	}
-
-	/**
-	 * @return the chr strand
-	 */
-	public String getChrStrand() {
-		return chrStrand;
-	}
-
-	/**
-	 * set the chr strand
-	 */
-	public void setChrStrand(String chrStrand) {
-		this.chrStrand = chrStrand;
-	}
 
 	public void setDiseaseHumanPhenotypes(List<String> diseaseHumanPhenotypes) {
 
@@ -2062,8 +1991,7 @@ public class GeneDTO {
 	}
 
 	/**
-	 * @param pfama_jsons
-	 *            the pfama_jsons to get
+	 * @return the pfama_jsons to get
 	 */
 	public List<String> getPfamaJsons() {
 		return pfama_jsons;
