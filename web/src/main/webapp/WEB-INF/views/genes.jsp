@@ -1084,7 +1084,7 @@ ul#expList li {
                         }
 
 						// invoke anatomogram only when
-						// <c:if test="${not empty impcExpressionImageFacets}"> is true
+						// this check is not empty: impcExpressionImageFacets
 						if ( $('div#anatomogramContainer').size() == 1){
 
 							// anatomogram stuff
