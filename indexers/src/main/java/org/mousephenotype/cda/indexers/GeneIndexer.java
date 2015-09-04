@@ -23,14 +23,12 @@ import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.netbeans.lib.cvsclient.commandLine.command.log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -192,6 +189,11 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setMgiPredictedKnonwGene(allele.getMgiPredictedKnownGene());
                 gene.setImpcNovelPredictedInLocus(allele.getImpcNovelPredictedInLocus());
                 gene.setDiseaseHumanPhenotypes(allele.getDiseaseHumanPhenotypes());
+
+                gene.setChrName(allele.getChrName());
+                gene.setChrStart(allele.getChrStart());
+                gene.setChrEnd(allele.getChrEnd());
+                gene.setChrStrand(allele.getChrStrand());
 
                 // GO stuff
                 gene.setGoTermIds(allele.getGoTermIds());

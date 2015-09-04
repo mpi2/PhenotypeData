@@ -30,6 +30,7 @@ public class SangerAlleleBean {
 	public static final String PRODUCTION_CENTRE = "production_centre";
 	public static final String PHENOTYPING_CENTRE = "phenotyping_centre";
 
+
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
 
@@ -50,6 +51,7 @@ public class SangerAlleleBean {
 
 	@Field(PHENOTYPING_CENTRE)
 	private String phenotypingCentre;
+
 
 
 	public String getMgiAccessionId() {
@@ -147,5 +149,7 @@ public class SangerAlleleBean {
 	public void setPhenotypingCentre(String phenotypingCentre) {
 		this.phenotypingCentre = phenotypingCentre;
 	}
+
+
 
 }

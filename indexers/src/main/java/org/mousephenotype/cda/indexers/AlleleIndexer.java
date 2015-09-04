@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.indexers;
 
 import net.sf.json.JSONSerializer;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -28,12 +27,12 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -186,7 +184,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             initializeSolrCores();
 
-            SolrQuery query = new SolrQuery("mgi_accession_id:MGI* OR mgi_accession_id:CGI*");
+            SolrQuery query = new SolrQuery("mgi_accession_id:\"MGI:2664636\" OR mgi_accession_id:CGI*");
             query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
 
             query.setRows(BATCH_SIZE);
@@ -228,6 +226,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 query.setStart(start);
                 QueryResponse response = sangerAlleleCore.query(query);
                 rows = response.getResults().getNumFound();
+                System.out.println("response: "+ response.toString());
                 List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
 
                 // Convert to Allele DTOs
@@ -893,7 +892,7 @@ public class AlleleIndexer extends AbstractIndexer {
         for (SangerGeneBean bean : beans) {
             String id = bean.getMgiAccessionId();
             AlleleDTO dto = new AlleleDTO();
-
+            System.out.println("BEAN: "+ bean.toString());
             // Copy the fields
             dto.setMgiAccessionId(id);
             dto.setMarkerType(bean.getFeatureType());
@@ -908,6 +907,12 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
             dto.setLatestProjectStatus(bean.getLatestProjectStatus());
             dto.setAlleleAccessionIds(bean.getMgiAlleleAccessionIds());
+
+            dto.setChrName(bean.getChrName());
+            dto.setChrStart(bean.getChrStart());
+            dto.setChrEnd(bean.getChrEnd());
+            dto.setChrStrand(bean.getChrStrand());
+
 
             String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
             dto.setLatestProductionStatus(latestEsStatus);
