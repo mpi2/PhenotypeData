@@ -892,7 +892,7 @@ public class AlleleIndexer extends AbstractIndexer {
         for (SangerGeneBean bean : beans) {
             String id = bean.getMgiAccessionId();
             AlleleDTO dto = new AlleleDTO();
-            System.out.println("BEAN: "+ bean.toString());
+            System.out.println("BEAN: " + bean.toString());
             // Copy the fields
             dto.setMgiAccessionId(id);
             dto.setMarkerType(bean.getFeatureType());
@@ -909,9 +909,16 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setAlleleAccessionIds(bean.getMgiAlleleAccessionIds());
 
             dto.setChrName(bean.getChrName());
-            dto.setChrStart(bean.getChrStart());
-            dto.setChrEnd(bean.getChrEnd());
             dto.setChrStrand(bean.getChrStrand());
+
+            if (bean.getChrStart() != null && bean.getChrStart().matches("^\\d*$")) {
+                dto.setChrStart(Integer.parseInt(bean.getChrStart()));
+            }
+
+            if (bean.getChrEnd() != null && bean.getChrEnd().matches("^\\d*$")) {
+                dto.setChrEnd(Integer.parseInt(bean.getChrEnd()));
+            }
+
 
 
             String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
