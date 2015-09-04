@@ -15,28 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.sql.DataSource;
-
-import net.sf.json.JSONObject;
-
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.net.URLDecoder;
+import java.util.*;
 
 public class Tools {
 
@@ -144,19 +127,36 @@ public class Tools {
             
             for (int j = 0; j < colVals.length; j++) {
             	String currVal = colVals[j];
-            	if ( currVal.startsWith("//")){
-            		currVal = "http:" + currVal;
-            	}
-            	if ( currVal.startsWith("http:")){
-            		currVal = currVal.replaceAll(" ", "%20");
-            		currVal = currVal.replaceAll("\"", "%22");
-            	}
+
+				if ( currVal.contains("|") ){
+
+					List<String> vals = Arrays.asList(currVal.split("\\|"));
+					List<String> newVals = new ArrayList<>();
+					for ( String val : vals ){
+						if ( val.startsWith("//") ) {
+							val = "http:" + val;
+						}
+						if ( val.startsWith("http:")){
+							val = val.replaceAll(" ", "%20");
+							val = val.replaceAll("\"", "%22");
+						}
+						newVals.add(val);
+					}
+					currVal = StringUtils.join(newVals, "|");
+				}
+				else if ( currVal.startsWith("//") ){
+					currVal = "http:" + currVal;
+				}
+
+
                 tableData[i][j] = currVal;
             }
         }
        
         return tableData;
     }
+//localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=*:*&q=*:* AND symbol:"2010107G12Rik"&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath
+
 //http://localhost:8080/phenotype-archive/imagesb?qf=auto_suggest&defType=edismax&wt=json&fq=*:*&q=*:*%20AND%20symbol:"2010107G12Rik"&fl=annotationTermId,annotationTermName,expName,symbol,symbol_gene,smallThumbnailFilePath,largeThumbnailFilePath
 
 	public static String fetchOutputFieldsCheckBoxesHtml(String corename) {
