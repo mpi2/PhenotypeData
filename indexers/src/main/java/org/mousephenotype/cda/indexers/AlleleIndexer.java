@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.indexers;
 
 import net.sf.json.JSONSerializer;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -28,12 +27,12 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +41,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -908,6 +906,24 @@ public class AlleleIndexer extends AbstractIndexer {
             dto.setLatestPhenotypingCentre(bean.getLatestPhenotypingCentre());
             dto.setLatestProjectStatus(bean.getLatestProjectStatus());
             dto.setAlleleAccessionIds(bean.getMgiAlleleAccessionIds());
+
+	        if ( bean.getChrName() != null && ! bean.getChrName().equals("null") ) {
+		        dto.setChrName(bean.getChrName());
+	        }
+
+	        if ( bean.getChrStrand() != null && ! bean.getChrStrand().equals("null") ) {
+		        dto.setChrStrand(bean.getChrStrand());
+	        }
+
+            if (bean.getChrStart() != null && bean.getChrStart().matches("^\\d*$")) {
+                dto.setChrStart(Integer.parseInt(bean.getChrStart()));
+            }
+
+            if (bean.getChrEnd() != null && bean.getChrEnd().matches("^\\d*$")) {
+                dto.setChrEnd(Integer.parseInt(bean.getChrEnd()));
+            }
+
+
 
             String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
             dto.setLatestProductionStatus(latestEsStatus);
