@@ -23,14 +23,12 @@ import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.netbeans.lib.cvsclient.commandLine.command.log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,6 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,23 +71,23 @@ public class GeneIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("sangerImagesReadOnlyIndexing")
     SolrServer imagesCore;
-    
+
     @Autowired
 	DatasourceDAO datasourceDAO;
 
     @Autowired
     ImpressService ims;
-    
+
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
     private Map<String, List<Xref>> genomicFeatureXrefs = new HashMap<>();
     private Map<String, List<SangerImageDTO>> sangerImages = new HashMap<>();
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
-    
-    
+
+
     EmbryoRestGetter embryoGetter;
-    
+
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -113,7 +110,7 @@ public class GeneIndexer extends AbstractIndexer {
 
     @Override
     public void initialise(String[] args) throws IndexerException {
-    	
+
         super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
@@ -131,12 +128,12 @@ public class GeneIndexer extends AbstractIndexer {
     @Override
     public void run() throws IndexerException {
 
-    	
+
     	Datasource ensembl = datasourceDAO.getDatasourceByShortName("Ensembl");
 		Datasource vega = datasourceDAO.getDatasourceByShortName("VEGA");
 		Datasource ncbi = datasourceDAO.getDatasourceByShortName("EntrezGene");
 		Datasource ccds = datasourceDAO.getDatasourceByShortName("cCDS");
-		
+
         long startTime = System.currentTimeMillis();
         try {
             logger.info("Starting Gene Indexer...");
@@ -146,7 +143,7 @@ public class GeneIndexer extends AbstractIndexer {
             int count = 0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
             logger.info("alleles size=" + alleles.size());
-          
+
             geneCore.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
@@ -216,31 +213,31 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setPfamaGoTerms(allele.getPfamaGoTerms());
                 gene.setPfamaGoCats(allele.getPfamaGoCats());
                 gene.setPfamaJsons(allele.getPfamaJsons());
-                
+
                 if(embryoRestData!=null){
-                	
+
                 	List<EmbryoStrain> embryoStrainsForGene = embryoRestData.get(gene.getMgiAccessionId());
                 	//for the moment lets just set an embryo data available flag!
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
                 		logger.info("setting embryo true");
-                		
+
                 		for( EmbryoStrain strain : embryoStrainsForGene){
                 			for ( String procedureStableKey : strain.getProcedureStableKeys() ){
                 				ProcedureDTO procedure = ims.getProcedureByStableKey(procedureStableKey);
-                				
+
                 				logger.info("procedure info: " + procedure);
-                				
+
                 				if ( gene.getProcedureStableId() == null ){
-                					
+
                 					List<String> procedureStableIds = new ArrayList<String>();
                 					List<String> procedureNames = new ArrayList<String>();
                 					procedureStableIds.add(procedure.getStableId());
                 					gene.setProcedureStableId(procedureStableIds);
-                					
+
                 					procedureNames.add(procedure.getName());
                 					gene.setProcedureName(procedureNames);
-                				}	
+                				}
                 				else {
                 					gene.getProcedureStableId().add(procedure.getStableId());
 	                				gene.getProcedureName().add(procedure.getName());
@@ -248,9 +245,9 @@ public class GeneIndexer extends AbstractIndexer {
                 			}
                 		}
                 	}
-                	
+
                 }
-                
+
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
                 	if(genomicFeatureCoordinates.containsKey(allele.getMgiAccessionId())){
                 		Map<String, String> coordsMap = genomicFeatureCoordinates.get(allele.getMgiAccessionId());
@@ -269,7 +266,7 @@ public class GeneIndexer extends AbstractIndexer {
                 				String xrefAccession=xref.getXrefAccession();
                 				xrefAccessions.add(xrefAccession);
                 				//System.out.println("setting xrefs:"+xrefAccession);
-                				
+
                         			if (xref.getXrefDatabaseId() == ensembl.getId()) {
                         				ensemblIds.add(xref.getXrefAccession());
                         			} else if (xref.getXrefDatabaseId() == vega.getId()) {
@@ -278,7 +275,7 @@ public class GeneIndexer extends AbstractIndexer {
                         				ncbiIds.add(xref.getXrefAccession());
                         			} else if (xref.getXrefDatabaseId() == ccds.getId()) {
                         				ccdsIds.add(xref.getXrefAccession());
-                        			}	
+                        			}
                 			}
                 			gene.setXrefs(xrefAccessions);
                 			gene.setNcbiIds(ncbiIds);
@@ -288,7 +285,24 @@ public class GeneIndexer extends AbstractIndexer {
                 	}
                 }
 
-				//gene.setMpId(allele.getM)
+
+                //
+                // Override the genomic location with values from the allele core (if available)
+                //
+                if (allele.getChrName()!=null && !allele.getChrName().equals("null")) {
+                    gene.setSeqRegionId(allele.getChrName());
+                }
+
+                if (allele.getChrStart()!=null) {
+                    gene.setSeqRegionStart(allele.getChrStart());
+                }
+
+                if (allele.getChrEnd() != null) {
+                    gene.setSeqRegionEnd(allele.getChrEnd());
+                }
+
+
+                //gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene
                 if (phenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(allele.getMgiAccessionId())) {
                     List<Map<String, String>> rows = phenotypeSummaryGeneAccessionsToPipelineInfo.get(allele.getMgiAccessionId());
@@ -307,7 +321,7 @@ public class GeneIndexer extends AbstractIndexer {
                         parameterStableIds.add(row.get(ObservationDTO.PARAMETER_STABLE_ID));
 
                     }
-                    
+
                     // pipeline
                     if ( gene.getPipelineStableId() == null ){
                     	gene.setPipelineStableId(pipelineStableIds);
@@ -321,7 +335,7 @@ public class GeneIndexer extends AbstractIndexer {
                     else {
                     	gene.getPipelineName().addAll(pipelineNames);
                     }
-                    
+
                     // procedure
                     if ( gene.getProcedureName() == null ){
                     	gene.setProcedureName(procedureNames);
@@ -335,7 +349,7 @@ public class GeneIndexer extends AbstractIndexer {
                     else {
                     	gene.getProcedureStableId().addAll(procedureStableIds);
                     }
-                    
+
                     // parameter
                     if ( gene.getParameterName() == null ){
                     	gene.setParameterName(parameterNames);
@@ -349,7 +363,7 @@ public class GeneIndexer extends AbstractIndexer {
                     else {
                     	gene.getParameterStableId().addAll(parameterStableIds);
                     }
-                   
+
                 }
 
 				//do images core data
@@ -582,7 +596,7 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setInferredSelectedTopLevelMaId(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaId())));
                 gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
-          
+
                 documentCount++;
                 geneCore.addBean(gene, 60000);
                 count ++;
@@ -684,10 +698,10 @@ public class GeneIndexer extends AbstractIndexer {
         return localPhenotypeSummaryGeneAccessionsToPipelineInfo;
 
     }
-    
-    
+
+
     private Map<String, List<Xref>> populateXrefs() {
-    	   	
+
         Map<String, List<Xref>> localGenomicFeatureXrefs = new HashMap<>();
         logger.info("populating xref info");
         String queryString = "select acc, xref_acc, xref_db_id from xref";
@@ -697,15 +711,15 @@ public class GeneIndexer extends AbstractIndexer {
             List<Xref> xrefs = null;
             while (resultSet.next()) {
                 String gf_acc = resultSet.getString("acc");
-                
-                
+
+
                 List<String> ensemblIds = new ArrayList<String>();
         		List<String> vegaIds = new ArrayList<String>();
         		List<String> ncbiIds = new ArrayList<String>();
         		List<String> ccdsIds = new ArrayList<String>();
 
 
-                
+
                 if(!localGenomicFeatureXrefs.containsKey(gf_acc)){
                 	xrefs = new ArrayList<>();
                 }
@@ -714,11 +728,11 @@ public class GeneIndexer extends AbstractIndexer {
                 Xref xref=new Xref();
                 xref.setXrefAccession(xrefAcc);
                 xref.setXrefDatabaseId(xrefDbId);
-                
+
                 xrefs.add(xref);
                 localGenomicFeatureXrefs.put(gf_acc, xrefs);
             }
-           
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -742,13 +756,13 @@ public class GeneIndexer extends AbstractIndexer {
                 rowMap.put(GeneDTO.SEQ_REGION_ID, resultSet.getString("gf.seq_region_id"));
                 rowMap.put(GeneDTO.SEQ_REGION_START, resultSet.getString("gf.seq_region_start"));
                 rowMap.put(GeneDTO.SEQ_REGION_END, resultSet.getString("gf.seq_region_end"));
-                
+
 
                 if (localGenomicFeatureCoordinates.containsKey(gf_acc)) {
-                	System.err.println("Error: Genomic Feature exists in map already!!!!!");       
-                } 
+                	System.err.println("Error: Genomic Feature exists in map already!!!!!");
+                }
                 localGenomicFeatureCoordinates.put(gf_acc, rowMap);
-   
+
             }
 
         } catch (Exception e) {
@@ -768,12 +782,12 @@ public class GeneIndexer extends AbstractIndexer {
 
         logger.info("Process finished.  Exiting.");
     }
-    
+
 //    private class GfBean{
 //    	String acc;
 //    	int start;
 //    	int end;
 //    	String seqRegionId;
-//    	
+//
 //    }
 }

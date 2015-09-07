@@ -37,6 +37,10 @@ public class SangerGeneBean {
 	public static final String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
 	public static final String LATEST_PRODUCTION_CENTRE = "latest_production_centre";
 	public static final String LATEST_PHENOTYPING_CENTRE = "latest_phenotyping_centre";
+	public static final String CHR_NAME = "feature_chromosome";
+	public static final String CHR_START = "feature_coord_start";
+	public static final String CHR_END = "feature_coord_end";
+	public static final String CHR_STRAND = "feature_strand";
 
 	@Field(MGI_ACCESSION_ID)
 	private String mgiAccessionId;
@@ -66,6 +70,19 @@ public class SangerGeneBean {
 	@Field(LATEST_PHENOTYPING_CENTRE)
 	private List<String> latestPhenotypingCentre;
 
+	@Field(CHR_NAME)
+	private String chrName;
+
+	@Field(CHR_START)
+	private String chrStart;
+
+	@Field(CHR_END)
+	private String chrEnd;
+
+	@Field(CHR_STRAND)
+	private String chrStrand;
+
+
 	/**
 	 * @return the mgiAccessionId
 	 */
@@ -89,7 +106,7 @@ public class SangerGeneBean {
 	}
 
 	/**
-	 * @param mgiAlleleAccessionId
+	 * @param mgiAlleleAccessionIds
 	 *            the mgiAlleleAccessionId to set
 	 */
 	public void setMgiAlleleAccessionIds(List<String> mgiAlleleAccessionIds) {
@@ -264,4 +281,84 @@ public class SangerGeneBean {
 		this.latestPhenotypingCentre = latestPhenotypingCentre;
 	}
 
+
+	/**
+	 * @return the chr name
+	 */
+	public String getChrName() {
+		return chrName;
+	}
+
+	/**
+	 * set the chr name
+	 */
+	public void setChrName(String chrName) {
+		this.chrName = chrName;
+	}
+
+
+	/**
+	 * @return the chr start
+	 */
+	public String getChrStart() {
+		return chrStart;
+	}
+
+	/**
+	 * set the chr start
+	 */
+	public void setChrStart(String chrStart) {
+		this.chrStart = chrStart;
+	}
+
+	/**
+	 * @return the chr end
+	 */
+	public String getChrEnd() {
+		return chrEnd;
+	}
+
+	/**
+	 * set the chr end
+	 */
+	public void setChrEnd(String chrEnd) {
+		this.chrEnd = chrEnd;
+	}
+
+	/**
+	 * @return the chr strand
+	 */
+	public String getChrStrand() {
+		return chrStrand;
+	}
+
+	/**
+	 * set the chr strand
+	 */
+	public void setChrStrand(String chrStrand) {
+		this.chrStrand = chrStrand;
+	}
+
+	@Override
+	public String toString() {
+		return "SangerGeneBean{" +
+				"mgiAccessionId='" + mgiAccessionId + '\'' +
+				", mgiAlleleAccessionIds=" + mgiAlleleAccessionIds +
+				", featureType='" + featureType + '\'' +
+				", markerSymbol='" + markerSymbol + '\'' +
+				", markerSymbolLowercase='" + markerSymbolLowercase + '\'' +
+				", latestEsCellStatus='" + latestEsCellStatus + '\'' +
+				", latestMouseStatus='" + latestMouseStatus + '\'' +
+				", latestProjectStatus='" + latestProjectStatus + '\'' +
+				", latestPhenotypeStarted='" + latestPhenotypeStarted + '\'' +
+				", latestPhenotypeComplete='" + latestPhenotypeComplete + '\'' +
+				", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
+				", latestProductionCentre=" + latestProductionCentre +
+				", latestPhenotypingCentre=" + latestPhenotypingCentre +
+				", chrName='" + chrName + '\'' +
+				", chrStart=" + chrStart +
+				", chrEnd=" + chrEnd +
+				", chrStrand='" + chrStrand + '\'' +
+				'}';
+	}
 }
