@@ -35,50 +35,54 @@ MDOC.search = {
 							+'     <li>Click on the <b>info button</b> for detailed description.</li>'
 							+ '</ul>', 
 			
-		'facetPanelDocUrl'   : baseUrl + '/documentation/search-help',	
+		'facetPanelDocUrl'   				: baseUrl + '/documentation/search-help',
 };
-MDOC.gene = {		
-		'generalPanel'         : '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   : baseUrl + '/documentation/gene-help#details',
-		'preQcPanel'           : '<p>Preliminary analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
-		'preQcPanelDocUrl'     : baseUrl + '/documentation/gene-help#pre-qc',
-		'mpPanel'              : '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
-		'mpPanelDocUrl'        : baseUrl + '/documentation/gene-help#phenotype_associations',
-		'imagePanel'           : '<p>Images associated to this gene.  Note that the phenotype associations made in some of the image descriptions have not been verified for accuracy.</p><p>Click the help icon for more detail.</p>',
-		'imagePanelDocUrl'     : baseUrl + '/documentation/gene-help#phenotype-images',
-		'expressionPanel'      : '<p>Expression images associated to this gene.</p>',
-		'expressionPanelDocUrl': baseUrl + '/documentation/gene-help#expression-images',
-		'allelePanel'          : '<p>Alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
-		'allelePanelDocUrl'    : baseUrl + '/documentation/gene-help#alleles',
-		'heatmapPanel'		   : '<p>For details about the heatmap please click.</p>',
-		'heatmapPanelDocUrl'   : baseUrl + '/documentation/gene-help#pre-qc'
+MDOC.gene = {
+		'detailsPanel'         				: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
+		'detailsPanelDocUrl'   				: baseUrl + '/documentation/gene-help#details',
+		'mpPanel'              				: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
+		'mpPanelDocUrl'        				: baseUrl + '/documentation/gene-help#phenotype-associations',
+		'preqcPanel'           				: '<p>Preliminary analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
+		'preqcPanelDocUrl'     				: baseUrl + '/documentation/gene-help#preqc-heatmap',
+		'expressionAnatomogramPanel'       	: '<p>Mouse image giving significant phenotype information at a glance.</p><p>Click the help icon for more detail.</p>',
+		'expressionAnatomogramPanelDocUrl' 	:baseUrl + '/documentation/gene-help#expression-anatomogram',
+		'impcExpressionPanel'       		: '<p>Expression of IMPC images associated to this gene.</p><p>Click the help icon for more detail.</p>',
+		'impcExpressionPanelDocUrl' 		:baseUrl + '/documentation/gene-help#impc-expression',
+		'impcImagesPanel'           		: '<p>IMPC phenotype images associated to this gene.  Note that the phenotype associations made in some of the image descriptions have not been verified for accuracy.</p><p>Click the help icon for more detail.</p>',
+		'impcImagesPanelDocUrl'     		: baseUrl + '/documentation/gene-help#impc-images',
+		'legacyImagesPanel'           		: '<p>Sanger images associated to this gene.  Note that the phenotype associations made in some of the image descriptions have not been verified for accuracy.</p><p>Click the help icon for more detail.</p>',
+		'legacyImagesPanelDocUrl'     		: baseUrl + '/documentation/gene-help#legacy-images',
+		'legacyExpressionPanel'      		: '<p>Sanger Expression images associated to this gene.</p><p>Click the help icon for more detail.</p>',
+		'legacyExpressionPanelDocUrl'		: baseUrl + '/documentation/gene-help#legacy-expression',
+		'orderPanel'          				: '<p>Ordering information for alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
+		'orderPanelDocUrl'    				: baseUrl + '/documentation/gene-help#order',
 };
 MDOC.phenotypes = {
-		'generalPanel'         : "<p> Phenotype details panel.<p> <p>Click the help icon for more detail.</p>",
-		'generalPanelDocUrl'   : baseUrl + '/documentation/phenotype-help',
-		'relatedMpPanel'       : "<p>Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. <p>Click the help icon for more detail.</p>",
-		'relatedMpPanelDocUrl' : baseUrl + '/documentation/phenotype-help#associations',
-		'phenotypeStatsPanel'  : "<p> Find out more about how we obtain the stats and associations presented in this panel. <p>", 		
-		'phenotypeStatsPanelDocUrl': baseUrl + '/documentation/phenotype-help#phenotype-stats-panel'
+		'generalPanel'         				: "<p> Phenotype details panel.<p> <p>Click the help icon for more detail.</p>",
+		'generalPanelDocUrl'   				: baseUrl + '/documentation/phenotype-help',
+		'relatedMpPanel'       				: "<p>Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. <p>Click the help icon for more detail.</p>",
+		'relatedMpPanelDocUrl' 				: baseUrl + '/documentation/phenotype-help#associations',
+		'phenotypeStatsPanel'  				: "<p> Find out more about how we obtain the stats and associations presented in this panel. <p>",
+		'phenotypeStatsPanelDocUrl'			: baseUrl + '/documentation/phenotype-help#phenotype-stats-panel'
 };
 MDOC.images = {
-		'generalPanel'         : "<p>All images associated with current phenotype.</p> <p>Click the help icon for more detail.</p>",
-		'generalPanelDocUrl'   : baseUrl + '/documentation/image-help',
+		'generalPanel'         				: "<p>All images associated with current phenotype.</p> <p>Click the help icon for more detail.</p>",
+		'generalPanelDocUrl'   				: baseUrl + '/documentation/image-help',
 };
 
 MDOC.stats = {
-		'generalPanel'         : '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help'
+		'generalPanel'         				: '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
+		'generalPanelDocUrl'   				: baseUrl + '/documentation/graph-help'
 };
 
 MDOC.alleles = {
-		'generalPanel'         : '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
-		'generalPanelDocUrl'   : baseUrl + '/documentation/graph-help'
+		'generalPanel'         				: '<p>Details about the graphs.</p> <p>Click the help icon for more detail.</p>',
+		'generalPanelDocUrl'   				: baseUrl + '/documentation/graph-help'
 };
 
 MDOC.phenome = {
-		'phenomePanel'         : '<p>Details about the graph.</p> <p>Click the help icon for more detail.</p>',
-		'phenomePanelDocUrl'   : baseUrl + '/documentation/phenome-help'
+		'phenomePanel'         				: '<p>Details about the graph.</p> <p>Click the help icon for more detail.</p>',
+		'phenomePanelDocUrl'   				: baseUrl + '/documentation/phenome-help'
 };
 
 

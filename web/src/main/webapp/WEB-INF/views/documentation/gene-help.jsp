@@ -28,8 +28,8 @@
                             
                             <h1>Gene Page Documentation</h1>
 		
-                            
-                            <h3>Gene Details</h3>
+
+                            <h3 id="details">Gene Details</h3>
                             The first section of the page shows detail information about the gene. The information displayed includes:
                             <ul>
                                 <li><strong>Name</strong></li>
@@ -76,7 +76,7 @@
 
                             <br /><br />
 
-                            <h3 id="phenotype_associations">Phenotype associations</h3>
+                            <h3 id="phenotype-associations">Phenotype associations</h3>
                             <p>This section shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
 
                             <h4><a name="phenotype-summary" href='#'>Gene Phenotype Summary</a></h4>
@@ -126,7 +126,7 @@
                             <img src="img/phenome-hyperlink.png" alt="" />
 
 
-														<h3><a name="pre-qc" href='#'>Pre-QC Phenotype Heatmap</a></h3>
+                            <h3 id="preqc-heatmap">Pre-QC Phenotype Heatmap</h3>
                             <p>When there is data available, but not yet complete, from the IMPC resource, the Pre-QC panel will appear.  The pre QC panel shows a heatmap of the results of preliminary analysis on data that has been collected by the IMPC production centers to date, but is not yet complete. In order to be marked Complete, 7 males and 7 females must complete all core screens required by the IMPC pipeline.
                             </p>
                             <p>Please visit the <a href="https://www.mousephenotype.org/heatmap/manual.html">comprehensive heatmap documentation</a> for more information about the heatmap.</p>			
@@ -136,20 +136,38 @@
                             <img src="img/gene-pre-qc.png" />
                             <br/> <br/>
 
-                            <h3><a name="phenotype-images" href='#'>Gene Phenotype Images</a></h3>
-                            <p>The phenotype images section shows all the images associated to this gene via direct annotation from the image source. Currently all images are courtesy of the <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
-                            <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+
+                            <h3 id="expression-anatomogram">Expression in Anatomogram</h3>
+                            <p>The mouse anatomogram shows the phenotype expressions at a glance. Blue indicates lacZ expression.
+                            </p>
+
+
+                            <h3><a id="impc-expression" href='#'>Expression</a></h3>
+                            <p>The Expression section shows all the IMPC expression images associated to this gene via direct annotation from the image source.</p>
+                            <img src="img/gene-expression-images.png" />
+
+
+                            <h3><a id="impc-images" href='#'>IMPC Phenotype Associated Images</a></h3>
+                            <p>The IMPC Phenotype Associated Images section shows all the IMPC phenotype images associated to this gene via direct annotation from the image source.</p>
+                            <img src="img/gene-expression-images.png" />
+
+
+                            <h3><a id="legacy-images" href='#'>Phenotype Associated Images</a></h3>
+                            <p>The phenotype images section shows all the legacy images associated to this gene via direct annotation from the
+                                    <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
+                                    <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
                             <img src="img/gene-phenotype-images.png" />
-														<br/><br/>
+							<br/><br/>
 
 
-                            <h3><a name="expression-images" href='#'>Gene Expression Images</a></h3>
-                            <p>The expression images section shows all the expression images associated to this gene via direct annotation from the image source. Currently all images are courtesy of the <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
+                            <h3><a id="legacy-expression" href='#'>Expression</a></h3>
+                            <p>The expression images section shows all the expression images associated to this gene via direct annotation from the
+                                    <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
                             <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
                             <img src="img/gene-expression-images.png" />
 
 
-                            <h3><a name="alleles" href='#'>Order Mouse and ES Cells</a></h3>
+                            <h3><a name="order" href='#'>Order Mouse and ES Cells</a></h3>
                             <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries.</p>
                             <p>The links in the <strong>Order</strong> column will take you to the purchase place of the ES cell or mouse when available.</p>  
                             <p>The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>

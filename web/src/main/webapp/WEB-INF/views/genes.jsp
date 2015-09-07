@@ -247,7 +247,10 @@
             <div class="block">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Gene: ${gene.markerSymbol}</h1>
+                        <h1 class="title" id="top">Gene: ${gene.markerSymbol}
+                                    <span class="documentation"><a
+                                            href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a></span>
+                        </h1>
 
                         <div class="section">
                             <div class="inner">
@@ -643,9 +646,8 @@
                             <!-- Pre-QC phenotype heatmap -->
                             <div class="section">
                                 <h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span
-                                        class="documentation"><a href='' id='mpPanel'
+                                        class="documentation"><a href='' id='preqcPanel'
                                                                  class="fa fa-question-circle pull-right"></a></span>
-                                    <!--  this works, but need js to drive tip position -->
                                 </h2>
 
                                 <div class="inner">
@@ -674,7 +676,11 @@
                         <c:if test="${not empty impcExpressionImageFacets}">
                             <!-- Expression in Anatomogram -->
                             <div class="section">
-                                <h2 class="title " id="impc-expression">Expression in Anatomogram</h2>
+                                <h2 class="title" id="expression-anatomogram">Expression in Anatomogram<span
+                                        class="documentation"><a href='' id='expressionAnatomogramPanel'
+                                                                 class="fa fa-question-circle pull-right"></a></span>
+                                    <!--  this works, but need js to drive tip position -->
+                                </h2>
 
                                 <div class="inner acontainer" style="display: block;">
                                     <div class='aright' id='anatomogramContainer'></div>
@@ -698,7 +704,11 @@
 
                             <!-- Expression (IMPC) -->
                             <div class="section">
-                                <h2 class="title " id="impc-expression">Expression</h2>
+
+                                <h2 class="title" id="impc-expression">Expression<span
+                                        class="documentation"><a href='' id='impcExpressionPanel'
+                                                                 class="fa fa-question-circle pull-right"></a></span>
+                                </h2>
 
                                 <div class="inner" style="display: block;">
 
@@ -898,10 +908,8 @@
                         <c:if test="${not empty impcImageFacets}">
                             <!-- IMPC Phenotype Associated Images -->
                             <div class="section">
-                                <h2 class="title"
-                                    id="section-impc-images">IMPC Phenotype Associated Images <i
-                                        class="fa fa-question-circle pull-right"
-                                        title="Brief info about this panel"></i>
+                                <h2 class="title" id="section-impc-images">IMPC Phenotype Associated Images<span
+                                        class="documentation"><a href='' id='impcImagesPanel' class="fa fa-question-circle pull-right"></a></span>
                                 </h2>
 
                                 <div class="inner">
@@ -955,8 +963,8 @@
                         <c:if test="${not empty solrFacets}">
                             <!-- Phenotype Associated Images -->
                             <div class="section">
-                                <h2 class="title" id="section-images">Phenotype Associated Images
-                                    <i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i>
+                                <h2 class="title" id="section-images">Phenotype Associated Images<span
+                                        class="documentation"><a href='' id='legacyImagesPanel' class="fa fa-question-circle pull-right"></a></span>
                                 </h2>
                                 <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                 <div class="inner">
@@ -1005,8 +1013,8 @@
                         <c:if test="${not empty expressionFacets}">
                             <!-- Expression (legacy) -->
                             <div class="section">
-                                <h2 class="title"
-                                    id="section-expression">Expression <i class="fa fa-question-circle pull-right"></i>
+                                <h2 class="title" id="section-expression">Expression<span
+                                        class="documentation"><a href='' id='legacyExpressionPanel' class="fa fa-question-circle pull-right"></a></span>
                                 </h2>
 
                                 <div class="inner">
@@ -1112,10 +1120,8 @@
 
                         <!-- Order Mouse and ES Cells -->
                         <div class="section" id="order2">
-                            <h2 class="title documentation">Order Mouse and ES Cells
-                                <a href="${baseUrl}/documentation/gene-help.html#alleles"
-                                   id='allelePanel' class="fa fa-question-circle pull-right"
-                                   data-hasqtip="212" aria-describedby="qtip-212"></a>
+                            <h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
+                                    class="documentation"><a href='' id='orderPanel' class="fa fa-question-circle pull-right"></a></span>
                             </h2>
 
                             <div class="inner">
