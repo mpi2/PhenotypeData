@@ -1136,7 +1136,7 @@
 
         <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-        <script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
+        <!-- script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script-->
 
         <script type="text/javascript">
             var diseaseTables = [{
@@ -1158,7 +1158,7 @@
             }];
 
 
-            $(document).ready(function () {
+             $(document).ready(function () {
                 for (var i = 0; i < diseaseTables.length; i++) {
                     var diseaseTable = diseaseTables[i];
                     var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
@@ -1218,7 +1218,7 @@
                             "gray",  // all tissues being tested
                             "blue",  // tissue color when mouseover
                             eventEmitter);
-                }
+                } 
             });
         </script>
 
