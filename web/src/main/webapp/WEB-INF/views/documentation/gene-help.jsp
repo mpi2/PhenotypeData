@@ -24,7 +24,7 @@
 
                     <div class="block block-system">
 
-                        <div id="top" class="content node">
+                        < id="top" class="content node">
                             
                             <h1>Gene Page Documentation</h1>
 		
@@ -74,8 +74,6 @@
                             <br/>
                             <img src="img/gene-details.png" />
 
-                            <br /><br />
-
                             <h3 id="phenotype-associations">Phenotype associations</h3>
                             <p>This section shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
 
@@ -87,43 +85,47 @@
                             <p>The grid at the top right contains icons intended to discover test phenotype status at a glance. Icons in orange indicate significant phenotypes
                             were discovered. Icons in blue indicate tests were performed but no significant phenotypes were discovered. Icons in gray indicate no phenotype tests
                              were performed.</p>
-                            <p>To look at all test results for adult data, press the "All Adult Data" button.</p>
+                            <p>To see all test results for adult data, press the "All Adult Data" button (described below).</p>
                             <img src="img/gene-phenotype-summary.png" />
-														
 
 
-                            <h3><a name="phenotype-table" href='#'>Gene Phenotype Table</a></h3>
+                            <h3 id="phenotype-phenome-hyperlink">Browse all adult phenotype data for a gene</h3>
+                            <p>Access to the details of the statistical analysis is provided in a separate page by clicking on the
+                                <strong>All Adult Data</strong> button. This page provides access to all statistical results for a
+                                mutant line whether significant or not.
+                            </p>
+                            <p>Significant P-values appear to the right of the green dashed vertical line; insignificant values to the left.
+                               Hovering over any point shows some important experiment details. Clicking on any point shows a graph of the experiment data.
+                            </p>
+                            <br />
+                            <img src="img/all_data.png" />
+                            <br/><br/>
+
+
+                            <h3 id="phenotype-table">Gene Phenotype Table</h3>
                             <p>The phenotype table lists the individual phenotypes associated to this gene through a specific allele.  If both sexes are associated, 
                             		then both are shown on the same row indicated by the male / female icons (<img src="img/both-sexes-icon.png" />).</p>
                             <br/>
                             <img src="img/gene-table.png" alt="" />
 
 
-                            <h3><a name="phenotype-filtering" href='#'>Gene Phenotype Filtering</a></h3>
+                            <h3 id="phenotype-filtering">Gene Phenotype Filtering</h3>
                             <p>The results shown in the phenotype table may be filtered using the dropdown filters.  Select the check boxes to include entries pertaining to the selection.  The displayed rows are the result of logically ORing within and logically ANDing between dropdowns.</p>
                             <img src="img/gene-phenotype-filter.png" alt="Filter be top level MP term" />
-														<br/><br/>
+							<br/><br/>
 
-                            <h3><a name="phenotype-download" href='#'>Gene Phenotype Download</a></h3>
+                            <h3 id="phenotype-download">Gene Phenotype Download</h3>
                             <p>The results in the table may be downloaded for further processing.  The resulting download respects all filters that have been applied to the data.</p>
                             <p>We offer 2 export options for the data in the table: </p>
                             <ul>
                                 <li> TSV, text file with tab separated variables </li>
                                 <li> XLS, Microsoft Excel spread sheet</li>
                             </ul>
-														<img title="XSL" style="vertical-align:text-bottom;" src="img/export.png"/>
+							<img style="vertical-align:text-bottom;" src="img/export.png"/>
                             <p>
                                 In the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, they will be shown together for a better user experience.
                                 In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
                             </p>
-
-
-                            <h3><a name="phenotype-phenome-hyperlink" href='#'>Browse all phenotype data for a gene</a></h3>
-                            <p>Access to the details of the statistical analysis is provided below the phenotype table in a list starting with <strong>Browse all phenotype data</strong>.
-                            This provides access to all statistical results for a mutant line whether significant or not. This also provides access to a 'phenome' view of all the significant 
-                            calls for all the mutant lines for a specific phenotyping center. This link is providing by clicking on the text <strong>MP calls for all strains</strong>.</p>
-                           <br/>
-                            <img src="img/phenome-hyperlink.png" alt="" />
 
 
                             <h3 id="preqc-heatmap">Pre-QC Phenotype Heatmap</h3>
@@ -137,37 +139,37 @@
                             <br/> <br/>
 
 
-                            <h3 id="expression-anatomogram">Expression in Anatomogram</h3>
-                            <p>The mouse anatomogram shows the phenotype expressions at a glance. Blue indicates lacZ expression.
-                            </p>
+                            <%--<h3 id="expression-anatomogram">Expression in Anatomogram</h3>--%>
+                            <%--<p>The mouse anatomogram shows the lacZ expressions in blue, at a glance.--%>
+                            <%--</p>--%>
 
 
-                            <h3><a id="impc-expression" href='#'>Expression</a></h3>
+                            <h3 id="impc-expression">Expression</h3>
                             <p>The Expression section shows all the IMPC expression images associated to this gene via direct annotation from the image source.</p>
                             <img src="img/gene-expression-images.png" />
 
 
-                            <h3><a id="impc-images" href='#'>IMPC Phenotype Associated Images</a></h3>
+                            <h3 id="impc-images">IMPC Phenotype Associated Images</h3>
                             <p>The IMPC Phenotype Associated Images section shows all the IMPC phenotype images associated to this gene via direct annotation from the image source.</p>
                             <img src="img/gene-expression-images.png" />
 
 
-                            <h3><a id="legacy-images" href='#'>Phenotype Associated Images</a></h3>
+                            <h3 id="legacy-images">Phenotype Associated Images</h3>
                             <p>The phenotype images section shows all the legacy images associated to this gene via direct annotation from the
-                                    <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
-                                    <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+                                <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
+                                <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
                             <img src="img/gene-phenotype-images.png" />
 							<br/><br/>
 
 
-                            <h3><a id="legacy-expression" href='#'>Expression</a></h3>
+                            <h3 id="legacy-expression">Expression</h3>
                             <p>The expression images section shows all the expression images associated to this gene via direct annotation from the
                                     <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
                             <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
                             <img src="img/gene-expression-images.png" />
 
 
-                            <h3><a name="order" href='#'>Order Mouse and ES Cells</a></h3>
+                            <h3 id="order" href='#'>Order Mouse and ES Cells</h3>
                             <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries.</p>
                             <p>The links in the <strong>Order</strong> column will take you to the purchase place of the ES cell or mouse when available.</p>  
                             <p>The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>
