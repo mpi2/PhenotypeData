@@ -34,7 +34,7 @@
                         </c:if>
                         <c:if
                                 test="${not empty impcExpressionImageFacets}">
-                            <li><a href="#section-impc_expression">Expression</a></li>
+                            <li><a href="#impc-expression">Expression</a></li>
                         </c:if>
                         <c:if test="${not empty impcImageFacets}">
                             <li><a href="#section-impc-images">Impc Images</a></li>
@@ -675,6 +675,7 @@
 
                         <c:if test="${not empty impcExpressionImageFacets}">
                             <!-- Expression in Anatomogram -->
+                            <c:if test="${!isLive}">
                             <div class="section">
                                 <h2 class="title" id="expression-anatomogram">Expression in Anatomogram<span
                                         class="documentation"><a href='' id='expressionAnatomogramPanel'
@@ -700,6 +701,7 @@
                                 </div>
                                 <!-- end of inner div -->
                             </div>
+                            </c:if>
                             <!-- end of section -->
 
                             <!-- Expression (IMPC) -->

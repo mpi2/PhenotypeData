@@ -32,41 +32,39 @@
                                 associated with the current phenotype.
                             </p>
 
-                            <h3><a name="details" href='#'>Phenotype Details</a></h3>
+                            <h3 id="details">Phenotype Details</h3>
                             
-                            <p>The synonyms and definition we provide come from the mouse phenotype ontology (MP). This is also why we provide the MP id of the current
-                                phenotype page as well as the link to it on the MGI MP browser.</p>
+                            <p>The synonyms and definitions we provide come from the mouse phenotype ontology (MP), which
+                               is administered by <a href="http://www.informatics.jax.org/">Mouse Genome Informatics (MGI)</a>.
+                               Use the provided MGI link to go to the MGI MP browser.</p>
 
-                            <p> The procedures come from IMPC pipelines, but also from legacy data pipelines such as EUMODIC, GMC.</p>
+                            <p> The procedures come from IMPC pipelines and from legacy data pipelines such as EUMODIC and GMC.</p>
 
                             <figure>
                                 <img class="well" src="img/phenotype-information.png"/>
                             </figure>
 
 
-                            <h3><a name="phenotype-stats-panel" href='#'>Phenotype Association Stats</a></h3>
+                            <h3 id="phenotype-stats-panel">Phenotype Association Stats</h3>
                             
-                            <p> IMPC mouse strains are subjected to a wide range of phenotype assays, allowing for estimates on the percentage of genes that when knocked out contribute to 
+                            <p> IMPC mouse strains are subjected to a wide range of phenotype assays, allowing for estimates on the percentage of genes that, when knocked out, contribute to
                                 a phenotype. As multiple parameters may map to the same phenotype, percentages are calculated across all parameters that map to a phenotype.</p>
-                                <p> The percentage of genes 
-                                associated to the current phenotype in one sex only, for example females is the number of genes associated to phenotypeX in 
-                                females divided by the total number of genes tested in females for parameters potentially leading to phenotypeX associations. Thus, the percent 
-                                values we show for females and males may not add up to 1 nor do the percentages for males/females have to be smaller than the combined percentage.</p>
+                                <p> The percentage of genes  associated to the current phenotype in one sex only (for example, females) is the number of genes associated to phenotype <i>X</i>
+                                in  females divided by the total number of genes tested in females for parameters potentially leading to phenotype <i>X</i> associations. Thus, the percent
+                                values we show for females and males may not add up to 1, nor do the percentages for males/females have to be smaller than the combined percentage.</p>
 
                             <img class="well" src="img/phenotype-overview.png"/>
                             
-                            <p> Currently the data used for this panel is restricted to IMPC data on B6N strains. Mutant strains with the phenotype association appear in the 
-                            		gene-phenoytype table found further down the phenotype page.</p> 				
+                            <p> Currently the data used for this panel is restricted to IMPC data on B6N strains. Mutant strains with the phenotype associations appear in the
+                            	gene-phenoytype table found further down the phenotype page.</p>
 
 
-                            <h3> <a name="phenGraphs" href='#'> Overview Graphs</a></h3>
-                           
-                            <p> The way we represent different types of data varies in what we select as control, what we represent (individual animals or strains) or values (means, count) 
-                                so we describe each separately. </p>
-
+                            <h3 id="phenGraphs"> Overview Graphs</h3>
+                            <p>As the data is extremely varied, for instance, in what controls are selected, what is represented (e.g. individual animals vs strains),
+                               and the nature of the values (e.g. means, count, etc.), each is described separately below.</p>
                                 
                             <h5> Chart Filters and Selectors</h5>
-                            <p> Multiple parameters can indicate the same phenotype. When this is the case a drop-down list will appear on top of the list, allowing you to select the desired parameter.</p>
+                            <p> Multiple parameters can indicate the same phenotype. When this is the case, a drop-down list will appear on top of the list allowing you to select the desired parameter.</p>
                            	<figure>
                                 <img class="well" src="img/graph-filters-closed.png"/>
                                 <img class="well" src="img/graph-filters-open.png"/>
@@ -84,13 +82,11 @@
                                 <img class="well" src="img/unidimensional-overview.png"/>
                             </figure>
                             <p> Unidimensional data is plotted as stacked histograms. We take the mean for each line and plot these values as a histogram. Mutant 
-                            		lines that have been
-                                associated to the phenotype are highlighted including those lines where the phenotype was only observed in one gender or zygotic state. 
-                                Some lines may be associated
-                                to a phenotype but not appear to be an outlier; this usually results from controls having relatively low or high values in the time period 
-                                the mutant lines was tested.
+                            	lines that have been associated to the phenotype are highlighted, including those lines where the phenotype was only observed in
+                                one gender or zygotic state. Some lines may be associated to a phenotype but may not appear to be an outlier. This usually results
+                                from controls having relatively low or high values in the time period the mutant lines were tested.
                             </p>
-														<p>[Tip] The bars are clickable and will take you to a multi-chart page to closer analyze the data. </p>
+							<p>[Tip] The bars are clickable and will take you to a multi-chart page to analyze the data more closely. </p>
 														
 
                             <!-- h5> Time Series Data  </h5>
@@ -109,59 +105,59 @@
                             <figure>
                                 <img class="well" src="img/categorical-overview.png"/>
                             </figure>
-                            <p> Categorical overview charts represent the percentage of animals in each category. 
-                                The control values are percentages of baseline animals and the mutant values are percentage of animals from mutant strains for which the phenotype association is made. </p>
-														<p>[Tip] You can select/deselect the categories to be plotted by clicking on them in the legend below the graph.</p>
+                            <p> Categorical overview charts represent the percentage of animals in each category. The control values are percentages of
+                                baseline animals and the mutant values are percentage of animals from mutant strains for which the phenotype association
+                                is made.
+                            </p>
+							<p>[Tip] You can select/deselect the categories to be plotted by clicking on them in the legend below the graph.</p>
 
 
-                            <h3><a name="associations" href='#'>Gene-Phenotype Associations</a></h3>
+                            <h3 id="associations">Gene-Phenotype Associations</h3>
 
-                            <p>All gene variants associated with the current phenotype are shown in a table. The table contains several fields of interest such 
-                                as gene name and the corresponding allele, zygosity, sex, data source, parameter, a link to the <a href="graph-help.html">chart</a> 
-                                when one is available as well as the 
-                                used procedure and directly associated phenotype. The directly associated phenotype is particularly useful for higher level phenotype terms. 
-                                See <a href="phenotype-help.html#dvi">Direct vs. inferred associations</a> for more information. </p>
-                                
-                                
-                          
-                            <p>Rows are collapsed based on sex. For more readability we group entries where all fields are identical except the sex to one row. These rows are identified by 
-                                a both-sexes icon (<img src="img/both-sexes-icon.png"/>). The total number of results shown on top of the table will double count this rows (once for females 
-                                and once for males).</p>	 
+                            <p>All gene variants associated with the current phenotype are shown in a table. The table contains several fields of interest, such
+                                as the gene name and the corresponding allele, zygosity, sex, data source, parameter, a link to the <a href="graph-help.html">chart</a>
+                                when one is available, as well as the procedure used, and directly associated phenotype. The directly associated phenotype is particularly
+                                useful for higher level phenotype terms. See <a href="phenotype-help.html#dvi">Direct vs. inferred associations</a> for more information.
+                            </p>
+
+                             <h5>Row Collapsing</h5>
+                             <p>For better readability, when rows are identical in all fields except for sex, they are
+                                collapsed into a single row. Such rows are identified by a <i>both-sexes</i> icon
+                                (<img src="img/both-sexes-icon.png"/>). Regardless of row collapsing, the total number of
+                                results shown at the top of the table includes all males and all females.</p>
                             <img class="well" src="img/phenotype-association-table.png"/>
                             <br/> <br/>
 
 
-                            <h5><a name="dvi" href='#'>Direct vs. inferred associations</a></h5>
-														<p>Some associations are direct calls from our statistical pipeline whereas some are transitively associated, infered from the direct lower level associations.
-															The value in the column 'Phenotype' will help you disambiguate at which level the gene-phenotype association was made.</p>
-															
-														<h5><a name="preqc-postqc" href="#"> Pre-QC vs. Post-QC  Calls</a></h5>
-														<p>Preliminary statistical analysis is performed at the DCC as soon as enough data is gathered, prior to rigorous quality control checking. 
-														This analysis produces results, but due to the preliminary state of the QC checks, the results are considered as not definitive. 
-														Once the data has proceeded through the QC checks at the DCC, a final definitive statistical test is performed and the MP association made. </p>
-														<p>Post QC calls are presented in the associations table and have blue chart links. </p>	
-														<p>Pre-QC calls are presented in the associations table (orange chart links) as well as in the heatmap below the table. </p>				 
+                            <h5 id="dvi">Direct vs. inferred associations</h5>
+                            <p>Some associations are direct calls from our statistical pipeline, whereas some are transitively associated, infered from the direct
+                               lower level associations. The value in the 'Phenotype' column will help you disambiguate at which level the gene-phenotype association
+                               was made.</p>
+
+                            <h5 id="preqc-postqc"> Pre-QC vs. Post-QC  Calls</h5>
+                            <p>Preliminary statistical analysis is performed at the DCC as soon as enough data is gathered, prior to rigorous quality control checking.
+                            This analysis produces results, but due to the preliminary state of the QC checks, the results are considered not definitive.
+                            Once the data has passed the QC checks at the DCC, a final definitive statistical test is performed and the MP association is made. </p>
+                            <p>Post QC calls are presented in the associations table and have blue chart links. </p>
+                            <p>Pre-QC calls are presented in the associations table and have orange chart links in that table and in the heatmap below the table. </p>
 																		 
 																																 
-                            <h5><a name="table-filtering" href='#'>Table Filtering</a></h5>
-
-                            <p>The filters over the gene variants associations table offer flexible filtering possibilities. Multiple checkboxes can be selected from any filter dropdown list 
-                                and the table will automatically reload with each new selected option. 
-                                These changes will be mirrored by the total number of results over the table as well as by the table export.  </p>
-                            <p>Multiple filters from the same dropdown list will be joined by a logical OR while between different lists we will use AND. </p>
+                            <h5 id="table-filtering">Table Filtering</h5>
+                            <p>The filters over the gene variants associations table offer flexible filtering possibilities. Multiple checkboxes can be selected from
+                                any filter dropdown list and the table will automatically reload with each new selected option. These changes will be mirrored by the
+                                total number of results over the table as well as by the table export.
+                            </p>
+                            <p>Multiple filters from the same dropdown list are joined by a logical OR. Filters between different lists are joined by a logical AND. </p>
                             <img src ="img/phenotype-filters.png"/>
 
 
-                            <h3><a name="table-download" href='#'>Downloading Results</a></h3>
-                          
+                            <h3 id="table-download">Downloading Results</h3>
                             <p> The results in the table may be downloaded for further processing. The resulting download respects all filters that have been applied to the data.</p>
-                            <p> We offer 2 export options for the data in the table: text file with tab separated variables (TSV) and Microsoft Excel spread sheet (XSL)</p>
-                            <img title="TSV" style="vertical-align:text-bottom;" src="img/export.png"/> 
-                            
-                            <p> Please note that in the table displayed on our page entry lines are collapsed based on sex. That is, if for 2 lines all fields are identical except the gender, 
-                                they will be shown together for a better user experience.
-                                In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files. </p>
-                           
+                            <p> We offer two export options for the data in the table: text file with tab separated variables (TSV) and Microsoft Excel spread sheet (XLS)</p>
+                            <img style="vertical-align:text-bottom;" src="img/export.png"/>
+
+                            <p>Please note: while collapsed rows are shown on the <i>page</i>, <i>download file</i> rows are not collapsed;
+                               the download file contains a single row for every mouse.</p>
 
                         </div><%-- end of content div--%>
                     </div>
