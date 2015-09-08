@@ -63,7 +63,7 @@ public class MpService extends BasicService{
 	 * @return all genes from the gene core.
 	 * @throws SolrServerException
 	 */
-	public MpDTO getPhenotypes(String id) throws SolrServerException {
+	public MpDTO getPhenotype(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
@@ -78,6 +78,7 @@ public class MpService extends BasicService{
 
 		return null;
 	}
+	
 
     /**
      * Return all phenotypes from the mp core.
