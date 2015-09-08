@@ -1138,7 +1138,7 @@
 
         <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-        <!-- script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script-->
+        <script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
 
         <script type="text/javascript">
             var diseaseTables = [{
