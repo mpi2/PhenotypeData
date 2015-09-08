@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -151,6 +152,7 @@ public class StatisticalResultDTO {
     public final static String ORGANISATION_ID = "organisation_id";
     public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
     public final static String PROJECT_ID = "project_id";
+    public final static String PHENOTYPE_SEX = "phenotype_sex";
 
     @Field(DOCUMENT_ID)
     private String docId;
@@ -158,6 +160,10 @@ public class StatisticalResultDTO {
     @Field(DB_ID)
     private Integer dbId;
 
+
+    @Field(PHENOTYPE_SEX)
+    private List<String> phenotypeSex;
+    
     @Field(DATA_TYPE)
     private String dataType;
 
@@ -1721,9 +1727,25 @@ public class StatisticalResultDTO {
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
+    
+    public List<String> getPhenotypeSex() {
+		return phenotypeSex;
+	}
 
+	public void setPhenotypeSex(List<String> phenotypeSex) {
+		this.phenotypeSex = phenotypeSex;
+	}
 
-    @Override
+	public void addPhenotypeSex(String phenotypeSex) {
+		
+		if (this.phenotypeSex == null){
+			this.phenotypeSex = new ArrayList<String>();
+		}
+		this.phenotypeSex.add(phenotypeSex);
+	}
+
+	
+	@Override
     public boolean equals(Object o) {
 
         if (this == o) {
