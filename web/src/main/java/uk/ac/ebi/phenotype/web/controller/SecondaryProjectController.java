@@ -161,7 +161,7 @@ public class SecondaryProjectController {
                         mpterms.get(MGIID).add(mp);
                         mptermnames.get(MGIID).add(mpterm);
 
-                        MpDTO mpDTO = mpService.getPhenotypes(mp);
+                        MpDTO mpDTO = mpService.getPhenotype(mp);
                         if (mpDTO != null) {
 
                             if (mpDTO.getTopLevelMpId() != null) {
