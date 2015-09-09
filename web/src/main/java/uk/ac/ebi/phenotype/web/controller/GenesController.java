@@ -96,9 +96,9 @@ public class GenesController {
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
-
-	@Autowired
-	private GwasDAO gwasDao;
+//
+//	@Autowired
+//	private GwasDAO gwasDao;
 
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
@@ -123,8 +123,9 @@ public class GenesController {
 
 	@Autowired
 	private GeneService geneService;
-
-	@Autowired private StatisticalResultService statsResultsService;
+//
+//	@Autowired 
+//	private StatisticalResultService statsResultsService;
 
 	@Autowired
 	private PreQcService preqcService;
@@ -228,7 +229,15 @@ public class GenesController {
 		try {
 			// model.addAttribute("phenotypeSummary",
 			// phenSummary.getSummary(acc));
+
+			long time = System.currentTimeMillis();
+			long time2 = System.currentTimeMillis();
+			
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+			
+			System.out.println("Solr took:: " + (System.currentTimeMillis() - time2));
+			time2 = System.currentTimeMillis();
+			
 			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
 					mpGroupsSignificant.add(phen.getGroup());
@@ -261,6 +270,8 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
+			System.out.println("summary TOOK : " + (System.currentTimeMillis() - time));
+			
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 

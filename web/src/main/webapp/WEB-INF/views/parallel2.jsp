@@ -21,6 +21,7 @@
     		
 			<div class="content">
 				<div class="section"> 
+					<h2 class="title" id="data-summary">Parallel coordinates tool<span class="documentation" ><a href='' id='parallelPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
 					<div class="inner">
 						<div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
 						

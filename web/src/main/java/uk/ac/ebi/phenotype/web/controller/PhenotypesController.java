@@ -116,8 +116,6 @@ public class PhenotypesController {
     @Autowired
     ObservationService os;
     @Autowired
-    ReportsService rService;
-    @Autowired
     PreQcService preqcService;
     @Autowired
     ImpressService impressService;
@@ -144,25 +142,22 @@ public class PhenotypesController {
      *
      */
     @RequestMapping(value = "/phenotypes/{phenotype_id}", method = RequestMethod.GET)
-    public String loadMpPage(
-            @PathVariable String phenotype_id,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+    public String loadMpPage(   @PathVariable String phenotype_id,  Model model, HttpServletRequest request, RedirectAttributes attributes)
+    throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
     	// Check whether the MP term exists
-    	MpDTO mpTerm = mpService.getPhenotypes(phenotype_id);
+    	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
     	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
         if (mpTerm == null && mpDbTerm == null) {
         	System.out.println("ONTOLOGY TERM NULL");
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
-        Set<OntologyTerm> anatomyTerms = new HashSet();
-        Set<OntologyTerm> mpSiblings = new HashSet();
-        Set<OntologyTerm> goTerms = new HashSet();
-        Set<Synonym> synonymTerms = new HashSet();
-        Set<SimpleOntoTerm> computationalHPTerms = new HashSet();
+        Set<OntologyTerm> anatomyTerms = new HashSet<OntologyTerm>();
+        Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
+        Set<OntologyTerm> goTerms = new HashSet<OntologyTerm>();
+        Set<Synonym> synonymTerms = new HashSet<Synonym>();
+        Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
 
         try {
 
@@ -235,8 +230,8 @@ public class PhenotypesController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            anatomyTerms = new HashSet();
-            mpSiblings = new HashSet();
+            anatomyTerms = new HashSet<OntologyTerm>();
+            mpSiblings = new HashSet<OntologyTerm>();
         }
 
         // register interest state
@@ -259,10 +254,7 @@ public class PhenotypesController {
         QueryResponse response = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
         model.addAttribute("numberFound", response.getResults().getNumFound());
         model.addAttribute("images", response.getResults());
-        //get a string, image map instead?
-        Map<String, JSONObject> exampleImagesMap = getExampleImages(phenotype_id);
-        model.addAttribute("exampleImages", exampleImagesMap);
-
+        
         processPhenotypes(phenotype_id, "", model, request);
 
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
@@ -270,7 +262,7 @@ public class PhenotypesController {
         
         // TODO replace dependency to the pipelineDao with call tp pipelineService. Need to index the MP terms with the procedures first.
         if (mpDbTerm != null){
-	        List<Procedure> procedures = new ArrayList(pipelineDao.getProceduresByOntologyTerm(mpDbTerm));
+	        List<Procedure> procedures = new ArrayList<Procedure>(pipelineDao.getProceduresByOntologyTerm(mpDbTerm));
 	        Collections.sort(procedures, new ProcedureComparator());
 	        model.addAttribute("procedures", procedures);
         }
@@ -289,7 +281,7 @@ public class PhenotypesController {
     private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
         Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
         for (String key : phenFacets.keySet()) {
-            sortPhenFacets.put(key, new TreeMap(phenFacets.get(key)));
+            sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
         }
         return sortPhenFacets;
     }
@@ -334,17 +326,17 @@ public class PhenotypesController {
         } catch (HibernateException | JSONException e) {
             log.error("ERROR GETTING PHENOTYPE LIST");
             e.printStackTrace();
-            phenotypeList = new ArrayList();
+            phenotypeList = new ArrayList<PhenotypeCallSummary>();
         }
 
         long time = System.currentTimeMillis();
 
         // This is a map because we need to support lookups
-        Map<DataTableRow, DataTableRow> phenotypes = new HashMap();
+        Map<DataTableRow, DataTableRow> phenotypes = new HashMap<DataTableRow, DataTableRow>();
 
         for (PhenotypeCallSummary pcs : phenotypeList) {
 
-            List<String> sex = new ArrayList();
+            List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 
@@ -353,12 +345,12 @@ public class PhenotypesController {
                 pr = phenotypes.get(pr);
 
                 // Use a tree set to maintain an alphabetical order (Female, Male)
-                TreeSet<String> sexes = new TreeSet();
+                TreeSet<String> sexes = new TreeSet<String>();
                 for (String s : pr.getSexes()) {
                     sexes.add(s);
                 }
                 sexes.add(pcs.getSex().toString());
-                pr.setSexes(new ArrayList(sexes));
+                pr.setSexes(new ArrayList<String>(sexes));
             }
 
             if (pr.getParameter() != null && pr.getProcedure() != null) {
@@ -366,7 +358,7 @@ public class PhenotypesController {
             }
         }
 
-        List<DataTableRow> list = new ArrayList(phenotypes.keySet());
+        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.keySet());
         Collections.sort(list);
 
         model.addAttribute("phenotypes", list);
@@ -433,61 +425,6 @@ public class PhenotypesController {
         return "geneVariantsWithPhenotypeTable";
     }
 
-    /**
-     * Get control and experimental example images for the top of the MP page
-     *
-     * @param accession MP Accession
-     * @return map containing control and experimental images with those as keys
-     * @throws SolrServerException
-     * @throws URISyntaxException
-     * @throws IOException
-     */
-    private Map<String, JSONObject> getExampleImages(String accession) throws SolrServerException, IOException, URISyntaxException {
-
-        if (accession.equals("MP:0001304")) {
-			//cataracts examlple images
-            //map.put("control", "https://dev.mousephenotype.org/data/media/images/1253/M01211663_00032438_download_tn_small.jpg");
-            //255874
-            Map<String, JSONObject> map = solrIndex.getExampleImages(255874, 76516);
-            //getImageDoc(255874, solrDocumentList);
-            return map;
-			//map.put("experimental", "https://www.mousephenotype.org/data/media/images/550/M00226962_00007295_download_tn_small.jpg");
-            //76516
-
-        } else if (accession.equals("MP:0001139")) {
-			//abnormal vagina
-            //map.put("control", "https://dev.mousephenotype.org/data/media/images/0/WebUpload842_tn_small.jpg");
-            //275206
-            //map.put("experimental", "https://www.mousephenotype.org/data/media/images/905/M00880970_00027885_download_full.jpg");
-            //160584
-            Map<String, JSONObject> map = solrIndex.getExampleImages(275206, 160584);
-            //getImageDoc(255874, solrDocumentList);
-            return map;
-
-        } else if (accession.equals("MP:0010098") || accession.equals("MP:0005103")) {
-			//abnormal retinal blood vessel pattern
-            //MP: abnormal retinal pigmentation
-            //map.put("control", "https://dev.mousephenotype.org/data/media/images/0/M01356510_00034871_download_tn_small.jpg");
-            //267671
-            //map.put("experimental", "https://www.mousephenotype.org/data/media/images/0/M01418062__download_tn_small.jpg");
-            //273416
-            Map<String, JSONObject> map = solrIndex.getExampleImages(267671, 273416);
-            //getImageDoc(255874, solrDocumentList);
-            return map;
-        } else if (accession.equals("MP:0000585")) {
-			//MP: Kinked tail
-            //map.put("control", "https://dev.mousephenotype.org/data/media/images/0/WebUpload498_tn_small.jpg");
-            //262634
-            //map.put("experimental", "https://dev.mousephenotype.org/data/media/images/899/M00512959_00019280_download_tn_small.jpg");
-            //159255
-            Map<String, JSONObject> map = solrIndex.getExampleImages(262634, 159255);
-            //getImageDoc(255874, solrDocumentList);
-            return map;
-        }
-//if no rule for this return empty map
-        return Collections.emptyMap();
-    }
-   
     
     public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException { // <sex, percentage>
         PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
@@ -504,8 +441,8 @@ public class PhenotypesController {
         boolean display = (total > 0 && nominator > 0);
         pgs.setDisplay(display);
 
-        List<String> genesFemalePhenotype = new ArrayList();
-        List<String> genesMalePhenotype = new ArrayList();
+        List<String> genesFemalePhenotype = new ArrayList<String>();
+        List<String> genesMalePhenotype = new ArrayList<String>();
         List<String> genesBothPhenotype;
 
         if (display) {
@@ -528,7 +465,7 @@ public class PhenotypesController {
             pgs.setMaleGenesTested(total);
         }
 
-        genesBothPhenotype = new ArrayList(genesFemalePhenotype);
+        genesBothPhenotype = new ArrayList<String>(genesFemalePhenotype);
         genesBothPhenotype.retainAll(genesMalePhenotype);
         genesFemalePhenotype.removeAll(genesBothPhenotype);
         genesMalePhenotype.removeAll(genesBothPhenotype);
