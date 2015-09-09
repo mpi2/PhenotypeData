@@ -100,13 +100,13 @@
                                Hovering over any point shows some important experiment details. Clicking on any point shows a graph of the experiment data.
                             </p>
                             <br />
-                            <img src="img/all_data.png" />
+                            <img src="img/all-data.png" />
                             <br/><br/>
 
                             <h4 id="embryo-viewer">View embryos</h4>
                             <p>This button appears when there are embryo images. Click this button to launch the embryo viewer.</p>
                             <br />
-                            <img src="img/embryo_viewer.png" />
+                            <img src="img/embryo-viewer.png" />
                             <br /><br />
 
                             <h3 id="phenotype-table">Gene Phenotype Table</h3>
