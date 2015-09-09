@@ -663,6 +663,8 @@
                             </div>
                         </c:if>
 
+						<div class="clear"></div>
+						<br/> <br/>
                         <c:if test="${not empty impcExpressionImageFacets}">
                             <!-- Expression in Anatomogram -->
                             <c:if test="${!isLive}">
