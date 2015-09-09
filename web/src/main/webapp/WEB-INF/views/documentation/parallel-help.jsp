@@ -25,26 +25,27 @@
 
                         <div id="top" class="content node">
 
-                            <h1>Explore the Diverse Entry Points to Mouse Phenotype Data.</h1>
+                            <h1>Parallel coordinates </h1>
 
-                            <p>
-                                The parallel coordinates tool allows the users to compare strain values across different parameters.  
-                            </p>
+                            <p> The parallel coordinates tool allows the users to compare strains across different parameters. 
+                            Mouse over a row in the table will highlight the corresponding line on the chart.</p>
                             
-                            <p> The values displayed are the genotype effect, which accounts for different variation sources. Information about this and the statistical methods used is available at ??????.
-
-                            <h3 id="parallel-panel">Phenotype Association Stats</h3>
-                            
+                            <p> The values displayed are the genotype effect, which accounts for different variation sources. 
+                            Information about this and the statistical methods used is available in the <a href="statistics-help">statistics documentation page</a>.</p>
+							<br/>
+                            <img class="well" src="img/parallel.png"/>
+                            <br/>
                             <p> The tool allows <b>filtering</b> on each axis (parameter) by selecting the region of interest with the mouse.</p> 
-                            <p><b>clear</b></p>
-                            <p><b>shadows</b></p>
-                            <p></p>
-                            <p></p>
-                            <p></p> 
+                            <img class="well" src="img/parallel-filtered.png"/>
+                            <br/><br/>
+                            <p>The <b>clear</b> button removes existing filters.</p>
+                            <p>The <b>shadows</b> button keeps a shadow of lines which have been filtered out.</p>
+                            <p>The <b>opacity</b> allows the user to edit the transparency of the lines.</p>
+                            <p>The <b>export</b> button generates an export of the values in the table. If any filter is set, only the data displayed in the table will be exported.</p>
+                             
                             <p> The generation of this chart is computationally intensive and the number of parameters that can be plotted may vary from one machine to the other. 
                             	If you notice the tool becoming too slow, please consider selecting less or smaller procedures.</p>
 
-                            <img class="well" src="img/phenotype-overview.png"/>
 
                         </div><%-- end of content div--%>
                     </div>
