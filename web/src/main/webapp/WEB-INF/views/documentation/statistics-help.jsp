@@ -81,9 +81,9 @@
                             optimisation starting with:</p>
 
                             <blockquote>
-                            	<strong><i>Y = Genotype + Sex + Genotype~Sex + (1|Batch)</i></strong>
+                            	<strong><i>Y = Genotype + Sex + Genotype*Sex + (1|Batch)</i></strong>
                             	<p><small>
-                            	Genotype~Sex is sometimes called the "interaction term" in PhenStat.<br />
+                            	Genotype*Sex is sometimes called the "interaction term" in PhenStat.<br />
                             	Assume batch is normally distributed with defined variance.<br /><br/>
                             	<i>NOTE: The MM encoded in PhenStat supports an optional "weight" term.</i>
                             	</small></p>
@@ -159,9 +159,9 @@
 		                            	<td>The phenotyping organisation that performed the experiment and collected the data.</td>
 	                            	</tr>
 	                            	<tr>
-		                            	<td>Sex *</td>
+		                            	<td>Sex<sup>[1]</sup></td>
 		                            	<td>The sex of the specimens. When analyzed using the <b>Mixed model</b> males and females are analysed together to determine the
-		                            	<b>Sex</b> and <b>Sex~Genotype interaction</b> effect terms.<br /><small>* - optional</small></td>
+		                            	<b>Sex</b> and <b>Sex*Genotype interaction</b> effect terms.<br /><small>[1] - optional</small></td>
 	                            	</tr>
                             	</tbody>
 								<caption>IMPC data aggregation fields.</caption>
@@ -183,13 +183,13 @@
                             	<tr>
                             		<td>One batch</td>
                             		<td>All mutant and control data are measured on one day.</td>
-                            		<td>No batch effect.  The controls and mutants are analysed using <strong><i>Y = Genotype + Sex + Genotype~Sex</i></strong></td>
+                            		<td>No batch effect.  The controls and mutants are analysed using <strong><i>Y = Genotype + Sex + Genotype*Sex</i></strong></td>
                             		<td>Concurrent control strategy &mdash; Use control data that are collected on the same day as the mutant data.</td>
                             	</tr>
                             	<tr>
                             		<td>Multi-batch batch (2+)</td>
                             		<td>Mutant and control data are gathered over a few days.</td>
-                            		<td>Possible batch effect.  The controls and mutants are analysed using <br /><strong><i>Y = Genotype + Sex + Genotype~Sex + (1|Batch)</i></strong>, the batch effect might be removed.</td>
+                            		<td>Possible batch effect.  The controls and mutants are analysed using <br /><strong><i>Y = Genotype + Sex + Genotype*Sex + (1|Batch)</i></strong>, the batch effect might be removed.</td>
                             		<td>Baseline control strategy &mdash; Use all control data within the same .</td>
                             	</tr>
                             </tbody>
