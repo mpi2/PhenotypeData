@@ -315,14 +315,14 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 "proj.name as project_name, proj.id as project_id, " +
                 "org.name as phenotyping_center, org.id as phenotyping_center_id " +
                 "FROM phenotype_parameter parameter " +
-                "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id = 'IMPC_FER_001_001' " +
+                "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id IN ('IMPC_FER_001_001', 'IMPC_FER_019_001') " +
                 "INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
                 "INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
                 "INNER JOIN external_db db ON db.id=obs.db_id " +
                 "INNER JOIN project proj ON proj.id=exp.project_id " +
                 "INNER JOIN organisation org ON org.id=exp.organisation_id " +
                 "LEFT OUTER JOIN phenotype_call_summary sr ON (exp.colony_id=sr.colony_id AND sr.parameter_id=parameter.id) " +
-                "WHERE  parameter.stable_id = 'IMPC_FER_001_001'";
+                "WHERE  parameter.stable_id IN ('IMPC_FER_001_001', 'IMPC_FER_019_001') " ;
 
             try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
                 p.setFetchSize(Integer.MIN_VALUE);
