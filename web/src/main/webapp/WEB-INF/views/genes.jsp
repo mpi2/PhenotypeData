@@ -679,6 +679,8 @@
                         <c:if test="${not empty impcExpressionImageFacets}">
                             <!-- Expression in Anatomogram -->
                             <c:if test="${!isLive}">
+                            
+        					<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
                             <div class="section">
                                 <h2 class="title" id="expression-anatomogram">Expression in Anatomogram<span
                                         class="documentation"><a href='' id='expressionAnatomogramPanel'
@@ -1141,7 +1143,6 @@
 
         <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-        <script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
 
         <script type="text/javascript">
             var diseaseTables = [{
