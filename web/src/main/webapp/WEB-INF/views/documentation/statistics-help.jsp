@@ -20,11 +20,11 @@
 
                 <!-- Maincontent -->
 
-                <div class="region region-content">              
+                <div class="region region-content">
 
                     <div class="block block-system">
 
-                        <div id="top" class="content node">
+                        <p id="top" class="content node">
 
                             <h3>More information about the way IMPC uses statistics.</h3>
 
@@ -41,9 +41,9 @@
 
                             <ul>
                                 <li><a href="https://en.wikipedia.org/wiki/Fisher%27s_exact_test"><strong>Fisher's Exact test</strong></a> - for categorical data parameters</li>
-                                <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed Model</strong></a> - for continuous data parameters which include random effects </li>
-                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear Model</strong></a> - for continuous data parameters when random effects are not significant</li>
-                                <li><a href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U"><strong>Mann-Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for mixed model are not appropriate</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Mixed_model"><strong>Mixed model</strong></a> - for continuous data parameters which include random effects </li>
+                                <li><a href="https://en.wikipedia.org/wiki/Linear_model"><strong>Linear model</strong></a> - for continuous data parameters when random effects are not significant</li>
+                                <li><a href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U"><strong>Mann-Whitney U Rank sum test</strong></a> - for continuous data parameters when conditions for Mixed model are not appropriate</li>
                             </ul>
                             
                             <p>
@@ -60,55 +60,55 @@
                             
                             <p>
                             The PhenStat package provides statistical methods for 
-                            the identification of abnormal phenotypes with an emphasize on high-throughput dataflows. 
+                            the identification of abnormal phenotypes with an emphasis on high-throughput dataflows.
                             The package contains:</p>
                             <ul>
 	                            <li>dataset checks and cleaning in preparation for the analysis</li> 
 	                            <li>2 statistical frameworks for genotype to phenotype identification
 		                            <ul>
 			                            <li>Fisher's Exact test for Categorical data</li>
-			                            <li>Linear Mixed Model for continuous</li>
+			                            <li>Linear Mixed model for continuous</li>
 		                            </ul>
 	                            </li>
 	                            <li> and additional functions that help to decide the correct method for analysis.</li>
                             </ul>
                             
                             <p>
-                            Mixed Models framework assumes that base line values of 
+                            The Mixed model framework assumes that base line values of the
                             dependent variable are normally distributed but batch (assay date) 
                             adds noise and models variables accordingly in 
                             order to separate the batch and the genotype. Model 
                             optimisation starting with:</p>
 
                             <blockquote>
-                            	<strong><i>Y = Genotype + Sex + Genotype&#42;Sex + (1|Batch)</i></strong>
+                            	<strong><i>Y = Genotype + Sex + Genotype~Sex + (1|Batch)</i></strong>
                             	<p><small>
-                            	Genotype∗Sex is sometimes called the "interaction term" in PhenStat.<br />
+                            	Genotype~Sex is sometimes called the "interaction term" in PhenStat.<br />
                             	Assume batch is normally distributed with defined variance.<br /><br/>
-                            	* - The MM encoded in PhenStat supports an optional "weight" term
+                            	<i>NOTE: The MM encoded in PhenStat supports an optional "weight" term.</i>
                             	</small></p>
                             </blockquote>
                             
                             <p>
-                            The Mixed Model framework is an iterative process to select the 
+                            The Mixed model framework is an iterative process to select the
                             best model for the data which considers both the best modelling 
-                            approach (mixed model or general linear regression) 
+                            approach (Mixed model or general linear regression)
                             and which factors to include in the model.
                             </p>
 
                             <p>
                             If PhenStat assumptions about the input data are not met, a second attempt at analyzing the data
-                            will be attempted -- a Mann-Whitney U Rank Sum test.
+                            will be attempted &mdash; a Mann-Whitney U Rank Sum test.
                             </p>
                             
                             <h4>Control selection strategy</h4>
                             
                             <p>One side effect of producing data in a high throughput pipeline is that the input data for a statistical calculation might be produced over multiple days.
                             Environmental fluctuations have been identified as a confounding factor when comparing 
-                            data gathered on different days.  The IMPC describes this as a "batch effect" and it is treated as a random effect in the Mixed Model framework.
+                            data gathered on different days.  The IMPC describes this as a "batch effect" and it is treated as a random effect in the Mixed model framework.
                             </p>
                             
-                            <p>The data sets to be analysed are identified using unique combinations of these fields</p>
+                            <p>The data sets to be analysed are identified using unique combinations of these fields:
                             
                             <table>
                             	<thead>
@@ -124,7 +124,7 @@
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Allele / Colony</td>
-		                            	<td>The genomic variation in the mutant.  The allele describes the character of the mutation and the <b>Genotype effect</b> term of the mixed model.</td>
+		                            	<td>The genomic variation in the mutant.  The allele describes the character of the mutation and the <b>Genotype effect</b> term of the Mixed model.</td>
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Zygosity</td>
@@ -138,19 +138,21 @@
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Pipeline</td>
-		                            	<td>The standardized phenotyping pipeline as described in <a href="https://www.mousephenotype.org/impress/pipelines">IMPReSS Pipelines</a></td>
+		                            	<td>The standardized phenotyping pipeline as described in <a href="https://www.mousephenotype.org/impress/pipelines">IMPReSS Pipelines</a>.</td>
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Procedure</td>
-		                            	<td>The standardized set of procedures (experiments) as described in <a href="https://www.mousephenotype.org/procedures-impc-pipeline">IMPReSS procedures</a></td>
+		                            	<td>The standardised set of procedures (experiments) as described in <a href="https://www.mousephenotype.org/procedures-impc-pipeline">IMPReSS procedures</a>.</td>
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Parameter</td>
-		                            	<td>The standardized set of measurements as described in <a href="https://www.mousephenotype.org/parameters">IMPReSS parameters</a></td>
+		                            	<td>The standardised set of measurements as described in <a href="https://www.mousephenotype.org/parameters">IMPReSS parameters</a>.</td>
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Metadata group</td>
-		                            	<td>Some parameters are indicated as "procedureMetadata" type.  Some of these metadata are used to group comparable data together as described on the <a href="https://www.mousephenotype.org/parameters">IMPReSS parameters</a> page under the "Required For Data Analysis" section. The parameters that are marked as "Required For Data Analysis" are collectively identified by an identifier called the metadata group.</td>
+		                            	<td>Some parameters are indicated as "procedureMetadata" type. Some of these metadata are used to group comparable data together as described
+		                            	on the <a href="https://www.mousephenotype.org/parameters">IMPReSS parameters</a> page under the "Required For Data Analysis" section.
+		                            	The parameters that are marked as "Required For Data Analysis" are collectively identified by an identifier called the metadata group.</td>
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Organisation</td>
@@ -158,11 +160,13 @@
 	                            	</tr>
 	                            	<tr>
 		                            	<td>Sex *</td>
-		                            	<td>The sex of the specimens. When analyzed using the <b>mixed model</b> males and females are analysed together to determine the <b>Sex</b> and <b>Sex*Genotype interaction</b> effect terms.<br /><small>* - optional</small></td>
+		                            	<td>The sex of the specimens. When analyzed using the <b>Mixed model</b> males and females are analysed together to determine the
+		                            	<b>Sex</b> and <b>Sex~Genotype interaction</b> effect terms.<br /><small>* - optional</small></td>
 	                            	</tr>
                             	</tbody>
 								<caption>IMPC data aggregation fields.</caption>
-                           	</table> 
+                           	</table>
+
                             
 							<p>IMPC phenotyping centers operate using different work flows which contribute to the batch effect.</p>
                             
@@ -179,14 +183,14 @@
                             	<tr>
                             		<td>One batch</td>
                             		<td>All mutant and control data are measured on one day.</td>
-                            		<td>No batch effect.  The controls and mutants are analysed using <strong><i>Y = Genotype + Sex + Genotype&#42;Sex</i></strong></td> 
-                            		<td>Concurrent control strategy -- Use control data that are collected on the same day as the mutant data.</td> 
+                            		<td>No batch effect.  The controls and mutants are analysed using <strong><i>Y = Genotype + Sex + Genotype~Sex</i></strong></td>
+                            		<td>Concurrent control strategy &mdash; Use control data that are collected on the same day as the mutant data.</td>
                             	</tr>
                             	<tr>
                             		<td>Multi-batch batch (2+)</td>
                             		<td>Mutant and control data are gathered over a few days.</td>
-                            		<td>Possible batch effect.  The controls and mutants are analysed using <br /><strong><i>Y = Genotype + Sex + Genotype&#42;Sex + (1|Batch)</i></strong>, the batch effect might be removed.</td> 
-                            		<td>Baseline control strategy -- Use all control data within the same .</td> 
+                            		<td>Possible batch effect.  The controls and mutants are analysed using <br /><strong><i>Y = Genotype + Sex + Genotype~Sex + (1|Batch)</i></strong>, the batch effect might be removed.</td>
+                            		<td>Baseline control strategy &mdash; Use all control data within the same .</td>
                             	</tr>
                             </tbody>
                             <caption>Example work flows at IMPC centers.</caption>
@@ -232,12 +236,12 @@
 							<p>The particular MP term(s) defined for a parameter are maintained in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>.  
 							Frequently, the term indicates an <strong>increase</strong> or <strong>decrease</strong> of the parameter measured.</p>
 							
-							<p>When a statistical result is determined as significant, the following diagram is used for associating MP term:</p>
+							<p>When a statistical result is determined as significant, the following diagram is used for associating MP terms:</p>
 							<img src="img/stats_mpterms.png" />
 							
 							<h4>Significance</h4>
 							
-							<p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001) it is considered significant.</p>
+							<p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
 							
 
                         </div><%-- end of content div--%>

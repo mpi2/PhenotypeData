@@ -22,6 +22,7 @@ import java.util.HashSet;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
@@ -33,7 +34,7 @@ public class PhenotypeSummaryDAO  {
 
 	@Autowired
 	private StatisticalResultService srService;
-
+	
 	public PhenotypeSummaryDAO() throws MalformedURLException {
 	}
 
@@ -117,21 +118,23 @@ public class PhenotypeSummaryDAO  {
 
 	public HashMap<ZygosityType, PhenotypeSummaryBySex> getSummaryObjectsByZygosity(String gene) throws Exception {
 		
-		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();
+		HashMap< ZygosityType, PhenotypeSummaryBySex> res =  new HashMap<>();		
 		
 		for (ZygosityType zyg : ZygosityType.values()){
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			HashMap<String, String> summary = srService.getTopLevelMPTerms(gene, zyg);
+			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
+			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
 			
 			for (String id: summary.keySet()){
-			
-				SolrDocumentList resp = srService.getPhenotypesForTopLevelTerm(gene, id, zyg);
+				
+				SolrDocumentList resp = summary.get(id);
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
+				String mpName = mps.get(id);
 				long n = getNumSignificantCalls(resp);
 				boolean significant = (n > 0)? true : false;
-				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, summary.get(id), sex, n, ds, significant);
+				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, mpName, sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
 				
 			}
@@ -142,4 +145,5 @@ public class PhenotypeSummaryDAO  {
 		}
 		return res;
 	}
-}
+	
+	}
