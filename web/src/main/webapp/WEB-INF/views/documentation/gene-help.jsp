@@ -24,7 +24,7 @@
 
                     <div class="block block-system">
 
-                        < id="top" class="content node">
+                        <div id="top" class="content node">
                             
                             <h1>Gene Page Documentation</h1>
 		
