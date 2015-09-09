@@ -121,11 +121,7 @@
                     $("#tabs").tabs();
 
                     $('ul.tabs li a').click(function () {
-                        $('ul.tabs li a').css({
-                            'border-bottom': 'none',
-                            'background-color': '#F4F4F4',
-                            'border': 'none'
-                        });
+                       
                         $(this).css({
                             'border': '1px solid #666',
                             'border-bottom': '1px solid white',
@@ -134,11 +130,7 @@
                         });
                     });
 
-                    $('ul.tabs li a').css({
-                        'border-bottom': 'none',
-                        'background-color': '#F4F4F4',
-                        'border': 'none'
-                    });
+                   
                     $('ul.tabs li a#ui-id-1').css({
                         'border': '1px solid #666',
                         'border-bottom': '1px solid white',
@@ -180,11 +172,6 @@
                     margin-bottom: -1px;
                     border: 1px solid #666;
                     font-size: 12px;
-                }
-
-                ul.tabs li a:hover {
-                    color: white;
-                    background-color: gray;
                 }
 
                 div.ui-tabs-panel {
@@ -735,6 +722,8 @@
                                     <span title="Ambiguous" class="${ambiguousIcon}"
                                           style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 
+									<br/> <br/>
+									
                                     <!-- section for expression data here -->
                                     <div id="tabs">
                                         <ul class='tabs'>
