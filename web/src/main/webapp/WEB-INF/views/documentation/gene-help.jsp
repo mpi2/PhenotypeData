@@ -77,7 +77,7 @@
                             <h3 id="phenotype-associations">Phenotype associations</h3>
                             <p>This section shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
 
-                            <h4><a name="phenotype-summary" href='#'>Gene Phenotype Summary</a></h4>
+                            <h4 id="phenotype-summary">Gene Phenotype Summary</h4>
 
                             <p>The section starts with a summary of phenotype top level terms for this gene, with associated counts. The counts indicate the number of calls for
                             		the current gene, grouped by zygosity, sex and top level MP term. The icons on the right hand side show a visual summary of the same data. </p>
@@ -85,11 +85,13 @@
                             <p>The grid at the top right contains icons intended to discover test phenotype status at a glance. Icons in orange indicate significant phenotypes
                             were discovered. Icons in blue indicate tests were performed but no significant phenotypes were discovered. Icons in gray indicate no phenotype tests
                              were performed.</p>
-                            <p>To see all test results for adult data, press the "All Adult Data" button (described below).</p>
+                            <p>To see all test results for adult data, press the "All Adult Data" button (described below).
+                            <br />
+                            If there are embryo images, press the "Embryo Viewer" button (described below) to view them.</p>
                             <img src="img/gene-phenotype-summary.png" />
 
 
-                            <h3 id="phenotype-phenome-hyperlink">Browse all adult phenotype data for a gene</h3>
+                            <h4 id="phenotype-phenome-hyperlink">Browse all adult phenotype data for a gene</h4>
                             <p>Access to the details of the statistical analysis is provided in a separate page by clicking on the
                                 <strong>All Adult Data</strong> button. This page provides access to all statistical results for a
                                 mutant line whether significant or not.
@@ -101,6 +103,11 @@
                             <img src="img/all_data.png" />
                             <br/><br/>
 
+                            <h4 id="embryo-viewer">View embryos</h4>
+                            <p>This button appears when there are embryo images. Click this button to launch the embryo viewer.</p>
+                            <br />
+                            <img src="img/embryo_viewer.png" />
+                            <br /><br />
 
                             <h3 id="phenotype-table">Gene Phenotype Table</h3>
                             <p>The phenotype table lists the individual phenotypes associated to this gene through a specific allele.  If both sexes are associated, 
@@ -169,7 +176,7 @@
                             <img src="img/gene-expression-images.png" />
 
 
-                            <h3 id="order" href='#'>Order Mouse and ES Cells</h3>
+                            <h3 id="order">Order Mouse and ES Cells</h3>
                             <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries.</p>
                             <p>The links in the <strong>Order</strong> column will take you to the purchase place of the ES cell or mouse when available.</p>  
                             <p>The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>
