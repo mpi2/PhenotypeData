@@ -151,7 +151,7 @@ public class PhenotypesController {
             RedirectAttributes attributes) throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
     	// Check whether the MP term exists
-    	MpDTO mpTerm = mpService.getPhenotypes(phenotype_id);
+    	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
     	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
         if (mpTerm == null && mpDbTerm == null) {
         	System.out.println("ONTOLOGY TERM NULL");
