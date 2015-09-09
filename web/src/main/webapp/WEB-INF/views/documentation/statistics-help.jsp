@@ -20,9 +20,9 @@
 
                 <!-- Maincontent -->
 
-                < class="region region-content">
+                <div class="region region-content">
 
-                    < class="block block-system">
+                    <div class="block block-system">
 
                         <p id="top" class="content node">
 
