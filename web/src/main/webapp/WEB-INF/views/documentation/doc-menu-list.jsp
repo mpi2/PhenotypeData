@@ -12,6 +12,7 @@
                                 <li><a href="statistics-help">Statistics</a> </li>
                                 <li><a href="phenome-help">Phenome Overview</a> </li>                                
                                 <li><a href="graph-help">Charts</a> </li>
+                                <li><a href="parallel-help">Parallel Coordinates Tool</a> </li>
                                 <li><a href="api-help">RESTful APIs</a>
                                 <ul>
                                     <li type="circle" style="padding-left: 15px"><a href="genotype-phenotype-api-help">Genotype-Phenotype API</a></li>
