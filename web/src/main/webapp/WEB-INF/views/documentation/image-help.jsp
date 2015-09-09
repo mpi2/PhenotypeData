@@ -29,31 +29,38 @@
                             <h3>More information about the way IMPC uses images.</h3>
 
 
-                                <h4><a name="explore" href='#'>Explore Image Data</a></h4>
-                                <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA) and procedure terms. To search for images associated with the gene symbol ""Akt2", type Akt2 into the search box at the top of the page and then click on the "IMPC images"" link at the side.
-                                    A list with categories of images associated to the Akt2 is then displayed on the left. Click on these categories to see sub-categories and their respective counts of images associated with that category. You can also search for genes using MGI identifiers. 
-                                    To search for images associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box.
-                                    <img src="img/image_facet.png">
-                                </p>
+                            <h4 id="explore">Explore Image Data</h4>
+                            <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA) and procedure terms.
+                               To search for images associated with the gene symbol "Akt2", type Akt2 into the search box at the top of the page
+                               and then click on the "IMPC images" link at the side. A list with categories of images associated to Akt2 is
+                               then displayed on the left. Click on these categories to see sub-categories and their respective counts of images
+                               associated with that category. You can also search for genes using MGI identifiers. To search for images
+                               associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box.
+                               <br />
+                               <img src="img/image_facet.png" />
+                            </p>
 
-                                <h4><a name="imported" href='#'>Imported Images</a> </h4>
-                                <p>Currently images are from the IMPC standardised screens <a href="https://www.mousephenotype.org/impress">https://www.mousephenotype.org/impress</a> the procedures highlighted in red will have image data collected. Data has been analysed by statistical methods (ususally labelled in the portal with "IMPC images").
-                                The web portal also contains legacy data from the MGP project at the Wellcome Trust Sanger Institute where the terms were manually annotated by researchers (usually just labelled "images" in the web portal).
-                                    
-                                    <img src="img/pipelines_with_images.png">
-                                </p>
+                            <h4 id="imported">Imported Images</h4>
+                            <p>IMPC Images are from the IMPC standardised <a href="https://www.mousephenotype.org/impress">IMPReSS procedures</a>.
+                               The procedures highlighted in red below have image data collected. Data has been analysed by statistical methods
+                               (labelled "IMPC images" in the web portal). The web portal also contains legacy data from the MGP
+                               project at the Wellcome Trust Sanger Institute where the terms were manually annotated by researchers
+                               (labelled "Images" in the web portal).
+                               <br /><br />
+                               <img src="img/pipelines_with_images.png" />
+                            </p>
 
-                                <h4><a name="update_frequency" href='#'>How often are images updated?</a></h4>
-                                <p>
-                                IMPC images are released with the other data in the portal which is currently roughly every few months (3-4 months). 
-                                    Images from the MGP resource at Wellcome Trust Sanger Institute are updated as needed at the same time as IMPC data is collected.
-                                </p>
+                            <h4 id="update_frequency">How often are images updated?</h4>
+                            <p>IMPC images are released with the other data in the portal roughly every three to four months.
+                                Images from the MGP resource at the Wellcome Trust Sanger Institute are updated as needed at the same time as IMPC data is collected.
+                            </p>
 
-                                <h4><a name="download" href='#'>How do I get image data/ download?</a></h4>
-                                <p>Individual images may be downloaded clicking on an image in the normal view where a larger popup image is then displayed together with the option of downloading it underneath.
-                                Individual images can be downloaded from the comparison view (Control images vs experimental)- download links are displayed next to other annotation underneath each image. A spreadsheet containing information and links can be downloaded using the "download" link on the top right corner of the search results.</p>
-
-
+                            <h4 id="download">How do I get image data / download?</h4>
+                            <p>Individual images may be downloaded by clicking on an image in the normal view where a larger popup image is then displayed together with
+                               the option of downloading it underneath. Individual images can be downloaded from the comparison view (Control images vs experimental).
+                               Download links are displayed next to other annotations underneath each image. A spreadsheet containing information and links can be
+                               downloaded using the "download" link on the top right corner of the search results.
+                            </p>
                        </div>
                     </div>
                 </div>
