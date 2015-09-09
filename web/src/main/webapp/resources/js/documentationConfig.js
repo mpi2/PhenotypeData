@@ -86,7 +86,7 @@ MDOC.phenome = {
 };
 
 MDOC.parallel = {
-		'parallelPanel'         				: '<p>Select one or more procedures to be displayed in a parallel coordinates chart. The values displayed are not the raw data but the genotype effect.</p> <p>Click the help icon for more details.</p>',
+		'parallelPanel'         				: '<p>Select one or more procedures to be displayed in a parallel coordinates chart. You can select ranges to filter the data for multiple parameters. The values displayed are the genotype effect for each strain.</p> <p>Click the help icon for more details.</p>',
 		'parallelPanelDocUrl'   				: baseUrl + '/documentation/parallel-help'
 };
 
