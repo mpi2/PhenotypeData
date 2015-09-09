@@ -16,15 +16,14 @@
 package uk.ac.ebi.phenotype.ontology;
 
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,17 +47,20 @@ public class PhenotypeSummaryDAO  {
 				SolrDocument doc = resp.get(i);
 				
 				if (isSignificant(doc)){
-					if (doc.containsKey(GenotypePhenotypeDTO.SEX)){
-						if ("male".equalsIgnoreCase((String) doc.getFieldValue(GenotypePhenotypeDTO.SEX)))
-							resume += "m";
-						else if ("female".equalsIgnoreCase((String) doc.getFieldValue(GenotypePhenotypeDTO.SEX)))
-							resume += "f";
-		
+					if (doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX)){
+						Collection<Object> sexes = doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX);
+						if (sexes.size() == 2){
+							resume += "mf";
+						} else {
+							if (sexes.iterator().next().toString().equals("female")){
+								resume += "f";
+							} else if (sexes.iterator().next().toString().equals("male")){
+								resume += "m";
+							}
+						}	
 						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
 							return "both sexes";
-					} else {
-						return "both sexes";
-					}
+					} 
 				} else {
 					break; // they're sorted so the significant ones will only be at the top
 				}
@@ -94,7 +96,7 @@ public class PhenotypeSummaryDAO  {
 		if (res != null && res.size() > 0 && res.get(0) != null){ 
 			for (SolrDocument doc: res){
 				if (isSignificant(doc)){
-					n ++;
+					n += doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX) ? doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX).size() : 2;
 				} else {
 					break;
 				}
