@@ -458,9 +458,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         }
         
         SolrDocumentList result = solr.query(solrQuery).getResults();
-        
-        System.out.println("------ URL HERE ----- " + solr.getBaseURL() + "/select?" + solrQuery);
-        
+               
         return result;
     }
 
@@ -484,14 +482,13 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
             solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY, 
             		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MP_TERM_ID, 
-            		GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+            		GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+            		StatisticalResultDTO.PHENOTYPE_SEX);
             
             if (zygosity != null) {
                 solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
             }
 
-            System.out.println("------ URL HERE ----- " + solr.getBaseURL() + "/select?" + solrQuery);
-            
             SolrDocumentList result = solr.query(solrQuery).getResults();
                         
             for (SolrDocument doc: result){
@@ -513,8 +510,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             		}
             	}
             }
-            
-            System.out.println(res);
             
             return res;
         }
