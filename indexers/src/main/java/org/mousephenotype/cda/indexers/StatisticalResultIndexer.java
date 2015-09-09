@@ -71,6 +71,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
     Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
     Map<String, ResourceBean> resourceMap = new HashMap<>();
+    Map<String, List<String>> sexesMap = new HashMap<>();
 
     Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 
@@ -111,6 +112,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             logger.info("Populating resource map");
             populateResourceDataMap();
+
+            logger.info("Populating statistical result sexes map");
+            populateSexesMap();
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -315,14 +319,14 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 "proj.name as project_name, proj.id as project_id, " +
                 "org.name as phenotyping_center, org.id as phenotyping_center_id " +
                 "FROM phenotype_parameter parameter " +
-                "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id = 'IMPC_FER_001_001' " +
+                "INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id IN ('IMPC_FER_001_001', 'IMPC_FER_019_001') " +
                 "INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
                 "INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
                 "INNER JOIN external_db db ON db.id=obs.db_id " +
                 "INNER JOIN project proj ON proj.id=exp.project_id " +
                 "INNER JOIN organisation org ON org.id=exp.organisation_id " +
                 "LEFT OUTER JOIN phenotype_call_summary sr ON (exp.colony_id=sr.colony_id AND sr.parameter_id=parameter.id) " +
-                "WHERE  parameter.stable_id = 'IMPC_FER_001_001'";
+                "WHERE  parameter.stable_id IN ('IMPC_FER_001_001', 'IMPC_FER_019_001') " ;
 
             try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
                 p.setFetchSize(Integer.MIN_VALUE);
@@ -356,6 +360,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
+        if (sexesMap.containsKey("unidimensional-"+doc.getDbId())) {
+            doc.setPhenotypeSex(sexesMap.get("unidimensional-"+doc.getDbId()));
+        }
 
         // Index the mean fields
         doc.setMaleControlMean(r.getDouble("male_control_mean"));
@@ -449,7 +456,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
-        doc.setSex(r.getString("sex"));
+	    if (sexesMap.containsKey("categorical-"+doc.getDbId())) {
+		    doc.setPhenotypeSex(sexesMap.get("categorical-"+doc.getDbId()));
+	    }
+
+	    doc.setSex(r.getString("sex"));
         doc.setpValue(r.getDouble("categorical_p_value"));
         doc.setEffectSize(r.getDouble("categorical_effect_size"));
 
@@ -739,6 +750,35 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             }
         }
         logger.info("Populated resource data map with {} entries", resourceMap.size());
+    }
+
+    /**
+     * Add all the relevant data required quickly looking up biological data
+     * associated to a biological sample
+     *
+     * @throws SQLException when a database exception occurs
+     */
+    private void populateSexesMap() throws SQLException {
+
+        List<String> queries = Arrays.asList(
+            "SELECT CONCAT('unidimensional-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_unidimensional_results s INNER JOIN stat_result_phenotype_call_summary r ON r.unidimensional_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
+            "SELECT CONCAT('categorical-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_categorical_results s INNER JOIN stat_result_phenotype_call_summary r ON r.categorical_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id"
+        );
+
+        for (String query : queries) {
+            try (PreparedStatement p = connection.prepareStatement(query)) {
+
+                ResultSet resultSet = p.executeQuery();
+
+                while (resultSet.next()) {
+                    List<String> sexes = new ArrayList<>();
+                    sexes.addAll(Arrays.asList(resultSet.getString("sexes").replaceAll(" ", "").split(",")));
+
+                    sexesMap.put(resultSet.getString("id"), sexes);
+                }
+            }
+        }
+        logger.info("Populated sexes data map with {} entries", sexesMap.size());
     }
 
     protected class ResourceBean {
