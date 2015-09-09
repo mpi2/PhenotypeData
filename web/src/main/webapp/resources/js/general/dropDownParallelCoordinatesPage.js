@@ -1,5 +1,12 @@
 $(document).ready(function(){
 	
+	$.fn.qTip({
+		'pageName': 'parallel',				
+		'tip': 'top right',
+		'corner' : 'right top'
+	});							
+	
+	
 	$( '#spinner' ).hide();
 		
 	removeFilterSelects();

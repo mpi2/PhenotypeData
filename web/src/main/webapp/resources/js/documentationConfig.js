@@ -85,5 +85,9 @@ MDOC.phenome = {
 		'phenomePanelDocUrl'   				: baseUrl + '/documentation/phenome-help'
 };
 
+MDOC.parallel = {
+		'parallelPanel'         				: '<p>Select one or more procedures to be displayed in a parallel coordinates chart. The values displayed are not the raw data but the genotype effect.</p> <p>Click the help icon for more details.</p>',
+		'parallelPanelDocUrl'   				: baseUrl + '/documentation/parallel-help'
+};
 
 
