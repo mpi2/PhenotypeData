@@ -403,6 +403,9 @@
                                                     <span style="color: #0978a1">Tested &nbsp; &nbsp; </span>
                                                     <span style="color: #c2c2c2">Not tested &nbsp; &nbsp; </span>
                                                 </div>
+                                              </div>
+                                              <div class="floatright"
+                                                 style="clear: both">
                                                 <p>
                                                     <a class="btn"
                                                        href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
