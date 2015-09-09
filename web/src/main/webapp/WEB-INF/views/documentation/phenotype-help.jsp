@@ -51,7 +51,10 @@
                                 a phenotype. As multiple parameters may map to the same phenotype, percentages are calculated across all parameters that map to a phenotype.</p>
                                 <p> The percentage of genes  associated to the current phenotype in one sex only (for example, females) is the number of genes associated to phenotype <i>X</i>
                                 in  females divided by the total number of genes tested in females for parameters potentially leading to phenotype <i>X</i> associations. Thus, the percent
-                                values we show for females and males may not add up to 1, nor do the percentages for males/females have to be smaller than the combined percentage.</p>
+                                values we show for females and males may not add up to 1, nor do the percentages for males/females have to be smaller than the combined percentage.</p> 
+                                
+                            <p> We consider "tested" for a phenotype a gene for which at least one parameter potentially leading to this phenotype association has data and has been statistically 
+                            	analyzed by our pipeline.</p>
 
                             <img class="well" src="img/phenotype-overview.png"/>
                             
@@ -105,11 +108,9 @@
                             <figure>
                                 <img class="well" src="img/categorical-overview.png"/>
                             </figure>
-                            <p> Categorical overview charts represent the percentage of animals in each category. The control values are percentages of
-                                baseline animals and the mutant values are percentage of animals from mutant strains for which the phenotype association
-                                is made.
+                            <p> Categorical overview charts represent the percentage of strains in each category. These graphs only display for categorical parameters at the line level 
+                            (as opposed to animal level), such as fertility or viability parameters. The animal-level parameters can only be analyzed in the individual charts linked from the associations table.
                             </p>
-							<p>[Tip] You can select/deselect the categories to be plotted by clicking on them in the legend below the graph.</p>
 
 
                             <h3 id="associations">Gene-Phenotype Associations</h3>
