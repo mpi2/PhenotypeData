@@ -71,6 +71,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
     Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
     Map<String, ResourceBean> resourceMap = new HashMap<>();
+    Map<String, List<String>> sexesMap = new HashMap<>();
 
     Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 
@@ -111,6 +112,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             logger.info("Populating resource map");
             populateResourceDataMap();
+
+            logger.info("Populating statistical result sexes map");
+            populateSexesMap();
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -356,6 +360,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
+        if (sexesMap.containsKey("unidimensional-"+doc.getDbId())) {
+            doc.setPhenotypeSex(sexesMap.get("unidimensional-"+doc.getDbId()));
+        }
 
         // Index the mean fields
         doc.setMaleControlMean(r.getDouble("male_control_mean"));
@@ -449,7 +456,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
-        doc.setSex(r.getString("sex"));
+	    if (sexesMap.containsKey("categorical-"+doc.getDbId())) {
+		    doc.setPhenotypeSex(sexesMap.get("categorical-"+doc.getDbId()));
+	    }
+
+	    doc.setSex(r.getString("sex"));
         doc.setpValue(r.getDouble("categorical_p_value"));
         doc.setEffectSize(r.getDouble("categorical_effect_size"));
 
@@ -739,6 +750,35 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             }
         }
         logger.info("Populated resource data map with {} entries", resourceMap.size());
+    }
+
+    /**
+     * Add all the relevant data required quickly looking up biological data
+     * associated to a biological sample
+     *
+     * @throws SQLException when a database exception occurs
+     */
+    private void populateSexesMap() throws SQLException {
+
+        List<String> queries = Arrays.asList(
+            "SELECT CONCAT('unidimensional-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_unidimensional_results s INNER JOIN stat_result_phenotype_call_summary r ON r.unidimensional_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
+            "SELECT CONCAT('categorical-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_categorical_results s INNER JOIN stat_result_phenotype_call_summary r ON r.categorical_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id"
+        );
+
+        for (String query : queries) {
+            try (PreparedStatement p = connection.prepareStatement(query)) {
+
+                ResultSet resultSet = p.executeQuery();
+
+                while (resultSet.next()) {
+                    List<String> sexes = new ArrayList<>();
+                    sexes.addAll(Arrays.asList(resultSet.getString("sexes").replaceAll(" ", "").split(",")));
+
+                    sexesMap.put(resultSet.getString("id"), sexes);
+                }
+            }
+        }
+        logger.info("Populated sexes data map with {} entries", sexesMap.size());
     }
 
     protected class ResourceBean {
