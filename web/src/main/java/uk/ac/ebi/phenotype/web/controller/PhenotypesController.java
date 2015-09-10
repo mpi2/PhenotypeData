@@ -145,11 +145,12 @@ public class PhenotypesController {
     public String loadMpPage(   @PathVariable String phenotype_id,  Model model, HttpServletRequest request, RedirectAttributes attributes)
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
+    	long time = System.currentTimeMillis();
+    	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
     	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
         if (mpTerm == null && mpDbTerm == null) {
-        	System.out.println("ONTOLOGY TERM NULL");
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
@@ -234,6 +235,9 @@ public class PhenotypesController {
             mpSiblings = new HashSet<OntologyTerm>();
         }
 
+        System.out.println("Time to 1 " + (System.currentTimeMillis() - time) );
+        time = System.currentTimeMillis();
+        
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
  		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest);
@@ -242,6 +246,8 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
+        System.out.println("Time to 2 " + (System.currentTimeMillis() - time) );
+        time = System.currentTimeMillis();
  		// other stuff
         model.addAttribute("anatomy", anatomyTerms);
         model.addAttribute("go", goTerms);
@@ -257,6 +263,9 @@ public class PhenotypesController {
         
         processPhenotypes(phenotype_id, "", model, request);
 
+        System.out.println("Time to 3 " + (System.currentTimeMillis() - time) );
+        time = System.currentTimeMillis();
+        
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         model.addAttribute("phenotype", mpTerm);
         
@@ -267,14 +276,22 @@ public class PhenotypesController {
 	        model.addAttribute("procedures", procedures);
         }
 
-        long time = System.currentTimeMillis();
+        time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));
         log.info("\tTime loading percentages: " + (System.currentTimeMillis() - time) + "ms");
 
+
+        System.out.println("Time to 4 " + (System.currentTimeMillis() - time) );
+        time = System.currentTimeMillis();
+        
         time = System.currentTimeMillis();
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
         log.info("\tTime loading parametersAssociated: " + (System.currentTimeMillis() - time) + "ms");
 
+
+        System.out.println("Time to 5 " + (System.currentTimeMillis() - time) );
+        time = System.currentTimeMillis();
+        
         return "phenotypes";
     }
 
@@ -491,6 +508,7 @@ public class PhenotypesController {
     	List<ParameterDTO> res =  new ArrayList<>();
     	for (String parameterStableId : parameters){
     		ParameterDTO param = impressService.getParameterByStableId(parameterStableId);
+    		System.out.println("Lookign at --- " + param.getName());
     		if (param.getObservationType().equals(ObservationType.categorical) && (param.getStableId().contains("_VIA_") || param.getStableId().contains("_FER_"))){
     			res.add(param);
     		} else if (param.getObservationType().equals(ObservationType.unidimensional)){

@@ -35,7 +35,7 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesParameters;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
@@ -426,9 +426,9 @@ public class GraphPageTest {
             case TIME_SERIES_LINE_BODYWEIGHT:
                 try {
                     List<String> parameterStableIds = new ArrayList();
-                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_701);
-                    parameterStableIds.addAll(TimeSeriesParameters.ESLIM_702);
-                    parameterStableIds.addAll(TimeSeriesParameters.IMPC_BWT);
+                    parameterStableIds.addAll(TimeSeriesConstants.ESLIM_701);
+                    parameterStableIds.addAll(TimeSeriesConstants.ESLIM_702);
+                    parameterStableIds.addAll(TimeSeriesConstants.IMPC_BWT);
                     geneGraphs = postQcService.getGeneAccessionIdsByParameterStableId(parameterStableIds, count);
                 } catch (Exception e) {
                     e.printStackTrace();

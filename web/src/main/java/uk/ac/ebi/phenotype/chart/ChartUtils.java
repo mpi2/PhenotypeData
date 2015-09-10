@@ -22,7 +22,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesParameters;
+import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,13 +184,13 @@ public class ChartUtils {
 
     public static String getPlotParameter(String parameter) {
 
-        if (TimeSeriesParameters.ESLIM_702.contains(parameter)) {
+        if (TimeSeriesConstants.ESLIM_702.contains(parameter)) {
             return "ESLIM_022_001_702";
-        } else if (TimeSeriesParameters.ESLIM_701.contains(parameter)) {
+        } else if (TimeSeriesConstants.ESLIM_701.contains(parameter)) {
             return "ESLIM_022_001_701";
-        } else if (TimeSeriesParameters.IMPC_BWT.contains(parameter)) {
+        } else if (TimeSeriesConstants.IMPC_BWT.contains(parameter)) {
             return "IMPC_BWT_008_001";
-        } else if (TimeSeriesParameters.IMPC_IPG_002_001.contains(parameter)){
+        } else if (TimeSeriesConstants.IMPC_IPG_002_001.contains(parameter)){
         	return "IMPC_IPG_002_001";
 
         }
@@ -201,8 +201,8 @@ public class ChartUtils {
 
     public static ChartType getPlotType(String parameter) {
 
-        if (TimeSeriesParameters.ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || TimeSeriesParameters.ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
-                || TimeSeriesParameters.IMPC_BWT.contains(parameter) || parameter.equals("IMPC_BWT_008_001") || parameter.equals("IMPC_IPG_002_001")) {
+        if (TimeSeriesConstants.ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || TimeSeriesConstants.ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
+                || TimeSeriesConstants.IMPC_BWT.contains(parameter) || parameter.equals("IMPC_BWT_008_001") || parameter.equals("IMPC_IPG_002_001")) {
             return ChartType.TIME_SERIES_LINE;
         }
 

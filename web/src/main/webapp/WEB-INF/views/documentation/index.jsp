@@ -70,14 +70,6 @@
                                 release can be found on the bottom right of every page in the footer.
                             </p>
 
-
-                            <h4>Release notes</h4>
-                            <ul>
-                                <li><a href="release-notes.html">List of new features and changes to this data
-                                    release</a>
-                                </li>
-                            </ul>
-
                             <h4>Software</h4>
 
                             <p>The open source software for this website and the statistical analisys is available under
@@ -85,12 +77,8 @@
                                         href="https://raw.githubusercontent.com/mpi2/PhenotypeArchive/master/LICENSE">the
                                     Apache 2 license</a>.</p>
                             <ul>
-                                <li><a href="https://github.com/mpi2/PhenotypeArchive">Core data archive web application
-                                    software available here</a>
-                                </li>
-                                <li><a href="https://github.com/mpi2/stats_working_group">PhenStat R package source code
-                                    available here</a>
-                                </li>
+                                <li>Core data archive web application <a href="https://github.com/mpi2/PhenotypeData"> source code</a></li>
+                                <li>PhenStat R package <a href="https://github.com/mpi2/stats_working_group">source code</a></li>
                             </ul>
 
                         </div>

@@ -81,13 +81,13 @@ MDOC.alleles = {
 };
 
 MDOC.phenome = {
-		'phenomePanel'         				: '<p>Details about the graph.</p> <p>Click the help icon for more detail.</p>',
+		'phenomePanel'         				: '<p>Details about the phenotype calls by center..</p> <p>Click the help icon for more detail.</p>',
 		'phenomePanelDocUrl'   				: baseUrl + '/documentation/phenome-help'
 };
 
 MDOC.parallel = {
-		'parallelPanel'         				: '<p>Select one or more procedures to be displayed in a parallel coordinates chart. You can select ranges to filter the data for multiple parameters. The values displayed are the genotype effect for each strain.</p> <p>Click the help icon for more details.</p>',
-		'parallelPanelDocUrl'   				: baseUrl + '/documentation/parallel-help'
+		'parallelPanel'         			: '<p>Select one or more procedures to be displayed in a parallel coordinates chart. You can select ranges to filter the data for multiple parameters. The values displayed are the genotype effect for each strain.</p> <p>Click the help icon for more details.</p>',
+		'parallelPanelDocUrl'   			: baseUrl + '/documentation/parallel-help'
 };
 
 

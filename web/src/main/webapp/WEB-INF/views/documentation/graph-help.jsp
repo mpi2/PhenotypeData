@@ -32,7 +32,7 @@
                                 Europhenome</a> legacy project. The table of genotype to phenotype associations on the gene and phenotype pages includes
                                 links to charts of the data and more information about the processing used to determine statistical significance.</p>
 
-                            <p> The P-values and other model fitting estimates are calculated using the <a href="statistics-help">IMPC statistical methods</a>.
+                            <p> The P values and other model fitting estimates are calculated using the <a href="statistics-help">IMPC statistical methods</a>.
                                 <img src="img/graph-links.png">
                             </p>
 
@@ -116,7 +116,7 @@
                             <img src="img/graph-categorical-normal.png">
                             <p>Categorical charts contain data where an observation can be categorised into one of two or more groups e.g. Abnormal Eye or Normal Eye. 
                             	Charts are presented as bar charts with a table underneath. If IMPC data is available this will be displayed (see <a href="statistics-help.html">
-                            	statistic help</a> for more information).
+                            	statistics help</a> for more information).
                             </p>
 
 
@@ -135,9 +135,9 @@
                             
                             <p>Below the chart is a table showing the output of the statistical test used to determine if this data is statistically significant:</p>
                             <br/>
-                            <img src="img/stats_mm_table.png">
+                            <img src="img/stats-mm-table.png">
                                                         
-                            <p>In the top left of the table is the global p value used to determine if this is a statistically significant result.<br />
+                            <p>In the top left of the table is the global P value used to determine if this is a statistically significant result.<br />
                                 The Classification column displays the effect of sexual dimorphism on this association 
                                 (<a href="http://en.wikipedia.org/wiki/Sexual_dimorphism">sexual dimorphism</a> is the phenomenon when the genotype affects the sexes differently). 
                                 The possible results are:
@@ -176,26 +176,8 @@
 
                             <h3 id="pie-graphs">Pie Graphs</h3>
                             <img src="img/graph-pie.png">
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            <p>Pie graphs are used to display the results of the primary viability screen. The screen is used to assess the postnatal viability, sub-viability, and lethality of homozygous mice during cohort production.
                             </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-
-
 							<h3 id="abr-graphs">ABR Charts</h3>
                             
                             <img src="img/graph-abr.png">
