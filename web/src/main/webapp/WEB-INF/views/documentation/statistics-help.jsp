@@ -216,7 +216,7 @@
 
                             <h4>Fisher's exact output</h4>
                             <img src="img/stats-fe-table.png">
-                            <p>A table displaying more information about the data used to determine the p-value and effect size is displayed below the graph.</p>
+                            <p>A table displaying more information about the data used to determine the P value and effect size is displayed below the graph.</p>
                             
                             <h4>Mixed model (PhenStat) output</h4>
                             <img src="img/stats-mm-table.png">
@@ -243,7 +243,7 @@
 							
 							<h4>Significance</h4>
 							
-							<p>When a mutant genotype effect p-value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
+							<p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
 							
 
                         </div><%-- end of content div--%>
