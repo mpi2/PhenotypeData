@@ -81,7 +81,7 @@ MDOC.alleles = {
 };
 
 MDOC.phenome = {
-		'phenomePanel'         				: '<p>Details about the phenotype calls by center..</p> <p>Click the help icon for more detail.</p>',
+		'phenomePanel'         				: '<p>Details about the phenotype calls by center.</p> <p>Click the help icon for more detail.</p>',
 		'phenomePanelDocUrl'   				: baseUrl + '/documentation/phenome-help'
 };
 

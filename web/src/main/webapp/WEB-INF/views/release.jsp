@@ -16,6 +16,18 @@
 			var drupalBaseUrl = '${drupalBaseUrl}';
 		</script>
 
+        <script type="text/javascript">
+		    $(document).ready(function() {
+
+                // bubble popup for brief panel documentation
+                $.fn.qTip({
+                    'pageName': 'phenome',
+                    'tip': 'top right',
+                    'corner': 'right top'
+                });
+            });
+        </script>
+
 	</jsp:attribute>
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
@@ -119,7 +131,7 @@
                         <h2 class="title" id="data_reports">Data Reports</h2>
 
                         <div class="inner">
-                            <div id="phenotypesDiv">
+                            <div id="dataReportsDiv">
                                 <div class="container span12">
                                     <h3>Lines and Specimens</h3>
                                     <table id="lines_specimen">
