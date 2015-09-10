@@ -27,11 +27,11 @@
 
                             <h1>Parallel coordinates </h1>
 
-                            <p> The parallel coordinates tool allows the users to compare strains across different parameters. 
-                            Mouse over a row in the table will highlight the corresponding line on the chart.</p>
+                            <p> The parallel coordinates tool allows users to compare strains across different parameters.
+                                Hover over a row in the table to highlight the corresponding line on the chart.</p>
                             
                             <p> The values displayed are the genotype effect, which accounts for different variation sources. 
-                            Information about this and the statistical methods used is available in the <a href="statistics-help">statistics documentation page</a>.</p>
+                            Information about this and the statistical methods used is available in the <a href="statistics-help">statistics documentation</a>.</p>
 							<br/>
                             <img class="well" src="img/parallel.png"/>
                             <br/>
@@ -44,7 +44,7 @@
                             <p>The <b>export</b> button generates an export of the values in the table. If any filter is set, only the data displayed in the table will be exported.</p>
                              
                             <p> The generation of this chart is computationally intensive and the number of parameters that can be plotted may vary from one machine to the other. 
-                            	If you notice the tool becoming too slow, please consider selecting less or smaller procedures.</p>
+                            	If you notice the tool becoming too slow, please consider selecting fewer or smaller procedures.</p>
 
 
                         </div><%-- end of content div--%>
