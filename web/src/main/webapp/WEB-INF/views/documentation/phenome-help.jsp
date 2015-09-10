@@ -50,7 +50,7 @@
                                 <li>behavior/neurological</li>
                                 <li>pigmentation</li>  
                             </ul>
-                            The x-axis indicates each MP term from each top-level category. The y-axis is a log transformation of the original p-value for better interpretation. 
+                            The x-axis indicates each MP term from each top-level category. The y-axis is a log transformation of the original p-value for better interpretation.
                             Each data point corresponds to a significant hit for a specific mutant line.
                             <img src="img/phenome-graph.png" />
 
@@ -70,7 +70,7 @@
 							<li>Parameter</li>
 							<li>Zygosity</li>
 							<li>Phenotype</li>
-							<li>P-value</li>
+							<li>p-value</li>
 							<li>Graph</li>
                             </ul>
                             
