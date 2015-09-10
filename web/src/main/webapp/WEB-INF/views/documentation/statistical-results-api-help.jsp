@@ -314,7 +314,7 @@
                                 <tr>
                                     <td>statistical_method</td>
                                     <td>string</td>
-                                    <td>The statistical method used to calculate the p value</td>
+                                    <td>The statistical method used to calculate the p-value</td>
                                 </tr>
                                 <tr>
                                     <td>status</td>
@@ -334,7 +334,7 @@
                                 <tr>
                                     <td>p_value</td>
                                     <td>float</td>
-                                    <td>The p value of the data</td>
+                                    <td>The p-value of the data</td>
                                 </tr>
                                 <tr>
                                     <td>effect_size</td>
@@ -351,7 +351,7 @@
                                 <tr>
                                     <td>categorical_p_value</td>
                                     <td>float</td>
-                                    <td>The p value for categorical data (4)</td>
+                                    <td>The p-value for categorical data (4)</td>
                                 </tr>
                                 <tr>
                                     <td>categorical_effect_size</td>
