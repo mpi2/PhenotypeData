@@ -31,6 +31,11 @@
 		                    		<option value="${procedure.getStableId().substring(0,8)}">${procedure.getName()}</option>
 		                    	</c:forEach>
 		                    </select>
+		                    <select id="centersFilter" class="impcdropdown"  multiple="multiple" title="Select centers to display">
+		                    	<c:forEach var="center" items="${centers}">
+		                    		<option value="${center}">${center}</option>
+		                    	</c:forEach>
+		                    </select>
 		                    <div class="widgets">
 								<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>
 								<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>
