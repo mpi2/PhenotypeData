@@ -17,15 +17,16 @@ package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.enumerations.SignificantType;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.enumerations.SignificantType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -120,7 +121,8 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		String query = "SELECT unidimensional_result_id FROM stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
 				+ id + "'";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection()) {
+			PreparedStatement statement = connection.prepareStatement(query);
 
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -138,7 +140,8 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 		String query = "SELECT categorical_result_id FROM stat_result_phenotype_call_summary where phenotype_call_summary_id= '"
 				+ id + "'";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection()) {
+			PreparedStatement statement = connection.prepareStatement(query);
 
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -163,7 +166,8 @@ public class StatisticalResultDAOImpl extends HibernateDAOImpl implements Statis
 			"WHERE pcs.p_value < 0.0001 AND pcs.external_db_id=22 " + // IMPC only
 			"GROUP BY classification_tag;";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection()) {
+			PreparedStatement statement = connection.prepareStatement(query);
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				res.put(SignificantType.getValue(resultSet.getString("classification_tag")), resultSet.getInt("COUNT(*)"));
