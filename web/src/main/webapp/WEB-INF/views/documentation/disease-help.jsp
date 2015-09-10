@@ -32,7 +32,7 @@
                                 Eg. Search for "cardiac" diseases:
                             </p>
                             <p>    
-                                <img src="img/disease_search.png">
+                                <img src="img/disease-search.png">
                             </p>
                             
                             <h4><a name="details">Disease details pages</a></h4>
