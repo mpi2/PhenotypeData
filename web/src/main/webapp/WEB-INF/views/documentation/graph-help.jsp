@@ -32,7 +32,7 @@
                                 Europhenome</a> legacy project. The table of genotype to phenotype associations on the gene and phenotype pages includes
                                 links to charts of the data and more information about the processing used to determine statistical significance.</p>
 
-                            <p> The p-values and other model fitting estimates are calculated using the <a href="statistics-help">IMPC statistical methods</a>.
+                            <p> The P values and other model fitting estimates are calculated using the <a href="statistics-help">IMPC statistical methods</a>.
                                 <img src="img/graph-links.png">
                             </p>
 
@@ -137,7 +137,7 @@
                             <br/>
                             <img src="img/stats-mm-table.png">
                                                         
-                            <p>In the top left of the table is the global p-value used to determine if this is a statistically significant result.<br />
+                            <p>In the top left of the table is the global P value used to determine if this is a statistically significant result.<br />
                                 The Classification column displays the effect of sexual dimorphism on this association 
                                 (<a href="http://en.wikipedia.org/wiki/Sexual_dimorphism">sexual dimorphism</a> is the phenomenon when the genotype affects the sexes differently). 
                                 The possible results are:
