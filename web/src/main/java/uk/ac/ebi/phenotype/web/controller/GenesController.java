@@ -283,6 +283,7 @@ public class GenesController {
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
+			
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
 		} catch (Exception e) {
