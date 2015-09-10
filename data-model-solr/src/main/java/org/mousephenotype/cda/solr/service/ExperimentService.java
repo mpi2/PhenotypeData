@@ -15,9 +15,20 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -25,6 +36,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
@@ -34,11 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Pulled in 2015/07/09
@@ -55,6 +62,9 @@ public class ExperimentService {
 
     @Autowired
     ObservationService os;
+    
+    @Autowired
+    ImpressService is;
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
@@ -62,10 +72,6 @@ public class ExperimentService {
     @Autowired
     private StatisticalResultService statisticalResultService;
 
-
-    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
-        return getExperimentDTO(parameterId, pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain, null, Boolean.TRUE, null);
-    }
 
     /**
      *
@@ -92,8 +98,6 @@ public class ExperimentService {
     Boolean includeResults, String alleleAccession)
     throws SolrServerException, IOException, URISyntaxException {
 
-        LOG.debug("metadataGroup parmeter is=" + metaDataGroup);
-
         List<ObservationDTO> observations = os.getExperimentObservationsBy(parameterId, pipelineId, geneAccession, zygosities, phenotypingCenterId, strain, sex, metaDataGroup, alleleAccession);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 
@@ -107,7 +111,7 @@ public class ExperimentService {
             // - strain
             // - parameter
             // - pipeline
-            // - gene
+            // - allele
             // - meatdata group
             ExperimentDTO experiment;
 
@@ -195,7 +199,7 @@ public class ExperimentService {
             experiment.setProcedureName(observation.getProcedureName());
 
             experimentsMap.put(experimentKey, experiment);
-
+            
         }
 
         // Set to record the experiments that don't have control data
@@ -413,38 +417,19 @@ public class ExperimentService {
         return new ArrayList<ExperimentDTO>(experimentsMap.values());
     }
 
-    /**
-     * Method to return all the experiments for a given combination of parameter
-     * and gene organised into discrete experiments by strain, origanisation,
-     * etc.
-     *
-     * @param parameterId
-     * @param geneAccession
-     * @return set of experiment DTOs
-     * @throws SolrServerException
-     * @throws URISyntaxException
-     * @throws IOException
-     */
-    public List<ExperimentDTO> getExperimentDTO(Integer parameterId, Integer pipelineId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
-        return getExperimentDTO(parameterId, pipelineId, geneAccession, null, null, null, null);
-    }
 
-    public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession) throws SolrServerException, IOException, URISyntaxException {
-        Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
-        return getExperimentDTO(p.getId(), pipelineId, geneAccession);
+    
+    public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession,
+    SexType sex, Integer phenotypingCenterId, List<String> zygosities, String strain, String metaDataGroup,
+    Boolean includeResults, String alleleAccession)
+    throws SolrServerException, IOException, URISyntaxException {
+    	
+    	ParameterDTO param = is.getParameterByStableId(parameterStableId);
+    	return getExperimentDTO(param.getId(), pipelineId, geneAccession, sex, phenotypingCenterId, zygosities, strain, metaDataGroup, includeResults, alleleAccession);
+    	
     }
-
-    public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, String strain) throws SolrServerException, IOException, URISyntaxException {
-        Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
-        return getExperimentDTO(p.getId(), pipelineId, geneAccession, null, null, null, strain);
-    }
-
-    public List<ExperimentDTO> getExperimentDTO(String parameterStableId, Integer pipelineId, String geneAccession, SexType sex, Integer phenotypingCenterId, List<String> zygosity, String strain) throws SolrServerException, IOException, URISyntaxException {
-        Parameter p = parameterDAO.getParameterByStableId(parameterStableId);
-        LOG.debug("--- getting p for : " + parameterStableId);
-        return getExperimentDTO(p.getId(), pipelineId, geneAccession, sex, phenotypingCenterId, zygosity, strain);
-    }
-
+    
+    
     /**
      * Should only return 1 experimentDTO - returns null if none and exception
      * if more than 1 - used by ajax charts
