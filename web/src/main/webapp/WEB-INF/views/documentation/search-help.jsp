@@ -32,7 +32,7 @@
 							These are the main facets of the IMPC facet search interface.<br>
 							Each main data type has sub data types which act as subfacet filters to allow for data filtering.<p>
 							
-							<h4><a name="mainFaceting" href='#'>Main data type browsing</a></h4>
+							<h4 id="mainFaceting">Main data type browsing</h4>
                             <div>Clicking on a main facet (eg, Genes, Phenotypes, Diseases) without ticking its subfacet filter(s) will display all records of that data type.
                             The screenshot below shows the total number of genes in the portal.<p>
                             <img src='img/main-data-type.png' /><p>
@@ -44,7 +44,7 @@
                             <img src='img/facet-behavior.png' /><p>
                             </div><br>
                             
-							<h4><a name="subFaceting" href='#'>Cross data type browsing</a></h4>
+							<h4 id="subFaceting">Cross data type browsing</h4>
                             <div>By checking a checkbox (or subfacet filter, eg. when 'Genes' main facet is expanded and 'Started' subfacet is ticked), the data of each main facet and its subfacets will be filtered and the counts of all 6 main data types
                             will be updated accordingly.<p><p>This is a powerful tool to find data in the portal.<p>
                             <h5>Some search examples:</h5>
@@ -68,45 +68,45 @@
     						<img src='img/remove-all-filters.png' />
     						<p>
                                   
-                            <h4><a name="autosuggest_srch" href='#'>Auto-suggest Support for Keyword Search</a></h4>			
+                            <h4 id="autosuggest_srch">Auto-suggest Support for Keyword Search</h4>
                             <div>Enter at least 3 letters to invoke a drop-down list of terms (prefixed by data type) related to your search keyword.
                             The top ten most relevant terms will be shown, in order of relevance.
                             You can select the desired term by using the UP/DOWN keys or by selecting the term with the mouse and pressing the ENTER key.
                             </div><br>			
                             <img src='img/autosuggest-search.png' /><p>
                                                     
-                            <h4><a name="quick_gene_srch" href='#'>Quick Gene Search</a></h4>			
+                            <h4 id="quick_gene_srch">Quick Gene Search</h4>
                             <div>Enter a gene symbol, gene ID, name or human orthologue into the search box and press the ENTER key to get a list of relevant gene pages.
                                 <p>Eg. search by gene symbol "mtf1":
                             </div><br>			
                             <img src='img/quick-gene-search.png' /><p>
 
-                            <h4><a name="quick_pheno_srch" href='#'>Quick Phenotype Search</a></h4>
+                            <h4 id="quick_pheno_srch">Quick Phenotype Search</h4>
                             <div>Enter an abnormal phenotype or MP:ID and click on phenotype facet on the left panel to show relevant phenotype pages.
                                 <p>Eg. search by phenotype "glucose":<br>
                             </div><br> 
                             <img src='img/quick-phenotype-search.png' /><p>
 
-                            <h4><a name="quick_disease_srch" href='#'>Quick Disease Search</a></h4>
+                            <h4 id="quick_disease_srch">Quick Disease Search</h4>
                             <div>Enter a (partial) disease name or ID (OMIM, Orphanet or DECIPHER), click on the disease facet and the the results grid will return relevant disease pages.
                                 <p>Eg. Search for "cardiac" diseases:<br>
                             </div><br> 
                             <img src='img/disease-search.png' /><p>
 
-                            <h4><a name="quick_anatomy_srch" href='#'>Quick Anatomy Search</a></h4>
+                            <h4 id="quick_anatomy_srch">Quick Anatomy Search</h4>
                             <div>Enter an anatomical entity or MA:ID, click on the anatomy facet on the on the left panel, and the results grid will return any relevant anatomy pages.
                                 <p>Eg. search by anatomy "eye":<br>
                             </div><br> 
                             <img src='img/quick-anatomy-search.png' /><p>
                         <!-- 
-                            <h4><a name="quick_param_srch" href='#'>Quick Assay Search</a></h4>
+                            <h4 id="quick_param_srch">Quick Assay Search</h4>
                             <div>Enter an assay, parameter or IMPReSS ID, click on the procedure facet on the left panel, and the results grid will return relevant parameter pages.
                                 <p>Eg. search by parameter "grip strength":<br>
                             </div><br> 
                             <img src='img/quick_param_search.png' /><p>	
                         -->
 
-                            <h4><a name="quick_img_srch" href='#'>Quick Image Search</a></h4>
+                            <h4 id="quick_img_srch">Quick Image Search</h4>
                             <div>Enter a gene, phenotype, assay, or anatomical entity, click on the Images (legacy) or IMPC images facet on the left panel and the results grid will return relevant image pages.
                                 <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by anatomy "trunk":<br>				
                             </div><br> 
@@ -116,7 +116,7 @@
                             
                                 <img src='img/quick-img-search-imageView.png' /><p>
 
-                            <h4><a name="export" href='#'>Data Export of Search Results</a></h4>
+                            <h4 id="export">Data Export of Search Results</h4>
                             <div>Click on the export icon <p><img src='img/download.png' />
                             <br>in the top-right corner of the results grid to expand or hide it.
                                 When expanded, it looks like this:<p> <img src='img/export-expanded.jpg' /><p><p>
