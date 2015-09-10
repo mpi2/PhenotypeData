@@ -96,7 +96,7 @@
                                 <strong>All Adult Data</strong> button. This page provides access to all statistical results for a
                                 mutant line whether significant or not.
                             </p>
-                            <p>Significant P-values appear to the right of the green dashed vertical line; insignificant values to the left.
+                            <p>Significant p-values appear to the right of the green dashed vertical line; insignificant values to the left.
                                Hovering over any point shows some important experiment details. Clicking on any point shows a graph of the experiment data.
                             </p>
                             <br />

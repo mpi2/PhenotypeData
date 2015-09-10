@@ -209,18 +209,20 @@
                             </ul>
                             
                             <p>The graph pages display plots according to the data type of the parameter.  Categorical data parameters display a stacked bar chart 
-                            whereas continuous data displays a box plot and a scatter plot of the data point values.  See the <a href="${baseUrl}/documentation/graph-help">graph documentation</a> for more details.   
+                            whereas continuous data displays a box plot and a scatter plot of the data point values.
+                            See the <a href="${baseUrl}/documentation/graph-help">graph documentation</a> for more details.
                             </p> 
 
 
                             <h4>Fisher's exact output</h4>
                             <img src="img/stats_fe_table.png">
-                            <p>A table displaying more information about the data used to determine the P value and effect size is displayed below the graph.</p> 
+                            <p>A table displaying more information about the data used to determine the p-value and effect size is displayed below the graph.</p>
                             
                             <h4>Mixed model (PhenStat) output</h4>
                             <img src="img/stats_mm_table.png">
-                            <p>The <strong>more statistics</strong> link at the bottom of the table will list the statistical method as "MM framework, generalized least squares, equation withoutWeight" when
-                            the batch term is not significant, otherwise "MM framework, linear mixed-effects model, equation withoutWeight".</p> 
+                            <p>The <strong>more statistics</strong> link at the bottom of the table will list the statistical method as "MM framework,
+                               generalized least squares, equation withoutWeight" when
+                               the batch term is not significant, otherwise "MM framework, linear mixed-effects model, equation withoutWeight".</p>
 
                             <h4>Rank sum output</h4>
                             <img src="img/stats_rs_table.png">
@@ -241,7 +243,7 @@
 							
 							<h4>Significance</h4>
 							
-							<p>When a mutant genotype effect P value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
+							<p>When a mutant genotype effect p-value is less than 1.0E-4 (i.e. 0.0001), it is considered significant.</p>
 							
 
                         </div><%-- end of content div--%>
