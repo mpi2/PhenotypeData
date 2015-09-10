@@ -176,26 +176,8 @@
 
                             <h3 id="pie-graphs">Pie Graphs</h3>
                             <img src="img/graph-pie.png">
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            <p>Pie graphs are used to display the results of the primary viability screen. The screen is used to assess the postnatal viability, sub-viability, and lethality of homozygous mice during cohort production.
                             </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-                            <p>Jonathan will fill this in!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            </p>
-
-
 							<h3 id="abr-graphs">ABR Charts</h3>
                             
                             <img src="img/graph-abr.png">
