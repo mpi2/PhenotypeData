@@ -135,7 +135,7 @@
                             
                             <p>Below the chart is a table showing the output of the statistical test used to determine if this data is statistically significant:</p>
                             <br/>
-                            <img src="img/stats_mm_table.png">
+                            <img src="img/stats-mm-table.png">
                                                         
                             <p>In the top left of the table is the global p-value used to determine if this is a statistically significant result.<br />
                                 The Classification column displays the effect of sexual dimorphism on this association 

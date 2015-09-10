@@ -37,7 +37,7 @@
                                associated with that category. You can also search for genes using MGI identifiers. To search for images
                                associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box.
                                <br />
-                               <img src="img/image_facet.png" />
+                               <img src="img/image-facet.png" />
                             </p>
 
                             <h4 id="imported">Imported Images</h4>
@@ -47,7 +47,7 @@
                                project at the Wellcome Trust Sanger Institute where the terms were manually annotated by researchers
                                (labelled "Images" in the web portal).
                                <br /><br />
-                               <img src="img/pipelines_with_images.png" />
+                               <img src="img/pipelines-with-images.png" />
                             </p>
 
                             <h4 id="update_frequency">How often are images updated?</h4>

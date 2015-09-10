@@ -215,17 +215,17 @@
 
 
                             <h4>Fisher's exact output</h4>
-                            <img src="img/stats_fe_table.png">
+                            <img src="img/stats-fe-table.png">
                             <p>A table displaying more information about the data used to determine the p-value and effect size is displayed below the graph.</p>
                             
                             <h4>Mixed model (PhenStat) output</h4>
-                            <img src="img/stats_mm_table.png">
+                            <img src="img/stats-mm-table.png">
                             <p>The <strong>more statistics</strong> link at the bottom of the table will list the statistical method as "MM framework,
                                generalized least squares, equation withoutWeight" when
                                the batch term is not significant, otherwise "MM framework, linear mixed-effects model, equation withoutWeight".</p>
 
                             <h4>Rank sum output</h4>
-                            <img src="img/stats_rs_table.png">
+                            <img src="img/stats-rs-table.png">
                             <p>The <strong>more statistics</strong> link at the bottom of the table will list the statistical method as "Wilcoxon rank sum test with continuity correction" when
                             a rank sum calculation has generated the statistics.</p> 
                             
@@ -239,7 +239,7 @@
 							Frequently, the term indicates an <strong>increase</strong> or <strong>decrease</strong> of the parameter measured.</p>
 							
 							<p>When a statistical result is determined as significant, the following diagram is used for associating MP terms:</p>
-							<img src="img/stats_mpterms.png" />
+							<img src="img/stats-mpterms.png" />
 							
 							<h4>Significance</h4>
 							
