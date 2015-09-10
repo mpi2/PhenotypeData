@@ -93,7 +93,7 @@
                                         <tr><td>parameter_name</td><td>string</td><td>the name of the IMPReSS parameter measured</td></tr>
                                         <tr><td>parameter_stable_id</td><td>string</td><td>the stable id of the IMPReSS parameter measured</td></tr>
                                         <tr><td>parameter_stable_key</td><td>string</td><td>the stable key of the IMPReSS parameter measured</td></tr>
-                                        <tr><td>statistical_method</td><td>string</td><td>the statistical method used to determine the p value</td></tr>
+                                        <tr><td>statistical_method</td><td>string</td><td>the statistical method used to determine the P value</td></tr>
                                         <tr><td>percentage_change</td><td>string</td><td>for continuous data, a standardized effect measure</td></tr>
                                         <tr><td>p_value</td><td>double</td><td>the statistical significance of the association</td></tr>
                                         <tr><td>effect_size</td><td>double</td><td>the size of the effect</td></tr>
@@ -193,11 +193,11 @@ curl <span class="se">\</span>
                                            class="anchor"
                                            href="#retrieve-all-genotype-phenotype-associations-with-a-p-value-cut-off">
                                             <span class="octicon octicon-link"></span></a>
-                                        Retrieve all genotype-phenotype associations with a p-value cut-off</h3>
+                                        Retrieve all genotype-phenotype associations with a P value cut-off</h3>
                                     <p>In this example, we will apply a cut-off to the previous query and add a condition to the <strong>q</strong> (query)
-                                        command. In Solr, you can specify a range to retrieve results. For instance, if you want p-values below 0.0001,
+                                        command. In Solr, you can specify a range to retrieve results. For instance, if you want P values below 0.0001,
                                         you can add this condition <strong>p_value:[0 TO 0.0001]</strong>. Here, we will retrieve genotype associated
-                                        to a nervous system phenotype with a p-value cut-off of 0.00005.</p>
+                                        to a nervous system phenotype with a P value cut-off of 0.00005.</p>
                                     <div class="highlight highlight-bash">
                                         <pre>
 curl <span class="se">\</span>

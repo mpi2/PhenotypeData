@@ -235,8 +235,9 @@
                 <div class="content">
                     <div class="node node-gene">
                         <h1 class="title" id="top">Gene: ${gene.markerSymbol}
-                                    <span class="documentation"><a
-                                            href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a></span>
+                            <span class="documentation">
+                                <a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
+                            </span>
                         </h1>
 
                         <div class="section">
@@ -1094,23 +1095,16 @@
                                     <small
                                             class="sub">predicted by phenotypic similarity
                                     </small>
-                                    <a
-                                            href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                    <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
-                                            <a
-                                                    href='${baseUrl}/documentation/disease-help.html#details'
-                                                    class="mpPanel">
-                                                <i
-                                                        class="fa fa-question-circle pull-right"></i>
+                                            <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+                                                <i class="fa fa-question-circle pull-right"></i>
                                             </a>
                                         </span>
                                 </h2>
                                 <div class="inner">
-                                    <table
-                                            id="predicted_diseases_table"
-                                            class="table tableSorter disease">
-                                        <jsp:include
-                                                page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
+                                    <table id="predicted_diseases_table" class="table tableSorter disease">
+                                        <jsp:include page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
                                     </table>
                                 </div>
                             </div>

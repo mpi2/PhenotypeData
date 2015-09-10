@@ -70,9 +70,6 @@ public class ChartsController {
     private OrganisationDAO organisationDAO;
 
     @Autowired
-    private PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
-
-    @Autowired
     private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
 
     @Autowired
@@ -89,9 +86,6 @@ public class ChartsController {
 
     @Autowired
     private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
-
-    @Autowired
-    private FertilityChartAndDataProvider fertilityChartAndDataProvider;
 
     @Autowired
     private ExperimentService experimentService;
@@ -243,6 +237,7 @@ public class ChartsController {
                 phenotypingCenterId = organisationDAO.getOrganisationByName(phenotypingCenter).getId();
             } catch (NullPointerException e) {
                 log.error("Cannot find center ID for organisation with name " + phenotypingCenter);
+                e.printStackTrace();
             }
         }
 
@@ -461,10 +456,6 @@ public class ChartsController {
 
                 Parameter parameter = pipelineDAO.getParameterByStableId(parameterId);
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
-
-                if (parameter == null) {
-                    throw new ParameterNotFoundException("Parameter " + parameterId + " can't be found.", parameterId);
-                }
 
 				// instead of an experiment list here we need just the outline
                 // of the experiments - how many, observation types

@@ -31,12 +31,12 @@
                             <p>
 
                             <h6>Batch Query interface</h6>
-                            <img src='img/batch_query.png' /><p>
+                            <img src='img/batch-query.png' /><p>
                             
                             <h6>Batch Query result</h6>
                             Once you have submitted your search, the result will be displayed below the search interface.
 
-                            <img src='img/batch_query_result.png' /><p>
+                            <img src='img/batch-query-result.png' /><p>
 
 
                         </div><%-- end of content div--%>
