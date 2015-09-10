@@ -1515,6 +1515,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
        q.set("facet", true);
        q.set("facet.limit", -1);
        q.set("facet.mincount", 1);
+       
+       System.out.println("SOLR URL in getParametersForPhenotype :: " + solr.getBaseURL() + "/select?" + q);
        QueryResponse response = solr.query(q);
        
        for (Count parameter : response.getFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID).getValues()) {
