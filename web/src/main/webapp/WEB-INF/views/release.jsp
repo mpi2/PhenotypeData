@@ -353,7 +353,12 @@
 							</script>
 							</div>
 
-							<h3>Phenotype Associations Overview</h3>
+                            <h3>Phenotype Associations Overview
+                                <span class="documentation">
+                                    <a href='' id='phenomePanel' class="fa fa-question-circle pull-right"></a>
+                                </span>
+                            </h3>
+
 							<p>We provide a 'phenome' overview of statistically significant calls.
 							By following the links below, you'll access the details of the phenotype calls for each center.</p>
 							<table>
