@@ -16,11 +16,11 @@
 package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -256,11 +256,12 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 
 	@Override
 	public List<String> getReleases(String excludeRelease) {
-		PreparedStatement statement = null;
-		ResultSet resultSet = null;
-		List<String> results = new ArrayList<String>();
+		List<String> results = new ArrayList<>();
 
 		try (Connection connection = getConnection()) {
+
+			PreparedStatement statement;
+			ResultSet resultSet;
 
 			if (excludeRelease != null) {
 				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history WHERE data_release_version <> ? ORDER BY data_release_version ASC");
@@ -268,7 +269,7 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 			} else {
 				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history ORDER BY data_release_version ASC");
 			}
-				resultSet = statement.executeQuery();
+			resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
 
@@ -277,7 +278,7 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 			}
 			statement.close();
 
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}
@@ -285,12 +286,15 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 		return results;
 	}
 
+
 	public String getCurrentRelease() {
 
 		String query = "SELECT property_value as release_version FROM meta_info WHERE property_key='data_release_version'";
 		String releaseVersion = "";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection()) {
+
+			PreparedStatement statement = connection.prepareStatement(query);
 			ResultSet rs = statement.executeQuery();
 			if (rs.next()) {
 				releaseVersion = rs.getString("release_version");
