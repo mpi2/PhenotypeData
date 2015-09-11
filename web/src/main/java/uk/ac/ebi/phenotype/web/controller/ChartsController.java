@@ -194,7 +194,7 @@ public class ChartsController {
         UnidimensionalDataSet unidimensionalChartDataSet = null;
         ChartData timeSeriesForParam = null;
         CategoricalResultAndCharts categoricalResultAndChart = null;
-
+        
         boolean statsError = false;
 
         if (parameterStableId.startsWith("IMPC_FER_")) {

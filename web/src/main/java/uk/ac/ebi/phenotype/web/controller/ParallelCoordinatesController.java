@@ -16,6 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -53,13 +54,20 @@ public class ParallelCoordinatesController {
 	@Autowired
 	PhenotypePipelineDAO pp;
 
+	
 	@RequestMapping(value="/parallel", method=RequestMethod.GET)
 	public String getData(	Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
 		TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
 		procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success"));
+		
+
+		TreeSet<String> centers = new TreeSet<>();
+		centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Success"));
+
 		model.addAttribute("procedures", procedures);
+		model.addAttribute("centers", centers);
 		
 		return "parallel2";
 		
@@ -67,7 +75,7 @@ public class ParallelCoordinatesController {
 
 	
 	@RequestMapping(value="/parallelFrag", method=RequestMethod.GET)
-	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
+	public String getGraph(	@RequestParam(required = false, value = "procedure_id") List<String> procedureIds, 	@RequestParam(required = false, value = "phenotyping_center") List<String> phenotypingCenter, Model model,	HttpServletRequest request,	RedirectAttributes attributes)
 	throws SolrServerException{
 
 		long time = System.currentTimeMillis();
@@ -78,7 +86,7 @@ public class ParallelCoordinatesController {
 			
 		} else {
 			
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds , false));
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false));
 			model.addAttribute("dataJs", data + ";");
 
 			String title = "";
@@ -89,6 +97,7 @@ public class ParallelCoordinatesController {
 			title += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
 			
 			model.addAttribute("procedure", title);
+			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
 		}
 		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - time) + " ms.");
 

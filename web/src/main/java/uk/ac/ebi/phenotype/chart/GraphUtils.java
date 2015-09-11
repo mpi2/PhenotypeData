@@ -58,6 +58,7 @@ public class GraphUtils {
 		List<String> centersList = keyList.get(ObservationDTO.PHENOTYPING_CENTER);
 		List<String> strains = keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
 		List<String> metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
+		
 		List<String> alleleAccessionStrings = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
 		List<String> pipelineStableIdStrings = keyList.get(ObservationDTO.PIPELINE_STABLE_ID);
 		// if(metaDataGroupStrings==null){
@@ -90,7 +91,6 @@ public class GraphUtils {
 				urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
 				return urls;
 			}
-
 		} else {
 			// default chart type
 			chartType = getDefaultChartType(parameter);

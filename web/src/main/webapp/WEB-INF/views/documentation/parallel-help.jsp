@@ -26,12 +26,15 @@
                         <div id="top" class="content node">
 
                             <h1>Parallel coordinates </h1>
-
+	
                             <p> The parallel coordinates tool allows users to compare strains across different parameters.
                                 Hover over a row in the table to highlight the corresponding line on the chart.</p>
-                            
+
+							<p> To start using the tool select one or more procedures from the drop-down select box. 
+								Once this is done you can filter the data based on the phenotyping center.</p>
+							                            
                             <p> The values displayed are the genotype effect, which accounts for different variation sources. 
-                            Information about this and the statistical methods used is available in the <a href="statistics-help">statistics documentation</a>.</p>
+                            	Information about this and the statistical methods used is available in the <a href="statistics-help">statistics documentation</a>.</p>
 							<br/>
                             <img class="well" src="img/parallel.png"/>
                             <br/>
