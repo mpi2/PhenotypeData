@@ -15,6 +15,8 @@ $(document).ready(function(){
 	var allDropdowns = new Array();
 	allDropdowns[0] = $('#proceduresFilter');
 	createDropdown(allDropdowns[0],"Procedure: All", allDropdowns);
+	allDropdowns[1] = $('#centersFilter');
+	createDropdown(allDropdowns[1],"Centers: All", allDropdowns);
 	
 	function createDropdown(multipleSel, emptyText,  allDd){
 	
@@ -41,7 +43,7 @@ $(document).ready(function(){
 					}
 				}
 				
-				reloadChartAndTable( values);
+				reloadChartAndTable(dropdownsList);
 								
 			}, 
 			
@@ -102,12 +104,23 @@ $(document).ready(function(){
 		$("option:selected").removeAttr("selected");
 	};
 	
-	function reloadChartAndTable(procedures){
+	function reloadChartAndTable(lists){
+		
 		$('#spinner').click();
 	 	$( '#spinner' ).show();
 		var tableUrl = base_url + "/parallelFrag?";
-		tableUrl += getParametersForUrl(procedures, "procedure_id");
-		console.log("URL : " + tableUrl);
+		
+		for (i = 0; i < lists.length; i++) { 
+			var currentList = lists[i];
+			if (currentList.name == "proceduresFilter"){
+				tableUrl += getParametersForUrl(currentList.array, "procedure_id") + "&";
+			}
+			if (currentList.name == "centersFilter"){
+				tableUrl += getParametersForUrl(currentList.array, "phenotyping_center") + "&";
+			}
+		}
+		
+		console.log ( " URL " + tableUrl);
 		
 		$.ajax({
 		  url: tableUrl,
