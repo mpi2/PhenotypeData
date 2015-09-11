@@ -31,7 +31,12 @@
 		                    		<option value="${procedure.getStableId().substring(0,8)}">${procedure.getName()}</option>
 		                    	</c:forEach>
 		                    </select>
-		                    <div class="widgets">
+		                    <select id="centersFilter" class="impcdropdown"  multiple="multiple" title="Select centers to display">
+		                    	<c:forEach var="center" items="${centers}">
+		                    		<option value="${center}">${center}</option>
+		                    	</c:forEach>
+		                    </select>
+		                    <div class="widgets" class="right">
 								<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>
 								<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>
 								<a href="#" id="remove_filters" class="button right filter_control btn" title = "Remove filters">Clear filters</a>
@@ -40,10 +45,11 @@
 								<div id="pie" class="widget right">	Group Breakdown<br /></div-->
 								<!-- a href="#" id="remove_selected" class="button red filter_control btn" title = "Remove selections">Remove</a-->
 								<!-- div id="legend"></div-->
-							
-								<input type="range" min="0" max="1" value="0.2" step="0.01"
-									name="power" list="powers" id="line_opacity"></input> Opacity:
-								<span id="opacity_level">20%</span>
+								<br/>
+								<div class="right">
+									<input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input> 
+									Opacity: <span id="opacity_level">20%</span>
+								</div>
 							</div>
 		                	<div class="clear"></div>
 	                    </form>
