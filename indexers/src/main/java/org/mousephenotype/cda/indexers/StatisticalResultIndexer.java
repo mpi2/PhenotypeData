@@ -190,7 +190,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     + "  gender_female_ko_estimate, gender_female_ko_stderr_estimate, gender_female_ko_pvalue, "
                     + "  gender_male_ko_estimate, gender_male_ko_stderr_estimate, gender_male_ko_pvalue, "
                     + "  classification_tag, additional_information, "
-                    + "  mp_acc, "
+                    + "  mp_acc, male_mp_acc, female_mp_acc, "
                     + "  db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, "
                     + "  proj.name as project_name, proj.id as project_id, "
                     + "  org.name as phenotyping_center, org.id as phenotyping_center_id "
@@ -228,7 +228,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     + "  metadata_group, statistical_method, status, "
                     + "  category_a, category_b, "
                     + "  p_value as categorical_p_value, effect_size AS categorical_effect_size, "
-                    + "  mp_acc, "
+		            + "  mp_acc, null as male_mp_acc, null as female_mp_acc, "
                     + "  db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, "
                     + "  proj.name as project_name, proj.id as project_id, "
                     + "  org.name as phenotyping_center, org.id as phenotyping_center_id "
@@ -262,7 +262,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 "parameter.stable_id as dependent_variable, " +
                 "'Success' as status, exp.biological_model_id, " +
                 "p_value as line_p_value, effect_size AS line_effect_size, " +
-                "mp_acc, exp.metadata_group, " +
+                "mp_acc, null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
                 "db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
                 "proj.name as project_name, proj.id as project_id, " +
                 "org.name as phenotyping_center, org.id as phenotyping_center_id, " +
@@ -314,7 +314,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 "parameter.stable_id as dependent_variable, " +
                 "'Success' as status, exp.biological_model_id, " +
                 "p_value as line_p_value, effect_size AS line_effect_size, " +
-                "mp_acc, exp.metadata_group, " +
+                "mp_acc, null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
                 "db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
                 "proj.name as project_name, proj.id as project_id, " +
                 "org.name as phenotyping_center, org.id as phenotyping_center_id " +
@@ -457,7 +457,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         StatisticalResultDTO doc = parseResultCommonFields(r);
 	    if (sexesMap.containsKey("categorical-"+doc.getDbId())) {
-		    doc.setPhenotypeSex(sexesMap.get("categorical-"+doc.getDbId()));
+		    doc.setPhenotypeSex(sexesMap.get("categorical-" + doc.getDbId()));
 	    }
 
 	    doc.setSex(r.getString("sex"));
@@ -469,7 +469,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             categories.addAll(Arrays.asList(r.getString("category_a").split("\\|")));
         }
         if (StringUtils.isNotEmpty(r.getString("category_b"))) {
-            categories.addAll(Arrays.asList(r.getString("category_b").split("\\|")));
+            categories.addAll(Arrays.asList(r.getString("category_b")
+                                             .split("\\|")));
         }
 
         doc.setCategories(new ArrayList<>(categories));
@@ -523,7 +524,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         doc.setDataType(r.getString("data_type"));
 
         // Experiment details
-        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
+        String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id"))
+                                                                            .getStableId()
+                                                                            .split("_"))
+                                                        .subList(0, 2), "_");
         if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
             doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
@@ -640,9 +644,35 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 
 	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
-		OntologyTermBean bean = mpOntologyService.getTerm(r.getString("mp_acc"));
+
+		String mpTerm = r.getString("mp_acc");
+
+		// In the case where there is sexual dimorphism, the mp_acc field is null and the sex specific fields are set
+		if (r.wasNull()) {
+
+			// Get the male MP term
+			mpTerm = r.getString("male_mp_acc");
+
+			// If it doesn't exist, get the female term
+			if (r.wasNull()) {
+				// Otherwise use the female term
+				mpTerm = r.getString("female_mp_acc");
+			}
+
+			// If there is NO MP term associated to this document, short circuit
+			if (mpTerm == null) {
+				return;
+			}
+
+			// Use the parent term ID as that is likely the "abnormal" term
+			mpTerm = mpOntologyService.getParents(mpTerm)
+			                          .get(0)
+			                          .getId();
+		}
+
+		OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
 		if (bean != null) {
-		    doc.setMpTermId(bean.getId());
+			doc.setMpTermId(bean.getId());
 		    doc.setMpTermName(bean.getName());
 
 		    OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
