@@ -55,7 +55,7 @@
 	<div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27"
 		title="vision/eye phenotype"></div>
 
-	<c:forEach var="group" items="${significantTopLevelMpGroups}">
+	<c:forEach var="group" items="${significantTopLevelMpGroups.keySet()}">
 		<c:if test="${group != 'mammalian phenotype' }">
 			<a href="#">
 				<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
@@ -63,9 +63,9 @@
 		</c:if>		
 	</c:forEach>
 	
-	<c:forEach var="group" items="${notsignificantTopLevelMpGroups}">
+	<c:forEach var="group" items="${notsignificantTopLevelMpGroups.keySet()}">
 		<c:if test="${group != 'mammalian phenotype' }">
-			<a href="#">
+			<a href="${baseUrl}/data/experiments?geneAccession=${gene.markerSymbol}&phenotype=${notsignificantTopLevelMpGroups.get(group)}">
 				<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${group}"></div>
 			</a>
 		</c:if>		

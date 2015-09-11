@@ -367,7 +367,7 @@
                                 <c:choose>
                                     <c:when test="${summaryNumber > 0}">
 
-                                        <!-- jsp:include page="phenotype_icons_frag.jsp"/-->
+                                        <jsp:include page="phenotype_icons_frag.jsp"/>
 
                                         <%-- <c:if test="${!(empty dataMapList)}">
                                             <p class="with-label no-margin">
