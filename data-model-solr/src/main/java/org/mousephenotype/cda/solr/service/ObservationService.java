@@ -830,7 +830,7 @@ public class ObservationService extends BasicService {
     public List<ObservationDTO> getExperimentObservationsBy(Integer parameterId, Integer pipelineId, String gene, List<String> zygosities, Integer organisationId, String strain, SexType sex, String metaDataGroup, String alleleAccession)
     throws SolrServerException {
 
-        List<ObservationDTO> resultsDTO;
+    	  List<ObservationDTO> resultsDTO;
         SolrQuery query = new SolrQuery()
                 .setQuery(ObservationDTO.GENE_ACCESSION_ID + ":" + gene.replace(":", "\\:"))
                 .addFilterQuery(ObservationDTO.PARAMETER_ID + ":" + parameterId)
