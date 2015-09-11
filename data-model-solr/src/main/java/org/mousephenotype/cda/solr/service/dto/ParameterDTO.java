@@ -32,7 +32,8 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	boolean options;
 	boolean derived;
 	boolean required;
-	boolean media;		
+	boolean media;	
+	boolean annotate;	
 	
 	String dataType;
 	String parameterType;
@@ -47,6 +48,12 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	List<String> mpIds = new ArrayList<>();
 	
 	
+	public boolean isAnnotate() {
+		return annotate;
+	}
+	public void setAnnotate(boolean annotate) {
+		this.annotate = annotate;
+	}
 	public boolean isIncrement() {
 		return increment;
 	}

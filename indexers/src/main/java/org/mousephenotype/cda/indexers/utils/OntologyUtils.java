@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
 /**
  *
@@ -84,14 +85,16 @@ public class OntologyUtils {
      *
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ImpressBaseDTO> populateImpressParameter(Connection connection) throws SQLException {
-        Map<Integer, ImpressBaseDTO> impressMap;
+    public static Map<Integer, ParameterDTO> populateImpressParameter(Connection connection) 
+    throws SQLException {
+        
+    	Map<Integer, ParameterDTO> impressMap;
 
-        String query = "SELECT id, stable_key, name, stable_id FROM phenotype_parameter";
+        String query = "SELECT id, stable_key, name, stable_id, annotate FROM phenotype_parameter";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
-            impressMap = populateImpressMap(p);
+            impressMap = populateParameterMap(p);
         }
 
         return impressMap;
@@ -142,6 +145,25 @@ public class OntologyUtils {
             		resultSet.getInt("stable_key"), 
             		resultSet.getString("stable_id"), 
             		resultSet.getString("name"));
+            impressMap.put(resultSet.getInt("id"), b);
+        }
+
+        return impressMap;
+    }
+    
+    
+    private static Map<Integer, ParameterDTO> populateParameterMap(PreparedStatement p) throws SQLException {
+
+        Map<Integer, ParameterDTO> impressMap = new HashMap<>();
+        ResultSet resultSet = p.executeQuery();
+
+        while (resultSet.next()) {
+        	ParameterDTO b = new ParameterDTO();
+        	b.setId(resultSet.getInt("id"));
+        	b.setStableKey(resultSet.getInt("stable_key")); 
+        	b.setStableId(resultSet.getString("stable_id")); 
+        	b.setName(resultSet.getString("name"));
+        	b.setAnnotate(resultSet.getBoolean("annotate"));
             impressMap.put(resultSet.getInt("id"), b);
         }
 
