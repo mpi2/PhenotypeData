@@ -135,8 +135,8 @@ public class PhenotypeSummaryDAO  {
 		for (ZygosityType zyg : ZygosityType.values()){
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
+			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg, true);
+			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg, true);
 			
 			for (String id: summary.keySet()){
 				
