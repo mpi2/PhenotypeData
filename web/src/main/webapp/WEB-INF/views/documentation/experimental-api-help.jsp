@@ -37,7 +37,14 @@
 
         <h1>REST API documentation for IMPC and Legacy experimental raw data access</h1>
 
-        <p>The experimental data set contains data observations from experiments conducted for the Europhenome project (see <a href="http://www.europhenome.org">http://www.europhenome.org</a>) and for the International Mouse Phenotype Consortium (IMPC) project (see <a href="http://www.mousephenotype.org">http://www.mousephenotype.org</a>). A record in this resource represents a single data point for an experiment. The list of experiments performed are documented in the International Mouse Phenotyping Resource of Standardised Screens (IMPREeSS, see <a href="http://www.mousephenotype.org/impress">http://www.mousephenotype.org/impress</a>). Individual data points are associated to an IMPReSS <strong>Parameter</strong>. Parameters are organised into Procedures. Procedures are organised into Pipelines.</p>
+        <p>The experimental data set contains data observations from experiments conducted for the Europhenome project
+           (see <a href="http://www.europhenome.org">http://www.europhenome.org</a>) and for the International Mouse
+           Phenotype Consortium (IMPC) project (see <a href="http://www.mousephenotype.org">http://www.mousephenotype.org</a>).
+           A record in this resource represents a single data point for an experiment. The list of experiments performed is
+           documented in the International Mouse Phenotyping Resource of Standardised Screens (IMPREeSS, see
+           <a href="http://www.mousephenotype.org/impress">http://www.mousephenotype.org/impress</a>). Individual data
+           points are associated to an IMPReSS <strong>Parameter</strong>. Parameters are organised into Procedures.
+           Procedures are organised into Pipelines.</p>
 
         <p>There are many ways to select and filter experimental data records, e.g.:</p>
 
@@ -109,10 +116,9 @@
                     <td>list showing all relevant metadata in effect when the data was collected</td>
                 </tr>
                 <tr>
-                    <td>strain_name *</td>
+                    <td><strike>strain_name</strike></td>
                     <td>string</td>
-                    <td>Deprecated. Please see genetic_background description</td>
-                </tr>
+                    <td>Deprecated. Please see genetic_background description</td></tr>
                 <tr>
                     <td>strain_accession_id</td>
                     <td>string</td>
@@ -201,43 +207,43 @@
                 <tr>
                     <td>data_point</td>
                     <td>float</td>
-                    <td>indicates the measured data value (1) (2) (3)</td>
+                    <td>indicates the measured data value <sup>[1][2][3]</sup></td>
                 </tr>
                 <tr>
                     <td>order_index</td>
                     <td>int</td>
-                    <td>indicating the order (2)</td>
+                    <td>indicating the order <sup>[2]</sup></td>
                 </tr>
                 <tr>
                     <td>dimension</td>
                     <td>string</td>
-                    <td>indicating the dimension (2)</td>
+                    <td>indicating the dimension <sup>[2]</sup></td>
                 </tr>
                 <tr>
                     <td>time_point</td>
                     <td>string</td>
-                    <td>indicating the time the data value was measured (3)</td>
+                    <td>indicating the time the data value was measured <sup>[3]</sup></td>
                 </tr>
                 <tr>
                     <td>discrete_point</td>
                     <td>float</td>
-                    <td>indicating the discrete point (3)</td>
+                    <td>indicating the discrete point <sup>[3]</sup></td>
                 </tr>
                 <tr>
                     <td>category</td>
                     <td>string</td>
-                    <td>indicating the category to which the specimen has been classified (4)</td>
+                    <td>indicating the category to which the specimen has been classified <sup>[4]</sup></td>
                 </tr>
                 <tr>
                     <td>value</td>
                     <td>string</td>
-                    <td>the value of the metadata (5)</td>
+                    <td>the value of the metadata <sup>[5]</sup></td>
                 </tr>
             </tbody>
         </table>
 
         <blockquote>
-            <p>(1) - For unidimensional parameters (2) - For multidimensional parameters (3) - For time series parameters (4) - For categorical parameters (5) - For metadata parameters</p>
+            <sub>[1] - For unidimensional parameters [2] - For multidimensional parameters [3] - For time series parameters [4] - For categorical parameters [5] - For metadata parameters</sub>
         </blockquote>
         
         <h4>Examples</h4>
