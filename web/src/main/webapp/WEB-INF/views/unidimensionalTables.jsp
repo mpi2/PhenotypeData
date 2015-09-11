@@ -236,6 +236,19 @@
                                 <td><t:formatScientific>${data.result.genotypeEffectPValue}</t:formatScientific></td>
                                 </tr>
                         </c:if>
+                        <c:if test="${data.result.genderMaleKoPValue!=null}">
+                            <tr>
+                                <td>Male Effect P Value</td>
+                                <td><t:formatScientific>${data.result.genderMaleKoPValue}</t:formatScientific></td>
+                                </tr>
+                        </c:if>
+                        <c:if test="${data.result.genderFemaleKoPValue!=null}">
+                            <tr>
+                                <td>Female Effect P Value</td>
+                                <td><t:formatScientific>${data.result.genderFemaleKoPValue}</t:formatScientific></td>
+                                </tr>
+                        </c:if>
+                        
                         <c:if test="${data.result.genderParameterEstimate!=null}">
                             <tr>
                                 <td>Gender Parameter Estimate</td>
@@ -270,6 +283,12 @@
                             <tr>
                                 <td>Gender Male KO P Value</td>
                                 <td><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+                                </tr>
+                        </c:if>
+                          <c:if test="${data.result.genderFemaleKoPValue!=null}">
+                            <tr>
+                                <td>Gender Female KO P Value</td>
+                                <td><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
                                 </tr>
                         </c:if>
                         <!-- 10-15 -->
