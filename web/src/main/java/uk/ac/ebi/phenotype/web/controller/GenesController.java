@@ -220,8 +220,8 @@ public class GenesController {
 		 */
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		HashSet<String> mpGroupsSignificant = new HashSet<> ();
-		HashSet<String> mpGroupsNotSignificant = new HashSet<> ();
+		HashMap<String, List<String>> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
+		HashMap<String, List<String>> mpGroupsNotSignificant = new HashMap<> ();
 		
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of triplets of pipeline, allele acc, phenotyping center
@@ -240,25 +240,25 @@ public class GenesController {
 			
 			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
-					mpGroupsSignificant.add(phen.getGroup());
+					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(false)){
-					mpGroupsNotSignificant.add(phen.getGroup());
+					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(true)){
-					mpGroupsSignificant.add(phen.getGroup());
+					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(false)){
-					mpGroupsNotSignificant.add(phen.getGroup());
+					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(true)){
-					mpGroupsSignificant.add(phen.getGroup());
+					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(false)){
-					mpGroupsNotSignificant.add(phen.getGroup());
+					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
-				for (String str : mpGroupsSignificant){
-					if (mpGroupsNotSignificant.contains(str)){
+				for (String str : mpGroupsSignificant.keySet()){
+					if (mpGroupsNotSignificant.keySet().contains(str)){
 						mpGroupsNotSignificant.remove(str);
 					}
 				}				
