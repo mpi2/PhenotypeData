@@ -443,8 +443,8 @@ public class FileExportController {
 					for (Integer pipelineId : pipelineIds) {
 						for (int strainI = 0; strainI < strain.length; strainI++) {
 							for (int alleleI = 0; alleleI < allele.length; alleleI++) {
-								experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId,
-										geneAccession[mgiI], sex, pCenter, zygosity, strain[strainI]);
+								experimentList = experimentService.getExperimentDTO(parameterStableId[k], pipelineId, geneAccession[mgiI], sex, 
+										pCenter, zygosity, strain[strainI], null, false, allele[alleleI]);
 								if (experimentList.size() > 0) {
 									for (ExperimentDTO experiment : experimentList) {
 										rows.addAll(experiment.getTabbedToString(ppDAO));

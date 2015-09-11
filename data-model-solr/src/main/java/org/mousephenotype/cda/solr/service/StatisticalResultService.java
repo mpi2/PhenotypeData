@@ -202,6 +202,41 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 	
 	
+	public List<String> getCenters(String pipelineStableId, String observationType, String resource, String status) 
+	throws SolrServerException{
+		
+		List<String> res = new ArrayList<>();
+		
+		SolrQuery query = new SolrQuery().setQuery("*:*");
+		query.set("facet", true);
+		query.set("facet.field", StatisticalResultDTO.PHENOTYPING_CENTER);
+		query.setRows(0);
+		query.set("facet.limit", -1);
+		query.set("facet.mincount", 1);
+		
+		if (pipelineStableId != null){
+			query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+		}
+		if (observationType != null){
+			query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":" + observationType);
+		}
+		if (resource != null){
+			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":" + resource);
+		}
+		if (status != null){
+			query.addFilterQuery(StatisticalResultDTO.STATUS + ":" + status);
+		}
+			
+		QueryResponse response = solr.query(query);
+		
+		for (  Count facet: response.getFacetField(StatisticalResultDTO.PHENOTYPING_CENTER).getValues()){
+			res.add(facet.getName());
+		}
+				
+		return res;
+	}
+	
+	
 	 /**
      * @author tudose
      * @since 2015/07/21
@@ -290,20 +325,24 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 	
 
-	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, Boolean requiredParamsOnly)
+	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly)
 	throws SolrServerException{
 
     	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
-    	query.setFilterQueries(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedueStableId, "* OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + "*");
+    	query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + StringUtils.join(procedueStableId, "* OR " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":") + "*");
     	query.addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":unidimensional");
     	query.setFacet(true);
     	query.setFacetMinCount(1);
     	query.setFacetLimit(-1);
     	query.addFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID);
     	query.addFacetField(StatisticalResultDTO.PARAMETER_NAME);
+    	
+    	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
+    		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+    	}
     	
 		List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
 		TreeSet<ParameterDTO> parameterUniqueByStableId = new TreeSet<>(ParameterDTO.getComparatorByName());
@@ -329,8 +368,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
-        	query.setRows(100000);
+        	query.setRows(1000000);
 
+        	if (phenotypingCenters != null && phenotypingCenters.size() > 0){
+        		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
+        	}
+        	
         	row = addMaxGenotypeEffect(solr.query(query), row, p, parameters);
     	}
 
