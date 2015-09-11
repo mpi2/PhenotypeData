@@ -60,7 +60,17 @@ public class PhenotypeSummaryDAO  {
 						}	
 						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
 							return "both sexes";
-					} 
+					} else if (doc.containsKey(StatisticalResultDTO.SEX)){
+						String sex = doc.getFieldValue(StatisticalResultDTO.SEX).toString();
+						if (sex.equals("female")){
+							resume += "f";
+						} else if (sex.equals("male")){
+							resume += "m";
+						}
+							
+						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
+							return "both sexes";
+					}
 				} else {
 					break; // they're sorted so the significant ones will only be at the top
 				}
