@@ -220,8 +220,8 @@ public class GenesController {
 		 */
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		HashMap<String, List<String>> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
-		HashMap<String, List<String>> mpGroupsNotSignificant = new HashMap<> ();
+		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
+		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
 		
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of triplets of pipeline, allele acc, phenotyping center
@@ -283,6 +283,8 @@ public class GenesController {
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
+			
+			System.out.println("SIGNIFICANT"  + mpGroupsSignificant);
 			
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();

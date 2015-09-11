@@ -57,7 +57,7 @@
 
 	<c:forEach var="group" items="${significantTopLevelMpGroups.keySet()}">
 		<c:if test="${group != 'mammalian phenotype' }">
-			<a href="#">
+			<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(group)}'>
 				<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
 			</a>
 		</c:if>		
@@ -65,7 +65,7 @@
 	
 	<c:forEach var="group" items="${notsignificantTopLevelMpGroups.keySet()}">
 		<c:if test="${group != 'mammalian phenotype' }">
-			<a href="${baseUrl}/data/experiments?geneAccession=${gene.markerSymbol}&phenotype=${notsignificantTopLevelMpGroups.get(group)}">
+			<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(group)}'>
 				<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${group}"></div>
 			</a>
 		</c:if>		
