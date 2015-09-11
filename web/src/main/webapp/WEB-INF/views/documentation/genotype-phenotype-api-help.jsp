@@ -120,8 +120,8 @@ curl <span class="se">\</span>
                                     <ul class="task-list">
                                         <li><strong>genotype-phenotype</strong> is the name of the Solr core service to query</li>
                                         <li><strong>select</strong> is the method used to query the Solr REST interface</li>
-                                        <li><strong>q=<em>&#42;:&#42;</em></strong> means querying everything without any filtering on any field</li>
-                                        <li><strong>rows</strong> allows to limit the number of results returned</li>
+                                        <li><strong>q=<em>&#42;:&#42;</em></strong> queries everything without any filtering on any field</li>
+                                        <li><strong>rows</strong> limits the number of results returned</li>
                                         <li><strong>wt=json</strong> is the response format</li>
                                     </ul>
 
@@ -131,8 +131,8 @@ curl <span class="se">\</span>
                                             <span class="octicon octicon-link"></span></a>
                                         Retrieve all genotype-phenotype associations for a specific marker
                                     </h3>
-                                    <p>We will constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific 
-                                        <strong>marker_symbol</strong> field. For Akt2, simply specify <strong>q=marker_symbol:Akt2</strong></p>
+                                    <p>We'll now constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific
+                                        <strong>marker_symbol</strong> field. For example, for Akt2, simply specify <strong>q=marker_symbol:Akt2</strong></p>
 
                                     <div class="highlight highlight-bash">
                                         <pre>
@@ -148,8 +148,8 @@ curl <span class="se">\</span>
                                             <span class="octicon octicon-link"></span></a>
                                         Retrieve all genotype-phenotype associations for a specific MP term
                                     </h3>
-                                    <p>We will constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific 
-                                        <strong>mp_term_name</strong> field. To retrieve genotype associated to "decreased total body fat amount",
+                                    <p>Now we constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific
+                                        <strong>mp_term_name</strong> field. To retrieve the genotype associated to "decreased total body fat amount",
                                         simply specify <strong>q=mp_term_name:"decreased total body fat amount"</strong></p>
                                     <div class="highlight highlight-bash">
                                         <pre>
@@ -159,7 +159,7 @@ curl <span class="se">\</span>
     <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=mp_term_name:"decreased total body fat amount"&amp;wt=json'</span>
                                         </pre>
                                     </div>
-                                    <p>This also work with <strong>mp_term_id</strong> the corresponding MP term identifier. In this case specify <strong>q=mp_term_id:"MP:0010025"</strong></p>
+                                    <p>Alternatively, we may filter by the MP term identifier by specifying the <strong>mp_term_id</strong>:</p>
 
                                     <div class="highlight highlight-bash">
                                         <pre>
@@ -174,9 +174,9 @@ curl <span class="se">\</span>
                                            href="#retrieve-all-genotype-phenotype-associations-for-a-top-level-mp-term">
                                             <span class="octicon octicon-link"></span></a>
                                         Retrieve all genotype-phenotype associations for a top level MP term</h3>
-                                    <p>We will constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific 
-                                        <strong>top_level_mp_term_name</strong> field. This will work with <strong>top_level_mp_term_id</strong>
-                                        if you pass an identifier instead of the MP term name. To retrieve genotype associated to "decreased
+                                    <p>Now we constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific
+                                        <strong>top_level_mp_term_name</strong> field. This works with <strong>top_level_mp_term_id</strong>
+                                        if you pass an identifier instead of the MP term name. To retrieve the genotype associated to "decreased
                                         total body fat amount", simply specify <strong>q=top_level_mp_term_name:"nervous system phenotype"</strong></p>
 
                                     <div class="highlight highlight-bash">
@@ -194,9 +194,9 @@ curl <span class="se">\</span>
                                            href="#retrieve-all-genotype-phenotype-associations-with-a-p-value-cut-off">
                                             <span class="octicon octicon-link"></span></a>
                                         Retrieve all genotype-phenotype associations with a P value cut-off</h3>
-                                    <p>In this example, we will apply a cut-off to the previous query and add a condition to the <strong>q</strong> (query)
+                                    <p>In this example, we apply a cut-off to the previous query and add a condition to the <strong>q</strong> (query)
                                         command. In Solr, you can specify a range to retrieve results. For instance, if you want P values below 0.0001,
-                                        you can add this condition <strong>p_value:[0 TO 0.0001]</strong>. Here, we will retrieve genotype associated
+                                        you can add the condition <strong>p_value:[0 TO 0.0001]</strong> to retrieve the genotype associated
                                         to a nervous system phenotype with a P value cut-off of 0.00005.</p>
                                     <div class="highlight highlight-bash">
                                         <pre>
@@ -212,9 +212,9 @@ curl <span class="se">\</span>
                                            href="#retrieve-all-genotype-phenotype-associations-for-a-specific-phenotyping-center">
                                             <span class="octicon octicon-link"></span></a>
                                         Retrieve all genotype-phenotype associations for a specific phenotyping center</h3>
-                                    <p>We will constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific 
-                                        <strong>phenotyping_center</strong> field. To retrieve all MP associations to "WTSI" (Wellcome Trust Sanger Institute)
-                                        phenotyping centre ,specify <strong>q=phenotyping_center:"WTSI"</strong></p>
+                                    <p>Now we constrain the results by adding a condition to the <strong>q</strong> (query) parameter using the specific
+                                        <strong>phenotyping_center</strong> field. To retrieve all MP associations to the "WTSI" (Wellcome Trust Sanger Institute)
+                                        phenotyping center, specify <strong>q=phenotyping_center:"WTSI"</strong></p>
                                     <div class="highlight highlight-bash">
                                         <pre>
 curl <span class="se">\</span>
@@ -230,14 +230,14 @@ curl <span class="se">\</span>
                                            href="#get-the-phenotyping-resource-names">
                                             <span class="octicon octicon-link"></span></a>
                                         Get the phenotyping resource names</h3>
-                                    <p>We will start by a simple request to get the different phenotyping resource names (EuroPhenome, MGP, IMPC).
-                                        This will be the basis to filter historical phenotyping resources like EuroPhenome or active resource like 
-                                        IMPC project.</p>
-                                    <p>There are two basic facts you should know about Solr. Solr queries are based on filters and facets.
-                                        Using facets enables the retrieval of distinct values from a specific field. In this example, we
-                                        want to retrieve the distinct phenotyping resource names. Filtering enables us to sub-select specific
-                                        fields we want to retrieve and all the fields from a Solr document. In this example, the fields we are
-                                        interested in are 'resource_name' and 'resource_fullname'.</p>
+                                    <p>Start by a simple request to get the different phenotyping resource names (EuroPhenome, MGP, IMPC).
+                                        This will be the basis to filter historical phenotyping resources like EuroPhenome or active resources
+                                        like the IMPC project.</p>
+
+                                    <p>Solr queries are based on filters and facets. Using facets enables the retrieval of distinct values
+                                       from a specific field. Using filters enables us to sub-select specific fields to retrieve, or,
+                                       alternatively, all the fields from a Solr document. In this example we want to retrieve the distinct
+                                       phenotyping resource names. The fields we are interested in are <strong>resource_name</strong> and <strong>resource_fullname</strong>.</p>
                                     <div class="highlight highlight-bash">
                                         <pre>
 curl <span class="se">\</span>
@@ -248,19 +248,23 @@ curl <span class="se">\</span>
                                     </div>
                                     <p>If you look carefully at the request:</p>
                                     <ul class="task-list">
-                                        <li>parameter <strong>fl</strong> means 'filter': we want to filter the results and keep only resource_fullname and resource-name fields</li>
+                                        <li>parameter <strong>fl</strong> means 'filter': we want to filter the results and keep only the <strong>resource_fullname</strong> and <strong>resource-name</strong> fields</li>
                                         <li>parameter <strong>facet=on</strong> means we want to have faceted results</li>
-                                        <li>parameter <strong>facet.field</strong> means we are looking at all the possible combination of resource_name and resource_fullname</li>
-                                        <li>parameter <strong>q</strong> is the query parameter. q=* means we are not doing any text matching and want to get all the resource name / fullname results.</li>
-                                    </ul><p>We will look into more advanced examples and how to use the query parameter 'q'.</p>
+                                        <li>parameter <strong>facet.field</strong> means we are looking at all the possible combinations of <strong>resource_name</strong> and <strong>resource_fullname</strong></li>
+                                        <li>parameter <strong>q</strong> is the query parameter. <strong>q=*</strong> means we don't want any text matching and want to get all
+                                            the <strong>resource_name</strong> and <strong>resource_fullname</strong> results.</li>
+                                    </ul>
+                                    <p>Next, we look at more advanced examples and how to use the query parameter <strong>q</strong>.</p>
 
                                     <h3>
                                         <a name="user-content-retrieve-all-the-phenotyping-projects"
                                            class="anchor"
                                            href="#retrieve-all-the-phenotyping-projects">
-                                            <span class="octicon octicon-link"></span></a>
-                                        Retrieve all the phenotyping projects</h3>
-                                    <p>This is the same principle. Only the selected field changes. In this case, use the field 'project_name' or/and 'project_fullname'.</p>
+                                            <span class="octicon octicon-link"></span>
+                                        </a>
+                                        Retrieve all the phenotyping projects
+                                    </h3>
+                                    <p>In this example, only the selected field changes. Use the <strong>project_name</strong> and/or  <strong>project_fullname </strong> fields.</p>
                                     <div class="highlight highlight-bash">
                                         <pre>
 curl <span class="se">\</span>
@@ -279,8 +283,8 @@ curl <span class="se">\</span>
                                     </h3>
                                     <p>To retrieve all the phenotyping pipelines from EUMODIC, we'll use the <strong>fq</strong> (filter query)
                                         parameter to filter the query on project_name:EUMODIC.
-                                        We are only interested at the distinct pipeline names and we'll use the <strong>facet.field</strong>
-                                        parameter to facet on 'pipeline_name'.</p>
+                                        As we are only interested at the distinct pipeline names, we'll use the <strong>facet.field</strong>
+                                        parameter to facet on <strong>pipeline_name</strong>.</p>
                                     <div class="highlight highlight-bash">
                                         <pre>
 curl <span class="se">\</span>
@@ -298,7 +302,7 @@ curl <span class="se">\</span>
                                         Retrieve all procedures from a specific pipeline
                                     </h3>
                                     <p>Again, we'll use the <strong>fq</strong> command to filter the query on pipeline_name using double-quotes
-                                        and select <strong>facet.field</strong> called <strong>procedure_name</strong>.</p>
+                                        and select the <strong>facet.field</strong> called <strong>procedure_name</strong>.</p>
                                     <div class="highlight highlight-bash">
                                         <pre>
 curl <span class="se">\</span>
