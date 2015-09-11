@@ -18,6 +18,7 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.netbeans.lib.cvsclient.commandLine.command.annotate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,6 +154,7 @@ public class StatisticalResultDTO {
     public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
     public final static String PROJECT_ID = "project_id";
     public final static String PHENOTYPE_SEX = "phenotype_sex";
+    public final static String ANNOTATE = "annotate";
 
     @Field(DOCUMENT_ID)
     private String docId;
@@ -163,6 +165,10 @@ public class StatisticalResultDTO {
 
     @Field(PHENOTYPE_SEX)
     private List<String> phenotypeSex;
+    
+
+    @Field(ANNOTATE)
+    private Boolean annotate;
     
     @Field(DATA_TYPE)
     private String dataType;
@@ -488,9 +494,16 @@ public class StatisticalResultDTO {
 
         return docId;
     }
+    
+    public Boolean getAnnotate() {
+		return annotate;
+	}
 
+	public void setAnnotate(Boolean annotate) {
+		this.annotate = annotate;
+	}
 
-    public void setDocId(String docId) {
+	public void setDocId(String docId) {
 
         this.docId = docId;
     }

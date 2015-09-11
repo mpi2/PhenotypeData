@@ -15,31 +15,36 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.indexers.exceptions.ValidationException;
+import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Populate the Genotype-Phenotype core
@@ -70,7 +75,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-    Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
+    Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
 
     public GenotypePhenotypeIndexer() {
     }

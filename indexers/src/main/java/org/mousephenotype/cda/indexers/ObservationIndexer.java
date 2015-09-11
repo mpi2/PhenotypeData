@@ -15,6 +15,20 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -27,18 +41,11 @@ import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Populate the experiment core
@@ -61,7 +68,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-    Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
+    Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
 
     Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
     Map<Integer, DatasourceBean> projectMap = new HashMap<>();

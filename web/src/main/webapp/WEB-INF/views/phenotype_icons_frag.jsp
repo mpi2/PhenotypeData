@@ -12,8 +12,8 @@
 		data-hasqtip="27" title="reproductive system phenotype"></div>
 	<div class="no-sprite sprite_mortality_aging" data-hasqtip="27"
 		title="mortality/aging"></div>
-	<div class="no-sprite sprite_growth_size_body_phenotype"
-		data-hasqtip="27" title="growth/size/body phenotype"></div>
+	<div class="no-sprite sprite_growth_size_body_region_phenotype"
+		data-hasqtip="27" title="growth/size/body region phenotype"></div>
 	<div
 		class="no-sprite sprite_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype"
 		data-hasqtip="27"
