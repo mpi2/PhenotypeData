@@ -860,7 +860,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource)
+    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId)
 	throws NumberFormatException, SolrServerException {
 
     	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
@@ -893,6 +893,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	    }
 	    if (phenotypingCenter != null){
 	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"" +StringUtils.join(phenotypingCenter, "\" OR \"")  + "\")");
+	    }
+	    if (mpTermId != null){
+	    	query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
+	    			StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\")");
 	    }
 	    if (pipelineName != null){
 	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
