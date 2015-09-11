@@ -106,14 +106,16 @@
                     <td>indicating if the specimen was a member of the control group or the experimental group (also see metadata_group)</td>
                 </tr>
                 <tr>
-                    <td>metadata_group</td>
-                    <td>string</td>
-                    <td>a string indicating a group of experimental and control mice that have the same metadata (see also biological_sample_group)</td>
-                </tr>
-                <tr>
                     <td>metadata</td>
                     <td>list of strings</td>
-                    <td>list showing all relevant metadata in effect when the data was collected</td>
+                    <td>Metadata is data that describes the conditions under which the data was collected (e.g. machine calibration date)</td>
+                </tr>
+                <tr>
+                    <td>metadata_group</td>
+                    <td>string</td>
+                    <td>A collection of biological specimens that were all tested under the same experimental conditions. The experimental conditions
+                        are identified by the metadata_group tag. For more information, see the <a href="https://www.mousephenotype.org/parameters">IMPReSS parameter</a>
+                        documentation section <strong>Required For Data Analysis</strong>. </td>
                 </tr>
                 <tr>
                     <td><strike>strain_name</strike></td>
@@ -122,12 +124,12 @@
                 <tr>
                     <td>strain_accession_id</td>
                     <td>string</td>
-                    <td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td>
+                    <td>The background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td>
                 </tr>
                 <tr>
                     <td>genetic_background</td>
                     <td>string</td>
-                    <td>indicating the background strain name of the specimen</td>
+                    <td>The background strain name of the specimen</td>
                 </tr>
                 <tr>
                     <td>pipeline_name</td>

@@ -18,19 +18,19 @@
 
         <jsp:body>
 
-            <div id="wrapper">
+            <div ID="wrapper">
 
-                <div id="main">
+                <div ID="main">
                     <!-- Sidebar First -->
                     <jsp:include page="doc-menu.jsp"></jsp:include>
 
                         <!-- Maincontent -->
 
-                        <div class="region region-content">              
+                        <div class="region region-content">
 
                             <div class="block block-system">
 
-                                <div id="top" class="content node">
+                                <div ID="top" class="content node">
                                     <h3>Genotype associated phenotype calls</h3>
                                     <p>There are many ways to get information about the MP terms associated to the different KO genes. You can select data per:</p>
                                     <ul class="task-list">
@@ -56,8 +56,8 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr><td>doc_id</td><td>int</td><td>the unique id of the document</td></tr>
-                                        <tr><td>mp_term_id</td><td>string</td><td>the term id of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>doc_id</td><td>int</td><td>the unique ID of the document</td></tr>
+                                        <tr><td>mp_term_id</td><td>string</td><td>the term ID of the associated mammalian phenotype term</td></tr>
                                         <tr><td>mp_term_name</td><td>string</td><td>the term name of the associated mammalian phenotype term</td></tr>
                                         <tr><td>top_level_mp_term_id</td><td>string</td><td>a list of the top level term ids of the associated mammalian phenotype term</td></tr>
                                         <tr><td>top_level_mp_term_name</td><td>string</td><td>a list of the top level term names of the associated mammalian phenotype term</td></tr>
@@ -68,14 +68,14 @@
                                         <tr><td>intermediate_mp_term_definition</td><td>string</td><td>a list of the intermediate level term definitions of the associated mammalian phenotype term</td></tr>
                                         <tr><td>intermediate_mp_term_synonym</td><td>string</td><td>a list of alternate strings for the intermediate level term name of the associated mammalian phenotype term</td></tr>
                                         <tr><td>marker_symbol</td><td>string</td><td>the associated marker symbol</td></tr>
-                                        <tr><td>marker_accession_id</td><td>string</td><td>the associated marker accession id</td></tr>
+                                        <tr><td>marker_accession_id</td><td>string</td><td>the associated marker accession ID</td></tr>
                                         <tr><td>colony_id</td><td>string</td><td>the colony ID</td></tr>
                                         <tr><td>allele_name</td><td>string</td><td>the name of the allele</td></tr>
                                         <tr><td>allele_symbol</td><td>string</td><td>the allele symbol</td></tr>
-                                        <tr><td>allele_accession_id</td><td>string</td><td>the allele accession id</td></tr>
+                                        <tr><td>allele_accession_id</td><td>string</td><td>the allele accession ID</td></tr>
                                         <tr><td><strike>strain_name</strike></td><td>string</td><td>Deprecated. Please see genetic_background description</td></tr>
-                                        <tr><td>strain_accession_id</td><td>string</td><td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td></tr>
-                                        <tr><td>genetic_background</td><td>string</td><td>indicating the background strain name of the specimen</td></tr>
+                                        <tr><td>strain_accession_id</td><td>string</td><td>The background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td></tr>
+                                        <tr><td>genetic_background</td><td>string</td><td>The background strain name of the specimen</td></tr>
                                         <tr><td>phenotyping_center</td><td>string</td><td>the center at which the phenotyping was performed</td></tr>
                                         <tr><td>project_external_id</td><td>string</td><td>(legacy) the identifier of the project at the phenotyping center at which the work was performed</td></tr>
                                         <tr><td>project_name</td><td>string</td><td>the shortname of the project for which the phenotyping was performed</td></tr>
@@ -85,19 +85,19 @@
                                         <tr><td>sex</td><td>string</td><td>the sex of the mutant specimens on which the association was made</td></tr>
                                         <tr><td>zygosity</td><td>string</td><td>the zygosity of the mutant specimens on which the association was made</td></tr>
                                         <tr><td>pipeline_name</td><td>string</td><td>the name of the IMPReSS pipeline</td></tr>
-                                        <tr><td>pipeline_stable_id</td><td>string</td><td>the stable id of the IMPReSS pipeline</td></tr>
+                                        <tr><td>pipeline_stable_id</td><td>string</td><td>the stable ID of the IMPReSS pipeline</td></tr>
                                         <tr><td>pipeline_stable_key</td><td>string</td><td>the stable key of the IMPReSS pipeline</td></tr>
                                         <tr><td>procedure_name</td><td>string</td><td>the name of the IMPReSS procedure performed</td></tr>
-                                        <tr><td>procedure_stable_id</td><td>string</td><td>the stable id of the IMPReSS procedure performed</td></tr>
+                                        <tr><td>procedure_stable_id</td><td>string</td><td>the stable ID of the IMPReSS procedure performed</td></tr>
                                         <tr><td>procedure_stable_key</td><td>string</td><td>the stable key of the IMPReSS procedure performed</td></tr>
                                         <tr><td>parameter_name</td><td>string</td><td>the name of the IMPReSS parameter measured</td></tr>
-                                        <tr><td>parameter_stable_id</td><td>string</td><td>the stable id of the IMPReSS parameter measured</td></tr>
+                                        <tr><td>parameter_stable_id</td><td>string</td><td>the stable ID of the IMPReSS parameter measured</td></tr>
                                         <tr><td>parameter_stable_key</td><td>string</td><td>the stable key of the IMPReSS parameter measured</td></tr>
                                         <tr><td>statistical_method</td><td>string</td><td>the statistical method used to determine the P value</td></tr>
                                         <tr><td>percentage_change</td><td>string</td><td>for continuous data, a standardized effect measure</td></tr>
                                         <tr><td>p_value</td><td>double</td><td>the statistical significance of the association</td></tr>
                                         <tr><td>effect_size</td><td>double</td><td>the size of the effect</td></tr>
-                                        <tr><td>external_id</td><td>string</td><td>(legacy) internal id of the association at the phenotyping center</td></tr>
+                                        <tr><td>external_id</td><td>string</td><td>(legacy) internal ID of the association at the phenotyping center</td></tr>
                                         </tbody>
                                     </table>
 
@@ -120,10 +120,10 @@ curl <span class="se">\</span>
                                     <ul class="task-list">
                                         <li><strong>genotype-phenotype</strong> is the name of the Solr core service to query</li>
                                         <li><strong>select</strong> is the method used to query the Solr REST interface</li>
-                                        <li><strong>q=<em>&#42;:&#42;</em></strong> queries everything without any filtering on any field</li>
+                                        <li><strong>q=<em>*:*</em></strong> queries everything without any filtering on any field</li>
                                         <li><strong>rows</strong> limits the number of results returned</li>
                                         <li><strong>wt=json</strong> is the response format</li>
-                                        <li><strong>indent=1</strong> indents the output into a more human-readable form</li>
+                                        <li><strong>indent=1</strong> or <strong>indent=true</strong> indents the output into a more human-readable form</li>
                                     </ul>
 
                                     <h3><a name="user-content-retrieve-all-genotype-phenotype-associations-for-a-specific-marker"
