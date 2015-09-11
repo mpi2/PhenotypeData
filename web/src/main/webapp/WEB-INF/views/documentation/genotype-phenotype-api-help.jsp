@@ -64,7 +64,7 @@
                                         <tr><td>top_level_mp_term_definition</td><td>string</td><td>a list of the top level term definitions of the associated mammalian phenotype term</td></tr>
                                         <tr><td>top_level_mp_term_synonym</td><td>string</td><td>a list of alternate strings for the top level term name of the associated mammalian phenotype term</td></tr>
                                         <tr><td>intermediate_mp_term_id</td><td>string</td><td>a list of the intermediate level term ids of the associated mammalian phenotype term</td></tr>
-                                        <tr><td>intermediate_mp_term_name</td><td>text_g</td><td>a list of the intermediate level term names of the associated mammalian phenotype term</td></tr>
+                                        <tr><td>intermediate_mp_term_name</td><td>string</td><td>a list of the intermediate level term names of the associated mammalian phenotype term</td></tr>
                                         <tr><td>intermediate_mp_term_definition</td><td>string</td><td>a list of the intermediate level term definitions of the associated mammalian phenotype term</td></tr>
                                         <tr><td>intermediate_mp_term_synonym</td><td>string</td><td>a list of alternate strings for the intermediate level term name of the associated mammalian phenotype term</td></tr>
                                         <tr><td>marker_symbol</td><td>string</td><td>the associated marker symbol</td></tr>
@@ -73,7 +73,7 @@
                                         <tr><td>allele_name</td><td>string</td><td>the name of the allele</td></tr>
                                         <tr><td>allele_symbol</td><td>string</td><td>the allele symbol</td></tr>
                                         <tr><td>allele_accession_id</td><td>string</td><td>the allele accession id</td></tr>
-                                        <tr><td>strain_name *</td><td>string</td><td>Deprecated. Please see genetic_background description</td></tr>
+                                        <tr><td><strike>strain_name</strike></td><td>string</td><td>Deprecated. Please see genetic_background description</td></tr>
                                         <tr><td>strain_accession_id</td><td>string</td><td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td></tr>
                                         <tr><td>genetic_background</td><td>string</td><td>indicating the background strain name of the specimen</td></tr>
                                         <tr><td>phenotyping_center</td><td>string</td><td>the center at which the phenotyping was performed</td></tr>
@@ -120,7 +120,7 @@ curl <span class="se">\</span>
                                     <ul class="task-list">
                                         <li><strong>genotype-phenotype</strong> is the name of the Solr core service to query</li>
                                         <li><strong>select</strong> is the method used to query the Solr REST interface</li>
-                                        <li><strong>q=<em>:</em></strong> means querying everything without any filtering on any field</li>
+                                        <li><strong>q=<em>&#42;:&#42;</em></strong> means querying everything without any filtering on any field</li>
                                         <li><strong>rows</strong> allows to limit the number of results returned</li>
                                         <li><strong>wt=json</strong> is the response format</li>
                                     </ul>
