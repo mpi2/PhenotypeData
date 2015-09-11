@@ -15,6 +15,21 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -27,19 +42,12 @@ import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -68,7 +76,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-    Map<Integer, ImpressBaseDTO> parameterMap = new HashMap<>();
+    Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
     Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
     Map<String, ResourceBean> resourceMap = new HashMap<>();
     Map<String, List<String>> sexesMap = new HashMap<>();
@@ -698,6 +706,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
 		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
 		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
+
+		doc.setAnnotate(parameterMap.get(r.getInt("parameter_id")).isAnnotate());
 	}
 
 
