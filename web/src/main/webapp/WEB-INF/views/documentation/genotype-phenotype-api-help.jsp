@@ -189,7 +189,7 @@ curl <span class="se">\</span>
 curl <span class="se">\</span>
     --basic  <span class="se">\</span>
     -X GET <span class="se">\</span>
-    <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=top_level_mp_term_name:"growth/size/body%20phenotype"&amp;wt=json&indent=1'</span>
+    <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=top_level_mp_term_name:"growth/size/body%20region%20phenotype"&amp;wt=json&indent=1'</span>
                                         </pre>
                                     </div>
 
@@ -215,7 +215,7 @@ curl <span class="se">\</span>
 curl <span class="se">\</span>
     --basic  <span class="se">\</span>
     -X GET <span class="se">\</span>
-    <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=top_level_mp_term_name:%22growth/size/body%20phenotype%22%20AND%20p_value:%5b0%20TO%200.00005%5d&wt=json&indent=1'</span>
+    <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=top_level_mp_term_name:%22growth/size/body%20region%20phenotype%22%20AND%20p_value:%5b0%20TO%200.00005%5d&wt=json&indent=1'</span>
                                         </pre></div>
 
                                     or, alternatively, you could replace the <strong>[</strong> (%5b) and <strong>]</strong> (%5d) encoding characters
@@ -226,7 +226,7 @@ curl <span class="se">\</span>
     --basic  <span class="se">\</span>
     -g <span class="se">\</span>
     -X GET <span class="se">\</span>
-    <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=top_level_mp_term_name:%22growth/size/body%20phenotype%22%20AND%20p_value:[0%20TO%200.00005]&wt=json&indent=1'</span>
+    <span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/genotype-phenotype/select?q=top_level_mp_term_name:%22growth/size/body%20region%20phenotype%22%20AND%20p_value:[0%20TO%200.00005]&wt=json&indent=1'</span>
                                         </pre></div>
 
                                     <h3>
