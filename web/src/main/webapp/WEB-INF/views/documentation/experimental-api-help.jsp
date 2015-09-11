@@ -248,12 +248,13 @@
         
         <h4>Examples</h4>
 
-        <p>NOTE: It may be necessary for spaces and double quotes to be url encoded (space = %20, double quote=%22) for command line usage</p>
-        <p>Retrieve all experimental results for parameter ESLIM_001_001_009 (Coat hair color) for colony HEPD0527_5_A04</p>
+        <p><i>NOTE: Certain characters, most notably spaces and the "&lt;" and "&gt;" characters, must be url encoded (space = %20, &lt;&nbsp;=&nbsp;%3c, &gt;&nbsp;=&nbsp;%3e) for command line usage</i>.</p>
+        <p>Retrieve all experimental results for parameter ESLIM_001_001_009 (Coat hair color) for colony Myo7aMyo7a&lt;Hdb&gt;</p>
         <div class="highlight highlight-bash"><pre>curl <span class="se">\</span>
-<span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:ESLIM_001_001_009%20AND%20colony_id:HEPD0527_5_A04&amp;wt=json&amp;indent=true'</span>
+<span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:ESLIM_001_001_009%20AND%20colony_id:Myo7aMyo7a%3cHdb%3e&wt=json&indent=true'</span>
 </pre>
 
+<%--<span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:ESLIM_001_001_009%20AND%20colony_id:HEPD0527_5_A04&amp;wt=json&amp;indent=true'</span>--%>
         </div>
         <p>Retrieve all experimental results for organisation WTSI</p>
         <div class="highlight highlight-bash"><pre>curl <span class="se">\</span>
