@@ -31,6 +31,10 @@ public class UnidimensionalStatsObject {
 	private String label = "Not set"; // label to display on x Axis. Need this at least for ABR
 	private String mpTermId;
 	private String mpTermName;
+	private String allele = "allele not found";
+	private String geneticBackground = "genetic background not found";
+	private UnidimensionalResult result;
+
 
 	public String getMpTermId() {
 		return mpTermId;
@@ -55,10 +59,6 @@ public class UnidimensionalStatsObject {
 	public void setSampleSize(Integer sampleSize) {
 		this.sampleSize = sampleSize;
 	}
-
-	private String allele = "allele not found";
-	private String geneticBackground = "genetic background not found";
-	private UnidimensionalResult result;
 
 	public UnidimensionalResult getResult() {
 		return result;

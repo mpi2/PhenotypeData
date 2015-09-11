@@ -483,7 +483,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY, 
             		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MP_TERM_ID, 
             		GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
-            		StatisticalResultDTO.PHENOTYPE_SEX);
+            		StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME);
             
             if (zygosity != null) {
                 solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
