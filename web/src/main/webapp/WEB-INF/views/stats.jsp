@@ -113,8 +113,8 @@
                             if (paramList[k].indexOf("parameter_stable_id") >= 0) {
                                 paramIdList.push(paramList[k].replace("parameter_stable_id=", ""));
                             }
-                            else if (paramList[k].indexOf("allele_accession") >= 0) {
-                                allele.push(paramList[k].replace("allele_accession=", ""));
+                            else if (paramList[k].indexOf("allele_accession_id") >= 0) {
+                                allele.push(paramList[k].replace("allele_accession_id=", ""));
                             }
                             else if (paramList[k].indexOf("accession") >= 0) {
                                 mgiGeneId.push(paramList[k].replace("accession=", ""));
@@ -147,7 +147,7 @@
                                 parameterStableId: paramIdList,
                                 zygosity: zygosity,
                                 sex: sex,
-                                allele_accession: allele,
+                                allele_accession_id: allele,
                                 strains: strains,
                                 phenotypingCenter: phenotypingCenter,
                                 pipelineStableId: pipelineStableId,
