@@ -164,7 +164,7 @@ public class FileExportController {
 			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
 			@RequestParam(value = "procedure_stable_id", required = true) String procedureStableId,
 			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
-			@RequestParam(value = "allele_accession", required = true) String alleleAccession,
+			@RequestParam(value = "allele_accession_id", required = true) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
 			@RequestParam(value = "strain", required = false) String strainParameter)
@@ -260,7 +260,7 @@ public class FileExportController {
 			@RequestParam(value = "fileType", required = true) String fileType,
 			@RequestParam(value = "fileName", required = true) String fileName,
 			@RequestParam(value = "legacyOnly", required = false, defaultValue = "false") Boolean legacyOnly,
-			@RequestParam(value = "allele_accession", required = false) String[] allele,
+			@RequestParam(value = "allele_accession_id", required = false) String[] allele,
 			@RequestParam(value = "rowStart", required = false) Integer rowStart,
 			@RequestParam(value = "length", required = false) Integer length,
 			@RequestParam(value = "panel", required = false) String panelName,
@@ -1894,8 +1894,7 @@ public class FileExportController {
 
 				PrintWriter output = response.getWriter();
 				for (String line : dataRows) {
-					System.out.println("line: " + line);
-
+				
 					line = line.replaceAll("\\t//", "\thttp://");
 					line = line.replaceAll("\\|//", "|http://");
 
