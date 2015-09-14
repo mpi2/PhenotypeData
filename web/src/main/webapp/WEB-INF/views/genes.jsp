@@ -670,8 +670,7 @@
                             <!-- Expression in Anatomogram -->
                             <c:if test="${!isLive}">
                             
-        					<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
-                            <div class="section">
+        					<div class="section">
                                 <h2 class="title" id="expression-anatomogram">Expression in Anatomogram<span
                                         class="documentation"><a href='' id='expressionAnatomogramPanel'
                                                                  class="fa fa-question-circle pull-right"></a></span>
@@ -1128,7 +1127,9 @@
 
         <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-
+		<c:if test="${!isLive}">
+              <script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
+        </c:if>
         <script type="text/javascript">
             var diseaseTables = [{
                 id: '#orthologous_diseases_table',
