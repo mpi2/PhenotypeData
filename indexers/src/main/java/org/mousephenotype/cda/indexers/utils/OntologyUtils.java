@@ -158,6 +158,7 @@ public class OntologyUtils {
         ResultSet resultSet = p.executeQuery();
 
         while (resultSet.next()) {
+        	
         	ParameterDTO b = new ParameterDTO();
         	b.setId(resultSet.getInt("id"));
         	b.setStableKey(resultSet.getInt("stable_key")); 
@@ -165,6 +166,8 @@ public class OntologyUtils {
         	b.setName(resultSet.getString("name"));
         	b.setAnnotate(resultSet.getBoolean("annotate"));
             impressMap.put(resultSet.getInt("id"), b);
+            
+            System.out.println(b.isAnnotate());
         }
 
         return impressMap;

@@ -145,7 +145,7 @@ public class PhenotypeSummaryDAO  {
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 				String mpName = mps.get(id);
 				long n = getNumSignificantCalls(resp);
-				boolean significant = (n > 0)? true : false;
+				boolean significant = (n > 0) ? true : false;
 				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, mpName, sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
 				

@@ -693,7 +693,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	}
 
 
-	private void addImpressData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
+	private void addImpressData(ResultSet r, StatisticalResultDTO doc) 
+	throws SQLException {
+		
 		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
 		doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
 		doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
@@ -707,11 +709,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
 		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
-		doc.setAnnotate(parameterMap.get(r.getInt("parameter_id")).isAnnotate());
+//		doc.setAnnotate(parameterMap.get(r.getInt("parameter_id")).isAnnotate());
 	}
 
 
 	private void addBiologicalData(StatisticalResultDTO doc, Integer biologicalModelId) {
+		
 		BiologicalDataBean b = biologicalDataMap.get(biologicalModelId);
 
 		doc.setMarkerAccessionId(b.geneAcc);
@@ -721,6 +724,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setAlleleSymbol(b.alleleSymbol);
 		doc.setStrainAccessionId(b.strainAcc);
 		doc.setStrainName(b.strainName);
+		
 	}
 
 
