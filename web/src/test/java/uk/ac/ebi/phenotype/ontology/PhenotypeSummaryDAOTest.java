@@ -52,17 +52,17 @@ public class PhenotypeSummaryDAOTest {
 
 	String testGene = "MGI:104874";
 
-	@Test
-	public void testGetDataSourcesForPhenotypesSet() throws MalformedURLException, SolrServerException{
-		HashMap<String, String> summary;
-		summary = gpService.getTopLevelMPTerms(testGene, null);
-		for (String id: summary.keySet()){
-			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id, null);
-			HashSet<String> dataSources = phenotypeSummary.getDataSourcesForPhenotypesSet(resp);
-			assertTrue(dataSources != null);
-		}
-	}
-
+//	@Test
+//	public void testGetDataSourcesForPhenotypesSet() throws MalformedURLException, SolrServerException{
+//		HashMap<String, String> summary;
+//		summary = gpService.getTopLevelMPTerms(testGene, null);
+//		for (String id: summary.keySet()){
+//			SolrDocumentList resp = gpService.getPhenotypesForTopLevelTerm(testGene, id, null);
+//			HashSet<String> dataSources = phenotypeSummary.getDataSourcesForPhenotypesSet(resp);
+//			assertTrue(dataSources != null);
+//		}
+//	}
+//
 
 	//removed this test until the mammalian phenotype top level issue is resolved
 //	@Test

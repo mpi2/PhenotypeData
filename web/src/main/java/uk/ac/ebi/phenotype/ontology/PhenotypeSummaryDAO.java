@@ -60,7 +60,17 @@ public class PhenotypeSummaryDAO  {
 						}	
 						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
 							return "both sexes";
-					} 
+					} else if (doc.containsKey(StatisticalResultDTO.SEX)){
+						String sex = doc.getFieldValue(StatisticalResultDTO.SEX).toString();
+						if (sex.equals("female")){
+							resume += "f";
+						} else if (sex.equals("male")){
+							resume += "m";
+						}
+							
+						if (resume.contains("m") && resume.contains("f")) // we can stop when we have both sexes already
+							return "both sexes";
+					}
 				} else {
 					break; // they're sorted so the significant ones will only be at the top
 				}
@@ -125,8 +135,8 @@ public class PhenotypeSummaryDAO  {
 		for (ZygosityType zyg : ZygosityType.values()){
 			
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
-			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
-			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
+			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg, true);
+			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg, true);
 			
 			for (String id: summary.keySet()){
 				
@@ -135,7 +145,7 @@ public class PhenotypeSummaryDAO  {
 				HashSet<String> ds = getDataSourcesForPhenotypesSet(resp);
 				String mpName = mps.get(id);
 				long n = getNumSignificantCalls(resp);
-				boolean significant = (n > 0)? true : false;
+				boolean significant = (n > 0) ? true : false;
 				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, mpName, sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
 				

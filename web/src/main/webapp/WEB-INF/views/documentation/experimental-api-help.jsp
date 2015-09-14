@@ -37,7 +37,14 @@
 
         <h1>REST API documentation for IMPC and Legacy experimental raw data access</h1>
 
-        <p>The experimental data set contains data observations from experiments conducted for the Europhenome project (see <a href="http://www.europhenome.org">http://www.europhenome.org</a>) and for the International Mouse Phenotype Consortium (IMPC) project (see <a href="http://www.mousephenotype.org">http://www.mousephenotype.org</a>). A record in this resource represents a single data point for an experiment. The list of experiments performed are documented in the International Mouse Phenotyping Resource of Standardised Screens (IMPREeSS, see <a href="http://www.mousephenotype.org/impress">http://www.mousephenotype.org/impress</a>). Individual data points are associated to an IMPReSS <strong>Parameter</strong>. Parameters are organised into Procedures. Procedures are organised into Pipelines.</p>
+        <p>The experimental data set contains data observations from experiments conducted for the Europhenome project
+           (see <a href="http://www.europhenome.org">http://www.europhenome.org</a>) and for the International Mouse
+           Phenotype Consortium (IMPC) project (see <a href="http://www.mousephenotype.org">http://www.mousephenotype.org</a>).
+           A record in this resource represents a single data point for an experiment. The list of experiments performed is
+           documented in the International Mouse Phenotyping Resource of Standardised Screens (IMPREeSS, see
+           <a href="http://www.mousephenotype.org/impress">http://www.mousephenotype.org/impress</a>). Individual data
+           points are associated to an IMPReSS <strong>Parameter</strong>. Parameters are organised into Procedures.
+           Procedures are organised into Pipelines.</p>
 
         <p>There are many ways to select and filter experimental data records, e.g.:</p>
 
@@ -99,29 +106,30 @@
                     <td>indicating if the specimen was a member of the control group or the experimental group (also see metadata_group)</td>
                 </tr>
                 <tr>
-                    <td>metadata_group</td>
-                    <td>string</td>
-                    <td>a string indicating a group of experimental and control mice that have the same metadata (see also biological_sample_group)</td>
-                </tr>
-                <tr>
                     <td>metadata</td>
                     <td>list of strings</td>
-                    <td>list showing all relevant metadata in effect when the data was collected</td>
+                    <td>Metadata is data that describes the conditions under which the data was collected (e.g. machine calibration date)</td>
                 </tr>
                 <tr>
-                    <td>strain_name *</td>
+                    <td>metadata_group</td>
                     <td>string</td>
-                    <td>Deprecated. Please see genetic_background description</td>
+                    <td>A collection of biological specimens that were all tested under the same experimental conditions. The experimental conditions
+                        are identified by the metadata_group tag. For more information, see the <a href="https://www.mousephenotype.org/parameters">IMPReSS parameter</a>
+                        documentation section <strong>Required For Data Analysis</strong>. </td>
                 </tr>
+                <tr>
+                    <td><strike>strain_name</strike></td>
+                    <td>string</td>
+                    <td>Deprecated. Please see genetic_background description</td></tr>
                 <tr>
                     <td>strain_accession_id</td>
                     <td>string</td>
-                    <td>Background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td>
+                    <td>The background strain MGI accession ID (or IMPC ID when MGI accession is not available)</td>
                 </tr>
                 <tr>
                     <td>genetic_background</td>
                     <td>string</td>
-                    <td>indicating the background strain name of the specimen</td>
+                    <td>The background strain name of the specimen</td>
                 </tr>
                 <tr>
                     <td>pipeline_name</td>
@@ -201,53 +209,54 @@
                 <tr>
                     <td>data_point</td>
                     <td>float</td>
-                    <td>indicates the measured data value (1) (2) (3)</td>
+                    <td>indicates the measured data value <sup>[1][2][3]</sup></td>
                 </tr>
                 <tr>
                     <td>order_index</td>
                     <td>int</td>
-                    <td>indicating the order (2)</td>
+                    <td>indicating the order <sup>[2]</sup></td>
                 </tr>
                 <tr>
                     <td>dimension</td>
                     <td>string</td>
-                    <td>indicating the dimension (2)</td>
+                    <td>indicating the dimension <sup>[2]</sup></td>
                 </tr>
                 <tr>
                     <td>time_point</td>
                     <td>string</td>
-                    <td>indicating the time the data value was measured (3)</td>
+                    <td>indicating the time the data value was measured <sup>[3]</sup></td>
                 </tr>
                 <tr>
                     <td>discrete_point</td>
                     <td>float</td>
-                    <td>indicating the discrete point (3)</td>
+                    <td>indicating the discrete point <sup>[3]</sup></td>
                 </tr>
                 <tr>
                     <td>category</td>
                     <td>string</td>
-                    <td>indicating the category to which the specimen has been classified (4)</td>
+                    <td>indicating the category to which the specimen has been classified <sup>[4]</sup></td>
                 </tr>
                 <tr>
                     <td>value</td>
                     <td>string</td>
-                    <td>the value of the metadata (5)</td>
+                    <td>the value of the metadata <sup>[5]</sup></td>
                 </tr>
             </tbody>
         </table>
 
         <blockquote>
-            <p>(1) - For unidimensional parameters (2) - For multidimensional parameters (3) - For time series parameters (4) - For categorical parameters (5) - For metadata parameters</p>
+            <sub>[1] - For unidimensional parameters [2] - For multidimensional parameters [3] - For time series parameters [4] - For categorical parameters [5] - For metadata parameters</sub>
         </blockquote>
         
         <h4>Examples</h4>
 
-        <p>NOTE: It may be necessary for spaces and double quotes to be url encoded (space = %20, double quote=%22) for command line usage</p>
-        <p>Retrieve all experimental results for parameter ESLIM_001_001_009 (Coat hair color) for colony HEPD0527_5_A04</p>
+        <p><i>NOTE: Certain characters, most notably spaces and the "&lt;" and "&gt;" characters, must be url encoded (space = %20, &lt;&nbsp;=&nbsp;%3c, &gt;&nbsp;=&nbsp;%3e) for command line usage</i>.</p>
+        <p>Retrieve all experimental results for parameter ESLIM_001_001_009 (Coat hair color) for colony Myo7aMyo7a&lt;Hdb&gt;</p>
         <div class="highlight highlight-bash"><pre>curl <span class="se">\</span>
-<span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:ESLIM_001_001_009%20AND%20colony_id:HEPD0527_5_A04&amp;wt=json&amp;indent=true'</span>
+<span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:ESLIM_001_001_009%20AND%20colony_id:Myo7aMyo7a%3cHdb%3e&wt=json&indent=true'</span>
 </pre>
 
+<%--<span class="s1">'http://www.ebi.ac.uk/mi/impc/solr/experiment/select?q=parameter_stable_id:ESLIM_001_001_009%20AND%20colony_id:HEPD0527_5_A04&amp;wt=json&amp;indent=true'</span>--%>
         </div>
         <p>Retrieve all experimental results for organisation WTSI</p>
         <div class="highlight highlight-bash"><pre>curl <span class="se">\</span>

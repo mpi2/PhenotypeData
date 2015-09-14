@@ -23,6 +23,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class IndexerMap {
     private static List<AlleleDTO> alleles = null;
     private static Map<Integer, ImpressBaseDTO> pipelineMap = null;
     private static Map<Integer, ImpressBaseDTO> procedureMap = null;
-    private static Map<Integer, ImpressBaseDTO> parameterMap = null;
+    private static Map<Integer, ParameterDTO> parameterMap = null;
     private static Map<Integer, OrganisationBean> organisationMap = null;
     private static Map<String, Map<String,List<String>>> maUberonEfoMap = null;
     
@@ -250,7 +251,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress parameter terms, indexed by internal database id.
      */
-    public static Map<Integer, ImpressBaseDTO> getImpressParameters(Connection connection) throws SQLException {
+    public static Map<Integer, ParameterDTO> getImpressParameters(Connection connection) throws SQLException {
         if (parameterMap == null) {
             parameterMap = OntologyUtils.populateImpressParameter(connection);
         }

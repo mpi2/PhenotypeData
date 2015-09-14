@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,9 +82,9 @@ public class ObservationIndexerTest {
         logger.info("Size of procedure data map {}", bioDataMap.size());
 
         //Parameters
-        bioDataMap = IndexerMap.getImpressParameters(connection);
-        Assert.assertTrue(bioDataMap.size() > 500);
-        logger.info("Size of parameter data map {}", bioDataMap.size());
+        Map<Integer, ParameterDTO>  paramMap = IndexerMap.getImpressParameters(connection);
+        Assert.assertTrue(paramMap.size() > 500);
+        logger.info("Size of parameter data map {}", paramMap.size());
 
     }
 
