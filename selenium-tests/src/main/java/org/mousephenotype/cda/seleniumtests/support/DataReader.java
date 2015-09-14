@@ -29,17 +29,16 @@ import java.util.List;
  * This abstract class implements code common to derived classes, leaving 
  * stream-specific  customizations to the derived classes.
  */
-public abstract class DataReader {
+public abstract class DataReader implements AutoCloseable {
 
     protected DataReaderFactory dataReaderFactory = new DataReaderFactory();
     protected URL url;
 
-    public DataReader(URL url) {
+    public DataReader(URL url) throws IOException {
         this.url = url;
     }
     
-    public abstract void open() throws IOException;
-    public abstract void close() throws IOException;
+    protected abstract void open() throws IOException;
     public abstract List<String> getLine() throws IOException;
     public abstract DataType getType();
     
@@ -68,38 +67,30 @@ public abstract class DataReader {
 
         if (maxRows == null)
             maxRows = lineCount();
-        
+
         String[][] data = new String[maxRows][];
-        DataReader dataReader = null;
+
+        if (maxRows == 0) {
+            return data;
+        }
+
         try {
-            dataReader = dataReaderFactory.create(url);
- //System.out.println("After create()");
-            dataReader.open();
- //System.out.println("After open()");
             List<String> line;
             for (int rowIndex = 0; rowIndex < maxRows; rowIndex++) {
-                line = dataReader.getLine();
+                line = getLine();
                 if (line == null)
                     break;
-                
+
                 data[rowIndex] = new String[line.size()];
                 for (int colIndex = 0; colIndex < line.size(); colIndex++) {
                     data[rowIndex][colIndex] = line.get(colIndex);
                 }
             }
-        } catch (IOException e) {
-            message = "EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + url;
-            throw new TestException(message);
-        } finally {
-            try {
-                if (dataReader != null)
-                    dataReader.close();
-            } catch (IOException e) {
-                message = "EXCEPTION. dataReader.close() failed. Reason: " + e.getLocalizedMessage() + "\nURL: " + url;
-                throw new TestException(message);
-            }
+        } catch (Exception e) {
+            throw new TestException(e);
         }
-        
+
+        reset();
         return data;
     }
 
@@ -127,32 +118,41 @@ public abstract class DataReader {
     public int lineCount() throws TestException {
         String message;
         int lineCount = 0;
-        DataReader dataReader = null;
+
         try {
-            dataReader = dataReaderFactory.create(url);
-            dataReader.open();
-            
-            while ((dataReader.getLine()) != null) {
+            while ((getLine()) != null) {
                 lineCount++;
             }
-        } catch (IOException e) {
-            message = "EXCEPTION in lineCount(): " + e.getLocalizedMessage() + "\nURL: " + url;
-            throw new TestException(message);
-        } finally {
-            try {
-                if (dataReader != null)
-                    dataReader.close();
-            } catch (IOException e) {
-                message = "EXCEPTION in lineCount(). dataReader.close() failed. Reason: " + e.getLocalizedMessage() + "\nURL: " + url;
-                throw new TestException(message);
-            }
+
+            reset();
+        } catch (Exception e) {
+            throw new TestException(e);
         }
-        
+
         return lineCount;
     }
     
     public enum DataType {
         TSV,
         XLS
+    }
+
+
+    // PRIVATE METHODS
+
+
+    private void reset() {
+
+        try {
+            close();
+        } catch (Exception e) {
+            System.out.println("ERROR IN " + this.getClass().getSimpleName() + ".close(): " + e.getLocalizedMessage() + "\nURL: " + url);
+        }
+
+        try {
+            open();
+        } catch (Exception e) {
+            System.out.println("ERROR IN " + this.getClass().getSimpleName() + ".open(): " + e.getLocalizedMessage() + "\nURL: " + url);
+        }
     }
 }

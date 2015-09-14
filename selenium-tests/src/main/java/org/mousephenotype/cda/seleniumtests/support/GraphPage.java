@@ -141,6 +141,8 @@ public class GraphPage {
             List<DownloadSection> downloadSections;
             try {
                 downloadSections = loadAllDownloadData();
+            } catch (TestException te) {
+                throw te;
             } catch (Exception e) {
                 message = "Exception: " + e.getLocalizedMessage() + "\nURL: " + graphUrl;
                 System.out.println(message);
@@ -207,11 +209,20 @@ public class GraphPage {
         List<List<List<String>>> downloadBlockTsv = new ArrayList();
         List<List<List<String>>> downloadBlockXls = new ArrayList();
 
+        URL url;
         try {
-            URL url = new URL(downloadTargetTsv);
-            DataReaderTsv dataReaderTsv = new DataReaderTsv(url);
+            url = new URL(downloadTargetTsv);
+
+        } catch (IOException e) {
+            throw new TestException("EXCEPTION creating url '" + downloadTargetTsv + "': ", e);
+        }
+
+        try (DataReaderTsv dataReaderTsv = new DataReaderTsv(url)) {
             String[][] allGraphData = dataReaderTsv.getData();
-            downloadBlockTsv = parseDownloadStream(allGraphData);
+
+            if (allGraphData.length > 0) {
+                downloadBlockTsv = parseDownloadStream(allGraphData);
+            }
 
         } catch (IOException e) {
             throw new TestException("Error parsing TSV", e);
@@ -220,10 +231,18 @@ public class GraphPage {
         String downloadTargetXls = testUtils.patchUrl(baseUrl, downloadTargetUrlBase + "xls", "/export?");
 
         try {
-            URL url = new URL(downloadTargetXls);
-            DataReaderXls dataReaderXls = new DataReaderXls(url);
+            url = new URL(downloadTargetXls);
+
+        } catch (IOException e) {
+            throw new TestException("EXCEPTION creating url '" + downloadTargetTsv + "': ", e);
+        }
+
+        try (DataReaderXls dataReaderXls = new DataReaderXls(url)) {
             String[][] allGraphData = dataReaderXls.getData();
-            downloadBlockXls = parseDownloadStream(allGraphData);
+
+            if (allGraphData.length > 0) {
+                downloadBlockXls = parseDownloadStream(allGraphData);
+            }
 
         } catch (IOException e) {
             throw new TestException("Error parsing XLS", e);

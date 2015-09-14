@@ -16,8 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
-
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -33,9 +32,9 @@ public class DataReaderFactory {
      * create the correctly typed <code>DataReader</code>)
      * @return a <code>DataReader</code> capable of correctly handling the stream
      * identified by <code>url</code>.
-     * @throws TestException
+     * @throws IOException
      */
-    public DataReader create(URL url) throws TestException {
+    public DataReader create(URL url) throws IOException {
         String query = url.getQuery();
         String[] queryArray = query.split("&");
         for (String s : queryArray) {
@@ -49,11 +48,11 @@ public class DataReaderFactory {
                         return new DataReaderXls(url);
                         
                     default:
-                        throw new RuntimeException("Unknown stream type '" + filetype + "'.");
+                        throw new IOException("Unknown stream type '" + filetype + "'.");
                 }
             }
         }
         
-        throw new TestException("Expected url query with substring 'fileType'. url query = '" + query + "'.");
+        throw new IOException("Expected url query with substring 'fileType'. url query = '" + query + "'.");
     }
 }
