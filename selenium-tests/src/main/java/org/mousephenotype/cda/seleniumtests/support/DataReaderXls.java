@@ -16,8 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,8 +43,9 @@ public class DataReaderXls extends DataReader {
      *
      * @param url The url defining the input stream
      */
-    public DataReaderXls(URL url) {
+    public DataReaderXls(URL url) throws IOException {
         super(url);
+        open();
     }
 
     /**
@@ -52,17 +53,15 @@ public class DataReaderXls extends DataReader {
      * @throws IOException
      */
     @Override
-    public void open() throws IOException {
-        try {
-            try (InputStream inputStream = url.openStream()) {
-                workbook = WorkbookFactory.create(inputStream);
-            }
-            Sheet sheet = workbook.getSheetAt(0);
-            rowIterator = sheet.rowIterator();
-        } catch (InvalidFormatException e) {
-            System.out.println("InvalidFormatException: " + e.getLocalizedMessage());
-            throw new IOException(e);
+    protected void open() throws IOException {
+        try (InputStream inputStream = url.openStream()) {
+            workbook = WorkbookFactory.create(inputStream);
+        } catch (Exception e) {
+            System.out.println("Error opening workbook. Will treat as empty workbook. Exception: " + e.getLocalizedMessage());
+            return;
         }
+        Sheet sheet = workbook.getSheetAt(0);
+        rowIterator = sheet.rowIterator();
     }
     
     /**
@@ -71,7 +70,7 @@ public class DataReaderXls extends DataReader {
      * @throws IOException
      */
     @Override
-    public void close() throws IOException {
+    public void close() throws TestException {
         // nothing to do.
     }
     
@@ -85,6 +84,10 @@ public class DataReaderXls extends DataReader {
      */
     @Override
     public List<String> getLine() throws IOException {
+        if (rowIterator == null) {
+            return null;
+        }
+
         List<String> line = new ArrayList();
         if ( ! rowIterator.hasNext())
             return null;

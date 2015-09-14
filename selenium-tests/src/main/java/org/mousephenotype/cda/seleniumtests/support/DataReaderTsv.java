@@ -43,18 +43,19 @@ public class DataReaderTsv extends DataReader {
      *
      * @param url The url defining the input stream
      */
-    public DataReaderTsv(URL url) {
+    public DataReaderTsv(URL url) throws IOException {
         super(url);
+        open();
     }
-    
+
     /**
      * Opens the stream defined by the url used in the constructor.
      * @throws IOException
      */
     @Override
-    public void open() throws IOException {
+    protected void open() throws IOException {
         bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
-        
+
         // Test experience has shown that sometimes this method returns before the
         // stream is ready to be read, which causes HTTP response code 503
         // (server not ready).
@@ -74,9 +75,13 @@ public class DataReaderTsv extends DataReader {
      */
     @Override
     public void close() throws IOException {
-        if (bufferedReader != null) {
-            bufferedReader.close();
-            bufferedReader = null;
+        try {
+            if (bufferedReader != null) {
+                bufferedReader.close();
+                bufferedReader = null;
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
         }
     }
     

@@ -238,33 +238,28 @@ public class GraphPageTest {
 
     // Tests known graph URLs that have historically been broken or are interesting cases, such as 2 graphs per page.
     //
-    // NOTE: This test is configured to run on either BETA or DEV. If the profile is neither, then the test is skipped.
+    // NOTE: This test is configured to run on either BETA, DEV. If the profile is neither, then the test is skipped.
     @Test
 //@Ignore
     public void testKnownGraphs() throws TestException {
-        String profile = env.getProperty("profile");
-        if ((profile != null) && (profile.equals("beta") || (profile.equals("dev")))) {
-            String port = (profile.equals("dev") ? "8080" : "18080");
-            String testName = "testKnownGraphs";
-            logger.info(testName + ": Testing on platform " + profile + " (port " + port + ")");
-            List<String> graphUrls = Arrays.asList(new String[]{
-                      "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"              // ABR
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:2146574&allele_accession=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:1860086&allele_accession=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:1929878&allele_accession=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC Harwell"          // Unidimensional
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Categorical
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"            // Unidimensional
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:1923455&allele_accession_id=EUROALL:3&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_001&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"
-                    , "http://ves-ebi-d0:" + port + "/mi/impc/" + profile + "/phenotype-archive/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"
-            });
+        String testName = "testKnownGraphs";
 
-            graphEngine(testName, graphUrls);
-        } else {
-            logger.warn("WARNING: testKnownGraphs() skipped. It runs only against profiles 'beta' and 'dev', and profile was " + profile);
-        }
+        List<String> graphUrls = Arrays.asList(new String[]{
+                  baseUrl + "/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
+                , baseUrl + "/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"              // ABR
+                , baseUrl + "/charts?accession=MGI:2146574&allele_accession=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
+                , baseUrl + "/charts?accession=MGI:1860086&allele_accession=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
+                , baseUrl + "/charts?accession=MGI:1929878&allele_accession=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC Harwell"          // Unidimensional
+                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Categorical
+                , baseUrl + "/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
+                , baseUrl + "/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
+                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"            // Unidimensional
+                , baseUrl + "/charts?accession=MGI:1923455&allele_accession_id=EUROALL:3&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_001&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"
+                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"
+                , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"
+        });
+
+        graphEngine(testName, graphUrls);
     }
 
     @Test
