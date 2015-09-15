@@ -752,6 +752,33 @@ public class TestUtils {
     }
 
     /**
+     * Removes known bad gene ids like MGI:3688249, otherwise known as Ostes, which is a heritable phenotypic marker
+     * and thus, correctly, has no gene in the gene core but has a record in the genotype-phenotype core. This gene id
+     * comes up regularly enough in tests (and fails the test because it generates an "Oops!" page) that it warrants
+     * exclusion in testing. MGI may someday make it a real gene, in which case we can remove calls to this method.
+     *
+     * @param geneIdList The gene list
+     *
+     * @return a copy of <code>geneIdList</code>, with specific gene ids removed, if they are in the list.
+     *
+     * @deprecated This deprecated flag is a reminder to check these genes against MGI to see if they are real genes
+     * yet (and can thus participate in testing). Until that time, this filter method should be called to avoid
+     * false test failures.
+     *
+     * See also Jira ticket MPII-1493.
+     */
+    @Deprecated
+    public List<String> removeKnownBadGeneIds(List<String> geneIdList) {
+        final List<String> badGeneIds = new ArrayList<>(Arrays.asList(new String[] {
+                "MGI:3688249"
+        }));
+
+        geneIdList.removeAll(badGeneIds);
+
+        return geneIdList;
+    }
+
+    /**
      * Removes the protocol and double slashes from the url string
      * @param url url string which may or may not contain a protocol
      * @return the url, without the protocol or the double slashes
