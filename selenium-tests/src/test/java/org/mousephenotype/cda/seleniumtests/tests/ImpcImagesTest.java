@@ -132,6 +132,8 @@ public class ImpcImagesTest {
         PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
+
         String target = "";
         List<String> successList = new ArrayList();
         String message;

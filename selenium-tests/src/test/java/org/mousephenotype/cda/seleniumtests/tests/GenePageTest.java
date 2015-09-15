@@ -134,6 +134,8 @@ public class GenePageTest {
         PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
+
         String target = "";
         List<String> successList = new ArrayList();
         String message;
@@ -340,6 +342,8 @@ public class GenePageTest {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
 
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
+
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Started", null, GeneService.GeneFieldValue.CENTRE_WTSI);
@@ -365,6 +369,8 @@ public class GenePageTest {
     public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
+
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
@@ -392,6 +398,8 @@ public class GenePageTest {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
 
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
+
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Complete", null, GeneService.GeneFieldValue.CENTRE_WTSI);
@@ -417,6 +425,8 @@ public class GenePageTest {
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
+
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.

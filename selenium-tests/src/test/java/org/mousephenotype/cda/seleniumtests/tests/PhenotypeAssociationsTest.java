@@ -185,9 +185,10 @@ public class PhenotypeAssociationsTest {
         PageStatus status = new PageStatus();
         String testName = "testTotalsCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Date start = new Date();
         List<String> geneIds = new ArrayList(genotypePhenotypeService.getAllGenesWithPhenotypeAssociations());
 
-        Date start = new Date();
+geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
