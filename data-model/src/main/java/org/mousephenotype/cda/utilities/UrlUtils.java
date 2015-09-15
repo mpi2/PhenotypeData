@@ -105,7 +105,8 @@ public class UrlUtils {
     /**
      * Encode only the following characters:
      *   ' ' (space)        %20
-     *   '%' (double quote) %22
+     *   '"' (double quote) %22
+     *   ':' (colon - but only in the query part of the string; don't encode http: or the port indicator ves-ebi-d0:8080
      * @param url
      * @return
      */
@@ -114,7 +115,15 @@ public class UrlUtils {
 
         try {
             url = url.replaceAll(" ", "%20").replaceAll("\"", "%22");
+            int qmarkOffset = url.indexOf("?");
+            if (qmarkOffset >= 0) {
+                String firstPart = url.substring(0, qmarkOffset + 1);
+                String queryPart = url.substring(qmarkOffset + 1).replaceAll(":", "%3A");
+                url = firstPart + queryPart;
+            }
+
             retVal = url;
+
         } catch (Exception e) { }
 
         return retVal;
