@@ -245,17 +245,17 @@ public class GraphPageTest {
         String testName = "testKnownGraphs";
 
         List<String> graphUrls = Arrays.asList(new String[]{
-                  baseUrl + "/charts?accession=MGI:3588194&allele_accession=NULL-3a8c98b85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
-                , baseUrl + "/charts?accession=MGI:2149209&allele_accession=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"              // ABR
-                , baseUrl + "/charts?accession=MGI:2146574&allele_accession=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
-                , baseUrl + "/charts?accession=MGI:1860086&allele_accession=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
-                , baseUrl + "/charts?accession=MGI:1929878&allele_accession=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC Harwell"          // Unidimensional
-                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Categorical
-                , baseUrl + "/charts?accession=MGI:1100883&allele_accession=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
-                , baseUrl + "/charts?accession=MGI:98216&allele_accession=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
-                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"            // Unidimensional
+                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=IMPC_001&phenotyping_center=BCM"               // ABR
+                , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // ABR
+                , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
+                , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
+                , baseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Unidimensional
+                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Categorical
+                , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
+                , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
+                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // Unidimensional
                 , baseUrl + "/charts?accession=MGI:1923455&allele_accession_id=EUROALL:3&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_001&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"
-                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC Davis"
+                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"
                 , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"
         });
 
@@ -263,7 +263,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
@@ -294,7 +294,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
@@ -314,7 +314,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
@@ -324,7 +324,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
@@ -334,7 +334,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 
