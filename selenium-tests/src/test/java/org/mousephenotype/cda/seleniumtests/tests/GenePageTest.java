@@ -486,6 +486,8 @@ public class GenePageTest {
         testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, 1);
     }
 
+    // Test for the minimum number of blue and orange icons. Match orange icons with phenotype summary strings
+    // appearing on the left side of the gene page.
     @Test
 //@Ignore
     public void testAkt2() throws Exception {
@@ -532,7 +534,8 @@ public class GenePageTest {
         // Section Titles: count and values (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
         // ... count
         sectionErrorCount = 0;
-        String[] sectionTitlesArray = {"Gene: Akt2",
+        String[] sectionTitlesArray = {
+                "Gene: Akt2",
                 "Phenotype associations for Akt2",
                 "Phenotype Associated Images",
                 "Expression",
@@ -646,60 +649,98 @@ public class GenePageTest {
             errorList.addAll(status.getErrorMessages());
         }
 
-        // Enabled Abnormalities: count and strings
+        // Enabled Abnormalities: count and strings. As of 15-September-2015, there should be at least:
+        //   8 - tested but not significant (blue)
+        //   5 - significant (orange)
         // ... count
         sectionErrorCount = 0;
         numOccurrences = 0;
-        String[] expectedAbnormalitiesArray = {
-                "growth/size/body phenotype"
-                , "homeostasis/metabolism phenotype or adipose tissue phenotype"
-                , "behavior/neurological phenotype or nervous system phenotype"
-                , "skeleton phenotype"
-                , "immune system phenotype or hematopoietic system phenotype" };
-        List<String> expectedAbnormalities = Arrays.asList(expectedAbnormalitiesArray);
-        List<String> actualAbnormalities = genePage.getEnabledAbnormalities();
-        if (actualAbnormalities.size() != expectedAbnormalitiesArray.length) {
+        status = new PageStatus();
+        final List<String> expectedSignificantList = Arrays.asList(
+                new String[] {
+                        "growth/size/body region phenotype"
+                      , "homeostasis/metabolism phenotype or adipose tissue phenotype"
+                      , "behavior/neurological phenotype or nervous system phenotype"
+                      , "skeleton phenotype"
+                      , "immune system phenotype or hematopoietic system phenotype"
+                });
+        final List<String> expectedNotSignificantList = Arrays.asList(
+                new String[] {
+                        "reproductive system phenotype"
+                      , "cardiovascular system phenotype"
+                      , "digestive/alimentary phenotype or liver/biliary system phenotype"
+                      , "renal/urinary system phenotype"
+                      , "limbs/digits/tail phenotype"
+                      , "integument phenotype or pigmentation phenotype"
+                      , "craniofacial phenotype"
+                      , "vision/eye phenotype"
+                });
+
+        // Validate that there are at least 5 expectedSignificant icons.
+        List<String> actualSignificantList = genePage.getSignificantAbnormalities();
+        if (actualSignificantList.size() < expectedSignificantList.size()) {
             sectionErrorCount++;
-            message = "Enabled Abnormalities (count): [FAILED]. Expected " + expectedAbnormalitiesArray.length + " strings but found " + actualAbnormalities.size() + ".";
-            errorList.add(message);
+            message = "Significant Abnormalities (count): [FAILED]. Expected " + expectedSignificantList.size() + " strings but found " + actualSignificantList.size() + ".";
+            status.addError(message);
             System.out.println(message + "\n");
         } else {
-            System.out.println("Enabled Abnormalities (count): [PASSED]\n");
+            System.out.println("Significant Abnormalities (count): [PASSED]\n");
         }
-        // ... values
-        status = new PageStatus();
-        for (String expectedAbnormality : expectedAbnormalities) {
-            if ( ! actualAbnormalities.contains(expectedAbnormality)) {
-                message = "Enabled Abnormalities (values): [FAILED]. Mismatch: Expected enabled abnormality named '" + expectedAbnormality + "' but wasn't found.";
-                status.addError(message);
-                sectionErrorCount++;
-            }
-        }
-        for (String actualAbnormality : actualAbnormalities) {
-            if ( ! expectedAbnormalities.contains(actualAbnormality)) {
-                message = "Enabled Abnormalities (values): [FAILED]. Mismatch: Found enabled abnormality named '" + actualAbnormality + "' but wasn't expected.";
-                status.addError(message);
-                sectionErrorCount++;
-            } else {
-                numOccurrences = TestUtils.count(actualAbnormalities, actualAbnormality);
-                if (numOccurrences > 1) {
-                    message = "Enabled Abnormalities (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualAbnormality + "' were found.";
-                    status.addError(message);
-                    sectionErrorCount++;
-                }
-            }
-        }
-        if (sectionErrorCount == 0) {
-            System.out.println("Enabled Abnormalities (values): [PASSED]\n");
+
+        // Validate that the sum of expectedSignificant and expectedNotSignificant are at least the sum of the expected list sizes.
+        List<String> actualNotSignificantList = genePage.getNotSignificantAbnormalities();
+        if (actualSignificantList.size() + actualNotSignificantList.size() < expectedSignificantList.size() + expectedNotSignificantList.size()) {
+            sectionErrorCount++;
+            message = "Sum of Significant and Non-Significant Abnormalities (count): [FAILED]. Expected "
+                     + expectedSignificantList.size() + expectedNotSignificantList.size()
+                     + " strings but found "
+                     + actualSignificantList.size() + actualNotSignificantList.size() + ".";
+            status.addError(message);
+            System.out.println(message + "\n");
         } else {
-            // Dump out all enabled abnormalities.
-            for (int i = 0; i < actualAbnormalities.size(); i++) {
-                String actualAbnormality = actualAbnormalities.get(i);
+            System.out.println("Not Significant Abnormalities (count): [PASSED]\n");
+        }
+
+        // Validate the actual Significant abnormality values against the expected ones.
+        for (String actualSignificant : actualSignificantList) {
+            if ( ! expectedSignificantList.contains(actualSignificant)) {
+                message = "Significant Abnormalities (values): [FAILED]. Mismatch: Expected significant abnormality named '" + actualSignificant + "' but wasn't found.";
+                status.addError(message);
+                sectionErrorCount++;
+            }
+        }
+
+        // Validate that the actual NotSignificant abnormality values are in either the expectedSignificantList or
+        // the expectedNonSignificantList.
+        List<String> both = new ArrayList<>();
+        both.addAll(expectedSignificantList);
+        both.addAll(expectedNotSignificantList);
+        for (String actualNotSignificant : actualNotSignificantList) {
+            if ( ! both.contains(actualNotSignificant)) {
+                message = "Not Significant Abnormalities (values): [FAILED]. Mismatch: Couldn't find actual Not Significant abnormality named '" + actualNotSignificant + "'";
+                status.addError(message);
+                sectionErrorCount++;
+            }
+        }
+
+        if (sectionErrorCount == 0) {
+            System.out.println("Significant and Not Significant Abnormalities (values): [PASSED]\n");
+        } else {
+            // Dump out all Significant abnormalities.
+            for (int i = 0; i < actualSignificantList.size(); i++) {
+                if (i == 0)
+                    System.out.println("Actual Significant List:");
+                String actualAbnormality = actualSignificantList.get(i);
                 System.out.println("\t[" + i + "]: " + actualAbnormality);
             }
 
-            // Dump out the missing/duplicated ones.
-            System.out.println(status.toStringErrorMessages());
+            // Dump out all Not Significant abnormalities.
+            for (int i = 0; i < actualNotSignificantList.size(); i++) {
+                if (i == 0)
+                    System.out.println("Actual Not Significant List:");
+                String actualAbnormality = actualNotSignificantList.get(i);
+                System.out.println("\t[" + i + "]: " + actualAbnormality);
+            }
 
             // Add missing titles to error list.
             errorList.addAll(status.getErrorMessages());

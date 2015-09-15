@@ -110,16 +110,33 @@ public class GenePage {
 
     /**
      *
-     * @return All of the enabled abnormality strings (those that start with the
-     * class name 'sprite').
+     * @return All significant abnormality strings
      */
-    public List<String> getEnabledAbnormalities() {
+    public List<String> getSignificantAbnormalities() {
         List<String> abnormalityStrings = new ArrayList();
 
-        List<WebElement> enabledAbnormalityElementList = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[ not(contains(@class, 'no-sprite'))]"));
+        List<WebElement> significantAbnormalityElements = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[contains(@class, 'sprite_orange') and not (contains(@class, 'sprite_NA'))]"));
 
-        for (WebElement enabledAbnormalityElement : enabledAbnormalityElementList) {
-            String abnormality = enabledAbnormalityElement.getAttribute("oldtitle");
+        for (WebElement significantAbnormalityElement : significantAbnormalityElements) {
+            String abnormality = significantAbnormalityElement.getAttribute("oldtitle");
+            if ((abnormality != null) && ( ! abnormality.isEmpty()))
+                abnormalityStrings.add(abnormality);
+        }
+
+        return abnormalityStrings;
+    }
+
+    /**
+     *
+     * @return All NotSignificant abnormality strings
+     */
+    public List<String> getNotSignificantAbnormalities() {
+        List<String> abnormalityStrings = new ArrayList();
+
+        List<WebElement> notSignificantAbnormalityElements = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']/div[contains(@class, 'sprite_blue') and not (contains(@class, 'sprite_NA'))]"));
+
+        for (WebElement notSignificantAbnormalityElement : notSignificantAbnormalityElements) {
+            String abnormality = notSignificantAbnormalityElement.getAttribute("oldtitle");
             if ((abnormality != null) && ( ! abnormality.isEmpty()))
                 abnormalityStrings.add(abnormality);
         }
