@@ -721,41 +721,40 @@ public class SearchPageTest {
         testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
     }
 
-// FIXME FIXME FIXME
 //    // This test doesn't use the download test engine as it requires an extra
 //    // click to switch to the Image facet's 'Image' view.
     @Test
 //@Ignore
-//        String testName = "testImageFacetImageView";
-//        String searchString = "";
-//        Date start = new Date();
-//        PageStatus status = new PageStatus();
-//        Facet facet;
-//
     public void testImageFacetImageView() throws TestException {
-//        System.out.println("\n\n----- " + testName + " -----");
-//
-//        try {
-//            String target = baseUrl + "/search";
-//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
-//            facet = Facet.IMAGES;
-//            searchPage.clickFacet(facet);
-//            searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
-//            searchPage.clickPageButton();
-//
-//            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
-//            status.add(searchPage.validateDownload(facet));
-//
-//        } catch (TestException e) {
-//            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-//            status.addError(message);
-//        } finally {
-//            if ( ! status.hasErrors()) {
-//                successList.add(testName + ": SUCCESS.");
-//            }
-//
-//            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
-//        }
+        String testName = "testImageFacetImageView";
+        String searchString = "";
+        Date start = new Date();
+        PageStatus status = new PageStatus();
+        Facet facet;
+
+        System.out.println("\n\n----- " + testName + " -----");
+
+        try {
+            String target = baseUrl + "/search";
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+            facet = Facet.IMAGES;
+            searchPage.clickFacet(facet);
+            searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
+            searchPage.clickPageButton();
+
+            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            status.add(searchPage.validateDownload(facet));
+
+        } catch (TestException e) {
+            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            status.addError(message);
+        } finally {
+            if ( ! status.hasErrors()) {
+                successList.add(testName + ": SUCCESS.");
+            }
+
+            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
+        }
     }
 
     // This test was spawned from testImageFacetImageView() when it came across
