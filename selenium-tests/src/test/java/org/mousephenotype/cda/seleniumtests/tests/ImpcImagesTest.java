@@ -47,8 +47,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  *
  * @author mrelac
@@ -158,13 +156,16 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
                 boolean hasImpcImages = genePage.hasImpcImages();
                 if ( ! hasImpcImages) {
-                    String localMessage = "no impc images for gene " + geneId;
-                    status.addError(localMessage);
+                    status.addError("No IMPC Images found for " + target);
+                    continue;
                 }
-                assertTrue(hasImpcImages);
-                List<String> parameters = genePage
-                        .getAssociatedImpcImageSections();
-                assertTrue(parameters.size() > 0);
+
+                List<String> parameters = genePage.getAssociatedImpcImageSections();
+                if (parameters.isEmpty()) {
+                    status.addError("Parameter list is empty!");
+                    continue;
+                }
+
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "("
                         + target + ") but found none.";
