@@ -59,6 +59,13 @@ public abstract class SearchFacetTable {
     public static final String NO_INFO_AVAILABLE    = "No information available";
     public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
 
+    public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";
+    public static final String SHOW_IMAGE_VIEW      = "Show Image View";
+    public enum ImagesView {
+        ANNOTATION_VIEW,
+        IMAGE_VIEW
+    }
+
     // byHash String keys:
     public enum TableComponent {
         BY_TABLE("byTable")

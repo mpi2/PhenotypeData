@@ -794,12 +794,18 @@ public class TestUtils {
 
     /**
      * Sets the protocol (http or https).
+     * Examples with HTTP_PROTOCOL = HTTP:
+     *      //ves-ebi-d0        -> http://ves-ebi-d0
+     *      https://ves-ebi-d0  -> http://ves-ebi-d0
+     *      http://ves-ebi-d0   -> http://ves-ebi-d0
      * @param url url string which may or may not contain a protocol
      * @param protocol one of: http or https (choose from enum)
      * @return the url, with the protocol changed, if it exists
      */
     public String setProtocol(String url, HTTP_PROTOCOL protocol) {
-        return (url.replace("https://", protocol.name() + "://").replace("http://", protocol.name() + "://"));
+        return url.replace("https://", "//")
+                  .replace("http://",  "//")
+                  .replace("//", protocol.name() + "://");
     }
 
     /**

@@ -739,7 +739,7 @@ public class SearchPageTest {
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
-            searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
+            searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
             searchPage.clickPageButton();
 
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
@@ -774,7 +774,7 @@ public class SearchPageTest {
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             Facet facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
-            searchPage.getImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
+            searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
             searchPage.clickPageButton(SearchPage.PageDirective.LAST);
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
@@ -813,7 +813,7 @@ public class SearchPageTest {
 
             facet = Facet.IMPC_IMAGES;
             searchPage.clickFacet(facet);
-            searchPage.getImpcImageTable().setCurrentView(SearchImageTable.ImageFacetView.IMAGE_VIEW);
+            searchPage.getImpcImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
 
             System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
 
