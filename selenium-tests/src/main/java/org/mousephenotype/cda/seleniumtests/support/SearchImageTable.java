@@ -37,9 +37,6 @@ public class SearchImageTable extends SearchFacetTable {
     private SearchImageImageView      searchImageImageView      = null;
     protected final TestUtils         testUtils                 = new TestUtils();
 
-    public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";
-    public static final String SHOW_IMAGE_VIEW      = "Show Image View";
-
     /**
      * Creates a new <code>SearchImageTable</code> instance with the given map.
      * @param driver A <code>WebDriver</code> instance pointing to the search
@@ -68,17 +65,12 @@ public class SearchImageTable extends SearchFacetTable {
         }
     }
 
-    public enum ImageFacetView {
-        ANNOTATION_VIEW,
-        IMAGE_VIEW
-    }
-
-    public final ImageFacetView getCurrentView() {
+    public final ImagesView getCurrentView() {
         String imgViewSwitcherText = driver.findElement(By.cssSelector("span#imgViewSwitcher")).getText();
-        return (imgViewSwitcherText.equals(SHOW_IMAGE_VIEW) ? ImageFacetView.ANNOTATION_VIEW : ImageFacetView.IMAGE_VIEW);
+        return (imgViewSwitcherText.equals(SHOW_IMAGE_VIEW) ? ImagesView.ANNOTATION_VIEW : ImagesView.IMAGE_VIEW);
     }
 
-    public void setCurrentView(ImageFacetView view) throws TestException {
+    public void setCurrentView(ImagesView view) throws TestException {
         if (getCurrentView() != view) {
             SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
             clickToolbox(SearchPage.WindowState.CLOSED);

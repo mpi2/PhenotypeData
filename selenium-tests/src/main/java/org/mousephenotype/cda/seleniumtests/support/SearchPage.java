@@ -721,7 +721,7 @@ public class SearchPage {
     public SearchImpcImageTable getImpcImageTable() throws TestException {
         if (hasImpcImageTable()) {
             if (impcImageTable == null) {
-                impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
+                impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds, map);
             }
         }
 
@@ -997,13 +997,13 @@ public class SearchPage {
         } else if (hasImageTable()) {
             imageTable = new SearchImageTable(driver, timeoutInSeconds, map);
         } else if (hasImageTable()) {
-            impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
+            impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds, map);
         } else if (hasPhenotypeTable()) {
             phenotypeTable = new SearchPhenotypeTable(driver, timeoutInSeconds);
         }
     }
 
-    public void setImageFacetView(SearchImageTable.ImageFacetView desiredView) throws TestException {
+    public void setImageFacetView(SearchFacetTable.ImagesView desiredView) throws TestException {
         getImageTable().setCurrentView(desiredView);
     }
 
