@@ -19,10 +19,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.support.GenePage;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
-import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
@@ -146,7 +143,14 @@ public class PhenotypeAssociationsTest {
 
             // Get the expected result count.
             int expectedResultsCount = genePage.getResultsCount();
-            int actualResultsCount =  driver.findElements(By.xpath("//img[@alt = 'Female' or @alt = 'Male']")).size();
+
+            // Loop through all pages, summing the male and female icons. They should match the result counts exactly.
+            int actualResultsCount = driver.findElements(By.xpath("//img[@alt = 'Female' or @alt = 'Male']")).size();
+            Paginator paginator = genePage.getGeneTable().getPaginator();
+            while (paginator.hasNext()) {
+                paginator.clickNext();
+                actualResultsCount += driver.findElements(By.xpath("//img[@alt = 'Female' or @alt = 'Male']")).size();
+            };
 
             if (expectedResultsCount != actualResultsCount) {
                 status.addError("ERROR: Expected minimum result count of " + expectedMinimumResultCount + " but actual sum of phenotype counts was " + sumOfPhenotypeCounts + " for " + driver.getCurrentUrl());
@@ -167,15 +171,10 @@ public class PhenotypeAssociationsTest {
 
 
     /**
-     * Fetches all gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
+     * Fetches a random set of gene IDs (MARKER_ACCESSION_ID) from the genotype-phenotype
      * core and tests to make sure:
      * <ul><li>this page has phenotype associations</li>
-     * <li>the expected result count is less than or equal to the sum of the
-     * phenotype link counts</li></ul>
-     *
-     * <p><em>Limit the number of test iterations by adding an entry to
-     * testIterations.properties with this test's name as the lvalue and the
-     * number of iterations as the rvalue. -1 means run all iterations.</em></p>
+     * <li>the expected result count at the top of the page is equal to the sum of the male and female icons for all pages</li></ul>
      *
      * @throws SolrServerException
      */
@@ -191,14 +190,15 @@ public class PhenotypeAssociationsTest {
 geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
+
+        geneIds.set(0, "MGI:1336993");         // Always test this mgi id, as it spans two 100-element pages.
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
 
         // Loop through all genes, testing each one for valid page load.
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (String geneId : geneIds) {
-// if (i == 0) geneId = "MGI:1922257";
-// if (i == 1) geneId = "MGI:1933966";
+// if (i == 0) geneId = "MGI:1336993";
             if (i >= targetCount) {
                 break;
             }
@@ -215,5 +215,4 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, geneIds.size());
     }
-
 }

@@ -464,6 +464,10 @@ public class GenePage {
         return commonUtils.tryParseInt(select.getFirstSelectedOption());
     }
 
+    public GeneTable getGeneTable() {
+        return geneTable;
+    }
+
     public void selectGenesLength(Integer resultCount) {
         Select select = new Select(driver.findElement(By.xpath("//select[@name='genes_length']")));
         select.selectByValue(resultCount.toString());

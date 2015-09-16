@@ -40,6 +40,7 @@ public class GeneTable {
 
     private GridMap data;       // Contains postQc rows only.
     protected WebDriver driver;
+    protected Paginator paginator;
     private List<List<String>> postQcList;
     private List<List<String>> preAndPostQcList;
     private List<List<String>> preQcList;
@@ -56,7 +57,7 @@ public class GeneTable {
     public static final int COL_INDEX_GENES_PHENOTYPING_CENTER  =  5;
     public static final int COL_INDEX_GENES_SOURCE              =  6;
     public static final int COL_INDEX_GENES_P_VALUE             =  7;
-    public static final int COL_INDEX_GENES_GRAPH_LINK               =  8;
+    public static final int COL_INDEX_GENES_GRAPH_LINK          =  8;
 
     public static final String COL_GENES_PHENOTYPE           = "Phenotype";
     public static final String COL_GENES_ALLELE              = "Allele";
@@ -68,7 +69,7 @@ public class GeneTable {
     public static final String COL_GENES_P_VALUE             = "P Value";
     public static final String COL_GENES_GRAPH               = "Graph";
 
-    public static final String NO_SUPPORTING_DATA                 = "No supporting data supplied.";
+    public static final String NO_SUPPORTING_DATA            = "No supporting data supplied.";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -77,6 +78,7 @@ public class GeneTable {
         this.wait = wait;
         this.target = target;
         this.data = null;
+        this.paginator = new Paginator("genes_paginate", driver);
     }
 
     /**
@@ -215,6 +217,14 @@ public class GeneTable {
 
         data = new GridMap(postQcList, target);
         return data;
+    }
+
+    public Paginator getPaginator() {
+        return paginator;
+    }
+
+    public void setPaginator(Paginator paginator) {
+        this.paginator = paginator;
     }
 
     public List<List<String>> getPreQcList() {
