@@ -22,6 +22,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,30 +38,33 @@ public class SearchImageTable extends SearchFacetTable {
     private SearchImageImageView      searchImageImageView      = null;
     protected final TestUtils         testUtils                 = new TestUtils();
 
+    private static final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
+    static {
+        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
+        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+        imageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
+    }
+
     /**
      * Creates a new <code>SearchImageTable</code> instance with the given map.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
-     * @param byMap a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      *
      * @throws TestException
      *
-     * NOTE: This constructor was needed for <code>SearchImpcImageTable</code> to
-     * extend from this class in order to send the correct map to the parent.
-     *
      */
-    public SearchImageTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) throws TestException {
-        super(driver, timeoutInSeconds, byMap);
+    public SearchImageTable(WebDriver driver, int timeoutInSeconds) throws TestException {
+        super(driver, timeoutInSeconds, imageMap);
 
         switch(getCurrentView()) {
             case ANNOTATION_VIEW:
-                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, byMap);
+                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, imageMap);
                 break;
 
             case IMAGE_VIEW:
-                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, byMap);
+                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, imageMap);
                 break;
         }
     }
@@ -92,17 +96,17 @@ public class SearchImageTable extends SearchFacetTable {
     public void updateImageTableAfterChange() throws TestException {
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
-                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, byMap);
+                searchImageAnnotationView = new SearchImageAnnotationView(driver, timeoutInSeconds, imageMap);
                 searchImageImageView = null;
                 break;
 
             case IMAGE_VIEW:
                 searchImageAnnotationView = null;
-                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, byMap);
+                searchImageImageView = new SearchImageImageView(driver, timeoutInSeconds, imageMap);
                 break;
         }
 
-        setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
+        setTable(driver.findElement(imageMap.get(TableComponent.BY_TABLE)));
     }
 
     /**

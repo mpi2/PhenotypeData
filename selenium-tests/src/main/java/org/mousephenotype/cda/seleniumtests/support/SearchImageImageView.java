@@ -51,6 +51,7 @@ public class SearchImageImageView extends SearchFacetTable {
     public static final int COL_INDEX_LAST = COL_INDEX_IMAGE_LINK;              // Should always point to the last (highest-numbered) index.
 
     public enum AnnotationType {
+        EMAP,
         Gene,
         MA,
         MP,
@@ -236,6 +237,7 @@ public class SearchImageImageView extends SearchFacetTable {
      * page [image facet, Image view] image row.
      */
     private class ImageRow {
+        private final List<AnnotationDetail> emapDetails = new ArrayList();
         private final List<AnnotationDetail> geneDetails = new ArrayList();
         private final List<AnnotationDetail> maDetails = new ArrayList();
         private final List<AnnotationDetail> mpDetails = new ArrayList();
@@ -253,6 +255,12 @@ public class SearchImageImageView extends SearchFacetTable {
         @Override
         public String toString() {
             String retVal = "ImageRow{";
+
+            retVal += "emapDetails={";
+            if (emapDetails != null) {
+                retVal += toStringDetailList(emapDetails);
+            }
+            retVal += "} ";
             
             retVal += "geneDetails={";
             if (geneDetails != null) {
@@ -283,6 +291,8 @@ public class SearchImageImageView extends SearchFacetTable {
         
         public String toString(AnnotationType annotationType, ComponentType componentType) {
             switch (annotationType) {
+                case EMAP:
+                    return toStringDetailList(emapDetails, componentType);
                 case Gene:
                     return toStringDetailList(geneDetails, componentType);
                 case MA:
@@ -296,9 +306,17 @@ public class SearchImageImageView extends SearchFacetTable {
             return "";
         }
 
-        // Return the terms in this order: MP, MA, Procedure, Gene
+        // Return the terms in this order: Procedure, MP, MA, Gene
         public String toStringTerms() {
             String retVal = "";
+
+            for (int i = 0; i < procedureDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    String s = "Procedure:" + procedureDetails.get(i).term;
+                    retVal += s;
+                } catch (Exception e) { }
+            }
 
             for (int i = 0; i < mpDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
@@ -316,11 +334,10 @@ public class SearchImageImageView extends SearchFacetTable {
                 } catch (Exception e) { }
             }
 
-            for (int i = 0; i < procedureDetails.size(); i++) {
+            for (int i = 0; i < emapDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    String s = "Procedure:" + procedureDetails.get(i).term;
-                    retVal += s;
+                    retVal += "emap:" + NO_INFO_AVAILABLE;                               // emap doesn't have a term. Reserve a placeholder.
                 } catch (Exception e) { }
             }
 
@@ -335,10 +352,17 @@ public class SearchImageImageView extends SearchFacetTable {
             return retVal;
         }
 
-        // Return the ids in this order: MP, MA, Procedure, Gene. Return the same number of piped elements as in
+        // Return the ids in this order: Procedure, MP, MA, Gene. Return the same number of piped elements as in
         // the terms, using empty placeholders if necessary.
         public String toStringIds() {
             String retVal = "";
+
+            for (int i = 0; i < procedureDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += NO_INFO_AVAILABLE;                               // procedure doesn't have an id. Reserve a placeholder.
+                } catch (Exception e) { }
+            }
 
             for (int i = 0; i < mpDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
@@ -354,10 +378,10 @@ public class SearchImageImageView extends SearchFacetTable {
                 } catch (Exception e) { }
             }
 
-            for (int i = 0; i < procedureDetails.size(); i++) {
+            for (int i = 0; i < emapDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    retVal += procedureDetails.get(i).id;
+                    retVal += emapDetails.get(i).term;                      // emap is parsed like a term; e.g. "EMAP: EMAP:31997" (as opposed to "Gene: Stard8"
                 } catch (Exception e) { }
             }
 
@@ -371,9 +395,16 @@ public class SearchImageImageView extends SearchFacetTable {
             return retVal;
         }
 
-        // Return the ids in this order: MP, MA, Procedure, Gene
+        // Return the id links in this order: Procedure, MP, MA, Gene
         public String toStringIdLinks() {
             String retVal = "";
+
+            for (int i = 0; i < procedureDetails.size(); i++) {
+                if ( ! retVal.isEmpty()) retVal += "|";
+                try {
+                    retVal += NO_INFO_AVAILABLE;                               // procedure doesn't have a link. Reserve a placeholder.
+                } catch (Exception e) { }
+            }
 
             for (int i = 0; i < mpDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
@@ -389,10 +420,10 @@ public class SearchImageImageView extends SearchFacetTable {
                 } catch (Exception e) { }
             }
 
-            for (int i = 0; i < procedureDetails.size(); i++) {
+            for (int i = 0; i < emapDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    retVal += procedureDetails.get(i).idLink;
+                    retVal += NO_INFO_AVAILABLE;                               // emap doesn't have a link. Reserve a placeholder.
                 } catch (Exception e) { }
             }
 
@@ -476,7 +507,7 @@ public class SearchImageImageView extends SearchFacetTable {
             WebElement spanAnnotTypeElement = imgAnnotsElement.findElement(By.cssSelector("span.annotType"));
             
             // imgAnnots encapsulates all of the information in the Image view 'Name' column, currently:
-            //      'MP', 'MA', 'Procedure', and 'Gene'.
+            //      'MP', 'MA', 'Procedure', 'Gene', and 'EMAP'.
             // annotTypes have, at a minimum, one term type and at least one term. Each
             // term may (but is not required to) have an 'a' with a 'href'. If there are
             // multiple values for a given term, they are wrapped in a <ul> tag. Examples:
@@ -506,6 +537,13 @@ public class SearchImageImageView extends SearchFacetTable {
             //            .
             //            .
             //      </ul>
+            // Case 4: Anything with EMAP. EMAP is parsed like a term but it is functionally an id.
+            // <span.imgAnnots>
+            //     <span class="annotType">MP</span>
+            //      :
+            //     <span class="annotType">EMAP</span>
+            //         ": EMAP:31997"
+            //     </span>
             // </span.imgAnnots>
             List<WebElement> anchorElements = imgAnnotsElement.findElements(By.cssSelector("a"));
             AnnotationType annotationType = AnnotationType.valueOf(spanAnnotTypeElement.getText().trim());
@@ -520,13 +558,20 @@ public class SearchImageImageView extends SearchFacetTable {
                 }
             } else {
                 // There are no anchor elements. This is the simplest case where
-                // there is only a term after the ":"; no 'a', no 'href'
-                addAnnotationDetail(annotationType, new AnnotationDetail(imgAnnotsElement.getText().split(":")[1].trim()));
+                // there is only a term after the ":"; no 'a', no 'href'.
+                // NOTE: EMAP has a colon in the term, so you cannot split on ":".
+                int colonIdx = imgAnnotsElement.getText().indexOf(":");
+                String term = imgAnnotsElement.getText().substring(colonIdx + 1).trim();
+                addAnnotationDetail(annotationType, new AnnotationDetail(term));
             }
         }
         
         private void addAnnotationDetail(AnnotationType annotationType, AnnotationDetail annotationDetail) {
             switch (annotationType) {
+                case EMAP:
+                    emapDetails.add(annotationDetail);
+                    break;
+
                 case Gene:
                     geneDetails.add(annotationDetail);
                     break;

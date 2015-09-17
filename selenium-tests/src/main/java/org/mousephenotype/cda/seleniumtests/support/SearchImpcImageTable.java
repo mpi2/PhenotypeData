@@ -22,6 +22,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,31 +38,34 @@ public class SearchImpcImageTable extends SearchFacetTable {
     private SearchImpcImageImageView searchImpcImageImageView = null;
     protected final TestUtils testUtils = new TestUtils();
 
+    private static final Map<SearchFacetTable.TableComponent, By> impcImageMap = new HashMap();
+    static {
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
+    }
+
 
     /**
      * Creates a new <code>SearchImpcImageTable</code> instance with the given map.
      * @param driver A <code>WebDriver</code> instance pointing to the search
      * facet table with thead and tbody definitions.
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
-     * @param byMap a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      *
      * @throws TestException
      *
-     * NOTE: This constructor was needed for <code>SearchImpcImageTable</code> to
-     * extend from this class in order to send the correct map to the parent.
-     *
      */
-    public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds, Map<TableComponent, By> byMap) throws TestException {
-        super(driver, timeoutInSeconds, byMap);
+    public SearchImpcImageTable(WebDriver driver, int timeoutInSeconds) throws TestException {
+        super(driver, timeoutInSeconds, impcImageMap);
 
         switch(getCurrentView()) {
             case ANNOTATION_VIEW:
-                searchImpcImageAnnotationView = new SearchImpcImageAnnotationView(driver, timeoutInSeconds, byMap);
+                searchImpcImageAnnotationView = new SearchImpcImageAnnotationView(driver, timeoutInSeconds, impcImageMap);
                 break;
 
             case IMAGE_VIEW:
-                searchImpcImageImageView = new SearchImpcImageImageView(driver, timeoutInSeconds, byMap);
+                searchImpcImageImageView = new SearchImpcImageImageView(driver, timeoutInSeconds, impcImageMap);
                 break;
         }
     }
@@ -93,17 +97,17 @@ public class SearchImpcImageTable extends SearchFacetTable {
     public void updateImageTableAfterChange() throws TestException {
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
-                searchImpcImageAnnotationView = new SearchImpcImageAnnotationView(driver, timeoutInSeconds, byMap);
+                searchImpcImageAnnotationView = new SearchImpcImageAnnotationView(driver, timeoutInSeconds, impcImageMap);
                 searchImpcImageImageView = null;
                 break;
 
             case IMAGE_VIEW:
                 searchImpcImageAnnotationView = null;
-                searchImpcImageImageView = new SearchImpcImageImageView(driver, timeoutInSeconds, byMap);
+                searchImpcImageImageView = new SearchImpcImageImageView(driver, timeoutInSeconds, impcImageMap);
                 break;
         }
 
-        setTable(driver.findElement(byMap.get(TableComponent.BY_TABLE)));
+        setTable(driver.findElement(impcImageMap.get(TableComponent.BY_TABLE)));
     }
 
     /**
