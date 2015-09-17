@@ -240,7 +240,7 @@ public class GeneService extends BasicService{
 				if ( toExport ){
 					phenotypeStatusHTMLRepresentation = genePageUrl + "#section-associations" + "|" + webStatus;
 				} else {
-					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+					phenotypeStatusHTMLRepresentation = "<a class='status qc phenotypingStatus' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 				}	
 			}
 			else {
