@@ -408,7 +408,7 @@ public class SearchPageTest {
 
 
     @Test
-@Ignore
+//@Ignore
     public void testAutosuggestForSpecificKnownGenes() throws TestException {
         String testName = "testAutosuggestForSpecificKnownGenes";
         Date start = new Date();
@@ -457,7 +457,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     // test that there is a dropdown when at least 3 letters with match are entered into the input box
     public void testAutosuggestMinCharacters() throws TestException {
         String testName = "testAutosuggestMinCharacters";
@@ -487,7 +487,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testBoneDownload() throws TestException {
         String testName = "testBoneDownload";
         String searchString = "bone";
@@ -496,7 +496,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testBrachydactyly() throws TestException {
         String testName = "testBrachydactyly";
         String searchString = "brachydactyly";
@@ -514,7 +514,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testFacetCountsNoSearchTerm() throws TestException {
         String testName = "testFacetCountsNoSearchTerm";
         Date start = new Date();
@@ -604,7 +604,7 @@ public class SearchPageTest {
     };
 
     @Test
-@Ignore
+//@Ignore
     public void testFacetCountsSpecialCharacters() throws TestException {
         String testName = "testFacetCountsSpecialCharacters";
         Date start = new Date();
@@ -653,7 +653,7 @@ public class SearchPageTest {
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testHox() throws TestException {
         String testName = "testHox";
         Date start = new Date();
@@ -688,7 +688,7 @@ public class SearchPageTest {
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testHoxStar() throws TestException {
         String testName = "testHoxStar";
         Date start = new Date();
@@ -724,7 +724,7 @@ public class SearchPageTest {
 //    // This test doesn't use the download test engine as it requires an extra
 //    // click to switch to the Image facet's 'Image' view.
     @Test
-@Ignore
+//@Ignore
     public void testImageFacetImageView() throws TestException {
         String testName = "testImageFacetImageView";
         String searchString = "";
@@ -760,7 +760,7 @@ public class SearchPageTest {
     // This test was spawned from testImageFacetImageView() when it came across
     // a 500 response from the server when the last page was selected.
     @Test
-@Ignore
+//@Ignore
     public void testImageFacetImageViewLastPage() throws TestException {
         String testName = "testImageFacetImageViewLastPage";
         String searchString = "";
@@ -797,7 +797,7 @@ public class SearchPageTest {
     // This test doesn't use the download test engine as it requires an extra
     // click to switch to the Image facet's 'Image' view. It also tests only the IMPC_IMAGES facet rather than all facets.
     @Test
-@Ignore
+//@Ignore
     public void testImpcImageFacetImageView() throws TestException {
         String testName = "testImpcImageFacetImageView";
         String searchString = "";
@@ -836,13 +836,13 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testLeadingWildcard() throws TestException {
         specialStrQueryTest("testLeadingWildcard", "*rik");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testLegDownload() throws TestException {
         String testName = "testLegDownload";
         String searchString = "leg";
@@ -858,7 +858,7 @@ public class SearchPageTest {
      * @throws TestException
      */
     @Test
-@Ignore
+//@Ignore
     public void testMaTermNamesMatchFacetNames() throws TestException {
         String testName = "testMaTermNamesMatchFacetNames";
         Date start = new Date();
@@ -929,7 +929,7 @@ public class SearchPageTest {
      * @throws TestException
      */
     @Test
-@Ignore
+//@Ignore
     public void testMPII_806() throws TestException {
         String testName = "testMPII_806";
         Date start = new Date();
@@ -963,7 +963,7 @@ public class SearchPageTest {
     // Tests search page with more than one Production Status [blue] order button.
     // We'll use MGI:1353431 (gene Pcks1n), which has 2 Production Status buttons.
     @Test
-@Ignore
+//@Ignore
     public void testOrderButtons() throws TestException {
         String testName = "testOrderButtons";
         Date start = new Date();
@@ -1025,7 +1025,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPagination() throws TestException {
         String testName = "testPagination";
         Date start = new Date();
@@ -1081,20 +1081,20 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPhrase() throws TestException {
         specialStrQueryTest("testPhrase", "grip strength");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPhraseInQuotes() throws TestException {
         specialStrQueryTest("testPhraseInQuotes", "\"zinc finger protein\"");
     }
 
     // Verify that random genes appear in the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testQueryingRandomGeneSymbols() throws TestException {
         String testName = "testQueryingRandomGeneSymbols";
         Date start = new Date();
@@ -1162,7 +1162,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testRandomMgiIds() throws TestException {
         String testName = "testRandomMgiIds";
         Date start = new Date();
@@ -1213,7 +1213,7 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTickingFacetFilters() throws TestException {
         String testName = "testTickingFacetFilters";
         Date start = new Date();
@@ -1304,13 +1304,13 @@ public class SearchPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTrailingWildcard() throws TestException {
         specialStrQueryTest("testTrailingWildcard", "hox*");
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testTwist1() throws TestException {
         String testName = "testTwist1";
         String searchString = "twist1";
@@ -1320,7 +1320,7 @@ public class SearchPageTest {
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
     @Test
-@Ignore
+//@Ignore
     public void testWnt1IsAtTop() throws TestException {
         String testName = "testWnt1IsAtTop";
         Date start = new Date();
