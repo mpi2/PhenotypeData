@@ -43,16 +43,16 @@ public class SearchGeneTable extends SearchFacetTable {
     protected GridMap pageData;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    
-    public static final int COL_INDEX_GENE_ID               = 0;
-    public static final int COL_INDEX_GENE_SYMBOL           = 1;
-    public static final int COL_INDEX_HUMAN_ORTHOLOG        = 2;
+
+    public static final int COL_INDEX_GENE_SYMBOL           = 0;
+    public static final int COL_INDEX_HUMAN_ORTHOLOG        = 1;
+    public static final int COL_INDEX_GENE_ID               = 2;
     public static final int COL_INDEX_GENE_NAME             = 3;
     public static final int COL_INDEX_GENE_SYNONYM          = 4;
     public static final int COL_INDEX_PRODUCTION_STATUS     = 5;
-    public static final int COL_INDEX_PRODUCTION_HOVER_TEXT = 6;
-    public static final int COL_INDEX_PHENOTYPE_STATUS      = 7;
-    public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPE_STATUS;        // Should always point to the last (highest-numbered) index.
+    public static final int COL_INDEX_PHENOTYPE_STATUS      = 6;
+    public static final int COL_INDEX_PHENOTYPE_STATUS_LINK = 7;
+    public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPE_STATUS_LINK;        // Should always point to the last (highest-numbered) index.
     
     private final List<GeneRow> bodyRows = new ArrayList();
     
@@ -87,16 +87,24 @@ public class SearchGeneTable extends SearchFacetTable {
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
-              COL_INDEX_GENE_ID
-            , COL_INDEX_GENE_NAME
-            , COL_INDEX_GENE_SYMBOL
+              COL_INDEX_GENE_SYMBOL
             , COL_INDEX_HUMAN_ORTHOLOG
+            , COL_INDEX_GENE_ID
+            , COL_INDEX_GENE_NAME
+            , COL_INDEX_GENE_SYNONYM
+//            , COL_INDEX_PRODUCTION_STATUS                             Not all production statuses can be scraped off the page, so there's nothing accurate to compare to.
+            , COL_INDEX_PHENOTYPE_STATUS
+            , COL_INDEX_PHENOTYPE_STATUS_LINK
         };
         final Integer[] downloadColumns = {
-              DownloadSearchMapGenes.COL_INDEX_GENE_ID
-            , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
-            , DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
+              DownloadSearchMapGenes.COL_INDEX_GENE_SYMBOL
             , DownloadSearchMapGenes.COL_INDEX_HUMAN_ORTHOLOG
+            , DownloadSearchMapGenes.COL_INDEX_GENE_ID
+            , DownloadSearchMapGenes.COL_INDEX_GENE_NAME
+            , DownloadSearchMapGenes.COL_INDEX_GENE_SYNONYM
+//            , DownloadSearchMapGenes.COL_INDEX_PRODUCTION_STATUS      Not all production statuses can be scraped off the page, so there's nothing accurate to compare to.
+            , DownloadSearchMapGenes.COL_INDEX_PHENOTYPE_STATUS
+            , DownloadSearchMapGenes.COL_INDEX_PHENOTYPE_STATUS_LINK
         };
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
@@ -150,18 +158,33 @@ public class SearchGeneTable extends SearchFacetTable {
                 List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
                 WebElement titleDivElement = bodyRowElementList.get(0).findElement(By.cssSelector("div.geneCol div.title a"));
                 String href = titleDivElement.getAttribute("href");
-                int pos = href.lastIndexOf("/");
-                geneRow.geneId = href.substring(pos + 1).trim();                                                    // geneId.
-                pageArray[sourceRowIndex][COL_INDEX_GENE_ID] = geneRow.geneId;
-                geneRow.geneSymbol = titleDivElement.findElement(By.cssSelector("span.gSymbol")).getText().trim();  // geneSymbol.
-                pageArray[sourceRowIndex][COL_INDEX_GENE_SYMBOL] = geneRow.geneSymbol;
-
                 WebElement geneColElement = bodyRowElementList.get(0).findElement(By.cssSelector("div.geneCol"));
+
+                // Look for phenotype status.
+                List<WebElement> phenotypeStatusElements = bodyRowElementList.get(2).findElements(By.xpath("./a[contains(@class, 'phenotypingStatus')]"));
+                List<String> phenotypeStatus = new ArrayList();
+                List<String> phenotypeStatusLink = new ArrayList();
+                for (WebElement phenotypeStatusElement : phenotypeStatusElements) {
+                    phenotypeStatus.add(phenotypeStatusElement.getText().trim());
+                    phenotypeStatusLink.add(phenotypeStatusElement.getAttribute("href"));
+                }
+
                 GeneDetails geneDetails = new GeneDetails(geneColElement);
-                geneRow.geneName = geneDetails.name;                                                                // geneName.
-                pageArray[sourceRowIndex][COL_INDEX_GENE_NAME] = geneRow.geneName;
-                geneRow.humanOrthologs = geneDetails.humanOrthologs;                                                // humanOrtholog list.
+                geneRow.geneSymbol = titleDivElement.findElement(By.cssSelector("span.gSymbol")).getText().trim();      // geneSymbol
+                geneRow.humanOrthologs = geneDetails.humanOrthologs;                                                    // humanOrtholog list
+                geneRow.geneId = href.substring(href.lastIndexOf("/") + 1).trim();                                      // geneId
+                geneRow.geneName = geneDetails.name;                                                                    // geneName
+                geneRow.synonyms = geneDetails.synonyms;                                                                // synonym list
+                geneRow.phenotypeStatus = phenotypeStatus;                                                              // phenotypeStatus
+                geneRow.phenotypeStatusLink = phenotypeStatusLink;                                                      // phenotypeStatusLink
+
+                pageArray[sourceRowIndex][COL_INDEX_GENE_SYMBOL] = geneRow.geneSymbol;
                 pageArray[sourceRowIndex][COL_INDEX_HUMAN_ORTHOLOG] = StringUtils.join(geneRow.humanOrthologs, "|");
+                pageArray[sourceRowIndex][COL_INDEX_GENE_ID] = geneRow.geneId;
+                pageArray[sourceRowIndex][COL_INDEX_GENE_NAME] = geneRow.geneName;
+                pageArray[sourceRowIndex][COL_INDEX_GENE_SYNONYM] = StringUtils.join(geneRow.synonyms, "|");
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_STATUS] = StringUtils.join(geneRow.phenotypeStatus, "|");
+                pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_STATUS_LINK] = StringUtils.join(geneRow.phenotypeStatusLink, "|");
 
                 sourceRowIndex++;
                 bodyRows.add(geneRow);
@@ -182,7 +205,8 @@ public class SearchGeneTable extends SearchFacetTable {
      */
     private class GeneDetails {
         private String name = "";
-        private List<String> humanOrthologs = new ArrayList();
+        private List<String> humanOrthologs = new ArrayList<>();
+        private List<String> synonyms = new ArrayList<>();
         
         public GeneDetails(WebElement geneColElement) {        
             
@@ -217,13 +241,26 @@ public class SearchGeneTable extends SearchFacetTable {
                     String[] textParts = subinfoDivLine.split(":");
                     switch (textParts[0].trim().toLowerCase()) {
                         case "name":
-                            this.name = textParts[1].trim();                    // geneName.
+                            this.name = textParts[1].trim();                    // geneName
                             break;
+
+                        case "synonym":
+                            // This handles a single synonym only. Multiple synonyms pass through this path but textParts has only 1 element.
+                            if (textParts.length > 1) {
+                                synonyms.add(textParts[1].trim());              // single synonym
+                            }
                             
                         default:
                             break;
                     }
                  }
+
+                // Look for multiple synonyms.
+                List<WebElement> synonymElements = geneColElement.findElements(By.cssSelector("ul.synonym li"));
+                for (WebElement synonymElement : synonymElements) {
+                    synonyms.add(synonymElement.getText().trim());
+                }
+
             } catch (Exception e) {
                 logger.error("EXCEPTION: SearchGeneTable.GeneDetails.GeneDetails() while waiting to hover. Error message: " + e.getLocalizedMessage());
                 e.printStackTrace();
@@ -238,8 +275,8 @@ public class SearchGeneTable extends SearchFacetTable {
         private String geneName = "";
         private List<String> synonyms = new ArrayList();
         private List<PhenotypeArchiveStatus> productionStatus = new ArrayList();
-        private PhenotypeArchiveStatus phenotypeStatus;
-        private String phenotypeStatusLink = "";
+        private List<String> phenotypeStatus;
+        private List<String> phenotypeStatusLink = new ArrayList<>();
         
         @Override
         public String toString() {
@@ -249,7 +286,7 @@ public class SearchGeneTable extends SearchFacetTable {
                  + "'  geneName: '" + geneName
                  + "'  synonyms: '" + toStringSynonyms()
                  + "'  productionStatus: '" + toStringProductionStatus()
-                 + "'  phenotypeStatus: " + (phenotypeStatus == null ? "<null>" : "'" + phenotypeStatus.mpName + "[" + phenotypeStatus.mpClass + "]'")
+                 + "'  phenotypeStatus: " + (phenotypeStatus == null ? "<null>" : "[" + StringUtils.join(phenotypeStatus, ",") + "]")
                  + "'  phenotypeStatusLink: '" + phenotypeStatusLink + "'";
         }
         

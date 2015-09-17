@@ -355,7 +355,12 @@ public class TestUtils {
             String[] row = body[rowIndex];
             String resultString = "";
             for (int colIndex : colIndexes) {
-                resultString += row[colIndex].trim().toLowerCase() + "_";
+                String cell = "";
+
+                try {
+                    cell = row[colIndex].trim().toLowerCase() + "_";
+                } catch (Exception e) { }
+                resultString += cell;
             }
             resultSet.add(resultString);
         }
@@ -383,6 +388,27 @@ public class TestUtils {
             System.out.println("[" + i + "]: " + data[i]);
         }
         System.out.println();
+    }
+
+    public String webElementToString(WebElement webElement) {
+        String retVal = "";
+        retVal += "class='" + webElement.getAttribute("class") + "'";
+        retVal += ",id='" + webElement.getAttribute("id") + "'";
+        retVal += ",tag name='" + webElement.getTagName() + "'";
+        retVal += ",text='" + webElement.getText() + "'\n";
+
+        return retVal;
+    }
+
+    public String webElementListToString(List<WebElement> webElementList) {
+        String retVal = "";
+
+        int i = 0;
+        for (WebElement webElement : webElementList) {
+            retVal += "[" + i + "]: " + webElementToString(webElement);
+        }
+
+        return retVal;
     }
 
     /**
@@ -804,7 +830,7 @@ public class TestUtils {
      */
     public String setProtocol(String url, HTTP_PROTOCOL protocol) {
         return url.replace("https://", "//")
-                  .replace("http://",  "//")
+                  .replace("http://", "//")
                   .replace("//", protocol.name() + "://");
     }
 
