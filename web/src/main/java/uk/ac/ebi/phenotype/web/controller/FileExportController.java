@@ -1047,20 +1047,21 @@ public class FileExportController {
 				}
 				data.add(StringUtils.join(labelList, "|"));
 				data.add(StringUtils.join(urlList, "|"));
-			} else if (phenotypeStatus.startsWith("http://") || phenotypeStatus.startsWith("https://")) {
-
+			} else {
 				String[] parts = phenotypeStatus.split("\\|");
 				if (parts.length != 2) {
 					System.out.println("fileExport: '" + phenotypeStatus + "' --- Expeced length 2 but got " + parts.length);
 				} else {
-					String url = parts[0].replace("https", "http");
+					String url = parts[0]
+							.replace("https://", "")
+							.replace("http://", "")
+							.replace("//", "")
+							.replaceFirst("^", "http://");			// Regex: ^ inserts at beginning of url string.
 					String label = parts[1];
 
 					data.add(label);
 					data.add(url);
 				}
-			} else {
-				data.add(phenotypeStatus);
 			}
 
 			// put together as tab delimited
