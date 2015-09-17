@@ -103,7 +103,7 @@
                             <img src="img/all-data.png" />
                             <br/><br/>
 
-                            <h4 id="embryo-viewer">View embryos</h4>
+                            <h4 id="embryo-viewer">Embryo Viewer</h4>
                             <p>This button appears when there are embryo images. Click this button to launch the embryo viewer.</p>
                             <br />
                             <img src="img/embryo-viewer.png" />
