@@ -42,7 +42,7 @@ import java.util.*;
  */
 public abstract class SearchFacetTable {
 
-    protected Map<TableComponent, By> byMap;
+    private Map<TableComponent, By> byMap;
     protected WebDriver driver;
     protected final CommonUtils commonUtils = new CommonUtils();
     private boolean hasTable;

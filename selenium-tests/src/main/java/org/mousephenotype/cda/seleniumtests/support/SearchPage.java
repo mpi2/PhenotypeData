@@ -721,7 +721,7 @@ public class SearchPage {
     public SearchImpcImageTable getImpcImageTable() throws TestException {
         if (hasImpcImageTable()) {
             if (impcImageTable == null) {
-                impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds, map);
+                impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
             }
         }
 
@@ -735,7 +735,7 @@ public class SearchPage {
     public SearchImageTable getImageTable() throws TestException {
         if (hasImageTable()) {
             if (imageTable == null) {
-                imageTable = new SearchImageTable(driver, timeoutInSeconds, map);
+                imageTable = new SearchImageTable(driver, timeoutInSeconds);
             }
         }
 
@@ -995,9 +995,9 @@ public class SearchPage {
         } else if (hasGeneTable()) {
             geneTable = new SearchGeneTable(driver, timeoutInSeconds);
         } else if (hasImageTable()) {
-            imageTable = new SearchImageTable(driver, timeoutInSeconds, map);
+            imageTable = new SearchImageTable(driver, timeoutInSeconds);
         } else if (hasImageTable()) {
-            impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds, map);
+            impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
         } else if (hasPhenotypeTable()) {
             phenotypeTable = new SearchPhenotypeTable(driver, timeoutInSeconds);
         }

@@ -240,7 +240,7 @@ public class SearchImpcImageImageView extends SearchFacetTable {
     
     /**
      * This class encapsulates the code and data representing a single search
-     * page [image facet, Image view] image row.
+     * page [impc_image facet, Image view] image row.
      */
     private class ImageRow {
         private final List<AnnotationDetail> geneDetails = new ArrayList();
