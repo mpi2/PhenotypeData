@@ -572,17 +572,16 @@ public class SearchPage {
 
     /**
      *
-     * @param facet desired facet to click
-     * @return the desired facet count
+     * @param facet desired facet
+     *
+     * @return the facet's count, if shown on page; null otherwise
      */
-    public int getFacetCount(Facet facet) {
+    public Integer getFacetCount(Facet facet) {
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "']/span[@class='fcount' or @class='fcount grayout']")));
-        Integer niCount = commonUtils.tryParseInt(element.getText());
-
-        return (niCount == null ? 0 : niCount);
+         return commonUtils.tryParseInt(element.getText());
     }
 
-    public int getFacetCount(String coreName) {
+    public Integer getFacetCount(String coreName) {
         return getFacetCount(getFacetByCoreName(coreName));
     }
 
