@@ -141,6 +141,7 @@ public class SearchAnatomyTable extends SearchFacetTable {
             pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = "";                                    // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID_LINK] = "";                               // Insure there is always a non-null value.
             pageArray[sourceRowIndex][COL_INDEX_ANATOMY_SYNONYMS] = "";                              // Insure there is always a non-null value.
+
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 AnatomyRow anatomyRow = new AnatomyRow();
                 List<WebElement> bodyRowElementList = bodyRowElements.findElements(By.cssSelector("td"));

@@ -84,8 +84,8 @@ public class SearchPhenotypeTable extends SearchFacetTable {
         final Integer[] pageColumns = {
               COL_INDEX_PHENOTYPE_TERM
             , COL_INDEX_PHENOTYPE_ID
-            , COL_INDEX_DEFINITION
             , COL_INDEX_PHENOTYPE_ID_LINK
+            , COL_INDEX_DEFINITION
             , COL_INDEX_SYNONYMS
             , COL_INDEX_COMP_MAPPED_HP_TERMS
             , COL_INDEX_PHENOTYPING_CALLS

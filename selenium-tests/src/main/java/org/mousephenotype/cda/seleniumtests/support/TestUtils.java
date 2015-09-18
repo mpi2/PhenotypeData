@@ -135,6 +135,21 @@ public class TestUtils {
         return Math.min(targetCount, collection.size());
     }
 
+    /**
+     * Returns true if <code>webElement</code> has a class attribute and its value contains <code>cssclass</code>;
+     *         false otherwise.
+     *
+     * @param webElement the <code>WebElement to interrogate</code>
+     * @param cssclass the class name sought
+     *
+     * @return true if <code>webElement</code> has a class attribute and its value contains <code>cssclass</code>;
+     *         false otherwise.
+     */
+    public boolean hasCssclass(WebElement webElement, String cssclass) {
+        String attribute = webElement.getAttribute("class");
+        return ((attribute != null) && (attribute.contains(cssclass)));
+    }
+
 //    /**
 //     * Return target count prioritized as follows:
 //     * <p><b>NOTE: If the returned target size is less than the collection size,
