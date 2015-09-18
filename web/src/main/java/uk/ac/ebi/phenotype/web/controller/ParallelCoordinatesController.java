@@ -109,7 +109,7 @@ public class ParallelCoordinatesController {
 	 * @author tudose
 	 * @since 2015/08/04
 	 * @param rows
-	 * @return
+	 * @return Parsed rows into the json format needed for the parallel coordinates
 	 */
 	protected String getJsonForParallelCoordinates(HashMap<String, ParallelCoordinatesDTO> rows){
 		
