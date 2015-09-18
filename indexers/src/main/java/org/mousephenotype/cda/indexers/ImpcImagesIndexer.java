@@ -70,14 +70,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
-	
+
 	@Autowired
 	MaOntologyDAO maService;
 
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
-	
+
 	@Value("classpath:uberonEfoMa_mappings.txt")
 	org.springframework.core.io.Resource resource;
 
@@ -91,7 +91,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private String impcAnnotationBaseUrl;
 
 	private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap();  // key: MA id
-	
+
 	public ImpcImagesIndexer() {
 		super();
 	}
@@ -155,7 +155,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		try {
 
 			server.deleteByQuery("*:*");
@@ -178,7 +178,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					int omeroId = iBean.omeroId;
 					imageDTO.setOmeroId(omeroId);
 
-					
+
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)){// || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
@@ -216,16 +216,16 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							}
 						}
 					}
-					
+
 					if (imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().isEmpty()) {
-						
+
 						ArrayList<String>maIds=new ArrayList<>();
 						ArrayList<String>maTerms=new ArrayList<>();
 						ArrayList<String>maTermSynonyms=new ArrayList<>();
 						ArrayList<String>topLevelMaIds=new ArrayList<>();
 						ArrayList<String>topLevelMaTerm=new ArrayList<>();
 						ArrayList<String>topLevelMaTermSynonym=new ArrayList<>();
-						
+
 						ArrayList<String>intermediateLevelMaIds=new ArrayList<>();
 						ArrayList<String>intermediateLevelMaTerm=new ArrayList<>();
 						ArrayList<String>intermediateLevelMaTermSynonym=new ArrayList<>();
@@ -235,7 +235,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 								String maTermId = parameterStableIdToMaTermIdMap
 										.get(paramString);
 									maIds.add(maTermId);
-									
+
 								OntologyTermBean maTermBean = maService
 										.getTerm(maTermId);
 								if (maTermBean != null) {
@@ -253,7 +253,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 												.getSynonyms());
 										}
 									}
-									
+
 									List<OntologyTermBean> intermediateLevels = maService
 											.getIntermediates(maTermId);
 									for (OntologyTermBean intermediateLevel : intermediateLevels) {
@@ -277,35 +277,44 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 						if (!maIds.isEmpty()) {
 							imageDTO.setMaTermId(maIds);
-							
-							ArrayList<String>maIdTerms=new ArrayList<>();
-							for( int i=0; i< maIds.size(); i++ ){
+
+							ArrayList<String> maIdTerms = new ArrayList<>();
+							for (int i = 0; i < maIds.size(); i++) {
 								String maId = maIds.get(i);
-								
-								 // index UBERON/EFO id for MA id
-				                if ( maUberonEfoMap.containsKey(maId) ){
-				                	
-				                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
-				                		for(String id: maUberonEfoMap.get(maId).get("uberon_id")){
-				                			imageDTO.addUberonId(id);
-				                		}
-				                	}
-				                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
-				                		for(String id: maUberonEfoMap.get(maId).get("efo_id")){
-				                			imageDTO.addEfoId(id);
-				                		}
-				                	}
-				                }
-				                
-								String maTerm = maTerms.get(i);
-								maIdTerms.add(maId+"_"+maTerm);
+
+								try {
+
+									// index UBERON/EFO id for MA id
+									if (maUberonEfoMap.containsKey(maId)) {
+
+										if (maUberonEfoMap.get(maId)
+										                  .containsKey("uberon_id")) {
+											for (String id : maUberonEfoMap.get(maId)
+											                               .get("uberon_id")) {
+												imageDTO.addUberonId(id);
+											}
+										}
+										if (maUberonEfoMap.get(maId)
+										                  .containsKey("efo_id")) {
+											for (String id : maUberonEfoMap.get(maId)
+											                               .get("efo_id")) {
+												imageDTO.addEfoId(id);
+											}
+										}
+									}
+
+									String maTerm = maTerms.get(i);
+									maIdTerms.add(maId + "_" + maTerm);
+								} catch (Exception e) {
+									logger.warn("Could not find term when indexing MA {}", maId, e);
+								}
 							}
 							imageDTO.setMaIdTerm(maIdTerms);
 						}
 						if (!maTerms.isEmpty()) {
 							imageDTO.setMaTerm(maTerms);
 						}
-						
+
 						if (!maTermSynonyms.isEmpty()) {
 							imageDTO.setMaTermSynonym(maTermSynonyms);
 						}
@@ -512,14 +521,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			}
 		}
 	}
-	
+
 	public Map<String,String> populateParameterStableIdToMaIdMap() throws SQLException{
     	System.out.println("populating parameterStableId to MA map");
 		Map<String,String> paramToMa = new HashMap<String, String>();
 		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)){
 		    ResultSet resultSet = statement.executeQuery();
-		   
+
 			while (resultSet.next()) {
 				String parameterStableId=resultSet.getString("stable_id");
 				String maAcc=resultSet.getString("ontology_acc");
