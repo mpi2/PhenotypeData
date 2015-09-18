@@ -48,7 +48,7 @@ public class SearchGeneTable extends SearchFacetTable {
     public static final int COL_INDEX_HUMAN_ORTHOLOG        = 1;
     public static final int COL_INDEX_GENE_ID               = 2;
     public static final int COL_INDEX_GENE_NAME             = 3;
-    public static final int COL_INDEX_GENE_SYNONYM          = 4;
+    public static final int COL_INDEX_GENE_SYNONYMS         = 4;
     public static final int COL_INDEX_PRODUCTION_STATUS     = 5;
     public static final int COL_INDEX_PHENOTYPE_STATUS      = 6;
     public static final int COL_INDEX_PHENOTYPE_STATUS_LINK = 7;
@@ -91,7 +91,7 @@ public class SearchGeneTable extends SearchFacetTable {
             , COL_INDEX_HUMAN_ORTHOLOG
             , COL_INDEX_GENE_ID
             , COL_INDEX_GENE_NAME
-            , COL_INDEX_GENE_SYNONYM
+            , COL_INDEX_GENE_SYNONYMS
 //            , COL_INDEX_PRODUCTION_STATUS                             Not all production statuses can be scraped off the page, so there's nothing accurate to compare to.
             , COL_INDEX_PHENOTYPE_STATUS
             , COL_INDEX_PHENOTYPE_STATUS_LINK
@@ -182,7 +182,7 @@ public class SearchGeneTable extends SearchFacetTable {
                 pageArray[sourceRowIndex][COL_INDEX_HUMAN_ORTHOLOG] = StringUtils.join(geneRow.humanOrthologs, "|");
                 pageArray[sourceRowIndex][COL_INDEX_GENE_ID] = geneRow.geneId;
                 pageArray[sourceRowIndex][COL_INDEX_GENE_NAME] = geneRow.geneName;
-                pageArray[sourceRowIndex][COL_INDEX_GENE_SYNONYM] = StringUtils.join(geneRow.synonyms, "|");
+                pageArray[sourceRowIndex][COL_INDEX_GENE_SYNONYMS] = StringUtils.join(geneRow.synonyms, "|");
                 pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_STATUS] = StringUtils.join(geneRow.phenotypeStatus, "|");
                 pageArray[sourceRowIndex][COL_INDEX_PHENOTYPE_STATUS_LINK] = StringUtils.join(geneRow.phenotypeStatusLink, "|");
 
