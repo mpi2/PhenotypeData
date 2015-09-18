@@ -1408,12 +1408,12 @@ public class DataTableController {
             rowData.add(src);
 
             // curated data: human/mouse
-            String human = "<span class='status done'>human</span>";
-            String mice = "<span class='status done'>mice</span>";
+            String human = "<span class='status done curatedHuman'>human</span>";
+            String mice = "<span class='status done curatedMice'>mice</span>";
 
             // predicted data: impc/mgi
-            String impc = "<span class='status done'>IMPC</span>";
-            String mgi = "<span class='status done'>MGI</span>";
+            String impc = "<span class='status done candidateImpc'>IMPC</span>";
+            String mgi = "<span class='status done candidateMgi'>MGI</span>";
 
             /*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations',
              'subfacets':{'human_curated':'From human data (OMIM, Orphanet)',
