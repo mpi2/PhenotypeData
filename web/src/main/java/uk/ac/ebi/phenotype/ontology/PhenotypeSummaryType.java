@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.ontology;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 
 public class PhenotypeSummaryType {
@@ -92,12 +93,41 @@ public class PhenotypeSummaryType {
 		}
 	}
 
+	public String getTopLevelIds(){// grouping of mp top level terms done by Terry
+		
+		
+		if (this.id == null){
+			return null;
+		} else {
+			if (this.name.equalsIgnoreCase("immune system phenotype") || this.name.equalsIgnoreCase("hematopoietic system phenotype") ){
+				return "mpTermId=MP:0005387&mpTermId=MP:0005397";
+			}
+			else if (this.name.equalsIgnoreCase("behavior/neurological phenotype") || this.name.equalsIgnoreCase("nervous system phenotype") ){
+				return "mpTermId=MP:0005386&mpTermId=MP:0003631";
+			}
+			else if (this.name.equalsIgnoreCase("digestive/alimentary phenotype") || this.name.equalsIgnoreCase("liver/biliary system phenotype") ){
+				return "mpTermId=MP:0005381&mpTermId=MP:0005370";
+			}
+			else if (this.name.equalsIgnoreCase("homeostasis/metabolism phenotype") || this.name.equalsIgnoreCase("adipose tissue phenotype") ){
+				return "mpTermId=MP:0005376&mpTermId=MP:0005375";
+			}
+			else if (this.name.equalsIgnoreCase("integument phenotype") || this.name.equalsIgnoreCase("pigmentation phenotype") ){
+				return "mpTermId=MP:0010771&mpTermId=MP:0001186";
+			}
+			else if ( this.name.equalsIgnoreCase("muscle phenotype") || this.name.equalsIgnoreCase("renal/urinary system phenotype") || this.name.equalsIgnoreCase("reproductive system phenotype") ||
+			this.name.equalsIgnoreCase("respiratory system phenotype") || this.name.equalsIgnoreCase("craniofacial phenotype") || this.name.equalsIgnoreCase("hearing/vestibular/ear phenotype") ||
+			this.name.equalsIgnoreCase("limbs/digits/tail phenotype") || this.name.equalsIgnoreCase("cardiovascular system phenotype") || this.name.equalsIgnoreCase("mortality/aging") ||
+			this.name.equalsIgnoreCase("skeleton phenotype") || this.name.equalsIgnoreCase("growth/size/body phenotype") || this.name.equalsIgnoreCase("vision/eye phenotype")){
+				return "mpTermId=" + this.id + "";			
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		return "PhenotypeSummaryType [id=" + id + ", name=" + name + ", sex=" + sex + ", numberOfEntries="
 				+ numberOfEntries + ", dataSources=" + dataSources + ", significant=" + significant + "]";
 	}
 	
-	
-
 }
