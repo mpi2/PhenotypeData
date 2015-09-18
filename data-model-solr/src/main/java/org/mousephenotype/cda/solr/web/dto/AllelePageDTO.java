@@ -33,6 +33,7 @@ public class AllelePageDTO {
 	List<String> escapedAlleleSymbols;
 	List<String> phenotypingCenters;
 	List<String> pipelineNames;
+	List<String> mpTerms;
 	Map<String, List<String>> parametersByProcedure = new HashMap<>();
 
 
@@ -64,7 +65,21 @@ public class AllelePageDTO {
 	public void setGeneSymbol(String geneSymbol) {
 		this.geneSymbol = geneSymbol;
 	}
+	
+	public List<String> getMpTerms() {
+		return mpTerms;
+	}
 
+	public void setMpTerms(List<String> mpTerms) {
+		this.mpTerms = mpTerms;
+	}
+
+	public void addMpTerms(String mpTerm) {
+		mpTerms = mpTerms == null ? new ArrayList<>() : mpTerms;
+		mpTerms.add(mpTerm);
+	}
+
+	
 	public List<String> getAlleleSymbols() {
 		return alleleSymbols;
 	}
