@@ -165,6 +165,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			List<ImageDTO> imageList = observationService.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
 
+				count++;
+
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 
@@ -329,13 +331,12 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 					}
 					server.addBean(imageDTO);
-					count++;
 				}
 
 
 
-				if (count % 10000 == 0) {
-					logger.info(" added ImageDTO" + count + " beans");
+				if (count % 10000 == 0 && count != 0) {
+					logger.info(" added ImageDTO " + count + " beans");
 				}
 			}
 
