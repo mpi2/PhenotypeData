@@ -1300,6 +1300,7 @@ CREATE TABLE stats_categorical_results (
 	p_value                    DOUBLE,
 	effect_size                DOUBLE,
 	raw_output                 MEDIUMTEXT,
+	authoritative              BOOLEAN,
 
 	PRIMARY KEY (id),
 	KEY control_idx (control_id),
@@ -1380,6 +1381,7 @@ CREATE TABLE stats_unidimensional_results (
 	classification_tag               VARCHAR(200),
 	additional_information           TEXT,
 	raw_output                       MEDIUMTEXT,
+	authoritative                    BOOLEAN,
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
@@ -1464,6 +1466,7 @@ CREATE TABLE statistical_result (
 	pvalue                           DOUBLE,
 	effect_size                      DOUBLE,
 	stderr                           DOUBLE,
+	authoritative                    BOOLEAN,
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
