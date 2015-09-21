@@ -102,7 +102,6 @@ public class OverviewChartsController {
 		List<String> genes = null;
 		String[] centerToFilter = center;
 
-
 		// Assuming that different versions of a procedure will keep the same name.
 		String procedureName = p.getProcedures().iterator().next().getName();
 
@@ -129,6 +128,7 @@ public class OverviewChartsController {
 				}
 			}
 
+			// We don't show time series any more but in theory they would work
 			else if ( impressUtilities.checkType(p).equals(ObservationType.time_series) ){
 				Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>();
 				data.put("Control", os.getTimeSeriesControlData(parameter, OverviewChartsConstants.OVERVIEW_STRAINS, centerToFilter, sex));
@@ -137,9 +137,9 @@ public class OverviewChartsController {
 				chart.setId(parameter);
 				chartRes = chart;
 			}
-
+			
 			else if ( impressUtilities.checkType(p).equals(ObservationType.unidimensional) ){
-				StackedBarsData data = srs.getUnidimensionalData(p, genes, OverviewChartsConstants.OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
+				StackedBarsData data = srs.getUnidimensionalDataGenotypeEffect(p, genes, OverviewChartsConstants.OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}
 

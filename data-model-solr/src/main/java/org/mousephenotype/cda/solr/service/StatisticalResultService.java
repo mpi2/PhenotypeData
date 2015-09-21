@@ -446,7 +446,175 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	 
          return beans;
 	}
+    
+    
+	/**
+	 * The max(abs(genotype_effect), abs(femlae_effect), abs(male_effect))
+	 * 
+	 * @param sexToDisplay
+	 * @return Value to be displayed in the overview charts
+	 * @author tudose
+	 * @since To be used instead of getPlotRatio
+	 */
+	public Double getPlotValue(SexType sex, Group gr) {
+             
+		SolrDocumentList resDocs = gr.getResult();
+		Double val = 0.0;
+		
+		for (int i = 0; i < resDocs.getNumFound(); i++) {
 
+			SolrDocument doc = resDocs.get(i);
+
+			if (doc.containsKey(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE)&& Math.abs(val) < Math
+					.abs(new Double(doc.getFieldValue(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE).toString()))) {
+				val = new Double(doc.getFieldValue(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE).toString());
+			}
+			if (doc.containsKey(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE) && Math.abs(val) < Math
+					.abs(new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString())) && 
+					(sex == null || sex == SexType.female || sex == SexType.both)) {
+				val = new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString());
+			}
+			if (doc.containsKey(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE) && Math.abs(val) < Math
+					.abs(new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString())) && 
+					(sex == null || sex == SexType.male || sex == SexType.both)) {
+				val = new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString());
+			}
+		}
+		
+		return val;
+
+	}
+	
+	public StackedBarsData getUnidimensionalDataGenotypeEffect(Parameter p, List<String> genes, List<String> strains, String biologicalSample, String[] center, String[] sex)
+	throws SolrServerException {
+
+		String urlParams = "";
+		SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
+		String q = "*:*";
+		
+		query.addFilterQuery((strains.size() > 1) ? "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"");
+		
+		if (strains.size() > 0) {
+			urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
+		}
+
+		if (center != null && center.length > 0) {
+			query.addFilterQuery( "(" + ((center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"") + ")");
+			urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
+		}
+
+		query.setQuery(q);
+		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000])");
+			
+		query.setQuery(q);
+		query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
+		query.setRows(10000000);
+		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
+			StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE, StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE,
+			StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
+		query.set("group", true);
+		query.set("group.field", StatisticalResultDTO.COLONY_ID);
+		query.set("group.limit", 100);
+		
+		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		double[] meansArray = new double[groups.size()];
+		String[] genesArray = new String[groups.size()];
+		String[] geneSymbolArray = new String[groups.size()];
+		int size = 0;
+
+		for (Group gr : groups) {
+
+			SolrDocumentList resDocs = gr.getResult();
+			SexType sexVal = (sex == null || sex.length == 0 || sex.length >= 2) ? SexType.both : SexType.valueOf(sex[0]);
+			
+			Double value = getPlotValue(sexVal, gr);
+			
+			if (value != null){
+				genesArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
+				geneSymbolArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
+				meansArray[size] = value;
+				size++;
+			}	
+		}
+
+		// we do the binning for all the data but fill the bins after that to
+		// keep tract of phenotype associations
+		int binCount = Math.min((int) Math.floor((double) groups.size() / 2), 20);
+		List<String> mutantGenes = new ArrayList<>();
+		List<String> controlGenes = new ArrayList<>();
+		List<String> mutantGeneAcc = new ArrayList<>();
+		List<String> controlGeneAcc = new ArrayList<>();
+		List<Double> upperBounds = new ArrayList<>();
+		EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
+		if (size > 0) {
+			distribution.load(ArrayUtils.subarray(meansArray, 0, size-1));
+			for (double bound : distribution.getUpperBounds()) {
+				upperBounds.add(bound);
+			}
+			// we we need to distribute the control mutants and the
+			// phenotype-mutants in the bins
+			List<Double> controlM = new ArrayList<>();
+			List<Double> phenMutants = new ArrayList<>();
+
+			for (int j = 0; j < upperBounds.size(); j++) {
+				controlM.add((double) 0);
+				phenMutants.add((double) 0);
+				controlGenes.add("");
+				mutantGenes.add("");
+				controlGeneAcc.add("");
+				mutantGeneAcc.add("");
+			}
+
+			for (int j = 0; j < size; j++) {
+				// find out the proper bin
+				int binIndex = getBin(upperBounds, meansArray[j]);
+				if (genes.contains(genesArray[j])) {
+					phenMutants.set(binIndex, 1 + phenMutants.get(binIndex));
+					String genesString = mutantGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j])) {
+						if (genesString.equals("")) {
+							mutantGenes.set(binIndex, geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, "accession=" + genesArray[j]);
+						} else {
+							mutantGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							mutantGeneAcc.set(binIndex, mutantGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
+						}
+					}
+				} else { // treat as control because they don't have this phenotype association
+					String genesString = controlGenes.get(binIndex);
+					if (!genesString.contains(geneSymbolArray[j])) {
+						if (genesString.equalsIgnoreCase("")) {
+							controlGenes.set(binIndex, geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, "accession=" + genesArray[j]);
+						} else {
+							controlGenes.set(binIndex, genesString + ", " + geneSymbolArray[j]);
+							controlGeneAcc.set(binIndex, controlGeneAcc.get(binIndex) + "&accession=" + genesArray[j]);
+						}
+					}
+					controlM.set(binIndex, 1 + controlM.get(binIndex));
+				}
+			}
+			// System.out.println(" Mutants list " + phenMutants);
+
+			// add the rest of parameters to the graph urls
+			for (int t = 0; t < controlGeneAcc.size(); t++) {
+				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
+				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
+			}
+
+			StackedBarsData data = new StackedBarsData();
+			data.setUpperBounds(upperBounds);
+			data.setControlGenes(controlGenes);
+			data.setControlMutatns(controlM);
+			data.setMutantGenes(mutantGenes);
+			data.setPhenMutants(phenMutants);
+			data.setControlGeneAccesionIds(controlGeneAcc);
+			data.setMutantGeneAccesionIds(mutantGeneAcc);
+			return data;
+		}
+
+		return null;
+	}
 
 	public StackedBarsData getUnidimensionalData(Parameter p, List<String> genes, List<String> strains, String biologicalSample, String[] center, String[] sex)
 	throws SolrServerException {
@@ -454,7 +622,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		String urlParams = "";
 		SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
 		String q = "*:*";
+		
 		query.addFilterQuery((strains.size() > 1) ? "(" + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"");
+		
 		if (strains.size() > 0) {
 			urlParams += "&strain=" + StringUtils.join(strains.toArray(), "&strain=");
 		}
@@ -478,8 +648,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		query.addFilterQuery("(" + StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000] OR " + StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000])");
 		query.setRows(10000000);
 		query.setFields(StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.FEMALE_CONTROL_MEAN, StatisticalResultDTO.MARKER_SYMBOL,
-			StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
-			StatisticalResultDTO.FEMALE_CONTROL_COUNT, StatisticalResultDTO.FEMALE_MUTANT_COUNT, StatisticalResultDTO.MALE_CONTROL_COUNT, StatisticalResultDTO.MALE_MUTANT_COUNT);
+				StatisticalResultDTO.FEMALE_MUTANT_MEAN, StatisticalResultDTO.MALE_CONTROL_MEAN, StatisticalResultDTO.MALE_MUTANT_MEAN,
+				StatisticalResultDTO.FEMALE_CONTROL_COUNT, StatisticalResultDTO.FEMALE_MUTANT_COUNT, StatisticalResultDTO.MALE_CONTROL_COUNT, 
+				StatisticalResultDTO.MALE_MUTANT_COUNT);
 		query.set("group", true);
 		query.set("group.field", StatisticalResultDTO.COLONY_ID);
 		query.set("group.limit", 1);
@@ -1444,7 +1615,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		return result;
 	}
 
+	
+	
+	
+	/* ----- CLASSES ----- */
+	
+	
     class OverviewRatio {
+    	
     	Double meanFControl;
     	Double meanFMutant;
     	Double meanMControl;
@@ -1508,6 +1686,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     		}
     	}
 
+      	
 
     	public Double getPlotRatio(String sexToDisplay){
 
