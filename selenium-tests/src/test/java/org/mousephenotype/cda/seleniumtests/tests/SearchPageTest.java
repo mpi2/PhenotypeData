@@ -247,7 +247,14 @@ public class SearchPageTest {
             };
 
             for (Facet facet : facets) {
-                if (searchPage.getFacetCount(facet) > 0) {
+                Integer facetCount = searchPage.getFacetCount(facet);
+                if (facetCount == null) {
+                    String message = "ERROR: the facet count for facet '" + facet + "' was null, which means the search page had no facet count.";
+                    logger.error(message);
+                    status.addError(message);
+                } else if (facetCount == 0) {
+                    logger.warn("Skipping facet " + facet + " as it has no rows.");
+                } else {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
@@ -260,8 +267,6 @@ public class SearchPageTest {
 
                     status.add(localStatus);
                     totalNonzeroCount++;
-                } else {
-                    logger.warn("Skipping facet " + facet + " as it has no rows.");
                 }
             }
         } catch (Exception e) {
@@ -325,16 +330,23 @@ public class SearchPageTest {
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
 
         // Verify that the core counts returned by solr match the facet counts on the page and the page.
-        // 26-Mar-2015 (mrelac) Skip the gene core count compare. The rules are fuzzy.
-        String[] localCores = { "mp", "disease", "ma", "impc_images", "images" };
-        for (String core : localCores) {
-            int facetCountFromPage = searchPage.getFacetCount(core);
-            int facetCountFromSolr = (int)solrCoreCountMap.get(core);
+        String[] facets = { "gene", "mp", "disease", "ma", "impc_images", "images" };
+        for (String facet : facets) {
+            Integer facetCountFromPage = searchPage.getFacetCount(facet);
+            int facetCountFromSolr = (int)solrCoreCountMap.get(facet);
 
-            if (facetCountFromPage != facetCountFromSolr) {
-                message = "FAIL: facet count from Solr: " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
-                status.addError(message);
+            if (facetCountFromPage == null) {
+                message = "ERROR: the page's facet count is null. URL: " + target;
                 logger.error(message);
+                status.addError(message);
+                break;                      // The page is broken for all facets. No need to dump out 6 messages.
+            } else {
+                // 26-Mar-2015 (mrelac) Skip the gene core count compare. The rules are fuzzy.
+                if ( ! facet.equals("gene") && (facetCountFromPage != facetCountFromSolr)) {
+                    message = "FAIL: facet count from facet '" + facet + "': " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
+                    status.addError(message);
+                    logger.error(message);
+                }
             }
         }
 
@@ -560,47 +572,48 @@ public class SearchPageTest {
 
     // Here's a good site to use for decoding: http://meyerweb.com/eric/tools/dencoder/
     SearchTermGroup[] staticSearchTermGroups = {
-          new SearchTermGroup("leprot", "leprot")           // leprot
-        , new SearchTermGroup("!",      "!")                // !    %21
-        , new SearchTermGroup("@",      "@")                // @    %40
-        , new SearchTermGroup("€",      "\\%E2%82%AC")      // €    %E2%82%AC
-        , new SearchTermGroup("£",      "\\%C2%A3")         // £    %C2%A3
-        , new SearchTermGroup("\\%23",  "\\%23")            // #    %23
-        , new SearchTermGroup("$",      "$")                // $    %24
-        , new SearchTermGroup("\\%25",  "\\%25")            // %    %25
-        , new SearchTermGroup("^",      "^")                // ^    %5E
-        , new SearchTermGroup("\\%26",  "\\%26")            // &    %26
-        , new SearchTermGroup("\\*",    "\\%2A")            // *    %2A
-        , new SearchTermGroup("(",      "(")                // (    %28
-        , new SearchTermGroup(")",      ")")                // )    %29
-        , new SearchTermGroup("-",      "-")                // -    %2D (hyphen)
-        , new SearchTermGroup("_",      "_")                // _    %5F (underscore)
-        , new SearchTermGroup("\\=",    "\\=")              // =    %3D
-        , new SearchTermGroup("\\%2B",  "\\%2B")            // +    %2B
-        , new SearchTermGroup("\\[",    "\\[")              // [    %5B
-        , new SearchTermGroup("\\]",    "\\]")              // [    %5D
-        , new SearchTermGroup("{",      "\\%7B")            // {    %7B
-        , new SearchTermGroup("}",      "\\%7D")            // }    %7D
-        , new SearchTermGroup("\\:",    "\\:")              // :    %3A
-        , new SearchTermGroup(";",      ";")                // ;    %3B
-        , new SearchTermGroup("'",      "'")                // '    %27 (single quote)
-        , new SearchTermGroup("\\\"",   "\\\"")             // "    %22 (double quote)
-        , new SearchTermGroup("|",      "|")                // |    %7C
-        , new SearchTermGroup(",",      ",")                // ,    %2C (comma)
-        , new SearchTermGroup(".",      ".")                // .    %2E (period)
-        , new SearchTermGroup("<",      "<")                // <    %3C
-        , new SearchTermGroup(">",      ">")                // >    %3E
-        , new SearchTermGroup("\\%2F",  "\\%2F")            // /    %2F
-        , new SearchTermGroup("\\?",    "\\?")              // ?    %3F
-        , new SearchTermGroup("`",      "`")                // `    %60 (backtick)
-        , new SearchTermGroup("\\~",    "\\~")              // ~    %7E
-        , new SearchTermGroup("é",      "\\%C3%A9")         // é    %C3%A9
-        , new SearchTermGroup("å",      "\\%C3%A5")         // å    %C3%A5
-        , new SearchTermGroup("ç",      "\\%C3%A7")         // ç    %C3%A7
-        , new SearchTermGroup("ß",      "\\%C3%9F")         // ß    %C3%9F
-        , new SearchTermGroup("č",      "\\%C4%8D")         // č    %C4%8D
-        , new SearchTermGroup("ü",      "\\%C3%BC")         // ü    %C3%BC
-        , new SearchTermGroup("ö",      "\\%C3%B6")         // ö    %C3%B6
+                           // Page target   Solr targetr
+          new SearchTermGroup("leprot",     "leprot")           // leprot
+        , new SearchTermGroup("!",          "!")                // !    %21
+        , new SearchTermGroup("@",          "@")                // @    %40
+        , new SearchTermGroup("€",          "\\%E2%82%AC")      // €    %E2%82%AC
+        , new SearchTermGroup("£",          "\\%C2%A3")         // £    %C2%A3
+        , new SearchTermGroup("\\%23",      "\\%23")            // #    %23
+        , new SearchTermGroup("$",          "$")                // $    %24
+        , new SearchTermGroup("\\%25",      "\\%25")            // %    %25
+        , new SearchTermGroup("^",          "^")                // ^    %5E
+        , new SearchTermGroup("\\%26",      "\\%26")            // &    %26
+        , new SearchTermGroup("\\*",        "\\%2A")            // *    %2A
+        , new SearchTermGroup("\\%28",      "\\%28")            // (    %28
+        , new SearchTermGroup(")",          ")")                // )    %29
+        , new SearchTermGroup("-",          "-")                // -    %2D (hyphen)
+        , new SearchTermGroup("_",          "_")                // _    %5F (underscore)
+        , new SearchTermGroup("\\=",        "\\=")              // =    %3D
+        , new SearchTermGroup("\\%2B",      "\\%2B")            // +    %2B
+        , new SearchTermGroup("\\[",        "\\[")              // [    %5B
+        , new SearchTermGroup("\\]",        "\\]")              // [    %5D
+        , new SearchTermGroup("{",          "\\%7B")            // {    %7B
+        , new SearchTermGroup("}",          "\\%7D")            // }    %7D
+        , new SearchTermGroup("\\:",        "\\:")              // :    %3A
+        , new SearchTermGroup(";",          ";")                // ;    %3B
+        , new SearchTermGroup("'",          "'")                // '    %27 (single quote)
+        , new SearchTermGroup("\\\"",       "\\\"")             // "    %22 (double quote)
+        , new SearchTermGroup("|",          "|")                // |    %7C
+        , new SearchTermGroup(",",          ",")                // ,    %2C (comma)
+        , new SearchTermGroup(".",          ".")                // .    %2E (period)
+        , new SearchTermGroup("<",          "<")                // <    %3C
+        , new SearchTermGroup(">",          ">")                // >    %3E
+        , new SearchTermGroup("\\%2F",      "\\%2F")            // /    %2F
+        , new SearchTermGroup("\\?",        "\\?")              // ?    %3F (question mark)
+        , new SearchTermGroup("`",          "`")                // `    %60 (backtick)
+        , new SearchTermGroup("\\~",        "\\~")              // ~    %7E
+        , new SearchTermGroup("é",          "\\%C3%A9")         // é    %C3%A9
+        , new SearchTermGroup("å",          "\\%C3%A5")         // å    %C3%A5
+        , new SearchTermGroup("ç",          "\\%C3%A7")         // ç    %C3%A7
+        , new SearchTermGroup("ß",          "\\%C3%9F")         // ß    %C3%9F
+        , new SearchTermGroup("č",          "\\%C4%8D")         // č    %C4%8D
+        , new SearchTermGroup("ü",          "\\%C3%BC")         // ü    %C3%BC
+        , new SearchTermGroup("ö",          "\\%C3%B6")         // ö    %C3%B6
     };
 
     @Test

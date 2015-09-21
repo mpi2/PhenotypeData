@@ -404,42 +404,40 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
 
     	 for (Group gr : solrGroups) {
-             SolrDocumentList resDocs = gr.getResult();
-        	 HashMap<String, Double>dataByGroup = new HashMap<>(); // <center, maxValue> for each gene
-             for (int i = 0; i < resDocs.getNumFound(); i ++) {
-                 SolrDocument doc = resDocs.get(i);
+             
+    		 SolrDocumentList resDocs = gr.getResult();
+        	 HashMap<String, Double> dataByGroup = new HashMap<>(); // <center, maxValue> for each gene
+             
+        	 for (int i = 0; i < resDocs.getNumFound(); i ++) {
+             
+        		 SolrDocument doc = resDocs.get(i);
                  String center = doc.getFieldValue(StatisticalResultDTO.PHENOTYPING_CENTER).toString();
+                 Double val = 0.0;
+                
                  if (!dataByGroup.containsKey(center)){
                 	 dataByGroup.put(center, null);
                  }
+                 
                  if (doc.containsKey(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE)){
-                	 Double val = new Double(doc.getFieldValue(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE).toString());
-                	 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
-                		 dataByGroup.put(center, val);
-                	 }
-                 } else {
-                	 if (doc.containsKey(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE)){
-	                	 Double val = new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString());
-	                	 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
-	                		 dataByGroup.put(center, val);
-	                	 }
-	                 }
-                	 if (doc.containsKey(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE)){
-	                	 Double val = new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString());
-	                	 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
-	                		 dataByGroup.put(center, val);
-	                	 }
-	                 }
-                 }
+                	val = new Double(doc.getFieldValue(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE).toString());
+                 } 
+                 if (doc.containsKey(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE) && Math.abs(val) < Math.abs(new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString()))){
+	               	val = new Double(doc.getFieldValue(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE).toString()); 
+	             }
+                 if (doc.containsKey(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE) && Math.abs(val) < Math.abs(new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString()))){
+               		 val = new Double(doc.getFieldValue(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE).toString());
+	             }
+                                  
+                 if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
+            		 dataByGroup.put(center, val);
+            	 }
              }
 
              String gene = gr.getGroupValue();
+             
              for (String center : dataByGroup.keySet()){
-             //    String group = (gene == null) ? "WT " : center;
-                 String group = (gene == null) ? "WT " : "Mutant";
-                 if (group.equalsIgnoreCase("WT")){
-                	 System.out.println("FOUND ONE ");
-                 }
+                
+            	 String group = (gene == null) ? "WT " : "Mutant";
 	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
 	             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
 	             beans.put(gene + " " + group, currentBean);
@@ -860,7 +858,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     }
 
 
-    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource)
+    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId)
 	throws NumberFormatException, SolrServerException {
 
     	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
@@ -893,6 +891,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	    }
 	    if (phenotypingCenter != null){
 	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"" +StringUtils.join(phenotypingCenter, "\" OR \"")  + "\")");
+	    }
+	    if (mpTermId != null){
+	    	query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
+	    			StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\")");
 	    }
 	    if (pipelineName != null){
 	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");

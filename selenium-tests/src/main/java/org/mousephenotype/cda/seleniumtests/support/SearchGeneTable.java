@@ -76,7 +76,7 @@ public class SearchGeneTable extends SearchFacetTable {
     }
 
     /**
-     * Validates download data against this <code>SearchDiseaseTable</code>
+     * Validates download data against this <code>SearchGeneTable</code>
      * instance.
      * 
      * @param downloadDataArray The download data used for comparison
