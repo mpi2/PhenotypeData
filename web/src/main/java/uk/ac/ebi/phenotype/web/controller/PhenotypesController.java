@@ -317,8 +317,7 @@ public class PhenotypesController {
      */
     private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
     throws IOException, URISyntaxException, SolrServerException {
-		// This block collapses phenotype rows
-        // phenotype term, allele, zygosity, and sex
+		// This block collapses phenotype rows on phenotype term, allele, zygosity and sex
         // sex is collapsed into a single column
         List<PhenotypeCallSummaryDTO> phenotypeList;
         try {
@@ -332,6 +331,7 @@ public class PhenotypesController {
             Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
 
 			for (String key : preQcFacets.keySet()){
+				System.out.println("Key :: " + key);
 				if (preQcFacets.get(key).keySet().size() > 0){
 					for (String key2: preQcFacets.get(key).keySet()){
 						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));

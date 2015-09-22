@@ -37,7 +37,7 @@ public class PhenotypeCallSummaryDTO {
 	protected double colorIndex;
 	protected List<BasicBean> topLevelPhenotypeTerms;
 	protected boolean isPreQC;
-	protected String gId; // pre qc only, param needed for phenoview graph links
+	protected String gId; // preqc only, param needed for phenoview graph links
 
 
 	/**

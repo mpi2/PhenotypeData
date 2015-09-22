@@ -859,7 +859,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             list.add(createSummaryCall(doc, isPreQc));
         }
 
-        System.out.println("Time after summary call " + (System.currentTimeMillis() - time));
         
         // get the facet information that we can use to create the buttons, dropdowns, checkboxes
         JSONObject facets = results.getJSONObject("facet_counts").getJSONObject("facet_fields");
@@ -1037,6 +1036,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return null;
     }
 
+    
     public Set<String> getFertilityAssociatedMps() {
 
         SolrQuery q = new SolrQuery();
@@ -1053,6 +1053,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
         return null;
     }
+    
 
     /*
      * End of method for PhenotypeCallSummarySolrImpl

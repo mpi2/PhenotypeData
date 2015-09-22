@@ -3,9 +3,9 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <t:genericpage>
+
     <jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
 	
@@ -525,7 +525,7 @@
                                                  style="clear: both">
 
                                                 <a class="btn"
-                                                   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
+                                                   href='${baseUrl}/experiments?geneAccession=${gene.accessionId}'
                                                    style="margin: 0px">All Adult Data</a>
 
                                             </div>
