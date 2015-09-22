@@ -39,12 +39,9 @@
         <c:set var="europhenome_gender" value="Both-Split"/>
         <tr>
 
-            <td><a href="${baseUrl}/genes/${phenotype.gene.id.accession}">${phenotype.gene.symbol}</a><br/>
+            <td><a href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</a><br/>
                 <span class="smallerAlleleFont"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
             </td>
-
-
-            <!-- td><c:choose><c:when test="${fn:contains(phenotype.allele.id.accession, 'MGI')}"><a href="http://www.informatics.jax.org/accession/${phenotype.allele.id.accession}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose></td-->
 
             <td>${phenotype.zygosity}</td>
 
@@ -58,7 +55,7 @@
             </td>
 
             <td>
-                <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id.accession}">${phenotype.phenotypeTerm.name}</a>
+                <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
             </td>
 
             <td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
