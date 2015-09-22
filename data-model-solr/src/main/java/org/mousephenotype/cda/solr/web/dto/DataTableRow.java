@@ -230,7 +230,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		    // Need to use the drupal base url because phenoview is not mapped under the /data url
 		    url = config.get("drupalBaseUrl");
 		    url += "/../phenoview/?gid=" + gid;
-		    url += "&qeid=" + parameter.getStableId();
+
+            if (parameter != null) {
+                url += "&qeid=" + parameter.getStableId();
+            }
         }
         return url;
     }

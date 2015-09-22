@@ -260,7 +260,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testForBadGeneIds() throws Exception {
         PageStatus status = new PageStatus();
         String testName = "testForBadGeneIds";
@@ -317,7 +317,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList(geneService.getAllGenes());
@@ -337,7 +337,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -365,7 +365,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -393,7 +393,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -421,7 +421,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException [
      */
     @Test
-//@Ignore
+@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -443,7 +443,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
      * @throws SolrServerException
      */
     @Test
-//@Ignore
+@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
@@ -902,7 +902,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
     // Tests gene page with more than one Production Status [blue] order button.
     @Test
-//@Ignore
+@Ignore
     public void testOrderButtons() throws SolrServerException {
         String testName = "testOrderButtons";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
