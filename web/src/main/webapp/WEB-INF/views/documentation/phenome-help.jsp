@@ -26,9 +26,9 @@
 
                         <div id="top" class="content node">
                             
-                            <h1>Phenome Overview Documentation</h1>
+                            <h1>Data Release Overview Documentation</h1>
 		
-                            <p>The phenome page summarizes all the significant Mammalian Phenotype (MP) statistical calls for one phenotyping center and pipeline.
+                            <p>The data release page summarizes all the significant Mammalian Phenotype (MP) statistical calls for one phenotyping center and pipeline.
                             This information can be visualized in a graph and is also available in a table below the graph. To get to the visualisation:</p>
                             <ol>
                                 <li>1. Click the <strong>release</strong> link from the footer of any page to get to the <i>release</i> page.

@@ -167,7 +167,6 @@ public class OntologyUtils {
         	b.setAnnotate(resultSet.getBoolean("annotate"));
             impressMap.put(resultSet.getInt("id"), b);
             
-            System.out.println(b.isAnnotate());
         }
 
         return impressMap;
