@@ -29,7 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -333,7 +335,7 @@ public class PhenomeChartProvider {
 	}
 
 	public String generatePhenomeChartByPhenotype(
-	List<PhenotypeCallSummary> calls,
+	List<PhenotypeCallSummaryDTO> calls,
 	String phenotypingCenter,
 	double minimalPvalue)
 	throws IOException,
@@ -363,9 +365,9 @@ public class PhenomeChartProvider {
 
 			// first grab all categories and associated terms
 
-			for (PhenotypeCallSummary call : calls) {
+			for (PhenotypeCallSummaryDTO call : calls) {
 
-					for (OntologyTerm topLevel : call.getTopLevelPhenotypeTerms()) {
+					for (BasicBean topLevel : call.getTopLevelPhenotypeTerms()) {
 
 						String topLevelName = topLevel.getName();
 						if (!categoryGroupList.contains(topLevelName)) {
@@ -395,18 +397,16 @@ public class PhenomeChartProvider {
 
 			// Then generate categories for all of them
 			int categoriesDim = 0;
-			int total = 0;
 			for (String categoryName : categoryGroupList) {
 				for (String specificTerm : specificTermMatrix.get(categoryName)) {
 					categories.put((categoriesDim + 1) + ". " + specificTerm);
-					total++;
 				}
 				categoriesDim++;
 			}
 			// finally extract the data points and generate a point for every
 			// top level categories associated
-				for (PhenotypeCallSummary call : calls) {
-					for (OntologyTerm topLevel : call.getTopLevelPhenotypeTerms()) {
+				for (PhenotypeCallSummaryDTO call : calls) {
+					for (BasicBean topLevel : call.getTopLevelPhenotypeTerms()) {
 
 						String topLevelName = topLevel.getName();
 						int firstDim = categoryGroupList.indexOf(topLevelName);
@@ -423,8 +423,8 @@ public class PhenomeChartProvider {
 						dataPoint.put("name", (firstDim + 1) + ". " + call.getPhenotypeTerm().getName());
 						dataPoint.put("mp_term", call.getPhenotypeTerm().getName());
 						dataPoint.put("geneSymbol", call.getGene().getSymbol());
-						dataPoint.put("geneAccession", call.getGene().getId().getAccession());
-						dataPoint.put("alleleAccession", call.getAllele().getId().getAccession());
+						dataPoint.put("geneAccession", call.getGene().getAccessionId());
+						dataPoint.put("alleleAccession", call.getAllele().getAccessionId());
 						dataPoint.put("parameter_stable_id", call.getParameter().getStableId());
 						dataPoint.put("pipeline_stable_id", call.getPipeline().getStableId());
 						dataPoint.put("phenotyping_center", call.getPhenotypingCenter());
