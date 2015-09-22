@@ -166,7 +166,7 @@
 							<div class="with-label"> <span class="label">Anatomy</span>
 								<ul>
 									<c:forEach var="term" items="${anatomy}" varStatus="loop">
-										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id.accession}">${term.name}</a></li>
+										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id}">${term.name}</a></li>
 									</c:forEach>
 								</ul>
 							</div>

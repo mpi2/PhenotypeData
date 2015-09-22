@@ -62,6 +62,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
@@ -312,13 +313,14 @@ public class PhenotypesController {
      * @param request
      * @throws IOException
      * @throws URISyntaxException
+     * @throws SolrServerException 
      */
     private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
-    throws IOException, URISyntaxException {
+    throws IOException, URISyntaxException, SolrServerException {
 		// This block collapses phenotype rows
         // phenotype term, allele, zygosity, and sex
         // sex is collapsed into a single column
-        List<PhenotypeCallSummary> phenotypeList;
+        List<PhenotypeCallSummaryDTO> phenotypeList;
         try {
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
             PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
@@ -344,7 +346,7 @@ public class PhenotypesController {
         } catch (HibernateException | JSONException e) {
             log.error("ERROR GETTING PHENOTYPE LIST");
             e.printStackTrace();
-            phenotypeList = new ArrayList<PhenotypeCallSummary>();
+            phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
         }
 
         long time = System.currentTimeMillis();
@@ -352,7 +354,7 @@ public class PhenotypesController {
         // This is a map because we need to support lookups
         Map<DataTableRow, DataTableRow> phenotypes = new HashMap<DataTableRow, DataTableRow>();
 
-        for (PhenotypeCallSummary pcs : phenotypeList) {
+        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
@@ -435,9 +437,11 @@ public class PhenotypesController {
             @PathVariable String acc,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
-        //just pass on any query string after the ? to the solr requesting object for now
-        String queryString = request.getQueryString();
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+        
+    	//just pass on any query string after the ? to the solr requesting object for now
+        
+    	String queryString = request.getQueryString();
         processPhenotypes(acc, queryString, model, request);
 
         return "geneVariantsWithPhenotypeTable";
