@@ -146,6 +146,7 @@ public class PhenotypesController {
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
     	long time = System.currentTimeMillis();
+    	long time2 = System.currentTimeMillis();
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
@@ -254,13 +255,11 @@ public class PhenotypesController {
         model.addAttribute("siblings", mpSiblings);
         model.addAttribute("synonyms", synonymTerms);
         model.addAttribute("hpTerms", computationalHPTerms);
-
-
         // Query the images for this phenotype
         QueryResponse response = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
         model.addAttribute("numberFound", response.getResults().getNumFound());
         model.addAttribute("images", response.getResults());
-        
+
         processPhenotypes(phenotype_id, "", model, request);
 
         System.out.println("Time to 3 " + (System.currentTimeMillis() - time) );
@@ -291,6 +290,8 @@ public class PhenotypesController {
 
         System.out.println("Time to 5 " + (System.currentTimeMillis() - time) );
         time = System.currentTimeMillis();
+        
+        System.out.println("Total time " +  (System.currentTimeMillis() - time2) );
         
         return "phenotypes";
     }
@@ -508,7 +509,6 @@ public class PhenotypesController {
     	List<ParameterDTO> res =  new ArrayList<>();
     	for (String parameterStableId : parameters){
     		ParameterDTO param = impressService.getParameterByStableId(parameterStableId);
-    		System.out.println("Lookign at --- " + param.getName());
     		if (param.getObservationType().equals(ObservationType.categorical) && (param.getStableId().contains("_VIA_") || param.getStableId().contains("_FER_"))){
     			res.add(param);
     		} else if (param.getObservationType().equals(ObservationType.unidimensional)){
