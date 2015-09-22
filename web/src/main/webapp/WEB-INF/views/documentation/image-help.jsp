@@ -30,12 +30,19 @@
 
 
                             <h4 id="explore">Explore Image Data</h4>
-                            <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA) and procedure terms.
-                               To search for images associated with the gene symbol "Akt2", type Akt2 into the search box at the top of the page
-                               and then click on the "IMPC images" link at the side. A list with categories of images associated to Akt2 is
-                               then displayed on the left. Click on these categories to see sub-categories and their respective counts of images
-                               associated with that category. You can also search for genes using MGI identifiers. To search for images
-                               associated to an anotomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box.
+                            <p>The IMPC portal offers images that are annotated with gene associations, Mouse Anatomy (MA)
+                               and procedure terms. For example, to search for images associated with the gene symbol "Akt2",
+                               type Akt2 into the search box at the top of the page and then click on the "IMPC images"
+                               link at the side. A list with categories of images associated to Akt2 is then displayed to
+                               the left of the images, in the <strong>Name</strong> column. Click on these categories
+                               to see sub-categories and their respective counts of images associated with that category.
+                            </p>
+                            <p>
+                               You can also search for genes using MGI identifiers. To search for images
+                               associated to an anatomy term you can use MA identifiers or terms such as  blood vessel (MA:0000060) in the search box.
+                            </p>
+                            <p>See the search page image documentation for more information on the <a href="search-help#quick-image-search">
+                               annotation</a> and <a href="search-help#quick-image-search-image-view">image</a> views.
                                <br />
                                <img src="img/image-facet.png" />
                             </p>
@@ -61,6 +68,9 @@
                                Download links are displayed next to other annotations underneath each image. A spreadsheet containing information and links can be
                                downloaded using the "download" link on the top right corner of the search results.
                             </p>
+
+                            <p>See the gene page <a href="gene-help#impc-expression">Expression</a> documentation for more information on gene page expression images.</p>
+                            <p>See the gene page <a href="gene-help#impc-images">Phenotype Associated Images</a> documentation for more information on gene page phenotype associated images.</p>
                        </div>
                     </div>
                 </div>

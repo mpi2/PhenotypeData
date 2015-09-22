@@ -106,15 +106,17 @@
                             <img src='img/quick_param_search.png' /><p>	
                         -->
 
-                            <h4 id="quick_img_srch">Quick Image Search</h4>
+                            <h4>Quick Image Search</h4>
                             <div>Enter a gene, phenotype, assay, or anatomical entity, click on the Images (legacy) or IMPC images facet on the left panel and the results grid will return relevant image pages.
-                                <p>By default, Annotation View will be displayed, where images are grouped by annotations.<p>Eg. search by anatomy "trunk":<br>				
+                                <p>By default, the annotation view will be displayed, where images are grouped by annotations.<p>Eg. search by anatomy "trunk":<br>
                             </div><br> 
-                           
+
+                            <h6 id="quick-image-search">Annotation View (default)</h6>
 							<img src='img/quick-img-search-annotView.png' /><p>
+
+                            <h6 id="quick-image-search-image-view">Image View</h6>
                             <p>To list annotations to an image, simply click on the "Show Image View" link in the top-right corner of the results grid. The label of the same link will then change to "Show Annotation View" so that you can toggle the views.</p><br>
-                            
-                                <img src='img/quick-img-search-imageView.png' /><p>
+                            <img src='img/quick-img-search-imageView.png' /><p>
 
                             <h4 id="export">Data Export of Search Results</h4>
                             <div>Click on the export icon <p><img src='img/download.png' />
@@ -124,8 +126,6 @@
                                 <p>To download data for the currently displayed page only, choose the set of links under the label "Current paginated entries in table".
                                    To download the data for <i>all</i> pages, choose the set of links under the label "All entries in table".</p>
                                 <br>A warning message dialog box will be displayed if the dataset is large and the download could take a long time.</div>
-
-                           
 
                         </div><%-- end of content div--%>
                     </div>
