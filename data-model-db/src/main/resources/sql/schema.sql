@@ -1411,6 +1411,9 @@ CREATE TABLE stat_result_phenotype_call_summary (
 	ENGINE =MyISAM;
 
 
+--
+-- Discrete statistical result schema
+--
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
 
@@ -1423,7 +1426,6 @@ CREATE TABLE statistical_result_phenotype_call_summary (
 )
 	COLLATE =utf8_general_ci
 	ENGINE =MyISAM;
-
 
 DROP TABLE IF EXISTS statistical_result;
 CREATE TABLE statistical_result (
