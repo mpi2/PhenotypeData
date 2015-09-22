@@ -154,8 +154,7 @@ public class StatisticalResultDTO {
     public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
     public final static String PROJECT_ID = "project_id";
     public final static String PHENOTYPE_SEX = "phenotype_sex";
-    public final static String ANNOTATE = "annotate";
-
+    
     @Field(DOCUMENT_ID)
     private String docId;
 
@@ -165,11 +164,7 @@ public class StatisticalResultDTO {
 
     @Field(PHENOTYPE_SEX)
     private List<String> phenotypeSex;
-    
-
-    @Field(ANNOTATE)
-    private Boolean annotate;
-    
+        
     @Field(DATA_TYPE)
     private String dataType;
 
@@ -190,7 +185,6 @@ public class StatisticalResultDTO {
 
     @Field(INTERMEDIATE_MP_TERM_NAME)
     private List<String> intermediateMpTermName;
-
 
     @Field(MALE_MP_TERM_ID)
     private String maleMpTermId;
@@ -494,14 +488,6 @@ public class StatisticalResultDTO {
 
         return docId;
     }
-    
-    public Boolean getAnnotate() {
-		return annotate;
-	}
-
-	public void setAnnotate(Boolean annotate) {
-		this.annotate = annotate;
-	}
 
 	public void setDocId(String docId) {
 

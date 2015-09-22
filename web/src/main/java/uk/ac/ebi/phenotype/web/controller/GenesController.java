@@ -189,7 +189,7 @@ public class GenesController {
 
 		// see if the gene exists first:
 		//GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		GeneDTO gene=geneService.getGeneById(acc);
+		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
@@ -200,7 +200,6 @@ public class GenesController {
 		 * PRODUCTION STATUS (SOLR)
 		 */
 		String geneStatus = null;
-
 		try {
 
 			geneStatus = solrIndex.getGeneStatus(acc);
@@ -271,6 +270,7 @@ public class GenesController {
 			}
 			model.addAttribute("summaryNumber", total);
 			System.out.println("summary TOOK : " + (System.currentTimeMillis() - time));
+			System.out.println("Summary no " + total);
 			
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
