@@ -34,7 +34,7 @@ public class GenePageTableRow extends DataTableRow {
         super();
     }
 
-    public GenePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) {
         super(pcs, baseUrl, config);
     }
 
