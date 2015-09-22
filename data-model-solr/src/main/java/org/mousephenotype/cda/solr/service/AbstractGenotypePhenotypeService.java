@@ -463,7 +463,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     
-    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity, Boolean annotate)
+    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
     throws SolrServerException {
 
     		HashMap <String, SolrDocumentList> res = new HashMap<>();
@@ -488,11 +488,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             if (zygosity != null) {
                 solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
             }
-            if (annotate != null){
-            	solrQuery.addFilterQuery(StatisticalResultDTO.ANNOTATE + ":" + annotate);
-            }
+                     
             SolrDocumentList result = solr.query(solrQuery).getResults();
-                        
+            
             for (SolrDocument doc: result){
             	if (doc.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
             		for (Object topLevelMp: doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
@@ -555,7 +553,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return rsp.getResults();
     }
 
-    public HashMap<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg, Boolean annotate)
+    public HashMap<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
         throws SolrServerException {
 
         HashMap<String, String> tl = new HashMap<String, String>();
@@ -570,9 +568,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         if (zyg != null) {
             query.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zyg.getName());
         }
-        if (annotate != null){
-        	query.addFilterQuery(StatisticalResultDTO.ANNOTATE + ":" + annotate);
-        }
+               
         SolrDocumentList result = solr.query(query).getResults();
 
         if (result.size() > 0) {
