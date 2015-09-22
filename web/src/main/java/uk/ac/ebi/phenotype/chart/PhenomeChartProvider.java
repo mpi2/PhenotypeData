@@ -458,7 +458,7 @@ public class PhenomeChartProvider {
 	}
 
 	public String generatePhenomeChartByGenes(
-	List<PhenotypeCallSummary> calls,
+	List<PhenotypeCallSummaryDTO> calls,
 	String phenotypingCenter,
 	double minimalPvalue)
 	throws IOException,
@@ -492,7 +492,7 @@ public class PhenomeChartProvider {
 
 
 			// Set phenotype order to show (x-axis)
-			for (PhenotypeCallSummary call : calls) {
+			for (PhenotypeCallSummaryDTO call : calls) {
 
 				String topLevelName = call.getTopLevelPhenotypeTerms().get(0).getName();
 				if (!phenotypeGroups.containsKey(topLevelName)) {
@@ -513,7 +513,7 @@ public class PhenomeChartProvider {
 			}
 
 			// get genes
-			for (PhenotypeCallSummary call : calls) {
+			for (PhenotypeCallSummaryDTO call : calls) {
 
 					String gene = call.getGene().getSymbol();
 					if (!specificTerms.contains(gene)) {
@@ -530,7 +530,7 @@ public class PhenomeChartProvider {
 
 			// finally extract the data points and generate a point for every
 			// top level categories associated.
-				for (PhenotypeCallSummary call : calls) {
+				for (PhenotypeCallSummaryDTO call : calls) {
 
 					String gene = call.getGene().getSymbol();
 					int firstDim = categoryGroupList.indexOf(gene);
@@ -541,8 +541,8 @@ public class PhenomeChartProvider {
 					dataPoint.put("name", (firstDim + 1) + ". " + call.getPhenotypeTerm().getName());
 					dataPoint.put("mp_term", call.getPhenotypeTerm().getName());
 					dataPoint.put("geneSymbol", call.getGene().getSymbol());
-					dataPoint.put("geneAccession", call.getGene().getId().getAccession());
-					dataPoint.put("alleleAccession", call.getAllele().getId().getAccession());
+					dataPoint.put("geneAccession", call.getGene().getAccessionId());
+					dataPoint.put("alleleAccession", call.getAllele().getAccessionId());
 					dataPoint.put("parameter_stable_id", call.getParameter().getStableId());
 					dataPoint.put("pipeline_stable_id", call.getPipeline().getStableId());
 					dataPoint.put("phenotyping_center", call.getPhenotypingCenter());

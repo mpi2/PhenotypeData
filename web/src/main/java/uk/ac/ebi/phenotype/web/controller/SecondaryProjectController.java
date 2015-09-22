@@ -25,6 +25,7 @@ import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,12 +119,12 @@ public class SecondaryProjectController {
             Map<String, GeneDTO> genes = geneService.getHumanOrthologsForGeneSet(accessions);
 
             // Gather all the phenotype calls by gene id
-            Map<String, List<PhenotypeCallSummary>> pcss = new HashMap<>();
-            for (PhenotypeCallSummary pcs : genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries()) {
-                if ( ! pcss.containsKey(pcs.getGene().getId().getAccession())) {
-                    pcss.put(pcs.getGene().getId().getAccession(), new ArrayList<PhenotypeCallSummary>());
+            Map<String, List<PhenotypeCallSummaryDTO>> pcss = new HashMap<>();
+            for (PhenotypeCallSummaryDTO pcs : genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries()) {
+                if ( ! pcss.containsKey(pcs.getGene().getAccessionId())) {
+                    pcss.put(pcs.getGene().getAccessionId(), new ArrayList<PhenotypeCallSummaryDTO>());
                 }
-                pcss.get(pcs.getGene().getId().getAccession()).add(pcs);
+                pcss.get(pcs.getGene().getAccessionId()).add(pcs);
             }
 
             for (String MGIID : accessions) {
@@ -155,8 +156,8 @@ public class SecondaryProjectController {
 
                 logger.info(" looking for mp terms for {}", MGIID);
                 if (pcss.containsKey(MGIID)) {
-                    for (PhenotypeCallSummary pcs : pcss.get(MGIID)) {
-                        String mp = pcs.getPhenotypeTerm().getId().getAccession();
+                    for (PhenotypeCallSummaryDTO pcs : pcss.get(MGIID)) {
+                        String mp = pcs.getPhenotypeTerm().getId();
                         String mpterm = pcs.getPhenotypeTerm().getName();
                         mpterms.get(MGIID).add(mp);
                         mptermnames.get(MGIID).add(mpterm);
@@ -257,7 +258,7 @@ public class SecondaryProjectController {
                 accessions = idg.getAccessionsBySecondaryProjectId(id);
                 model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.GENE_LATEST_MOUSE_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
                 model.addAttribute("phenotypeStatusChart", chartProvider.getStatusColumnChart(as.getStatusCount(accessions, AlleleDTO.LATEST_PHENOTYPE_STATUS), "Phenotype Status Chart", "phenotypeStatusChart"));
-                List<PhenotypeCallSummary> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
+                List<PhenotypeCallSummaryDTO> results = genotypePhenotypeService.getPhenotypeFacetResultByGenomicFeatures(accessions).getPhenotypeCallSummaries();
                 String chart = phenomeChartProvider.generatePhenomeChartByGenes(results, null, Constants.SIGNIFICANT_P_VALUE);
                 model.addAttribute("chart", chart);
             } catch (SQLException e) {
