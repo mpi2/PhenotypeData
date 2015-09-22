@@ -295,26 +295,30 @@
 
 	<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
-				<div class="section" id="imagesSection" >
-						<h2 class="title" id="section">Images <i class="fa fa-question-circle pull-right"></i></h2>
+				<div class="section" id="imagesSection">
+						<h2 class="title" id="section">Images <i
+									class="fa fa-question-circle pull-right"></i>
+							</h2>
 						<div class="inner">
 											<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>
 								<div class="accordion-group">
 										<div class="accordion-heading">
 												Phenotype Associated Images
 										</div>
-										<div  class="accordion-body">
+										<div class="accordion-body">
 											<ul>
 												<c:forEach var="doc" items="${images}">
-		                                                                                    <li class="span2">
-													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-		                                                                                    </li>
+		                                            <li class="span2">
+														<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+		                                            </li>
 		    	  								</c:forEach>
 											</ul>
 
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
-												<p class="textright"><a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a></p>
+												<p class="textright">
+												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a>
+											</p>
 												</c:if>
 										</div>
 									</div>

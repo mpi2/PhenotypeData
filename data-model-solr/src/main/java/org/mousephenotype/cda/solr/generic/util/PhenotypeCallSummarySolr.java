@@ -54,21 +54,13 @@ public class PhenotypeCallSummarySolr {
 		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, "");
 	}
 
-
-	public PhenotypeFacetResult getPhenotypeCallByMPAccession(String phenotype_id) throws IOException, URISyntaxException {
-		return this.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, "");
-
-	}
-
-
+	
 	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException {
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
 		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
 	}
 
 
 	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException {
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
 		return preqcService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
 	}
 
