@@ -26,6 +26,8 @@ import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 
 
 public class AnatomyPageTableRow extends DataTableRow{
@@ -47,21 +49,23 @@ public class AnatomyPageTableRow extends DataTableRow{
     	super();
         List<String> sex = new ArrayList<String>();
         sex.add(image.getSex().toString());
-        GenomicFeature gene = new GenomicFeature();
+        MarkerBean gene = new MarkerBean();
         gene.setSymbol(image.getGeneSymbol());
-        gene.setId(new DatasourceEntityId(image.getGeneAccession(), 0));
-        Allele allele = new Allele();
+        gene.setAccessionId(image.getGeneAccession());
+        MarkerBean allele = new MarkerBean();
         allele.setSymbol(image.getAlleleSymbol());
+        allele.setSymbol(image.getAlleleAccession());
         this.setGene(gene);
         this.setAllele(allele);
         this.setSexes(sex);
         this.setDataSourceName(image.getDataSourceName());
         this.setZygosity(image.getZygosity() != null ? ZygosityType.valueOf(image.getZygosity()) : ZygosityType.not_applicable);
-        Procedure proc = new Procedure();
+        ImpressBaseDTO proc = new ImpressBaseDTO();
         proc.setName(image.getProcedureName());
         proc.setStableId(image.getProcedureStableId());
-        Parameter param = new Parameter();
+        ImpressBaseDTO param = new ImpressBaseDTO();
         param.setName(image.getParameterName());      
+        param.setStableId(image.getParameterStableId());      
         this.setProcedure(proc);
         this.setParameter(param);
         this.setPhenotypingCenter(image.getPhenotypingCenter());

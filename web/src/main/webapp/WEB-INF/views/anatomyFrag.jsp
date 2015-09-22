@@ -22,10 +22,10 @@
 					        <c:set var="europhenome_gender" value="Both-Split"/>
 					        <tr>
 					            <td>
-					            	<c:if test="${row.gene.id.accession != null}">
-					            	 	<a href="${baseUrl}/genes/${row.gene.id.accession}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span>
+					            	<c:if test="${row.gene.accessionId != null}">
+					            	 	<a href="${baseUrl}/genes/${row.gene.accessionId}">${row.gene.symbol} </a><br/> <span class="smallerAlleleFont"><t:formatAllele>${row.allele.symbol}</t:formatAllele></span>
 					             	</c:if>
-					             	<c:if test="${row.gene.id.accession == null}">
+					             	<c:if test="${row.gene.accessionId == null}">
 					            	 	&nbsp;control
 					             	</c:if>
 					             	</td>
