@@ -107,7 +107,7 @@
 						<c:forEach var="phenotypeCall" items="${phenotypeCalls}"
 											varStatus="status">
 								<tr>
-								<td><a href="${baseUrl}/genes/${phenotypeCall.gene.id.accession}">${phenotypeCall.gene.symbol}</a><br/> 
+								<td><a href="${baseUrl}/genes/${phenotypeCall.gene.accessionId}">${phenotypeCall.gene.symbol}</a><br/> 
 									<span class="smallerAlleleFont"><t:formatAllele>${phenotypeCall.allele.symbol}</t:formatAllele></span> 
 								</td>
 								<td>${phenotypeCall.procedure.name}</td>
@@ -131,7 +131,7 @@
 						</td>
 						<td style="text-align: center">
 						<a
-													href='${baseUrl}/charts?accession=${phenotypeCall.gene.id.accession}&allele_accession=${phenotypeCall.allele.id.accession}&parameter_stable_id=${phenotypeCall.parameter.stableId}&zygosity=${phenotypeCall.zygosity}&phenotyping_center=${param.phenotyping_center}'>
+													href='${baseUrl}/charts?accession=${phenotypeCall.gene.accessionId}&allele_accession=${phenotypeCall.allele.accessionId}&parameter_stable_id=${phenotypeCall.parameter.stableId}&zygosity=${phenotypeCall.zygosity}&phenotyping_center=${param.phenotyping_center}'>
 						<i class="fa fa-bar-chart-o" alt="Graphs"> </i>
 												</a>
 						</td>
