@@ -927,9 +927,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
 
     public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
-	throws IOException, URISyntaxException {
+	throws IOException, URISyntaxException, SolrServerException {
 
-    	System.out.println("DOING PHEN CALL SUMMARY RESULTS FROM SRS");
 		SolrQuery query = new SolrQuery();
 		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter);
 		query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);

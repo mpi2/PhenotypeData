@@ -20,22 +20,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 
 public class PhenotypeFacetResult {
 	
-	List<PhenotypeCallSummary> phenotypeCallSummaries=new ArrayList<PhenotypeCallSummary>();
-	public List<PhenotypeCallSummary> getPhenotypeCallSummaries() {
+	List<PhenotypeCallSummaryDTO> phenotypeCallSummaries = new ArrayList<PhenotypeCallSummaryDTO>();
+	Map<String, Map<String, Integer>> facetResults = new HashMap<String, Map<String, Integer>>();
+	
+	public List<PhenotypeCallSummaryDTO> getPhenotypeCallSummaries() {
 		return phenotypeCallSummaries;
 	}
-	public void setPhenotypeCallSummaries(
-			List<PhenotypeCallSummary> phenotypeCallSummaries) {
+	
+	public void setPhenotypeCallSummaries(	List<PhenotypeCallSummaryDTO> phenotypeCallSummaries) {
 		this.phenotypeCallSummaries = phenotypeCallSummaries;
 	}
-	Map<String, Map<String, Integer>> facetResults = new HashMap<String, Map<String, Integer>>();
+	
 	public Map<String, Map<String, Integer>> getFacetResults() {
 		return facetResults;
 	}
+	
 	public void setFacetResults(Map<String, Map<String, Integer>> facetResults) {
 		this.facetResults = facetResults;
 	}

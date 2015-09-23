@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -232,7 +233,7 @@ public class ImagesSolrJ implements ImagesSolrDao {
 	public QueryResponse getDocsForMpTerm(String mpId, int start, int length) throws SolrServerException {
 
 		String id = processQuery(mpId);
-		String query = "annotationTermId:" + id;
+		String query = "mp_id:" + id;
 
 		log.debug("solr query=" + query);
 
@@ -240,6 +241,10 @@ public class ImagesSolrJ implements ImagesSolrDao {
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
 		solrQuery.setRows(length);
+		
+		solrQuery.setFields(ImageDTO.FULL_RESOLUTION_FILE_PATH, "smallThumbnailFilePath", "largeThumbnailFilePath",
+				"institute", "gender", "genotype", "maTerm", "annotationTermName", "genotypeString");
+		
 		return server.query(solrQuery);
 	}
 
