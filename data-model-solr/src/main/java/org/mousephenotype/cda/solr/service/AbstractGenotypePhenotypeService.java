@@ -885,7 +885,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         facetResult.setFacetResults(dropdowns);
         facetResult.setPhenotypeCallSummaries(list);
         
-        System.out.println("Time cpr " + (System.currentTimeMillis() - time));
         return facetResult;
     }
 
@@ -970,15 +969,15 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
         ImpressBaseDTO parameter = new ParameterDTO();
         if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
-            parameter.setStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
-            parameter.setName(phen.getString((GenotypePhenotypeDTO.PIPELINE_NAME)));
+            parameter.setStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
+            parameter.setName(phen.getString((GenotypePhenotypeDTO.PARAMETER_NAME)));
         } else {
             System.err.println("parameter_stable_id missing");
         }
         sum.setParameter(parameter);
 
         ImpressBaseDTO pipeline = new ImpressBaseDTO();
-        if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
+        if (phen.containsKey(GenotypePhenotypeDTO.PIPELINE_STABLE_ID)) {
             pipeline.setStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
             pipeline.setName(phen.getString((GenotypePhenotypeDTO.PIPELINE_NAME)));
         } else {
