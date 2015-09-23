@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -304,7 +305,10 @@ public class PhenotypesController {
     private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
     throws IOException, URISyntaxException, SolrServerException {
     	
-        List<PhenotypeCallSummaryDTO> phenotypeList;
+        
+    	List<PhenotypeCallSummaryDTO> phenotypeList;
+        Set<String> errorCodes = new HashSet();
+        
         try {
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
             PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
@@ -322,10 +326,18 @@ public class PhenotypesController {
 					}
 				}
 			}
-
-            // sort facet values so that they will look nicer in the drop-down lists.
+			
+			errorCodes.addAll(phenoResult.getErrorCodes());
+			errorCodes.addAll(preQcResult.getErrorCodes());
+			String errorMessage = null;
+			if (errorCodes != null && errorCodes.size() > 0){
+				errorMessage = "There was a problem retrieving some of the phenotype calls. Some rows migth be missing from the table below. Error code(s) " +
+				StringUtils.join(errorCodes, ", ") + ".";
+			}
+			
             phenoFacets = sortPhenFacets(phenoFacets);
             model.addAttribute("phenoFacets", phenoFacets);
+            model.addAttribute("errorMessage", errorMessage);
 
         } catch (HibernateException | JSONException e) {
             log.error("ERROR GETTING PHENOTYPE LIST");

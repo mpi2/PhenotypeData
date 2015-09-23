@@ -50,7 +50,6 @@ public class PhenotypeCallSummarySolr {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 
-
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException, SolrServerException {
 		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, "");
 	}
