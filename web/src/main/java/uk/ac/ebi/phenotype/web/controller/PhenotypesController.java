@@ -179,16 +179,6 @@ public class PhenotypesController {
 	            JSONObject mpData = docs.getJSONObject(0);
 	            JSONArray terms;
 
-//	            if (mpData.containsKey("mp_term")) {
-//	                String term = mpData.getString("mp_term");
-//	                oTerm.setName(term);
-//	            }
-//
-//	            if (mpData.containsKey("mp_definition")) {
-//	                String definition = mpData.getString("mp_definition");
-//	                oTerm.setDescription(definition);
-//	            }
-
 	            if (mpData.containsKey("mp_term_synonym")) {
 	                JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
 	                for (Object syn : syonymsArray) {
@@ -278,16 +268,12 @@ public class PhenotypesController {
 
         time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));
-        log.info("\tTime loading percentages: " + (System.currentTimeMillis() - time) + "ms");
-
 
         System.out.println("Time to 4 " + (System.currentTimeMillis() - time) );
         time = System.currentTimeMillis();
         
         time = System.currentTimeMillis();
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
-        log.info("\tTime loading parametersAssociated: " + (System.currentTimeMillis() - time) + "ms");
-
 
         System.out.println("Time to 5 " + (System.currentTimeMillis() - time) );
         time = System.currentTimeMillis();
@@ -317,8 +303,7 @@ public class PhenotypesController {
      */
     private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
     throws IOException, URISyntaxException, SolrServerException {
-		// This block collapses phenotype rows on phenotype term, allele, zygosity and sex
-        // sex is collapsed into a single column
+    	
         List<PhenotypeCallSummaryDTO> phenotypeList;
         try {
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
@@ -331,7 +316,6 @@ public class PhenotypesController {
             Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
 
 			for (String key : preQcFacets.keySet()){
-				System.out.println("Key :: " + key);
 				if (preQcFacets.get(key).keySet().size() > 0){
 					for (String key2: preQcFacets.get(key).keySet()){
 						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
