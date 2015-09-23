@@ -281,27 +281,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setMaTermId(maIds);
 							
 							ArrayList<String>maIdTerms=new ArrayList<>();
-//							for( int i=0; i< maIds.size(); i++ ){
-//								String maId = maIds.get(i);
-//
-//								 // index UBERON/EFO id for MA id
-//				                if ( maUberonEfoMap.containsKey(maId) ){
-//
-//				                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
-//				                		for(String id: maUberonEfoMap.get(maId).get("uberon_id")){
-//				                			imageDTO.addUberonId(id);
-//				                		}
-//				                	}
-//				                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
-//				                		for(String id: maUberonEfoMap.get(maId).get("efo_id")){
-//				                			imageDTO.addEfoId(id);
-//				                		}
-//				                	}
-//				                }
-//
-//								String maTerm = maTerms.get(i);
-//								maIdTerms.add(maId+"_"+maTerm);
-//							}							ArrayList<String> maIdTerms = new ArrayList<>();
 							for (int i = 0; i < maIds.size(); i++) {
 								String maId = maIds.get(i);
 
