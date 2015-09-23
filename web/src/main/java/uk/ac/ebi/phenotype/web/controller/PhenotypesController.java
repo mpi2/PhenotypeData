@@ -439,8 +439,7 @@ public class PhenotypesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
-    	//just pass on any query string after the ? to the solr requesting object for now
-        
+    	//just pass on any query string after the ? to the solr requesting object for now        
     	String queryString = request.getQueryString();
         processPhenotypes(acc, queryString, model, request);
 
