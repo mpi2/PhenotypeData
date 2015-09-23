@@ -44,6 +44,7 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -1113,9 +1114,9 @@ public class FileExportController {
 	}
 
 	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws SolrServerException {
 		List<String> res = new ArrayList<>();
-		List<PhenotypeCallSummary> phenotypeList = new ArrayList();
+		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList();
 		PhenotypeFacetResult phenoResult;
 		String targetGraphUrl = (String) request.getAttribute("mappedHostname") + request.getAttribute("baseUrl");
 
@@ -1132,7 +1133,7 @@ public class FileExportController {
 				e.printStackTrace();
 			}
 			ArrayList<GenePageTableRow> phenotypes = new ArrayList();
-			for (PhenotypeCallSummary pcs : phenotypeList) {
+			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config);
 				phenotypes.add(pr);
 			}
@@ -1161,7 +1162,7 @@ public class FileExportController {
 
 			ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
 			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
-			for (PhenotypeCallSummary pcs : phenotypeList) {
+			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 				PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
 
 				if (pr.getParameter() != null && pr.getProcedure() != null) {

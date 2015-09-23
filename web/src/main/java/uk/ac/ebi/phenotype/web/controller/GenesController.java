@@ -59,6 +59,7 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,12 +172,12 @@ public class GenesController {
 	public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
-                String debug = request.getParameter("debug");
-                log.info("#### genesAllele2: debug: " + debug);
-                boolean d = debug != null && debug.equals("true");
-                if(d) {
-                    model.addAttribute("debug", "true");
-                }
+		String debug = request.getParameter("debug");
+		log.info("#### genesAllele2: debug: " + debug);
+		boolean d = debug != null && debug.equals("true");
+		if (d) {
+			model.addAttribute("debug", "true");
+		}
 
 		processGeneRequest(acc, model, request);
 
@@ -187,8 +188,6 @@ public class GenesController {
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
-		// see if the gene exists first:
-		//GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
@@ -223,20 +222,12 @@ public class GenesController {
 		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
 		
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
-		// Get list of triplets of pipeline, allele acc, phenotyping center
+		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
 		try {
-			// model.addAttribute("phenotypeSummary",
-			// phenSummary.getSummary(acc));
-
-			long time = System.currentTimeMillis();
-			long time2 = System.currentTimeMillis();
 			
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-			
-			System.out.println("Solr took:: " + (System.currentTimeMillis() - time2));
-			time2 = System.currentTimeMillis();
-			
+						
 			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
 					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
@@ -269,8 +260,6 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			System.out.println("summary TOOK : " + (System.currentTimeMillis() - time));
-			System.out.println("Summary no " + total);
 			
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
@@ -284,7 +273,6 @@ public class GenesController {
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 			
-			System.out.println("SIGNIFICANT"  + mpGroupsSignificant);
 			
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
@@ -359,13 +347,13 @@ public class GenesController {
 
 	/**
 	 * @throws IOException
+	 * @throws SolrServerException 
 	 */
 	@RequestMapping("/genesPhenoFrag/{acc}")
 	public String genesPhenoFrag(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		// just pass on any query string after the ? to the solr requesting
-		// object for now
+		// Pass on any query string after the 
 		String queryString = request.getQueryString();
 		processPhenotypes(acc, model, queryString, request);
 
@@ -384,7 +372,7 @@ public class GenesController {
 
 
 	private void processPhenotypes(String acc, Model model, String queryString, HttpServletRequest request)
-	throws IOException, URISyntaxException {
+	throws IOException, URISyntaxException, SolrServerException {
 
 		// facet field example for project name and higher level mp term with
 		// gene as query :
@@ -396,7 +384,7 @@ public class GenesController {
 		// This block collapses phenotype rows
 		// phenotype term, allele, zygosity, and sex
 		// sex is collapsed into a single column
-		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
+		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
 		PhenotypeFacetResult preQcResult = null;
 
@@ -425,13 +413,13 @@ public class GenesController {
 		} catch (HibernateException | JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
-			phenotypeList = new ArrayList<PhenotypeCallSummary>();
+			phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		}
 
 		// This is a map because we need to support lookups
 		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<>();
 
-		for (PhenotypeCallSummary pcs : phenotypeList) {
+		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			// Collapse rows on sex

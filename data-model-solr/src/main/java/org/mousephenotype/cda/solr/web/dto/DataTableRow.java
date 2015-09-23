@@ -20,6 +20,11 @@ package org.mousephenotype.cda.solr.web.dto;
 
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -45,18 +50,18 @@ import java.util.Map;
 public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     private Map<String, String> config;
-    protected OntologyTerm phenotypeTerm;
-    protected GenomicFeature gene;
-    protected Allele allele;
+    protected BasicBean phenotypeTerm;
+    protected MarkerBean gene;
+    protected MarkerBean allele;
     protected List<String> sexes;
     protected ZygosityType zygosity;
     protected int projectId;
     protected String phenotypingCenter;
-    protected Procedure procedure;
-    protected Parameter parameter;
+    protected ImpressBaseDTO procedure;
+    protected ImpressBaseDTO parameter;
     protected String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
     protected String graphUrl;
-    protected Pipeline pipeline;
+    protected ImpressBaseDTO pipeline;
     protected Double pValue;
     protected boolean isPreQc;
     protected String gid;
@@ -71,11 +76,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         sex.add(pcs.getSex().toString());
         this.setGid(pcs.getgId());
         this.setPreQc(pcs.isPreQC());
-        this.setGene(pcs.getGene());
-        this.setAllele(pcs.getAllele());
+ ////       this.setGene(pcs.getGene());
+///        this.setAllele(pcs.getAllele());
         this.setSexes(sex);
-        this.setPhenotypeTerm(pcs.getPhenotypeTerm());
-        this.setPipeline(pcs.getPipeline());
+//TODO DELETE THIS WHOLE METHOD//////    this.setPhenotypeTerm(pcs.getPhenotypeTerm());
+  //      this.setPipeline(pcs.getPipeline());
 		// zygosity representation depends on source of information
         // we need to know what the data source is so we can generate appropriate link on the page
 
@@ -87,14 +92,41 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             this.setProjectId(pcs.getExternalId());
         }
 
-        this.setProcedure(pcs.getProcedure());
-        this.setParameter(pcs.getParameter());
+ //       this.setProcedure(pcs.getProcedure());
+  /////      this.setParameter(pcs.getParameter());
         this.setPhenotypingCenter(pcs.getPhenotypingCenter());
 
         this.setGraphUrl(baseUrl);
 
     }
 
+    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) {
+
+	    this.config = config;
+        List<String> sex = new ArrayList<String>();
+        sex.add(pcs.getSex().toString());
+        this.setGid(pcs.getgId());
+        this.setPreQc(pcs.isPreQC());
+        this.setGene(pcs.getGene());
+        this.setAllele(pcs.getAllele());
+        this.setSexes(sex);
+        this.setPhenotypeTerm(pcs.getPhenotypeTerm());
+        this.setPipeline(pcs.getPipeline());
+        this.pValue = pcs.getpValue();
+        this.setDataSourceName(pcs.getDatasource().getName());
+        this.setZygosity(pcs.getZygosity());
+        this.setProcedure(pcs.getProcedure());
+        this.setParameter(pcs.getParameter());
+        this.setPhenotypingCenter(pcs.getPhenotypingCenter());
+
+        if (pcs.getProject() != null && pcs.getProject().getId() != null) {
+            this.setProjectId(new Integer(pcs.getProject().getId()));
+        }
+       
+        this.setGraphUrl(baseUrl);
+
+    }
+    
     @Override
     public abstract int compareTo(DataTableRow o);
 
@@ -173,11 +205,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         return result;
     }
 
-    public Pipeline getPipeline() {
+    public ImpressBaseDTO getPipeline() {
         return pipeline;
     }
 
-    public void setPipeline(Pipeline pipeline) {
+    public void setPipeline(ImpressBaseDTO pipeline) {
         this.pipeline = pipeline;
     }
 
@@ -192,7 +224,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     public String buildGraphUrl(String baseUrl) {
     	String url= baseUrl;
     	if (!isPreQc){
-    		url = getChartPageUrlPostQc(baseUrl, gene.getId().getAccession(), allele.getId().getAccession(), null, zygosity, parameter.getStableId(),
+    		url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), allele.getAccessionId(), null, zygosity, parameter.getStableId(),
     		pipeline.getStableId(), phenotypingCenter);
         } else {
 		    // Need to use the drupal base url because phenoview is not mapped under the /data url
@@ -222,19 +254,19 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.dataSourceName = dataSourceName;
     }
 
-    public OntologyTerm getPhenotypeTerm() {
+    public BasicBean getPhenotypeTerm() {
         return phenotypeTerm;
     }
 
-    public void setPhenotypeTerm(OntologyTerm term) {
+    public void setPhenotypeTerm(BasicBean term) {
         this.phenotypeTerm = term;
     }
 
-    public Allele getAllele() {
+    public MarkerBean getAllele() {
         return allele;
     }
 
-    public void setAllele(Allele allele) {
+    public void setAllele(MarkerBean allele) {
         this.allele = allele;
     }
 
@@ -268,27 +300,27 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.projectId = projectId;
     }
 
-    public GenomicFeature getGene() {
+    public MarkerBean getGene() {
         return gene;
     }
 
-    public void setGene(GenomicFeature gene) {
+    public void setGene(MarkerBean gene) {
         this.gene = gene;
     }
 
-    public Procedure getProcedure() {
+    public ImpressBaseDTO getProcedure() {
         return procedure;
     }
 
-    public void setProcedure(Procedure procedure) {
+    public void setProcedure(ImpressBaseDTO procedure) {
         this.procedure = procedure;
     }
 
-    public Parameter getParameter() {
+    public ImpressBaseDTO getParameter() {
         return parameter;
     }
 
-    public void setParameter(Parameter parameter) {
+    public void setParameter(ImpressBaseDTO parameter) {
         this.parameter = parameter;
     }
 
@@ -317,59 +349,90 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             return false;
         }
         if (getClass() != obj.getClass()) {
+        	System.out.println("a");
             return false;
         }
         DataTableRow other = (DataTableRow) obj;
         if (allele == null) {
             if (other.allele != null) {
+
+            	System.out.println("b");
                 return false;
             }
         } else if ( ! allele.equals(other.allele)) {
+
+        	System.out.println("c");
             return false;
         }
         if (dataSourceName == null) {
             if (other.dataSourceName != null) {
+
+            	System.out.println("d");
                 return false;
             }
         } else if ( ! dataSourceName.equals(other.dataSourceName)) {
+
+        	System.out.println("e");
             return false;
         }
         if (parameter == null) {
             if (other.parameter != null) {
+
+            	System.out.println("f");
                 return false;
             }
         } else if ( ! parameter.equals(other.parameter)) {
+
+        	System.out.println("g");
             return false;
         }
         if (procedure == null) {
             if (other.procedure != null) {
+
+            	System.out.println("h");
                 return false;
             }
         } else if ( ! procedure.equals(other.procedure)) {
+
+        	System.out.println("i");
             return false;
         }
         if (gene == null) {
             if (other.gene != null) {
+
+            	System.out.println("j");
                 return false;
             }
         } else if ( ! gene.equals(other.gene)) {
+
+        	System.out.println("k");
             return false;
         }
         if (phenotypingCenter == null) {
             if (other.phenotypingCenter != null) {
+
+            	System.out.println("l");
                 return false;
             }
         } else if ( ! phenotypingCenter.equals(other.phenotypingCenter)) {
+
+        	System.out.println("m");
             return false;
         }
         if (phenotypeTerm == null) {
             if (other.phenotypeTerm != null) {
+
+            	System.out.println("n");
                 return false;
             }
         } else if ( ! phenotypeTerm.equals(other.phenotypeTerm)) {
+
+        	System.out.println("o");
             return false;
         }
         if (zygosity != other.zygosity) {
+
+        	System.out.println("p");
             return false;
         }
         return true;
@@ -402,7 +465,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getGraphUrl();
         } else if (targetPage.equalsIgnoreCase("phenotype")) {
             res = getGene().getSymbol() + "\t"
-                    + getAllele().getSymbol() + "\t"
+                    + getAllele().getName() + "\t"
                     + getZygosity() + "\t"
                     + getSexes().get(0) + "\t"
                     + getPhenotypeTerm().getName() + "\t"
