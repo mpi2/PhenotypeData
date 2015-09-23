@@ -97,9 +97,6 @@ public class GenesController {
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
-//
-//	@Autowired
-//	private GwasDAO gwasDao;
 
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
@@ -124,9 +121,6 @@ public class GenesController {
 
 	@Autowired
 	private GeneService geneService;
-//
-//	@Autowired 
-//	private StatisticalResultService statsResultsService;
 
 	@Autowired
 	private PreQcService preqcService;
@@ -334,6 +328,7 @@ public class GenesController {
 		model.addAttribute("acc", acc);
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
+		model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		// add in the disease predictions from phenodigm
@@ -374,19 +369,13 @@ public class GenesController {
 	private void processPhenotypes(String acc, Model model, String queryString, HttpServletRequest request)
 	throws IOException, URISyntaxException, SolrServerException {
 
-		// facet field example for project name and higher level mp term with
-		// gene as query :
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true
-		// //top_level_mp_term_name
 		if (queryString == null) {
 			queryString = "";
 		}
-		// This block collapses phenotype rows
-		// phenotype term, allele, zygosity, and sex
-		// sex is collapsed into a single column
+		
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
-		PhenotypeFacetResult preQcResult = null;
+		PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
 
 		try {
 
@@ -407,7 +396,7 @@ public class GenesController {
 				}
 			}
 
-			// sort facets first
+			// sort facets 
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
 		} catch (HibernateException | JSONException e) {
@@ -417,55 +406,31 @@ public class GenesController {
 		}
 
 		// This is a map because we need to support lookups
-		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<>();
+		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
-			// Collapse rows on sex
-			if (phenotypes.containsKey(pr)) {
-				pr = phenotypes.get(pr);
+			// Collapse rows on sex			
+			if (phenotypes.containsKey(pr.hashCode())) {
+
+				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
 				for (String s : pr.getSexes()) {
 					sexes.add(s);
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
+				
 			}
 
-			phenotypes.put(pr, pr);
+			phenotypes.put(pr.hashCode(), pr);
 		}
-		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.keySet());
+		
+		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
 
-	}
-
-	private Map<String, List<Map<String, String>>> getProviders(List<Map<String, String>> constructs)
-	throws org.json.JSONException {
-
-		Map<String, List<Map<String, String>>> nameToProvider = new HashMap<String, List<Map<String, String>>>();
-		for (Map<String, String> construct : constructs) {
-			List<Map<String, String>> listOfProvidersForAllele = new ArrayList<Map<String, String>>();
-			String alleleName = construct.get("alleleName");
-			String providers = construct.get("providers");
-			String orderFromUrls = construct.get("orderFromUrls");
-			// providers are a json array so lets get the data out and put it in
-			// our java structure
-			JSONArray providerArray = new JSONArray(providers);
-			JSONArray urlArray = new JSONArray(orderFromUrls);
-			// only seen single ones of these so far???
-			for (int i = 0; i < providerArray.length(); i++) {
-				String provider = providerArray.getString(i);
-				String url = urlArray.getString(i);
-				Map<String, String> providerAndUrl = new HashMap<String, String>();
-				providerAndUrl.put("provider", provider);
-				providerAndUrl.put("url", url);
-				listOfProvidersForAllele.add(providerAndUrl);
-				nameToProvider.put(alleleName, listOfProvidersForAllele);
-			}
-		}
-		return nameToProvider;
 	}
 
 

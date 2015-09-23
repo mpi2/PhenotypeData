@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -179,16 +180,6 @@ public class PhenotypesController {
 	            JSONObject mpData = docs.getJSONObject(0);
 	            JSONArray terms;
 
-//	            if (mpData.containsKey("mp_term")) {
-//	                String term = mpData.getString("mp_term");
-//	                oTerm.setName(term);
-//	            }
-//
-//	            if (mpData.containsKey("mp_definition")) {
-//	                String definition = mpData.getString("mp_definition");
-//	                oTerm.setDescription(definition);
-//	            }
-
 	            if (mpData.containsKey("mp_term_synonym")) {
 	                JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
 	                for (Object syn : syonymsArray) {
@@ -278,16 +269,12 @@ public class PhenotypesController {
 
         time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));
-        log.info("\tTime loading percentages: " + (System.currentTimeMillis() - time) + "ms");
-
 
         System.out.println("Time to 4 " + (System.currentTimeMillis() - time) );
         time = System.currentTimeMillis();
         
         time = System.currentTimeMillis();
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
-        log.info("\tTime loading parametersAssociated: " + (System.currentTimeMillis() - time) + "ms");
-
 
         System.out.println("Time to 5 " + (System.currentTimeMillis() - time) );
         time = System.currentTimeMillis();
@@ -317,9 +304,11 @@ public class PhenotypesController {
      */
     private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
     throws IOException, URISyntaxException, SolrServerException {
-		// This block collapses phenotype rows on phenotype term, allele, zygosity and sex
-        // sex is collapsed into a single column
-        List<PhenotypeCallSummaryDTO> phenotypeList;
+    	
+        
+    	List<PhenotypeCallSummaryDTO> phenotypeList;
+        Set<String> errorCodes = new HashSet();
+        
         try {
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
             PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
@@ -331,17 +320,24 @@ public class PhenotypesController {
             Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
 
 			for (String key : preQcFacets.keySet()){
-				System.out.println("Key :: " + key);
 				if (preQcFacets.get(key).keySet().size() > 0){
 					for (String key2: preQcFacets.get(key).keySet()){
 						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
 					}
 				}
 			}
-
-            // sort facet values so that they will look nicer in the drop-down lists.
+			
+			errorCodes.addAll(phenoResult.getErrorCodes());
+			errorCodes.addAll(preQcResult.getErrorCodes());
+			String errorMessage = null;
+			if (errorCodes != null && errorCodes.size() > 0){
+				errorMessage = "There was a problem retrieving some of the phenotype calls. Some rows migth be missing from the table below. Error code(s) " +
+				StringUtils.join(errorCodes, ", ") + ".";
+			}
+			
             phenoFacets = sortPhenFacets(phenoFacets);
             model.addAttribute("phenoFacets", phenoFacets);
+            model.addAttribute("errorMessage", errorMessage);
 
         } catch (HibernateException | JSONException e) {
             log.error("ERROR GETTING PHENOTYPE LIST");
@@ -439,8 +435,7 @@ public class PhenotypesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
-    	//just pass on any query string after the ? to the solr requesting object for now
-        
+    	//just pass on any query string after the ? to the solr requesting object for now        
     	String queryString = request.getQueryString();
         processPhenotypes(acc, queryString, model, request);
 

@@ -565,7 +565,6 @@ public class PhenomeChartProvider {
 			chartString = createPhenomeChart(phenotypingCenter, minimalPvalue, pointFormat.toString(), series, categories);
 
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
