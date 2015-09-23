@@ -17,6 +17,12 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import java.util.List;
 
+/**
+ * @sicne 2015/09/22
+ * @author tudose
+ * Class to be used for gene or allele objects, instead of the DAO one. 
+ *
+ */
 public class MarkerBean {
 	
 	String accessionId;
@@ -49,5 +55,17 @@ public class MarkerBean {
 	public void setSynonyms(List<String> synonyms) {
 		this.synonyms = synonyms;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accessionId == null) ? 0 : accessionId.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
+		result = prime * result + ((synonyms == null) ? 0 : synonyms.hashCode());
+		return result;
+	}
+	
 	
 }

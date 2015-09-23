@@ -521,6 +521,7 @@ public class GeneService extends BasicService{
 
 		return order;
 	}
+	
 
 	public boolean checkOrderMice(SolrDocument doc) {
 		
@@ -543,6 +544,32 @@ public class GeneService extends BasicService{
 		return order;
 
 	}
+	
+
+	public Boolean checkAttemptRegistered(String geneAcc) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneAcc + "\"");
+		QueryResponse response = solr.query(query);
+
+		if (response.getResults().size() > 0) {
+
+			SolrDocument doc = response.getResults().get(0);
+			if (doc.containsKey(GeneDTO.PHENOTYPE_STATUS)) {
+
+				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
+				for (String status : statuses) {
+
+					if (status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	
 	
 	
 	public Boolean checkPhenotypeStarted(String geneAcc) 

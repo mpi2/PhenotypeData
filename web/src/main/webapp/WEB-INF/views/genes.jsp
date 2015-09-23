@@ -496,28 +496,34 @@
 
 
                                     </c:when>
-                                    <c:when
-                                            test="${summaryNumber == 0}">
+                                    <c:when test="${summaryNumber == 0}">
 
-                                        <c:if
-                                                test="${empty dataMapList}">
-                                            <div class="alert alert-info">
-                                                <h5>Phenotype data is undergoing quality control</h5>
-
-                                                <p>Any phenotype assocations appearing below are preliminary and may
-                                                    change. Links are provided to the Pheno-DCC quality control
-                                                    resource.</p>
-                                            </div>
+                                        <c:if  test="${empty dataMapList}">
+                                        	<c:if test="${attemptRegistered}">                                        	
+	                                        	<div class="alert alert-info">
+	                                                <h5>Registered for phenotyping</h5>
+	                                                <p>Phenotyping is planned for a knockout strain of this gene but data is not currently available.</p>
+	                                            </div>                                            
+                                        	</c:if>
+                                        	
+                                        	<c:if test="${!attemptRegistered}"> 
+	                                            <div class="alert alert-info">
+	                                                <h5>Phenotype data is undergoing quality control</h5>
+	
+	                                                <p>Any phenotype assocations appearing below are preliminary and may
+	                                                    change. Links are provided to the Pheno-DCC quality control
+	                                                    resource.</p>
+	                                            </div>
+                                            </c:if>
                                             <br/>
                                         </c:if>
-                                        <c:if
-                                                test="${!(empty dataMapList)}">
+                                        <c:if  test="${!(empty dataMapList)}">
                                             <div class="alert alert-info">
                                                 <h5>No Significant Phenotype Associations Found</h5>
 
-                                                <p>No significant phenotype associations were found, but you can click
-                                                    on the "All Adult Data" button to see the phenotype data that has
-                                                    been analyzed.</p>
+                                                <p>No significant phenotype associations were found with data that has passed quality control (QC), but you can click 
+                                                on the "All Adult Data" button to see all phenotype data that has passed QC. Preliminary phenotype assocations 
+                                                may appear with new pre-QC phenotype data.</p>
                                             </div>
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->

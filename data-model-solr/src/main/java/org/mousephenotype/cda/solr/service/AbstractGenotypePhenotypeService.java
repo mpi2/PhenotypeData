@@ -42,6 +42,7 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrException;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -67,8 +68,10 @@ import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.SystemPropertyUtils;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 public class AbstractGenotypePhenotypeService extends BasicService {
@@ -768,7 +771,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         		GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME, GenotypePhenotypeDTO.ALLELE_SYMBOL, 
         		GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ALLELE_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
         		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ZYGOSITY, 
-        		GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.RESOURCE_NAME, GenotypePhenotypeDTO.PARAMETER_STABLE_ID,
+        		GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.RESOURCE_NAME, GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.PARAMETER_NAME,
         		GenotypePhenotypeDTO.PIPELINE_STABLE_ID, GenotypePhenotypeDTO.PROJECT_NAME, GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID,
         		GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.EFFECT_SIZE, GenotypePhenotypeDTO.PROCEDURE_STABLE_ID,
         		GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PIPELINE_NAME);
@@ -847,8 +850,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Boolean isPreQc)
     throws IOException, URISyntaxException, SolrServerException {
 
-    	long time = System.currentTimeMillis();
-    	
         PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
         List<PhenotypeCallSummaryDTO> list = new ArrayList<PhenotypeCallSummaryDTO>();
         JSONObject results = new JSONObject();
@@ -856,18 +857,26 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
                 
         for (Object doc : docs) {
-            list.add(createSummaryCall(doc, isPreQc));
+        	
+        	try{
+        		PhenotypeCallSummaryDTO call = createSummaryCall(doc, isPreQc);
+        		if (call != null){
+        			list.add(call);
+        		}
+        	}catch(Exception e){
+           		// Catch errors so that at least the data without issues displays
+           		facetResult.addErrorCode(e.getMessage());
+           	}
         }
 
-        
         // get the facet information that we can use to create the buttons, dropdowns, checkboxes
         JSONObject facets = results.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
-        Iterator<String> ite = facets.keys();
+        Iterator<String> iterator = facets.keys();
         Map<String, Map<String, Integer>> dropdowns = new HashMap<String, Map<String, Integer>>();
-        while (ite.hasNext()) {
+        while (iterator.hasNext()) {
             Map<String, Integer> map = new HashMap<String, Integer>();
-            String key = (String) ite.next();
+            String key = (String) iterator.next();
             JSONArray facetArray = (JSONArray) facets.get(key);
             int i = 0;
             while (i + 1 < facetArray.size()) {
@@ -885,127 +894,140 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         facetResult.setFacetResults(dropdowns);
         facetResult.setPhenotypeCallSummaries(list);
         
-        System.out.println("Time cpr " + (System.currentTimeMillis() - time));
         return facetResult;
     }
 
     
     public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Boolean preQc) 
-    throws SolrServerException {
+    throws Exception{
         
     	JSONObject phen = (JSONObject) doc;
         JSONArray topLevelMpTermNames;
         JSONArray topLevelMpTermIDs;
-        PhenotypeCallSummaryDTO sum = new PhenotypeCallSummaryDTO();        
-
-        String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
-        String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
-        
-        BasicBean phenotypeTerm = new BasicBean();
-        phenotypeTerm.setId(mpId);
-        phenotypeTerm.setName(mpTerm);
-        sum.setPhenotypeTerm(phenotypeTerm);
-
-        // Gid is required for linking to phenoview
-        if (phen.containsKey(GenotypePhenotypeDTO.EXTERNAL_ID)) {
-            sum.setgId(phen.getString(GenotypePhenotypeDTO.EXTERNAL_ID));
+        PhenotypeCallSummaryDTO sum = null;
+        try{
+        	sum = new PhenotypeCallSummaryDTO();  
+	        String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
+	        String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
+	        
+	        BasicBean phenotypeTerm = new BasicBean();
+	        phenotypeTerm.setId(mpId);
+	        phenotypeTerm.setName(mpTerm);
+	        sum.setPhenotypeTerm(phenotypeTerm);
+	
+	        // Gid is required for linking to phenoview
+	        if (phen.containsKey(GenotypePhenotypeDTO.EXTERNAL_ID)) {
+	            sum.setgId(phen.getString(GenotypePhenotypeDTO.EXTERNAL_ID));
+	        }
+	
+	        sum.setPreQC(preQc);
+	
+	        // check the top level categories
+	        if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+	            topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+	            topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+	        } else { 
+	        	// a top level term is directly associated
+	            topLevelMpTermNames = new JSONArray();
+	            topLevelMpTermNames.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME));
+	            topLevelMpTermIDs = new JSONArray();
+	            topLevelMpTermIDs.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_ID));
+	        }
+	        
+	        List<BasicBean> topLevelPhenotypeTerms = new ArrayList<BasicBean>();
+	        for (int i = 0; i < topLevelMpTermNames.size(); i ++) {
+	            BasicBean toplevelTerm = new BasicBean();
+	            toplevelTerm.setName(topLevelMpTermNames.getString(i));
+	            toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
+	            toplevelTerm.setId(topLevelMpTermIDs.getString(i));
+	            topLevelPhenotypeTerms.add(toplevelTerm);
+	        }
+	
+	        sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
+	        sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+	
+	        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {            
+	        	MarkerBean allele = new MarkerBean();
+	            allele.setSymbol(phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL));
+	            allele.setAccessionId(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
+	            sum.setAllele(allele);            
+	        }
+	        
+	        if (phen.containsKey(GenotypePhenotypeDTO.MARKER_SYMBOL)) {
+	            MarkerBean gene = new MarkerBean();
+	            gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
+	            gene.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));            
+	            sum.setGene(gene);
+	        }
+	        
+	        if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
+	            sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
+	        }
+	
+	        String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
+	        ZygosityType zyg = ZygosityType.valueOf(zygosity);
+	        sum.setZygosity(zyg);
+	        String sex = phen.getString(GenotypePhenotypeDTO.SEX);
+	
+	        SexType sexType = SexType.valueOf(sex);
+	        sum.setSex(sexType);
+	
+	        String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
+	        BasicBean datasource = new BasicBean();
+	        datasource.setName(provider);
+	        sum.setDatasource(datasource);
+	
+	        ImpressBaseDTO parameter = new ParameterDTO();
+	        if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
+	            parameter.setStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
+	            parameter.setName(phen.getString((GenotypePhenotypeDTO.PARAMETER_NAME)));
+	        } else {
+	            System.err.println("parameter_stable_id missing");
+	        }
+	        sum.setParameter(parameter);
+	
+	        ImpressBaseDTO pipeline = new ImpressBaseDTO();
+	        if (phen.containsKey(GenotypePhenotypeDTO.PIPELINE_STABLE_ID)) {
+	            pipeline.setStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
+	            pipeline.setName(phen.getString((GenotypePhenotypeDTO.PIPELINE_NAME)));
+	        } else {
+	            System.err.println("pipeline stable_id missing");
+	        }
+	        sum.setPipeline(pipeline);
+	
+	        BasicBean project = new BasicBean();
+	        project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
+	        if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
+	            project.setId(phen.getString(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
+	        }
+	        sum.setProject(project);
+	
+	        if (phen.containsKey(GenotypePhenotypeDTO.P_VALUE)) {
+	            sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
+	            sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
+	        }
+	        
+	        ImpressBaseDTO procedure = new ImpressBaseDTO();
+	        if (phen.containsKey(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
+	            procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
+	            procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
+	            sum.setProcedure(procedure);
+	        } else {
+	            System.err.println("procedure_stable_id");
+	        }
+        } catch (Exception e){
+        	String errorCode = "";
+        	if (preQc){
+        		errorCode = "#17";
+        	} else {
+        		errorCode = "#18";
+        	}
+        	Exception exception = new Exception(errorCode);
+    		System.out.println(errorCode);
+    		e.printStackTrace();
+    		throw exception;
         }
-
-        sum.setPreQC(preQc);
-
-        // check the top level categories
-        if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
-            topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-            topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
-        } else { 
-        	// a top level term is directly associated
-            topLevelMpTermNames = new JSONArray();
-            topLevelMpTermNames.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME));
-            topLevelMpTermIDs = new JSONArray();
-            topLevelMpTermIDs.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_ID));
-        }
-        
-        List<BasicBean> topLevelPhenotypeTerms = new ArrayList<BasicBean>();
-        for (int i = 0; i < topLevelMpTermNames.size(); i ++) {
-            BasicBean toplevelTerm = new BasicBean();
-            toplevelTerm.setName(topLevelMpTermNames.getString(i));
-            toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
-            toplevelTerm.setId(topLevelMpTermIDs.getString(i));
-            topLevelPhenotypeTerms.add(toplevelTerm);
-        }
-
-        sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
-        sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
-
-        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {            
-        	MarkerBean allele = new MarkerBean();
-            allele.setSymbol(phen.getString(GenotypePhenotypeDTO.ALLELE_SYMBOL));
-            allele.setAccessionId(phen.getString(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID));
-            sum.setAllele(allele);            
-        }
-        
-        if (phen.containsKey(GenotypePhenotypeDTO.MARKER_SYMBOL)) {
-            MarkerBean gene = new MarkerBean();
-            gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
-            gene.setSymbol(phen.getString(GenotypePhenotypeDTO.MARKER_SYMBOL));            
-            sum.setGene(gene);
-        }
-        
-        if (phen.containsKey(GenotypePhenotypeDTO.PHENOTYPING_CENTER)) {
-            sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
-        }
-
-        String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
-        ZygosityType zyg = ZygosityType.valueOf(zygosity);
-        sum.setZygosity(zyg);
-        String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-
-        SexType sexType = SexType.valueOf(sex);
-        sum.setSex(sexType);
-
-        String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
-        BasicBean datasource = new BasicBean();
-        datasource.setName(provider);
-        sum.setDatasource(datasource);
-
-        ImpressBaseDTO parameter = new ParameterDTO();
-        if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
-            parameter.setStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
-            parameter.setName(phen.getString((GenotypePhenotypeDTO.PIPELINE_NAME)));
-        } else {
-            System.err.println("parameter_stable_id missing");
-        }
-        sum.setParameter(parameter);
-
-        ImpressBaseDTO pipeline = new ImpressBaseDTO();
-        if (phen.containsKey(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
-            pipeline.setStableId(phen.getString(GenotypePhenotypeDTO.PIPELINE_STABLE_ID));
-            pipeline.setName(phen.getString((GenotypePhenotypeDTO.PIPELINE_NAME)));
-        } else {
-            System.err.println("pipeline stable_id missing");
-        }
-        sum.setPipeline(pipeline);
-
-        BasicBean project = new BasicBean();
-        project.setName(phen.getString(GenotypePhenotypeDTO.PROJECT_NAME));
-        if (phen.containsKey(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID)) {
-            project.setId(phen.getString(GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID));
-        }
-        sum.setProject(project);
-
-        if (phen.containsKey(GenotypePhenotypeDTO.P_VALUE)) {
-            sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
-            sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
-        }
-        
-        ImpressBaseDTO procedure = new ImpressBaseDTO();
-        if (phen.containsKey(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
-            procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
-            procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
-            sum.setProcedure(procedure);
-        } else {
-            System.err.println("procedure_stable_id");
-        }
+    
         return sum;
     }
 
