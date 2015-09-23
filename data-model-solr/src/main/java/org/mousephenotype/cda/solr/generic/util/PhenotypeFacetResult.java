@@ -26,7 +26,8 @@ public class PhenotypeFacetResult {
 	
 	List<PhenotypeCallSummaryDTO> phenotypeCallSummaries = new ArrayList<PhenotypeCallSummaryDTO>();
 	Map<String, Map<String, Integer>> facetResults = new HashMap<String, Map<String, Integer>>();
-	
+	List<String> errorCodes = new ArrayList<>();
+		
 	public List<PhenotypeCallSummaryDTO> getPhenotypeCallSummaries() {
 		return phenotypeCallSummaries;
 	}
@@ -41,5 +42,17 @@ public class PhenotypeFacetResult {
 	
 	public void setFacetResults(Map<String, Map<String, Integer>> facetResults) {
 		this.facetResults = facetResults;
+	}
+
+	public List<String> getErrorCodes() {
+		return errorCodes;
+	}
+
+	public void setErrorCodes(List<String> errorCodes) {
+		this.errorCodes = errorCodes;
+	}
+	
+	public void addErrorCode(String code){
+		errorCodes.add(code);
 	}
 }

@@ -248,6 +248,11 @@
 			    </h2>
 
 					<div class="inner">
+					
+						<c:if test="${errorMessage != null}">
+							<div class="alert alert-info"><p>${errorMessage}</p></div>
+						</c:if>
+					
 						<div id="phenotypesDiv">
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
