@@ -33,8 +33,8 @@ import java.util.List;
 /**
  * Class to kick off reports from the command-line.
  *
- * Example command used to build the 3.2 reports:
- *  java -Dprofile=reports3.2 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-0.0.1.jar --propertiesFile=/Users/mrelac/configfiles/app_3_2.properties  --targetDirectory=/Users/mrelac/reports/3.2
+ * Example command used to build the 3.1 reports:
+ *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-0.0.1.jar --targetDirectory=/Users/mrelac/reports/3.1
  *
  * Created by mrelac on 23/06/2015.
  */
@@ -311,7 +311,7 @@ public class ReportsManager implements CommandLineRunner {
         };
         System.out.println("Usage:");
         for (int i = 0; i < commands.length; i++) {
-            System.out.println(String.format("%-50.50s %-30.30s", commands[i], defaults[i]));
+            System.out.println(String.format("%-50.50s %-80.80s", commands[i], defaults[i]));
         }
         System.out.println();
         System.out.println("Reports:");
