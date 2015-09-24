@@ -576,19 +576,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
 			}
 			
-			for (int i=0; i < controlM.size(); i++){
-				System.out.println("Number of lines - log " + controlM.get(i) + " " + Math.log10(controlM.get(i)) );
-				if (controlM.get(i) != 0){
-					controlM.set(i, Math.log10(controlM.get(i)));
-				}
-			}
-			for (int i=0; i < phenMutants.size(); i++){
-				System.out.println("Number of lines - log " + phenMutants.get(i) + " " + Math.log10(phenMutants.get(i)) );
-				if (phenMutants.get(i) != 0){
-					phenMutants.set(i, Math.log10(phenMutants.get(i)));
-				} 
-			}
-
 			StackedBarsData data = new StackedBarsData();
 			data.setUpperBounds(upperBounds);
 			data.setControlGenes(controlGenes);
