@@ -270,7 +270,7 @@
 
                                 <div id="vnavi">
                                     <ul>
-                                        <li><a href="${drupalBaseUrl}/data/release">Release: ${releaseVersion}</a></li>
+                                        <li><a href="${baseUrl}/release">Release: ${releaseVersion}</a></li>
                                         <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
                                         <li><a href="${baseUrl}/documentation/index">Help/Documentation</a></li>
                                     </ul>
