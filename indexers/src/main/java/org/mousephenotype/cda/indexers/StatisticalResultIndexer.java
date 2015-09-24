@@ -651,45 +651,70 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     }
 
 
+    /**
+     * Add the appropriate MP term associations to the document
+     *
+     * @param r the result set to pull the relevant fields from
+     * @param doc the solr document to update
+     * @throws SQLException if the query fields do not exist
+     */
 	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
 
+        // Add the appropriate fields for the global MP term
 		String mpTerm = r.getString("mp_acc");
+		if ( ! r.wasNull()) {
 
-		// In the case where there is sexual dimorphism, the mp_acc field is null and the sex specific fields are set
-		if (r.wasNull()) {
+            OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
+            if (bean != null) {
+                doc.setMpTermId(bean.getId());
+                doc.setMpTermName(bean.getName());
 
-			// Get the male MP term
-			mpTerm = r.getString("male_mp_acc");
+                OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+                doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+                doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
 
-			// If it doesn't exist, get the female term
-			if (r.wasNull()) {
-				// Otherwise use the female term
-				mpTerm = r.getString("female_mp_acc");
-			}
+                doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+                doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+            }
 
-			// If there is NO MP term associated to this document, short circuit
-			if (mpTerm == null) {
-				return;
-			}
+        }
 
-			// Use the parent term ID as that is likely the "abnormal" term
-			mpTerm = mpOntologyService.getParents(mpTerm)
-			                          .get(0)
-			                          .getId();
-		}
+        // Process the male MP term
+        mpTerm = r.getString("male_mp_acc");
+        if ( ! r.wasNull()) {
 
-		OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
-		if (bean != null) {
-			doc.setMpTermId(bean.getId());
-		    doc.setMpTermName(bean.getName());
+            OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
+            if (bean != null) {
+                doc.setMaleMpTermId(bean.getId());
+                doc.setMaleMpTermName(bean.getName());
 
-		    OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
-		    doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-		    doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+                OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+                doc.setMaleTopLevelMpTermId(beanlist.getTopLevels().getIds());
+                doc.setMaleTopLevelMpTermName(beanlist.getTopLevels().getNames());
 
-		    doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-		    doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-		}
+                doc.setMaleIntermediateMpTermId(beanlist.getIntermediates().getIds());
+                doc.setMaleIntermediateMpTermName(beanlist.getIntermediates().getNames());
+            }
+        }
+
+        // Process the female MP term
+        mpTerm = r.getString("female_mp_acc");
+        if ( ! r.wasNull()) {
+
+            OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
+            if (bean != null) {
+                doc.setFemaleMpTermId(bean.getId());
+                doc.setFemaleMpTermName(bean.getName());
+
+                OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+                doc.setFemaleTopLevelMpTermId(beanlist.getTopLevels().getIds());
+                doc.setFemaleTopLevelMpTermName(beanlist.getTopLevels().getNames());
+
+                doc.setFemaleIntermediateMpTermId(beanlist.getIntermediates().getIds());
+                doc.setFemaleIntermediateMpTermName(beanlist.getIntermediates().getNames());
+            }
+        }
+
 	}
 
 
