@@ -97,9 +97,6 @@ public class GenesController {
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
-//
-//	@Autowired
-//	private GwasDAO gwasDao;
 
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
@@ -124,9 +121,6 @@ public class GenesController {
 
 	@Autowired
 	private GeneService geneService;
-//
-//	@Autowired 
-//	private StatisticalResultService statsResultsService;
 
 	@Autowired
 	private PreQcService preqcService;
@@ -334,6 +328,7 @@ public class GenesController {
 		model.addAttribute("acc", acc);
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
+		model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		// add in the disease predictions from phenodigm

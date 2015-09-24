@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
 
 import java.io.File;
 import java.util.List;
@@ -32,9 +33,13 @@ import java.util.List;
 /**
  * Class to kick off reports from the command-line.
  *
+ * Example command used to build the 3.1 reports:
+ *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-0.0.1.jar --targetDirectory=/Users/mrelac/reports/3.1
+ *
  * Created by mrelac on 23/06/2015.
  */
 
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
@@ -306,7 +311,7 @@ public class ReportsManager implements CommandLineRunner {
         };
         System.out.println("Usage:");
         for (int i = 0; i < commands.length; i++) {
-            System.out.println(String.format("%-50.50s %-30.30s", commands[i], defaults[i]));
+            System.out.println(String.format("%-50.50s %-80.80s", commands[i], defaults[i]));
         }
         System.out.println();
         System.out.println("Reports:");

@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import scala.annotation.meta.field;
+
 public class ImpressDTO {
 
 	private static final String ID_ID_ID = "ididid"; // unique key 
@@ -62,6 +64,9 @@ public class ImpressDTO {
 	public static final String INTERMEDIATE_MP_ID = MpDTO.INTERMEDIATE_MP_ID;
 	public static final String INTERMEDIATE_MP_TERM = MpDTO.INTERMEDIATE_MP_TERM;
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
+	public static final String ABNORMAL_MP_ID = "abnormal_mp_id";
+	public static final String INCREASED_MP_ID = "increased_mp_id";
+	public static final String DECREASED_MP_ID = "dicreased_mp_id";
 
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
@@ -71,6 +76,15 @@ public class ImpressDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
 
+	@Field(INCREASED_MP_ID)
+	String increasedMpId;
+	
+	@Field(ABNORMAL_MP_ID)
+	String abnormalMpId;
+	
+	@Field(DECREASED_MP_ID)
+	String decreasedMpId;		
+	
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
@@ -201,6 +215,56 @@ public class ImpressDTO {
 
 
 	
+	public String getIncreasedMpId() {
+		return increasedMpId;
+	}
+
+
+	public void setIncreasedMpId(String increasedMpId) {
+		this.increasedMpId = increasedMpId;
+	}
+
+
+	public String getAbnormalMpId() {
+		return abnormalMpId;
+	}
+
+
+	public void setAbnormalMpId(String abnormalMpId) {
+		this.abnormalMpId = abnormalMpId;
+	}
+
+
+	public String getDecreasedMpId() {
+		return decreasedMpId;
+	}
+
+
+	public void setDecreasedMpId(String decreasedMpId) {
+		this.decreasedMpId = decreasedMpId;
+	}
+
+
+	public List<String> getCatgories() {
+		return catgories;
+	}
+
+
+	public void setCatgories(List<String> catgories) {
+		this.catgories = catgories;
+	}
+
+
+	public void setProcedureStableKey(int procedureStableKey) {
+		this.procedureStableKey = procedureStableKey;
+	}
+
+
+	public void setPipelineStableKey(int pipelineStableKey) {
+		this.pipelineStableKey = pipelineStableKey;
+	}
+
+
 	public boolean isRequired() {
 		return required;
 	}

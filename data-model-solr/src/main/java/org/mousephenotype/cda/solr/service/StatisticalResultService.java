@@ -569,14 +569,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 					controlM.set(binIndex, 1 + controlM.get(binIndex));
 				}
 			}
-			// System.out.println(" Mutants list " + phenMutants);
 
 			// add the rest of parameters to the graph urls
 			for (int t = 0; t < controlGeneAcc.size(); t++) {
 				controlGeneAcc.set(t, controlGeneAcc.get(t) + urlParams);
 				mutantGeneAcc.set(t, mutantGeneAcc.get(t) + urlParams);
 			}
-
+			
 			StackedBarsData data = new StackedBarsData();
 			data.setUpperBounds(upperBounds);
 			data.setControlGenes(controlGenes);
