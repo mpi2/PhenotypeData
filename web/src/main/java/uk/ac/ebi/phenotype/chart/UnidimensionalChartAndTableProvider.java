@@ -410,7 +410,7 @@ public class UnidimensionalChartAndTableProvider {
 		String yTitle = "Number of lines";
 		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
 		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
-		+ " chart: {  type: 'column' , renderTo: 'single-chart-div'}," +
+		+ " chart: {  type: 'column' , renderTo: 'single-chart-div',  zoomType: 'y'}," +
 		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," +
 		" subtitle: { text: '" + subtitle + "'}," +
 		" credits: { enabled: false }," +

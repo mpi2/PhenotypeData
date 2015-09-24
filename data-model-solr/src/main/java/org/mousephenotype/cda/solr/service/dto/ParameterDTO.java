@@ -41,6 +41,10 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	String maName;
 	String unit;
 
+	String abnormalMpId;
+	String increasedMpId;
+	String decreasedMpId;
+
 	ObservationType observationType;
 	
 	List<String> procedureStableIds;
@@ -161,6 +165,25 @@ public class ParameterDTO  extends ImpressBaseDTO{
 			this.mpIds = new ArrayList<>();
 		}
 		this.mpIds.add(mpId);
+	}
+	
+	public String getAbnormalMpId() {
+		return abnormalMpId;
+	}
+	public void setAbnormalMpId(String abnormalMpId) {
+		this.abnormalMpId = abnormalMpId;
+	}
+	public String getIncreasedMpId() {
+		return increasedMpId;
+	}
+	public void setIncreasedMpId(String increasedMpId) {
+		this.increasedMpId = increasedMpId;
+	}
+	public String getDecreasedMpId() {
+		return decreasedMpId;
+	}
+	public void setDecreasedMpId(String decreasedMpId) {
+		this.decreasedMpId = decreasedMpId;
 	}
 	@Override
 	public String toString() {
