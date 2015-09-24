@@ -531,7 +531,7 @@
                                                  style="clear: both">
 
                                                 <a class="btn"
-                                                   href='${baseUrl}/experiments?geneAccession=${gene.accessionId}'
+                                                   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
                                                    style="margin: 0px">All Adult Data</a>
 
                                             </div>
