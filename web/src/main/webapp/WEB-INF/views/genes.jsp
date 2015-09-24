@@ -551,9 +551,7 @@
                                         <!-- Only pre QC data available, suppress post QC phenotype summary -->
                                     </c:when>
                                     <c:otherwise>
-                                        <div
-                                                class="alert alert-info">There are currently no IMPC phenotype
-                                            associations for the gene ${gene.markerSymbol} </div>
+                                        <div class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.markerSymbol} </div>
                                         <br/>
                                     </c:otherwise>
                                 </c:choose>
