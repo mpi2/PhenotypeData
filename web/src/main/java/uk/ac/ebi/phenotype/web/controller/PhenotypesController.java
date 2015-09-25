@@ -42,9 +42,6 @@ import org.hibernate.HibernateException;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -62,6 +59,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
@@ -85,9 +83,7 @@ import net.sf.json.JSONObject;
 import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
-import uk.ac.ebi.phenotype.util.ParameterComparator;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
-import uk.ac.ebi.phenotype.util.ProcedureComparator;
 
 @Controller
 public class PhenotypesController {
@@ -260,12 +256,9 @@ public class PhenotypesController {
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         model.addAttribute("phenotype", mpTerm);
         
-        // TODO replace dependency to the pipelineDao with call tp pipelineService. Need to index the MP terms with the procedures first.
-        if (mpDbTerm != null){
-	        List<Procedure> procedures = new ArrayList<Procedure>(pipelineDao.getProceduresByOntologyTerm(mpDbTerm));
-	        Collections.sort(procedures, new ProcedureComparator());
-	        model.addAttribute("procedures", procedures);
-        }
+	    List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotype_id));
+	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
+	    model.addAttribute("procedures", procedures);
 
         time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));
