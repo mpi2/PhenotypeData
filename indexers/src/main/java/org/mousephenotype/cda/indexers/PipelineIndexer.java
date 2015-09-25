@@ -381,9 +381,15 @@ public class PipelineIndexer extends AbstractIndexer {
 			ResultSet resultSet = p.executeQuery();
 			ParameterDTO param = null;
 			
-			System.out.println();
+			System.out.println(resultSet.getString("stable_id") + " " + resultSet.getString("event_type"));
 			
 			while (resultSet.next()) {
+				
+
+				String paramId = resultSet.getString("stable_id");
+				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
+					param = stableIdToParameter.get(paramId);
+				}
 				
 				String type = resultSet.getString("event_type");
 				if (type.equalsIgnoreCase("abnormal")){
@@ -392,11 +398,6 @@ public class PipelineIndexer extends AbstractIndexer {
 					param.setIncreasedMpId(resultSet.getString("ontology_acc"));
 				} else if (type.equalsIgnoreCase("decreased")){
 					param.setDecreasedMpId(resultSet.getString("ontology_acc"));
-				}
-				
-				String paramId = resultSet.getString("stable_id");
-				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
-					param = stableIdToParameter.get(paramId);
 				}
 				
 				param.addMpIds(resultSet.getString("ontology_acc"));
