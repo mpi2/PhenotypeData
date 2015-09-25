@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -870,5 +871,28 @@ public class ImpressDTO {
 		
 	}
 
-
+	/**
+	 * @author tudose
+	 * @return sort by name but IMPC objects always first.
+	 */
+	public static Comparator<ImpressDTO> getComparatorByProcedureNameImpcFirst()	{   
+		Comparator<ImpressDTO> comp = new Comparator<ImpressDTO>(){
+	    @Override
+	    public int compare(ImpressDTO param1, ImpressDTO param2)
+	    {
+	    	if (isImpc(param1.getProcedureStableId()) && !isImpc(param2.getProcedureStableId())){
+				return -1;
+			}
+			if (isImpc(param2.getProcedureStableId()) && !isImpc(param1.getProcedureStableId())){
+				return 1;
+			}
+			return param1.getProcedureName().compareTo(param2.getProcedureName());
+	    }
+		private boolean isImpc(String param){
+			return param.startsWith("IMPC");
+		}
+		
+		};
+		return comp;
+	}  
 }
