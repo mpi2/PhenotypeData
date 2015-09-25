@@ -373,12 +373,15 @@ public class PipelineIndexer extends AbstractIndexer {
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON l.annotation_id=ppoa.id "
 				+ " WHERE ontology_db_id=5 "
 				+ " ORDER BY stable_id ASC; ";
+		
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			
 			ResultSet resultSet = p.executeQuery();
 			ParameterDTO param = null;
+			
+			System.out.println();
 			
 			while (resultSet.next()) {
 				
