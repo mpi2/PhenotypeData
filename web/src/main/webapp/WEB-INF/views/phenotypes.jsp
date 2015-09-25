@@ -152,12 +152,10 @@
 								<ul>
 								<c:set var="count" value="0" scope="page"/>
 									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
- 										<c:forEach var="pipeline" items="${procedure.pipelines}" varStatus="loop">
- 											<c:set var="count" value="${count+1}" />
-  											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${pipeline.name})</a></li>
-	 											<c:if test="${count==3 && !(firstLoop.last && loop.last)}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
-												<c:if test="${firstLoop.last && loop.last && fn:length(procedures) >3}"></div></c:if>
-										</c:forEach>
+ 										<c:set var="count" value="${count+1}" />
+  										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">${procedure.procedureName} (${procedure.pipelineName})</a></li>
+	 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
+										<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></div></c:if>
 									</c:forEach>
 								</ul>
 							</div>

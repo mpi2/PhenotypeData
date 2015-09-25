@@ -66,6 +66,10 @@ public class ReportsService {
     @Autowired
     ImageService iService;
 
+
+	@Autowired
+	ImpressService impressService;
+    
     @Autowired
 	@Qualifier("postqcService")
     PostQcService gpService;
@@ -97,6 +101,30 @@ public class ReportsService {
     	resources.add("IMPC");
     	resources.add("3i");
     }
+	
+public List<String[]> getProcedureParameterAllPossible(){
+		
+		Long time = System.currentTimeMillis();
+		List<String[]> report = new ArrayList<>();
+		String[] header = { "Procedure", "Parameter"};
+		report.add(header);
+		report.addAll(impressService.getProcedureParameterList());
+		System.out.println("Report generation took " + (System.currentTimeMillis() - time));
+		return report;
+		
+	}
+	
+	public List<String[]> getProcedureParameterWithData(){
+		
+		Long time = System.currentTimeMillis();
+		List<String[]> report = new ArrayList<>();
+		String[] header = { "Procedure", "Parameter" , "Number of observations"};
+		report.add(header);
+		report.addAll(oService.getProcedureParameterWithData());
+		System.out.println("Report generation took " + (System.currentTimeMillis() - time));
+		return report;
+		
+	}
 
 	public List<String[]> getBmdIpdttReport(String parameter)
 	throws SolrServerException {

@@ -220,6 +220,15 @@ public class PipelineIndexer extends AbstractIndexer {
 							}
 						}
 						
+						if (param.getAbnormalMpId() != null){
+							doc.setAbnormalMpId(param.getAbnormalMpId());
+						}
+						if (param.getIncreasedMpId() != null){
+							doc.setIncreasedMpId(param.getIncreasedMpId());
+						}
+						if (param.getDecreasedMpId()!= null){
+							doc.setDecreasedMpId(param.getDecreasedMpId());
+						}
 						
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
@@ -373,6 +382,7 @@ public class PipelineIndexer extends AbstractIndexer {
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON l.annotation_id=ppoa.id "
 				+ " WHERE ontology_db_id=5 "
 				+ " ORDER BY stable_id ASC; ";
+		
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
@@ -382,6 +392,11 @@ public class PipelineIndexer extends AbstractIndexer {
 			
 			while (resultSet.next()) {
 				
+				String paramId = resultSet.getString("stable_id");
+				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
+					param = stableIdToParameter.get(paramId);
+				}
+				
 				String type = resultSet.getString("event_type");
 				if (type.equalsIgnoreCase("abnormal")){
 					param.setAbnormalMpId(resultSet.getString("ontology_acc"));
@@ -389,11 +404,6 @@ public class PipelineIndexer extends AbstractIndexer {
 					param.setIncreasedMpId(resultSet.getString("ontology_acc"));
 				} else if (type.equalsIgnoreCase("decreased")){
 					param.setDecreasedMpId(resultSet.getString("ontology_acc"));
-				}
-				
-				String paramId = resultSet.getString("stable_id");
-				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
-					param = stableIdToParameter.get(paramId);
 				}
 				
 				param.addMpIds(resultSet.getString("ontology_acc"));

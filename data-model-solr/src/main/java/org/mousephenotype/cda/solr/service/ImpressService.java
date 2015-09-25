@@ -25,12 +25,14 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +100,73 @@ public class ImpressService {
 		return procedures;
 	}
 	
+	
+	
+	public List<ImpressDTO> getProceduresByMpTerm(String mpTermId){
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.MP_ID + ":\"" + mpTermId +"\"")
+				.addField(ImpressDTO.PROCEDURE_ID)
+				.addField(ImpressDTO.PROCEDURE_NAME)
+				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
+				.addField(ImpressDTO.PROCEDURE_STABLE_KEY)
+				.addField(ImpressDTO.PIPELINE_ID)
+				.addField(ImpressDTO.PIPELINE_NAME)
+				.addField(ImpressDTO.PIPELINE_STABLE_ID)
+				.addField(ImpressDTO.PIPELINE_STABLE_KEY);
+			
+			query.setRows(1000000);
 
+			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
+			
+			QueryResponse response = solr.query(query);
+			
+			return response.getBeans(ImpressDTO.class);
+			
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * @author tudose
+	 * @since 2015/09/25
+	 * @return List< [(Procedure, parameter, observationNumber)]>
+	 */
+	public List<String[]> getProcedureParameterList(){
+		
+		List<String[]> result = new ArrayList<>();
+		SolrQuery q = new SolrQuery();
+        
+    	q.setQuery("*:*");
+        q.setFacet(true);
+        q.setFacetLimit(-1);
+        q.setRows(0);
+
+        String pivotFacet =  ImpressDTO.PROCEDURE_STABLE_ID  + "," + ImpressDTO.PARAMETER_STABLE_ID;
+		q.set("facet.pivot", pivotFacet);
+        
+        try {
+        	QueryResponse res = solr.query(q);
+        	
+        	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
+    			for (PivotField parameter : pivot.getPivot()){
+    				String[] row = {pivot.getValue().toString(), parameter.getValue().toString()};
+    				result.add(row);
+    			}
+    		}
+            
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        }
+        
+        return result;
+	}
+	
+	
 	/**
 	 * @date 2015/07/08
 	 * @author tudose
