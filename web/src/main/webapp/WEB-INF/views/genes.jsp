@@ -267,10 +267,12 @@
 
                                 </div>
 
-                                <p class="with-label no-margin">
-                                    <span class="label">Name</span>
-                                        ${gene.markerName}
-                                </p>
+								<c:if test="${gene.markerName != null}">
+	                                <p class="with-label no-margin">
+	                                    <span class="label">Name</span>
+	                                        ${gene.markerName}
+	                                </p>
+								</c:if>
 
                                 <c:if
                                         test="${!(empty gene.markerSynonym)}">
