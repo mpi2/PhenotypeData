@@ -100,7 +100,36 @@ public class ImpressService {
 		return procedures;
 	}
 	
+	
+	
+	public List<ImpressDTO> getProceduresByMpTerm(String mpTermId){
+		
+		try {
+			SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.MP_ID + ":\"" + mpTermId +"\"")
+				.addField(ImpressDTO.PROCEDURE_ID)
+				.addField(ImpressDTO.PROCEDURE_NAME)
+				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
+				.addField(ImpressDTO.PROCEDURE_STABLE_KEY)
+				.addField(ImpressDTO.PIPELINE_ID)
+				.addField(ImpressDTO.PIPELINE_NAME)
+				.addField(ImpressDTO.PIPELINE_STABLE_ID)
+				.addField(ImpressDTO.PIPELINE_STABLE_KEY);
+			
+			query.setRows(1000000);
 
+			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
+			
+			QueryResponse response = solr.query(query);
+			
+			return response.getBeans(ImpressDTO.class);
+			
+		} catch (SolrServerException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * @author tudose
