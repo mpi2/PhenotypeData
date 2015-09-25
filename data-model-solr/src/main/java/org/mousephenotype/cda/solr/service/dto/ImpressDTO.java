@@ -64,7 +64,7 @@ public class ImpressDTO {
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
 	public static final String ABNORMAL_MP_ID = "abnormal_mp_id";
 	public static final String INCREASED_MP_ID = "increased_mp_id";
-	public static final String DECREASED_MP_ID = "dicreased_mp_id";
+	public static final String DECREASED_MP_ID = "decreased_mp_id";
 
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
