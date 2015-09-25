@@ -381,10 +381,9 @@ public class PipelineIndexer extends AbstractIndexer {
 			ResultSet resultSet = p.executeQuery();
 			ParameterDTO param = null;
 			
-			System.out.println(resultSet.getString("stable_id") + " " + resultSet.getString("event_type"));
-			
 			while (resultSet.next()) {
 				
+				System.out.println(resultSet.getString("stable_id") + " " + resultSet.getString("event_type"));
 
 				String paramId = resultSet.getString("stable_id");
 				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
