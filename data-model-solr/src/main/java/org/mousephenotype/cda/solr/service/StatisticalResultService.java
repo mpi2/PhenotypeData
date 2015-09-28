@@ -894,7 +894,13 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	    if (mpTermId != null){
 	    	query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
 	    			StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\")");
+	    			StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
+	    			StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
+	    			StatisticalResultDTO.MALE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\")");
 	    }
 	    if (pipelineName != null){
 	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
