@@ -117,8 +117,6 @@ public class ExperimentsController {
 		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
 		int rows = 0;
 
-		System.out.println("MP TERM GOT  " + mpTermId);
-		
 		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId));
 		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
 			rows += list.size();
