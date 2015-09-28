@@ -116,10 +116,10 @@
                         <div class="inner">
                             <div id="highlightsDiv">
                                 <div class="container span12">
-                                    <h3>Data release 3.2</h3>
+                                    <h3>Data release 3.3</h3>
 
-                                    <p>Data release 3.2 is a minor release to include more <a href="${baseUrl}/secondaryproject/3i">3I</a> lines.
-                                        This release brings the number of 3I datapoints to 1,118,939.</p>
+                                    <p>Data release 3.3 is a minor release to include more viability data.
+                                        This release brings the number of lines with viability data to 1961.</p>
 
                                 </div>
                                 <div class="clear"></div>
