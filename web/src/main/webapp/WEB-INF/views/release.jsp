@@ -118,8 +118,7 @@
                                 <div class="container span12">
                                     <h3>Data release 3.3</h3>
 
-                                    <p>Data release 3.3 is a minor release to include more viability data.
-                                        This release brings the number of lines with viability data to 1961.</p>
+                                    <p>Data release 3.3 is a minor release to include more viability data.</p>
 
                                 </div>
                                 <div class="clear"></div>
