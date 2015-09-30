@@ -738,13 +738,15 @@ CREATE TABLE unidimensional_observation (
  */
 CREATE TABLE ontology_observation (
 
-	id                        INT(10) UNSIGNED NOT NULL,
-	parameter_id				VARCHAR(255) NOT NULL,/**not necessary to store this as in main parameter when store observation, we should remove it but in for dev testing**/
-	sequence_id                INT(10) NULL,
+	id           INT(10) UNSIGNED NOT NULL,
+	parameter_id VARCHAR(255)     NOT NULL, /**not necessary to store this as in main parameter when store observation, we should remove it but in for dev testing**/
+	sequence_id  INT(10)          NULL,
 
-	PRIMARY KEY(id)
+	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
+)
+	COLLATE = utf8_general_ci
+	ENGINE = MyISAM;
 
 /**
  * unidimensional_observation
@@ -752,13 +754,15 @@ CREATE TABLE ontology_observation (
  */
 CREATE TABLE ontology_entity (
 
-	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	id                      INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	ontology_observation_id INT(10) UNSIGNED NOT NULL,
-	term                varchar(255) NULL,
-	term_value               varchar(255) NULL,
-	PRIMARY KEY(id)
+	term                    VARCHAR(255)     NULL,
+	term_value              VARCHAR(255)     NULL,
+	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
+)
+	COLLATE = utf8_general_ci
+	ENGINE = MyISAM;
 
 /**
  * multidimensional_observation
@@ -862,6 +866,7 @@ CREATE TABLE phenotype_pipeline (
 	major_version              INT(10) NOT NULL DEFAULT 1,
 	minor_version              INT(10) NOT NULL DEFAULT 0,
 	stable_key                 INT(10) DEFAULT 0,
+	is_deprecated              BOOLEAN,
 	PRIMARY KEY (id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
