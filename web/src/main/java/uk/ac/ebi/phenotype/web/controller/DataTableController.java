@@ -450,15 +450,22 @@ public class DataTableController {
 		System.out.println("Found ids: "+ new ArrayList(foundIds));
 		System.out.println("non found ids: " + nonFoundIds);
 
+		int resultsCount = 0;
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
 				rowData.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : NA);
 			}
 			j.getJSONArray("aaData").add(rowData);
+			resultsCount = rowData.size();
 		}
 
-		//System.out.println(j.toString());
+		System.out.println("OUTPUT: " + j.toString());
+		System.out.println("SIZE: "+ resultsCount);
+		if ( resultsCount == 0 && nonFoundIds.size() != 0 ){
+			// cases where id is not found in our database
+			return "";
+		}
 		return j.toString();
     }
 
