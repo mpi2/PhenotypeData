@@ -97,7 +97,7 @@
                                 </br>
                                 <div class="with-label"><span class="label">Data access</span>
                                     <ul>
-                                        <li>Ftp site:&nbsp;<a href="${metaInfo['ftp_site']}">${metaInfo['ftp_site']}</a>
+                                        <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}</a>
                                         </li>
                                         <li>RESTful interfaces:&nbsp;<a
                                                 href="${baseUrl}/documentation/api-help">APIs</a></li>
