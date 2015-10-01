@@ -108,6 +108,7 @@
 	<jsp:attribute name="header">
 
             <!-- JavaScript Local Imports -->
+
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
@@ -211,6 +212,11 @@
                     padding-left: 0;
                     width: auto;
                 }
+
+
+                .ui-widget { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1.0em !important/*{fsDefault}*/; }
+                .ui-widget  { font-size: 1.0em !important; }
+
 
             </style>
 
@@ -1213,11 +1219,21 @@
                             document.getElementById("anatomogramContainer"),
                             anatomogramData,
                             profileRows,
-                            "gray",  // all tissues being tested
+                            // make color the same to disguise mouseover highlight
+                            "blue",  // all tissues being tested
                             "blue",  // tissue color when mouseover
                             eventEmitter);
-                } 
+                }
+
+                $("img.ui-button").each(function(){
+                    // hide brain toggle for now
+                    if ($(this).attr('src').indexOf('brain') != -1){
+                        $(this).hide();
+                    }
+                });
             });
+
+
         </script>
 
     </jsp:body>
