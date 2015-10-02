@@ -625,7 +625,7 @@
                         "data": oConf,
                         "type": "POST",
                         "error": function() {
-                            $('div.dataTables_processing').text("AJAX error trying to fetch your query");
+                            $('div.dataTables_processing').text("AJAX error trying to fetch your query: keyword not found");
                             $('td.dataTables_empty').text("");
                         }
                     }
