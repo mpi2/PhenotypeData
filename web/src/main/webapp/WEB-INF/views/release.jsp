@@ -97,7 +97,7 @@
                                 </br>
                                 <div class="with-label"><span class="label">Data access</span>
                                     <ul>
-                                        <li>Ftp site:&nbsp;<a href="${metaInfo['ftp_site']}">${metaInfo['ftp_site']}</a>
+                                        <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}</a>
                                         </li>
                                         <li>RESTful interfaces:&nbsp;<a
                                                 href="${baseUrl}/documentation/api-help">APIs</a></li>
@@ -118,8 +118,7 @@
                                 <div class="container span12">
                                     <h3>Data release 3.3</h3>
 
-                                    <p>Data release 3.3 is a minor release to include more viability data.
-                                        This release brings the number of lines with viability data to 1961.</p>
+                                    <p>Data release 3.3 is a minor release to include more viability data.</p>
 
                                 </div>
                                 <div class="clear"></div>
