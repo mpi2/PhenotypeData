@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.PostQcService;
@@ -49,36 +50,27 @@ public class PhenotypeCallSummarySolr {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 
-
-	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException {
+	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException, SolrServerException {
 		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, "");
 	}
 
-
-	public PhenotypeFacetResult getPhenotypeCallByMPAccession(String phenotype_id) throws IOException, URISyntaxException {
-		return this.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, "");
-
-	}
-
-
-	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException {
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
+	
+	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException, SolrServerException {
 		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
 	}
 
 
-	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException {
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=mp_term_id:MP:0010025&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet=true&facet.field=resource_fullname&facet.field=top_level_mp_term_name&
+	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException, SolrServerException {
 		return preqcService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
 	}
 
 
-	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException {
+	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException, SolrServerException {
 		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, filterString);
 	}
 
 
-	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException {
+	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException, SolrServerException {
 		return preqcService.getMPByGeneAccessionAndFilter(accId, filterString);
 	}
 

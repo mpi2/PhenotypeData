@@ -220,6 +220,15 @@ public class PipelineIndexer extends AbstractIndexer {
 							}
 						}
 						
+						if (param.getAbnormalMpId() != null){
+							doc.setAbnormalMpId(param.getAbnormalMpId());
+						}
+						if (param.getIncreasedMpId() != null){
+							doc.setIncreasedMpId(param.getIncreasedMpId());
+						}
+						if (param.getDecreasedMpId()!= null){
+							doc.setDecreasedMpId(param.getDecreasedMpId());
+						}
 						
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
@@ -368,11 +377,12 @@ public class PipelineIndexer extends AbstractIndexer {
 	 */
 	protected Map<String, ParameterDTO> addMpTerms(Map<String, ParameterDTO> stableIdToParameter){
 		
-		String queryString = "SELECT stable_id, ontology_acc FROM phenotype_parameter pp "
+		String queryString = "SELECT stable_id, ontology_acc, event_type FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=pp.id "
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON l.annotation_id=ppoa.id "
 				+ " WHERE ontology_db_id=5 "
 				+ " ORDER BY stable_id ASC; ";
+		
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
@@ -385,6 +395,15 @@ public class PipelineIndexer extends AbstractIndexer {
 				String paramId = resultSet.getString("stable_id");
 				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
 					param = stableIdToParameter.get(paramId);
+				}
+				
+				String type = resultSet.getString("event_type");
+				if (type.equalsIgnoreCase("abnormal")){
+					param.setAbnormalMpId(resultSet.getString("ontology_acc"));
+				} else if(type.equalsIgnoreCase("increased")){
+					param.setIncreasedMpId(resultSet.getString("ontology_acc"));
+				} else if (type.equalsIgnoreCase("decreased")){
+					param.setDecreasedMpId(resultSet.getString("ontology_acc"));
 				}
 				
 				param.addMpIds(resultSet.getString("ontology_acc"));

@@ -450,15 +450,22 @@ public class DataTableController {
 		System.out.println("Found ids: "+ new ArrayList(foundIds));
 		System.out.println("non found ids: " + nonFoundIds);
 
+		int resultsCount = 0;
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
 			List<String> rowData = new ArrayList<String>();
 			for ( int l=0; l<fieldCount; l++ ){
 				rowData.add( l==0 ? nonFoundIds.get(i).toString().replaceAll("\"", "") : NA);
 			}
 			j.getJSONArray("aaData").add(rowData);
+			resultsCount = rowData.size();
 		}
 
-		//System.out.println(j.toString());
+		System.out.println("OUTPUT: " + j.toString());
+		System.out.println("SIZE: "+ resultsCount);
+		if ( resultsCount == 0 && nonFoundIds.size() != 0 ){
+			// cases where id is not found in our database
+			return "";
+		}
 		return j.toString();
     }
 
@@ -1408,12 +1415,12 @@ public class DataTableController {
             rowData.add(src);
 
             // curated data: human/mouse
-            String human = "<span class='status done'>human</span>";
-            String mice = "<span class='status done'>mice</span>";
+            String human = "<span class='status done curatedHuman'>human</span>";
+            String mice = "<span class='status done curatedMice'>mice</span>";
 
             // predicted data: impc/mgi
-            String impc = "<span class='status done'>IMPC</span>";
-            String mgi = "<span class='status done'>MGI</span>";
+            String impc = "<span class='status done candidateImpc'>IMPC</span>";
+            String mgi = "<span class='status done candidateMgi'>MGI</span>";
 
             /*var oSubFacets2 = {'curated': {'label':'With Curated Gene Associations',
              'subfacets':{'human_curated':'From human data (OMIM, Orphanet)',

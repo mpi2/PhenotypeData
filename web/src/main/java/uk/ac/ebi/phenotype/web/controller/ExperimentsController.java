@@ -74,6 +74,7 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
 			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
@@ -84,7 +85,7 @@ public class ExperimentsController {
 		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
 		int rows = 0;
 
-		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource));
+		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId));
 		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
 			rows += list.size();
 		}
@@ -105,6 +106,7 @@ public class ExperimentsController {
 			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
 			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
 			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
 			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
 			Model model,
 			HttpServletRequest request,
@@ -115,7 +117,7 @@ public class ExperimentsController {
 		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
 		int rows = 0;
 
-		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource));
+		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId));
 		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
 			rows += list.size();
 		}

@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -62,6 +63,9 @@ public class ImpressDTO {
 	public static final String INTERMEDIATE_MP_ID = MpDTO.INTERMEDIATE_MP_ID;
 	public static final String INTERMEDIATE_MP_TERM = MpDTO.INTERMEDIATE_MP_TERM;
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = MpDTO.INTERMEDIATE_MP_TERM_SYNONYM;
+	public static final String ABNORMAL_MP_ID = "abnormal_mp_id";
+	public static final String INCREASED_MP_ID = "increased_mp_id";
+	public static final String DECREASED_MP_ID = "decreased_mp_id";
 
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
@@ -71,6 +75,15 @@ public class ImpressDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
 
+	@Field(INCREASED_MP_ID)
+	String increasedMpId;
+	
+	@Field(ABNORMAL_MP_ID)
+	String abnormalMpId;
+	
+	@Field(DECREASED_MP_ID)
+	String decreasedMpId;		
+	
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
@@ -201,6 +214,56 @@ public class ImpressDTO {
 
 
 	
+	public String getIncreasedMpId() {
+		return increasedMpId;
+	}
+
+
+	public void setIncreasedMpId(String increasedMpId) {
+		this.increasedMpId = increasedMpId;
+	}
+
+
+	public String getAbnormalMpId() {
+		return abnormalMpId;
+	}
+
+
+	public void setAbnormalMpId(String abnormalMpId) {
+		this.abnormalMpId = abnormalMpId;
+	}
+
+
+	public String getDecreasedMpId() {
+		return decreasedMpId;
+	}
+
+
+	public void setDecreasedMpId(String decreasedMpId) {
+		this.decreasedMpId = decreasedMpId;
+	}
+
+
+	public List<String> getCatgories() {
+		return catgories;
+	}
+
+
+	public void setCatgories(List<String> catgories) {
+		this.catgories = catgories;
+	}
+
+
+	public void setProcedureStableKey(int procedureStableKey) {
+		this.procedureStableKey = procedureStableKey;
+	}
+
+
+	public void setPipelineStableKey(int pipelineStableKey) {
+		this.pipelineStableKey = pipelineStableKey;
+	}
+
+
 	public boolean isRequired() {
 		return required;
 	}
@@ -808,5 +871,28 @@ public class ImpressDTO {
 		
 	}
 
-
+	/**
+	 * @author tudose
+	 * @return sort by name but IMPC objects always first.
+	 */
+	public static Comparator<ImpressDTO> getComparatorByProcedureNameImpcFirst()	{   
+		Comparator<ImpressDTO> comp = new Comparator<ImpressDTO>(){
+	    @Override
+	    public int compare(ImpressDTO param1, ImpressDTO param2)
+	    {
+	    	if (isImpc(param1.getProcedureStableId()) && !isImpc(param2.getProcedureStableId())){
+				return -1;
+			}
+			if (isImpc(param2.getProcedureStableId()) && !isImpc(param1.getProcedureStableId())){
+				return 1;
+			}
+			return param1.getProcedureName().compareTo(param2.getProcedureName());
+	    }
+		private boolean isImpc(String param){
+			return param.startsWith("IMPC");
+		}
+		
+		};
+		return comp;
+	}  
 }

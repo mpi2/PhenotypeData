@@ -34,7 +34,7 @@ public class GenePageTableRow extends DataTableRow {
         super();
     }
 
-    public GenePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+    public GenePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) {
         super(pcs, baseUrl, config);
     }
 
@@ -55,6 +55,7 @@ public class GenePageTableRow extends DataTableRow {
      */
     @Override
     public int compareTo(DataTableRow o) {
+    	
         if (o.phenotypeTerm == null || this.phenotypeTerm == null) {
             return -1;
         }

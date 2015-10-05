@@ -38,6 +38,9 @@ public class PhenotypePageTableRow extends DataTableRow {
         super(pcs, baseUrl, config);
     }
 
+    public PhenotypePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) {
+        super(pcs, baseUrl, config);
+    }
     /**
      * Sort by:
      * <ul>

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 
 /**
  * Generates a color palette given a set of p-values
@@ -243,6 +244,51 @@ public class ColorCodingPalette {
 			}
 
 	}
+	
+	/**
+	 * @since 2015/09/22
+	 * @author tudose
+	 * @param phenotypeCalls
+	 * @param maxColorIndex
+	 * @param scale
+	 * @param minimalPValue
+	 */
+	private void addColorIndexToStatisticalResultsNew(List<PhenotypeCallSummaryDTO> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue){
+
+		// to scale from 0 to max color index
+		double maxColor = 0;
+
+		for (PhenotypeCallSummaryDTO call: phenotypeCalls) {
+			// OK, for this call, compute a color index
+
+				double pValue = call.getpValue();
+				if (pValue < minimalPValue) {
+					pValue = minimalPValue;
+				}
+
+				call.setColorIndex(-Math.log10(pValue));
+				if (call.getColorIndex() > maxColor) {
+					maxColor = call.getColorIndex();
+				}
+			}
+
+		if( scale == 0 ){
+			scale = maxColorIndex / maxColor;
+		}
+
+		// scale
+
+		for (PhenotypeCallSummaryDTO call: phenotypeCalls) {
+			call.setColorIndex(call.getColorIndex()*scale);
+			call.setColorIndex(Math.round(call.getColorIndex()));
+				// check whether any color is greater than the maxColorIndex
+				if (call.getColorIndex() > maxColorIndex) {
+					call.setColorIndex(maxColorIndex);
+				}
+			}
+
+	}
+	
 
 	private List<int[]> getColorPalette(int nbColors) {
 		// default palette - 9 colors
@@ -265,6 +311,21 @@ public class ColorCodingPalette {
 		palette = getColorPalette(maxColorIndex);
 
 		addColorIndexToStatisticalResults( 	phenotypeCalls, maxColorIndex, scale, minimalPValue);
+	}
+	
+	/**
+	 * @author tudose
+	 * @since 2015/09/22
+	 * @param phenotypeCalls
+	 * @param maxColorIndex
+	 * @param scale
+	 * @param minimalPValue
+	 */
+	public void generatePhenotypeCallSummaryColorsNew(List<PhenotypeCallSummaryDTO> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue) {
+
+		palette = getColorPalette(maxColorIndex);
+
+		addColorIndexToStatisticalResultsNew( 	phenotypeCalls, maxColorIndex, scale, minimalPValue);
 	}
 
 	/**

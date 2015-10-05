@@ -28,7 +28,7 @@ public class DownloadSearchMapGenes {
     public final static int COL_INDEX_HUMAN_ORTHOLOG        = 1;
     public final static int COL_INDEX_GENE_ID               = 2;
     public final static int COL_INDEX_GENE_NAME             = 3;
-    public final static int COL_INDEX_SYNONYM               = 4;
+    public final static int COL_INDEX_GENE_SYNONYM          = 4;
     public final static int COL_INDEX_PRODUCTION_STATUS     = 5;
     public final static int COL_INDEX_PHENOTYPE_STATUS      = 6;
     public final static int COL_INDEX_PHENOTYPE_STATUS_LINK = 7;

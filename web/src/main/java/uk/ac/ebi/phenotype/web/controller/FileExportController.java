@@ -44,6 +44,7 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -1047,20 +1048,21 @@ public class FileExportController {
 				}
 				data.add(StringUtils.join(labelList, "|"));
 				data.add(StringUtils.join(urlList, "|"));
-			} else if (phenotypeStatus.startsWith("http://") || phenotypeStatus.startsWith("https://")) {
-
+			} else {
 				String[] parts = phenotypeStatus.split("\\|");
 				if (parts.length != 2) {
 					System.out.println("fileExport: '" + phenotypeStatus + "' --- Expeced length 2 but got " + parts.length);
 				} else {
-					String url = parts[0].replace("https", "http");
+					String url = parts[0]
+							.replace("https://", "")
+							.replace("http://", "")
+							.replace("//", "")
+							.replaceFirst("^", "http://");			// Regex: ^ inserts at beginning of url string.
 					String label = parts[1];
 
 					data.add(label);
 					data.add(url);
 				}
-			} else {
-				data.add(phenotypeStatus);
 			}
 
 			// put together as tab delimited
@@ -1112,9 +1114,9 @@ public class FileExportController {
 	}
 
 	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters,
-			HttpServletRequest request) {
+			HttpServletRequest request) throws SolrServerException {
 		List<String> res = new ArrayList<>();
-		List<PhenotypeCallSummary> phenotypeList = new ArrayList();
+		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList();
 		PhenotypeFacetResult phenoResult;
 		String targetGraphUrl = (String) request.getAttribute("mappedHostname") + request.getAttribute("baseUrl");
 
@@ -1131,7 +1133,7 @@ public class FileExportController {
 				e.printStackTrace();
 			}
 			ArrayList<GenePageTableRow> phenotypes = new ArrayList();
-			for (PhenotypeCallSummary pcs : phenotypeList) {
+			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config);
 				phenotypes.add(pr);
 			}
@@ -1160,7 +1162,7 @@ public class FileExportController {
 
 			ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
 			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
-			for (PhenotypeCallSummary pcs : phenotypeList) {
+			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 				PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
 
 				if (pr.getParameter() != null && pr.getProcedure() != null) {
