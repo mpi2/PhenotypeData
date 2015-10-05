@@ -18,7 +18,6 @@ package org.mousephenotype.cda.indexers;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -34,6 +33,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 
 
@@ -56,7 +56,7 @@ public abstract class AbstractIndexer {
 
     protected abstract Logger getLogger();
 
-    public abstract void run() throws IndexerException, SQLException;
+    public abstract void run() throws IndexerException, SQLException, IOException, SolrServerException;
 
     public abstract void validateBuild() throws IndexerException;
 
