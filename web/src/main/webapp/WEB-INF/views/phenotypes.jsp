@@ -152,12 +152,10 @@
 								<ul>
 								<c:set var="count" value="0" scope="page"/>
 									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
- 										<c:forEach var="pipeline" items="${procedure.pipelines}" varStatus="loop">
- 											<c:set var="count" value="${count+1}" />
-  											<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.stableKey}">${procedure.name} (${pipeline.name})</a></li>
-	 											<c:if test="${count==3 && !(firstLoop.last && loop.last)}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
-												<c:if test="${firstLoop.last && loop.last && fn:length(procedures) >3}"></div></c:if>
-										</c:forEach>
+ 										<c:set var="count" value="${count+1}" />
+  										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">${procedure.procedureName} (${procedure.pipelineName})</a></li>
+	 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
+										<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></div></c:if>
 									</c:forEach>
 								</ul>
 							</div>
@@ -166,7 +164,7 @@
 							<div class="with-label"> <span class="label">Anatomy</span>
 								<ul>
 									<c:forEach var="term" items="${anatomy}" varStatus="loop">
-										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id.accession}">${term.name}</a></li>
+										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id}">${term.name}</a></li>
 									</c:forEach>
 								</ul>
 							</div>
@@ -248,6 +246,11 @@
 			    </h2>
 
 					<div class="inner">
+					
+						<c:if test="${errorMessage != null}">
+							<div class="alert alert-info"><p>${errorMessage}</p></div>
+						</c:if>
+					
 						<div id="phenotypesDiv">
 							<div class="container span12">
 								<c:forEach var="filterParameters" items="${paramValues.fq}">
@@ -295,26 +298,30 @@
 
 	<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
 			<c:if test="${not empty images && fn:length(images) !=0}">
-				<div class="section" id="imagesSection" >
-						<h2 class="title" id="section">Images <i class="fa fa-question-circle pull-right"></i></h2>
+				<div class="section" id="imagesSection">
+						<h2 class="title" id="section">Images <i
+									class="fa fa-question-circle pull-right"></i>
+							</h2>
 						<div class="inner">
 											<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>
 								<div class="accordion-group">
 										<div class="accordion-heading">
 												Phenotype Associated Images
 										</div>
-										<div  class="accordion-body">
+										<div class="accordion-body">
 											<ul>
 												<c:forEach var="doc" items="${images}">
-		                                                                                    <li class="span2">
-													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-		                                                                                    </li>
+		                                            <li class="span2">
+														<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+		                                            </li>
 		    	  								</c:forEach>
 											</ul>
 
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
-												<p class="textright"><a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a></p>
+												<p class="textright">
+												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a>
+											</p>
 												</c:if>
 										</div>
 									</div>

@@ -59,6 +59,7 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,9 +97,6 @@ public class GenesController {
 
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
-//
-//	@Autowired
-//	private GwasDAO gwasDao;
 
 	@Autowired
 	private ImagesSolrDao imagesSolrDao;
@@ -123,9 +121,6 @@ public class GenesController {
 
 	@Autowired
 	private GeneService geneService;
-//
-//	@Autowired 
-//	private StatisticalResultService statsResultsService;
 
 	@Autowired
 	private PreQcService preqcService;
@@ -171,12 +166,12 @@ public class GenesController {
 	public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
-                String debug = request.getParameter("debug");
-                log.info("#### genesAllele2: debug: " + debug);
-                boolean d = debug != null && debug.equals("true");
-                if(d) {
-                    model.addAttribute("debug", "true");
-                }
+		String debug = request.getParameter("debug");
+		log.info("#### genesAllele2: debug: " + debug);
+		boolean d = debug != null && debug.equals("true");
+		if (d) {
+			model.addAttribute("debug", "true");
+		}
 
 		processGeneRequest(acc, model, request);
 
@@ -187,9 +182,7 @@ public class GenesController {
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
-		// see if the gene exists first:
-		//GenomicFeature gene = genesDao.getGenomicFeatureByAccession(acc);
-		GeneDTO gene=geneService.getGeneById(acc);
+		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("geneDTO",gene);
 		if (gene == null) {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
@@ -200,7 +193,6 @@ public class GenesController {
 		 * PRODUCTION STATUS (SOLR)
 		 */
 		String geneStatus = null;
-
 		try {
 
 			geneStatus = solrIndex.getGeneStatus(acc);
@@ -220,45 +212,37 @@ public class GenesController {
 		 */
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-		HashSet<String> mpGroupsSignificant = new HashSet<> ();
-		HashSet<String> mpGroupsNotSignificant = new HashSet<> ();
+		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
+		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
 		
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
-		// Get list of triplets of pipeline, allele acc, phenotyping center
+		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
 		try {
-			// model.addAttribute("phenotypeSummary",
-			// phenSummary.getSummary(acc));
-
-			long time = System.currentTimeMillis();
-			long time2 = System.currentTimeMillis();
 			
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-			
-			System.out.println("Solr took:: " + (System.currentTimeMillis() - time2));
-			time2 = System.currentTimeMillis();
-			
+						
 			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
-					mpGroupsSignificant.add(phen.getGroup());
+					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(false)){
-					mpGroupsNotSignificant.add(phen.getGroup());
+					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(true)){
-					mpGroupsSignificant.add(phen.getGroup());
+					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(false)){
-					mpGroupsNotSignificant.add(phen.getGroup());
+					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(true)){
-					mpGroupsSignificant.add(phen.getGroup());
+					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
 				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(false)){
-					mpGroupsNotSignificant.add(phen.getGroup());
+					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
 				}
-				for (String str : mpGroupsSignificant){
-					if (mpGroupsNotSignificant.contains(str)){
+				for (String str : mpGroupsSignificant.keySet()){
+					if (mpGroupsNotSignificant.keySet().contains(str)){
 						mpGroupsNotSignificant.remove(str);
 					}
 				}				
@@ -270,7 +254,6 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			System.out.println("summary TOOK : " + (System.currentTimeMillis() - time));
 			
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
@@ -283,6 +266,7 @@ public class GenesController {
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
+			
 			
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
@@ -344,6 +328,7 @@ public class GenesController {
 		model.addAttribute("acc", acc);
 		model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
 		model.addAttribute("phenotypeStarted", geneService.checkPhenotypeStarted(acc));
+		model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		// add in the disease predictions from phenodigm
@@ -357,13 +342,13 @@ public class GenesController {
 
 	/**
 	 * @throws IOException
+	 * @throws SolrServerException 
 	 */
 	@RequestMapping("/genesPhenoFrag/{acc}")
 	public String genesPhenoFrag(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		// just pass on any query string after the ? to the solr requesting
-		// object for now
+		// Pass on any query string after the 
 		String queryString = request.getQueryString();
 		processPhenotypes(acc, model, queryString, request);
 
@@ -382,21 +367,15 @@ public class GenesController {
 
 
 	private void processPhenotypes(String acc, Model model, String queryString, HttpServletRequest request)
-	throws IOException, URISyntaxException {
+	throws IOException, URISyntaxException, SolrServerException {
 
-		// facet field example for project name and higher level mp term with
-		// gene as query :
-		// http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype/select/?q=marker_accession_id:MGI:98373&rows=100&version=2.2&start=0&indent=on&defType=edismax&wt=json&facet.field=project_name&facet.field=top_level_mp_term_name&facet=true
-		// //top_level_mp_term_name
 		if (queryString == null) {
 			queryString = "";
 		}
-		// This block collapses phenotype rows
-		// phenotype term, allele, zygosity, and sex
-		// sex is collapsed into a single column
-		List<PhenotypeCallSummary> phenotypeList = new ArrayList<PhenotypeCallSummary>();
+		
+		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
-		PhenotypeFacetResult preQcResult = null;
+		PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
 
 		try {
 
@@ -417,65 +396,41 @@ public class GenesController {
 				}
 			}
 
-			// sort facets first
+			// sort facets 
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
 		} catch (HibernateException | JSONException e) {
 			log.error("ERROR GETTING PHENOTYPE LIST");
 			e.printStackTrace();
-			phenotypeList = new ArrayList<PhenotypeCallSummary>();
+			phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		}
 
 		// This is a map because we need to support lookups
-		Map<DataTableRow, DataTableRow> phenotypes = new HashMap<>();
+		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
 
-		for (PhenotypeCallSummary pcs : phenotypeList) {
+		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
-			// Collapse rows on sex
-			if (phenotypes.containsKey(pr)) {
-				pr = phenotypes.get(pr);
+			// Collapse rows on sex			
+			if (phenotypes.containsKey(pr.hashCode())) {
+
+				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
 				for (String s : pr.getSexes()) {
 					sexes.add(s);
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
+				
 			}
 
-			phenotypes.put(pr, pr);
+			phenotypes.put(pr.hashCode(), pr);
 		}
-		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.keySet());
+		
+		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
 
-	}
-
-	private Map<String, List<Map<String, String>>> getProviders(List<Map<String, String>> constructs)
-	throws org.json.JSONException {
-
-		Map<String, List<Map<String, String>>> nameToProvider = new HashMap<String, List<Map<String, String>>>();
-		for (Map<String, String> construct : constructs) {
-			List<Map<String, String>> listOfProvidersForAllele = new ArrayList<Map<String, String>>();
-			String alleleName = construct.get("alleleName");
-			String providers = construct.get("providers");
-			String orderFromUrls = construct.get("orderFromUrls");
-			// providers are a json array so lets get the data out and put it in
-			// our java structure
-			JSONArray providerArray = new JSONArray(providers);
-			JSONArray urlArray = new JSONArray(orderFromUrls);
-			// only seen single ones of these so far???
-			for (int i = 0; i < providerArray.length(); i++) {
-				String provider = providerArray.getString(i);
-				String url = urlArray.getString(i);
-				Map<String, String> providerAndUrl = new HashMap<String, String>();
-				providerAndUrl.put("provider", provider);
-				providerAndUrl.put("url", url);
-				listOfProvidersForAllele.add(providerAndUrl);
-				nameToProvider.put(alleleName, listOfProvidersForAllele);
-			}
-		}
-		return nameToProvider;
 	}
 
 

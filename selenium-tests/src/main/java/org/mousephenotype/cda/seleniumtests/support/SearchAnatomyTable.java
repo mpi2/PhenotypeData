@@ -16,12 +16,15 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -37,10 +40,13 @@ public class SearchAnatomyTable extends SearchFacetTable {
     private final List<AnatomyRow> bodyRows = new ArrayList();
     private GridMap pageData;
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private static final Map<TableComponent, By> map = new HashMap();
     public static final int COL_INDEX_ANATOMY_TERM     = 0;
     public static final int COL_INDEX_ANATOMY_ID       = 1;
-    public static final int COL_INDEX_ANATOMY_SYNONYMS = 2;
+    public static final int COL_INDEX_ANATOMY_ID_LINK  = 2;
+    public static final int COL_INDEX_ANATOMY_SYNONYMS = 3;
     public static final int COL_INDEX_LAST = COL_INDEX_ANATOMY_SYNONYMS;        // Should always point to the last (highest-numbered) index.
 
     static {
@@ -73,12 +79,16 @@ public class SearchAnatomyTable extends SearchFacetTable {
     @Override
     public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
-              COL_INDEX_ANATOMY_ID
-            , COL_INDEX_ANATOMY_TERM
+                COL_INDEX_ANATOMY_TERM
+              , COL_INDEX_ANATOMY_ID
+              , COL_INDEX_ANATOMY_ID_LINK
+              , COL_INDEX_ANATOMY_SYNONYMS
         };
         final Integer[] downloadColumns = {
-              DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID
-            , DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM
+              DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_TERM
+            , DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID
+            , DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_ID_LINK
+            , DownloadSearchMapAnatomy.COL_INDEX_ANATOMY_SYNONYMS
         };
         
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
@@ -127,20 +137,59 @@ public class SearchAnatomyTable extends SearchFacetTable {
         if ( ! bodyRowElementsList.isEmpty()) {
             int sourceRowIndex = 1;
 
-            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = "";                                   // Insure there is always a non-null value.
-            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_TERM] = "";                                 // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_TERM] = "";                                  // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = "";                                    // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID_LINK] = "";                               // Insure there is always a non-null value.
+            pageArray[sourceRowIndex][COL_INDEX_ANATOMY_SYNONYMS] = "";                              // Insure there is always a non-null value.
+
             for (WebElement bodyRowElements : bodyRowElementsList) {
                 AnatomyRow anatomyRow = new AnatomyRow();
-                List<WebElement> bodyRowElementList= bodyRowElements.findElements(By.cssSelector("td"));
-                WebElement element = bodyRowElementList.get(0).findElement(By.cssSelector("a"));
-                anatomyRow.anatomyIdLink = element.getAttribute("href");
-                int pos = anatomyRow.anatomyIdLink.lastIndexOf("/");
+                List<WebElement> bodyRowElementList = bodyRowElements.findElements(By.cssSelector("td"));
+                WebElement anatomyColElement = bodyRowElementList.get(0);
+                WebElement anatomyColAnchorElement = bodyRowElementList.get(0).findElement(By.cssSelector("a"));
 
-                anatomyRow.anatomyId = anatomyRow.anatomyIdLink.substring(pos + 1);                 // anatomyId.
-                pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = anatomyRow.anatomyId;
+                // In order to see the contents of the span, we need to first bring the anatomy term into view, then
+                // hover over it.
+                Actions builder = new Actions(driver);
+                try {
+                    testUtils.scrollToTop(driver, anatomyColElement, -50);                  // Scroll anatomy term into view.
+                    Actions hoverOverTerm = builder.moveToElement(anatomyColElement);
+                    hoverOverTerm.perform();
 
-                anatomyRow.anatomyTerm = element.getText();                                         // anatomyTerm.
+                    anatomyRow.anatomyIdLink = anatomyColAnchorElement.getAttribute("href");                            // anatomyIdLink
+                    int pos = anatomyRow.anatomyIdLink.lastIndexOf("/");
+                    anatomyRow.anatomyTerm = anatomyColAnchorElement.getText();                                         // anatomyTerm
+                    anatomyRow.anatomyId = anatomyRow.anatomyIdLink.substring(pos + 1);                                 // anatomyId
+
+                    List<WebElement> subinfoElement = bodyRowElementList.get(0).findElements(By.cssSelector("div.subinfo"));
+                    if ( ! subinfoElement.isEmpty()) {
+                        String[] parts = subinfoElement.get(0).getText().split(":");
+                        switch (parts[0].trim().toLowerCase()) {
+                            case "synonym":
+                                // This handles a single synonym only. Multiple synonyms pass through this path but parts[1] has a newline in that case.
+                                if ((parts.length > 1) && ( ! parts[1].contains("\n"))) {
+                                    anatomyRow.synonyms.add(parts[1].trim());                                           // single synonym
+                                }
+
+                            default:
+                                break;
+                        }
+                    }
+
+                    List<WebElement> synonymElements = bodyRowElementList.get(0).findElements(By.cssSelector("ul.synonym li")); // Look for multiple synonyms.
+                    for (WebElement synonymElement : synonymElements) {
+                        anatomyRow.synonyms.add(synonymElement.getText().trim());
+                    }
+
+                } catch (Exception e) {
+                    logger.error("EXCEPTION: SearchAnatomyTable.load() while waiting to hover. Error message: " + e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+
                 pageArray[sourceRowIndex][COL_INDEX_ANATOMY_TERM] = anatomyRow.anatomyTerm;
+                pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID] = anatomyRow.anatomyId;
+                pageArray[sourceRowIndex][COL_INDEX_ANATOMY_ID_LINK] = anatomyRow.anatomyIdLink;
+                pageArray[sourceRowIndex][COL_INDEX_ANATOMY_SYNONYMS] = StringUtils.join(anatomyRow.synonyms, "|");
 
                 sourceRowIndex++;
                 bodyRows.add(anatomyRow);

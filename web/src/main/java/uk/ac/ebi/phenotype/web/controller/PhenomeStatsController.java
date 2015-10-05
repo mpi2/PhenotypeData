@@ -45,12 +45,6 @@ import java.util.Map;
 public class PhenomeStatsController {
 
 	@Autowired
-	private AlleleDAO alleleDao;
-
-	@Autowired
-	private PhenotypeCallSummaryDAO phenotypeCallSummaryDao;
-
-	@Autowired
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
 
@@ -76,7 +70,7 @@ public class PhenomeStatsController {
 
 		ColorCodingPalette colorCoding = new ColorCodingPalette();
 
-		colorCoding.generatePhenotypeCallSummaryColors(
+		colorCoding.generatePhenotypeCallSummaryColorsNew(
 				results.getPhenotypeCallSummaries(),
 				ColorCodingPalette.NB_COLOR_MAX,
 				1,

@@ -152,29 +152,28 @@
 
 
                             <h3 id="impc-expression">Expression</h3>
-                            <p>The Expression section shows all the IMPC expression images associated to this gene via direct annotation from the image source.</p>
-                            <img src="img/gene-expression-images.png" />
+                            <p>
+                                <h4>Expression Images View</h4>
+                                Some IMPC centers are assessing the expression of a LacZ reporter element contained as part of the allele constructs.
+                                Histology images stained to show LacZ images are presented along with metadata describing the the tissue assessed.
+                                The number in parentheses indicates how many images are available for a given image.
+                                <br /><br />
+                                <img src="img/gene-expression-images-view.png" />
+                            </p>
+                            <p>
+                                <h4>Expression Data Overview</h4>
+                                The Expression Data Overview tab is a summary of the number of animals assessed for a given tissue, the number of times
+                                positive staining for LacZwas observed, and links to uploaded images. Images for tissues not exhibiting LacZ staining
+                                are not typically uploaded.
+                            <br /><br />
+                            <img src="img/gene-expression-data-overview.png" />
+                            </p>
 
-
-                            <h3 id="impc-images">IMPC Phenotype Associated Images</h3>
-                            <p>The IMPC Phenotype Associated Images section shows all the IMPC phenotype images associated to this gene via direct annotation from the image source.</p>
-                            <img src="img/gene-expression-images.png" />
-
-
-                            <h3 id="legacy-images">Phenotype Associated Images</h3>
-                            <p>The phenotype images section shows all the legacy images associated to this gene via direct annotation from the
-                                <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
-                                <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
+                            <h3 id="impc-images">Phenotype Associated Images</h3>
+                            <p>
+                                A number of assays generate image data and are used by the phenotyping centers to score the presence or absence
+                                of an abnormal phenotype. Uploaded phenotype images are presented here organised by the procedure generating the image. </p>
                             <img src="img/gene-phenotype-images.png" />
-							<br/><br/>
-
-
-                            <h3 id="legacy-expression">Expression</h3>
-                            <p>The expression images section shows all the expression images associated to this gene via direct annotation from the
-                                    <a href="http://www.sanger.ac.uk/mouseportal/">Sanger Mouse Genetic Project</a>.</p>
-                            <p>NOTE: This is a work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</p>
-                            <img src="img/gene-expression-images.png" />
-
 
                             <h3 id="order">Order Mouse and ES Cells</h3>
                             <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries.</p>

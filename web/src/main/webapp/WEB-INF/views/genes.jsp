@@ -3,9 +3,9 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <t:genericpage>
+
     <jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
 	
@@ -108,6 +108,7 @@
 	<jsp:attribute name="header">
 
             <!-- JavaScript Local Imports -->
+
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
@@ -212,6 +213,11 @@
                     width: auto;
                 }
 
+
+                .ui-widget { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1.0em !important/*{fsDefault}*/; }
+                .ui-widget  { font-size: 1.0em !important; }
+
+
             </style>
 
             <c:if test="${phenotypeStarted}">
@@ -267,10 +273,12 @@
 
                                 </div>
 
-                                <p class="with-label no-margin">
-                                    <span class="label">Name</span>
-                                        ${gene.markerName}
-                                </p>
+								<c:if test="${gene.markerName != null}">
+	                                <p class="with-label no-margin">
+	                                    <span class="label">Name</span>
+	                                        ${gene.markerName}
+	                                </p>
+								</c:if>
 
                                 <c:if
                                         test="${!(empty gene.markerSynonym)}">
@@ -496,28 +504,34 @@
 
 
                                     </c:when>
-                                    <c:when
-                                            test="${summaryNumber == 0}">
+                                    <c:when test="${summaryNumber == 0}">
 
-                                        <c:if
-                                                test="${empty dataMapList}">
-                                            <div class="alert alert-info">
-                                                <h5>Phenotype data is undergoing quality control</h5>
-
-                                                <p>Any phenotype assocations appearing below are preliminary and may
-                                                    change. Links are provided to the Pheno-DCC quality control
-                                                    resource.</p>
-                                            </div>
+                                        <c:if  test="${empty dataMapList}">
+                                        	<c:if test="${attemptRegistered}">                                        	
+	                                        	<div class="alert alert-info">
+	                                                <h5>Registered for phenotyping</h5>
+	                                                <p>Phenotyping is planned for a knockout strain of this gene but data is not currently available.</p>
+	                                            </div>                                            
+                                        	</c:if>
+                                        	
+                                        	<c:if test="${!attemptRegistered}"> 
+	                                            <div class="alert alert-info">
+	                                                <h5>Phenotype data is undergoing quality control</h5>
+	
+	                                                <p>Any phenotype assocations appearing below are preliminary and may
+	                                                    change. Links are provided to the Pheno-DCC quality control
+	                                                    resource.</p>
+	                                            </div>
+                                            </c:if>
                                             <br/>
                                         </c:if>
-                                        <c:if
-                                                test="${!(empty dataMapList)}">
+                                        <c:if  test="${!(empty dataMapList)}">
                                             <div class="alert alert-info">
                                                 <h5>No Significant Phenotype Associations Found</h5>
 
-                                                <p>No significant phenotype associations were found, but you can click
-                                                    on the "All Adult Data" button to see the phenotype data that has
-                                                    been analyzed.</p>
+                                                <p>No significant phenotype associations were found with data that has passed quality control (QC), but you can click 
+                                                on the "All Adult Data" button to see all phenotype data that has passed QC. Preliminary phenotype assocations 
+                                                may appear with new pre-QC phenotype data.</p>
                                             </div>
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
@@ -545,9 +559,7 @@
                                         <!-- Only pre QC data available, suppress post QC phenotype summary -->
                                     </c:when>
                                     <c:otherwise>
-                                        <div
-                                                class="alert alert-info">There are currently no IMPC phenotype
-                                            associations for the gene ${gene.markerSymbol} </div>
+                                        <div class="alert alert-info">There are currently no IMPC phenotype associations for the gene ${gene.markerSymbol} </div>
                                         <br/>
                                     </c:otherwise>
                                 </c:choose>
@@ -1207,11 +1219,21 @@
                             document.getElementById("anatomogramContainer"),
                             anatomogramData,
                             profileRows,
-                            "gray",  // all tissues being tested
+                            // make color the same to disguise mouseover highlight
+                            "blue",  // all tissues being tested
                             "blue",  // tissue color when mouseover
                             eventEmitter);
-                } 
+                }
+
+                $("img.ui-button").each(function(){
+                    // hide brain toggle for now
+                    if ($(this).attr('src').indexOf('brain') != -1){
+                        $(this).hide();
+                    }
+                });
             });
+
+
         </script>
 
     </jsp:body>

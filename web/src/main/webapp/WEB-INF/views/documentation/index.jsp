@@ -49,12 +49,6 @@
                                     determine gene to phenotype associations</a></li>
                             </ul>
 
-                            <h4>IMPC Quick Reference Card</h4>
-                            <ul>
-                                <li><a href="pdf/IMPC-refCard.pdf"><i class="fa fa-download"></i> pdf</a>
-                                </li>
-                            </ul>
-
                             <h4>How to cite the IMPC resource / data</h4>
 
                             <p>To reference the IMPC, please cite:</p>

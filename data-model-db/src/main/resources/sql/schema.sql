@@ -738,13 +738,15 @@ CREATE TABLE unidimensional_observation (
  */
 CREATE TABLE ontology_observation (
 
-	id                        INT(10) UNSIGNED NOT NULL,
-	parameter_id				VARCHAR(255) NOT NULL,/**not necessary to store this as in main parameter when store observation, we should remove it but in for dev testing**/
-	sequence_id                INT(10) NULL,
+	id           INT(10) UNSIGNED NOT NULL,
+	parameter_id VARCHAR(255)     NOT NULL, /**not necessary to store this as in main parameter when store observation, we should remove it but in for dev testing**/
+	sequence_id  INT(10)          NULL,
 
-	PRIMARY KEY(id)
+	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
+)
+	COLLATE = utf8_general_ci
+	ENGINE = MyISAM;
 
 /**
  * unidimensional_observation
@@ -752,13 +754,15 @@ CREATE TABLE ontology_observation (
  */
 CREATE TABLE ontology_entity (
 
-	id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	id                      INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	ontology_observation_id INT(10) UNSIGNED NOT NULL,
-	term                varchar(255) NULL,
-	term_value               varchar(255) NULL,
-	PRIMARY KEY(id)
+	term                    VARCHAR(255)     NULL,
+	term_value              VARCHAR(255)     NULL,
+	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
+)
+	COLLATE = utf8_general_ci
+	ENGINE = MyISAM;
 
 /**
  * multidimensional_observation
@@ -862,6 +866,7 @@ CREATE TABLE phenotype_pipeline (
 	major_version              INT(10) NOT NULL DEFAULT 1,
 	minor_version              INT(10) NOT NULL DEFAULT 0,
 	stable_key                 INT(10) DEFAULT 0,
+	is_deprecated              BOOLEAN,
 	PRIMARY KEY (id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
@@ -1300,6 +1305,7 @@ CREATE TABLE stats_categorical_results (
 	p_value                    DOUBLE,
 	effect_size                DOUBLE,
 	raw_output                 MEDIUMTEXT,
+	authoritative              BOOLEAN,
 
 	PRIMARY KEY (id),
 	KEY control_idx (control_id),
@@ -1380,6 +1386,7 @@ CREATE TABLE stats_unidimensional_results (
 	classification_tag               VARCHAR(200),
 	additional_information           TEXT,
 	raw_output                       MEDIUMTEXT,
+	authoritative                    BOOLEAN,
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
@@ -1409,6 +1416,9 @@ CREATE TABLE stat_result_phenotype_call_summary (
 	ENGINE =MyISAM;
 
 
+--
+-- Discrete statistical result schema
+--
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
 
@@ -1421,7 +1431,6 @@ CREATE TABLE statistical_result_phenotype_call_summary (
 )
 	COLLATE =utf8_general_ci
 	ENGINE =MyISAM;
-
 
 DROP TABLE IF EXISTS statistical_result;
 CREATE TABLE statistical_result (
@@ -1464,6 +1473,7 @@ CREATE TABLE statistical_result (
 	pvalue                           DOUBLE,
 	effect_size                      DOUBLE,
 	stderr                           DOUBLE,
+	authoritative                    BOOLEAN,
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),

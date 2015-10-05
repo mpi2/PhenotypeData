@@ -165,6 +165,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			List<ImageDTO> imageList = observationService.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
 
+				count++;
+
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 
@@ -279,26 +281,35 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setMaTermId(maIds);
 							
 							ArrayList<String>maIdTerms=new ArrayList<>();
-							for( int i=0; i< maIds.size(); i++ ){
+							for (int i = 0; i < maIds.size(); i++) {
 								String maId = maIds.get(i);
-								
-								 // index UBERON/EFO id for MA id
-				                if ( maUberonEfoMap.containsKey(maId) ){
-				                	
-				                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
-				                		for(String id: maUberonEfoMap.get(maId).get("uberon_id")){
-				                			imageDTO.addUberonId(id);
-				                		}
-				                	}
-				                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
-				                		for(String id: maUberonEfoMap.get(maId).get("efo_id")){
-				                			imageDTO.addEfoId(id);
-				                		}
-				                	}
-				                }
-				                
-								String maTerm = maTerms.get(i);
-								maIdTerms.add(maId+"_"+maTerm);
+
+								try {
+
+									// index UBERON/EFO id for MA id
+									if (maUberonEfoMap.containsKey(maId)) {
+
+										if (maUberonEfoMap.get(maId)
+										                  .containsKey("uberon_id")) {
+											for (String id : maUberonEfoMap.get(maId)
+											                               .get("uberon_id")) {
+												imageDTO.addUberonId(id);
+											}
+										}
+										if (maUberonEfoMap.get(maId)
+										                  .containsKey("efo_id")) {
+											for (String id : maUberonEfoMap.get(maId)
+											                               .get("efo_id")) {
+												imageDTO.addEfoId(id);
+											}
+										}
+									}
+
+									String maTerm = maTerms.get(i);
+									maIdTerms.add(maId + "_" + maTerm);
+								} catch (Exception e) {
+									logger.warn("Could not find term when indexing MA {}", maId, e);
+								}
 							}
 							imageDTO.setMaIdTerm(maIdTerms);
 						}
@@ -329,13 +340,12 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 					}
 					server.addBean(imageDTO);
-					count++;
 				}
 
 
 
-				if (count % 10000 == 0) {
-					logger.info(" added ImageDTO" + count + " beans");
+				if (count % 10000 == 0 && count != 0) {
+					logger.info(" added ImageDTO " + count + " beans");
 				}
 			}
 

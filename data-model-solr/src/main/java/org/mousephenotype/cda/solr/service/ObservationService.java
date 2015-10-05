@@ -171,6 +171,40 @@ public class ObservationService extends BasicService {
 		return parameters;
 	}
 	
+	/**
+	 * @author tudose
+	 * @since 2015/09/25
+	 * @return List< [(Procedure, parameter, observationNumber)]>
+	 */
+	public List<String[]> getProcedureParameterWithData(){
+		
+		List<String[]> result = new ArrayList<>();
+		SolrQuery q = new SolrQuery();
+        
+    	q.setQuery("*:*");
+        q.setFacet(true);
+        q.setFacetLimit(-1);
+        q.setRows(0);
+
+        String pivotFacet =  ObservationDTO.PROCEDURE_STABLE_ID  + "," + ObservationDTO.PARAMETER_STABLE_ID;
+		q.set("facet.pivot", pivotFacet);
+        
+        try {
+        	QueryResponse res = solr.query(q);
+        	
+        	for( PivotField pivot : res.getFacetPivot().get(pivotFacet)){
+    			for (PivotField parameter : pivot.getPivot()){
+    				String[] row = {pivot.getValue().toString(), parameter.getValue().toString(), ""+parameter.getCount()};
+    				result.add(row);
+    			}
+    		}
+            
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        }
+        
+        return result;
+	}
 	
     /**
      * @author tudose
@@ -865,8 +899,6 @@ public class ObservationService extends BasicService {
         if (alleleAccession != null) {
             query.addFilterQuery(ObservationDTO.ALLELE_ACCESSION_ID + ":" + alleleAccession.replace(":", "\\:"));
         }
-
-        System.out.println("get experiment :: " + solr.getBaseURL() + "/select?" + query );
 
         QueryResponse response = solr.query(query);
         resultsDTO = response.getBeans(ObservationDTO.class);

@@ -240,7 +240,7 @@ public class GeneService extends BasicService{
 				if ( toExport ){
 					phenotypeStatusHTMLRepresentation = genePageUrl + "#section-associations" + "|" + webStatus;
 				} else {
-					phenotypeStatusHTMLRepresentation = "<a class='status qc' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+					phenotypeStatusHTMLRepresentation = "<a class='status qc phenotypingStatus' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 				}	
 			}
 			else {
@@ -253,7 +253,7 @@ public class GeneService extends BasicService{
 						if ( toExport ){
 							statusList.add(genePageUrl + "#section-associations" + "|" + webStatus);
 						} else {
-							phenotypeStatusHTMLRepresentation += "<a class='status done' href='" + genePageUrl + "#section-associations'><span>"+webStatus+"</span></a>";
+							phenotypeStatusHTMLRepresentation += "<a class='status done phenotypingStatus' href='" + genePageUrl + "#section-associations'><span>"+webStatus+"</span></a>";
 						}
 					}
 				}
@@ -263,7 +263,7 @@ public class GeneService extends BasicService{
 					if ( toExport ){
 						statusList.add(genePageUrl + "#section-associations" + "|" + webStatus);
 					} else {
-						phenotypeStatusHTMLRepresentation += "<a class='status qc' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+						phenotypeStatusHTMLRepresentation += "<a class='status qc phenotypingStatus' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 					}			
 				}						
 			}			
@@ -521,6 +521,7 @@ public class GeneService extends BasicService{
 
 		return order;
 	}
+	
 
 	public boolean checkOrderMice(SolrDocument doc) {
 		
@@ -543,6 +544,32 @@ public class GeneService extends BasicService{
 		return order;
 
 	}
+	
+
+	public Boolean checkAttemptRegistered(String geneAcc) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneAcc + "\"");
+		QueryResponse response = solr.query(query);
+
+		if (response.getResults().size() > 0) {
+
+			SolrDocument doc = response.getResults().get(0);
+			if (doc.containsKey(GeneDTO.PHENOTYPE_STATUS)) {
+
+				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
+				for (String status : statuses) {
+
+					if (status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_ATTEMPT_REGISTERED)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	
 	
 	
 	public Boolean checkPhenotypeStarted(String geneAcc) 

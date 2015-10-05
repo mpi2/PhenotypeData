@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
 
 import java.io.File;
 import java.util.List;
@@ -32,9 +33,13 @@ import java.util.List;
 /**
  * Class to kick off reports from the command-line.
  *
+ * Example command used to build the 3.1 reports:
+ *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-0.0.1.jar --targetDirectory=/Users/mrelac/reports/3.1
+ *
  * Created by mrelac on 23/06/2015.
  */
 
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
@@ -98,7 +103,7 @@ public class ReportsManager implements CommandLineRunner {
         FERTILITY("fertility", "Fertility report"),
         HITS_PER_LINE("hitsPerLine", "Hits per line report"),
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
-        IMPC_P_VALUES("impcPvalues", "IMPC p-values report"),
+        IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
         PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
@@ -306,7 +311,7 @@ public class ReportsManager implements CommandLineRunner {
         };
         System.out.println("Usage:");
         for (int i = 0; i < commands.length; i++) {
-            System.out.println(String.format("%-50.50s %-30.30s", commands[i], defaults[i]));
+            System.out.println(String.format("%-50.50s %-80.80s", commands[i], defaults[i]));
         }
         System.out.println();
         System.out.println("Reports:");

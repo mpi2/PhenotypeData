@@ -19,6 +19,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -45,6 +46,7 @@ public class ReportsController {
 
 	@Autowired
 	ImageService is;
+	
 
 //	@Autowired
 //	SexualDimorphismDAO sdDAO;
@@ -96,6 +98,20 @@ public class ReportsController {
 	}
 
 
+	@RequestMapping(value = "/reports/procedure-pipeline-with-data", method = RequestMethod.GET)
+	public void getProcedurePipelineWithData(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		List<String[]> result = rService.getProcedureParameterWithData();
+		ControllerUtils.writeAsCSV(result, "procedure-pipeline-with-data.csv", response);
+	}
+
+	@RequestMapping(value = "/reports/procedure-pipeline-all", method = RequestMethod.GET)
+	public void getProcedurePipelineAll(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		List<String[]> result = rService.getProcedureParameterAllPossible();
+		ControllerUtils.writeAsCSV(result, "procedure-pipeline-all-possible.csv", response);
+	}
+	
 	@RequestMapping(value = "/reports/mpCallDistribution", method = RequestMethod.GET)
 	public void getMpCallDistribution(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws IOException {
 

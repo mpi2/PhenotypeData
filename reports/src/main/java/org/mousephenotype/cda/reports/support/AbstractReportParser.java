@@ -55,7 +55,7 @@ public abstract class AbstractReportParser {
 
     public static final String DEFAULT_TARGET_DIRECTORY = "./reports";
     public static final AbstractReport.ReportFormat DEFAULT_REPORT_FORMAT = AbstractReport.ReportFormat.csv;
-    public static final String DEFAULT_PROPERTIES_FILE = "application.properties";
+    public static final String DEFAULT_PROPERTIES_FILE = "${user.home}/configfiles/${profile}/application.properties";
     public static final String DEFAULT_PREFIX = "";
 
 
@@ -120,8 +120,8 @@ public abstract class AbstractReportParser {
         String propertiesFilename = (propertyMap.containsKey(PROPERTIES_FILE_ARG) ? propertyMap.get(PROPERTIES_FILE_ARG) : DEFAULT_PROPERTIES_FILE);
         try {
             this.applicationProperties = new PropertiesConfiguration(propertiesFilename);
-        } catch( ConfigurationException e) {
-            retVal.add("Unable to read properties targetFile '" + propertiesFilename + ". Reason: " + e.getLocalizedMessage());
+        } catch(ConfigurationException e) {
+
         }
 
         if (propertyMap.containsKey(PREFIX_ARG)) {
