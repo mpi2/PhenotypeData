@@ -103,7 +103,7 @@ public class ReportsManager implements CommandLineRunner {
         FERTILITY("fertility", "Fertility report"),
         HITS_PER_LINE("hitsPerLine", "Hits per line report"),
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
-        IMPC_P_VALUES("impcPvalues", "IMPC p-values report"),
+        IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
         PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
