@@ -64,6 +64,8 @@ public class GenotypePhenotypeDTO {
     public static final String P_VALUE = "p_value";
     public static final String EFFECT_SIZE = "effect_size";
     public static final String EXTERNAL_ID = "external_id";
+    public static final String LIFE_STAGE_ACC = "life_stage_acc";
+    public static final String LIFE_STAGE_NAME = "life_stage_name";
 
     @Field(ID)
     Integer id;
@@ -190,6 +192,12 @@ public class GenotypePhenotypeDTO {
 
     @Field(EXTERNAL_ID)
     String externalId;
+
+    @Field(LIFE_STAGE_ACC)
+    String life_stage_acc;
+
+    @Field(LIFE_STAGE_NAME)
+    String life_stage_name;
 
     public Integer getId() {
 
@@ -609,151 +617,109 @@ public class GenotypePhenotypeDTO {
         this.externalId = externalId;
     }
 
+    public String LifeStageAcc() {
+
+        return life_stage_acc;
+    }
+
+    public void setLifeStageAcc(String life_stage_acc) {
+
+        this.life_stage_acc = life_stage_acc;
+    }
+
+    public String LifeStageName() {
+
+        return life_stage_name;
+    }
+
+    public void setLifeStageName(String life_stage_name) {
+
+        this.life_stage_name = life_stage_name;
+    }
+
     @Override
     public boolean equals(Object o) {
-
-        if (this == o) {
-            return true;
-        }
-        if ( ! (o instanceof GenotypePhenotypeDTO)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         GenotypePhenotypeDTO that = (GenotypePhenotypeDTO) o;
 
-        if (alleleAccessionId != null ?  ! alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null) {
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
+        if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
+        if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
             return false;
-        }
-        if (alleleName != null ?  ! alleleName.equals(that.alleleName) : that.alleleName != null) {
+        if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
             return false;
-        }
-        if (alleleSymbol != null ?  ! alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) {
+        if (topLevelMpTermDefinition != null ? !topLevelMpTermDefinition.equals(that.topLevelMpTermDefinition) : that.topLevelMpTermDefinition != null)
             return false;
-        }
-        if (colonyId != null ?  ! colonyId.equals(that.colonyId) : that.colonyId != null) {
+        if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
             return false;
-        }
-        if (effect_size != null ?  ! effect_size.equals(that.effect_size) : that.effect_size != null) {
+        if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
             return false;
-        }
-        if (externalId != null ?  ! externalId.equals(that.externalId) : that.externalId != null) {
+        if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
             return false;
-        }
-        if (id != null ?  ! id.equals(that.id) : that.id != null) {
+        if (intermediateMpTermDefinition != null ? !intermediateMpTermDefinition.equals(that.intermediateMpTermDefinition) : that.intermediateMpTermDefinition != null)
             return false;
-        }
-        if (intermediateMpTermDefinition != null ?  ! intermediateMpTermDefinition.equals(that.intermediateMpTermDefinition) : that.intermediateMpTermDefinition != null) {
+        if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null)
             return false;
-        }
-        if (intermediateMpTermId != null ?  ! intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null) {
+        if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
+        if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null)
             return false;
-        }
-        if (intermediateMpTermName != null ?  ! intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null) {
+        if (colonyId != null ? !colonyId.equals(that.colonyId) : that.colonyId != null) return false;
+        if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
+        if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) return false;
+        if (alleleAccessionId != null ? !alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null)
             return false;
-        }
-        if (intermediateMpTermSynonym != null ?  ! intermediateMpTermSynonym.equals(that.intermediateMpTermSynonym) : that.intermediateMpTermSynonym != null) {
+        if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) return false;
+        if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null)
             return false;
-        }
-        if (markerAccessionId != null ?  ! markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null) {
+        if (geneticBackground != null ? !geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null)
             return false;
-        }
-        if (markerSymbol != null ?  ! markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) {
+        if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null)
             return false;
-        }
-        if (mpTermId != null ?  ! mpTermId.equals(that.mpTermId) : that.mpTermId != null) {
+        if (projectExternalId != null ? !projectExternalId.equals(that.projectExternalId) : that.projectExternalId != null)
             return false;
-        }
-        if (mpTermName != null ?  ! mpTermName.equals(that.mpTermName) : that.mpTermName != null) {
+        if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null) return false;
+        if (projectFullname != null ? !projectFullname.equals(that.projectFullname) : that.projectFullname != null)
             return false;
-        }
-        if (p_value != null ?  ! p_value.equals(that.p_value) : that.p_value != null) {
+        if (resourceName != null ? !resourceName.equals(that.resourceName) : that.resourceName != null) return false;
+        if (resourceFullname != null ? !resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null)
             return false;
-        }
-        if (parameterName != null ?  ! parameterName.equals(that.parameterName) : that.parameterName != null) {
+        if (sex != null ? !sex.equals(that.sex) : that.sex != null) return false;
+        if (zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null) return false;
+        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
+        if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null)
             return false;
-        }
-        if (parameterStableId != null ?  ! parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null) {
+        if (pipelineStableKey != null ? !pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null)
             return false;
-        }
-        if (parameterStableKey != null ?  ! parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null) {
+        if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null)
             return false;
-        }
-        if (percentageChange != null ?  ! percentageChange.equals(that.percentageChange) : that.percentageChange != null) {
+        if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null)
             return false;
-        }
-        if (phenotypingCenter != null ?  ! phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null) {
+        if (procedureStableKey != null ? !procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null)
             return false;
-        }
-        if (pipelineName != null ?  ! pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
+        if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
             return false;
-        }
-        if (pipelineStableId != null ?  ! pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null) {
+        if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null)
             return false;
-        }
-        if (pipelineStableKey != null ?  ! pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null) {
+        if (parameterStableKey != null ? !parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null)
             return false;
-        }
-        if (procedureName != null ?  ! procedureName.equals(that.procedureName) : that.procedureName != null) {
+        if (statisticalMethod != null ? !statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null)
             return false;
-        }
-        if (procedureStableId != null ?  ! procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null) {
+        if (percentageChange != null ? !percentageChange.equals(that.percentageChange) : that.percentageChange != null)
             return false;
-        }
-        if (procedureStableKey != null ?  ! procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null) {
+        if (p_value != null ? !p_value.equals(that.p_value) : that.p_value != null) return false;
+        if (effect_size != null ? !effect_size.equals(that.effect_size) : that.effect_size != null) return false;
+        if (externalId != null ? !externalId.equals(that.externalId) : that.externalId != null) return false;
+        if (life_stage_acc != null ? !life_stage_acc.equals(that.life_stage_acc) : that.life_stage_acc != null)
             return false;
-        }
-        if (projectExternalId != null ?  ! projectExternalId.equals(that.projectExternalId) : that.projectExternalId != null) {
-            return false;
-        }
-        if (projectFullname != null ?  ! projectFullname.equals(that.projectFullname) : that.projectFullname != null) {
-            return false;
-        }
-        if (projectName != null ?  ! projectName.equals(that.projectName) : that.projectName != null) {
-            return false;
-        }
-        if (resourceFullname != null ?  ! resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null) {
-            return false;
-        }
-        if (resourceName != null ?  ! resourceName.equals(that.resourceName) : that.resourceName != null) {
-            return false;
-        }
-        if (sex != null ?  ! sex.equals(that.sex) : that.sex != null) {
-            return false;
-        }
-        if (statisticalMethod != null ?  ! statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null) {
-            return false;
-        }
-        if (strainAccessionId != null ?  ! strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null) {
-            return false;
-        }
-        if (strainName != null ?  ! strainName.equals(that.strainName) : that.strainName != null) {
-            return false;
-        }
-        if (geneticBackground != null ?  ! geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null) {
-            return false;
-        }
-        if (topLevelMpTermDefinition != null ?  ! topLevelMpTermDefinition.equals(that.topLevelMpTermDefinition) : that.topLevelMpTermDefinition != null) {
-            return false;
-        }
-        if (topLevelMpTermId != null ?  ! topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null) {
-            return false;
-        }
-        if (topLevelMpTermName != null ?  ! topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null) {
-            return false;
-        }
-        if (topLevelMpTermSynonym != null ?  ! topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null) {
-            return false;
-        }
-        if (zygosity != null ?  ! zygosity.equals(that.zygosity) : that.zygosity != null) {
-            return false;
-        }
+        return !(life_stage_name != null ? !life_stage_name.equals(that.life_stage_name) : that.life_stage_name != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
         result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
@@ -796,13 +762,59 @@ public class GenotypePhenotypeDTO {
         result = 31 * result + (p_value != null ? p_value.hashCode() : 0);
         result = 31 * result + (effect_size != null ? effect_size.hashCode() : 0);
         result = 31 * result + (externalId != null ? externalId.hashCode() : 0);
+        result = 31 * result + (life_stage_acc != null ? life_stage_acc.hashCode() : 0);
+        result = 31 * result + (life_stage_name != null ? life_stage_name.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-
-        return "GenotypePhenotypeDTO [id=" + id + ", mpTermId=" + mpTermId + ", mpTermName=" + mpTermName + ", topLevelMpTermId=" + topLevelMpTermId + ", topLevelMpTermName=" + topLevelMpTermName + ", topLevelMpTermDefinition=" + topLevelMpTermDefinition + ", topLevelMpTermSynonym=" + topLevelMpTermSynonym + ", intermediateMpTermId=" + intermediateMpTermId + ", intermediateMpTermName=" + intermediateMpTermName + ", intermediateMpTermDefinition=" + intermediateMpTermDefinition + ", intermediateMpTermSynonym=" + intermediateMpTermSynonym + ", markerSymbol=" + markerSymbol + ", markerAccessionId=" + markerAccessionId + ", colonyId=" + colonyId + ", alleleName=" + alleleName + ", alleleSymbol=" + alleleSymbol + ", alleleAccessionId=" + alleleAccessionId + ", strainName=" + strainName + ", strainAccessionId=" + strainAccessionId + ", geneticBackground=" + geneticBackground + ", phenotypingCenter=" + phenotypingCenter + ", projectExternalId=" + projectExternalId + ", projectName=" + projectName + ", projectFullname=" + projectFullname + ", resourceName=" + resourceName + ", resourceFullname=" + resourceFullname + ", sex=" + sex + ", zygosity=" + zygosity + ", pipelineName=" + pipelineName + ", pipelineStableId=" + pipelineStableId + ", pipelineStableKey=" + pipelineStableKey + ", procedureName=" + procedureName + ", procedureStableId=" + procedureStableId + ", procedureStableKey=" + procedureStableKey + ", parameterName=" + parameterName + ", parameterStableId=" + parameterStableId + ", parameterStableKey=" + parameterStableKey + ", p_value=" + p_value + ", effect_size=" + effect_size + ", externalId=" + externalId + "]";
+        return "GenotypePhenotypeDTO{" +
+                "id=" + id +
+                ", mpTermId='" + mpTermId + '\'' +
+                ", mpTermName='" + mpTermName + '\'' +
+                ", topLevelMpTermId=" + topLevelMpTermId +
+                ", topLevelMpTermName=" + topLevelMpTermName +
+                ", topLevelMpTermDefinition=" + topLevelMpTermDefinition +
+                ", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
+                ", intermediateMpTermId=" + intermediateMpTermId +
+                ", intermediateMpTermName=" + intermediateMpTermName +
+                ", intermediateMpTermDefinition=" + intermediateMpTermDefinition +
+                ", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
+                ", markerSymbol='" + markerSymbol + '\'' +
+                ", markerAccessionId='" + markerAccessionId + '\'' +
+                ", colonyId='" + colonyId + '\'' +
+                ", alleleName='" + alleleName + '\'' +
+                ", alleleSymbol='" + alleleSymbol + '\'' +
+                ", alleleAccessionId='" + alleleAccessionId + '\'' +
+                ", strainName='" + strainName + '\'' +
+                ", strainAccessionId='" + strainAccessionId + '\'' +
+                ", geneticBackground='" + geneticBackground + '\'' +
+                ", phenotypingCenter='" + phenotypingCenter + '\'' +
+                ", projectExternalId='" + projectExternalId + '\'' +
+                ", projectName='" + projectName + '\'' +
+                ", projectFullname='" + projectFullname + '\'' +
+                ", resourceName='" + resourceName + '\'' +
+                ", resourceFullname='" + resourceFullname + '\'' +
+                ", sex='" + sex + '\'' +
+                ", zygosity='" + zygosity + '\'' +
+                ", pipelineName='" + pipelineName + '\'' +
+                ", pipelineStableId='" + pipelineStableId + '\'' +
+                ", pipelineStableKey='" + pipelineStableKey + '\'' +
+                ", procedureName='" + procedureName + '\'' +
+                ", procedureStableId='" + procedureStableId + '\'' +
+                ", procedureStableKey='" + procedureStableKey + '\'' +
+                ", parameterName='" + parameterName + '\'' +
+                ", parameterStableId='" + parameterStableId + '\'' +
+                ", parameterStableKey='" + parameterStableKey + '\'' +
+                ", statisticalMethod='" + statisticalMethod + '\'' +
+                ", percentageChange='" + percentageChange + '\'' +
+                ", p_value=" + p_value +
+                ", effect_size=" + effect_size +
+                ", externalId='" + externalId + '\'' +
+                ", life_stage_acc='" + life_stage_acc + '\'' +
+                ", life_stage_name='" + life_stage_name + '\'' +
+                '}';
     }
 
 }
