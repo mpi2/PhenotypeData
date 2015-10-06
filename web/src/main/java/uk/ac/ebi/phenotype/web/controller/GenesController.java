@@ -368,7 +368,7 @@ public class GenesController {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		model.addAttribute("geneDTO",gene);
+		model.addAttribute("gene",gene);
 
 		return "geneSummary";
 	}
