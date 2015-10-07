@@ -24,6 +24,8 @@
 		        target: "heatmapContainer"
 		    });
 		</script>
+		<link rel="stylesheet" href="${baseUrl}/css/customanatomogram.css" />
+      
 	</jsp:attribute>
 	
 	<jsp:body>
@@ -76,8 +78,12 @@
 	                            </div>
 	                            
 	                            <div class="clear"></div>
+	                            <br/>
 	                            
-	                            <div id="heatmapContainer"></div>
+	                            
+	                            <div class="bordertop">
+	                            	<div id="heatmapContainer" class="bordertop"></div>
+	                            </div>
 	                             
                         	</div>
                         <!-- section end -->
