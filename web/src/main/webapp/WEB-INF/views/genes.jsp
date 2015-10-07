@@ -411,7 +411,7 @@
                                         </c:if>
 
                                         <c:if
-                                                test="${geneDTO.embryoDataAvailable}">
+                                                test="${gene.embryoDataAvailable}">
                                             <div class="floatright"
                                                  style="clear: both">
                                                 <a class="btn"
@@ -546,7 +546,7 @@
                                         </c:if>
 
                                         <c:if
-                                                test="${geneDTO.embryoDataAvailable}">
+                                                test="${gene.embryoDataAvailable}">
                                             <div class="floatright"
                                                  style="clear: both">
                                                 <a class="btn"
