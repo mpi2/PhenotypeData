@@ -183,7 +183,7 @@ public class GenesController {
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		model.addAttribute("geneDTO",gene);
+		
 		if (gene == null) {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -353,6 +353,24 @@ public class GenesController {
 		processPhenotypes(acc, model, queryString, request);
 
 		return "PhenoFrag";
+	}
+
+
+	/**
+	 * @author tudose
+	 * @since 2015/10/02
+	 * @throws IOException
+	 * @throws SolrServerException 
+	 */
+	@RequestMapping("/geneSummary/{acc}")
+	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+
+
+		GeneDTO gene = geneService.getGeneById(acc);
+		model.addAttribute("gene",gene);
+
+		return "geneSummary";
 	}
 
 
