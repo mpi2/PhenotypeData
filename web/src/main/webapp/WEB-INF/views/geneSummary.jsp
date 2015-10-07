@@ -7,13 +7,25 @@
 	<jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
+	
 	<jsp:attribute name="bodyTag">
-		<body class="gene-node no-sidebars small-header">
-	
-	
-	
-	
+		<body class="gene-node no-sidebars small-header">	
 	</jsp:attribute>
+	
+	<jsp:attribute name="addToFooter">
+	    <script type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/vendor.bundle.js"></script>
+		<script type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/expression-atlas-heatmap.bundle.js"></script>
+		<script type="text/javascript">
+		    var AtlasHeatmapBuilder = window.exposed;
+		    AtlasHeatmapBuilder({
+		        gxaBaseUrl: "http://www.ebi.ac.uk/gxa/",
+		        params: "geneQuery=ASPM&species=mus%20musculus",
+		        isMultiExperiment: true,
+		        target: "heatmapContainer"
+		    });
+		</script>
+	</jsp:attribute>
+	
 	<jsp:body>
         <div class="region region-content">
             <div class="block">
@@ -55,12 +67,18 @@
 	                                </p>
 	                            </div>
 	                            <div class="half">
-                                	<h3>Human ortholog ${gene.markerSymbol}</h3>
-                                    
+                                	<h3>Human ortholog <c:forEach var="symbol" items="${gene.humanGeneSymbol}" varStatus="loop">
+	                                       ${symbol}    <c:if test="${!loop.last}">, </c:if>    <c:if test="${loop.last}"></c:if> </c:forEach>
+	                                </h3>
+                                    <p>[Function, synonyms]</p>
+                                    <p>[GO annotations]</p>
 									
 	                            </div>
 	                            
 	                            <div class="clear"></div>
+	                            
+	                            <div id="heatmapContainer"></div>
+	                             
                         	</div>
                         <!-- section end -->
                       </div>
@@ -70,5 +88,5 @@
           </div>
       </jsp:body>
 
-
+	
 </t:genericpage>
