@@ -320,7 +320,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if ( liveStageMap.containsKey(key) ) {
                     DevelopmentalStage stage = liveStageMap.get(key);
                     developmentalStageAcc = stage.getAccession();
-                    developmentalStageName = stage.get;
+	                developmentalStageName = stage.getName();
                 }
                 doc.setLifeStageAcc(developmentalStageAcc);
                 doc.setLifeStageName(developmentalStageName);
