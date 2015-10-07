@@ -21,23 +21,79 @@
 				
 							<div class="section">
 								<div class="inner">
-									<p><a href="${baseUrl}/reports/dataOverview">Data Overview</a></p>
-									<p><a href="${baseUrl}/reports/centerProgressCsv">Procedure Completeness</a></p>
-									<p><a href="${baseUrl}/reports/viability">Viability</a></p>
-									<p><a href="${baseUrl}/reports/fertility">Fertility report</a></p>
-									<p><a href="${baseUrl}/reports/mpCallDistribution">Distribution of phenotype hits</a></p>
-									<p><a href="${baseUrl}/reports/hitsPerLine">Hits per line</a></p>
-									<p><a href="${baseUrl}/reports/hitsPerPP">Hits per parameter and procedure</a></p>
-									<p><a href="${baseUrl}/reports/sexualDimorphism">Sexual Dimorphism No Body Weight</a></p>
-									<p><a href="${baseUrl}/reports/sexualDimorphismWithBodyWeight">Sexual Dimorphism With Body Weight</a></p>
-									<!--  <p><a href="${baseUrl}/reports/gene2go">GO annotations to phenotyped IMPC genes tool</a></p> -->
-									<p><a href="${baseUrl}/reports/getLaczSpreadsheet">LacZ Expression</a></p>
-									<p><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-3.0/csv/">All genotype-phenotype data</a></p>
-									<p><a href="${baseUrl}/reports/getBmdIpdtt?param=IMPC_DXA_004_001">BMD stats (Bone Mineral Content, excluding skull)</a></p>
-									<p><a href="${baseUrl}/reports/getBmdIpdtt?param=IMPC_IPG_010_001">IpGTT stats (Fasted blood glucose concentration)</a></p>
-									<p><a href="${baseUrl}/reports/getBmdIpdtt?param=IMPC_IPG_012_001">IpGTT stats (Area under the curve glucose response)</a></p>
-									<p><a href="${baseUrl}/reports/phenotype-overview-per-gene">Phenotype overview per gene</a></p>
-									<p><a href="${baseUrl}/reports/phenotype-overview-by-zygosity">Zygosity report</a></p>
+									<h4>General Reports</h4>
+									<table>
+										<thead>
+											<tr><td>Report Link</td><td>Description</td></tr>
+										</thead>
+										<tbody>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/csv/ALL_genotype_phenotype.csv.gz">ALL_genotype_phenotype.csv.gz</a></td>
+												<td>All genotype-phenotype data (compressed)</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/bmdStatsGlucoseConcentrationReport.csv">bmdStatsGlucoseConcentrationReport.csv</a></td>
+												<td>BMD - Fasted blood glucose concentration</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/bmdStatsGlucoseResponseReport.csv">bmdStatsGlucoseResponseReport.csv</a></td>
+												<td>BMD - Area under the curve glucose response</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/bmdStatsReport.csv">bmdStatsReport.csv</a></td>
+												<td>BMD - Bone Mineral Content, excluding skull</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/dataOverviewReport.csv">dataOverviewReport.csv</a></td>
+												<td>Data overview</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/fertilityReport.csv">fertilityReport.csv</a></td>
+												<td>Fertility</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/hitsPerLineReport.csv">hitsPerLineReport.csv</a></td>
+												<td>Hits per line</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/hitsPerParameterAndProcedureReport.csv">hitsPerParameterAndProcedureReport.csv</a></td>
+												<td>Hits per parameter and procedure</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/impcPValuesReport.csv">impcPValuesReport.csv</a></td>
+												<td>IMPC P-Values</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/laczExpressionReport.csv">laczExpressionReport.csv</a></td>
+												<td>lacZ expression</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/phenotypeHitsReport.csv">phenotypeHitsReport.csv</a></td>
+												<td>Phenotype hits</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/phenotypeOverviewPerGeneReport.csv">phenotypeOverviewPerGeneReport.csv</a></td>
+												<td>Phenotype overview per gene</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/procedureCompletenessReport.csv">procedureCompletenessReport.csv</a></td>
+												<td>Procedure completeness</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/sexualDimorphismNoBodyWeightReport.csv">sexualDimorphismNoBodyWeightReport.csv</a></td>
+												<td>Sexual dimorphism - no body weight</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/sexualDimorphismWithBodyWeightReport.csv">sexualDimorphismWithBodyWeightReport.csv</a></td>
+												<td>Sexual dimorphism - with body weight</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv">viabilityReport.csv</a></td>
+												<td>Viability</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/zygosityReport.csv">zygosityReport.csv</a></td>
+												<td>Zygosity</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<hr />
+
+									The <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc">EBI ftp server</a> offers current and previous versions of data for download.
+									Links to the latest version of the following artifacts may be found below.
+									<table>
+										<thead><tr><td>Artifact</td><td>Description</td></tr></thead>
+										<tbody>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/cores">cores</a></td><td>The cores used to build the data release</td></tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/csv">csv</a></td><td>Full-data summary reports</td></tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/mysql">mysql</a></td><td>The compressed komp2 database</td></tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports">reports</a></td><td>The general reports</td></tr>
+										</tbody>
+									</table>
 
 								</div>
 							</div>
