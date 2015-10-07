@@ -214,7 +214,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  INNER JOIN external_db db ON s.external_db_id = db.id " +
             "WHERE (0.0001 >= s.p_value " +
             "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
-            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001))" ;
+            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
+	        "OR (parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%'))" ;
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -319,7 +320,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if ( liveStageMap.containsKey(key) ) {
                     DevelopmentalStage stage = liveStageMap.get(key);
                     developmentalStageAcc = stage.getAccession();
-                    developmentalStageName = stage.getName();
+	                developmentalStageName = stage.getName();
                 }
                 doc.setLifeStageAcc(developmentalStageAcc);
                 doc.setLifeStageName(developmentalStageName);

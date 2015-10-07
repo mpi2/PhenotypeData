@@ -1,19 +1,13 @@
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.util.List;
-
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.Datasource;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Organisation;
-import org.mousephenotype.cda.db.pojo.Project;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+
+import java.util.List;
 
 
 public class PhenotypeCallSummaryDTO {
@@ -38,7 +32,8 @@ public class PhenotypeCallSummaryDTO {
 	protected List<BasicBean> topLevelPhenotypeTerms;
 	protected boolean isPreQC;
 	protected String gId; // preqc only, param needed for phenoview graph links
-
+	protected String lifeStageAcc;
+	protected String lifeStageName;
 
 	/**
 	 * @return the gId
@@ -333,4 +328,35 @@ public class PhenotypeCallSummaryDTO {
 		return -Math.log10(pValue);
 	}
 
+	/**
+	 * @return the life stage accession id
+	 */
+	public String getLifeStageAcc() {
+
+		return lifeStageAcc;
+	}
+
+	/**
+	 * @param lifeStageAcc the lifeStageAcc to set
+	 */
+	public void setLifeStageAcc(String lifeStageAcc) {
+
+		this.lifeStageAcc = lifeStageAcc;
+	}
+
+	/**
+	 * @return the life stage name
+	 */
+	public String getLifeStageName() {
+
+		return lifeStageName;
+	}
+
+	/**
+	 * @param lifeStageName the lifeStageName to set
+	 */
+	public void setLifeStageName(String lifeStageName) {
+
+		this.lifeStageName = lifeStageName;
+	}
 }
