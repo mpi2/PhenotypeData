@@ -1,0 +1,74 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+
+<t:genericpage>
+
+	<jsp:attribute name="title">Gene details for ${gene.markerName}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
+			href="${baseUrl}/search#q=*:*&facet=gene">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
+	<jsp:attribute name="bodyTag">
+		<body class="gene-node no-sidebars small-header">
+	
+	
+	
+	
+	</jsp:attribute>
+	<jsp:body>
+        <div class="region region-content">
+            <div class="block">
+                <div class="content">
+                    <div class="node node-gene">
+                        <h1 class="title" id="top">Gene: ${gene.markerSymbol}
+                            <span class="documentation">
+                                <a href='' id='detailsPanel'
+								class="fa fa-question-circle pull-right"></a>
+                            </span>
+                        </h1>
+
+                        <div class="section">
+                            <div class="inner">
+                                <!--  login interest button -->
+                                <div class="half">
+                                	<h3>Mouse ${gene.markerSymbol}</h3>
+                                    
+									<c:if test="${gene.markerName != null}">
+		                                <p class="with-label no-margin">
+		                                    <span class="label">Name</span>
+		                                        ${gene.markerName}
+		                                </p>
+									</c:if>
+	                                <c:if test="${!(empty gene.markerSynonym)}">
+	                                    <p class="with-label no-margin">
+	                                        <span class="label">Synonyms</span>
+	                                        <c:forEach var="synonym"
+												items="${gene.markerSynonym}" varStatus="loop">
+	                                            ${synonym}
+	                                            <c:if test="${!loop.last}">, </c:if>
+	                                            <c:if test="${loop.last}"></c:if>
+	                                        </c:forEach>
+	                                    </p>
+	                                </c:if>
+	                                <p class="with-label">
+	                                    <span class="label">MGI Id</span>
+	                                    <a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
+	                                </p>
+	                            </div>
+	                            <div class="half">
+                                	<h3>Human ortholog ${gene.markerSymbol}</h3>
+                                    
+									
+	                            </div>
+	                            
+	                            <div class="clear"></div>
+                        	</div>
+                        <!-- section end -->
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+      </jsp:body>
+
+
+</t:genericpage>
