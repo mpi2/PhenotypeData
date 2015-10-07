@@ -71,7 +71,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
-    Map<String, String> liveStageMap = new HashMap<>();
+    Map<String, DevelopmentalStage> liveStageMap = new HashMap<>();
 
     public GenotypePhenotypeIndexer() {
     }
@@ -164,7 +164,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
             ResultSet r = p.executeQuery();
-            System.out.println("r: "+ r.toString());
             while (r.next()) {
 
                 List<String> fields = new ArrayList<String>();
@@ -172,14 +171,14 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 fields.add(r.getString("pipeline_stable_id"));
                 fields.add(r.getString("procedure_stable_id"));
 
-                String developmentalStageAcc = r.getString("developmental_stage_acc");
-                String developmentalStageName = r.getString("developmental_stage_name");
+	            DevelopmentalStage stage = new DevelopmentalStage(
+		            r.getString("developmental_stage_acc"),
+		            r.getString("developmental_stage_name"));
 
                 String key = StringUtils.join(fields, "_");
-                System.out.println("key: "+ key);
                 if (!liveStageMap.containsKey(key)){
 
-                    liveStageMap.put(key, developmentalStageAcc + "__" + developmentalStageName);
+                    liveStageMap.put(key, stage);
                 }
             }
         } catch (Exception e) {
@@ -187,7 +186,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         }
 
         logger.info("Done populating live stage map");
-        System.out.println("live stage map: "+ liveStageMap);
     }
 
     public void populateGenotypePhenotypeSolrCore() throws SQLException, IOException, SolrServerException {
@@ -319,9 +317,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 String developmentalStageName = "";
 
                 if ( liveStageMap.containsKey(key) ) {
-                    String[] developmentalStageList = liveStageMap.get(key).split("__");
-                    developmentalStageAcc = developmentalStageList[0];
-                    developmentalStageName = developmentalStageList[1];
+                    DevelopmentalStage stage = liveStageMap.get(key);
+                    developmentalStageAcc = stage.getAccession();
+                    developmentalStageName = stage.getName();
                 }
                 doc.setLifeStageAcc(developmentalStageAcc);
                 doc.setLifeStageName(developmentalStageName);
@@ -345,4 +343,30 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             logger.error("Big error {}", e.getMessage(), e);
         }
     }
+
+	class DevelopmentalStage {
+		String accession;
+		String name;
+
+		public DevelopmentalStage(String accession, String name) {
+			this.accession = accession;
+			this.name = name;
+		}
+
+		public String getAccession() {
+			return accession;
+		}
+
+		public void setAccession(String accession) {
+			this.accession = accession;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
 }
