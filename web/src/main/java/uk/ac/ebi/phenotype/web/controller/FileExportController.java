@@ -30,6 +30,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -42,11 +43,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.web.dto.DataTableRow;
-import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
-import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1139,7 +1136,8 @@ public class FileExportController {
 			}
 			Collections.sort(phenotypes); // sort in same order as gene page.
 
-			res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
+			//res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
+			res.add("Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
 			for (DataTableRow pr : phenotypes) {
 				res.add(pr.toTabbedString("gene"));
 			}
@@ -1161,7 +1159,9 @@ public class FileExportController {
 			}
 
 			ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
-			res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
+			//res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
+			res.add("Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
+
 			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 				PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
 
