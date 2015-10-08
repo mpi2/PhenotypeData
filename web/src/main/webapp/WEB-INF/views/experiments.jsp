@@ -12,6 +12,9 @@
 			var base_url = '${baseUrl}';
 		</script>
         <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}"></script>
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
   	</jsp:attribute>
 
 	<jsp:body>
