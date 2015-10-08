@@ -339,6 +339,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
 					}
+					System.out.println("adding image to server"+imageDTO);
 					server.addBean(imageDTO);
 				}
 
