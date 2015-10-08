@@ -168,8 +168,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				count++;
 
 				String downloadFilePath = imageDTO.getDownloadFilePath();
+				System.out.println("download file path="+downloadFilePath);
 				if (imageBeans.containsKey(downloadFilePath)) {
-
+					System.out.println("image beans contains download file path="+downloadFilePath);
 					ImageBean iBean = imageBeans.get(downloadFilePath);
 					String fullResFilePath = iBean.fullResFilePath;
 					if(iBean.image_link!=null){
