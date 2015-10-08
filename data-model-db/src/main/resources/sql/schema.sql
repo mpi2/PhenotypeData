@@ -1276,9 +1276,9 @@ CREATE TABLE stats_categorical_results (
 
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	control_id                 INT(10) UNSIGNED,
-	control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both'),
+	control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both', 'no_data'),
 	experimental_id            INT(10) UNSIGNED,
-	experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both'),
+	experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both', 'no_data'),
 	experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
 	external_db_id             INT(10),
 	project_id                 INT(10) UNSIGNED,
