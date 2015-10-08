@@ -345,6 +345,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 				if (count % 10000 == 0 && count != 0) {
+					server.commit();
 					logger.info(" added ImageDTO " + count + " beans");
 				}
 			}
@@ -353,6 +354,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			documentCount = count;
 
 		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
