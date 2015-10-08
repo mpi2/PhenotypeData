@@ -8,7 +8,9 @@
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a href='${baseUrl}/genes/${gene.id.accession}'>${gene.symbol}</a></jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
         <jsp:attribute name="header">
-
+			<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
         </jsp:attribute>
 
         <jsp:attribute name="addToFooter">
