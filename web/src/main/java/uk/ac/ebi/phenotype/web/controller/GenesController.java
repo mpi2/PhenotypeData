@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -32,6 +31,7 @@ import java.util.TreeSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -41,10 +41,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
-import org.json.JSONArray;
-import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.GwasDTO;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -55,7 +51,6 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
@@ -77,12 +72,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.sf.json.JSONException;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
@@ -124,6 +120,9 @@ public class GenesController {
 
 	@Autowired
 	private PreQcService preqcService;
+	
+	@Autowired
+	private UniprotService uniprotService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -361,15 +360,18 @@ public class GenesController {
 	 * @since 2015/10/02
 	 * @throws IOException
 	 * @throws SolrServerException 
+	 * @throws JAXBException 
 	 */
 	@RequestMapping("/geneSummary/{acc}")
 	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException, JAXBException {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene",gene);
 
+	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+		
 		return "geneSummary";
 	}
 
