@@ -168,9 +168,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				count++;
 
 				String downloadFilePath = imageDTO.getDownloadFilePath();
-				System.out.println("download file path="+downloadFilePath);
 				if (imageBeans.containsKey(downloadFilePath)) {
-					System.out.println("image beans contains download file path="+downloadFilePath);
+
 					ImageBean iBean = imageBeans.get(downloadFilePath);
 					String fullResFilePath = iBean.fullResFilePath;
 					if(iBean.image_link!=null){
@@ -340,25 +339,22 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
 					}
-					System.out.println("adding image to server"+imageDTO);
+					System.out.println("actually adding a bean - so we have good data - delete me now!");
 					server.addBean(imageDTO);
+					
 				}
 
 
 
-				if (count % 1 == 0){// && count != 0) {
-					server.commit();
-					documentCount = count;
-					logger.info(" commited ImageDTO " + count + " beans");
+				if (count % 10000 == 0 && count != 0) {
+					logger.info(" added ImageDTO " + count + " beans");
 				}
-				if(count>=20)break;
 			}
 
 			server.commit();
-			
+			documentCount = count;
 
 		} catch (SolrServerException | IOException e) {
-			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
