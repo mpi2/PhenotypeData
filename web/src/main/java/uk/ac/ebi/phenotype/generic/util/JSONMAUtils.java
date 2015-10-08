@@ -13,7 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.generic.util;
+package uk.ac.ebi.phenotype.generic.util;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

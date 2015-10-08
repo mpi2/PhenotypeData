@@ -1,0 +1,50 @@
+package uk.ac.ebi.phenotype.service;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+
+import javax.xml.bind.JAXBException;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ebi.phenotype.TestConfig;
+
+
+/**
+ * @since 2015/10/08
+ * @author ilinca
+ *
+ */
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@SpringApplicationConfiguration(classes = TestConfig.class)
+@Transactional
+public class UniprotServiceTest {
+
+	
+    @Autowired
+    UniprotService uniprotService;
+
+    
+    @Test
+    public void testCheckTypeParameterString()
+    throws JAXBException, IOException {
+       
+        UniprotDTO dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" );
+
+        assert(dto.getFunction() != null);
+        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 4);
+        assert(dto.getGoMolecularFunction() != null && dto.getGoMolecularFunction().size() >= 1);
+        assert(dto.getGoProcess() != null && dto.getGoProcess().size() >= 5);
+        
+    }
+    
+}
+
