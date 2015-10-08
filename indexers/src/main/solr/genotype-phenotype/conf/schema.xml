@@ -149,9 +149,9 @@
         <field name="p_value" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="effect_size" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="external_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="life_stage_acc" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="life_stage_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
-
-   
     </fields>
 
     <uniqueKey>doc_id</uniqueKey>

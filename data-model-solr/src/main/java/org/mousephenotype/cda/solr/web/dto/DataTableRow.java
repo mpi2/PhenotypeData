@@ -16,15 +16,11 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 
-
-
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -55,6 +51,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected MarkerBean allele;
     protected List<String> sexes;
     protected ZygosityType zygosity;
+    protected String lifeStageName;
+    protected String lifeStageAcc;
     protected int projectId;
     protected String phenotypingCenter;
     protected ImpressBaseDTO procedure;
@@ -110,6 +108,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.setGene(pcs.getGene());
         this.setAllele(pcs.getAllele());
         this.setSexes(sex);
+        this.setLifeStageName(pcs.getLifeStageName());
         this.setPhenotypeTerm(pcs.getPhenotypeTerm());
         this.setPipeline(pcs.getPipeline());
         this.pValue = pcs.getpValue();
@@ -286,6 +285,21 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.zygosity = zygosityType;
     }
 
+    public String getLifeStageName() {
+        return lifeStageName;
+    }
+
+    public void setLifeStageName(String lifeStageName) {
+        this.lifeStageName = lifeStageName;
+    }
+
+    public String getLifeStageAcc() {
+        return lifeStageAcc;
+    }
+
+    public void setLifeStageAcc(String lifeStageAcc) {
+        this.lifeStageAcc = lifeStageAcc;
+    }
     /**
      * @return the projectId
      */
@@ -325,87 +339,58 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((allele == null) ? 0 : allele.hashCode());
-        result = prime * result + ((dataSourceName == null) ? 0 : dataSourceName.hashCode());
-        result = prime * result + ((phenotypeTerm == null) ? 0 : phenotypeTerm.hashCode());
-        result = prime * result + ((phenotypingCenter == null) ? 0 : phenotypingCenter.hashCode());
-        result = prime * result + ((zygosity == null) ? 0 : zygosity.hashCode());
-        if (gene != null) {
-            result = prime * result + ((parameter == null) ? 0 : parameter.hashCode());
-            result = prime * result + ((procedure == null) ? 0 : procedure.hashCode());
-        }
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DataTableRow that = (DataTableRow) o;
+
+        if (projectId != that.projectId) return false;
+        if (isPreQc != that.isPreQc) return false;
+        if (config != null ? !config.equals(that.config) : that.config != null) return false;
+        if (phenotypeTerm != null ? !phenotypeTerm.equals(that.phenotypeTerm) : that.phenotypeTerm != null)
+            return false;
+        if (gene != null ? !gene.equals(that.gene) : that.gene != null) return false;
+        if (allele != null ? !allele.equals(that.allele) : that.allele != null) return false;
+        if (sexes != null ? !sexes.equals(that.sexes) : that.sexes != null) return false;
+        if (zygosity != that.zygosity) return false;
+        if (lifeStageName != null ? !lifeStageName.equals(that.lifeStageName) : that.lifeStageName != null)
+            return false;
+        if (lifeStageAcc != null ? !lifeStageAcc.equals(that.lifeStageAcc) : that.lifeStageAcc != null) return false;
+        if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null)
+            return false;
+        if (procedure != null ? !procedure.equals(that.procedure) : that.procedure != null) return false;
+        if (parameter != null ? !parameter.equals(that.parameter) : that.parameter != null) return false;
+        if (dataSourceName != null ? !dataSourceName.equals(that.dataSourceName) : that.dataSourceName != null)
+            return false;
+        if (graphUrl != null ? !graphUrl.equals(that.graphUrl) : that.graphUrl != null) return false;
+        if (pipeline != null ? !pipeline.equals(that.pipeline) : that.pipeline != null) return false;
+        if (pValue != null ? !pValue.equals(that.pValue) : that.pValue != null) return false;
+        return !(gid != null ? !gid.equals(that.gid) : that.gid != null);
+
     }
 
     @Override
-    public boolean equals(Object obj) {
-    	
-    	if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        DataTableRow other = (DataTableRow) obj;
-        if (allele == null) {
-            if (other.allele != null) {
-                return false;
-            }
-        } else if ( ! allele.equals(other.allele)) {
-            return false;
-        }
-        if (dataSourceName == null) {
-            if (other.dataSourceName != null) {
-                return false;
-            }
-        } else if ( ! dataSourceName.equals(other.dataSourceName)) {
-            return false;
-        }
-        if (parameter == null) {
-            if (other.parameter != null) {
-                return false;
-            }
-        } else if ( ! parameter.equals(other.parameter)) {
-            return false;
-        }
-        if (procedure == null) {
-            if (other.procedure != null) {
-                return false;
-            }
-        } else if ( ! procedure.equals(other.procedure)) {
-            return false;
-        }
-        if (gene == null) {
-            if (other.gene != null) {
-                return false;
-            }
-        } else if ( ! gene.equals(other.gene)) {
-            return false;
-        }
-        if (phenotypingCenter == null) {
-            if (other.phenotypingCenter != null) {
-                return false;
-            }
-        } else if ( ! phenotypingCenter.equals(other.phenotypingCenter)) {
-            return false;
-        }
-        if (phenotypeTerm == null) {
-            if (other.phenotypeTerm != null) {
-                return false;
-            }
-        } else if ( ! phenotypeTerm.equals(other.phenotypeTerm)) {
-            return false;
-        }
-        if (zygosity != other.zygosity) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        int result = config != null ? config.hashCode() : 0;
+        result = 31 * result + (phenotypeTerm != null ? phenotypeTerm.hashCode() : 0);
+        result = 31 * result + (gene != null ? gene.hashCode() : 0);
+        result = 31 * result + (allele != null ? allele.hashCode() : 0);
+        result = 31 * result + (sexes != null ? sexes.hashCode() : 0);
+        result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
+        result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
+        result = 31 * result + (lifeStageAcc != null ? lifeStageAcc.hashCode() : 0);
+        result = 31 * result + projectId;
+        result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
+        result = 31 * result + (procedure != null ? procedure.hashCode() : 0);
+        result = 31 * result + (parameter != null ? parameter.hashCode() : 0);
+        result = 31 * result + (dataSourceName != null ? dataSourceName.hashCode() : 0);
+        result = 31 * result + (graphUrl != null ? graphUrl.hashCode() : 0);
+        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
+        result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
+        result = 31 * result + (isPreQc ? 1 : 0);
+        result = 31 * result + (gid != null ? gid.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -413,6 +398,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         return "PhenotypeRow [phenotypeTerm=" + phenotypeTerm
                 + ", gene=" + gene + ", allele=" + allele + ", sexes=" + sexes
                 + ", zygosity=" + zygosity
+                + ", lifeStageName=" + lifeStageName
                 + ", projectId=" + projectId + ", procedure=" + procedure
                 + ", parameter=" + parameter + ", dataSourceName="
                 + dataSourceName + ", phenotypingCenter=" + phenotypingCenter + "]";
@@ -428,9 +414,9 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getAllele().getSymbol() + "\t"
                     + getZygosity() + "\t"
                     + getSexes().get(0) + "\t"
+                    + getLifeStageName() + "\t"
                     + getProcedure().getName() + " | " + getParameter().getName() + "\t"
-                    + getPhenotypingCenter() + "\t"
-                    + getDataSourceName() + "\t"
+                    + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
                     + getPrValueAsString() + "\t"
                     + getGraphUrl();
         } else if (targetPage.equalsIgnoreCase("phenotype")) {
@@ -438,10 +424,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getAllele().getName() + "\t"
                     + getZygosity() + "\t"
                     + getSexes().get(0) + "\t"
+                    + getLifeStageName() + "\t"
                     + getPhenotypeTerm().getName() + "\t"
                     + getProcedure().getName() + " | " + getParameter().getName() + "\t"
-                    + getPhenotypingCenter() + "\t"
-                    + getDataSourceName() + "\t"
+                    + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
                     + getPrValueAsString() + "\t"
                     + getGraphUrl();
         }

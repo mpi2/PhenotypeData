@@ -15,19 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -45,6 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Populate the Genotype-Phenotype core
@@ -76,6 +71,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+    Map<String, DevelopmentalStage> liveStageMap = new HashMap<>();
 
     public GenotypePhenotypeIndexer() {
     }
@@ -115,7 +111,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         printConfiguration();
     }
 
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
         GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
         main.initialise(args);
         main.run();
@@ -130,19 +126,66 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public void run() throws IndexerException, SQLException, IOException, SolrServerException {
 
         Long start = System.currentTimeMillis();
-        try {
 
-            logger.info("Populating genotype-phenotype solr core");
-            populateGenotypePhenotypeSolrCore();
+        // prepare a live stage lookup
+        logger.info("Populating live stage lookup map");
+        doLiveStageLookup();
 
-        } catch (SQLException | IOException | SolrServerException e) {
-            throw new IndexerException(e);
-        }
+        logger.info("Populating genotype-phenotype solr core");
+        populateGenotypePhenotypeSolrCore();
 
         logger.info("Populating genotype-phenotype solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
+    }
+
+    public void doLiveStageLookup() throws SQLException {
+
+        String tmpQuery = "CREATE TEMPORARY TABLE observations2 as "
+            + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
+            + "FROM observation o, experiment_observation eo, experiment e "
+            + "WHERE o.id=eo.observation_id "
+            + "AND eo.experiment_id=e.id )";
+
+        String query = "SELECT ot.name as developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
+            + "FROM observations2 o, live_sample ls, ontology_term ot "
+            + "WHERE ot.acc=ls.developmental_stage_acc "
+            + "AND ls.id=o.biological_sample_id" ;
+
+        Long tmpTableStartTime = System.currentTimeMillis();
+
+        try (PreparedStatement p1 = connection.prepareStatement(tmpQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            p1.executeUpdate();
+
+            Long tmpTableTime = System.currentTimeMillis();
+            logger.info("Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
+
+            PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+
+            ResultSet r = p.executeQuery();
+            while (r.next()) {
+
+                List<String> fields = new ArrayList<String>();
+                fields.add(r.getString("colony_id"));
+                fields.add(r.getString("pipeline_stable_id"));
+                fields.add(r.getString("procedure_stable_id"));
+
+	            DevelopmentalStage stage = new DevelopmentalStage(
+		            r.getString("developmental_stage_acc"),
+		            r.getString("developmental_stage_name"));
+
+                String key = StringUtils.join(fields, "_");
+                if (!liveStageMap.containsKey(key)){
+
+                    liveStageMap.put(key, stage);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error populating live stage lookup map: {}", e.getMessage());
+        }
+
+        logger.info("Done populating live stage map");
     }
 
     public void populateGenotypePhenotypeSolrCore() throws SQLException, IOException, SolrServerException {
@@ -171,7 +214,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  INNER JOIN external_db db ON s.external_db_id = db.id " +
             "WHERE (0.0001 >= s.p_value " +
             "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
-            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001))" ;
+            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
+	        "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%'))" ;
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -212,7 +256,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setEffect_size(r.getDouble("effect_size"));
                 doc.setMarkerAccessionId(r.getString("marker_accession_id"));
                 doc.setMarkerSymbol(r.getString("marker_symbol"));
-                doc.setColonyId(r.getString("colony_id"));
+
+                String colonyId = r.getString("colony_id");
+                doc.setColonyId(colonyId);
                 doc.setAlleleAccessionId(r.getString("allele_accession_id"));
                 doc.setAlleleName(r.getString("allele_name"));
                 doc.setAlleleSymbol(r.getString("allele_symbol"));
@@ -232,13 +278,15 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 doc.setExternalId(r.getString("external_id"));
 
+                String pipelineStableId = pipelineMap.get(r.getInt("pipeline_id")).getStableId();
                 doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
                 doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
-                doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
+                doc.setPipelineStableId(pipelineStableId);
 
+                String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
                 doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
                 doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
-                doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).getStableId());
+                doc.setProcedureStableId(procedureStableId);
 
                 doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
@@ -255,6 +303,27 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
                 doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
                 doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
+
+
+                // set live stage by looking up a combination key of
+                // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
+                // The value is developmental_stage_acc
+                List<String> fields = new ArrayList<String>();
+                fields.add(colonyId);
+                fields.add(pipelineStableId);
+                fields.add(procedureStableId);
+
+                String key = StringUtils.join(fields, "_");
+                String developmentalStageAcc = "";
+                String developmentalStageName = "";
+
+                if ( liveStageMap.containsKey(key) ) {
+                    DevelopmentalStage stage = liveStageMap.get(key);
+                    developmentalStageAcc = stage.getAccession();
+	                developmentalStageName = stage.getName();
+                }
+                doc.setLifeStageAcc(developmentalStageAcc);
+                doc.setLifeStageName(developmentalStageName);
 
                 documentCount++;
                 gpSolrServer.addBean(doc, 30000);
@@ -275,4 +344,30 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             logger.error("Big error {}", e.getMessage(), e);
         }
     }
+
+	class DevelopmentalStage {
+		String accession;
+		String name;
+
+		public DevelopmentalStage(String accession, String name) {
+			this.accession = accession;
+			this.name = name;
+		}
+
+		public String getAccession() {
+			return accession;
+		}
+
+		public void setAccession(String accession) {
+			this.accession = accession;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
 }
