@@ -347,7 +347,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				if (count % 10000 == 0 && count != 0) {
 					server.commit();
 					documentCount = count;
-					logger.info(" added ImageDTO " + count + " beans");
+					logger.info(" commited ImageDTO " + count + " beans");
 				}
 			}
 
