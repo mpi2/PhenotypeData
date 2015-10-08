@@ -122,7 +122,7 @@
                                 <div class="container span12">
                                     <h3>Data release 3.3</h3>
 
-                                    <p>Data release 3.3 is a minor release to include more viability data.</p>
+                                    <p>Data release 3.4 is a minor release to remove erroneous data and add more viability calls.</p>
 
                                 </div>
                                 <div class="clear"></div>
