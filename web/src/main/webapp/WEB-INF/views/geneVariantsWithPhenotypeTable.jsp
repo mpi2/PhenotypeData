@@ -25,10 +25,10 @@
         <th>Gene / Allele</th>
         <th>Zygosity</th>
         <th>Sex</th>
+        <th>Life Stage</th>
         <th>Phenotype</th>
         <th>Procedure | Parameter</th>
-        <th>Phenotyping Center</th>
-        <th>Source</th>
+        <th>Phenotyping Center | Source</th>
         <th>P Value</th>
         <th>Graph</th>
     </tr>
@@ -54,15 +54,15 @@
                                                                         src="${baseUrl}/img/male.jpg"/></c:if></c:forEach>
             </td>
 
+            <td>${phenotype.lifeStageName}</td>
+
             <td>
                 <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
             </td>
 
             <td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
 
-            <td>${phenotype.phenotypingCenter}</td>
-
-            <td>${phenotype.dataSourceName}</td>
+            <td>${phenotype.phenotypingCenter} | ${phenotype.dataSourceName}</td>
 
             <td>${phenotype.prValueAsString}</td>
 
