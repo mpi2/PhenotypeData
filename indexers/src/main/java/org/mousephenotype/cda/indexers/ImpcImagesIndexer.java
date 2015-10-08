@@ -349,6 +349,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					documentCount = count;
 					logger.info(" commited ImageDTO " + count + " beans");
 				}
+				if(count>=20000)break;
 			}
 
 			server.commit();
