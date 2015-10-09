@@ -50,6 +50,7 @@ import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -121,6 +122,11 @@ public class GenesController {
 
 	@Autowired
 	private PreQcService preqcService;
+	
+
+	@Autowired
+	private PostQcService postqcService;
+	
 	
 	@Autowired
 	private UniprotService uniprotService;
@@ -386,7 +392,8 @@ public class GenesController {
 			}
 		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-		Map<String, String> alleleCassette = solrIndex2.getAlleleImage("MGI:4434684");
+		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
+		Map<String, String> alleleCassette = solrIndex2.getAlleleImage(allelesWithData);
 		System.out.println("ALLELE CASSETE :: " + alleleCassette);
 
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
