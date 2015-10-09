@@ -6,7 +6,10 @@
 
 <c:if test="${callList.size() == 1}">
 	<a class="status done">	
-		<span class="left">${callList.get(0).replaceAll("Homozygous - ","Hom<br/>")}</span>
+		<c:forEach var="call" items="${callList}" varStatus="loop">
+			<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>
+			<c:if test="${!loop.last}">   </c:if>
+		</c:forEach> 
 	</a>
 </c:if>
 

@@ -395,6 +395,7 @@ public class GenesController {
 		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
 		Map<String, String> alleleCassette = solrIndex2.getAlleleImage(allelesWithData);
 		System.out.println("ALLELE CASSETE :: " + alleleCassette);
+		System.out.println("VIABILIOTY :: " + viabilityCalls);
 
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
