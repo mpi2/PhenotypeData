@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -371,6 +372,12 @@ public class GenesController {
 		model.addAttribute("gene",gene);
 
 	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+		
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		
+		model.addAttribute("viabilityCalls", viabilityCalls);
+		
+		System.out.println("In geneSummary Controller");
 		
 		return "geneSummary";
 	}

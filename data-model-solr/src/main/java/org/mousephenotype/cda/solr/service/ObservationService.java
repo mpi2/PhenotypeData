@@ -351,6 +351,30 @@ public class ObservationService extends BasicService {
         return solr.query(query).getResults().getNumFound();
     }
     
+    
+    public Set<String> getViabilityForGene(String markerSymbol) 
+    throws SolrServerException{
+    	
+    	SolrQuery query = new SolrQuery();
+        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerSymbol +"\"");
+        query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
+        query.addField(ObservationDTO.CATEGORY);
+        query.setRows(100000);
+
+        System.out.println("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
+
+        HashSet<String> viabilityCategories = new HashSet<String>();
+        
+        for ( SolrDocument doc : solr.query(query).getResults()){
+        	viabilityCategories.add(doc.getFieldValue(ObservationDTO.CATEGORY).toString());
+        }
+        
+        return viabilityCategories;
+        
+    }
+    
 
     public QueryResponse getViabilityData(List<String> resources)
     throws SolrServerException {
