@@ -75,38 +75,44 @@
 		                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
 		                            </p>
 	                               
-	                                <p> Automated phenotype annotations supported by experiments on knockout mouse models. </p>
-
-                                        <c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
-                                            <p>In <b>${zyg} :</b>  </p>
-                                            <ul>
-                                                <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
-                                                      	<li>
-                                                           	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} </a>[m/f]
-                                                        </li>
-                                                    </c:forEach>
-                                                </c:if>
-
-                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
-                                                    	<li>
-                                                        	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>[f]
-                                                        </li>
-                                                  	</c:forEach>
-                                                </c:if>
-
-                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-                                                    <li>
-	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
-                                                            <li>
-                                                            	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>[m] 
-                                                            </li>
+	                                <h4> <a href="${baseUrl}/genes/${gene.mgiAccessionId}">IMPC Phenotype Annotations </a></h4>
+										
+										<div class="half">
+											<c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
+	                                            <p>In <b>${zyg} :</b>  </p>
+	                                            <ul>
+	                                                <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
+	                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
+	                                                      	<li>
+	                                                           	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> [m/f]
+	                                                        </li>
 	                                                    </c:forEach>
-                                                    </li>
-                                                </c:if>
-                                            </ul>
-                                        </c:forEach>
+	                                                </c:if>
+	
+	                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
+	                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
+	                                                    	<li>
+	                                                        	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> [f]
+	                                                        </li>
+	                                                  	</c:forEach>
+	                                                </c:if>
+	
+	                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
+	                                                    <li>
+		                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
+	                                                            <li>
+	                                                            	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> [m] 
+	                                                            </li>
+		                                                    </c:forEach>
+	                                                    </li>
+	                                                </c:if>
+	                                            </ul>
+	                                        </c:forEach>
+	                                    </div>
+	                                    <div class="half">
+                                        	<jsp:include page="phenotype_icons_frag.jsp"/>
+										</div>
+										
 	                            </div>
 	                            
 	                            <div class="half">

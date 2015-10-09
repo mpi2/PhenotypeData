@@ -221,31 +221,13 @@ public class GenesController {
 		try {
 			
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-						
-			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
+			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+			
+			for (String str : mpGroupsSignificant.keySet()){
+				if (mpGroupsNotSignificant.keySet().contains(str)){
+					mpGroupsNotSignificant.remove(str);
 				}
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (String str : mpGroupsSignificant.keySet()){
-					if (mpGroupsNotSignificant.keySet().contains(str)){
-						mpGroupsNotSignificant.remove(str);
-					}
-				}				
 			}
 
 			// add number of top level terms
@@ -339,6 +321,31 @@ public class GenesController {
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 	}
 
+	/**
+	 * @author ilinca
+	 * @since 2015/10/09
+	 * @param significant
+	 * @param phenotypeSummaryObjects
+	 * @return
+	 */
+	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
+		
+		HashMap<String, String> mpGroups = new HashMap<>();
+		
+		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
+			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}
+			for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}
+			for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}				
+		}
+		
+		return mpGroups;
+	}
 
 	/**
 	 * @throws IOException
@@ -371,9 +378,19 @@ public class GenesController {
 	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-					
+		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
+		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);	
+		for (String str : mpGroupsSignificant.keySet()){
+			if (mpGroupsNotSignificant.keySet().contains(str)){
+				mpGroupsNotSignificant.remove(str);
+			}
+		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		
+		System.out.println(mpGroupsNotSignificant.size() + "£££££££");
 
+		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
+		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("gene",gene);
