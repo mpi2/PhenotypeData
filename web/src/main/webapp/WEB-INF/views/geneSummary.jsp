@@ -113,6 +113,12 @@
                                         	<jsp:include page="phenotype_icons_frag.jsp"/>
 										</div>
 										
+										<div>
+											<c:forEach var="alleleImg" items='${alleleCassette.keySet()}'>
+												<img alt="${alleleCassette}" src="${alleleCassette.get(alleleImg)}">
+											</c:forEach>
+										</div>
+										
 	                            </div>
 	                            
 	                            <div class="half">

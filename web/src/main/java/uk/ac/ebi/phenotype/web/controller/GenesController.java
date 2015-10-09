@@ -386,14 +386,15 @@ public class GenesController {
 			}
 		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-		
-		System.out.println(mpGroupsNotSignificant.size() + "£££££££");
+		Map<String, String> alleleCassette = solrIndex2.getAlleleImage("MGI:4434684");
+		System.out.println("ALLELE CASSETE :: " + alleleCassette);
 
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("gene",gene);
+		model.addAttribute("alleleCassette",alleleCassette);
 		
 		System.out.println("In geneSummary Controller");
 		
