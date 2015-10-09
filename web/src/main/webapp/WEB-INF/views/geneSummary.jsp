@@ -75,83 +75,34 @@
 		                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
 		                            </p>
 	                               
-	                                <p> Phenotype Summary based on automated MP annotations supported by experiments
-                                            on knockout mouse models. </p>
+	                                <p> Automated phenotype annotations supported by experiments on knockout mouse models. </p>
 
-                                        <c:forEach var="zyg"
-                                                   items="${phenotypeSummaryObjects.keySet()}">
-                                            <p>In <b>${zyg} :</b>
-                                            </p>
+                                        <c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
+                                            <p>In <b>${zyg} :</b>  </p>
                                             <ul>
                                                 <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-                                                    <li><p><b>Both sexes</b> have the following phenotypic abnormalities
-                                                    </p>
-                                                        <ul>
-                                                            <c:forEach var="summaryObj"
-                                                                       items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
-                                                                <li>
-                                                                    <a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                                                                    Evidence from
-                                                                    <c:forEach var="evidence"
-                                                                               items="${summaryObj.getDataSources()}"
-                                                                               varStatus="loop">
-                                                                        ${evidence}
-                                                                        <c:if test="${!loop.last}">,&nbsp;
-                                                                        </c:if>
-                                                                    </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-                                                                        class="filterTrigger"
-                                                                        id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-                                                                </li>
-                                                            </c:forEach>
-                                                        </ul>
-                                                    </li>
+                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
+                                                      	<li>
+                                                           	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()} </a>[m/f]
+                                                        </li>
+                                                    </c:forEach>
                                                 </c:if>
 
-                                                <c:if
-                                                        test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-                                                    <li><p> Following phenotypic abnormalities occured in <b>females</b>
-                                                        only</p>
-                                                        <ul>
-                                                            <c:forEach
-                                                                    var="summaryObj"
-                                                                    items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
-                                                                <li><a
-                                                                        href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                                                                    Evidence from <c:forEach
-                                                                            var="evidence"
-                                                                            items="${summaryObj.getDataSources()}"
-                                                                            varStatus="loop"> ${evidence} <c:if
-                                                                            test="${!loop.last}">,&nbsp;</c:if>
-                                                                    </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-                                                                            class="filterTrigger"
-                                                                            id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-                                                                </li>
-                                                            </c:forEach>
-                                                        </ul>
-                                                    </li>
+                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
+                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
+                                                    	<li>
+                                                        	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>[f]
+                                                        </li>
+                                                  	</c:forEach>
                                                 </c:if>
 
-                                                <c:if
-                                                        test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-                                                    <li><p> Following phenotypic abnormalities occured in <b>males</b>
-                                                        only</p>
-                                                        <ul>
-                                                            <c:forEach
-                                                                    var="summaryObj"
-                                                                    items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
-                                                                <li><a
-                                                                        href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                                                                    Evidence from <c:forEach
-                                                                            var="evidence"
-                                                                            items="${summaryObj.getDataSources()}"
-                                                                            varStatus="loop"> ${evidence} <c:if
-                                                                            test="${!loop.last}">,&nbsp;</c:if>
-                                                                    </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-                                                                            class="filterTrigger"
-                                                                            id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-                                                                </li>
-                                                            </c:forEach>
-                                                        </ul>
+                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
+                                                    <li>
+	                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
+                                                            <li>
+                                                            	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>[m] 
+                                                            </li>
+	                                                    </c:forEach>
                                                     </li>
                                                 </c:if>
                                             </ul>

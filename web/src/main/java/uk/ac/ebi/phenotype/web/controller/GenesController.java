@@ -358,24 +358,25 @@ public class GenesController {
 
 	/**
 	 * @author tudose
+	 * @throws Exception 
 	 * @since 2015/10/02
-	 * @throws IOException
-	 * @throws SolrServerException 
-	 * @throws JAXBException 
 	 */
 	@RequestMapping("/geneSummary/{acc}")
 	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException, JAXBException {
+	throws Exception {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		model.addAttribute("gene",gene);
 
 	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
-		
+
+		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+					
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-		
+
 		model.addAttribute("viabilityCalls", viabilityCalls);
+		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+		model.addAttribute("gene",gene);
 		
 		System.out.println("In geneSummary Controller");
 		
