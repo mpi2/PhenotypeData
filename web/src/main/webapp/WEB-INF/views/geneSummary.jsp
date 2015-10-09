@@ -70,11 +70,13 @@
 	                                </p>
 	                               
 	                                
-		                            <p class="with-label no-margin">
-		                            	<span class="label">Viability</span>
-		                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
-		                            </p>
-	                               
+	                                <c:if test="${viabilityCalls != null && !(empty viabilityCalls)}">
+			                            <p class="with-label no-margin">
+			                            	<span class="label">Viability</span>
+			                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
+			                            </p>
+	                               	</c:if>
+	                               	
 	                                <h4> <a href="${baseUrl}/genes/${gene.mgiAccessionId}">IMPC Phenotype Annotations </a></h4>
 										
 										<div class="half">
