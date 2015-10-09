@@ -18,9 +18,14 @@ package uk.ac.ebi.phenotype.generic.util;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.ctc.wstx.util.StringUtil;
+
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 import javax.annotation.Resource;
@@ -604,9 +609,9 @@ public class SolrIndex2 {
         return search_url;
     }
     
-    private String getAlleleUrl(String alleleAccession) {
+    private String getAlleleUrl(Set<String> alleleAccession) {
 
-        String target = "type:allele AND allele_mgi_accession_id:\"" + alleleAccession + "\"";
+        String target = "type:allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
 
         String search_url = IMITS_SOLR_CORE_URL + "/solr/allele2" + "/select?q="
                 + target
@@ -699,7 +704,7 @@ public class SolrIndex2 {
     }
     
     
-    public Map<String, String> getAlleleImage(String alleleAccession) 
+    public Map<String, String> getAlleleImage(Set<String> alleleAccession) 
     throws IOException, URISyntaxException{
     	
     	JSONObject res = getResults(getAlleleUrl(alleleAccession));

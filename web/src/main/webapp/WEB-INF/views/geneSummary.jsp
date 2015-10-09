@@ -114,8 +114,8 @@
 										</div>
 										
 										<div>
-											<c:forEach var="alleleImg" items='${alleleCassette.keySet()}'>
-												<img alt="${alleleCassette}" src="${alleleCassette.get(alleleImg)}">
+											<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
+												<img alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
 											</c:forEach>
 										</div>
 										
