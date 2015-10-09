@@ -42,9 +42,8 @@
 
                         <div class="section">
                             <div class="inner">
-                                <!--  login interest button -->
                                 <div class="half">
-                                	<h3>Mouse ${gene.markerSymbol}</h3>
+                                	<h3>Mouse ${gene.markerSymbol} </h3>
                                     
 									<c:if test="${gene.markerName != null}">
 		                                <p class="with-label no-margin">
@@ -52,6 +51,7 @@
 		                                        ${gene.markerName}
 		                                </p>
 									</c:if>
+									
 	                                <c:if test="${!(empty gene.markerSynonym)}">
 	                                    <p class="with-label no-margin">
 	                                        <span class="label">Synonyms</span>
@@ -63,11 +63,18 @@
 	                                        </c:forEach>
 	                                    </p>
 	                                </c:if>
+	                                
 	                                <p class="with-label">
 	                                    <span class="label">MGI Id</span>
 	                                    <a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
 	                                </p>
+	                               
 	                                
+		                            <p class="with-label no-margin">
+		                            	<span class="label">Viability</span>
+		                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
+		                            </p>
+	                               
 	                                <p> Phenotype Summary based on automated MP annotations supported by experiments
                                             on knockout mouse models. </p>
 
