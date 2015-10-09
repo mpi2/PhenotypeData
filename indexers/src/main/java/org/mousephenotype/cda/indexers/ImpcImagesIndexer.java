@@ -339,13 +339,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
 					}
+					System.out.println("actually adding a bean - so we have good data - delete me now!");
 					server.addBean(imageDTO);
+					
 				}
 
 
 
 				if (count % 10000 == 0 && count != 0) {
-					server.commit();
 					logger.info(" added ImageDTO " + count + " beans");
 				}
 			}
@@ -354,7 +355,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			documentCount = count;
 
 		} catch (SolrServerException | IOException e) {
-			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
