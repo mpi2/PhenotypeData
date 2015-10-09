@@ -16,6 +16,15 @@
 
 package uk.ac.ebi.phenotype;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
+import javax.sql.DataSource;
+
 /**
  * This class acts as a spring bootstrap. No code requiring spring should be placed in this class, as, at this
  * point, spring is not yet initialised.
@@ -29,16 +38,26 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
+import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
+import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl;
+import uk.ac.sanger.phenodigm2.model.Disease;
+import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
+import uk.ac.sanger.phenodigm2.model.Gene;
+import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
+import uk.ac.sanger.phenodigm2.model.PhenotypeTerm;
+import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
+import uk.ac.sanger.phenodigm2.web.GeneAssociationSummary;
 
 /**
  * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
@@ -53,7 +72,7 @@ import javax.sql.DataSource;
 // NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
 
 @Configuration
-@ComponentScan({"org.mousephenotype.cda", "uk.ac.ebi.phenotype.ontology"})
+@ComponentScan({"org.mousephenotype", "uk.ac.ebi.phenotype"})
 @PropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
 @EnableAutoConfiguration
 public class TestConfig {
@@ -84,6 +103,23 @@ public class TestConfig {
         logger.info("internalSolrUrl:      " + internalSolrUrl);
     }
 
+    @Bean (name="globalConfiguration")
+    public Map <String, String> globalConfiguration(){
+    	
+    	Map <String, String> gc = new HashMap<>();
+    	gc.put("baseUrl", "${baseUrl}");
+    	gc.put("drupalBaseUrl", "${drupalBaseUrl}");
+    	gc.put("solrUrl", "${solrUrl}");
+    	gc.put("internalSolrUrl", "${internalSolrUrl}");
+    	gc.put("mediaBaseUrl", "${mediaBaseUrl}");
+    	gc.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
+    	gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
+    	gc.put("googleAnalytics", "${googleAnalytics}");
+    	gc.put("liveSite", "${liveSite}");
+    	
+    	return gc;
+    }
+    
 	@Bean
 	@Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
@@ -91,7 +127,14 @@ public class TestConfig {
         DataSource ds = DataSourceBuilder.create().build();
 		return ds;
 	}
+	
+	//    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
+	@Bean (name="phenoDigmWebDao")
+	public PhenoDigmWebDao phenoDigm(){
+		return new PhenoDigmWebDaoSolrImpl();
+	}
+	
 	@Bean
 	@Primary
 	@PersistenceContext(name="komp2Context")
