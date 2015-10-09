@@ -603,6 +603,18 @@ public class SolrIndex2 {
         log.info(search_url);
         return search_url;
     }
+    
+    private String getAlleleUrl(String alleleAccession) {
+
+        String target = "type:allele AND allele_mgi_accession_id:\"" + alleleAccession + "\"";
+
+        String search_url = IMITS_SOLR_CORE_URL + "/solr/allele2" + "/select?q="
+                + target
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info(search_url);
+        return search_url;
+    }
 
     private String getAlleleUrl(String accession, String cassette, String design) {
         String qallele_search = "";
@@ -653,6 +665,9 @@ public class SolrIndex2 {
         return url;
     }
 
+    
+  
+    
     private String searchAlleleCore(String pipeline, String searchUrl) throws IOException,
             URISyntaxException {
 
@@ -681,6 +696,26 @@ public class SolrIndex2 {
         String content = proxy.getContent(new URL(url));
 
         return (JSONObject) JSONSerializer.toJSON(content);
+    }
+    
+    
+    public Map<String, String> getAlleleImage(String alleleAccession) 
+    throws IOException, URISyntaxException{
+    	
+    	JSONObject res = getResults(getAlleleUrl(alleleAccession));
+        JSONArray docs = res.getJSONObject("response").getJSONArray("docs");
+        Map<String, String> links = new HashMap<>();
+
+        if (docs.size() < 1) {
+            return null;
+        }
+
+        for (Object doc : docs) {
+            JSONObject alleleDoc = (JSONObject) doc;
+            links.put(alleleDoc.get("allele_name").toString(), alleleDoc.get("allele_simple_image").toString());
+        }
+        
+        return links;
     }
 
 
