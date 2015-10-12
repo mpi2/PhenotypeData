@@ -55,6 +55,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -398,15 +399,18 @@ public class GenesController {
 		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
-
+		
+		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
+		
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
-		model.addAttribute("gene",gene);
-		model.addAttribute("alleleCassette",alleleCassette);
+		model.addAttribute("gene", gene);
+		model.addAttribute("alleleCassette", alleleCassette);
+		model.addAttribute("imageSummary", imageSummary);
 		
-		System.out.println("In geneSummary Controller");
+		System.out.println("In geneSummary Controller" + imageSummary.size());
 		
 		return "geneSummary";
 	}

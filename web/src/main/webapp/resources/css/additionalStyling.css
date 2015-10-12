@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+.inline-block{
+	display:inline-block;"
+}
+
 div.paddingLeftMedium{
 	padding-left: 0.5em;
 }
