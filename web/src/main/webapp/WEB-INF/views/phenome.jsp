@@ -42,6 +42,10 @@
 		<!-- JavaScript Local Imports -->
 		<script src="${baseUrl}/js/general/dropdownfilters.js?v=${version}"></script>
 		
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+		
 		<!-- Assign this as a variable for other components -->
 		<script type="text/javascript">
 			var base_url = '${baseUrl}';

@@ -17,6 +17,8 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import uk.ac.ebi.phenotype.generic.util.JSONMAUtils;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -36,7 +38,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.generic.util.JSONMAUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

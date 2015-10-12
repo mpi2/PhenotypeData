@@ -13,14 +13,19 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.generic.util;
+package uk.ac.ebi.phenotype.generic.util;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import com.ctc.wstx.util.StringUtil;
+
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 import javax.annotation.Resource;
@@ -603,6 +608,18 @@ public class SolrIndex2 {
         log.info(search_url);
         return search_url;
     }
+    
+    private String getAlleleUrl(Set<String> alleleAccession) {
+
+        String target = "type:allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
+
+        String search_url = IMITS_SOLR_CORE_URL + "/solr/allele2" + "/select?q="
+                + target
+                + "&start=0&rows=100&hl=true&wt=json";
+
+        log.info(search_url);
+        return search_url;
+    }
 
     private String getAlleleUrl(String accession, String cassette, String design) {
         String qallele_search = "";
@@ -653,6 +670,9 @@ public class SolrIndex2 {
         return url;
     }
 
+    
+  
+    
     private String searchAlleleCore(String pipeline, String searchUrl) throws IOException,
             URISyntaxException {
 
@@ -681,6 +701,26 @@ public class SolrIndex2 {
         String content = proxy.getContent(new URL(url));
 
         return (JSONObject) JSONSerializer.toJSON(content);
+    }
+    
+    
+    public Map<String, String> getAlleleImage(Set<String> alleleAccession) 
+    throws IOException, URISyntaxException{
+    	
+    	JSONObject res = getResults(getAlleleUrl(alleleAccession));
+        JSONArray docs = res.getJSONObject("response").getJSONArray("docs");
+        Map<String, String> links = new HashMap<>();
+
+        if (docs.size() < 1) {
+            return null;
+        }
+
+        for (Object doc : docs) {
+            JSONObject alleleDoc = (JSONObject) doc;
+            links.put(alleleDoc.get("allele_name").toString(), alleleDoc.get("allele_simple_image").toString());
+        }
+        
+        return links;
     }
 
 

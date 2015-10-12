@@ -212,16 +212,7 @@ function initRangeslider() {
    $('#rangeinput').val( $('#rangeslider').slider('value'));
 }
 
-function initHighchartDefaults() {    
-    /* Defaults settings for Highcharts */
-    Highcharts.setOptions({
-        chart: {
-            style: {
-                fontFamily: '"Source Sans Pro",Arial,Helvetica,sans-serif'
-            }
-        }   
-    });    
-}
+
 
 function initTabs() {
     /* Ajax Tabs */
@@ -266,7 +257,7 @@ $(document).ready(function() {
     initRowtoggle();
     initNiceButtons();
     initRangeslider();
-    initHighchartDefaults();  
+//    initHighchartDefaults();  
     
     initTabs();         
     
