@@ -95,9 +95,17 @@
         <field name="_version_" type="long" indexed="true" stored="true"/> 
    
         <field name="doc_id" type="int" indexed="true" stored="true" required="true" multiValued="false" />
-	
-        <field name="mp_term_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />	
-        <field name="mp_term_name" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+        <field name="ontology_db_id" type="int" indexed="true" stored="true" required="true" multiValued="false" />
+
+        <field name="assertion_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+        <field name="assertion_type_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+
+        <!-- no top/intermediate for now for MPATH-->
+        <field name="mpath_term_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="mpath_term_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+
+        <field name="mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="mp_term_name" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
         <field name="top_level_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
         <field name="top_level_mp_term_name" type="string" indexed="true" stored="true" required="false" multiValued="true" />
