@@ -42,7 +42,8 @@
 
                         <div class="section">
                             <div class="inner">
-                                <div class="half">
+                                <div class="half" >
+                                <div class="paddingRightMedium">
                                 	<h3>Mouse ${gene.markerSymbol} </h3>
                                     
 									<c:if test="${gene.markerName != null}">
@@ -79,6 +80,7 @@
 	                               	
 	                                <h4> <a href="${baseUrl}/genes/${gene.mgiAccessionId}">IMPC Phenotype Annotations </a></h4>
 										
+	                               	<c:if test="${phenotypeSummaryObjects.keySet().size() > 0}">
 										<div class="half">
 											<c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
 	                                            <p>In <b>${zyg} :</b>  </p>
@@ -114,22 +116,72 @@
 	                                    <div class="half">
                                         	<jsp:include page="phenotype_icons_frag.jsp"/>
 										</div>
+										</c:if>
+										<c:if test="${phenotypeSummaryObjects.keySet().size() == 0}">
+											<p class="alert alert-info">IMPC has no phenotype associations to ${gene.markerSymbol} yet.</p>
+										</c:if>
 										
 										<div>
 											<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
 												<img alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
 											</c:forEach>
 										</div>
-										
+									</div>
 	                            </div>
 	                            
 	                            <div class="half">
+	                            	<div class="paddingLeftMedium">
                                 	<h3>Human ortholog <c:forEach var="symbol" items="${gene.humanGeneSymbol}" varStatus="loop">
 	                                       ${symbol}    <c:if test="${!loop.last}">, </c:if>    <c:if test="${loop.last}"></c:if> </c:forEach>
 	                                </h3>
                                     <p>[Function, synonyms]</p>
                                     <p>[GO annotations]</p>
-									
+                                    <c:if test="${not empty orthologousDiseaseAssociations}">
+	                                   	<table>                                    
+											<thead>
+											    <tr>
+											        <th><span class="main">Disease Name</span></th>
+											        <th><span class="main">Source</span></th>
+											        <th>In Locus</th>
+											        <th><span class="main">MGI/IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
+											        <th></th>
+											    </tr>
+											</thead>
+											<tbody>
+											    <c:forEach var="association" items="${orthologousDiseaseAssociations}" varStatus="loop">
+											        <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
+											        <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">
+											            <td>
+											            	<a href="${baseUrl}/disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a>
+											            </td>
+											            <td>
+											                <a id="diseaseId" href="${association.diseaseIdentifier.externalUri}">${association.diseaseIdentifier}</a>
+											            </td>
+											            <td>
+											                <c:if test="${associationSummary.inLocus}"> Yes </c:if>
+											                <c:if test="${!associationSummary.inLocus}"> No </c:if>
+											            </td>
+											            <td>
+											                <c:if test="${0.0 != associationSummary.bestModScore}">
+											                    <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
+											                </c:if>   
+											                <c:if test="${0.0 == associationSummary.bestModScore}">
+											                    <b>-</b>   
+											                </c:if>
+											                /
+											                <c:if test="${0.0 != associationSummary.bestHtpcScore}">
+											                    <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
+											                </c:if>
+											                <c:if test="${0.0 == associationSummary.bestHtpcScore}">
+											                    <b>-</b>
+											                </c:if>                                        
+											            </td>
+											        </tr>
+											    </c:forEach>
+											</tbody>
+										</table>
+	                                 </c:if>
+									</div>
 	                            </div>
 	                            
 	                            <div class="clear"></div>

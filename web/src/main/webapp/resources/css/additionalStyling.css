@@ -1,6 +1,11 @@
 /* Additional styling written at EBI */
 
-
+div.paddingLeftMedium{
+	padding-left: 0.5em;
+}
+div.paddingRightMedium{
+	padding-right: 0.5em;
+}
 table.dataTable thead .sorting {
   background: url("../js/vendor/DataTables-1.10.4/media/images/sort_both.png") no-repeat center right;
 }

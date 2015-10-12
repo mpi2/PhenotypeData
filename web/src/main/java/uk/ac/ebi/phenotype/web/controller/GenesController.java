@@ -32,7 +32,6 @@ import java.util.TreeSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -386,16 +385,19 @@ public class GenesController {
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
 		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);	
+		
 		for (String str : mpGroupsSignificant.keySet()){
 			if (mpGroupsNotSignificant.keySet().contains(str)){
 				mpGroupsNotSignificant.remove(str);
 			}
 		}
+		
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
-		Map<String, String> alleleCassette = solrIndex2.getAlleleImage(allelesWithData);
-		System.out.println("ALLELE CASSETE :: " + alleleCassette);
-		System.out.println("VIABILIOTY :: " + viabilityCalls);
+		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
+		
+		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
+		processDisease(acc, model);
 
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
