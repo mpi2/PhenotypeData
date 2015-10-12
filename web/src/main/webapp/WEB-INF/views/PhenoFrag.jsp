@@ -25,9 +25,10 @@
         <th class="headerSort">Allele</th>
         <th class="headerSort">Zygosity</th>
         <th class="headerSort">Sex</th>
+        <th class="headerSort">Life Stage</th>
         <th class="headerSort">Procedure | Parameter</th>
-        <th class="headerSort">Phenotyping Center</th>
-        <th class="headerSort">Source</th>
+        <th class="headerSort">Phenotyping Center | Source</th>
+       <!-- <th class="headerSort">Source</th> -->
         <th>P Value</th>
         <th class="headerSort">Graph</th>
     </tr>
@@ -55,13 +56,14 @@
                     </c:if>
                 </c:forEach>
             </td>
+            <td>${phenotype.lifeStageName}</td>
 
             <td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
-            <td>${phenotype.phenotypingCenter} </td>
-            <td>
+            <td>${phenotype.phenotypingCenter} |  ${phenotype.dataSourceName}</td>
+           <!-- <td>
                     ${phenotype.dataSourceName}
             </td>
-
+    -->
             <td>${phenotype.prValueAsString}</td>
 
             <c:if test="${phenotype.isPreQc()}">

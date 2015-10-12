@@ -22,7 +22,12 @@ import java.util.List;
 public class GenotypePhenotypeDTO {
 
     public static final String ID = "doc_id";
+    public static final String ONTOLOGY_DB_ID = "ontology_db_id";
+    public static final String ASSERTION_TYPE = "assertion_type";
+    public static final String ASSERTION_TYPE_ID = "assertion_type_id";
     public static final String GID = "preqc_gid"; // preqc only
+    public static final String MPATH_TERM_ID = "mpath_term_id";
+    public static final String MPATH_TERM_NAME = "mpath_term_name";
     public static final String MP_TERM_ID = "mp_term_id";
     public static final String MP_TERM_NAME = "mp_term_name";
     public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
@@ -67,8 +72,24 @@ public class GenotypePhenotypeDTO {
     public static final String LIFE_STAGE_ACC = "life_stage_acc";
     public static final String LIFE_STAGE_NAME = "life_stage_name";
 
+
     @Field(ID)
     Integer id;
+
+    @Field(ONTOLOGY_DB_ID)
+    Integer ontology_db_id;
+
+    @Field(ASSERTION_TYPE)
+    String assertion_type;
+
+    @Field(ASSERTION_TYPE_ID)
+    String assertion_type_id;
+
+    @Field(MPATH_TERM_ID)
+    String mpathTermId;
+
+    @Field(MPATH_TERM_NAME)
+    String mpathTermName;
 
     @Field(MP_TERM_ID)
     String mpTermId;
@@ -207,6 +228,56 @@ public class GenotypePhenotypeDTO {
     public void setId(Integer id) {
 
         this.id = id;
+    }
+
+    public Integer getOntologyDbId() {
+
+        return ontology_db_id;
+    }
+
+    public void setOntologyDbId(Integer ontology_db_id) {
+
+        this.ontology_db_id = ontology_db_id;
+    }
+
+    public String getAssertionType() {
+
+        return assertion_type;
+    }
+    public void setAssertionType(String assertion_type) {
+
+        this.assertion_type = assertion_type;
+    }
+
+    public String getAssertionTypeID() {
+
+        return assertion_type_id;
+    }
+
+    public void setAssertionTypeId(String assertion_type_id) {
+
+        this.assertion_type_id = assertion_type_id;
+    }
+
+
+    public String getMpathTermId() {
+
+        return mpathTermId;
+    }
+
+    public void setMpathTermId(String mpathTermId) {
+
+        this.mpathTermId = mpathTermId;
+    }
+
+    public String getMpathTermName() {
+
+        return mpathTermName;
+    }
+
+    public void setMpathTermName(String mpathTermName) {
+
+        this.mpathTermName = mpathTermName;
     }
 
     public String getMpTermId() {
@@ -645,6 +716,15 @@ public class GenotypePhenotypeDTO {
         GenotypePhenotypeDTO that = (GenotypePhenotypeDTO) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (ontology_db_id != null ? !ontology_db_id.equals(that.ontology_db_id) : that.ontology_db_id != null)
+            return false;
+        if (assertion_type != null ? !assertion_type.equals(that.assertion_type) : that.assertion_type != null)
+            return false;
+        if (assertion_type_id != null ? !assertion_type_id.equals(that.assertion_type_id) : that.assertion_type_id != null)
+            return false;
+        if (mpathTermId != null ? !mpathTermId.equals(that.mpathTermId) : that.mpathTermId != null) return false;
+        if (mpathTermName != null ? !mpathTermName.equals(that.mpathTermName) : that.mpathTermName != null)
+            return false;
         if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
         if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
         if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
@@ -721,6 +801,11 @@ public class GenotypePhenotypeDTO {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (ontology_db_id != null ? ontology_db_id.hashCode() : 0);
+        result = 31 * result + (assertion_type != null ? assertion_type.hashCode() : 0);
+        result = 31 * result + (assertion_type_id != null ? assertion_type_id.hashCode() : 0);
+        result = 31 * result + (mpathTermId != null ? mpathTermId.hashCode() : 0);
+        result = 31 * result + (mpathTermName != null ? mpathTermName.hashCode() : 0);
         result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
         result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
         result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
@@ -771,6 +856,11 @@ public class GenotypePhenotypeDTO {
     public String toString() {
         return "GenotypePhenotypeDTO{" +
                 "id=" + id +
+                ", ontology_db_id=" + ontology_db_id +
+                ", assertion_type='" + assertion_type + '\'' +
+                ", assertion_type_id='" + assertion_type_id + '\'' +
+                ", mpathTermId='" + mpathTermId + '\'' +
+                ", mpathTermName='" + mpathTermName + '\'' +
                 ", mpTermId='" + mpTermId + '\'' +
                 ", mpTermName='" + mpTermName + '\'' +
                 ", topLevelMpTermId=" + topLevelMpTermId +

@@ -80,7 +80,7 @@
         <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.css">
         <link rel="stylesheet" href="${drupalBaseUrl}/sites/all/modules/feedback_simple/feedback_simple.css">
         <link rel="stylesheet" href="${baseUrl}/js/vendor/DataTables-1.10.4/extensions/TableTools/css/dataTables.tableTools.min.css">
-				<link rel="stylesheet" href="${baseUrl}/css/searchPage.css">
+		<link rel="stylesheet" href="${baseUrl}/css/searchPage.css">
 
         <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
         <%--<link href="${baseUrl}/css/wdm.css" rel="stylesheet" type="text/css" />--%>
@@ -161,9 +161,7 @@
         <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
-        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
-        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+      
         <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script>
 
         <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>

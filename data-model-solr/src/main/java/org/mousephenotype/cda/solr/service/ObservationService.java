@@ -59,6 +59,7 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -66,6 +67,7 @@ import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +91,7 @@ public class ObservationService extends BasicService {
     @Autowired @Qualifier("experimentCore")
     private HttpSolrServer solr;
 
-
+   
     public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{
 
@@ -349,6 +351,30 @@ public class ObservationService extends BasicService {
         }
 
         return solr.query(query).getResults().getNumFound();
+    }
+    
+    
+    public Set<String> getViabilityForGene(String markerSymbol) 
+    throws SolrServerException{
+    	
+    	SolrQuery query = new SolrQuery();
+        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerSymbol +"\"");
+        query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
+        query.addField(ObservationDTO.CATEGORY);
+        query.setRows(100000);
+
+        System.out.println("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
+
+        HashSet<String> viabilityCategories = new HashSet<String>();
+        
+        for ( SolrDocument doc : solr.query(query).getResults()){
+        	viabilityCategories.add(doc.getFieldValue(ObservationDTO.CATEGORY).toString());
+        }
+        
+        return viabilityCategories;
+        
     }
     
 
