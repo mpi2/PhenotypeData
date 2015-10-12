@@ -71,7 +71,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
-    Map<String, String> liveStageMap = new HashMap<>();
+    Map<String, DevelopmentalStage> liveStageMap = new HashMap<>();
 
     public GenotypePhenotypeIndexer() {
     }
@@ -142,13 +142,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     public void doLiveStageLookup() throws SQLException {
 
-        String tmpQuery = "CREATE TEMPORARY TABLE observations2 as "
+        String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
             + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
             + "FROM observation o, experiment_observation eo, experiment e "
             + "WHERE o.id=eo.observation_id "
             + "AND eo.experiment_id=e.id )";
 
-        String query = "SELECT ot.name as developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
+        String query = "SELECT ot.name AS developmental_stage_name, ot.acc, ls.colony_id, ls.developmental_stage_acc, o.* "
             + "FROM observations2 o, live_sample ls, ontology_term ot "
             + "WHERE ot.acc=ls.developmental_stage_acc "
             + "AND ls.id=o.biological_sample_id" ;
@@ -164,7 +164,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
             ResultSet r = p.executeQuery();
-            System.out.println("r: "+ r.toString());
             while (r.next()) {
 
                 List<String> fields = new ArrayList<String>();
@@ -172,14 +171,14 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 fields.add(r.getString("pipeline_stable_id"));
                 fields.add(r.getString("procedure_stable_id"));
 
-                String developmentalStageAcc = r.getString("developmental_stage_acc");
-                String developmentalStageName = r.getString("developmental_stage_name");
+	            DevelopmentalStage stage = new DevelopmentalStage(
+		            r.getString("developmental_stage_acc"),
+		            r.getString("developmental_stage_name"));
 
                 String key = StringUtils.join(fields, "_");
-                System.out.println("key: "+ key);
                 if (!liveStageMap.containsKey(key)){
 
-                    liveStageMap.put(key, developmentalStageAcc + "__" + developmentalStageName);
+                    liveStageMap.put(key, stage);
                 }
             }
         } catch (Exception e) {
@@ -187,7 +186,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         }
 
         logger.info("Done populating live stage map");
-        System.out.println("live stage map: "+ liveStageMap);
     }
 
     public void populateGenotypePhenotypeSolrCore() throws SQLException, IOException, SolrServerException {
@@ -196,10 +194,18 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         gpSolrServer.deleteByQuery("*:*");
 
+        // conditions of WHERE clauses
+        /*
+        - the first for normal lines
+        - the 2nd for viability and fertility
+        - the last s.p_value IS NULL is to pick up MPATH in the mp_acc column
+         */
+
+
         String query = "SELECT s.id AS id, CASE WHEN sur.statistical_method IS NOT NULL THEN sur.statistical_method WHEN scr.statistical_method IS NOT NULL THEN scr.statistical_method ELSE 'Unknown' END AS statistical_method, " +
             "  sur.genotype_percentage_change, o.name AS phenotyping_center, s.external_id, s.parameter_id AS parameter_id, s.procedure_id AS procedure_id, s.pipeline_id AS pipeline_id, s.gf_acc AS marker_accession_id, " +
             "  gf.symbol AS marker_symbol, s.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, s.strain_acc AS strain_accession_id, st.name AS strain_name, " +
-            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS mp_term_id, ot.name AS mp_term_name, " +
+            "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS ontology_term_id, ot.name AS ontology_term_name, " +
             "  CASE WHEN s.p_value IS NOT NULL THEN s.p_value WHEN s.sex='female' THEN sur.gender_female_ko_pvalue WHEN s.sex='male' THEN sur.gender_male_ko_pvalue END AS p_value, " +
             "  s.effect_size AS effect_size, " +
             "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
@@ -216,7 +222,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  INNER JOIN external_db db ON s.external_db_id = db.id " +
             "WHERE (0.0001 >= s.p_value " +
             "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
-            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001))" ;
+            "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
+            "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
+            "OR s.p_value IS NULL";
+
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -233,8 +242,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setPhenotypingCenter(r.getString("phenotyping_center"));
                 doc.setProjectName(r.getString("project_name"));
                 doc.setProjectFullname(r.getString("project_fullname"));
-                doc.setMpTermId(r.getString("mp_term_id"));
-                doc.setMpTermName(r.getString("mp_term_name"));
 
                 String percentageChangeDb = r.getString("genotype_percentage_change");
                 if ( ! r.wasNull()) {
@@ -293,20 +300,40 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
                 doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
-                String mpId = r.getString("mp_term_id");
-                OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
-                doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-                doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-                doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
-                doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
+                // MP association
+                if ( r.getString("ontology_term_id").startsWith("MP:") ) {
+                    // some hard-coded stuff
+                    doc.setOntologyDbId(5);
+                    doc.setAssertionType("automatic");
+                    doc.setAssertionTypeId("ECO:0000203");
 
-                doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-                doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-                doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
-                doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
+                    String mpId = r.getString("ontology_term_id");
+                    doc.setMpTermId(mpId);
+                    doc.setMpTermName(r.getString("ontology_term_name"));
 
+                    OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
+                    doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+                    doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+                    doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
+                    doc.setTopLevelMpTermDefinition(beanlist.getTopLevels().getDefinitions());
 
-                // set live stage by looking up a combination key of
+                    doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+                    doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+                    doc.setIntermediateMpTermSynonym(beanlist.getIntermediates().getSynonyms());
+                    doc.setIntermediateMpTermDefinition(beanlist.getIntermediates().getDefinitions());
+                }
+                // MPATH association
+                else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){
+                    // some hard-coded stuff
+                    doc.setOntologyDbId(24);
+                    doc.setAssertionType("manual");
+                    doc.setAssertionTypeId("ECO:0000218");
+
+                    doc.setMpathTermId(r.getString("ontology_term_id"));
+                    doc.setMpathTermName(r.getString("ontology_term_name"));
+                }
+
+                // set life stage by looking up a combination key of
                 // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
                 // The value is developmental_stage_acc
                 List<String> fields = new ArrayList<String>();
@@ -319,9 +346,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 String developmentalStageName = "";
 
                 if ( liveStageMap.containsKey(key) ) {
-                    String[] developmentalStageList = liveStageMap.get(key).split("__");
-                    developmentalStageAcc = developmentalStageList[0];
-                    developmentalStageName = developmentalStageList[1];
+                    DevelopmentalStage stage = liveStageMap.get(key);
+                    developmentalStageAcc = stage.getAccession();
+	                developmentalStageName = stage.getName();
                 }
                 doc.setLifeStageAcc(developmentalStageAcc);
                 doc.setLifeStageName(developmentalStageName);
@@ -345,4 +372,30 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             logger.error("Big error {}", e.getMessage(), e);
         }
     }
+
+	class DevelopmentalStage {
+		String accession;
+		String name;
+
+		public DevelopmentalStage(String accession, String name) {
+			this.accession = accession;
+			this.name = name;
+		}
+
+		public String getAccession() {
+			return accession;
+		}
+
+		public void setAccession(String accession) {
+			this.accession = accession;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
 }

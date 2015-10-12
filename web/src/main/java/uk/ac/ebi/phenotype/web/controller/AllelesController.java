@@ -27,7 +27,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.generic.util.SolrIndex2;
+
+import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.web.util.HttpProxy;
 
 import javax.servlet.http.HttpServletRequest;

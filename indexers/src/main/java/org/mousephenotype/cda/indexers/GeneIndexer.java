@@ -193,7 +193,7 @@ public class GeneIndexer extends AbstractIndexer {
                 // GO stuff
                 gene.setGoTermIds(allele.getGoTermIds());
                 gene.setGoTermNames(allele.getGoTermNames());
-               // gene.getGoTermDefs().addAll(allele.getGoTermDefs());
+                gene.getGoTermDefs().addAll(allele.getGoTermDefs());
                 gene.setGoTermEvids(allele.getGoTermEvids());
                 gene.setGoTermDomains(allele.getGoTermDomains());
                 gene.setEvidCodeRank(allele.getEvidCodeRank());

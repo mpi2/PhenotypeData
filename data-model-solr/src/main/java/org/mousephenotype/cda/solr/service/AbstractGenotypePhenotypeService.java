@@ -15,21 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-
-import javax.validation.constraints.NotNull;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -42,37 +29,26 @@ import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrException;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.db.pojo.Datasource;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Project;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.MarkerBean;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.SystemPropertyUtils;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class AbstractGenotypePhenotypeService extends BasicService {
 
@@ -561,6 +537,21 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
 
     }
+    
+    public Set<String> getAllGenotypePhenotypes(String markerAccession) throws SolrServerException {
+
+        Set <String> alleles = new HashSet<>();
+        SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
+        query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + markerAccession + "\"");
+        query.setFields(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID);
+        List<GenotypePhenotypeDTO> results = solr.query(query).getBeans(GenotypePhenotypeDTO.class);
+        
+        for ( GenotypePhenotypeDTO doc : results){
+        	alleles.add(doc.getAlleleAccessionId());
+        }
+        
+        return alleles;
+    }
 
     public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
         SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
@@ -771,7 +762,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         		GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME, GenotypePhenotypeDTO.ALLELE_SYMBOL, 
         		GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ALLELE_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
         		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ZYGOSITY, 
-        		GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.RESOURCE_NAME, GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.PARAMETER_NAME,
+        		GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.LIFE_STAGE_NAME, GenotypePhenotypeDTO.RESOURCE_NAME, GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.PARAMETER_NAME,
         		GenotypePhenotypeDTO.PIPELINE_STABLE_ID, GenotypePhenotypeDTO.PROJECT_NAME, GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID,
         		GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.EFFECT_SIZE, GenotypePhenotypeDTO.PROCEDURE_STABLE_ID,
         		GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PIPELINE_NAME);
@@ -898,7 +889,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     }
 
     
-    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Boolean preQc) 
+    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Boolean preQc)
     throws Exception{
         
     	JSONObject phen = (JSONObject) doc;
@@ -906,7 +897,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         JSONArray topLevelMpTermIDs;
         PhenotypeCallSummaryDTO sum = null;
         try{
-        	sum = new PhenotypeCallSummaryDTO();  
+            System.out.println("DOC: " + doc.toString());
+            sum = new PhenotypeCallSummaryDTO();
 	        String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
 	        String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
 	        
@@ -971,8 +963,13 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	
 	        SexType sexType = SexType.valueOf(sex);
 	        sum.setSex(sexType);
-	
-	        String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
+
+
+            if( ! preQc) {
+                String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
+                sum.setLifeStageName(lifeStageName);
+            }
+            String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
 	        BasicBean datasource = new BasicBean();
 	        datasource.setName(provider);
 	        sum.setDatasource(datasource);

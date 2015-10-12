@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -41,10 +41,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
-import org.json.JSONArray;
-import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.GwasDTO;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
@@ -53,12 +49,13 @@ import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +74,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.sf.json.JSONException;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.ebi.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
+import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
@@ -124,6 +122,14 @@ public class GenesController {
 
 	@Autowired
 	private PreQcService preqcService;
+	
+
+	@Autowired
+	private PostQcService postqcService;
+	
+	
+	@Autowired
+	private UniprotService uniprotService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -183,7 +189,7 @@ public class GenesController {
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		model.addAttribute("geneDTO",gene);
+		
 		if (gene == null) {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -221,31 +227,13 @@ public class GenesController {
 		try {
 			
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-						
-			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
+			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+			
+			for (String str : mpGroupsSignificant.keySet()){
+				if (mpGroupsNotSignificant.keySet().contains(str)){
+					mpGroupsNotSignificant.remove(str);
 				}
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (String str : mpGroupsSignificant.keySet()){
-					if (mpGroupsNotSignificant.keySet().contains(str)){
-						mpGroupsNotSignificant.remove(str);
-					}
-				}				
 			}
 
 			// add number of top level terms
@@ -339,6 +327,31 @@ public class GenesController {
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 	}
 
+	/**
+	 * @author ilinca
+	 * @since 2015/10/09
+	 * @param significant
+	 * @param phenotypeSummaryObjects
+	 * @return
+	 */
+	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
+		
+		HashMap<String, String> mpGroups = new HashMap<>();
+		
+		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
+			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}
+			for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}
+			for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}				
+		}
+		
+		return mpGroups;
+	}
 
 	/**
 	 * @throws IOException
@@ -353,6 +366,53 @@ public class GenesController {
 		processPhenotypes(acc, model, queryString, request);
 
 		return "PhenoFrag";
+	}
+
+
+	/**
+	 * @author tudose
+	 * @throws Exception 
+	 * @since 2015/10/02
+	 */
+	@RequestMapping("/geneSummary/{acc}")
+	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws Exception {
+
+
+		GeneDTO gene = geneService.getGeneById(acc);
+
+	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+
+		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
+		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);	
+		
+		for (String str : mpGroupsSignificant.keySet()){
+			if (mpGroupsNotSignificant.keySet().contains(str)){
+				mpGroupsNotSignificant.remove(str);
+			}
+		}
+		
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
+		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
+		
+		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
+		processDisease(acc, model);
+		
+		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
+		
+		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
+		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
+		model.addAttribute("viabilityCalls", viabilityCalls);
+		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+		model.addAttribute("gene", gene);
+		model.addAttribute("alleleCassette", alleleCassette);
+		model.addAttribute("imageSummary", imageSummary);
+		
+		System.out.println("In geneSummary Controller" + imageSummary.size());
+		
+		return "geneSummary";
 	}
 
 
