@@ -31,7 +31,6 @@ DROP TABLE IF EXISTS analytics_mp_calls;
 DROP TABLE IF EXISTS allele;
 DROP TABLE IF EXISTS biological_model;
 DROP TABLE IF EXISTS biological_model_allele;
-DROP TABLE IF EXISTS biological_model_experiment;
 DROP TABLE IF EXISTS biological_model_strain;
 DROP TABLE IF EXISTS biological_model_genomic_feature;
 DROP TABLE IF EXISTS biological_model_phenotype;
@@ -476,17 +475,6 @@ CREATE TABLE biological_model_allele (
 	KEY allele_idx (allele_acc, allele_db_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-CREATE TABLE biological_model_experiment (
-
-	biological_model_id       INT(10) UNSIGNED NOT NULL,
-	experiment_id             INT(10) UNSIGNED NOT NULL,
-
-	KEY biological_model_idx (biological_model_id),
-	KEY experiment_idx (experiment_id)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
 
 CREATE TABLE biological_model_strain (
 
@@ -1276,9 +1264,9 @@ CREATE TABLE stats_categorical_results (
 
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	control_id                 INT(10) UNSIGNED,
-	control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both'),
+	control_sex                ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both', 'no_data'),
 	experimental_id            INT(10) UNSIGNED,
-	experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both'),
+	experimental_sex           ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'both', 'no_data'),
 	experimental_zygosity      ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
 	external_db_id             INT(10),
 	project_id                 INT(10) UNSIGNED,

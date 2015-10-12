@@ -80,9 +80,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import uk.ac.ebi.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 
 @Controller

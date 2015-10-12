@@ -537,6 +537,21 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
 
     }
+    
+    public Set<String> getAllGenotypePhenotypes(String markerAccession) throws SolrServerException {
+
+        Set <String> alleles = new HashSet<>();
+        SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
+        query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + markerAccession + "\"");
+        query.setFields(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID);
+        List<GenotypePhenotypeDTO> results = solr.query(query).getBeans(GenotypePhenotypeDTO.class);
+        
+        for ( GenotypePhenotypeDTO doc : results){
+        	alleles.add(doc.getAlleleAccessionId());
+        }
+        
+        return alleles;
+    }
 
     public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
         SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
