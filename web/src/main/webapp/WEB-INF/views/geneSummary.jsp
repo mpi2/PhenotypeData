@@ -33,12 +33,7 @@
             <div class="block">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Gene: ${gene.markerSymbol}
-                            <span class="documentation">
-                                <a href='' id='detailsPanel'
-								class="fa fa-question-circle pull-right"></a>
-                            </span>
-                        </h1>
+                        <h1 class="title" id="top">Gene: ${gene.markerSymbol}  </h1>
 
                         <div class="section">
                             <div class="inner">
@@ -46,6 +41,11 @@
                                 <div class="paddingRightMedium">
                                 	<h3>Mouse ${gene.markerSymbol} </h3>
                                     
+                                    <c:if test="${viabilityCalls != null && !(empty viabilityCalls)}">
+		                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
+	                               	</c:if>
+                                    ${prodStatusIcons}
+                                      
 									<c:if test="${gene.markerName != null}">
 		                                <p class="with-label no-margin">
 		                                    <span class="label">Name</span>
@@ -77,6 +77,13 @@
 			                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
 			                            </p>
 	                               	</c:if>
+	                               	
+	                               	<c:if test="${!(prodStatusIcons == '')}">
+		                            	<p class="with-label">
+		                                	<span class="label">Status</span>
+		                                    ${prodStatusIcons}
+		                                </p>
+		                            </c:if>
 	                               	
 	                                <h4> <a href="${baseUrl}/genes/${gene.mgiAccessionId}">IMPC Phenotype Annotations </a></h4>
 										

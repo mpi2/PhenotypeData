@@ -195,24 +195,7 @@ public class GenesController {
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 
-		/**
-		 * PRODUCTION STATUS (SOLR)
-		 */
-		String geneStatus = null;
-		try {
-
-			geneStatus = solrIndex.getGeneStatus(acc);
-			model.addAttribute("geneStatus", geneStatus);
-			// if gene status is null then the jsp declares a warning message at status div
-
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IndexOutOfBoundsException exception) {
-			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
-		}
-
+	
 		/**
 		 * Phenotype Summary
 		 */
@@ -396,12 +379,14 @@ public class GenesController {
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
 		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
-		
-		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
-		processDisease(acc, model);
+		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
+		String prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? "" : prod.get("icons");
 		
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
-		
+
+		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
+		processDisease(acc, model);
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
@@ -409,6 +394,7 @@ public class GenesController {
 		model.addAttribute("gene", gene);
 		model.addAttribute("alleleCassette", alleleCassette);
 		model.addAttribute("imageSummary", imageSummary);
+		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		
 		System.out.println("In geneSummary Controller" + imageSummary.size());
 		

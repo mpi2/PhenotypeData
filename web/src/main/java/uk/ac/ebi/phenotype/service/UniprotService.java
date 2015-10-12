@@ -3,7 +3,6 @@ package uk.ac.ebi.phenotype.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
@@ -16,6 +15,7 @@ import uk.ac.ebi.uniprot.jaxb.CommentType;
 import uk.ac.ebi.uniprot.jaxb.DbReferenceType;
 import uk.ac.ebi.uniprot.jaxb.Entry;
 import uk.ac.ebi.uniprot.jaxb.PropertyType;
+import uk.ac.ebi.uniprot.jaxb.Uniprot;
 
 
 @Component
@@ -36,31 +36,32 @@ public class UniprotService {
 		connection.setRequestProperty("Accept", "application/xml");
 		Unmarshaller u = context.createUnmarshaller();
 		InputStream conn = connection.getInputStream();
-	    Entry entry = (Entry) u.unmarshal(conn);
+	    Uniprot uniprot = (Uniprot) u.unmarshal(conn);
 	    
 	    UniprotDTO dto = new UniprotDTO();
 	    
-	    for (CommentType comment : entry.getComment()){
-	    	if (comment.getType().equals("function")){
-	    		dto.setFunction(comment.getText().toString());
-	    	}
-	    }
-	    
-	    for (DbReferenceType dbref : entry.getDbReference()){
-	    	if (dbref.getType().equalsIgnoreCase("GO")){
-	    		for (PropertyType property : dbref.getProperty()){
-	    			if (property.getType().equalsIgnoreCase("term")){
-	    				String prop = property.getValue();
-	    				if (prop.startsWith("P:")){
-	    					dto.addGoProcess(prop.replaceFirst("P:", ""));
-	    				} else if (prop.startsWith("C:")){
-	    					dto.addGoCell(prop.replaceFirst("C:", ""));
-	    				} else if (prop.startsWith("F:")){
-	    					dto.addGoMolecularFunction(prop.replaceFirst("F:", ""));
-	    				}
-	    			}
-	    		}
-	    	}
+	    for (Entry entry: uniprot.getEntry()){
+		    for (CommentType comment : entry.getComment()){
+		    	if (comment.getType().equals("function")){
+		    		dto.setFunction(comment.getText().toString());
+		    	}
+		    }		    
+		    for (DbReferenceType dbref : entry.getDbReference()){
+		    	if (dbref.getType().equalsIgnoreCase("GO")){
+		    		for (PropertyType property : dbref.getProperty()){
+		    			if (property.getType().equalsIgnoreCase("term")){
+		    				String prop = property.getValue();
+		    				if (prop.startsWith("P:")){
+		    					dto.addGoProcess(prop.replaceFirst("P:", ""));
+		    				} else if (prop.startsWith("C:")){
+		    					dto.addGoCell(prop.replaceFirst("C:", ""));
+		    				} else if (prop.startsWith("F:")){
+		    					dto.addGoMolecularFunction(prop.replaceFirst("F:", ""));
+		    				}
+		    			}
+		    		}
+		    	}
+		    }
 	    }
 	    
 	    return dto;
