@@ -120,12 +120,26 @@
 										<c:if test="${phenotypeSummaryObjects.keySet().size() == 0}">
 											<p class="alert alert-info">IMPC has no phenotype associations to ${gene.markerSymbol} yet.</p>
 										</c:if>
+										<div class=clear"></div>
 										
 										<div>
 											<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
 												<img alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
 											</c:forEach>
 										</div>
+										
+										<c:if test="${imageSummary.size() > 0}">
+											<br/>
+											<div>
+												<h4>IMPC Images</h4>
+												<c:forEach var="image" items="${imageSummary}">
+													<div class="inline-block paddingLeftMedium"> <img src="${image.getThumbnailUrl()}"> <br/>
+														<a href='${baseUrl}/impcImages/images?q=*:*&defType=edismax&wt=json&fq=procedure_name:"${image.getProcedureName()}" AND gene_accession_id:"${acc}"'>${image.getProcedureName()}</a> (${image.getNumberOfImages()})
+													</div> 			
+																				 
+												</c:forEach>
+											</div>
+										</c:if>
 									</div>
 	                            </div>
 	                            
