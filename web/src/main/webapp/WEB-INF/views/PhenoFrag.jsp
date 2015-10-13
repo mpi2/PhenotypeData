@@ -38,7 +38,13 @@
         <c:set var="europhenome_gender" value="Both-Split"/>
         <tr>
             <td>
-                <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
+                <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
+                    ${phenotype.phenotypeTerm.name}
+                </c:if>
+                <c:if test="${not fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
+                    <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
+                </c:if>
+
             </td>
             <td><c:choose><c:when test="${fn:contains(phenotype.allele.accessionId, 'MGI')}"><a
                     href="http://www.informatics.jax.org/accession/${phenotype.allele.accessionId}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></a></c:when><c:otherwise><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></c:otherwise></c:choose>
@@ -86,9 +92,19 @@
             <c:if test="${not phenotype.isPreQc()}">
             	
                 	<td style="text-align:center;">
+
+
+
                 		<c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'IMPC_FER_') }">
-                    		<a href="${phenotype.graphUrl }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
-                    		</a>
+                            <c:if test="${phenotype.graphUrl == ''}" >
+                                <i class="fa fa-bar-chart-o" title="No images available."></i>
+                            </c:if>
+                            <c:if test="${phenotype.graphUrl != ''}" >
+                                <a href="${phenotype.graphUrl }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
+                                </a>
+                            </c:if>
+
+
                     	</c:if>
                     	<c:if test="${fn:containsIgnoreCase(phenotype.graphUrl, 'IMPC_FER_') }">
                     		<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>

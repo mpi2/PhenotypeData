@@ -55,7 +55,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
@@ -1112,7 +1111,7 @@ public class FileExportController {
 	}
 
 	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters,
-			HttpServletRequest request) throws SolrServerException {
+			HttpServletRequest request) throws SolrServerException, UnsupportedEncodingException {
 		List<String> res = new ArrayList<>();
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList();
 		PhenotypeFacetResult phenoResult;
@@ -1143,38 +1142,40 @@ public class FileExportController {
 				res.add(pr.toTabbedString("gene"));
 			}
 
-		} else if (pageName.equalsIgnoreCase("phenotype")) {
+		} else {
+			if (pageName.equalsIgnoreCase("phenotype")) {
 
-			phenotypeList = new ArrayList();
+				phenotypeList = new ArrayList();
 
-			try {
-				phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), filters);
-				phenotypeList = phenoResult.getPhenotypeCallSummaries();
-			} catch (HibernateException | JSONException e) {
-				log.error("ERROR GETTING PHENOTYPE LIST");
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			}
-
-			ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
-			//res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
-			res.add("Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
-
-			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-				PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
-
-				if (pr.getParameter() != null && pr.getProcedure() != null) {
-					phenotypes.add(pr);
+				try {
+					phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), filters);
+					phenotypeList = phenoResult.getPhenotypeCallSummaries();
+				} catch (HibernateException | JSONException e) {
+					log.error("ERROR GETTING PHENOTYPE LIST");
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
 				}
-			}
-			Collections.sort(phenotypes); // sort in same order as phenotype
-											// page.
 
-			for (DataTableRow pr : phenotypes) {
-				res.add(pr.toTabbedString("phenotype"));
+				ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
+				//res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
+				res.add("Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
+
+				for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+					PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
+
+					if (pr.getParameter() != null && pr.getProcedure() != null) {
+						phenotypes.add(pr);
+					}
+				}
+				Collections.sort(phenotypes); // sort in same order as phenotype
+				// page.
+
+				for (DataTableRow pr : phenotypes) {
+					res.add(pr.toTabbedString("phenotype"));
+				}
 			}
 		}
 		return res;
