@@ -1,6 +1,8 @@
 /* Additional styling written at EBI */
 
-
+#dg{
+	overflow-x:auto;	
+}
 
 .alleleCassette{
 	max-height:3.5em;
