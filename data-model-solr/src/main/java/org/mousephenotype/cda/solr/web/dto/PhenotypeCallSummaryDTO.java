@@ -34,6 +34,8 @@ public class PhenotypeCallSummaryDTO {
 	protected String gId; // preqc only, param needed for phenoview graph links
 	protected String lifeStageAcc;
 	protected String lifeStageName;
+	protected String colonyId;
+	protected Boolean hasImage;
 
 	/**
 	 * @return the gId
@@ -358,5 +360,68 @@ public class PhenotypeCallSummaryDTO {
 	public void setLifeStageName(String lifeStageName) {
 
 		this.lifeStageName = lifeStageName;
+	}
+
+	/**
+	 * @return the colony id
+	 */
+	public String getColonyId() {
+
+		return colonyId;
+	}
+
+	/**
+	 * @param colonyId the colonyId to set
+	 */
+	public void setColonyId(String colonyId) {
+
+		this.colonyId = colonyId;
+	}
+
+	/**
+	 * @return hasImage (ie, has images associated with an experiment)
+	 */
+	public Boolean hasImage() {
+
+		return hasImage;
+	}
+
+	/**
+	 * @param hasImage to set
+	 */
+	public void setHasImage(Boolean hasImage) {
+
+		this.hasImage = hasImage;
+	}
+
+
+	@Override
+	public String toString() {
+		return "PhenotypeCallSummaryDTO{" +
+				"id=" + id +
+				", sex=" + sex +
+				", zygosity=" + zygosity +
+				", datasource=" + datasource +
+				", project=" + project +
+				", organisation=" + organisation +
+				", phenotypeTerm=" + phenotypeTerm +
+				", pValue=" + pValue +
+				", effectSize=" + effectSize +
+				", strain=" + strain +
+				", allele=" + allele +
+				", gene=" + gene +
+				", pipeline=" + pipeline +
+				", procedure=" + procedure +
+				", parameter=" + parameter +
+				", phenotypingCenter='" + phenotypingCenter + '\'' +
+				", colorIndex=" + colorIndex +
+				", topLevelPhenotypeTerms=" + topLevelPhenotypeTerms +
+				", isPreQC=" + isPreQC +
+				", gId='" + gId + '\'' +
+				", lifeStageAcc='" + lifeStageAcc + '\'' +
+				", lifeStageName='" + lifeStageName + '\'' +
+				", colonyId='" + colonyId + '\'' +
+				", hasImage=" + hasImage +
+				'}';
 	}
 }

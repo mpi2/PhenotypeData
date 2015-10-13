@@ -17,8 +17,10 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 
@@ -34,11 +36,11 @@ public class PhenotypePageTableRow extends DataTableRow {
         super();
     }
 
-    public PhenotypePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+    public PhenotypePageTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException {
         super(pcs, baseUrl, config);
     }
 
-    public PhenotypePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) {
+    public PhenotypePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException, SolrServerException {
         super(pcs, baseUrl, config);
     }
     /**
