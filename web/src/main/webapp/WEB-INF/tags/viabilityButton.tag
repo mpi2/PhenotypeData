@@ -14,8 +14,8 @@
 </c:if>
 
 <c:if test="${callList.size() > 1}">
-	<a class="status done">	
-		<span class="left"><i class="fa fa-exclamation" title="Conflicting calls were made for this gene. For details refer to the associations table on the gene page."></i></span>
+	<a class="status done" title="Conflicting calls were made for this gene. For details refer to the associations table on the gene page.">	
+		<span class="left"><i class="fa fa-exclamation" ></i></span>
 		<c:forEach var="call" items="${callList}" varStatus="loop">
 			<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>
 			<c:if test="${!loop.last}">   </c:if>

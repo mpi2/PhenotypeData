@@ -201,6 +201,7 @@
 											    </c:forEach>
 											</tbody>
 										</table>
+										<p> These associations are provided by <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a>.</p>
 	                                 </c:if>
 									</div>
 	                            </div>

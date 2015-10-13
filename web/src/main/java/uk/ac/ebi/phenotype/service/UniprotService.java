@@ -29,7 +29,7 @@ public class UniprotService {
 	throws JAXBException, IOException{
 		
 		//http://www.uniprot.org/uniprot/Q6ZNJ1.xml
-		JAXBContext context = JAXBContext.newInstance(Entry.class);
+		JAXBContext context = JAXBContext.newInstance(Uniprot.class);
 	    URL url = new URL(xml);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
