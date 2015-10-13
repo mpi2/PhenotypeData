@@ -377,29 +377,12 @@
 
                                         <jsp:include page="phenotype_icons_frag.jsp"/>
 
-                                        <%-- <c:if test="${!(empty dataMapList)}">
-                                            <p class="with-label no-margin">
-                                            <p class="no-margin">Browse all phenotype data for:</p>
-                                            <ul>
-                                                <c:forEach var="dataMap" items="${dataMapList}" varStatus="loop">
-                                                    <li><a href='${baseUrl}/experiments/alleles/${dataMap["allele_accession_id"]}?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'><t:formatAllele>${dataMap["allele_symbol"]}</t:formatAllele></a> phenotyped by ${dataMap["phenotyping_center"]} using ${dataMap["pipeline_name"]} SOPs (<a href='${baseUrl}/phenome?phenotyping_center=${dataMap["phenotyping_center"]}&pipeline_stable_id=${dataMap["pipeline_stable_id"]}'>MP calls for all strains</a>).</li>
-                                                </c:forEach>
-                                            </ul>
-                                            </p>
-                                        </c:if>	 --%>
+                                       
                                         <c:if
                                                 test="${!(empty dataMapList)}">
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-                                            <div class="floatright"
-                                                 style="clear: both">
-
-                                                <div class="abnormalities_key">
-                                                    <span style="color: #e27010">Significant &nbsp; &nbsp; </span>
-                                                    <span style="color: #0978a1">Tested &nbsp; &nbsp; </span>
-                                                    <span style="color: #c2c2c2">Not tested &nbsp; &nbsp; </span>
-                                                </div>
-                                              </div>
+                                          
                                               <div class="floatright"
                                                  style="clear: both">
                                                 <p>

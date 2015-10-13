@@ -1,5 +1,10 @@
 /* Additional styling written at EBI */
 
+
+
+.alleleCassette{
+	max-height:3.5em;
+}
 .inline-block{
 	display:inline-block;"
 }

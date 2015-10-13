@@ -234,7 +234,8 @@ public class GenesController {
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons");
+			prodStatusIcons += (prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("phenotypingIcons");
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 			
@@ -381,7 +382,7 @@ public class GenesController {
 		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
 		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-		String prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? "" : prod.get("icons");
+		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
 		
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
 
