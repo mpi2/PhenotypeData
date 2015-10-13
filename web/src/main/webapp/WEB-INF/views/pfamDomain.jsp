@@ -6,6 +6,10 @@
 		<script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.js"></script>
 		
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/prototype/1.7.0/prototype.js"></script>
+	
+		<!-- prototip -->
+		<script type='text/javascript' src='http://pfam.xfam.org/shared/javascripts/prototip.js'></script>
+		<link rel='stylesheet' href='http://pfam.xfam.org/shared/css/prototip.css' type='text/css' />
 		
 		<!-- required javascripts -->
 		<script type='text/javascript' src='http://pfam.xfam.org/static/javascripts/excanvas.js'></script>
@@ -18,8 +22,8 @@
 		<![endif]-->
 		
 		<!-- styles applicable to all browsers -->
-		<link rel='stylesheet' href='http://pfam.xfam.org/static/css/graphicTools.css' type='text/css' />		
-		
+		<link rel='stylesheet' href='http://pfam.xfam.org/static/css/graphicTools.css' type='text/css' />
+					
 		<script type="text/javascript">
 			  // <![CDATA[
 		
@@ -72,5 +76,11 @@
 				<div id="dg">
 					<span id="none">No graphic yet</span>
 				</div>
+	
+	<script type="text/javascript">
+      // <![CDATA[
+      Event.observe( window, 'load', addHoverListeners, false );
+      // ]]>
+    </script>
 		
 				
