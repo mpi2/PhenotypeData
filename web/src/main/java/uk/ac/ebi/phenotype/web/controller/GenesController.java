@@ -389,7 +389,9 @@ public class GenesController {
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
-		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		
+		JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
+				getResults("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
 		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
