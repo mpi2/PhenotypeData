@@ -24,6 +24,7 @@
 		        target: "heatmapContainer"
 		    });
 		</script>
+		
 		<link rel="stylesheet" href="${baseUrl}/css/customanatomogram.css" />
       
 	</jsp:attribute>
@@ -69,7 +70,7 @@
 	                                <c:if test="${viabilityCalls != null && !(empty viabilityCalls)}">
 			                            <p class="with-label no-margin">
 			                            	<span class="label">Viability</span>
-			                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
+			                            	<t:viabilityButton callList="${viabilityCalls}" link="${baseUrl}/genes/${gene.mgiAccessionId}"> </t:viabilityButton>
 			                            </p>
 	                               	</c:if>
 	                               	
@@ -80,12 +81,14 @@
 		                                </p>
 		                            </c:if>
 	                               	
-	                               	<div>
-										<h4>Allele Map</h4>
-										<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
-											<img class="alleleCassette" alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
-										</c:forEach>
-									</div>
+	                               	<c:if test="${alleleCassette.keySet().size() > 0}">
+		                               	<div>
+											<h4>Allele Map</h4>
+											<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
+												<img class="alleleCassette" alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
+											</c:forEach>
+										</div>
+									</c:if>
 									
 	                               	<br/>
 	                               	<div>
@@ -156,6 +159,10 @@
 	                                       ${symbol}    <c:if test="${!loop.last}">, </c:if>    <c:if test="${loop.last}"></c:if> </c:forEach>
 	                                </h3>
                                     <p>[Function, synonyms]</p>
+                                    <div>
+                                    	<h4>Domain for canonical protein</h4>
+                                    	<jsp:include page="pfamDomain.jsp"></jsp:include>
+                                    </div>
                                     <p>[GO annotations]</p>
                                     <c:if test="${not empty orthologousDiseaseAssociations}">
                                     	<div class="bordertop">

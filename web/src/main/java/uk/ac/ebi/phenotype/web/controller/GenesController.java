@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -42,6 +43,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.generic.util.HttpProxy;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
@@ -73,7 +75,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -234,8 +239,8 @@ public class GenesController {
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons");
-			prodStatusIcons += (prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("phenotypingIcons");
+			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) 
+					? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons").equalsIgnoreCase("");
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 			
@@ -383,9 +388,9 @@ public class GenesController {
 		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
-		
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
-
+		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
@@ -396,13 +401,40 @@ public class GenesController {
 		model.addAttribute("alleleCassette", alleleCassette);
 		model.addAttribute("imageSummary", imageSummary);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
+		model.addAttribute("pfamJson", pfamJson);
 		
 		System.out.println("In geneSummary Controller" + imageSummary.size());
 		
 		return "geneSummary";
 	}
 
+	@RequestMapping("/pFam/{acc}")
+	public String pfam(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes) 
+	throws IOException, URISyntaxException{
 
+		
+		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		System.out.println("PFAM JSON " + pfamJson);
+		model.addAttribute("pfamJson", pfamJson);
+		return "pfamDomain";
+	}
+
+	
+	public JSONArray getResults(String url) throws IOException,
+	URISyntaxException {
+		
+		HttpProxy proxy = new HttpProxy();
+		
+		try {
+			String content = proxy.getContent(new URL(url));
+			return (JSONArray) JSONSerializer.toJSON(content);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
 
 		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
