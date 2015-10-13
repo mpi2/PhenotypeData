@@ -134,9 +134,6 @@ public class FileExportController {
 	private GwasDAO gwasDao;
 
 	@Autowired
-	private GenomicFeatureDAO genesDao;
-
-	@Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
 

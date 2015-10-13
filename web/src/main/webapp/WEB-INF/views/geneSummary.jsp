@@ -41,11 +41,6 @@
                                 <div class="paddingRightMedium">
                                 	<h3>Mouse ${gene.markerSymbol} </h3>
                                     
-                                    <c:if test="${viabilityCalls != null && !(empty viabilityCalls)}">
-		                            	<t:viabilityButton callList="${viabilityCalls}"> </t:viabilityButton>
-	                               	</c:if>
-                                    ${prodStatusIcons}
-                                      
 									<c:if test="${gene.markerName != null}">
 		                                <p class="with-label no-margin">
 		                                    <span class="label">Name</span>
@@ -85,70 +80,75 @@
 		                                </p>
 		                            </c:if>
 	                               	
-	                                <h4> <a href="${baseUrl}/genes/${gene.mgiAccessionId}">IMPC Phenotype Annotations </a></h4>
-										
-	                               	<c:if test="${phenotypeSummaryObjects.keySet().size() > 0}">
-										<div class="half">
-											<c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
-	                                            <p>In <b>${zyg} :</b>  </p>
-	                                            <ul>
-	                                                <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-	                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
-	                                                      	<li>
-	                                                           	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> [m/f]
-	                                                        </li>
-	                                                    </c:forEach>
-	                                                </c:if>
-	
-	                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-	                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
-	                                                    	<li>
-	                                                        	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> [f]
-	                                                        </li>
-	                                                  	</c:forEach>
-	                                                </c:if>
-	
-	                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-	                                                    <li>
-		                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
-	                                                            <li>
-	                                                            	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> [m] 
-	                                                            </li>
+	                               	<div>
+										<h4>Allele Map</h4>
+										<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
+											<img class="alleleCassette" alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
+										</c:forEach>
+									</div>
+									
+	                               	<br/>
+	                               	<div>
+		                                <h4> <a href="${baseUrl}/genes/${gene.mgiAccessionId}">IMPC Phenotype Annotations </a></h4>
+											
+		                               	<c:if test="${phenotypeSummaryObjects.keySet().size() > 0}">
+											<div class="half">
+												<c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
+		                                            <p>In <b>${zyg} :</b>  </p>
+		                                            <ul>
+		                                                <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
+		                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
+		                                                      	<li>
+		                                                           	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> <img alt="Female" title="Female" src="${baseUrl}/img/female.jpg"/><img alt="Male" title="Male" src="${baseUrl}/img/male.jpg"/>
+		                                                        </li>
 		                                                    </c:forEach>
-	                                                    </li>
-	                                                </c:if>
-	                                            </ul>
-	                                        </c:forEach>
-	                                    </div>
-	                                    <div class="half">
-                                        	<jsp:include page="phenotype_icons_frag.jsp"/>
-										</div>
-										</c:if>
-										<c:if test="${phenotypeSummaryObjects.keySet().size() == 0}">
-											<p class="alert alert-info">IMPC has no phenotype associations to ${gene.markerSymbol} yet.</p>
-										</c:if>
-										<div class=clear"></div>
-										
-										<div>
-											<c:forEach var="alleleName" items='${alleleCassette.keySet()}'>
-												<img alt="${alleleName}" title="${alleleName}" src="${alleleCassette.get(alleleName)}">
-											</c:forEach>
-										</div>
-										
-										<c:if test="${imageSummary.size() > 0}">
-											<br/>
-											<div>
-												<h4>IMPC Images</h4>
-												<c:forEach var="image" items="${imageSummary}">
-													<div class="inline-block paddingLeftMedium"> <img src="${image.getThumbnailUrl()}"> <br/>
-														<a href='${baseUrl}/impcImages/images?q=*:*&defType=edismax&wt=json&fq=procedure_name:"${image.getProcedureName()}" AND gene_accession_id:"${acc}"'>${image.getProcedureName()}</a> (${image.getNumberOfImages()})
-													</div> 			
-																				 
-												</c:forEach>
+		                                                </c:if>
+		
+		                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
+		                                                	<c:forEach var="summaryObj"  items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
+		                                                    	<li>
+		                                                        	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> <img alt="Female" title="Female" src="${baseUrl}/img/female.jpg"/>
+		                                                        </li>
+		                                                  	</c:forEach>
+		                                                </c:if>
+		
+		                                                <c:if  test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
+		                                                    <li>
+			                                                    <c:forEach var="summaryObj" items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
+		                                                            <li>
+		                                                            	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a> <img alt="Male" title="Male" src="${baseUrl}/img/male.jpg"/>
+		                                                            </li>
+			                                                    </c:forEach>
+		                                                    </li>
+		                                                </c:if>
+		                                            </ul>
+		                                        </c:forEach>
+		                                    </div>
+		                                    <div class="half">
+	                                        	<jsp:include page="phenotype_icons_frag.jsp"/>
 											</div>
 										</c:if>
 									</div>
-	                            </div>
+									
+									<c:if test="${phenotypeSummaryObjects.keySet().size() == 0}">
+											<p class="alert alert-info">IMPC has no phenotype associations to ${gene.markerSymbol} yet.</p>
+									</c:if>
+									<div class=clear"></div>
+										
+									<c:if test="${imageSummary.size() > 0}">
+										<br/>
+										<div>
+											<h4>IMPC Images</h4>
+											<c:forEach var="image" items="${imageSummary}">
+												<div class="inline-block paddingLeftMedium"> <img src="${image.getThumbnailUrl()}"> <br/>
+													<a href='${baseUrl}/impcImages/images?q=*:*&defType=edismax&wt=json&fq=procedure_name:"${image.getProcedureName()}" AND gene_accession_id:"${acc}"'>${image.getProcedureName()}</a> (${image.getNumberOfImages()})
+												</div> 			
+																			 
+											</c:forEach>
+										</div>
+									</c:if>
+								</div>
+	                         </div>
 	                            
 	                            <div class="half">
 	                            	<div class="paddingLeftMedium">
@@ -158,50 +158,52 @@
                                     <p>[Function, synonyms]</p>
                                     <p>[GO annotations]</p>
                                     <c:if test="${not empty orthologousDiseaseAssociations}">
-	                                   	<table>                                    
-											<thead>
-											    <tr>
-											        <th><span class="main">Disease Name</span></th>
-											        <th><span class="main">Source</span></th>
-											        <th>In Locus</th>
-											        <th><span class="main">MGI/IMPC</span><span class="sub">Mouse Phenotype Evidence (Phenodigm)</span></th>
-											        <th></th>
-											    </tr>
-											</thead>
-											<tbody>
-											    <c:forEach var="association" items="${orthologousDiseaseAssociations}" varStatus="loop">
-											        <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
-											        <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">
-											            <td>
-											            	<a href="${baseUrl}/disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a>
-											            </td>
-											            <td>
-											                <a id="diseaseId" href="${association.diseaseIdentifier.externalUri}">${association.diseaseIdentifier}</a>
-											            </td>
-											            <td>
-											                <c:if test="${associationSummary.inLocus}"> Yes </c:if>
-											                <c:if test="${!associationSummary.inLocus}"> No </c:if>
-											            </td>
-											            <td>
-											                <c:if test="${0.0 != associationSummary.bestModScore}">
-											                    <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
-											                </c:if>   
-											                <c:if test="${0.0 == associationSummary.bestModScore}">
-											                    <b>-</b>   
-											                </c:if>
-											                /
-											                <c:if test="${0.0 != associationSummary.bestHtpcScore}">
-											                    <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
-											                </c:if>
-											                <c:if test="${0.0 == associationSummary.bestHtpcScore}">
-											                    <b>-</b>
-											                </c:if>                                        
-											            </td>
-											        </tr>
-											    </c:forEach>
-											</tbody>
-										</table>
-										<p> These associations are provided by <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a>.</p>
+                                    	<div class="bordertop">
+		                                   	<table>                                    
+												<thead>
+												    <tr>
+												        <th><span class="main">Disease Name</span></th>
+												        <th><span class="main">Source</span></th>
+												        <th>In Locus</th>
+												        <th><span class="main">MGI/IMPC</span><span class="sub">Phenotype Evidence</span></th>
+												        <th></th>
+												    </tr>
+												</thead>
+												<tbody>
+												    <c:forEach var="association" items="${orthologousDiseaseAssociations}" varStatus="loop">
+												        <c:set var="associationSummary" value="${association.associationSummary}"></c:set>
+												        <tr id="${disease.diseaseIdentifier.databaseAcc}" targetRowId="P${geneIdentifier.databaseAcc}_${association.diseaseIdentifier.databaseAcc}" requestpagetype= "gene" geneid="${geneIdentifier.compoundIdentifier}" diseaseid="${association.diseaseIdentifier.compoundIdentifier}">
+												            <td>
+												            	<a href="${baseUrl}/disease/${association.diseaseIdentifier}">${association.diseaseTerm}</a>
+												            </td>
+												            <td>
+												                <a id="diseaseId" href="${association.diseaseIdentifier.externalUri}">${association.diseaseIdentifier.toString().split(":")[0]}</a>
+												            </td>
+												            <td>
+												                <c:if test="${associationSummary.inLocus}"> Yes </c:if>
+												                <c:if test="${!associationSummary.inLocus}"> No </c:if>
+												            </td>
+												            <td>
+												                <c:if test="${0.0 != associationSummary.bestModScore}">
+												                    <b style="color:#EF7B0B">${associationSummary.bestModScore}</b>   
+												                </c:if>   
+												                <c:if test="${0.0 == associationSummary.bestModScore}">
+												                    <b>-</b>   
+												                </c:if>
+												                /
+												                <c:if test="${0.0 != associationSummary.bestHtpcScore}">
+												                    <b style="color:#EF7B0B">${associationSummary.bestHtpcScore}</b>
+												                </c:if>
+												                <c:if test="${0.0 == associationSummary.bestHtpcScore}">
+												                    <b>-</b>
+												                </c:if>                                        
+												            </td>
+												        </tr>
+												    </c:forEach>
+												</tbody>
+											</table>
+											<p> These associations are provided by <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a>.</p>
+										</div>
 	                                 </c:if>
 									</div>
 	                            </div>
