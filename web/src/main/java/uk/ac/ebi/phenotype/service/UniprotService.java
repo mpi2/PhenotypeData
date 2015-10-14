@@ -43,9 +43,10 @@ public class UniprotService {
 	    for (Entry entry: uniprot.getEntry()){
 		    for (CommentType comment : entry.getComment()){
 		    	if (comment.getType().equals("function")){
-		    		dto.setFunction(comment.getText().toString());
+		    		dto.setFunction(comment.getText().get(0).getValue());
 		    	}
-		    }		    
+		    }
+	//	    dto.setName(entry.getName().get(0));
 		    for (DbReferenceType dbref : entry.getDbReference()){
 		    	if (dbref.getType().equalsIgnoreCase("GO")){
 		    		for (PropertyType property : dbref.getProperty()){
