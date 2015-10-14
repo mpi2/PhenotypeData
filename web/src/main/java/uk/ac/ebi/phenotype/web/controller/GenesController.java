@@ -54,6 +54,7 @@ import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Gene;
@@ -364,7 +365,7 @@ public class GenesController {
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
-	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
@@ -376,16 +377,44 @@ public class GenesController {
 		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
+<<<<<<< HEAD
 		Map<String, String> alleleCassette = solrIndex2.getAlleleImage(allelesWithData);
 		System.out.println("ALLELE CASSETE :: " + alleleCassette);
 		System.out.println("VIABILIOTY :: " + viabilityCalls);
 
+=======
+		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
+		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
+		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
+		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
+		
+		JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
+				getResults("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
+		
+		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
+		processDisease(acc, model);
+>>>>>>> 75e2b4a11e9e71bb98a31f29608836880038f015
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+<<<<<<< HEAD
 		model.addAttribute("gene",gene);
 		model.addAttribute("alleleCassette",alleleCassette);
+=======
+		model.addAttribute("gene", gene);
+		model.addAttribute("alleleCassette", alleleCassette);
+		model.addAttribute("imageSummary", imageSummary);
+		model.addAttribute("prodStatusIcons", prodStatusIcons);
+		model.addAttribute("pfamJson", pfamJson);
+		model.addAttribute("uniprotData", uniprotData);
+		
+		System.out.println("In geneSummary Controller" + imageSummary.size());
+		
+		return "geneSummary";
+	}
+>>>>>>> 75e2b4a11e9e71bb98a31f29608836880038f015
 
 		System.out.println("In geneSummary Controller");
 

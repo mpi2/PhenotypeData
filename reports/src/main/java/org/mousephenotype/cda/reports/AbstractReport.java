@@ -49,6 +49,9 @@ public abstract class AbstractReport {
 
     protected ReportParser parser = new ReportParser();
 
+    public static final String DATA_ERROR = "DATA ERROR";
+    public static final String NO_INFO_AVAILABLE = "No information available";
+
     public abstract String getDefaultFilename();
 
     public enum ReportFormat {

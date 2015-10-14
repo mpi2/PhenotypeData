@@ -15,24 +15,9 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -59,25 +44,26 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
-import org.mousephenotype.cda.solr.web.dto.ImageSummary;
-import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 
 @Service
@@ -91,7 +77,8 @@ public class ObservationService extends BasicService {
     @Autowired @Qualifier("experimentCore")
     private HttpSolrServer solr;
 
-   
+    private CommonUtils commonUtils = new CommonUtils();
+
     public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{
 
@@ -111,12 +98,12 @@ public class ObservationService extends BasicService {
     	q.set("group", true);
     	q.set("group.field", ObservationDTO.COLONY_ID);
     	q.set("group.limit", 10000);
-    	q.set("group.sort" , ObservationDTO.DATE_OF_EXPERIMENT + " ASC");
+    	q.set("group.sort", ObservationDTO.DATE_OF_EXPERIMENT + " ASC");
 
     	q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT,
-			ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID , ObservationDTO.ALLELE_ACCESSION_ID,
-			ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
-			ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
+                ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID, ObservationDTO.ALLELE_ACCESSION_ID,
+                ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
+                ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
         q.setRows(10000);
 
         System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
@@ -1611,6 +1598,77 @@ public class ObservationService extends BasicService {
 
     public HttpSolrServer getSolrServer() {
         return solr;
+    }
+
+
+    /**
+     * Returns a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID.
+     *
+     * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPP_*")
+     *
+     * @return a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID
+     *
+     * @throws SolrServerException
+     */
+    public Collection<String> getMetabolismReportBiologicalSampleIds(String procedureStableId)  throws SolrServerException {
+        Collection<String> retVal = new ArrayList<>();
+        SolrQuery query = new SolrQuery();
+
+        // Get list of biological_sample_ids for mice with calorimetry results.
+        query.setQuery(String.format("%s:%s", ObservationDTO.PROCEDURE_STABLE_ID, "IMPC_CAL_*"));
+        query.setRows(0);
+        query.setFacetMinCount(1);
+        query.setFacetLimit(100000);
+        query.addFacetField(ObservationDTO.BIOLOGICAL_SAMPLE_ID);
+
+        LOG.info(solr.getBaseURL() + "/select?" + query);
+
+        retVal = getFacets(solr.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
+
+        return retVal;
+    }
+
+
+    /**
+     * Returns a list of <code>ObservationDTO</code> observations for the specified procedureStableId and biologicalSampleId.
+          *
+     * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPP_*")
+     * @param biologicalSampleId the biological sample id (mouse id) of the desired mouse
+     *
+     * @return a list of <code>ObservationDTO</code> calorimetry results for the specified mouse.
+     *
+     * @throws SolrServerException
+     */
+    public List<ObservationDTO> getMetabolismReportBiologicalSampleId(String procedureStableId, Integer biologicalSampleId) throws SolrServerException {
+        SolrQuery query = new SolrQuery();
+
+        query.setFields(
+                ObservationDTO.ALLELE_ACCESSION_ID,
+                ObservationDTO.ALLELE_SYMBOL,
+                ObservationDTO.BIOLOGICAL_SAMPLE_GROUP,
+                ObservationDTO.BIOLOGICAL_SAMPLE_ID,
+                ObservationDTO.COLONY_ID,
+                ObservationDTO.DATA_POINT,
+                ObservationDTO.DATE_OF_EXPERIMENT,
+                ObservationDTO.DISCRETE_POINT,
+                ObservationDTO.EXTERNAL_SAMPLE_ID,
+                ObservationDTO.GENE_ACCESSION_ID,
+                ObservationDTO.GENE_SYMBOL,
+                ObservationDTO.METADATA,
+                ObservationDTO.METADATA_GROUP,
+                ObservationDTO.OBSERVATION_TYPE,
+                ObservationDTO.PARAMETER_STABLE_ID,
+                ObservationDTO.PHENOTYPING_CENTER,
+                ObservationDTO.PROCEDURE_STABLE_ID,
+                ObservationDTO.SEX,
+                ObservationDTO.TIME_POINT,
+                ObservationDTO.WEIGHT,
+                ObservationDTO.ZYGOSITY);
+        query.setRows(5000);
+        query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
+        query.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_ID + ":" + biologicalSampleId);
+
+        return solr.query(query).getBeans(ObservationDTO.class);
     }
 
 

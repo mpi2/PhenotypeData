@@ -1,6 +1,13 @@
 /* Additional styling written at EBI */
 
 
+.credit {
+	font-size:12px;
+}
+
+#dg{
+	overflow-x:auto;	
+}
 
 .alleleCassette{
 	max-height:3.5em;
