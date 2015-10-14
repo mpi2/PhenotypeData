@@ -28,59 +28,54 @@
 			  // <![CDATA[
 		
 			var generator;
+			
 			jQuery(document).ready(function() {
-		    this._pg = new PfamGraphic();
-		    // get ride of the "no graphic yet" message
-		    if ( $("none") ) {
-		      $("none").remove();
-		    }
-
-		    // hide any previous error messages and remove the previous canvas element
-		    if ( $("dg").select("canvas").size() > 0 ) {
-		      $("dg").select("canvas").first().remove();
-		    }
-
-		    // see if we can turn the sequence string into an object
-		    var sequence;
-		    try {
-		      eval( "sequence = " + '${pfamJson}' );
-		    } catch ( e ) {
+				
+			    this._pg = new PfamGraphic();
+			    // get ride of the "no graphic yet" message
+			    if ( $("none") ) {
+			      $("none").remove();
+			    }
+	
+			    // hide any previous error messages and remove the previous canvas element
+			    if ( $("dg").select("canvas").size() > 0 ) {
+			      $("dg").select("canvas").first().remove();
+			    }
+	
+			    // see if we can turn the sequence string into an object
+			    var sequence;
+			    try {
+			      eval( "sequence = " + '${pfamJson}' );
+			    } catch ( e ) {
+				      console.log("Error in pfamDomain.js " + e );
+			          return;
+			    }
+	
+			    // set up the PfamGraphic object
+			    this._pg.setParent( "dg" );
+	
+			    this._pg.setImageParams( {
+			      xscale: 1.0,
+			      yscale: 1.0
+			    } );
+	
+			    // render the sequence
+			    try {
+			      this._pg.setSequence( sequence );
+			      this._pg.render();
+			    } catch ( e ) {
 			      console.log("Error in pfamDomain.js " + e );
-		          return;
-		    }
-
-		    // set up the PfamGraphic object
-		    this._pg.setParent( "dg" );
-
-		    this._pg.setImageParams( {
-		      xscale: 1.0,
-		      yscale: 1.0
-		    } );
-
-		    // render the sequence
-		    try {
-		      this._pg.setSequence( sequence );
-		      this._pg.render();
-		    } catch ( e ) {
-		      console.log("Error in pfamDomain.js " + e );
-		      return;
-		    }
-		    
-			generator = new GraphicGenerator();
-					  
+			      return;
+			    }
+		    					  
 			})
 					
 		 // ]]>
 		</script>
                     
-				<div id="dg">
-					<span id="none">No graphic yet</span>
-				</div>
+		<div id="dg" >
+			<span id="none">No graphic yet</span>
+		</div>
 	
-	<script type="text/javascript">
-      // <![CDATA[
-      Event.observe( window, 'load', addHoverListeners, false );
-      // ]]>
-    </script>
 		
 				

@@ -85,6 +85,7 @@ import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Gene;
@@ -370,7 +371,7 @@ public class GenesController {
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
-	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+		UniprotDTO uniprotData = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
@@ -389,7 +390,9 @@ public class GenesController {
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
-		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		
+		JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
+				getResults("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
 		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
@@ -402,6 +405,7 @@ public class GenesController {
 		model.addAttribute("imageSummary", imageSummary);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("pfamJson", pfamJson);
+		model.addAttribute("uniprotData", uniprotData);
 		
 		System.out.println("In geneSummary Controller" + imageSummary.size());
 		
