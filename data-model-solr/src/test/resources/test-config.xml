@@ -147,8 +147,8 @@
 
     </bean>
 
-    <bean id="threeI" class="uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl">
-    </bean>
+    <bean id="threeI" class="uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl">     </bean>
+    
     <bean id="observationDAO" class="org.mousephenotype.cda.db.dao.ObservationDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
@@ -160,7 +160,7 @@
     <bean id="phenotypePipelineDAO" class="org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
-
+    
     <bean id="alleleDAO" class="org.mousephenotype.cda.db.dao.AlleleDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>

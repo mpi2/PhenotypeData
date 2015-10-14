@@ -14,7 +14,10 @@
 	
 	</jsp:attribute>
 	<jsp:attribute name="header">
-</jsp:attribute>
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+    </jsp:attribute>
 	<jsp:attribute name="addToFooter">
 		<div class="region region-pinned">
             

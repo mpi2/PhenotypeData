@@ -134,9 +134,6 @@ public class FileExportController {
 	private GwasDAO gwasDao;
 
 	@Autowired
-	private GenomicFeatureDAO genesDao;
-
-	@Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
 
@@ -163,7 +160,8 @@ public class FileExportController {
 			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId,
 			@RequestParam(value = "procedure_stable_id", required = true) String procedureStableId,
 			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId,
-			@RequestParam(value = "allele_accession_id", required = true) String alleleAccession,
+			@RequestParam(value = "allele_accession_id", required = false) String alleleAccessionId,
+			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
 			@RequestParam(value = "strain", required = false) String strainParameter)
@@ -172,7 +170,10 @@ public class FileExportController {
 		Organisation phenotypingCenter = organisationDao.getOrganisationByName(phenotypingCenterParameter);
 		Pipeline pipeline = ppDAO.getPhenotypePipelineByStableId(pipelineStableId);
 		Parameter parameter = ppDAO.getParameterByStableId(parameterStableId);
-		Allele allele = alleleDAO.getAlleleByAccession(alleleAccession);
+		if (alleleAccession!=null) {
+			alleleAccessionId = alleleAccession;
+		}
+		Allele allele = alleleDAO.getAlleleByAccession(alleleAccessionId);
 		SexType sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]) : null;
 		List<String> zygosities = (zygositiesParameter == null) ? null : Arrays.asList(zygositiesParameter);
 		String center = phenotypingCenter.getName();

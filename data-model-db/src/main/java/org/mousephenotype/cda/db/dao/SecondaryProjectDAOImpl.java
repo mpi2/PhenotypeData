@@ -67,7 +67,6 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				String result = resultSet.getString(1);
-				System.out.println("result +++ " +  result);
 				accessions.add(result);
 			}
 		}

@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -26,12 +27,12 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -42,6 +43,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.generic.util.HttpProxy;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
@@ -49,11 +51,13 @@ import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +75,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -120,6 +127,11 @@ public class GenesController {
 
 	@Autowired
 	private PreQcService preqcService;
+	
+
+	@Autowired
+	private PostQcService postqcService;
+	
 	
 	@Autowired
 	private UniprotService uniprotService;
@@ -188,24 +200,7 @@ public class GenesController {
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 
-		/**
-		 * PRODUCTION STATUS (SOLR)
-		 */
-		String geneStatus = null;
-		try {
-
-			geneStatus = solrIndex.getGeneStatus(acc);
-			model.addAttribute("geneStatus", geneStatus);
-			// if gene status is null then the jsp declares a warning message at status div
-
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (IndexOutOfBoundsException exception) {
-			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
-		}
-
+	
 		/**
 		 * Phenotype Summary
 		 */
@@ -220,31 +215,13 @@ public class GenesController {
 		try {
 			
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-						
-			for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
+			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+			
+			for (String str : mpGroupsSignificant.keySet()){
+				if (mpGroupsNotSignificant.keySet().contains(str)){
+					mpGroupsNotSignificant.remove(str);
 				}
-				for (PhenotypeSummaryType phen : summary.getBothPhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getMalePhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(true)){
-					mpGroupsSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(false)){
-					mpGroupsNotSignificant.put(phen.getGroup(), phen.getTopLevelIds());
-				}
-				for (String str : mpGroupsSignificant.keySet()){
-					if (mpGroupsNotSignificant.keySet().contains(str)){
-						mpGroupsNotSignificant.remove(str);
-					}
-				}				
 			}
 
 			// add number of top level terms
@@ -262,7 +239,8 @@ public class GenesController {
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) 
+					? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons").equalsIgnoreCase("");
 			
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 			
@@ -338,6 +316,31 @@ public class GenesController {
 		log.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 	}
 
+	/**
+	 * @author ilinca
+	 * @since 2015/10/09
+	 * @param significant
+	 * @param phenotypeSummaryObjects
+	 * @return
+	 */
+	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
+		
+		HashMap<String, String> mpGroups = new HashMap<>();
+		
+		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
+			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}
+			for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}
+			for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(significant)){
+				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
+			}				
+		}
+		
+		return mpGroups;
+	}
 
 	/**
 	 * @throws IOException
@@ -357,25 +360,81 @@ public class GenesController {
 
 	/**
 	 * @author tudose
+	 * @throws Exception 
 	 * @since 2015/10/02
-	 * @throws IOException
-	 * @throws SolrServerException 
-	 * @throws JAXBException 
 	 */
 	@RequestMapping("/geneSummary/{acc}")
 	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException, JAXBException {
+	throws Exception {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		model.addAttribute("gene",gene);
 
 	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+
+		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
+		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);	
+		
+		for (String str : mpGroupsSignificant.keySet()){
+			if (mpGroupsNotSignificant.keySet().contains(str)){
+				mpGroupsNotSignificant.remove(str);
+			}
+		}
+		
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
+		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
+		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
+		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
+		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
+		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		
+		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
+		processDisease(acc, model);
+		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
+		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
+		model.addAttribute("viabilityCalls", viabilityCalls);
+		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+		model.addAttribute("gene", gene);
+		model.addAttribute("alleleCassette", alleleCassette);
+		model.addAttribute("imageSummary", imageSummary);
+		model.addAttribute("prodStatusIcons", prodStatusIcons);
+		model.addAttribute("pfamJson", pfamJson);
+		
+		System.out.println("In geneSummary Controller" + imageSummary.size());
 		
 		return "geneSummary";
 	}
 
+	@RequestMapping("/pFam/{acc}")
+	public String pfam(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes) 
+	throws IOException, URISyntaxException{
 
+		
+		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		System.out.println("PFAM JSON " + pfamJson);
+		model.addAttribute("pfamJson", pfamJson);
+		return "pfamDomain";
+	}
+
+	
+	public JSONArray getResults(String url) throws IOException,
+	URISyntaxException {
+		
+		HttpProxy proxy = new HttpProxy();
+		
+		try {
+			String content = proxy.getContent(new URL(url));
+			return (JSONArray) JSONSerializer.toJSON(content);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
 
 		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
