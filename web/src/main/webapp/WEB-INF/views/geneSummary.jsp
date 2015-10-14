@@ -156,7 +156,7 @@
 	                            <div class="half">
 	                            	<div class="paddingLeftMedium">
                                 	<h3>Human ortholog <c:forEach var="symbol" items="${gene.humanGeneSymbol}" varStatus="loop">
-	                                       ${symbol}    <c:if test="${!loop.last}">, </c:if>    <c:if test="${loop.last}"></c:if> </c:forEach>
+	                                       ${symbol}<c:if test="${!loop.last}">, </c:if>    <c:if test="${loop.last}"></c:if> </c:forEach>
 	                                </h3>
                                     
                                     <div> 
@@ -166,24 +166,21 @@
 	                               		<p class="with-label">
 	                                    	<span class="label">GO Process</span>
 	                                    	<c:forEach var="var" items="${uniprotData.getGoProcess()}" varStatus="loop">
-	                                            ${var}
-	                                            <c:if test="${!loop.last}">, </c:if>
+	                                            ${var}<c:if test="${!loop.last}">, </c:if>
 	                                            <c:if test="${loop.last}"></c:if>
 	                                        </c:forEach>
 	                               	 	</p>
                                    		<p class="with-label">
 	                                    	<span class="label">GO Function</span>
 	                                    	<c:forEach var="var" items="${uniprotData.getGoMolecularFunction()}" varStatus="loop">
-	                                            ${var}
-	                                            <c:if test="${!loop.last}">, </c:if>
+	                                            ${var}<c:if test="${!loop.last}">, </c:if>
 	                                            <c:if test="${loop.last}"></c:if>
 	                                        </c:forEach>
 	                               	 	</p>
 	                               	 	<p class="with-label">
 	                                    	<span class="label">GO Cellular Component</span>
 	                                    	<c:forEach var="var" items="${uniprotData.getGoCell()}" varStatus="loop">
-	                                            ${var}
-	                                            <c:if test="${!loop.last}">, </c:if>
+	                                            ${var}<c:if test="${!loop.last}">, </c:if>
 	                                            <c:if test="${loop.last}"></c:if>
 	                                        </c:forEach>
 	                               	 	</p>

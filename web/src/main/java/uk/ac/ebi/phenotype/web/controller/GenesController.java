@@ -371,7 +371,7 @@ public class GenesController {
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
-		UniprotDTO uniprotData = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
