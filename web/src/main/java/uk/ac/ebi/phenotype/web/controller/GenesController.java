@@ -105,12 +105,12 @@ public class GenesController {
 
 	@Autowired
 	private PreQcService preqcService;
-	
+
 
 	@Autowired
 	private PostQcService postqcService;
-	
-	
+
+
 	@Autowired
 	private UniprotService uniprotService;
 
@@ -172,7 +172,7 @@ public class GenesController {
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		
+
 		if (gene == null) {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -203,16 +203,16 @@ public class GenesController {
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
 		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
 		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
-		
+
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
 		try {
-			
+
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-			
+
 			for (String str : mpGroupsSignificant.keySet()){
 				if (mpGroupsNotSignificant.keySet().contains(str)){
 					mpGroupsNotSignificant.remove(str);
@@ -225,7 +225,7 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			
+
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
@@ -235,10 +235,10 @@ public class GenesController {
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
-			
+
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
-			
-			
+
+
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
 		} catch (Exception e) {
@@ -255,7 +255,7 @@ public class GenesController {
 			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 		}
 		*/
-		
+
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -291,7 +291,7 @@ public class GenesController {
 		}
 
 		processPhenotypes(acc, model, "", request);
-		
+
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
@@ -318,9 +318,9 @@ public class GenesController {
 	 * @return
 	 */
 	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
-		
+
 		HashMap<String, String> mpGroups = new HashMap<>();
-		
+
 		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
 				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
@@ -330,21 +330,21 @@ public class GenesController {
 			}
 			for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(significant)){
 				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
-			}				
+			}
 		}
-		
+
 		return mpGroups;
 	}
 
 	/**
 	 * @throws IOException
-	 * @throws SolrServerException 
+	 * @throws SolrServerException
 	 */
 	@RequestMapping("/genesPhenoFrag/{acc}")
 	public String genesPhenoFrag(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		// Pass on any query string after the 
+		// Pass on any query string after the
 		String queryString = request.getQueryString();
 		processPhenotypes(acc, model, queryString, request);
 
@@ -354,7 +354,7 @@ public class GenesController {
 
 	/**
 	 * @author tudose
-	 * @throws Exception 
+	 * @throws Exception
 	 * @since 2015/10/02
 	 */
 	@RequestMapping("/geneSummary/{acc}")
@@ -367,8 +367,8 @@ public class GenesController {
 	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
-		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);	
+		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
 		for (String str : mpGroupsSignificant.keySet()){
 			if (mpGroupsNotSignificant.keySet().contains(str)){
 				mpGroupsNotSignificant.remove(str);
@@ -386,9 +386,9 @@ public class GenesController {
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("gene",gene);
 		model.addAttribute("alleleCassette",alleleCassette);
-		
+
 		System.out.println("In geneSummary Controller");
-		
+
 		return "geneSummary";
 	}
 
@@ -409,7 +409,7 @@ public class GenesController {
 		if (queryString == null) {
 			queryString = "";
 		}
-		
+
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
 		PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
@@ -433,7 +433,7 @@ public class GenesController {
 				}
 			}
 
-			// sort facets 
+			// sort facets
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
 		} catch (HibernateException | JSONException e) {
@@ -461,12 +461,12 @@ public class GenesController {
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
-				
+
 			}
 
 			phenotypes.put(pr.hashCode(), pr);
 		}
-		
+
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
@@ -597,7 +597,7 @@ public class GenesController {
 	 * @param model
 	 *            the model to add the images to
 	 * @throws SolrServerException
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException, SQLException {
@@ -668,7 +668,7 @@ public class GenesController {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
-		
+
 		List<String> ensemblIds = new ArrayList<String>();
 		List<String> vegaIds = new ArrayList<String>();
 		List<String> ncbiIds = new ArrayList<String>();

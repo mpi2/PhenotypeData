@@ -30,6 +30,7 @@ import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,42 @@ public class ImageService {
     private String baseUrl;
 
 
+
+    public List<ImageSummary> getImageSummary(String markerAccessionId) 
+    throws SolrServerException{
+    	
+    	SolrQuery q = new SolrQuery();
+    	q.setQuery("*:*");
+    	q.setFilterQueries(ImageDTO.GENE_ACCESSION_ID + ":\"" + markerAccessionId + "\"");
+
+    	// TM decided only to display some procedures in the Summary
+    	q.addFilterQuery("(" + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_XRY* OR " 
+    			+ ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_XRY* OR "
+    			 + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_ALZ* OR "
+    			  + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_PAT* OR "
+    			   + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_EYE* OR "
+    			    + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_HIS*" + ")");
+    	
+    	q.set("group", true);
+    	q.set("group.field", ImageDTO.PROCEDURE_NAME);
+    	q.set("group.limit", 1);
+    	q.set("group.sort" , ImageDTO.DATE_OF_EXPERIMENT + " DESC");
+
+    	List<ImageSummary> res =  new ArrayList<>();
+    	
+    	for (Group group : solr.query(q).getGroupResponse().getValues().get(0).getValues()){
+    		ImageSummary iSummary = new ImageSummary();
+    		iSummary.setNumberOfImages(group.getResult().getNumFound());
+    		iSummary.setProcedureId(group.getResult().get(0).getFieldValue(ImageDTO.PROCEDURE_STABLE_ID).toString());
+    		iSummary.setProcedureName(group.getResult().get(0).getFieldValue(ImageDTO.PROCEDURE_NAME).toString());
+    		iSummary.setThumbnailUrl(group.getResult().get(0).getFieldValue(ImageDTO.JPEG_URL).toString().replace("render_image", "render_thumbnail"));
+    		res.add(iSummary);
+    	}
+    	
+    	return res;
+    }
+    
+    
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc)

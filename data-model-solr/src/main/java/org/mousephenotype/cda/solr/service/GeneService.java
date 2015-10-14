@@ -484,7 +484,8 @@ public class GeneService extends BasicService{
 		}
 		
 		HashMap<String, String> res = new HashMap<>();
-		res.put("icons", esCellStatusHTMLRepresentation + miceStatus + phenotypingStatusHTMLRepresentation);
+		res.put("productionIcons", esCellStatusHTMLRepresentation + miceStatus);
+		res.put("phenotypingIcons", phenotypingStatusHTMLRepresentation);
 		res.put("orderPossible", order.toString());
 
 		return res;
@@ -712,7 +713,7 @@ public class GeneService extends BasicService{
 			if (doc.containsKey(GeneDTO.LATEST_MOUSE_STATUS)) {
 				String prodStatusIcons = "Neither production nor phenotyping status available ";				
 				Map<String, String> prod = this.getProductionStatus(accession, url);
-				prodStatusIcons = ( prod.get("icons").equalsIgnoreCase("") ) ? prodStatusIcons : prod.get("icons") ;
+				prodStatusIcons = ( prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons");
 				geneToStatusMap.put(accession,prodStatusIcons);
 							
 			}

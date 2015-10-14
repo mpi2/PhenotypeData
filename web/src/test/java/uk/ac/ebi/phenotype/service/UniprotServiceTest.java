@@ -32,7 +32,7 @@ public class UniprotServiceTest {
     @Autowired
     UniprotService uniprotService;
 
- //   @Test
+    @Test
     public void testCheckTypeParameterString() {
        
         UniprotDTO dto = null;
@@ -47,7 +47,6 @@ public class UniprotServiceTest {
 	        
 		} catch (JAXBException | IOException e) {
 			e.printStackTrace();
-			assert (dto != null);
 		}
 
         

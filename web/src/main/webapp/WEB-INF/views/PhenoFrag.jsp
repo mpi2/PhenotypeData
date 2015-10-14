@@ -96,12 +96,20 @@
 
 
                 		<c:if test="${not fn:containsIgnoreCase(phenotype.graphUrl, 'IMPC_FER_') }">
+
                             <c:if test="${phenotype.graphUrl == ''}" >
-                                <i class="fa fa-bar-chart-o" title="No images available."></i>
+                                <i class="fa fa-image" title="No images available."></i>
                             </c:if>
                             <c:if test="${phenotype.graphUrl != ''}" >
-                                <a href="${phenotype.graphUrl }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
-                                </a>
+                                <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
+                                    <a href="${phenotype.graphUrl }"><i class="fa fa-image" alt="Images"></i>
+                                    </a>
+                                </c:if>
+                                <c:if test="${not fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
+                                    <a href="${phenotype.graphUrl }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="Graphs"></i>
+                                    </a>
+                                </c:if>
+
                             </c:if>
 
 
