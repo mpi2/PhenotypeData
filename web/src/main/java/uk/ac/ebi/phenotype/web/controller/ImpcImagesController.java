@@ -18,11 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -233,10 +229,10 @@ public class ImpcImagesController {
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
 			throws IOException, URISyntaxException, SolrServerException {
 		String titleString = "";
-		
 		String startString = "0";
 		String rowsString = "25";// the number of images passed back for each
 									// solr request
+
 		if (request.getParameter("start") != null) {
 			startString = request.getParameter("start");
 		}
@@ -259,7 +255,7 @@ public class ImpcImagesController {
 
 			// To retrieve a single value
 			String value = request.getParameter(key);
-			// System.out.println("value=" + value);
+			 //System.out.println(key + " value=" + value);
 			// only add to our new query string if not rows or length as we want
 			// to set those to specific values in the jsp
 			if (!key.equals("rows") && !key.equals("start")) {
@@ -269,6 +265,7 @@ public class ImpcImagesController {
 															// the :
 				}
 				newQueryString += "&" + key + "=" + value;
+				System.out.println("CHK: " + key + " vs " + value );
 				// If the same key has multiple values (check boxes)
 				String[] valueArray = request.getParameterValues(key);
 
@@ -321,11 +318,13 @@ public class ImpcImagesController {
 			// model.addAttribute("q", newQueryString);
 			model.addAttribute("q", qStr);
 			model.addAttribute("qBaseStr", qBaseStr);
+
 			if (request.getParameter("title") != null) {// if title is provided
 														// as a parameter use
 														// that for the title
 				titleString = request.getParameter("title");
 			}
+
 			model.addAttribute("titleString", titleString);
 
 			// model.addAttribute("filterQueries", filterQueries);

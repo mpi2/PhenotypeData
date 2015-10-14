@@ -758,7 +758,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.set("wt", "json");
         q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
                
-        q.setFields(GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.EXTERNAL_ID,
+        q.setFields(GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MPATH_TERM_NAME, GenotypePhenotypeDTO.MPATH_TERM_ID, GenotypePhenotypeDTO.EXTERNAL_ID,
         		GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME, GenotypePhenotypeDTO.ALLELE_SYMBOL, 
         		GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ALLELE_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
         		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ZYGOSITY, 
@@ -897,45 +897,62 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         JSONArray topLevelMpTermIDs;
         PhenotypeCallSummaryDTO sum = null;
         try{
-            System.out.println("DOC: " + doc.toString());
+
             sum = new PhenotypeCallSummaryDTO();
-	        String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
-	        String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
-	        
-	        BasicBean phenotypeTerm = new BasicBean();
-	        phenotypeTerm.setId(mpId);
-	        phenotypeTerm.setName(mpTerm);
-	        sum.setPhenotypeTerm(phenotypeTerm);
-	
+
+
+            BasicBean phenotypeTerm = new BasicBean();
+
+            // distinguishes between MP and MPATH
+
+            if( phen.containsKey(GenotypePhenotypeDTO.MP_TERM_ID) ){
+
+                String mpTerm = phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME);
+                String mpId = phen.getString(GenotypePhenotypeDTO.MP_TERM_ID);
+                phenotypeTerm.setId(mpId);
+                phenotypeTerm.setName(mpTerm);
+
+                // check the top level categories
+                if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+                    topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+                    topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+                } else {
+                    // a top level term is directly associated
+                    topLevelMpTermNames = new JSONArray();
+                    topLevelMpTermNames.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME));
+                    topLevelMpTermIDs = new JSONArray();
+                    topLevelMpTermIDs.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_ID));
+                }
+
+                List<BasicBean> topLevelPhenotypeTerms = new ArrayList<BasicBean>();
+                for (int i = 0; i < topLevelMpTermNames.size(); i ++) {
+                    BasicBean toplevelTerm = new BasicBean();
+                    toplevelTerm.setName(topLevelMpTermNames.getString(i));
+                    toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
+                    toplevelTerm.setId(topLevelMpTermIDs.getString(i));
+                    topLevelPhenotypeTerms.add(toplevelTerm);
+                }
+
+                sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
+            }
+            else if ( phen.containsKey(GenotypePhenotypeDTO.MPATH_TERM_ID ) ){
+
+                String mpathTerm = phen.getString(GenotypePhenotypeDTO.MPATH_TERM_NAME);
+                String mpathId = phen.getString(GenotypePhenotypeDTO.MPATH_TERM_ID);
+                phenotypeTerm.setId(mpathId);
+                phenotypeTerm.setName(mpathTerm);
+
+            }
+            sum.setPhenotypeTerm(phenotypeTerm);
+
+
 	        // Gid is required for linking to phenoview
 	        if (phen.containsKey(GenotypePhenotypeDTO.EXTERNAL_ID)) {
 	            sum.setgId(phen.getString(GenotypePhenotypeDTO.EXTERNAL_ID));
 	        }
 	
 	        sum.setPreQC(preQc);
-	
-	        // check the top level categories
-	        if (phen.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
-	            topLevelMpTermNames = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-	            topLevelMpTermIDs = phen.getJSONArray(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
-	        } else { 
-	        	// a top level term is directly associated
-	            topLevelMpTermNames = new JSONArray();
-	            topLevelMpTermNames.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_NAME));
-	            topLevelMpTermIDs = new JSONArray();
-	            topLevelMpTermIDs.add(phen.getString(GenotypePhenotypeDTO.MP_TERM_ID));
-	        }
-	        
-	        List<BasicBean> topLevelPhenotypeTerms = new ArrayList<BasicBean>();
-	        for (int i = 0; i < topLevelMpTermNames.size(); i ++) {
-	            BasicBean toplevelTerm = new BasicBean();
-	            toplevelTerm.setName(topLevelMpTermNames.getString(i));
-	            toplevelTerm.setDescription(topLevelMpTermNames.getString(i));
-	            toplevelTerm.setId(topLevelMpTermIDs.getString(i));
-	            topLevelPhenotypeTerms.add(toplevelTerm);
-	        }
-	
-	        sum.setTopLevelPhenotypeTerms(topLevelPhenotypeTerms);
+
 	        sum.setPhenotypingCenter(phen.getString(GenotypePhenotypeDTO.PHENOTYPING_CENTER));
 	
 	        if (phen.containsKey(GenotypePhenotypeDTO.ALLELE_SYMBOL)) {            
@@ -1012,6 +1029,10 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 	        } else {
 	            System.err.println("procedure_stable_id");
 	        }
+
+            if ( phen.containsKey(GenotypePhenotypeDTO.COLONY_ID) ){
+                sum.setColonyId(phen.getString(GenotypePhenotypeDTO.COLONY_ID));
+            }
         } catch (Exception e){
         	String errorCode = "";
         	if (preQc){

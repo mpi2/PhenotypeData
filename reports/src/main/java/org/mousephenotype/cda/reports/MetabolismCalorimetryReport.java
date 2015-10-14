@@ -41,8 +41,6 @@ import java.util.*;
 @Component
 public class MetabolismCalorimetryReport extends AbstractReport {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
-
     private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
 
     @Autowired
@@ -138,13 +136,13 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
         // This is a tremendous amount of data, so we'll do a write after every biological sample id found.
         try {
-            Collection<String> biologicalSampleIds = observationService.getCalorimetryReportBiologicalSampleIds();
+            Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CAL_*");
             int count = 0;
             for (String biologicalSampleId : biologicalSampleIds) {
 //if (count >= 100) break;
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
-                    List<ObservationDTO> mouseInfoDTOs = observationService.getCalorimetryReportBiologicalSampleId(lBiologicalSampleId);
+                    List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CAL_*", lBiologicalSampleId);
                     csvWriter.writeNext(createReportRow(mouseInfoDTOs));
                     if (++count % 1000 == 0)
                         logger.info(new Date().toString() + ": " + count + " records written.");
@@ -299,7 +297,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         }
 
         // Build the output row.
-        retVal.add(Long.toString(mouseInfoDTOs.get(0).getBiologicalSampleId()));
+        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
         retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());

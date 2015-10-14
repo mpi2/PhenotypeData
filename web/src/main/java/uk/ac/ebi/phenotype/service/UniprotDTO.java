@@ -1,17 +1,18 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
-import org.apache.bcel.generic.ARRAYLENGTH;
 
 public class UniprotDTO {
 
-	
+
 	private String function;
-	private List<String> goProcess;
-	private List<String> goCell;
-	private List<String> goMolecularFunction;
+	private String name;
+	private Set<String> synonyms;
+	private Set<String> goProcess;
+	private Set<String> goCell;
+	private Set<String> goMolecularFunction;
 	
 	public String getFunction() {
 		return function;
@@ -19,45 +20,60 @@ public class UniprotDTO {
 	public void setFunction(String function) {
 		this.function = function;
 	}
-	public List<String> getGoProcess() {
+	public Set<String> getGoProcess() {
 		return goProcess;
 	}
-	public void setGoProcess(List<String> goProcess) {
+	public void setGoProcess(Set<String> goProcess) {
 		this.goProcess = goProcess;
 	}
 	public void addGoProcess(String goProcess) {
 		if (this.goProcess == null){
-			this.goProcess = new ArrayList<>();
+			this.goProcess = new HashSet<>();
 		} 
 		this.goProcess.add(goProcess);
 	}
 	
-	public List<String> getGoCell() {
+	public Set<String> getGoCell() {
 		return goCell;
 	}
-	public void setGoCell(List<String> goCell) {
+	public void setGoCell(Set<String> goCell) {
 		this.goCell = goCell;
 	}
 	public void addGoCell(String goCell) {
 		if (this.goCell == null){
-			this.goCell = new ArrayList<>();
+			this.goCell = new HashSet<>();
 		} 
 		this.goCell.add(goCell);
 	}
 	
-	public List<String> getGoMolecularFunction() {
+	public Set<String> getGoMolecularFunction() {
 		return goMolecularFunction;
 	}
-	public void setGoMolecularFunction(List<String> goMolecularFunction) {
+	public void setGoMolecularFunction(Set<String> goMolecularFunction) {
 		this.goMolecularFunction = goMolecularFunction;
 	}
 	public void addGoMolecularFunction(String goMolecularFunction) {
 		if (this.goMolecularFunction == null){
-			this.goMolecularFunction = new ArrayList<>();
+			this.goMolecularFunction = new HashSet<>();
 		} 
 		this.goMolecularFunction.add(goMolecularFunction);
 	}
-	
-	
-	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Set<String> getSynonyms() {
+		return synonyms;
+	}
+	public void setSynonyms(Set<String> synonyms) {
+		this.synonyms = synonyms;
+	}
+	public void addSynonym(String synonym) {
+		if (this.synonyms == null){
+			this.synonyms = new HashSet<>();
+		} 
+		this.synonyms.add(synonym);
+	}
 }

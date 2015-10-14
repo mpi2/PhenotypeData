@@ -16,14 +16,17 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,11 +66,12 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected Double pValue;
     protected boolean isPreQc;
     protected String gid;
+    protected String colonyId;
 
     public DataTableRow() { }
 
 
-    public DataTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) {
+    public DataTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException {
 
 	    this.config = config;
         List<String> sex = new ArrayList<String>();
@@ -98,7 +102,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     }
 
-    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) {
+    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException, SolrServerException {
 
 	    this.config = config;
         List<String> sex = new ArrayList<String>();
@@ -117,12 +121,18 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.setProcedure(pcs.getProcedure());
         this.setParameter(pcs.getParameter());
         this.setPhenotypingCenter(pcs.getPhenotypingCenter());
+        this.setColonyId(pcs.getColonyId());
 
         if (pcs.getProject() != null && pcs.getProject().getId() != null) {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
-       
-        this.setGraphUrl(baseUrl);
+
+        if ( ! pcs.hasImage() && procedure.getName().startsWith("Histopathology") ) {
+            this.graphUrl = "";
+        }
+        else {
+            this.setGraphUrl(baseUrl);
+        }
 
     }
     
@@ -154,6 +164,23 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 		this.gid = gid;
 	}
+
+    /**
+     * @return the colony id
+     */
+    public String getColonyId() {
+
+        return colonyId;
+    }
+
+
+    /**
+     * @param colonyId the colonyId to set
+     */
+    public void setColonyId(String colonyId) {
+
+        this.colonyId = colonyId;
+    }
 
 
 	/**
@@ -216,19 +243,28 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         return graphUrl;
     }
 
-    public void setGraphUrl(String graphBaseUrl) {
+    public void setGraphUrl(String graphBaseUrl) throws UnsupportedEncodingException {
         this.graphUrl = buildGraphUrl(graphBaseUrl);
     }
 
-    public String buildGraphUrl(String baseUrl) {
+    public String buildGraphUrl(String baseUrl) throws UnsupportedEncodingException {
     	String url= baseUrl;
-    	if (!isPreQc){
-    		url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), allele.getAccessionId(), null, zygosity, parameter.getStableId(),
-    		pipeline.getStableId(), phenotypingCenter);
+
+        if (!isPreQc){
+            if ( procedure.getName().startsWith("Histopathology") ){
+                url = getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+                System.out.println("URL: " + url);
+
+
+            }
+            else {
+                url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), allele.getAccessionId(), null, zygosity, parameter.getStableId(),
+                        pipeline.getStableId(), phenotypingCenter);
+            }
         } else {
-		    // Need to use the drupal base url because phenoview is not mapped under the /data url
-		    url = config.get("drupalBaseUrl");
-		    url += "/../phenoview/?gid=" + gid;
+            // Need to use the drupal base url because phenoview is not mapped under the /data url
+            url = config.get("drupalBaseUrl");
+            url += "/../phenoview/?gid=" + gid;
 
             if (parameter != null) {
                 url += "&qeid=" + parameter.getStableId();
@@ -455,5 +491,20 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         }
         return url;
     }
+
+    public static String getMpathImagesUrlPostQc(String baseUrl, String geneAcc, String geneSymbol, String procedureName, String colonyId) throws UnsupportedEncodingException {
+       //images?q=*:*&defType=edismax&wt=json&fq=(gene_accession_id=:"" AND colony_id:"" AND parameter_stable_id:"XXX")&title=gene null in brain
+        String url = baseUrl + "/impcImages/images?";
+        String params = "q=*&defType=edismax&wt=json&fq=(";
+        params += "gene_accession_id:" + URLEncoder.encode("\"" + geneAcc + "\"", "UTF-8");
+        params += " AND procedure_name:" + URLEncoder.encode(procedureName, "UTF-8");
+        params += " AND colony_id:" + colonyId + ")";
+        params += "&title=gene " + URLEncoder.encode(geneSymbol + " in " + procedureName, "UTF-8");
+       // params = URLEncoder.encode(params, "UTF-8");
+        url += params;
+
+        return url;
+    }
+
 
 }
