@@ -141,7 +141,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             Collection<String> biologicalSampleIds = observationService.getCalorimetryReportBiologicalSampleIds();
             int count = 0;
             for (String biologicalSampleId : biologicalSampleIds) {
-//if (count++ > 100) break;
+//if (count >= 100) break;
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getCalorimetryReportBiologicalSampleId(lBiologicalSampleId);
