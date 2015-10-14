@@ -1602,11 +1602,15 @@ public class ObservationService extends BasicService {
 
 
     /**
-     * Returns a collection of biological sample ids for all mice with calormitery results.
-     * @return a collection of biological sample ids for all mice with calormitery results.
+     * Returns a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID.
+     *
+     * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPP_*")
+     *
+     * @return a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID
+     *
      * @throws SolrServerException
      */
-    public Collection<String> getCalorimetryReportBiologicalSampleIds()  throws SolrServerException {
+    public Collection<String> getMetabolismReportBiologicalSampleIds(String procedureStableId)  throws SolrServerException {
         Collection<String> retVal = new ArrayList<>();
         SolrQuery query = new SolrQuery();
 
@@ -1626,16 +1630,16 @@ public class ObservationService extends BasicService {
 
 
     /**
-     * Returns a list of <code>ObservationDTO</code> calorimetry results for the specified mouse.
-     *
+     * Returns a list of <code>ObservationDTO</code> observations for the specified procedureStableId and biologicalSampleId.
+          *
+     * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPP_*")
      * @param biologicalSampleId the biological sample id (mouse id) of the desired mouse
      *
      * @return a list of <code>ObservationDTO</code> calorimetry results for the specified mouse.
      *
      * @throws SolrServerException
      */
-    public List<ObservationDTO> getCalorimetryReportBiologicalSampleId(Integer biologicalSampleId) throws SolrServerException {
-        List<String[]> retVal = new ArrayList<>();
+    public List<ObservationDTO> getMetabolismReportBiologicalSampleId(String procedureStableId, Integer biologicalSampleId) throws SolrServerException {
         SolrQuery query = new SolrQuery();
 
         query.setFields(
@@ -1647,6 +1651,7 @@ public class ObservationService extends BasicService {
                 ObservationDTO.DATA_POINT,
                 ObservationDTO.DATE_OF_EXPERIMENT,
                 ObservationDTO.DISCRETE_POINT,
+                ObservationDTO.EXTERNAL_SAMPLE_ID,
                 ObservationDTO.GENE_ACCESSION_ID,
                 ObservationDTO.GENE_SYMBOL,
                 ObservationDTO.METADATA,
@@ -1660,7 +1665,7 @@ public class ObservationService extends BasicService {
                 ObservationDTO.WEIGHT,
                 ObservationDTO.ZYGOSITY);
         query.setRows(5000);
-        query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":IMPC_CAL_*");
+        query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
         query.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_ID + ":" + biologicalSampleId);
 
         return solr.query(query).getBeans(ObservationDTO.class);
