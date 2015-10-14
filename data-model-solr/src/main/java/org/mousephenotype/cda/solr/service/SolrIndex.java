@@ -650,6 +650,7 @@ public class SolrIndex {
 			return (JSONObject) JSONSerializer.toJSON(content);
 		}
 		catch (Exception e) {
+			e.printStackTrace();
         }
 		return null;
 	}

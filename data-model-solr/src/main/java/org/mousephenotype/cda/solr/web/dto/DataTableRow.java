@@ -127,7 +127,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
 
-        if ( ! pcs.hasImage() ) {
+        if ( ! pcs.hasImage() && procedure.getName().startsWith("Histopathology") ) {
             this.graphUrl = "";
         }
         else {
@@ -252,7 +252,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
         if (!isPreQc){
             if ( procedure.getName().startsWith("Histopathology") ){
-                url = getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), procedure.getName(), this.colonyId);
+                url = getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
                 System.out.println("URL: " + url);
 
 
@@ -492,14 +492,15 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         return url;
     }
 
-    public static String getMpathImagesUrlPostQc(String baseUrl, String geneAcc, String procedureName, String colonyId) throws UnsupportedEncodingException {
+    public static String getMpathImagesUrlPostQc(String baseUrl, String geneAcc, String geneSymbol, String procedureName, String colonyId) throws UnsupportedEncodingException {
        //images?q=*:*&defType=edismax&wt=json&fq=(gene_accession_id=:"" AND colony_id:"" AND parameter_stable_id:"XXX")&title=gene null in brain
         String url = baseUrl + "/impcImages/images?";
         String params = "q=*&defType=edismax&wt=json&fq=(";
-        params += "gene_accession_id:\"" + geneAcc + "\"";
-        params += " AND procedure_name:" + procedureName;
+        params += "gene_accession_id:" + URLEncoder.encode("\"" + geneAcc + "\"", "UTF-8");
+        params += " AND procedure_name:" + URLEncoder.encode(procedureName, "UTF-8");
         params += " AND colony_id:" + colonyId + ")";
-        params = URLEncoder.encode(params, "UTF-8");
+        params += "&title=gene " + URLEncoder.encode(geneSymbol + " in " + procedureName, "UTF-8");
+       // params = URLEncoder.encode(params, "UTF-8");
         url += params;
 
         return url;
