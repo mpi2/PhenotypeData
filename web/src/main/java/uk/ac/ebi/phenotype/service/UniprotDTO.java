@@ -3,12 +3,12 @@ package uk.ac.ebi.phenotype.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.bcel.generic.ARRAYLENGTH;
-
 public class UniprotDTO {
 
-	
+
 	private String function;
+	private String name;
+	private List<String> synonyms;
 	private List<String> goProcess;
 	private List<String> goCell;
 	private List<String> goMolecularFunction;
@@ -57,7 +57,22 @@ public class UniprotDTO {
 		} 
 		this.goMolecularFunction.add(goMolecularFunction);
 	}
-	
-	
-	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public List<String> getSynonyms() {
+		return synonyms;
+	}
+	public void setSynonyms(List<String> synonyms) {
+		this.synonyms = synonyms;
+	}
+	public void addSynonym(String synonym) {
+		if (this.synonyms == null){
+			this.synonyms = new ArrayList<>();
+		} 
+		this.synonyms.add(synonym);
+	}
 }
