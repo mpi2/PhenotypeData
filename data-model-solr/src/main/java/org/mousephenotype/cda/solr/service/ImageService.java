@@ -55,7 +55,6 @@ public class ImageService {
 	}
 
 
-
 	@NotNull
     @Value("${drupalBaseUrl}")
     private String drupalBaseUrl;
@@ -864,6 +863,27 @@ public class ImageService {
 		// solrQuery.setRows(0);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
+
+	}
+
+	public Boolean getImageCount(String geneAccessionId, String procedureName, String colonyId) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*")
+				.addFilterQuery(
+						"(" + ImageDTO.GENE_ACCESSION_ID + ":\"" + geneAccessionId + "\" AND "
+								+ ImageDTO.PROCEDURE_NAME + ":\"" + procedureName + "\" AND "
+								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\")")
+				.setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		if ( response.getResults().getNumFound() == 0 ){
+			return false;
+		}
+		return true;
 
 	}
 

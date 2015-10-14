@@ -635,7 +635,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private void populateMgi2UniprotLookup() throws IOException, SQLException, ClassNotFoundException{
 
-    	// first we need to prepare of Map for Ensembl Gene Id -> MGI id
+    	// first we need to prepare a Map for Ensembl Gene Id -> MGI id
 		String komp2Qry = "select xref_acc, acc from xref where xref_acc like 'ENSMUSG%'";
 		Map<String, String> ensg2mgi = new HashMap<>();
 

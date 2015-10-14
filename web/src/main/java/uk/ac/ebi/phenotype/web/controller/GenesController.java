@@ -15,25 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -43,17 +26,10 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.generic.util.HttpProxy;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.ExpressionService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
@@ -74,23 +50,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.*;
+
+import static org.mousephenotype.cda.solr.generic.util.JSONRestUtil.getResults;
 
 @Controller
 public class GenesController {
@@ -127,12 +110,12 @@ public class GenesController {
 
 	@Autowired
 	private PreQcService preqcService;
-	
+
 
 	@Autowired
 	private PostQcService postqcService;
-	
-	
+
+
 	@Autowired
 	private UniprotService uniprotService;
 
@@ -194,13 +177,30 @@ public class GenesController {
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		
+
 		if (gene == null) {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
 
-	
+		/**
+		 * PRODUCTION STATUS (SOLR)
+		 */
+		String geneStatus = null;
+		try {
+
+			geneStatus = solrIndex.getGeneStatus(acc);
+			model.addAttribute("geneStatus", geneStatus);
+			// if gene status is null then the jsp declares a warning message at status div
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (IndexOutOfBoundsException exception) {
+			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
+		}
+
 		/**
 		 * Phenotype Summary
 		 */
@@ -208,16 +208,16 @@ public class GenesController {
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
 		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
 		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
-		
+
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
 		try {
-			
+
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-			
+
 			for (String str : mpGroupsSignificant.keySet()){
 				if (mpGroupsNotSignificant.keySet().contains(str)){
 					mpGroupsNotSignificant.remove(str);
@@ -230,7 +230,7 @@ public class GenesController {
 				total += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
 			}
 			model.addAttribute("summaryNumber", total);
-			
+
 			List<Map<String, String>> dataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
 			model.addAttribute("dataMapList", dataMapList);
 
@@ -239,12 +239,11 @@ public class GenesController {
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("") || prod.get("phenotypingIcons").equalsIgnoreCase("")) 
-					? prodStatusIcons : prod.get("productionIcons") + prod.get("phenotypingIcons").equalsIgnoreCase("");
-			
+			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
-			
-			
+
+
 		} catch (SolrServerException e2) {
 			e2.printStackTrace();
 		} catch (Exception e) {
@@ -261,7 +260,7 @@ public class GenesController {
 			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 		}
 		*/
-		
+
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
 		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -297,7 +296,7 @@ public class GenesController {
 		}
 
 		processPhenotypes(acc, model, "", request);
-		
+
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
@@ -324,9 +323,9 @@ public class GenesController {
 	 * @return
 	 */
 	public HashMap<String, String> getGroups (boolean significant, HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects){
-		
+
 		HashMap<String, String> mpGroups = new HashMap<>();
-		
+
 		for ( PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()){
 			for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)){
 				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
@@ -336,21 +335,21 @@ public class GenesController {
 			}
 			for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(significant)){
 				mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
-			}				
+			}
 		}
-		
+
 		return mpGroups;
 	}
 
 	/**
 	 * @throws IOException
-	 * @throws SolrServerException 
+	 * @throws SolrServerException
 	 */
 	@RequestMapping("/genesPhenoFrag/{acc}")
 	public String genesPhenoFrag(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		// Pass on any query string after the 
+		// Pass on any query string after the
 		String queryString = request.getQueryString();
 		processPhenotypes(acc, model, queryString, request);
 
@@ -360,7 +359,7 @@ public class GenesController {
 
 	/**
 	 * @author tudose
-	 * @throws Exception 
+	 * @throws Exception
 	 * @since 2015/10/02
 	 */
 	@RequestMapping("/geneSummary/{acc}")
@@ -370,18 +369,16 @@ public class GenesController {
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
-	//	uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml");
+		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);	
-		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);	
-		
+		HashMap<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
+		HashMap<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
 		for (String str : mpGroupsSignificant.keySet()){
 			if (mpGroupsNotSignificant.keySet().contains(str)){
 				mpGroupsNotSignificant.remove(str);
 			}
 		}
-		
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
 		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
@@ -389,52 +386,31 @@ public class GenesController {
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
 		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
-		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
+		
+		JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
+				getResults("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
 		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
+
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
+
 		model.addAttribute("gene", gene);
 		model.addAttribute("alleleCassette", alleleCassette);
 		model.addAttribute("imageSummary", imageSummary);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("pfamJson", pfamJson);
+		model.addAttribute("uniprotData", uniprotData);
 		
 		System.out.println("In geneSummary Controller" + imageSummary.size());
 		
 		return "geneSummary";
 	}
 
-	@RequestMapping("/pFam/{acc}")
-	public String pfam(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes) 
-	throws IOException, URISyntaxException{
 
-		
-		JSONObject pfamJson = getResults("http://pfam.xfam.org/protein/O60090/graphic").getJSONObject(0);
-		System.out.println("PFAM JSON " + pfamJson);
-		model.addAttribute("pfamJson", pfamJson);
-		return "pfamDomain";
-	}
-
-	
-	public JSONArray getResults(String url) throws IOException,
-	URISyntaxException {
-		
-		HttpProxy proxy = new HttpProxy();
-		
-		try {
-			String content = proxy.getContent(new URL(url));
-			return (JSONArray) JSONSerializer.toJSON(content);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
 	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
 
 		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
@@ -451,7 +427,7 @@ public class GenesController {
 		if (queryString == null) {
 			queryString = "";
 		}
-		
+
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
 		PhenotypeFacetResult preQcResult = new PhenotypeFacetResult();
@@ -475,7 +451,7 @@ public class GenesController {
 				}
 			}
 
-			// sort facets 
+			// sort facets
 			model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
 		} catch (HibernateException | JSONException e) {
@@ -488,7 +464,10 @@ public class GenesController {
 		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-			
+
+			Boolean hasImage = imageService.getImageCount(pcs.getGene().getAccessionId(), pcs.getProcedure().getName(), pcs.getColonyId());
+			pcs.setHasImage(hasImage);
+
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 			// Collapse rows on sex			
 			if (phenotypes.containsKey(pr.hashCode())) {
@@ -500,12 +479,12 @@ public class GenesController {
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
-				
+
 			}
 
 			phenotypes.put(pr.hashCode(), pr);
 		}
-		
+
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
@@ -636,7 +615,7 @@ public class GenesController {
 	 * @param model
 	 *            the model to add the images to
 	 * @throws SolrServerException
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException, SQLException {
@@ -707,7 +686,7 @@ public class GenesController {
 			log.warn("Gene object from solr for " + acc + " can't be found.");
 			throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
 		}
-		
+
 		List<String> ensemblIds = new ArrayList<String>();
 		List<String> vegaIds = new ArrayList<String>();
 		List<String> ncbiIds = new ArrayList<String>();

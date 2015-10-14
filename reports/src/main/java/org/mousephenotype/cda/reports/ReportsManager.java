@@ -74,6 +74,9 @@ public class ReportsManager implements CommandLineRunner {
     private MetabolismCalorimetryReport metabolismCalorimetryReport;
 
     @Autowired
+    private MetabolismIPGTTReport metabolismIPGTTReport;
+
+    @Autowired
     private PhenotypeHitsReport phenotypeHitsReport;
 
     @Autowired
@@ -109,6 +112,7 @@ public class ReportsManager implements CommandLineRunner {
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
+        METABOLISM_IPGTT("metabolismIPGTT", "Metabolism IPGTT"),
         PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
         PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
         SEXUAL_DIMORPHISM_NO_BODY_WEIGHT("sexualDimorphismNoBodyWeight", "Sexual dimorphism no body weight report"),
@@ -243,6 +247,11 @@ public class ReportsManager implements CommandLineRunner {
                     case METABOLISM_CALORIMETRY:
                         metabolismCalorimetryReport.run(args);
                         file = metabolismCalorimetryReport.targetFile;
+                        break;
+
+                    case METABOLISM_IPGTT:
+                        metabolismIPGTTReport.run(args);
+                        file = metabolismIPGTTReport.targetFile;
                         break;
 
                     case IMPC_P_VALUES:
