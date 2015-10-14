@@ -79,7 +79,6 @@ public class ObservationService extends BasicService {
 
     private CommonUtils commonUtils = new CommonUtils();
 
-
     public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{
 
@@ -99,12 +98,12 @@ public class ObservationService extends BasicService {
     	q.set("group", true);
     	q.set("group.field", ObservationDTO.COLONY_ID);
     	q.set("group.limit", 10000);
-    	q.set("group.sort" , ObservationDTO.DATE_OF_EXPERIMENT + " ASC");
+    	q.set("group.sort", ObservationDTO.DATE_OF_EXPERIMENT + " ASC");
 
     	q.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT,
-			ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID , ObservationDTO.ALLELE_ACCESSION_ID,
-			ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
-			ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
+                ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID, ObservationDTO.ALLELE_ACCESSION_ID,
+                ObservationDTO.PIPELINE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
+                ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
         q.setRows(10000);
 
         System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
@@ -339,6 +338,30 @@ public class ObservationService extends BasicService {
         }
 
         return solr.query(query).getResults().getNumFound();
+    }
+    
+    
+    public Set<String> getViabilityForGene(String markerSymbol) 
+    throws SolrServerException{
+    	
+    	SolrQuery query = new SolrQuery();
+        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerSymbol +"\"");
+        query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
+        query.addField(ObservationDTO.CATEGORY);
+        query.setRows(100000);
+
+        System.out.println("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
+
+        HashSet<String> viabilityCategories = new HashSet<String>();
+        
+        for ( SolrDocument doc : solr.query(query).getResults()){
+        	viabilityCategories.add(doc.getFieldValue(ObservationDTO.CATEGORY).toString());
+        }
+        
+        return viabilityCategories;
+        
     }
     
 

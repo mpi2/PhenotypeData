@@ -32,17 +32,23 @@ public class UniprotServiceTest {
     @Autowired
     UniprotService uniprotService;
 
-    
     @Test
-    public void testCheckTypeParameterString()
-    throws JAXBException, IOException {
+    public void testCheckTypeParameterString() {
        
-        UniprotDTO dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" );
+        UniprotDTO dto = null;
+		try {
+			
+			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" );
 
-        assert(dto.getFunction() != null);
-        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 4);
-        assert(dto.getGoMolecularFunction() != null && dto.getGoMolecularFunction().size() >= 1);
-        assert(dto.getGoProcess() != null && dto.getGoProcess().size() >= 5);
+	        assert(dto.getFunction() != null);
+	        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 4);
+	        assert(dto.getGoMolecularFunction() != null && dto.getGoMolecularFunction().size() >= 1);
+	        assert(dto.getGoProcess() != null && dto.getGoProcess().size() >= 5);
+	        
+		} catch (JAXBException | IOException e) {
+			e.printStackTrace();
+		}
+
         
     }
     
