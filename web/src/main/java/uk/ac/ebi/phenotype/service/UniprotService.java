@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.stereotype.Component;
 
 import uk.ac.ebi.uniprot.jaxb.CommentType;
@@ -17,18 +19,46 @@ import uk.ac.ebi.uniprot.jaxb.Entry;
 import uk.ac.ebi.uniprot.jaxb.PropertyType;
 import uk.ac.ebi.uniprot.jaxb.Uniprot;
 
-
+/**
+ * @since /10/2015
+ * @author ilinca
+ *
+ */
 @Component
 public class UniprotService {
 
-	// Do call to uniprot, ask id as param
-	// stream xml
-	// unmarshal xml
 	
-	public UniprotDTO readXml(String xml) 
+	/**
+	 * @author ilinca
+	 * @since 14/10/2015
+	 * @return dto to populate geneSummary page with uniprot info
+	 * @throws IOException 
+	 * @throws JAXBException 
+	 */
+	public UniprotDTO getUniprotData(GeneDTO gene) throws JAXBException, IOException{
+		
+		List<String> ids = gene.getUniprotAccs();
+	    UniprotDTO dto = new UniprotDTO();
+	    for (String id : ids){
+	    	dto = readXml("http://www.uniprot.org/uniprot/" + id + ".xml", dto);
+	    }
+	    
+	    return dto;
+	}
+	
+	
+	/**
+	 * @author ilinca
+	 * @since 14/10/2015
+	 * @param xml
+	 * @param dto
+	 * @return
+	 * @throws JAXBException
+	 * @throws IOException
+	 */
+	public UniprotDTO readXml(String xml, UniprotDTO dto) 
 	throws JAXBException, IOException{
 		
-		//http://www.uniprot.org/uniprot/Q6ZNJ1.xml
 		JAXBContext context = JAXBContext.newInstance(Uniprot.class);
 	    URL url = new URL(xml);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -37,8 +67,6 @@ public class UniprotService {
 		Unmarshaller u = context.createUnmarshaller();
 		InputStream conn = connection.getInputStream();
 	    Uniprot uniprot = (Uniprot) u.unmarshal(conn);
-	    
-	    UniprotDTO dto = new UniprotDTO();
 	    
 	    for (Entry entry: uniprot.getEntry()){
 		    for (CommentType comment : entry.getComment()){
@@ -68,6 +96,7 @@ public class UniprotService {
 	    return dto;
 	    
 	}
-	
+
+	//http://www.uniprot.org/uniprot/Q6ZNJ1.xml
 	
 }
