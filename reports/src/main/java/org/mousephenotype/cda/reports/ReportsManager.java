@@ -62,19 +62,22 @@ public class ReportsManager implements CommandLineRunner {
     private HitsPerLineReport hitsPerLineReport;
 
     @Autowired
-    private  HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
+    private HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
 
     @Autowired
-    private  ImpcPValuesReport impcPValuesReport;
+    private ImpcPValuesReport impcPValuesReport;
 
     @Autowired
-    private  LaczExpressionReport lacZExpressionReport;
+    private LaczExpressionReport lacZExpressionReport;
 
     @Autowired
-    private  PhenotypeHitsReport phenotypeHitsReport;
+    private MetabolismCalorimetryReport metabolismCalorimetryReport;
 
     @Autowired
-    private  PhenotypeOverviewPerGeneReport phenotypeOverviewPerGeneReport;
+    private PhenotypeHitsReport phenotypeHitsReport;
+
+    @Autowired
+    private PhenotypeOverviewPerGeneReport phenotypeOverviewPerGeneReport;
 
     @Autowired
     private ProcedureCompletenessReport procedureCompletenessReport;
@@ -105,6 +108,7 @@ public class ReportsManager implements CommandLineRunner {
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
+        METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
         PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
         SEXUAL_DIMORPHISM_NO_BODY_WEIGHT("sexualDimorphismNoBodyWeight", "Sexual dimorphism no body weight report"),
@@ -234,6 +238,11 @@ public class ReportsManager implements CommandLineRunner {
                     case LACZ_EXPRESSION:
                         lacZExpressionReport.run(args);
                         file = lacZExpressionReport.targetFile;
+                        break;
+
+                    case METABOLISM_CALORIMETRY:
+                        metabolismCalorimetryReport.run(args);
+                        file = metabolismCalorimetryReport.targetFile;
                         break;
 
                     case IMPC_P_VALUES:
