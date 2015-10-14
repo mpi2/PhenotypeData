@@ -57,6 +57,9 @@
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/laczExpressionReport.csv">laczExpressionReport.csv</a></td>
 												<td>lacZ expression</td>
 											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/metabolismCalorimetryReport.csv">metabolismCalorimetryReport.csv</a></td>
+												<td>Metabolism calorimetry</td>
+											</tr>
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/phenotypeHitsReport.csv">phenotypeHitsReport.csv</a></td>
 												<td>Phenotype hits</td>
 											</tr>
