@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -32,6 +33,7 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
+import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +72,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+
+import static org.mousephenotype.cda.solr.generic.util.JSONRestUtil.getResults;
 
 @Controller
 public class GenesController {
@@ -377,12 +381,6 @@ public class GenesController {
 		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
-<<<<<<< HEAD
-		Map<String, String> alleleCassette = solrIndex2.getAlleleImage(allelesWithData);
-		System.out.println("ALLELE CASSETE :: " + alleleCassette);
-		System.out.println("VIABILIOTY :: " + viabilityCalls);
-
-=======
 		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
 		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
@@ -394,15 +392,12 @@ public class GenesController {
 		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
->>>>>>> 75e2b4a11e9e71bb98a31f29608836880038f015
+
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
-<<<<<<< HEAD
-		model.addAttribute("gene",gene);
-		model.addAttribute("alleleCassette",alleleCassette);
-=======
+
 		model.addAttribute("gene", gene);
 		model.addAttribute("alleleCassette", alleleCassette);
 		model.addAttribute("imageSummary", imageSummary);
@@ -412,12 +407,6 @@ public class GenesController {
 		
 		System.out.println("In geneSummary Controller" + imageSummary.size());
 		
-		return "geneSummary";
-	}
->>>>>>> 75e2b4a11e9e71bb98a31f29608836880038f015
-
-		System.out.println("In geneSummary Controller");
-
 		return "geneSummary";
 	}
 
