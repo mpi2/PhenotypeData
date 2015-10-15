@@ -1604,18 +1604,16 @@ public class ObservationService extends BasicService {
     /**
      * Returns a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID.
      *
-     * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPP_*")
+     * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPG_*")
      *
      * @return a collection of biological sample ids for all mice matching the PROCEDURE_STABLE_ID
      *
      * @throws SolrServerException
      */
     public Collection<String> getMetabolismReportBiologicalSampleIds(String procedureStableId)  throws SolrServerException {
-        Collection<String> retVal = new ArrayList<>();
         SolrQuery query = new SolrQuery();
 
-        // Get list of biological_sample_ids for mice with calorimetry results.
-        query.setQuery(String.format("%s:%s", ObservationDTO.PROCEDURE_STABLE_ID, "IMPC_CAL_*"));
+        query.setQuery(String.format("%s:%s", ObservationDTO.PROCEDURE_STABLE_ID, procedureStableId));
         query.setRows(0);
         query.setFacetMinCount(1);
         query.setFacetLimit(100000);
@@ -1623,9 +1621,7 @@ public class ObservationService extends BasicService {
 
         LOG.info(solr.getBaseURL() + "/select?" + query);
 
-        retVal = getFacets(solr.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
-
-        return retVal;
+        return getFacets(solr.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
     }
 
 
