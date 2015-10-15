@@ -61,7 +61,10 @@
 												<td>Metabolism calorimetry</td>
 											</tr>
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/metabolismIPGTTReport.csv">metabolismIPGTTReport.csv</a></td>
-												<td>Metabolism Intraperitoneal glucose tolerance (IPGTT) test</td>
+												<td>Metabolism Intraperitoneal glucose tolerance (IPGTT)</td>
+											</tr>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/metabolismDEXAReport.csv">metabolismDEXAReport.csv</a></td>
+												<td>Metabolism Body composition Dual Energy X-ray Absorptiometry (DEXA lean/fat)</td>
 											</tr>
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/phenotypeHitsReport.csv">phenotypeHitsReport.csv</a></td>
 												<td>Phenotype hits</td>
