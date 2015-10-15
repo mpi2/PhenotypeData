@@ -49,6 +49,16 @@ public class JSONRestUtil {
 
 		return (JSONObject) JSONSerializer.toJSON(content);
 	}
+	
+	public static JSONArray getResultsArray(String url) throws IOException, URISyntaxException {
+
+		log.debug("GETTING CONTENT FROM: " + url);
+
+		HttpProxy proxy = new HttpProxy();
+		String content = proxy.getContent(new URL(url));
+
+		return (JSONArray) JSONSerializer.toJSON(content);
+	}
 
 	public static int getNumberFoundFromJsonResponse(JSONObject response) {
 		int numberFound = (int) response.getJSONObject("response").getInt("numFound");
