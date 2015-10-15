@@ -49,14 +49,20 @@ public class MetabolismIPGTTReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-    private boolean[] hasWarnings = {false, false, false};  // Parameters IMPC_IPG_001_001, 002_001, and 003_001
+    private boolean[] hasWarnings = {false, false, false};  // Parameters IMPC_IPG_001_001, 002_001, and 010_001
 
     private String[] header = new String[] {
              "Mouse id", "Sample Type", "Gene", "Allele", "Zygosity"
             ,"Sex", "Colony id", "Phenotyping center", "Metadata group"
 
             ,"Body Weight IMPC_IPG_001_001"
-            ,"Blood glucose concentration IMPC_IPG_002_001"
+
+            ,"Blood glucose concentration - time point 0 IMPC_IPG_002_001"
+            ,"Blood glucose concentration - time point 15 IMPC_IPG_002_001"
+            ,"Blood glucose concentration - time point 30 IMPC_IPG_002_001"
+            ,"Blood glucose concentration - time point 60 IMPC_IPG_002_001"
+            ,"Blood glucose concentration - time point 120 IMPC_IPG_002_001"
+
             ,"Fasted blood glucose concentration IMPC_IPG_010_001"
 
             // metadata
@@ -87,11 +93,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
             Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_IPG_*");
             int count = 0;
             for (String biologicalSampleId : biologicalSampleIds) {
-if (count >= 100) break;
-                if (count == 71) {
-                    int m = 17;
-                    System.out.println(m);
-                }
+//if (count >= 1000) break;
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_IPG_*", lBiologicalSampleId);
@@ -110,50 +112,6 @@ if (count >= 100) break;
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
-
-    // PRIVATE CLASSES
-
-
-    private class CalorimetryData {
-        private float min;
-        private float max;
-        private float sum;
-        private int count;
-
-        public CalorimetryData(float min, float max, float sum, int count) {
-            this.min = min;
-            this.max = max;
-            this.sum = sum;
-            this.count = count;
-        }
-    }
-
-
-    // PRIVATE METHODS
-
-
-    /**
-     * Given a mouseInfoMap, key, and a current data point, computes the min, max, sum, and increments the count for
-     * the single data point.
-     *
-     * @param mouseInfoMap a valid mouseInfoMap instance
-     * @param mouseInfoMapKey the parameter stable id used as a key to the mouseInfoMap for the currentDataPoint
-     * @param currentDataPoint the current data point to be accumulated
-     */
-    private void accumulateSeriesParameterValues(Map<String, CalorimetryData> mouseInfoMap, String mouseInfoMapKey, float currentDataPoint) {
-        if ( ! mouseInfoMap.containsKey(mouseInfoMapKey)) {
-            mouseInfoMap.put(mouseInfoMapKey, new CalorimetryData(currentDataPoint, currentDataPoint, currentDataPoint, 1));
-        } else {
-            CalorimetryData data = mouseInfoMap.get(mouseInfoMapKey);
-            if (currentDataPoint < data.min)
-                data.min = currentDataPoint;
-            if (currentDataPoint > data.max)
-                data.max = currentDataPoint;
-            data.sum += currentDataPoint;
-            data.count++;
-        }
-    }
-
     /**
      * Return a list of strings for a single biologicalSampleId suitable for writing to an output file
      *
@@ -166,13 +124,13 @@ if (count >= 100) break;
     private List<String> createReportRow(List<ObservationDTO> mouseInfoDTOs) throws ReportException {
         List<String> retVal = new ArrayList<>();
 
-        Map<String, Float[]> mouseInfoMap = new HashMap<>();// key = parameterStableId
+        Map<String, Float[]> mouseInfoMap = new HashMap<>();    // key = parameterStableId
                                                                 // value = dataPoint.discretePoint[0], [15], [30], [60], [120] for IMPC_IPG_002,
                                                                 //         datapoint[0] for the rest.
 
         mouseInfoMap.put("IMPC_IPG_001_001", new Float[] {null, null, null, null, null});
         mouseInfoMap.put("IMPC_IPG_002_001", new Float[] {null, null, null, null, null});
-        mouseInfoMap.put("IMPC_IPG_003_001", new Float[] {null, null, null, null, null});
+        mouseInfoMap.put("IMPC_IPG_010_001", new Float[] {null, null, null, null, null});
 
         for (ObservationDTO mouseInfoDTO : mouseInfoDTOs) {
             String parameterStableId = mouseInfoDTO.getParameterStableId();
@@ -242,9 +200,9 @@ if (count >= 100) break;
                     }
                     break;
 
-                case "IMPC_IPG_003_001":
+                case "IMPC_IPG_010_001":
                     if (data[0] != null) {
-                        warnings[2] = "Expected only 1 IMPC_IPG_003_001 dataPoint for this mouse but found more.";
+                        warnings[2] = "Expected only 1 IMPC_IPG_010_001 dataPoint for this mouse but found more.";
                         hasWarnings[2] = true;
                     }
 
@@ -260,8 +218,6 @@ if (count >= 100) break;
         }
 
         // Build the output row.
-System.out.println("mouseInfoDTOs size: " + mouseInfoDTOs.size());
-System.out.println("biologicalSampleId = " + mouseInfoDTOs.get(0).getBiologicalSampleId());
         retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
         retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
@@ -285,26 +241,24 @@ System.out.println("biologicalSampleId = " + mouseInfoDTOs.get(0).getBiologicalS
             retVal.add(NO_INFO_AVAILABLE);
         }
 
-        data = mouseInfoMap.get("IMPC_IPG_002_001 (time point)");
+        data = mouseInfoMap.get("IMPC_IPG_002_001");
         if (data != null) {
             if (hasWarnings[1]) {
                 retVal.add(DATA_ERROR);
             } else {
-                retVal.add(StringUtils.join(data, "::"));
-
-//                for (int i = 0; i < data.length; i++) {
-//                    if (data[i] == null) {
-//                        retVal.add(NO_INFO_AVAILABLE);
-//                    } else {
-//                        retVal.add(Float.toString(data[i]));
-//                    }
-//                }
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i] == null) {
+                        retVal.add(NO_INFO_AVAILABLE);
+                    } else {
+                        retVal.add(Float.toString(data[i]));
+                    }
+                }
             }
         } else {
             retVal.add(NO_INFO_AVAILABLE);
         }
 
-        data = mouseInfoMap.get("IMPC_IPG_003_001");
+        data = mouseInfoMap.get("IMPC_IPG_010_001");
         if (data != null) {
             if (hasWarnings[2]) {
                 retVal.add(DATA_ERROR);
