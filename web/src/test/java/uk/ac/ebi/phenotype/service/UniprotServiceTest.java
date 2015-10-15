@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.service;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import javax.xml.bind.JAXBException;
 
@@ -13,7 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import uk.ac.ebi.phenotype.TestConfig;
+import uk.ac.ebi.phenotype.web.TestConfig;
 
 
 /**
@@ -38,7 +37,7 @@ public class UniprotServiceTest {
         UniprotDTO dto = null;
 		try {
 			
-			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" );
+			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" , dto);
 
 	        assert(dto.getFunction() != null);
 	        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 4);
