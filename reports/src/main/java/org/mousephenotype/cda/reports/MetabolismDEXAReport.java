@@ -41,7 +41,7 @@ import java.util.*;
 @Component
 public class MetabolismDEXAReport extends AbstractReport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ExperimentService experimentService;
@@ -80,7 +80,6 @@ public class MetabolismDEXAReport extends AbstractReport {
 
         csvWriter.writeNext(header);
 
-        // This is a tremendous amount of data, so we'll do a write after every biological sample id found.
         try {
             Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_DXA_*");
             int count = 0;
@@ -129,8 +128,10 @@ public class MetabolismDEXAReport extends AbstractReport {
             }
         }
 
+        String externalSampleId = mouseInfoDTOs.get(0).getExternalSampleId();
+
         // Build the output row.
-        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
+        retVal.add(externalSampleId);
         retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
@@ -143,7 +144,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         List<Float> data = mouseInfoMap.get("IMPC_DXA_001_001");
         if (data != null) {
             if (data.size() > 1) {
-                logger.warn("Expected only 1 IMPC_DXA_001_001 dataPoint for this mouse but found more.");
+                logger.warn("Expected only 1 IMPC_DXA_001_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(NO_INFO_AVAILABLE);
@@ -157,7 +158,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_DXA_002_001");
         if (data != null) {
             if (data.size() > 1) {
-                logger.warn("Expected only 1 IMPC_DXA_002_001 dataPoint for this mouse but found more.");
+                logger.warn("Expected only 1 IMPC_DXA_002_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(NO_INFO_AVAILABLE);
@@ -171,7 +172,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_DXA_003_001");
         if (data != null) {
             if (data.size() > 1) {
-                logger.warn("Expected only 1 IMPC_DXA_003_001 dataPoint for this mouse but found more.");
+                logger.warn("Expected only 1 IMPC_DXA_003_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(NO_INFO_AVAILABLE);

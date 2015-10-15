@@ -41,7 +41,7 @@ import java.util.*;
 @Component
 public class MetabolismIPGTTReport extends AbstractReport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ExperimentService experimentService;
@@ -88,7 +88,6 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
         csvWriter.writeNext(header);
 
-        // This is a tremendous amount of data, so we'll do a write after every biological sample id found.
         try {
             Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_IPG_*");
             int count = 0;
@@ -141,7 +140,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
             switch (parameterStableId) {
                 case "IMPC_IPG_001_001":
                     if (data[0] != null) {
-                        warnings[0] = "Expected only 1 IMPC_IPG_001_001 dataPoint for this mouse but found more.";
+                        warnings[0] = "Expected only 1 IMPC_IPG_001_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.";
                         hasWarnings[0] = true;
                     }
 
@@ -202,7 +201,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
                 case "IMPC_IPG_010_001":
                     if (data[0] != null) {
-                        warnings[2] = "Expected only 1 IMPC_IPG_010_001 dataPoint for this mouse but found more.";
+                        warnings[2] = "Expected only 1 IMPC_IPG_010_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.";
                         hasWarnings[2] = true;
                     }
 
