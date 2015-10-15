@@ -22,17 +22,18 @@
 
 package uk.ac.ebi.phenotype.stats;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertTrue;
 
 public class ChartUtilsTest {
 

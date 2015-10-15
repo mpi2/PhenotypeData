@@ -14,10 +14,9 @@
  *  License.
  ******************************************************************************/
 
-package uk.ac.ebi.phenotype;
+package uk.ac.ebi.phenotype.web;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -50,14 +49,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl;
-import uk.ac.sanger.phenodigm2.model.Disease;
-import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
-import uk.ac.sanger.phenodigm2.model.Gene;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.model.PhenotypeTerm;
-import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
-import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
-import uk.ac.sanger.phenodigm2.web.GeneAssociationSummary;
 
 /**
  * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
