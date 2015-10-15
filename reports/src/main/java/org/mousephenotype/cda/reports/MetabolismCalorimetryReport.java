@@ -152,7 +152,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             csvWriter.close();
 
         } catch (SolrServerException | IOException e) {
-            throw new ReportException("Exception in observationService.getObservationsByProcedureStableId. Reason: " + e.getLocalizedMessage());
+            throw new ReportException("Exception in MetabolismCalorimetryReport. Reason: " + e.getLocalizedMessage());
         }
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
