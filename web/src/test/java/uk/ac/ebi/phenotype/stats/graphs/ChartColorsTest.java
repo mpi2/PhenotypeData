@@ -22,14 +22,15 @@
 
 package uk.ac.ebi.phenotype.stats.graphs;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import uk.ac.ebi.phenotype.chart.ChartColors;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import uk.ac.ebi.phenotype.chart.ChartColors;
 
 public class ChartColorsTest {
 
