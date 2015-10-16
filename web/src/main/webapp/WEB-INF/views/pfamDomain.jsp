@@ -77,5 +77,3 @@
 			<span id="none">No graphic yet</span>
 		</div>
 	
-		
-				
