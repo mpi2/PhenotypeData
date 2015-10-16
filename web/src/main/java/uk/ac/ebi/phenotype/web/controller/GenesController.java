@@ -426,9 +426,7 @@ public class GenesController {
 		model.addAttribute("imageSummary", imageSummary);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("uniprotData", uniprotData);
-		
-		System.out.println("In geneSummary Controller" + imageSummary.size());
-		
+				
 		return "geneSummary";
 	}
 
