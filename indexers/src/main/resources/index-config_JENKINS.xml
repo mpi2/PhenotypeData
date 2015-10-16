@@ -8,9 +8,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:appConfig.properties</value>
-                <value>file:${user.home}/configfiles/jenkinsDatasourcesConfig.properties</value>
-                <value>file:${user.home}/configfiles/jenkinsAppConfig.properties</value>
+                <value>file:${user.home}/configfiles/jenkins/application.properties</value>
             </list>
         </property>
     </bean>

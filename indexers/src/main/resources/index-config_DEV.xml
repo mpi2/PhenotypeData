@@ -8,9 +8,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:appConfig.properties</value>
-                <value>file:${user.home}/configfiles/dev/devDatasourcesConfig.properties</value>
-                <value>file:${user.home}/configfiles/dev/devAppConfig.properties</value>
+                <value>file:${user.home}/configfiles/dev/application.properties</value>
             </list>
         </property>
     </bean>
