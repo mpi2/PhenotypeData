@@ -36,13 +36,3 @@ th.gxaVerticalHeaderCell {
 	margin:none;
 	padding:none;
 }
-
-.gxaStickyTableColumn{
-	height:250px;
-	overflow-y:auto;
-}
-
-div.gxaStickyTableWrap {
-	height:250px;
-	overflow-y:auto;
-}
