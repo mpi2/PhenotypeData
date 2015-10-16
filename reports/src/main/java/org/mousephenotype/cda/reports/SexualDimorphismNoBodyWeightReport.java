@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ import java.util.List;
 @Component
 public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SexualDimorphismDAO sexualDimorphismDAO;
@@ -57,6 +58,12 @@ public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
+
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("SexualDimorphismNoBodyWeightReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();

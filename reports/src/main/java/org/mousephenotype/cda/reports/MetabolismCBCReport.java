@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -82,9 +81,12 @@ public class MetabolismCBCReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
-        File file = null;
 
         List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("MetabolismCBCReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();
@@ -99,7 +101,7 @@ public class MetabolismCBCReport extends AbstractReport {
                 Integer iBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (iBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CBC_*", iBiologicalSampleId);
-                    List<ObservationDTO> mouseInfoInsulinDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_INS_001_001", iBiologicalSampleId);
+                    List<ObservationDTO> mouseInfoInsulinDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_INS_*", iBiologicalSampleId);
                     csvWriter.writeNext(createReportRow(mouseInfoDTOs, mouseInfoInsulinDTOs));
                     if (++count % 1000 == 0)
                         logger.info(new Date().toString() + ": " + count + " records written.");
@@ -130,7 +132,6 @@ public class MetabolismCBCReport extends AbstractReport {
 
         Map<String, List<Float>> mouseInfoMap = new HashMap<>();    // key = parameterStableId
                                                                     // value = dataPoint
-
         mouseInfoMap.put("IMPC_CBC_015_001", new ArrayList<>());
         mouseInfoMap.put("IMPC_CBC_016_001", new ArrayList<>());
         mouseInfoMap.put("IMPC_CBC_017_001", new ArrayList<>());
@@ -148,6 +149,15 @@ public class MetabolismCBCReport extends AbstractReport {
         for (ObservationDTO mouseInfoDTO : mouseInfoDTOs) {
             if (mouseInfoMap.containsKey(mouseInfoDTO.getParameterStableId())) {
                 mouseInfoMap.get(mouseInfoDTO.getParameterStableId()).add(mouseInfoDTO.getDataPoint());
+
+                // Add any INS parameters.
+                List<Float> insDataPoints = new ArrayList<>();
+                for (ObservationDTO observationDTO : mouseInfoInsulinDTOs) {
+                    insDataPoints.add(observationDTO.getDataPoint());
+                }
+                if ( ! insDataPoints.isEmpty()) {
+                    mouseInfoMap.put("IMPC_INS_001_001", insDataPoints);
+                }
             }
         }
 
