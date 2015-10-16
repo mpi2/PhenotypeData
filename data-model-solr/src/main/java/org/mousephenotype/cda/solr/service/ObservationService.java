@@ -69,7 +69,7 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ObservationService extends BasicService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
@@ -106,7 +106,7 @@ public class ObservationService extends BasicService {
                 ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
         q.setRows(10000);
 
-        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
         return solr.query(q).getGroupResponse().getValues().get(0).getValues();
 
     }
@@ -280,7 +280,7 @@ public class ObservationService extends BasicService {
         q.setFacetMinCount(1);
         q.set("facet.limit", -1);
 
-        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
@@ -464,13 +464,13 @@ public class ObservationService extends BasicService {
 
         if (alleleAccessions != null &&  ! alleleAccessions.isEmpty()) {
             String alleleFilter = ObservationDTO.ALLELE_ACCESSION_ID + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
-            LOG.debug("alleleFilter=" + alleleFilter);
+            logger.debug("alleleFilter=" + alleleFilter);
             query.addFilterQuery(alleleFilter);
 
         }
 
         QueryResponse response = solr.query(query);
-        LOG.debug("experiment key query=" + query);
+        logger.debug("experiment key query=" + query);
         List<FacetField> fflist = response.getFacetFields();
 
         for (FacetField ff : fflist) {
@@ -492,7 +492,7 @@ public class ObservationService extends BasicService {
             }
         }
 
-        LOG.info("experimentKeys=" + map);
+        logger.info("experimentKeys=" + map);
         return map;
     }
 
@@ -845,8 +845,8 @@ public class ObservationService extends BasicService {
                 .addFacetPivotField(StringUtils.join(pivotFields, ","));
 
         QueryResponse response = solr.query(query);
-        LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
-        LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
+        logger.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
+        logger.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
 
         return getFacetPivotResults(response, false);
 
@@ -999,7 +999,7 @@ public class ObservationService extends BasicService {
 
                 String name = facetPivot.getName(i); // in this case only one of
                 // them
-                LOG.debug("facetPivot name" + name);
+                logger.debug("facetPivot name" + name);
                 List<PivotField> pivotResult = facetPivot.get(name);
 
                 // iterate on results
@@ -1524,7 +1524,7 @@ public class ObservationService extends BasicService {
         }
         response = solr.query(query);
         results = response.getBeans(ObservationDTO.class);
-        LOG.debug("getAllControlsBySex " + query);
+        logger.debug("getAllControlsBySex " + query);
         return results;
     }
 
@@ -1619,7 +1619,7 @@ public class ObservationService extends BasicService {
         query.setFacetLimit(100000);
         query.addFacetField(ObservationDTO.BIOLOGICAL_SAMPLE_ID);
 
-        LOG.info(solr.getBaseURL() + "/select?" + query);
+        logger.info(solr.getBaseURL() + "/select?" + query);
 
         return getFacets(solr.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
     }
@@ -1686,7 +1686,7 @@ public class ObservationService extends BasicService {
             q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         }
 
-        LOG.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
         } catch (SolrServerException e) {
@@ -1716,7 +1716,7 @@ public class ObservationService extends BasicService {
             q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         }
 
-        LOG.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
         } catch (SolrServerException e) {
@@ -1818,9 +1818,9 @@ public class ObservationService extends BasicService {
     	 */
     	public BatchClassification getBatchClassification() {
 
-    		LOG.debug("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
-    		LOG.debug("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
-    		LOG.debug("Both batches by sex: " + StringUtils.join(CollectionUtils.union(maleBatches, femaleBatches), ", "));
+    		logger.debug("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
+    		logger.debug("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
+    		logger.debug("Both batches by sex: " + StringUtils.join(CollectionUtils.union(maleBatches, femaleBatches), ", "));
 
     		if ((maleBatches.size()==0 && femaleBatches.size()>0) ||
     			(femaleBatches.size()==0 && maleBatches.size()>0) ) {
