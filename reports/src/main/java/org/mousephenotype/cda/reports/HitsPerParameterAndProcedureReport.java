@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.PostQcService;
@@ -40,7 +41,7 @@ import java.util.concurrent.ExecutionException;
 @Component
 public class HitsPerParameterAndProcedureReport extends AbstractReport {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("postqcService")
@@ -56,6 +57,12 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
+
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("HitsPerParameterAndProcedureReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();

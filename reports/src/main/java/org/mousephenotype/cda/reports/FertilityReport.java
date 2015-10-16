@@ -39,7 +39,7 @@ import java.util.*;
 @Component
 public class FertilityReport extends AbstractReport {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ObservationService observationService;
@@ -57,6 +57,12 @@ public class FertilityReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
+
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("FertilityReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();
