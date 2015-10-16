@@ -317,7 +317,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         CalorimetryData calorimetryData = mouseInfoMap.get("IMPC_CAL_001_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
-                logger.warn("IMPC_CAL_001_001 is a simple parameter, yet multiple values were found for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_CAL_001_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else {
                 retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_001_001").min));
@@ -329,7 +329,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         calorimetryData = mouseInfoMap.get("IMPC_CAL_002_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
-                logger.warn("IMPC_CAL_002_001 is a simple parameter, yet multiple values were found for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_CAL_002_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else {
                 retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_002_001").min));
@@ -406,7 +406,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         calorimetryData = mouseInfoMap.get("IMPC_CAL_008_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
-                logger.warn("IMPC_CAL_008_001 is a simple parameter, yet multiple values were found for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_CAL_008_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else {
                 retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_008_001").min));
@@ -431,7 +431,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         calorimetryData = mouseInfoMap.get("IMPC_CAL_017_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
-                logger.warn("IMPC_CAL_017_001 is a simple parameter, yet multiple values were found for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_CAL_017_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else {
                 retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_017_001").min));
@@ -443,7 +443,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         calorimetryData = mouseInfoMap.get("IMPC_CAL_021_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
-                logger.warn("IMPC_CAL_021_001 is a simple parameter, yet multiple values were found for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_CAL_021_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else {
                 retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_021_001").min));

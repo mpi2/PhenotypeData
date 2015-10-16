@@ -147,7 +147,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         List<Float> data = mouseInfoMap.get("IMPC_DXA_001_001");
         if (data != null) {
             if (data.size() > 1) {
-                logger.warn("Expected only 1 IMPC_DXA_001_001 dataPoint for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_DXA_001_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(NO_INFO_AVAILABLE);
@@ -161,7 +161,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_DXA_002_001");
         if (data != null) {
             if (data.size() > 1) {
-                logger.warn("Expected only 1 IMPC_DXA_002_001 dataPoint for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_DXA_002_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(NO_INFO_AVAILABLE);
@@ -175,7 +175,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_DXA_003_001");
         if (data != null) {
             if (data.size() > 1) {
-                logger.warn("Expected only 1 IMPC_DXA_003_001 dataPoint for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.");
+                logger.warn("Multiple values found for simple parameter IMPC_DXA_003_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(NO_INFO_AVAILABLE);
