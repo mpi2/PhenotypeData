@@ -233,6 +233,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
             String timePoint = mouseInfoDTO.getTimePoint();
             Float dataPoint = mouseInfoDTO.getDataPoint();
+            String biologicalSampleId = mouseInfoDTO.getBiologicalSampleId().toString();
             String externalSampleId = mouseInfoDTO.getExternalSampleId();
             if ( ! rerMap.containsKey(timePoint)) {
                 rerMap.put(timePoint, new Float[]{null, null, null});
@@ -242,7 +243,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             switch (parameterStableId) {
                 case "IMPC_CAL_003_001":
                     if (rer[0] != null) {
-//                        warnings[0] = "Expected only 1 IMPC_CAL_003_001 dataPoint for externalSampleId '" + externalSampleId + "', timePoint " + timePoint + " but found more.";
+//                        warnings[0] = "Multiple values found for series parameter IMPC_CAL_003_001, timePoint " + timePoint + " for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")";
                         hasRerWarnings = true;
                     }
 
@@ -251,7 +252,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
                 case "IMPC_CAL_004_001":
                     if (rer[1] != null) {
-//                        warnings[1] = "Expected only 1 IMPC_CAL_004_001 dataPoint for externalSampleId '" + externalSampleId + "', timePoint " + timePoint + " but found more.";
+//                        warnings[1] = "Multiple values found for series parameter IMPC_CAL_003_001, timePoint " + timePoint + " for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")";
                         hasRerWarnings = true;
                     }
 
