@@ -430,6 +430,20 @@ public class GenesController {
 		return "geneSummary";
 	}
 
+	@RequestMapping("/pFam/{acc}")
+	public String pFamGraphic(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws Exception {
+
+
+		GeneDTO gene = geneService.getGeneById(acc);
+		if (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 0){
+			JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
+				JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
+			model.addAttribute("pfamJson", pfamJson);
+		}
+		return "pfamDomain";
+	}
+	
 
 	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
 
