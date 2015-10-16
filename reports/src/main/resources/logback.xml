@@ -66,6 +66,13 @@
 		<appender-ref ref="consoleAppender" />
 	</logger>
 
+    <logger name="org.mousephenotype.cda.solr.service" additivity="false">
+   	    <level value="ERROR" />
+   		<appender-ref ref="dailyRollingFileAppender"/>
+   		<appender-ref ref="minuteRollingFileAppender"/>
+   		<appender-ref ref="consoleAppender" />
+   	</logger>
+
 	<logger name="org.mousephenotype.cda.reports" additivity="false">
 	    <level value="WARN" />
 		<appender-ref ref="dailyRollingFileAppender"/>
