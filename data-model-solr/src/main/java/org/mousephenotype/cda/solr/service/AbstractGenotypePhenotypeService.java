@@ -42,6 +42,8 @@ import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.constraints.NotNull;
@@ -63,6 +65,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
     protected Boolean isPreQc;
 
     public static final double P_VALUE_THRESHOLD = 0.0001;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * @param zygosity - optional (pass null if not needed)
@@ -186,7 +190,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             q.add("facet.pivot", facetPivot);
         }
 
-        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
 
         QueryResponse response = solr.query(q);
         for (PivotField pivot : response.getFacetPivot().get(facetPivot)){
