@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -79,9 +78,12 @@ public class MetabolismIPGTTReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
-        File file = null;
 
         List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("MetabolismIPGTTReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();

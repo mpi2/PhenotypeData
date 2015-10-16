@@ -17,13 +17,13 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.File;
 import java.util.List;
 
 /**
@@ -33,7 +33,8 @@ import java.util.List;
  */
 @Component
 public class BmdStatsReport extends BoneMineralAbstractReport {
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String parameter = "IMPC_DXA_004_001";
 
@@ -47,9 +48,12 @@ public class BmdStatsReport extends BoneMineralAbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
-        File file = null;
 
         List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("BmdStatsReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();
