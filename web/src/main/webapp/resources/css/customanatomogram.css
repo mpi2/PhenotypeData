@@ -4,7 +4,12 @@
 	line-height:1em;
 	padding: none;
 }
-
+.gxaHeatmapAnatomogramRow tr{
+	font-size:0.6em;
+	height:1em;
+	line-height:1em;
+	padding: none;
+}
 
 th.gxaVerticalHeaderCell {
 	padding-bottom:20px;
@@ -30,6 +35,11 @@ th.gxaVerticalHeaderCell {
 .gxaHeatmapCell, .gxaShowCell {
 	margin:none;
 	padding:none;
+}
+
+.gxaStickyTableColumn{
+	height:250px;
+	overflow-y:auto;
 }
 
 div.gxaStickyTableWrap {
