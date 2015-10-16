@@ -48,7 +48,7 @@ import java.util.List;
  * Selenium test for phenotype association coverage ensuring each page works as expected.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypeAssociationsTest {
 
