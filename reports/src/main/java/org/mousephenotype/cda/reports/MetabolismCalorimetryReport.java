@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -41,7 +40,7 @@ import java.util.*;
 @Component
 public class MetabolismCalorimetryReport extends AbstractReport {
 
-    private static final Logger logger = LoggerFactory.getLogger(ObservationService.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ExperimentService experimentService;
@@ -125,16 +124,18 @@ public class MetabolismCalorimetryReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
-        File file = null;
 
         List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("MetabolismCalorimetryReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();
 
         csvWriter.writeNext(header);
 
-        // This is a tremendous amount of data, so we'll do a write after every biological sample id found.
         try {
             Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CAL_*");
             int count = 0;
@@ -152,7 +153,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             csvWriter.close();
 
         } catch (SolrServerException | IOException e) {
-            throw new ReportException("Exception in observationService.getObservationsByProcedureStableId. Reason: " + e.getLocalizedMessage());
+            throw new ReportException("Exception in MetabolismCalorimetryReport. Reason: " + e.getLocalizedMessage());
         }
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
@@ -230,6 +231,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
             String timePoint = mouseInfoDTO.getTimePoint();
             Float dataPoint = mouseInfoDTO.getDataPoint();
+            String externalSampleId = mouseInfoDTO.getExternalSampleId();
             if ( ! rerMap.containsKey(timePoint)) {
                 rerMap.put(timePoint, new Float[]{null, null, null});
             }
@@ -238,7 +240,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             switch (parameterStableId) {
                 case "IMPC_CAL_003_001":
                     if (rer[0] != null) {
-//                        warnings[0] = "Expected only 1 IMPC_CAL_003_001 dataPoint for this mouse but found more.";
+//                        warnings[0] = "Expected only 1 IMPC_CAL_003_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.";
                         hasRerWarnings = true;
                     }
 
@@ -247,7 +249,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
                 case "IMPC_CAL_004_001":
                     if (rer[1] != null) {
-//                        warnings[1] = "Expected only 1 IMPC_CAL_004_001 dataPoint for this mouse but found more.";
+//                        warnings[1] = "Expected only 1 IMPC_CAL_004_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.";
                         hasRerWarnings = true;
                     }
 

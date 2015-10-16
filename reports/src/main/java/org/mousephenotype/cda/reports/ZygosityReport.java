@@ -49,7 +49,7 @@ import java.util.*;
 @Component
 public class ZygosityReport extends AbstractReport {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     GeneService geneService;
@@ -77,6 +77,12 @@ public class ZygosityReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
+
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("ZygosityReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();
