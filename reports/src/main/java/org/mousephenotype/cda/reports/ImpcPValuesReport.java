@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -37,7 +38,7 @@ import java.util.*;
  */
 @Component
 public class ImpcPValuesReport extends AbstractReport {
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     StatisticalResultService statisticalResultService;
@@ -52,6 +53,12 @@ public class ImpcPValuesReport extends AbstractReport {
     }
 
     public void run(String[] args) throws ReportException {
+
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("ImpcPValuesReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
         initialise(args);
 
         long start = System.currentTimeMillis();

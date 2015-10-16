@@ -1,0 +1,366 @@
+/*******************************************************************************
+ * Copyright © 2015 EMBL - European Bioinformatics Institute
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this targetFile except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ ******************************************************************************/
+
+package org.mousephenotype.cda.reports;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.beans.Introspector;
+import java.io.IOException;
+import java.util.*;
+
+/**
+ * Metabolism (CBC) report.
+ *
+ * Created by mrelac on 28/07/2015.
+ */
+@Component
+public class MetabolismCBCReport extends AbstractReport {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    ExperimentService experimentService;
+
+    @Autowired
+    ObservationService observationService;
+
+    private String[] header = new String[] {
+             "Mouse id", "Sample Type", "Gene", "Allele", "Zygosity"
+            ,"Sex", "Colony id", "Phenotyping center", "Metadata group"
+
+            ,"Total cholesterol IMPC_CBC_015_001"
+            ,"HDL-cholesterol IMPC_CBC_016_001"
+            ,"Triglycerides IMPC_CBC_017_001"
+            ,"Glucose IMPC_CBC_018_001"
+            ,"Fructosamine IMPC_CBC_020_001"
+            ,"LDL-cholesterol IMPC_CBC_025_001"
+            ,"Free fatty acids IMPC_CBC_026_001"
+            ,"Glycerol IMPC_CBC_027_001"
+            ,"C-reactive protein IMPC_CBC_032_001"
+            ,"Glycosilated hemoglobin A1c (HbA1c) IMPC_CBC_052_001"
+            ,"Thyroxine IMPC_CBC_053_001"
+
+            ,"Insulin IMPC_INS_001_001"
+
+            // metadata
+            ,"CBC Metadata"
+            ,"INS Metadata"
+    };
+
+    public MetabolismCBCReport() {
+        super();
+    }
+
+    @Override
+    public String getDefaultFilename() {
+        return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
+    }
+
+    public void run(String[] args) throws ReportException {
+
+        List<String> errors = parser.validate(parser.parse(args));
+        if ( ! errors.isEmpty()) {
+            logger.error("MetabolismCBCReport parser validation error: " + StringUtils.join(errors, "\n"));
+            return;
+        }
+        initialise(args);
+
+        long start = System.currentTimeMillis();
+
+        csvWriter.writeNext(header);
+
+        try {
+            Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CBC_*");
+            int count = 0;
+            for (String biologicalSampleId : biologicalSampleIds) {
+//if (count >= 1000) break;
+                Integer iBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
+                if (iBiologicalSampleId != null) {
+                    List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CBC_*", iBiologicalSampleId);
+                    List<ObservationDTO> mouseInfoInsulinDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_INS_*", iBiologicalSampleId);
+                    csvWriter.writeNext(createReportRow(mouseInfoDTOs, mouseInfoInsulinDTOs));
+                    if (++count % 1000 == 0)
+                        logger.info(new Date().toString() + ": " + count + " records written.");
+                }
+            }
+
+            csvWriter.close();
+
+        } catch (SolrServerException | IOException e) {
+            throw new ReportException("Exception in MetabolismCBCReport. Reason: " + e.getLocalizedMessage());
+        }
+
+        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+    }
+
+    /**
+     * Return a list of strings for a single biologicalSampleId suitable for writing to an output file
+     *
+     * @param mouseInfoDTOs the DTOs for single biologicalSampleId
+     * @param mouseInfoInsulinDTOs the DTOs for single biologicalSampleId containing any insulin parameters
+     *
+     * @return a list of strings for a single biologicalSampleId suitable for writing to an output file
+     *
+     * @throws ReportException
+     */
+    private List<String> createReportRow(List<ObservationDTO> mouseInfoDTOs, List<ObservationDTO> mouseInfoInsulinDTOs) throws ReportException {
+        List<String> retVal = new ArrayList<>();
+
+        Map<String, List<Float>> mouseInfoMap = new HashMap<>();    // key = parameterStableId
+                                                                    // value = dataPoint
+        mouseInfoMap.put("IMPC_CBC_015_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_016_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_017_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_018_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_020_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_025_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_026_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_027_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_032_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_052_001", new ArrayList<>());
+        mouseInfoMap.put("IMPC_CBC_053_001", new ArrayList<>());
+
+        mouseInfoMap.put("IMPC_INS_001_001", new ArrayList<>());
+
+        for (ObservationDTO mouseInfoDTO : mouseInfoDTOs) {
+            if (mouseInfoMap.containsKey(mouseInfoDTO.getParameterStableId())) {
+                mouseInfoMap.get(mouseInfoDTO.getParameterStableId()).add(mouseInfoDTO.getDataPoint());
+
+                // Add any INS parameters.
+                List<Float> insDataPoints = new ArrayList<>();
+                for (ObservationDTO observationDTO : mouseInfoInsulinDTOs) {
+                    insDataPoints.add(observationDTO.getDataPoint());
+                }
+                if ( ! insDataPoints.isEmpty()) {
+                    mouseInfoMap.put("IMPC_INS_001_001", insDataPoints);
+                }
+            }
+        }
+
+        String externalSampleId = mouseInfoDTOs.get(0).getExternalSampleId();
+        // Build the output row.
+        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
+        retVal.add(mouseInfoDTOs.get(0).getGroup());
+        retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
+        retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
+        retVal.add(mouseInfoDTOs.get(0).getZygosity());
+        retVal.add(mouseInfoDTOs.get(0).getSex());
+        retVal.add(mouseInfoDTOs.get(0).getColonyId());
+        retVal.add(mouseInfoDTOs.get(0).getPhenotypingCenter());
+        retVal.add(mouseInfoDTOs.get(0).getMetadataGroup());
+
+        List<Float> data = mouseInfoMap.get("IMPC_CBC_015_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_015_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_016_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_016_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_017_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_017_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_018_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_018_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_020_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_020_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_025_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_025_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_026_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_026_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_027_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_027_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_032_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_032_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_052_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_052_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_CBC_053_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_CBC_053_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        data = mouseInfoMap.get("IMPC_INS_001_001");
+        if (data != null) {
+            if (data.size() > 1) {
+                logger.warn("Expected only 1 IMPC_INS_001_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.");
+                retVal.add(DATA_ERROR);
+            } else if (data.isEmpty()) {
+                retVal.add(NO_INFO_AVAILABLE);
+            } else {
+                retVal.add(Float.toString(data.get(0)));
+            }
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        // CBC Metadata
+
+        List<String> metadataCBCList = mouseInfoDTOs.get(0).getMetadata();
+        if (metadataCBCList != null) {
+            retVal.add(StringUtils.join(metadataCBCList, "::"));
+        } else {
+            retVal.add(NO_INFO_AVAILABLE);
+        }
+
+        // INS Metadata
+
+        if ( ! mouseInfoInsulinDTOs.isEmpty()) {
+            List<String> metadataINSList = mouseInfoInsulinDTOs.get(0).getMetadata();
+            if (metadataINSList != null) {
+                retVal.add(StringUtils.join(metadataINSList, "::"));
+            } else {
+                retVal.add(NO_INFO_AVAILABLE);
+            }
+        }
+
+        return retVal;
+    }
+}

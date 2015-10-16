@@ -19,10 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.WordUtils;
+import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.stereotype.Service;
-
-import org.mousephenotype.cda.db.pojo.Parameter;
 
 @Service
 public class FertilityChartAndDataProvider {

@@ -22,17 +22,7 @@
 
 package uk.ac.ebi.phenotype.healthcheck;
 
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.ObservationDAO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.TestConfig;
+import static org.junit.Assert.fail;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -40,7 +30,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.dao.ObservationDAO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import uk.ac.ebi.phenotype.web.TestConfig;
 
 /**
  * Mouseinformatics fetches an xml file nightly that contains all of the
