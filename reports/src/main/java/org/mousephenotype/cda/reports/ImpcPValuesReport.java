@@ -108,7 +108,7 @@ public class ImpcPValuesReport extends AbstractReport {
         Collections.sort(sortedParameters);
         sortedParameters = Collections.unmodifiableList(sortedParameters);
 
-        log.info(" Parameter: " + org.apache.commons.lang3.StringUtils.join(sortedParameters, "\n Paramter: "));
+        log.trace(" Parameter: " + org.apache.commons.lang3.StringUtils.join(sortedParameters, "\n Parameter: "));
 
         List<String> header = new ArrayList<>();
         header.addAll(Arrays.asList("Genotype", "ColonyId", "Gene", "Center"));
@@ -119,7 +119,7 @@ public class ImpcPValuesReport extends AbstractReport {
         i=0;
         for (RowKey rowKey : matrixValues.keySet()) {
 
-            if (i%100==0) {
+            if (i%1000==0) {
                 log.info(String.format(" %s rowKey records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
             }
             i++;
