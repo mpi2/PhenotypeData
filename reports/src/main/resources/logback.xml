@@ -1,84 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder>
-			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg %n
-			</Pattern>
-		</encoder>
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>TRACE</level>
-		</filter>
-	</appender>
 
-  	<appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>c:/tmp/rest-demo.log</File>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-		    <!-- daily rollover -->
-			<FileNamePattern>reports.%d{yyyy-MM-dd}.log</FileNamePattern>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+   		<encoder>
+   			<Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg %n
+   			</Pattern>
+   		</encoder>
+   		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+   			<level>TRACE</level>
+   		</filter>
+   	</appender>
 
-			<!-- keep 30 days' worth of history -->
-			<maxHistory>30</maxHistory>
-		</rollingPolicy>
-
-		<encoder>
-			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</Pattern>
-		</encoder>
-  	</appender>
-  	<appender name="minuteRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-		    <!-- rollover every minute -->
-			<FileNamePattern>c:/tmp/minutes/rest-demo-minute.%d{yyyy-MM-dd_HH-mm}.log</FileNamePattern>
-
-			<!-- keep 30 minutes' worth of history -->
-			<maxHistory>30</maxHistory>
-		</rollingPolicy>
-
-		<encoder>
-			<Pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</Pattern>
-		</encoder>
-  	</appender>
-
-	<logger name="org.hibernate" additivity="false">
-	    <level value="WARN" />
-		<appender-ref ref="dailyRollingFileAppender"/>
-		<appender-ref ref="minuteRollingFileAppender"/>
-		<appender-ref ref="consoleAppender" />
-	</logger>
-
-    <logger name="org.springframework" additivity="false">
-   	    <level value="WARN" />
-   		<appender-ref ref="dailyRollingFileAppender"/>
-   		<appender-ref ref="minuteRollingFileAppender"/>
-   		<appender-ref ref="consoleAppender" />
+    <logger name="org.springframework" level="WARN" additivity="false">
+   		<appender-ref ref="STDOUT" />
    	</logger>
 
-    <logger name="org.mousephenotype.cda.solr.service.ExperimentService" additivity="false">
-   	    <level value="WARN" />
-   		<appender-ref ref="dailyRollingFileAppender"/>
-   		<appender-ref ref="minuteRollingFileAppender"/>
-   		<appender-ref ref="consoleAppender" />
+    <logger name="org.apache.tomcat.jdbc.pool" level="WARN" additivity="false">
+   		<appender-ref ref="STDOUT" />
    	</logger>
 
-	<logger name="org.apache.tomcat.jdbc.pool" additivity="false">
-	    <level value="ERROR" />
-		<appender-ref ref="dailyRollingFileAppender"/>
-		<appender-ref ref="minuteRollingFileAppender"/>
-		<appender-ref ref="consoleAppender" />
-	</logger>
-
-    <logger name="org.mousephenotype.cda.solr.service" additivity="false">
-   	    <level value="ERROR" />
-   		<appender-ref ref="dailyRollingFileAppender"/>
-   		<appender-ref ref="minuteRollingFileAppender"/>
-   		<appender-ref ref="consoleAppender" />
+    <logger name="org.hibernate" level="WARN" additivity="false">
+   		<appender-ref ref="STDOUT" />
    	</logger>
 
-	<logger name="org.mousephenotype.cda.reports" additivity="false">
-	    <level value="WARN" />
-		<appender-ref ref="dailyRollingFileAppender"/>
-		<appender-ref ref="minuteRollingFileAppender"/>
-		<appender-ref ref="consoleAppender" />
-	</logger>
+    <logger name="org.mousephenotype.cda.solr" level="WARN" additivity="false">
+   		<appender-ref ref="STDOUT" />
+   	</logger>
+
+
+    
+    <logger name="org.mousephenotype.cda.reports" level="INFO" additivity="false">
+   		<appender-ref ref="STDOUT" />
+   	</logger>
+
+
+
+   	<logger name="logging.level.org.mousephenotype.cda.seleniumtests" level="info" additivity="false">
+   		<appender-ref ref="STDOUT" />
+   	</logger>
 
 	<root>
 		<level value="INFO" />

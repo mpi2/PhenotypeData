@@ -15,23 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -51,22 +34,13 @@ import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.OrganisationDAO;
 import org.mousephenotype.cda.db.dao.ProjectDAO;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
@@ -76,6 +50,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 /**
  * Latest version pulled in 2015/07/07
  * @author tudose
@@ -85,7 +66,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(StatisticalResultService.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
    	BiologicalModelDAO bmDAO;
@@ -189,7 +170,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	q.setRows(1);
     	q.set("facet.limit", -1);
 
-    	System.out.println("Solr url for getColoniesNoMPHit " + solr.getBaseURL() + "/select?" + q);
+    	logger.info("Solr url for getColoniesNoMPHit " + solr.getBaseURL() + "/select?" + q);
     	QueryResponse response = solr.query(q);
 
     	for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
@@ -241,7 +222,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
      * @author tudose
      * @since 2015/07/21
      * @param pipelineStableId
-     * @param dataType
+     * @param observationType
      * @param resource
      * @return List<ProcedureBean>
      */
@@ -667,7 +648,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		System.out.println("Solr url for getDistributionOfLinesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
+		logger.info("Solr url for getDistributionOfLinesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -704,7 +685,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		System.out.println("Solr url for getDistributionOfGenesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
+		logger.info("Solr url for getDistributionOfGenesByMPTopLevel " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -1118,7 +1099,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
             }
             row.setXAxisToCellMap(paramPValueMap);
         } catch (SolrServerException ex) {
-            LOG.error(ex.getMessage());
+            logger.error(ex.getMessage());
         }
         return row;
     }
@@ -1175,7 +1156,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 			        geneRowMap.put(geneAcc, row);
 		            }
 		        } catch (SolrServerException ex) {
-		            LOG.error(ex.getMessage());
+		            logger.error(ex.getMessage());
 		        }
         }
 
@@ -1209,7 +1190,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		System.out.println("Solr url for getParametersToProcedureMap " + solr.getBaseURL() + "/select?" + q);
+		logger.info("Solr url for getParametersToProcedureMap " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -1235,7 +1216,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
     	q.add("group.rows", "1");
         q.add("fl", StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
 
-    	System.out.println("Procedure query " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Procedure query " + solr.getBaseURL() + "/select?" + q);
 
     	try {
     		GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
@@ -1247,7 +1228,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
             	res.add(bb);
             }
         } catch (SolrServerException ex) {
-            LOG.error(ex.getMessage());
+            logger.error(ex.getMessage());
         }
     	return res;
     }
@@ -1321,7 +1302,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse response = solr.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -1347,7 +1328,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		q.set("facet.limit", -1);
 
 		QueryResponse response = solr.query(q);
-		System.out.println("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			
@@ -1373,7 +1354,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 	private void fillMaps() {
-        System.out.println("Initializing ParameterToGeneMap. This will take a while...");
+        logger.info("Initializing ParameterToGeneMap. This will take a while...");
         try {
     		femaleParamToGene = getParameterToGeneMap(SexType.female);
     		maleParamToGene = getParameterToGeneMap(SexType.male);
