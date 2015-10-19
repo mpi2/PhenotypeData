@@ -127,7 +127,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
 
-        if (pcs.getPhenotypeTerm().getId().startsWith("MPATH:") && ! imageService.hasImages(pcs.getGene().getAccessionId(), pcs.getProcedure().getName(), pcs.getColonyId())){
+        if (pcs.getPhenotypeTerm().getId().startsWith("MPATH:") && imageService != null && !imageService.hasImages(pcs.getGene().getAccessionId(), pcs.getProcedure().getName(), pcs.getColonyId())){
 			this.graphUrl = "";
         }
         else {
