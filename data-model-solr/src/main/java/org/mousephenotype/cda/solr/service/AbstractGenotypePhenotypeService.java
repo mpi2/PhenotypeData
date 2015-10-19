@@ -157,7 +157,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.setRows(1);
         q.set("facet.limit", -1);
 
-        System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for( Count facet : response.getFacetField(fieldToDistributeBy).getValues()){
@@ -166,7 +166,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             res.put(value,count);
         }
 
-        System.out.println("Done in " + (System.currentTimeMillis() - time));
+        logger.info("Done in " + (System.currentTimeMillis() - time));
         return res;
 
     }
@@ -236,7 +236,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.setRows(1);
         q.set("facet.limit", -1);
 
-        System.out.println("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getHitsDistributionByParameter " + solr.getBaseURL() + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
@@ -247,7 +247,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             res.add(row);
         }
 
-        System.out.println("Done in " + (System.currentTimeMillis() - time));
+        logger.info("Done in " + (System.currentTimeMillis() - time));
         return res;
 
     }

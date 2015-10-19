@@ -9,17 +9,29 @@
 	    </layout>
 	</appender>
 
-	<logger name="org.springframework" level="warn" additivity="false">
+	<logger name="org.springframework" level="WARN" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 
-	<logger name="org.mousephenotype.cda.solr.generic.util" level="error" additivity="false">
+	<logger name="org.apache.tomcat.jdbc.pool" level="WARN" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
+
+ <logger name="org.hibernate" level="WARN" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.mousephenotype.cda.solr" level="WARN" additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+
 
 	<logger name="logging.level.org.mousephenotype.cda.seleniumtests" level="info" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
+
+
 
 	<root level="info">
 		<appender-ref ref="STDOUT" />

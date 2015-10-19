@@ -143,7 +143,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
             switch (parameterStableId) {
                 case "IMPC_IPG_001_001":
                     if (data[0] != null) {
-                        warnings[0] = "Expected only 1 IMPC_IPG_001_001 dataPoint for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ") but found more.";
+                        warnings[0] = "Multiple values found for simple parameter IMPC_IPG_001_001 dataPoint for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")";
                         hasWarnings[0] = true;
                     }
 

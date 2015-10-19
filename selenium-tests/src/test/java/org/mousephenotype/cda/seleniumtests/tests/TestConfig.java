@@ -54,7 +54,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan({"org.mousephenotype.cda"})
-@PropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @EnableAutoConfiguration
 public class TestConfig {
 
