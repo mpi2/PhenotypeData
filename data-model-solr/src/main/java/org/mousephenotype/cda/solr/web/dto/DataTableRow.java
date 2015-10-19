@@ -16,13 +16,6 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.MarkerBean;
-
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -30,6 +23,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 
 
 /**
@@ -68,8 +69,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected String gid;
     protected String colonyId;
 
-    public DataTableRow() { }
-
+    public DataTableRow() { }       
 
     public DataTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException {
 
@@ -102,7 +102,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     }
 
-    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException, SolrServerException {
+    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, ImageService imageService) throws UnsupportedEncodingException, SolrServerException {
 
 	    this.config = config;
         List<String> sex = new ArrayList<String>();
@@ -127,8 +127,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
 
-        if ( ! pcs.hasImage() && procedure.getName().startsWith("Histopathology") ) {
-            this.graphUrl = "";
+        if (pcs.getPhenotypeTerm().getId().startsWith("MPATH:") && ! imageService.hasImages(pcs.getGene().getAccessionId(), pcs.getProcedure().getName(), pcs.getColonyId())){
+			this.graphUrl = "";
         }
         else {
             this.setGraphUrl(baseUrl);

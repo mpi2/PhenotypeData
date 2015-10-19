@@ -866,7 +866,7 @@ public class ImageService {
 
 	}
 
-	public Boolean getImageCount(String geneAccessionId, String procedureName, String colonyId) throws SolrServerException {
+	public Boolean hasImages(String geneAccessionId, String procedureName, String colonyId) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
 
