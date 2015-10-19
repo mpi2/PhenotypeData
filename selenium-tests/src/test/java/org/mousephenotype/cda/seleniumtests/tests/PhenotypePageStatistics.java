@@ -62,7 +62,7 @@ import java.util.List;
  * Selenium test for phenotype page statistics.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageStatistics {
 

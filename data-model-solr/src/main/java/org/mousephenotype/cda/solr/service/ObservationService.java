@@ -352,7 +352,7 @@ public class ObservationService extends BasicService {
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
-        System.out.println("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
 
         HashSet<String> viabilityCategories = new HashSet<String>();
         
@@ -378,7 +378,7 @@ public class ObservationService extends BasicService {
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
-        System.out.println("getViabilityData Url" + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
 
         return solr.query(query);
     }
@@ -777,8 +777,7 @@ public class ObservationService extends BasicService {
             .setFacetLimit(-1)
             .addFacetField(ObservationDTO.PROCEDURE_GROUP);
 
-        System.out.println(solr.getBaseURL() + "/select?"+centersQuery);
-        System.out.println("\n");
+        logger.info(solr.getBaseURL() + "/select?" + centersQuery);
 
         QueryResponse centerResponse = solr.query(centersQuery);
         List<FacetField> candidateSubsets = centerResponse.getFacetFields();
@@ -804,7 +803,7 @@ public class ObservationService extends BasicService {
                     .setFacetLimit(-1)
                     .addFacetPivotField(StringUtils.join(Arrays.asList(ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID), ","));
 
-                System.out.println(solr.getBaseURL() + "/select?"+query);
+                logger.info(solr.getBaseURL() + "/select?" + query);
 
                 QueryResponse response = solr.query(query);
 
@@ -1058,7 +1057,7 @@ public class ObservationService extends BasicService {
                 + "," + ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.PARAMETER_NAME
                 + "," + ObservationDTO.OBSERVATION_TYPE + "," + ObservationDTO.ZYGOSITY);
 
-        System.out.println(solr.getBaseURL() + "/select?" + query.toString());
+        logger.info(solr.getBaseURL() + "/select?" + query.toString());
         QueryResponse response = solr.query(query);
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
         List<Map<String, String>> results = new LinkedList<Map<String, String>>();
@@ -1155,7 +1154,7 @@ public class ObservationService extends BasicService {
         query.set("group.sort", ObservationDTO.DISCRETE_POINT + " asc");
         query.setRows(10000);
 
-		// System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" +
+		// logger.info("+_+_+ " + solr.getBaseURL() + "/select?" +
         // query);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		// for mutants it doesn't seem we need binning
@@ -1227,7 +1226,7 @@ public class ObservationService extends BasicService {
         query.set("sort", ObservationDTO.DISCRETE_POINT + " asc");
         query.setRows(10000);
 
-		// System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" +
+		// logger.info("+_+_+ " + solr.getBaseURL() + "/select?" +
         // query);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
         boolean rounding = false;
@@ -1350,7 +1349,7 @@ public class ObservationService extends BasicService {
     public double getMeanPValue(Parameter p, List<String> strains, String biologicalSample, String[] center, SexType sex)
     throws SolrServerException {
 
-        System.out.println("GETTING THE MEAN");
+        logger.info("GETTING THE MEAN");
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
         String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
         double mean = 0;
@@ -1417,7 +1416,7 @@ public class ObservationService extends BasicService {
         query.set("group", true);
         query.setRows(100);
 
-        System.out.println("URL in getCategories " +  solr.getBaseURL() + "/select?" + query);
+        logger.info("URL in getCategories " + solr.getBaseURL() + "/select?" + query);
         
         List<String> categories = new ArrayList<String>();
         QueryResponse res = solr.query(query, METHOD.POST);
@@ -1875,9 +1874,9 @@ public class ObservationService extends BasicService {
 		query.setRows(10000);
 		query.set("group.limit", 1);
 
-		System.out.println("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
-		
-		QueryResponse response = solr.query(query);
+        logger.info("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+
+        QueryResponse response = solr.query(query);
 		
 		for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
