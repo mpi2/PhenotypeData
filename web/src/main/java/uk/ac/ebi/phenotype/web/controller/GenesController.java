@@ -498,11 +498,9 @@ public class GenesController {
 		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+			
 
-			Boolean hasImage = imageService.getImageCount(pcs.getGene().getAccessionId(), pcs.getProcedure().getName(), pcs.getColonyId());
-			pcs.setHasImage(hasImage);
-
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
 			// Collapse rows on sex			
 			if (phenotypes.containsKey(pr.hashCode())) {
 

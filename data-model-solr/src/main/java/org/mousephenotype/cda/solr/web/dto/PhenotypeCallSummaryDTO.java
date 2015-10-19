@@ -35,7 +35,6 @@ public class PhenotypeCallSummaryDTO {
 	protected String lifeStageAcc;
 	protected String lifeStageName;
 	protected String colonyId;
-	protected Boolean hasImage;
 
 	/**
 	 * @return the gId
@@ -378,23 +377,6 @@ public class PhenotypeCallSummaryDTO {
 		this.colonyId = colonyId;
 	}
 
-	/**
-	 * @return hasImage (ie, has images associated with an experiment)
-	 */
-	public Boolean hasImage() {
-
-		return hasImage;
-	}
-
-	/**
-	 * @param hasImage to set
-	 */
-	public void setHasImage(Boolean hasImage) {
-
-		this.hasImage = hasImage;
-	}
-
-
 	@Override
 	public String toString() {
 		return "PhenotypeCallSummaryDTO{" +
@@ -421,7 +403,6 @@ public class PhenotypeCallSummaryDTO {
 				", lifeStageAcc='" + lifeStageAcc + '\'' +
 				", lifeStageName='" + lifeStageName + '\'' +
 				", colonyId='" + colonyId + '\'' +
-				", hasImage=" + hasImage +
 				'}';
 	}
 }
