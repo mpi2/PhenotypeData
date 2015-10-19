@@ -15,25 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -43,17 +26,11 @@ import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.generic.util.HttpProxy;
+import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.ExpressionService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.PreQcService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
@@ -74,11 +51,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -93,7 +65,14 @@ import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
 
-import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.*;
 
 @Controller
 public class GenesController {
@@ -259,7 +238,8 @@ public class GenesController {
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("icons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("icons");
+			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons");
+			prodStatusIcons += (prod.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : prod.get("phenotypingIcons");
 
 			model.addAttribute("orderPossible", prod.get("orderPossible"));
 
