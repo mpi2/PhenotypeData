@@ -49,27 +49,27 @@ public class GeneTable {
     protected UrlUtils urlUtils = new UrlUtils();
     protected WebDriverWait wait;
 
-    public static final int COL_INDEX_GENES_PHENOTYPE           =  0;
-    public static final int COL_INDEX_GENES_ALLELE              =  1;
-    public static final int COL_INDEX_GENES_ZYGOSITY            =  2;
-    public static final int COL_INDEX_GENES_SEX                 =  3;
-    public static final int COL_INDEX_GENES_PROCEDURE_PARAMETER =  4;
-    public static final int COL_INDEX_GENES_PHENOTYPING_CENTER  =  5;
-    public static final int COL_INDEX_GENES_SOURCE              =  6;
-    public static final int COL_INDEX_GENES_P_VALUE             =  7;
-    public static final int COL_INDEX_GENES_GRAPH_LINK          =  8;
+    public static final int COL_INDEX_GENES_PHENOTYPE                  =  0;
+    public static final int COL_INDEX_GENES_ALLELE                     =  1;
+    public static final int COL_INDEX_GENES_ZYGOSITY                   =  2;
+    public static final int COL_INDEX_GENES_SEX                        =  3;
+    public static final int COL_INDEX_GENES_LIFE_STAGE                 =  4;
+    public static final int COL_INDEX_GENES_PROCEDURE_PARAMETER        =  5;
+    public static final int COL_INDEX_GENES_PHENOTYPING_CENTER_SOURCE  =  6;
+    public static final int COL_INDEX_GENES_P_VALUE                    =  7;
+    public static final int COL_INDEX_GENES_GRAPH_LINK                 =  8;
 
-    public static final String COL_GENES_PHENOTYPE           = "Phenotype";
-    public static final String COL_GENES_ALLELE              = "Allele";
-    public static final String COL_GENES_ZYGOSITY            = "Zygosity";
-    public static final String COL_GENES_SEX                 = "Sex";
-    public static final String COL_GENES_PROCEDURE_PARAMETER = "Procedure | Parameter";
-    public static final String COL_GENES_PHENOTYPING_CENTER  = "Phenotyping Center";
-    public static final String COL_GENES_SOURCE              = "Source";
-    public static final String COL_GENES_P_VALUE             = "P Value";
-    public static final String COL_GENES_GRAPH               = "Graph";
+    public static final String COL_GENES_PHENOTYPE                  = "Phenotype";
+    public static final String COL_GENES_ALLELE                     = "Allele";
+    public static final String COL_GENES_ZYGOSITY                   = "Zygosity";
+    public static final String COL_GENES_SEX                        = "Sex";
+    public static final String COL_GENES__LIFE_STAGE                = "Life Stage";
+    public static final String COL_GENES_PROCEDURE_PARAMETER        = "Procedure | Parameter";
+    public static final String COL_GENES_PHENOTYPING_CENTER_SOURCE  = "Phenotyping Center | Source";
+    public static final String COL_GENES_P_VALUE                    = "P Value";
+    public static final String COL_GENES_GRAPH                      = "Graph";
 
-    public static final String NO_SUPPORTING_DATA            = "No supporting data supplied.";
+    public static final String NO_SUPPORTING_DATA                   = "No supporting data supplied.";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -155,7 +155,9 @@ public class GeneTable {
             sourceColIndex = 0;
             boolean skipLink = false;
             for (WebElement cell : cells) {
-                if (sourceColIndex == COL_INDEX_GENES_ALLELE) {
+                if (sourceColIndex == COL_INDEX_GENES_PHENOTYPE) {
+                    value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
+                } else if (sourceColIndex == COL_INDEX_GENES_ALLELE) {
                     String rawAllele = cell.getText();
                     List<WebElement> supList = cell.findElements(By.cssSelector("sup"));
                     if (supList.isEmpty()) {
@@ -165,8 +167,6 @@ public class GeneTable {
                         AlleleParser ap = new AlleleParser(rawAllele, sup);
                         value = ap.toString();
                     }
-                } else if (sourceColIndex == COL_INDEX_GENES_PHENOTYPE) {
-                    value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
                 } else if (sourceColIndex == COL_INDEX_GENES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
                     if (sex.size() == 2) {

@@ -221,7 +221,7 @@ public class Tools {
 			additionalInfos.add("disease_term");
 
 			// impc images link
-            additionalInfos.add("images_link");
+            //additionalInfos.add("images_link");
 			
 			//GO stuff for gene : not shown for now
 		}
@@ -263,7 +263,7 @@ public class Tools {
 			additionalInfos.add("disease_term");
 
 			// impc images link
-            additionalInfos.add("images_link");
+            //additionalInfos.add("images_link");
 			
 			//GO stuff for gene : not shown for now
 		}
@@ -319,7 +319,7 @@ public class Tools {
 			additionalInfos.add("selected_top_level_ma_id");
 			additionalInfos.add("selected_top_level_ma_term");
 			// impc images link
-            additionalInfos.add("images_link");
+            //additionalInfos.add("images_link");
 		}
 		else if ( corename.equals("hp") ) {
 		

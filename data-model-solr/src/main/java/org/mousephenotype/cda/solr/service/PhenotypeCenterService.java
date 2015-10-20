@@ -38,6 +38,8 @@ public class PhenotypeCenterService {
 	private HttpSolrServer solr;
 	private final String datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	@Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO ppDao;
@@ -105,7 +107,7 @@ public class PhenotypeCenterService {
 		for(Count values: fields.get(0).getValues()){
 			strains.add(values.getName());
 		}
-		System.out.println("getStrainsForCenter ---- " + solr.getBaseURL() + "/select?" + query);
+		logger.info("getStrainsForCenter ---- " + solr.getBaseURL() + "/select?" + query);
 		return strains;
 	}
 

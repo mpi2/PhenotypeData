@@ -37,6 +37,7 @@ import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
@@ -92,6 +93,10 @@ public class FileExportController {
 
 	@Autowired
 	private GeneService geneService;
+	
+
+	@Autowired
+	private ImageService imageService;
 
 	@Autowired
     @Qualifier("phenotypePipelineDAOImpl")
@@ -1132,7 +1137,7 @@ public class FileExportController {
 			}
 			ArrayList<GenePageTableRow> phenotypes = new ArrayList();
 			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config);
+				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config, imageService);
 				phenotypes.add(pr);
 			}
 			Collections.sort(phenotypes); // sort in same order as gene page.

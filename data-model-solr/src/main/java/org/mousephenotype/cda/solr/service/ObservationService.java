@@ -69,7 +69,7 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ObservationService extends BasicService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ObservationService.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     PhenotypePipelineDAO parameterDAO;
@@ -106,7 +106,7 @@ public class ObservationService extends BasicService {
                 ObservationDTO.PARAMETER_ID, ObservationDTO.PHENOTYPING_CENTER_ID);
         q.setRows(10000);
 
-        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
         return solr.query(q).getGroupResponse().getValues().get(0).getValues();
 
     }
@@ -280,7 +280,7 @@ public class ObservationService extends BasicService {
         q.setFacetMinCount(1);
         q.set("facet.limit", -1);
 
-        System.out.println("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + solr.getBaseURL() + "/select?" + q);
         QueryResponse response = solr.query(q);
 
         for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
@@ -352,7 +352,7 @@ public class ObservationService extends BasicService {
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
-        System.out.println("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityForGene Url" + solr.getBaseURL() + "/select?" + query);
 
         HashSet<String> viabilityCategories = new HashSet<String>();
         
@@ -378,7 +378,7 @@ public class ObservationService extends BasicService {
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
-        System.out.println("getViabilityData Url" + solr.getBaseURL() + "/select?" + query);
+        logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
 
         return solr.query(query);
     }
@@ -464,13 +464,13 @@ public class ObservationService extends BasicService {
 
         if (alleleAccessions != null &&  ! alleleAccessions.isEmpty()) {
             String alleleFilter = ObservationDTO.ALLELE_ACCESSION_ID + ":(" + StringUtils.join(alleleAccessions, " OR ").replace(":", "\\:") + ")";
-            LOG.debug("alleleFilter=" + alleleFilter);
+            logger.debug("alleleFilter=" + alleleFilter);
             query.addFilterQuery(alleleFilter);
 
         }
 
         QueryResponse response = solr.query(query);
-        LOG.debug("experiment key query=" + query);
+        logger.debug("experiment key query=" + query);
         List<FacetField> fflist = response.getFacetFields();
 
         for (FacetField ff : fflist) {
@@ -492,7 +492,7 @@ public class ObservationService extends BasicService {
             }
         }
 
-        LOG.info("experimentKeys=" + map);
+        logger.info("experimentKeys=" + map);
         return map;
     }
 
@@ -777,8 +777,7 @@ public class ObservationService extends BasicService {
             .setFacetLimit(-1)
             .addFacetField(ObservationDTO.PROCEDURE_GROUP);
 
-        System.out.println(solr.getBaseURL() + "/select?"+centersQuery);
-        System.out.println("\n");
+        logger.info(solr.getBaseURL() + "/select?" + centersQuery);
 
         QueryResponse centerResponse = solr.query(centersQuery);
         List<FacetField> candidateSubsets = centerResponse.getFacetFields();
@@ -804,7 +803,7 @@ public class ObservationService extends BasicService {
                     .setFacetLimit(-1)
                     .addFacetPivotField(StringUtils.join(Arrays.asList(ObservationDTO.PIPELINE_ID, ObservationDTO.PARAMETER_ID, ObservationDTO.STRAIN_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.METADATA_GROUP, ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.GENE_ACCESSION_ID), ","));
 
-                System.out.println(solr.getBaseURL() + "/select?"+query);
+                logger.info(solr.getBaseURL() + "/select?" + query);
 
                 QueryResponse response = solr.query(query);
 
@@ -845,8 +844,8 @@ public class ObservationService extends BasicService {
                 .addFacetPivotField(StringUtils.join(pivotFields, ","));
 
         QueryResponse response = solr.query(query);
-        LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
-        LOG.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
+        logger.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Solr query - {}", query.toString());
+        logger.debug(" getDistinctCategoricalOrgPipelineParamStrainZygositySexGeneAccessionAlleleAccessionMetadata: Num Solr documents - {}", response.getResults().getNumFound());
 
         return getFacetPivotResults(response, false);
 
@@ -999,7 +998,7 @@ public class ObservationService extends BasicService {
 
                 String name = facetPivot.getName(i); // in this case only one of
                 // them
-                LOG.debug("facetPivot name" + name);
+                logger.debug("facetPivot name" + name);
                 List<PivotField> pivotResult = facetPivot.get(name);
 
                 // iterate on results
@@ -1058,7 +1057,7 @@ public class ObservationService extends BasicService {
                 + "," + ObservationDTO.PROCEDURE_NAME + "," + ObservationDTO.PARAMETER_STABLE_ID + "," + ObservationDTO.PARAMETER_NAME
                 + "," + ObservationDTO.OBSERVATION_TYPE + "," + ObservationDTO.ZYGOSITY);
 
-        System.out.println(solr.getBaseURL() + "/select?" + query.toString());
+        logger.info(solr.getBaseURL() + "/select?" + query.toString());
         QueryResponse response = solr.query(query);
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
         List<Map<String, String>> results = new LinkedList<Map<String, String>>();
@@ -1155,7 +1154,7 @@ public class ObservationService extends BasicService {
         query.set("group.sort", ObservationDTO.DISCRETE_POINT + " asc");
         query.setRows(10000);
 
-		// System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" +
+		// logger.info("+_+_+ " + solr.getBaseURL() + "/select?" +
         // query);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
 		// for mutants it doesn't seem we need binning
@@ -1227,7 +1226,7 @@ public class ObservationService extends BasicService {
         query.set("sort", ObservationDTO.DISCRETE_POINT + " asc");
         query.setRows(10000);
 
-		// System.out.println("+_+_+ " + solr.getBaseURL() + "/select?" +
+		// logger.info("+_+_+ " + solr.getBaseURL() + "/select?" +
         // query);
         List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
         boolean rounding = false;
@@ -1350,7 +1349,7 @@ public class ObservationService extends BasicService {
     public double getMeanPValue(Parameter p, List<String> strains, String biologicalSample, String[] center, SexType sex)
     throws SolrServerException {
 
-        System.out.println("GETTING THE MEAN");
+        logger.info("GETTING THE MEAN");
         SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + p.getStableId());
         String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
         double mean = 0;
@@ -1417,7 +1416,7 @@ public class ObservationService extends BasicService {
         query.set("group", true);
         query.setRows(100);
 
-        System.out.println("URL in getCategories " +  solr.getBaseURL() + "/select?" + query);
+        logger.info("URL in getCategories " + solr.getBaseURL() + "/select?" + query);
         
         List<String> categories = new ArrayList<String>();
         QueryResponse res = solr.query(query, METHOD.POST);
@@ -1524,7 +1523,7 @@ public class ObservationService extends BasicService {
         }
         response = solr.query(query);
         results = response.getBeans(ObservationDTO.class);
-        LOG.debug("getAllControlsBySex " + query);
+        logger.debug("getAllControlsBySex " + query);
         return results;
     }
 
@@ -1619,7 +1618,7 @@ public class ObservationService extends BasicService {
         query.setFacetLimit(100000);
         query.addFacetField(ObservationDTO.BIOLOGICAL_SAMPLE_ID);
 
-        LOG.info(solr.getBaseURL() + "/select?" + query);
+        logger.info(solr.getBaseURL() + "/select?" + query);
 
         return getFacets(solr.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
     }
@@ -1686,7 +1685,7 @@ public class ObservationService extends BasicService {
             q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         }
 
-        LOG.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr URL getAllGeneIdsByResource " + solr.getBaseURL() + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
         } catch (SolrServerException e) {
@@ -1716,7 +1715,7 @@ public class ObservationService extends BasicService {
             q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         }
 
-        LOG.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
+        logger.info("Solr URL getAllColonyIdsByResource " + solr.getBaseURL() + "/select?" + q);
         try {
             return getFacets(solr.query(q)).get(ObservationDTO.COLONY_ID).keySet();
         } catch (SolrServerException e) {
@@ -1818,9 +1817,9 @@ public class ObservationService extends BasicService {
     	 */
     	public BatchClassification getBatchClassification() {
 
-    		LOG.debug("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
-    		LOG.debug("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
-    		LOG.debug("Both batches by sex: " + StringUtils.join(CollectionUtils.union(maleBatches, femaleBatches), ", "));
+    		logger.debug("Male batches by sex: " + StringUtils.join(maleBatches, ", "));
+    		logger.debug("Femle batches by sex: " + StringUtils.join(femaleBatches, ", "));
+    		logger.debug("Both batches by sex: " + StringUtils.join(CollectionUtils.union(maleBatches, femaleBatches), ", "));
 
     		if ((maleBatches.size()==0 && femaleBatches.size()>0) ||
     			(femaleBatches.size()==0 && maleBatches.size()>0) ) {
@@ -1875,9 +1874,9 @@ public class ObservationService extends BasicService {
 		query.setRows(10000);
 		query.set("group.limit", 1);
 
-		System.out.println("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
-		
-		QueryResponse response = solr.query(query);
+        logger.info("SOLR URL getPipelines " + solr.getBaseURL() + "/select?" + query);
+
+        QueryResponse response = solr.query(query);
 		
 		for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
