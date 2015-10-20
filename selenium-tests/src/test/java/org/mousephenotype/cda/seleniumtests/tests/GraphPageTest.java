@@ -205,17 +205,25 @@ public class GraphPageTest {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
 
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
-            genePage.selectGenesLength(100);
+
             List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
 
             // Skip gene pages without graphs.
-            if (graphUrls.isEmpty())
+            if ((graphUrls.isEmpty()) || ( ! genePage.hasGraphs()))
                 continue;
+
+            genePage.selectGenesLength(100);
+
             try {
+                logger.info("GENE PAGE URL: " + target);
+                logger.info("GRAPH PAGE URL: " + graphUrls.get(0));
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
                 PageStatus status = graphPage.validate();
                 if ( ! status.hasErrors()) {
                     successCount++;
+                } else {
+                    logger.warn("FAILED GENE PAGE URL: " + target);
+                    logger.warn("FAILED GRAPH PAGE URL: " + graphUrls.get(0));
                 }
                 statuses.add(status);
 
@@ -237,10 +245,8 @@ public class GraphPageTest {
 
 
     // Tests known graph URLs that have historically been broken or are interesting cases, such as 2 graphs per page.
-    //
-    // NOTE: This test is configured to run on either BETA, DEV. If the profile is neither, then the test is skipped.
     @Test
-//@Ignore
+@Ignore
     public void testKnownGraphs() throws TestException {
         String testName = "testKnownGraphs";
 
@@ -263,7 +269,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
@@ -294,7 +300,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
@@ -304,7 +310,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testUnidimensionalGraphs() throws TestException {
         String testName = "testUnidimensionalGraphs";
 
@@ -314,7 +320,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
@@ -334,7 +340,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 
