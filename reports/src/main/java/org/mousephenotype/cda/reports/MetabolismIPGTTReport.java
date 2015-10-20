@@ -137,12 +137,13 @@ public class MetabolismIPGTTReport extends AbstractReport {
             String parameterStableId = mouseInfoDTO.getParameterStableId();
             Float dataPoint = mouseInfoDTO.getDataPoint();
             Float[] data = mouseInfoMap.get(parameterStableId);
+            String biologicalSampleId = mouseInfoDTO.getBiologicalSampleId().toString();
             String externalSampleId = mouseInfoDTO.getExternalSampleId();
             String[] warnings = new String[]{"", "", ""};
             switch (parameterStableId) {
                 case "IMPC_IPG_001_001":
                     if (data[0] != null) {
-                        warnings[0] = "Expected only 1 IMPC_IPG_001_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.";
+                        warnings[0] = "Multiple values found for simple parameter IMPC_IPG_001_001 dataPoint for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")";
                         hasWarnings[0] = true;
                     }
 
@@ -155,41 +156,41 @@ public class MetabolismIPGTTReport extends AbstractReport {
                     switch (discretePoint) {
                         case 0:
                             if (data[0] != null) {
-                                localWarn.add("Expected only 1 IMPC_IPG_002_001 dataPoint for discretePoint 0 for externalSampleId '" + externalSampleId + "' but found more.");
+                                localWarn.add("Multiple values found for simple parameter IMPC_IPG_002_001 dataPoint for discretePoint 0 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                             }
                             data[0] = dataPoint;
                             break;
 
                         case 15:
                             if (data[1] != null) {
-                                localWarn.add("Expected only 1 IMPC_IPG_002_001 dataPoint for discretePoint 15 for externalSampleId '" + externalSampleId + "' but found more.");
+                                localWarn.add("Multiple values found for simple parameter IMPC_IPG_002_001 dataPoint for discretePoint 15 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                             }
                             data[1] = dataPoint;
                             break;
 
                         case 30:
                             if (data[2] != null) {
-                                localWarn.add("Expected only 1 IMPC_IPG_002_001 dataPoint for discretePoint 30 for externalSampleId '" + externalSampleId + "' but found more.");
+                                localWarn.add("Multiple values found for simple parameter IMPC_IPG_002_001 dataPoint for discretePoint 30 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                             }
                             data[2] = dataPoint;
                             break;
 
                         case 60:
                             if (data[3] != null) {
-                                localWarn.add("Expected only 1 IMPC_IPG_002_001 dataPoint for discretePoint 60 for externalSampleId '" + externalSampleId + "' but found more.");
+                                localWarn.add("Multiple values found for simple parameter IMPC_IPG_002_001 dataPoint for discretePoint 60 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                             }
                             data[3] = dataPoint;
                             break;
 
                         case 120:
                             if (data[4] != null) {
-                                localWarn.add("Expected only 1 IMPC_IPG_002_001 dataPoint for discretePoint 120 for externalSampleId '" + externalSampleId + "' but found more.");
+                                localWarn.add("Multiple values found for simple parameter IMPC_IPG_002_001 dataPoint for discretePoint 120 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                             }
                             data[4] = dataPoint;
                             break;
 
                         default:
-                            localWarn.add("Unexpected discretePoint '" + dataPoint + "' for external_sample_id '" + externalSampleId + "'");
+                            localWarn.add("Unexpected discretePoint '" + dataPoint + "' for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ").");
                     }
                     if (!localWarn.isEmpty()) {
                         for (int i = 0; i < localWarn.size(); i++) {
@@ -203,7 +204,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
                 case "IMPC_IPG_010_001":
                     if (data[0] != null) {
-                        warnings[2] = "Expected only 1 IMPC_IPG_010_001 dataPoint for externalSampleId '" + externalSampleId + "' but found more.";
+                        warnings[2] = "Multiple values found for simple parameter IMPC_IPG_010_001 dataPoint for discretePoint 15 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")";
                         hasWarnings[2] = true;
                     }
 
