@@ -448,8 +448,8 @@ public class DataTableController {
 
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-		System.out.println("Found ids: "+ new ArrayList(foundIds));
-		System.out.println("non found ids: " + nonFoundIds);
+		//System.out.println("Found ids: "+ new ArrayList(foundIds));
+		//System.out.println("non found ids: " + nonFoundIds);
 
 		int resultsCount = 0;
 		for ( int i=0; i<nonFoundIds.size(); i++ ){
@@ -461,8 +461,8 @@ public class DataTableController {
 			resultsCount = rowData.size();
 		}
 
-		System.out.println("OUTPUT: " + j.toString());
-		System.out.println("SIZE: "+ resultsCount);
+		//System.out.println("OUTPUT: " + j.toString());
+		//System.out.println("SIZE: "+ resultsCount);
 		if ( resultsCount == 0 && nonFoundIds.size() != 0 ){
 			// cases where id is not found in our database
 			return "";
