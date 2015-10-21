@@ -274,7 +274,7 @@ $(document).ready(function () {
    				input = input.replace("%"  , "\\%");
    				input = input.replace("!"  , "\\!");
    				input = input.replace("%21", "\\!");
-				input = input.replace("%2D", "\\-");
+				input = input.replace("-", "\\-");
    				
    				if ( /^\\%22.+%22$/.test(input) ){	
    					input = input.replace(/\\/g, ''); //remove starting \ before double quotes	
