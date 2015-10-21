@@ -47,25 +47,25 @@ public class PhenotypeTable {
     private final UrlUtils urlUtils = new UrlUtils();
     private final WebDriverWait wait;
 
-    public static final int COL_INDEX_PHENOTYPES_GENE_ALLELE         =  0;
-    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY            =  1;
-    public static final int COL_INDEX_PHENOTYPES_SEX                 =  2;
-    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE           =  3;
-    public static final int COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER =  4;
-    public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER  =  5;
-    public static final int COL_INDEX_PHENOTYPES_SOURCE              =  6;
-    public static final int COL_INDEX_PHENOTYPES_P_VALUE             =  7;
-    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK          =  8;
+    public static final int COL_INDEX_PHENOTYPES_GENE_ALLELE                =  0;
+    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY                   =  1;
+    public static final int COL_INDEX_PHENOTYPES_SEX                        =  2;
+    public static final int COL_INDEX_PHENOTYPES_LIFE_STAGE                 =  3;
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE                  =  4;
+    public static final int COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER        =  5;
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER_SOURCE  =  6;
+    public static final int COL_INDEX_PHENOTYPES_P_VALUE                    =  7;
+    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK                 =  8;
 
-    public static final String COL_PHENOTYPES_GENE_ALLELE         = "Gene / Allele";
-    public static final String COL_PHENOTYPES_ZYGOSITY            = "Zygosity";
-    public static final String COL_PHENOTYPES_SEX                 = "Sex";
-    public static final String COL_PHENOTYPES_PHENOTYPE           = "Phenotype";
-    public static final String COL_PHENOTYPES_PROCEDURE_PARAMETER = "Procedure | Parameter";
-    public static final String COL_PHENOTYPES_PHENOTYPING_CENTER  = "Phenotyping Center";
-    public static final String COL_PHENOTYPES_SOURCE              = "Source";
-    public static final String COL_PHENOTYPES_P_VALUE             = "P Value";
-    public static final String COL_PHENOTYPES_GRAPH               = "Graph";
+    public static final String COL_PHENOTYPES_GENE_ALLELE                = "Gene / Allele";
+    public static final String COL_PHENOTYPES_ZYGOSITY                   = "Zygosity";
+    public static final String COL_PHENOTYPES_SEX                        = "Sex";
+    public static final String COL_PHENOTYPES_LIFE_STAGE                 = "Life Stage";
+    public static final String COL_PHENOTYPES_PHENOTYPE                  = "Phenotype";
+    public static final String COL_PHENOTYPES_PROCEDURE_PARAMETER        = "Procedure | Parameter";
+    public static final String COL_PHENOTYPES_PHENOTYPING_CENTER_SOURCE  = "Phenotyping Center | Source";
+    public static final String COL_PHENOTYPES_P_VALUE                    = "P Value";
+    public static final String COL_PHENOTYPES_GRAPH                      = "Graph";
 
     /**
      * Creates a new, empty <code>PhenotypeTablePheno</code> instance. Call <code>

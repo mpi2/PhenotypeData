@@ -457,7 +457,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getGraphUrl();
         } else if (targetPage.equalsIgnoreCase("phenotype")) {
             res = getGene().getSymbol() + "\t"
-                    + getAllele().getName() + "\t"
+                    + getAllele().getSymbol() + "\t"
                     + getZygosity() + "\t"
                     + getSexes().get(0) + "\t"
                     + getLifeStageName() + "\t"

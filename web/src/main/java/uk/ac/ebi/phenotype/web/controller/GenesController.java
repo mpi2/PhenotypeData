@@ -297,6 +297,9 @@ public class GenesController {
 
 		processPhenotypes(acc, model, "", request);
 
+		System.out.println("---- phenotypeSummaryObjects" + phenotypeSummaryObjects );
+		System.out.println("---- mpGroupsSignificant" + mpGroupsSignificant);
+		
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
