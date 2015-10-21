@@ -453,19 +453,19 @@ public class PhenotypePage {
         final Integer[] pageColumns = {
                 PhenotypeTable.COL_INDEX_PHENOTYPES_GENE_ALLELE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_ZYGOSITY
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_LIFE_STAGE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER
-                , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER
-                , PhenotypeTable.COL_INDEX_PHENOTYPES_SOURCE
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER_SOURCE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
                 DownloadPhenotypeMap.COL_INDEX_ALLELE
                 , DownloadPhenotypeMap.COL_INDEX_ZYGOSITY
+                , DownloadPhenotypeMap.COL_INDEX_LIFE_STAGE
                 , DownloadPhenotypeMap.COL_INDEX_PHENOTYPE
                 , DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER
-                , DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER
-                , DownloadPhenotypeMap.COL_INDEX_SOURCE
+                , DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER_SOURCE
                 , DownloadPhenotypeMap.COL_INDEX_GRAPH_LINK
         };
         final Integer[] decodeColumns = {
