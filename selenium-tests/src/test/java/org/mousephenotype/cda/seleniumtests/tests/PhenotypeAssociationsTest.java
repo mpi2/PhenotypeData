@@ -156,7 +156,7 @@ public class PhenotypeAssociationsTest {
                 status.addError("ERROR: Expected minimum result count of " + expectedMinimumResultCount + " but actual sum of phenotype counts was " + sumOfPhenotypeCounts + " for " + driver.getCurrentUrl());
             }
         } catch (NoSuchElementException | TimeoutException te) {
-            message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+            message = "Expected phenotype associations for MGI_ACCESSION_ID " + geneId + "(page " + target + ") but found none.";
             status.addError(message);
         }  catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
@@ -198,7 +198,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (String geneId : geneIds) {
-// if (i == 0) geneId = "MGI:1336993";
+if (i == 0) geneId = "MGI:1306779";
             if (i >= targetCount) {
                 break;
             }
