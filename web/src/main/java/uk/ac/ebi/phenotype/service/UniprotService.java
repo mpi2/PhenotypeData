@@ -37,11 +37,11 @@ public class UniprotService {
 	 */
 	public UniprotDTO getUniprotData(GeneDTO gene) throws JAXBException, IOException{
 		
-		List<String> ids = gene.getUniprotAccs();
+		String id = gene.getUuniprotMouseCanonicalAcc();
 	    UniprotDTO dto = new UniprotDTO();
-	    for (String id : ids){
-	    	dto = readXml("http://www.uniprot.org/uniprot/" + id + ".xml", dto);
-	    }
+
+    	dto = readXml("http://www.uniprot.org/uniprot/" + id + ".xml", dto);
+
 	    
 	    return dto;
 	}
