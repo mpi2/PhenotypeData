@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -223,7 +222,8 @@ public class GenePage {
                 }
 
                 for (List<String> row : graphUrlList) {
-                    if (row.get(GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER).equals(procedureName + " | " + parameterName)) {
+                    String rawRow = row.get(GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER);
+                    if (rawRow.equals(procedureName + " | " + parameterName)) {
                         urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                     }
                 }
@@ -519,86 +519,6 @@ public class GenePage {
     }
 
     /**
-     * Compares a single row of a pageMap grid selected by pageMapIndex to a
-     * single row of a downloadData grid selected by downloadIndex.
-     * @param pageMap genes HTML table store
-     * @param downloadData download data store
-     * @param pageMapIndex pageMap row index
-     * @param downloadIndex download row index
-     * @return
-     */
-    private int compareRowData(GridMap pageMap, GridMap downloadData, int pageMapIndex, int downloadIndex) {
-
-        // Validate the page's genes HTML table values against the first row of the download values.
-        // If sex = "both", validate against the second download row as well.
-        int errorCount = 0;
-        List<String> colErrors = new ArrayList();
-        String downloadCell;
-        String pageCell;
-
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_PHENOTYPE);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_PHENOTYPE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: phenotype mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = StringEscapeUtils.unescapeHtml4(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_ALLELE));
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_ALLELE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: allele mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_ZYGOSITY);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_ZYGOSITY).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: zygosity mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        // Special case: if the page sex is "both", use "female" to compare against the download, as "female" is sorted first in the download.
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_SEX);
-        pageCell = (pageCell.compareTo("both") == 0 ? "female" : pageCell);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_SEX).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: sex mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: procedure | parameter mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: phenotyping center mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_SOURCE);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_SOURCE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: source mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        pageCell = pageMap.getCell(1, GeneTable.COL_INDEX_GENES_P_VALUE);
-        downloadCell = downloadData.getCell(1, DownloadGeneMap.COL_INDEX_P_VALUE).trim();
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: p value mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        // When testing using http, the download link compare fails because the page url uses http
-        // but the download graph link uses https. Ignore the protocol (but not the hostname).
-        pageCell = testUtils.removeProtocol(pageMap.getCell(1, GeneTable.COL_INDEX_GENES_GRAPH_LINK).trim());
-
-        downloadCell = testUtils.removeProtocol(downloadData.getCell(1, DownloadGeneMap.COL_INDEX_GRAPH_LINK).trim());
-        if ( ! pageCell.equals(downloadCell))
-            colErrors.add("ERROR: graph link mismatch. Page: '" + pageCell + "'. Download: '" + downloadCell + "'");
-
-        if ( ! colErrors.isEmpty()) {
-            System.out.println(colErrors.size() + " errors:");
-            for (String colError : colErrors) {
-                System.out.println("\t" + colError);
-            }
-
-            errorCount++;
-        }
-
-        return errorCount;
-    }
-
-    /**
      * Get the full TSV data store
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param status Indicates the success or failure of the operation
@@ -748,18 +668,18 @@ public class GenePage {
                 GeneTable.COL_INDEX_GENES_ALLELE
                 , GeneTable.COL_INDEX_GENES_ZYGOSITY
                 , GeneTable.COL_INDEX_GENES_PHENOTYPE
+                , GeneTable.COL_INDEX_GENES_LIFE_STAGE
                 , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
-                , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER
-                , GeneTable.COL_INDEX_GENES_SOURCE
+                , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER_SOURCE
                 , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
                 DownloadGeneMap.COL_INDEX_ALLELE
                 , DownloadGeneMap.COL_INDEX_ZYGOSITY
                 , DownloadGeneMap.COL_INDEX_PHENOTYPE
+                , DownloadGeneMap.COL_INDEX_LIFE_STAGE
                 , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
-                , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER
-                , DownloadGeneMap.COL_INDEX_SOURCE
+                , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER_SOURCE
                 , DownloadGeneMap.COL_INDEX_GRAPH_LINK
         };
         final Integer[] decodeColumns = {

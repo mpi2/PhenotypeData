@@ -24,13 +24,13 @@ package org.mousephenotype.cda.seleniumtests.support;
  * phenotypes HTML table.
  */
 public class DownloadGeneMap {
-    public final static int COL_INDEX_PHENOTYPE           = 0;
-    public final static int COL_INDEX_ALLELE              = 1;
-    public final static int COL_INDEX_ZYGOSITY            = 2;
-    public final static int COL_INDEX_SEX                 = 3;
-    public final static int COL_INDEX_PROCEDURE_PARAMETER = 4;
-    public final static int COL_INDEX_PHENOTYPING_CENTER  = 5;
-    public final static int COL_INDEX_SOURCE              = 6;
-    public final static int COL_INDEX_P_VALUE             = 7;
-    public final static int COL_INDEX_GRAPH_LINK          = 8;
+    public final static int COL_INDEX_PHENOTYPE                  = 0;
+    public final static int COL_INDEX_ALLELE                     = 1;
+    public final static int COL_INDEX_ZYGOSITY                   = 2;
+    public final static int COL_INDEX_SEX                        = 3;
+    public final static int COL_INDEX_LIFE_STAGE                 = 3;
+    public final static int COL_INDEX_PROCEDURE_PARAMETER        = 4;
+    public final static int COL_INDEX_PHENOTYPING_CENTER_SOURCE  = 5;
+    public final static int COL_INDEX_P_VALUE                    = 7;
+    public final static int COL_INDEX_GRAPH_LINK                 = 8;
 }
