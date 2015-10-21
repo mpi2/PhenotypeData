@@ -135,7 +135,9 @@ public class GeneDTO {
 	public static final String GO_COUNT = "go_count";
 	public static final String GO_UNIPROT = "go_uniprot";
 	public static final String EVID_CODE_RANK = "evidCodeRank";
-	public static final String UNIPROT_ACC = "uniprot_acc";
+
+	public static final String UNIPROT_HUMAN_CANONICAL = "uniprot_human_canonical";
+	public static final String UNIPROT_MOUSE_CANONICAL = "uniprot_mouse_canonical";
 
 	public static final String PFAMA_JSON = "pfama_json";
 	public static final String SCDB_ID = "scdb_id"; // structural classification db id
@@ -598,8 +600,11 @@ public class GeneDTO {
 	@Field(EVID_CODE_RANK)
 	private Integer evidCodeRank;
 
-	@Field(UNIPROT_ACC)
-	private List<String> uniprotAccs = new ArrayList<>();
+	@Field(UNIPROT_HUMAN_CANONICAL)
+	private String uniprotHumanCanonical;
+
+	@Field(UNIPROT_MOUSE_CANONICAL)
+	private String uniprotMouseCanonical;
 
 	@Field(PFAMA_JSON)
 	private List<String> pfama_jsons = new ArrayList<>();
@@ -1826,19 +1831,35 @@ public class GeneDTO {
 
 
 	/**
-	 * @return the uniprotAccs
+	 * @return the uniprot_human_canonical
 	 */
-	public List<String> getUniprotAccs() {
-		return uniprotAccs;
+	public String getUuniprotHumanCanonicalAcc() {
+		return uniprotHumanCanonical;
 	}
 
 	/**
-	 * @param uniprotAccs
-	 *            the uniprotAccs to set
+	 * @param uniprotHumanCanonical
+	 *            the uniprotHumanCanonical to set
 	 */
-	public void setUniprotAccs(List<String> uniprotAccs) {
-		this.uniprotAccs = uniprotAccs;
+	public void setUuniprotHumanCanonicalAcc(String uniprotHumanCanonical) {
+		this.uniprotHumanCanonical = uniprotHumanCanonical;
 	}
+
+	/**
+	 * @return the uniprot_mouse_canonical
+	 */
+	public String getUuniprotMouseCanonicalAcc() {
+		return uniprotMouseCanonical;
+	}
+
+	/**
+	 * @param uniprotMouseCanonical
+	 *            the uniprotMouseCanonical to set
+	 */
+	public void setUuniprotMouseCanonicalAcc(String uniprotMouseCanonical) {
+		this.uniprotMouseCanonical = uniprotMouseCanonical;
+	}
+
 
 	/**
 	 * @return the scdb_ids
@@ -2005,168 +2026,236 @@ public class GeneDTO {
 		this.pfama_jsons = pfama_jsons;
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o) return true;
-		if (!(o instanceof GeneDTO)) return false;
+		if (o == null || getClass() != o.getClass()) return false;
 
 		GeneDTO geneDTO = (GeneDTO) o;
 
-		if (alleleName != null ? !alleleName.equals(geneDTO.alleleName) : geneDTO.alleleName != null) return false;
-		if (annotatedHigherLevelMpTermName != null ? !annotatedHigherLevelMpTermName.equals(geneDTO.annotatedHigherLevelMpTermName) : geneDTO.annotatedHigherLevelMpTermName != null)
+		if (seqRegionStart != geneDTO.seqRegionStart) return false;
+		if (seqRegionEnd != geneDTO.seqRegionEnd) return false;
+		if (isEmbryoDataAvailable != geneDTO.isEmbryoDataAvailable) return false;
+		if (vegaIds != null ? !vegaIds.equals(geneDTO.vegaIds) : geneDTO.vegaIds != null) return false;
+		if (ncbiIds != null ? !ncbiIds.equals(geneDTO.ncbiIds) : geneDTO.ncbiIds != null) return false;
+		if (ccdsIds != null ? !ccdsIds.equals(geneDTO.ccdsIds) : geneDTO.ccdsIds != null) return false;
+		if (seqRegionId != null ? !seqRegionId.equals(geneDTO.seqRegionId) : geneDTO.seqRegionId != null) return false;
+		if (xrefs != null ? !xrefs.equals(geneDTO.xrefs) : geneDTO.xrefs != null) return false;
+		if (impcNovelPredictedInLocus != null ? !impcNovelPredictedInLocus.equals(geneDTO.impcNovelPredictedInLocus) : geneDTO.impcNovelPredictedInLocus != null)
 			return false;
-		if (autoSuggest != null ? !autoSuggest.equals(geneDTO.autoSuggest) : geneDTO.autoSuggest != null) return false;
-		if (childMpId != null ? !childMpId.equals(geneDTO.childMpId) : geneDTO.childMpId != null) return false;
-		if (childMpTerm != null ? !childMpTerm.equals(geneDTO.childMpTerm) : geneDTO.childMpTerm != null) return false;
-		if (childMpTermSynonym != null ? !childMpTermSynonym.equals(geneDTO.childMpTermSynonym) : geneDTO.childMpTermSynonym != null)
+		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(geneDTO.selectedTopLevelMaId) : geneDTO.selectedTopLevelMaId != null)
+			return false;
+		if (selectedTopLevelMaTermSynonym != null ? !selectedTopLevelMaTermSynonym.equals(geneDTO.selectedTopLevelMaTermSynonym) : geneDTO.selectedTopLevelMaTermSynonym != null)
+			return false;
+		if (mgiPredictedKnownGene != null ? !mgiPredictedKnownGene.equals(geneDTO.mgiPredictedKnownGene) : geneDTO.mgiPredictedKnownGene != null)
 			return false;
 		if (dataType != null ? !dataType.equals(geneDTO.dataType) : geneDTO.dataType != null) return false;
-		if (diseaseAlts != null ? !diseaseAlts.equals(geneDTO.diseaseAlts) : geneDTO.diseaseAlts != null) return false;
-		if (diseaseClasses != null ? !diseaseClasses.equals(geneDTO.diseaseClasses) : geneDTO.diseaseClasses != null)
+		if (mgiAccessionId != null ? !mgiAccessionId.equals(geneDTO.mgiAccessionId) : geneDTO.mgiAccessionId != null)
 			return false;
-		if (diseaseHumanPhenotypes != null ? !diseaseHumanPhenotypes.equals(geneDTO.diseaseHumanPhenotypes) : geneDTO.diseaseHumanPhenotypes != null)
+		if (markerSymbol != null ? !markerSymbol.equals(geneDTO.markerSymbol) : geneDTO.markerSymbol != null)
 			return false;
-		if (diseaseId != null ? !diseaseId.equals(geneDTO.diseaseId) : geneDTO.diseaseId != null) return false;
-		if (diseaseSource != null ? !diseaseSource.equals(geneDTO.diseaseSource) : geneDTO.diseaseSource != null)
-			return false;
-		if (diseaseTerm != null ? !diseaseTerm.equals(geneDTO.diseaseTerm) : geneDTO.diseaseTerm != null) return false;
-		if (esCellStatus != null ? !esCellStatus.equals(geneDTO.esCellStatus) : geneDTO.esCellStatus != null)
-			return false;
-		if (expName != null ? !expName.equals(geneDTO.expName) : geneDTO.expName != null) return false;
-		if (hasQc != null ? !hasQc.equals(geneDTO.hasQc) : geneDTO.hasQc != null) return false;
-		if (humanCurated != null ? !humanCurated.equals(geneDTO.humanCurated) : geneDTO.humanCurated != null)
+		if (markerSymbolLowercase != null ? !markerSymbolLowercase.equals(geneDTO.markerSymbolLowercase) : geneDTO.markerSymbolLowercase != null)
 			return false;
 		if (humanGeneSymbol != null ? !humanGeneSymbol.equals(geneDTO.humanGeneSymbol) : geneDTO.humanGeneSymbol != null)
 			return false;
-		if (imitsEsCellStatus != null ? !imitsEsCellStatus.equals(geneDTO.imitsEsCellStatus) : geneDTO.imitsEsCellStatus != null)
+		if (markerName != null ? !markerName.equals(geneDTO.markerName) : geneDTO.markerName != null) return false;
+		if (markerSynonym != null ? !markerSynonym.equals(geneDTO.markerSynonym) : geneDTO.markerSynonym != null)
 			return false;
-		if (imitsMouseStatus != null ? !imitsMouseStatus.equals(geneDTO.imitsMouseStatus) : geneDTO.imitsMouseStatus != null)
+		if (markerSynonymLowercase != null ? !markerSynonymLowercase.equals(geneDTO.markerSynonymLowercase) : geneDTO.markerSynonymLowercase != null)
 			return false;
-		if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(geneDTO.imitsPhenotypeComplete) : geneDTO.imitsPhenotypeComplete != null)
+		if (markerType != null ? !markerType.equals(geneDTO.markerType) : geneDTO.markerType != null) return false;
+		if (ensemblGeneIds != null ? !ensemblGeneIds.equals(geneDTO.ensemblGeneIds) : geneDTO.ensemblGeneIds != null)
 			return false;
 		if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(geneDTO.imitsPhenotypeStarted) : geneDTO.imitsPhenotypeStarted != null)
 			return false;
+		if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(geneDTO.imitsPhenotypeComplete) : geneDTO.imitsPhenotypeComplete != null)
+			return false;
 		if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(geneDTO.imitsPhenotypeStatus) : geneDTO.imitsPhenotypeStatus != null)
 			return false;
-		if (impcNovelPredictedInLocus != null ? !impcNovelPredictedInLocus.equals(geneDTO.impcNovelPredictedInLocus) : geneDTO.impcNovelPredictedInLocus != null)
-			return false;
-		if (impcPredicted != null ? !impcPredicted.equals(geneDTO.impcPredicted) : geneDTO.impcPredicted != null)
-			return false;
-		if (impcPredictedInLocus != null ? !impcPredictedInLocus.equals(geneDTO.impcPredictedInLocus) : geneDTO.impcPredictedInLocus != null)
-			return false;
-		if (inferredMaId != null ? !inferredMaId.equals(geneDTO.inferredMaId) : geneDTO.inferredMaId != null)
-			return false;
-		if (inferredMaTerm != null ? !inferredMaTerm.equals(geneDTO.inferredMaTerm) : geneDTO.inferredMaTerm != null)
-			return false;
-		if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(geneDTO.inferredSelectedTopLevelMaId) : geneDTO.inferredSelectedTopLevelMaId != null)
-			return false;
-		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(geneDTO.inferredSelectedTopLevelMaTerm) : geneDTO.inferredSelectedTopLevelMaTerm != null)
-			return false;
-		if (intermediateMpId != null ? !intermediateMpId.equals(geneDTO.intermediateMpId) : geneDTO.intermediateMpId != null)
-			return false;
-		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(geneDTO.intermediateMpTermSynonym) : geneDTO.intermediateMpTermSynonym != null)
-			return false;
-		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(geneDTO.intermediateMpTerm) : geneDTO.intermediateMpTerm != null)
-			return false;
+		if (status != null ? !status.equals(geneDTO.status) : geneDTO.status != null) return false;
 		if (latestEsCellStatus != null ? !latestEsCellStatus.equals(geneDTO.latestEsCellStatus) : geneDTO.latestEsCellStatus != null)
 			return false;
 		if (latestMouseStatus != null ? !latestMouseStatus.equals(geneDTO.latestMouseStatus) : geneDTO.latestMouseStatus != null)
 			return false;
 		if (latestPhenotypeStatus != null ? !latestPhenotypeStatus.equals(geneDTO.latestPhenotypeStatus) : geneDTO.latestPhenotypeStatus != null)
 			return false;
-		if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(geneDTO.latestPhenotypingCentre) : geneDTO.latestPhenotypingCentre != null)
+		if (latestProjectStatus != null ? !latestProjectStatus.equals(geneDTO.latestProjectStatus) : geneDTO.latestProjectStatus != null)
 			return false;
 		if (latestProductionCentre != null ? !latestProductionCentre.equals(geneDTO.latestProductionCentre) : geneDTO.latestProductionCentre != null)
 			return false;
-		if (latestProjectStatus != null ? !latestProjectStatus.equals(geneDTO.latestProjectStatus) : geneDTO.latestProjectStatus != null)
+		if (latestPhenotypingCentre != null ? !latestPhenotypingCentre.equals(geneDTO.latestPhenotypingCentre) : geneDTO.latestPhenotypingCentre != null)
 			return false;
+		if (diseaseHumanPhenotypes != null ? !diseaseHumanPhenotypes.equals(geneDTO.diseaseHumanPhenotypes) : geneDTO.diseaseHumanPhenotypes != null)
+			return false;
+		if (hasQc != null ? !hasQc.equals(geneDTO.hasQc) : geneDTO.hasQc != null) return false;
 		if (legacy_phenotype_status != null ? !legacy_phenotype_status.equals(geneDTO.legacy_phenotype_status) : geneDTO.legacy_phenotype_status != null)
 			return false;
-		if (markerName != null ? !markerName.equals(geneDTO.markerName) : geneDTO.markerName != null) return false;
-		if (markerSymbol != null ? !markerSymbol.equals(geneDTO.markerSymbol) : geneDTO.markerSymbol != null)
+		if (alleleName != null ? !alleleName.equals(geneDTO.alleleName) : geneDTO.alleleName != null) return false;
+		if (alleleAccessionIds != null ? !alleleAccessionIds.equals(geneDTO.alleleAccessionIds) : geneDTO.alleleAccessionIds != null)
 			return false;
-		if (markerSynonym != null ? !markerSynonym.equals(geneDTO.markerSynonym) : geneDTO.markerSynonym != null)
+		if (imitsEsCellStatus != null ? !imitsEsCellStatus.equals(geneDTO.imitsEsCellStatus) : geneDTO.imitsEsCellStatus != null)
 			return false;
-		if (markerType != null ? !markerType.equals(geneDTO.markerType) : geneDTO.markerType != null) return false;
-		if (mgiAccessionId != null ? !mgiAccessionId.equals(geneDTO.mgiAccessionId) : geneDTO.mgiAccessionId != null)
+		if (esCellStatus != null ? !esCellStatus.equals(geneDTO.esCellStatus) : geneDTO.esCellStatus != null)
 			return false;
-		if (mgiPredicted != null ? !mgiPredicted.equals(geneDTO.mgiPredicted) : geneDTO.mgiPredicted != null)
+		if (imitsMouseStatus != null ? !imitsMouseStatus.equals(geneDTO.imitsMouseStatus) : geneDTO.imitsMouseStatus != null)
 			return false;
-		if (mgiPredictedInLocus != null ? !mgiPredictedInLocus.equals(geneDTO.mgiPredictedInLocus) : geneDTO.mgiPredictedInLocus != null)
+		if (mouseStatus != null ? !mouseStatus.equals(geneDTO.mouseStatus) : geneDTO.mouseStatus != null) return false;
+		if (phenotypeStatus != null ? !phenotypeStatus.equals(geneDTO.phenotypeStatus) : geneDTO.phenotypeStatus != null)
 			return false;
-		if (mgiPredictedKnownGene != null ? !mgiPredictedKnownGene.equals(geneDTO.mgiPredictedKnownGene) : geneDTO.mgiPredictedKnownGene != null)
+		if (productionCentre != null ? !productionCentre.equals(geneDTO.productionCentre) : geneDTO.productionCentre != null)
+			return false;
+		if (phenotypingCentre != null ? !phenotypingCentre.equals(geneDTO.phenotypingCentre) : geneDTO.phenotypingCentre != null)
+			return false;
+		if (p_value != null ? !p_value.equals(geneDTO.p_value) : geneDTO.p_value != null) return false;
+		if (mpId != null ? !mpId.equals(geneDTO.mpId) : geneDTO.mpId != null) return false;
+		if (mpTerm != null ? !mpTerm.equals(geneDTO.mpTerm) : geneDTO.mpTerm != null) return false;
+		if (mpTermSynonym != null ? !mpTermSynonym.equals(geneDTO.mpTermSynonym) : geneDTO.mpTermSynonym != null)
+			return false;
+		if (mpTermDefinition != null ? !mpTermDefinition.equals(geneDTO.mpTermDefinition) : geneDTO.mpTermDefinition != null)
+			return false;
+		if (maId != null ? !maId.equals(geneDTO.maId) : geneDTO.maId != null) return false;
+		if (maTerm != null ? !maTerm.equals(geneDTO.maTerm) : geneDTO.maTerm != null) return false;
+		if (maTermSynonym != null ? !maTermSynonym.equals(geneDTO.maTermSynonym) : geneDTO.maTermSynonym != null)
+			return false;
+		if (maTermDefinition != null ? !maTermDefinition.equals(geneDTO.maTermDefinition) : geneDTO.maTermDefinition != null)
+			return false;
+		if (hpId != null ? !hpId.equals(geneDTO.hpId) : geneDTO.hpId != null) return false;
+		if (hpTerm != null ? !hpTerm.equals(geneDTO.hpTerm) : geneDTO.hpTerm != null) return false;
+		if (childMpId != null ? !childMpId.equals(geneDTO.childMpId) : geneDTO.childMpId != null) return false;
+		if (childMpTerm != null ? !childMpTerm.equals(geneDTO.childMpTerm) : geneDTO.childMpTerm != null) return false;
+		if (childMpTermSynonym != null ? !childMpTermSynonym.equals(geneDTO.childMpTermSynonym) : geneDTO.childMpTermSynonym != null)
+			return false;
+		if (topLevelMpId != null ? !topLevelMpId.equals(geneDTO.topLevelMpId) : geneDTO.topLevelMpId != null)
+			return false;
+		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(geneDTO.topLevelMpTerm) : geneDTO.topLevelMpTerm != null)
+			return false;
+		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(geneDTO.topLevelMpTermSynonym) : geneDTO.topLevelMpTermSynonym != null)
+			return false;
+		if (topLevelMpDefinition != null ? !topLevelMpDefinition.equals(geneDTO.topLevelMpDefinition) : geneDTO.topLevelMpDefinition != null)
+			return false;
+		if (intermediateMpId != null ? !intermediateMpId.equals(geneDTO.intermediateMpId) : geneDTO.intermediateMpId != null)
+			return false;
+		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(geneDTO.intermediateMpTerm) : geneDTO.intermediateMpTerm != null)
+			return false;
+		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(geneDTO.intermediateMpTermSynonym) : geneDTO.intermediateMpTermSynonym != null)
+			return false;
+		if (ontologySubset != null ? !ontologySubset.equals(geneDTO.ontologySubset) : geneDTO.ontologySubset != null)
+			return false;
+		if (inferredMaId != null ? !inferredMaId.equals(geneDTO.inferredMaId) : geneDTO.inferredMaId != null)
+			return false;
+		if (inferredMaTerm != null ? !inferredMaTerm.equals(geneDTO.inferredMaTerm) : geneDTO.inferredMaTerm != null)
+			return false;
+		if (inferredMaTermSynonym != null ? !inferredMaTermSynonym.equals(geneDTO.inferredMaTermSynonym) : geneDTO.inferredMaTermSynonym != null)
+			return false;
+		if (inferredSelectedTopLevelMaId != null ? !inferredSelectedTopLevelMaId.equals(geneDTO.inferredSelectedTopLevelMaId) : geneDTO.inferredSelectedTopLevelMaId != null)
+			return false;
+		if (inferredSelectedTopLevelMaTerm != null ? !inferredSelectedTopLevelMaTerm.equals(geneDTO.inferredSelectedTopLevelMaTerm) : geneDTO.inferredSelectedTopLevelMaTerm != null)
+			return false;
+		if (inferredSelectedTopLevelMaTermSynonym != null ? !inferredSelectedTopLevelMaTermSynonym.equals(geneDTO.inferredSelectedTopLevelMaTermSynonym) : geneDTO.inferredSelectedTopLevelMaTermSynonym != null)
+			return false;
+		if (inferredChildMaId != null ? !inferredChildMaId.equals(geneDTO.inferredChildMaId) : geneDTO.inferredChildMaId != null)
+			return false;
+		if (inferredChildMaTerm != null ? !inferredChildMaTerm.equals(geneDTO.inferredChildMaTerm) : geneDTO.inferredChildMaTerm != null)
+			return false;
+		if (inferredChildMaTermSynonym != null ? !inferredChildMaTermSynonym.equals(geneDTO.inferredChildMaTermSynonym) : geneDTO.inferredChildMaTermSynonym != null)
+			return false;
+		if (type != null ? !type.equals(geneDTO.type) : geneDTO.type != null) return false;
+		if (diseaseId != null ? !diseaseId.equals(geneDTO.diseaseId) : geneDTO.diseaseId != null) return false;
+		if (diseaseSource != null ? !diseaseSource.equals(geneDTO.diseaseSource) : geneDTO.diseaseSource != null)
+			return false;
+		if (diseaseTerm != null ? !diseaseTerm.equals(geneDTO.diseaseTerm) : geneDTO.diseaseTerm != null) return false;
+		if (diseaseAlts != null ? !diseaseAlts.equals(geneDTO.diseaseAlts) : geneDTO.diseaseAlts != null) return false;
+		if (diseaseClasses != null ? !diseaseClasses.equals(geneDTO.diseaseClasses) : geneDTO.diseaseClasses != null)
+			return false;
+		if (humanCurated != null ? !humanCurated.equals(geneDTO.humanCurated) : geneDTO.humanCurated != null)
 			return false;
 		if (mouseCurated != null ? !mouseCurated.equals(geneDTO.mouseCurated) : geneDTO.mouseCurated != null)
 			return false;
-		if (mouseStatus != null ? !mouseStatus.equals(geneDTO.mouseStatus) : geneDTO.mouseStatus != null) return false;
-		if (mpTermDefinition != null ? !mpTermDefinition.equals(geneDTO.mpTermDefinition) : geneDTO.mpTermDefinition != null)
+		if (mgiPredicted != null ? !mgiPredicted.equals(geneDTO.mgiPredicted) : geneDTO.mgiPredicted != null)
 			return false;
-		if (mpId != null ? !mpId.equals(geneDTO.mpId) : geneDTO.mpId != null) return false;
-		if (mpTerm != null ? !mpTerm.equals(geneDTO.mpTerm) : geneDTO.mpTerm != null) return false;
-		if (ontologySubset != null ? !ontologySubset.equals(geneDTO.ontologySubset) : geneDTO.ontologySubset != null)
+		if (impcPredicted != null ? !impcPredicted.equals(geneDTO.impcPredicted) : geneDTO.impcPredicted != null)
 			return false;
-		if (p_value != null ? !p_value.equals(geneDTO.p_value) : geneDTO.p_value != null) return false;
-		if (parameterName != null ? !parameterName.equals(geneDTO.parameterName) : geneDTO.parameterName != null)
+		if (mgiPredictedInLocus != null ? !mgiPredictedInLocus.equals(geneDTO.mgiPredictedInLocus) : geneDTO.mgiPredictedInLocus != null)
 			return false;
-		if (parameterStableId != null ? !parameterStableId.equals(geneDTO.parameterStableId) : geneDTO.parameterStableId != null)
-			return false;
-		if (phenotypeStatus != null ? !phenotypeStatus.equals(geneDTO.phenotypeStatus) : geneDTO.phenotypeStatus != null)
-			return false;
-		if (phenotypingCentre != null ? !phenotypingCentre.equals(geneDTO.phenotypingCentre) : geneDTO.phenotypingCentre != null)
+		if (impcPredictedInLocus != null ? !impcPredictedInLocus.equals(geneDTO.impcPredictedInLocus) : geneDTO.impcPredictedInLocus != null)
 			return false;
 		if (pipelineName != null ? !pipelineName.equals(geneDTO.pipelineName) : geneDTO.pipelineName != null)
 			return false;
 		if (pipelineStableId != null ? !pipelineStableId.equals(geneDTO.pipelineStableId) : geneDTO.pipelineStableId != null)
 			return false;
-		if (procParamName != null ? !procParamName.equals(geneDTO.procParamName) : geneDTO.procParamName != null)
-			return false;
-		if (procParamStableId != null ? !procParamStableId.equals(geneDTO.procParamStableId) : geneDTO.procParamStableId != null)
-			return false;
 		if (procedureName != null ? !procedureName.equals(geneDTO.procedureName) : geneDTO.procedureName != null)
 			return false;
 		if (procedureStableId != null ? !procedureStableId.equals(geneDTO.procedureStableId) : geneDTO.procedureStableId != null)
 			return false;
-		if (productionCentre != null ? !productionCentre.equals(geneDTO.productionCentre) : geneDTO.productionCentre != null)
+		if (parameterName != null ? !parameterName.equals(geneDTO.parameterName) : geneDTO.parameterName != null)
 			return false;
+		if (parameterStableId != null ? !parameterStableId.equals(geneDTO.parameterStableId) : geneDTO.parameterStableId != null)
+			return false;
+		if (procParamName != null ? !procParamName.equals(geneDTO.procParamName) : geneDTO.procParamName != null)
+			return false;
+		if (procParamStableId != null ? !procParamStableId.equals(geneDTO.procParamStableId) : geneDTO.procParamStableId != null)
+			return false;
+		if (expName != null ? !expName.equals(geneDTO.expName) : geneDTO.expName != null) return false;
+		if (subtype != null ? !subtype.equals(geneDTO.subtype) : geneDTO.subtype != null) return false;
+		if (annotatedHigherLevelMpTermName != null ? !annotatedHigherLevelMpTermName.equals(geneDTO.annotatedHigherLevelMpTermName) : geneDTO.annotatedHigherLevelMpTermName != null)
+			return false;
+		if (text != null ? !text.equals(geneDTO.text) : geneDTO.text != null) return false;
+		if (autoSuggest != null ? !autoSuggest.equals(geneDTO.autoSuggest) : geneDTO.autoSuggest != null) return false;
 		if (selectedTopLevelMaTerm != null ? !selectedTopLevelMaTerm.equals(geneDTO.selectedTopLevelMaTerm) : geneDTO.selectedTopLevelMaTerm != null)
 			return false;
-		if (selectedTopLevelMaId != null ? !selectedTopLevelMaId.equals(geneDTO.selectedTopLevelMaId) : geneDTO.selectedTopLevelMaId != null)
+		if (goTermIds != null ? !goTermIds.equals(geneDTO.goTermIds) : geneDTO.goTermIds != null) return false;
+		if (goTermNames != null ? !goTermNames.equals(geneDTO.goTermNames) : geneDTO.goTermNames != null) return false;
+		if (goTermDefs != null ? !goTermDefs.equals(geneDTO.goTermDefs) : geneDTO.goTermDefs != null) return false;
+		if (goTermEvids != null ? !goTermEvids.equals(geneDTO.goTermEvids) : geneDTO.goTermEvids != null) return false;
+		if (goTermDomains != null ? !goTermDomains.equals(geneDTO.goTermDomains) : geneDTO.goTermDomains != null)
 			return false;
-		if (selectedTopLevelMaTermSynonym != null ? !selectedTopLevelMaTermSynonym.equals(geneDTO.selectedTopLevelMaTermSynonym) : geneDTO.selectedTopLevelMaTermSynonym != null)
+		if (goCount != null ? !goCount.equals(geneDTO.goCount) : geneDTO.goCount != null) return false;
+		if (go_uniprot != null ? !go_uniprot.equals(geneDTO.go_uniprot) : geneDTO.go_uniprot != null) return false;
+		if (evidCodeRank != null ? !evidCodeRank.equals(geneDTO.evidCodeRank) : geneDTO.evidCodeRank != null)
 			return false;
-		if (status != null ? !status.equals(geneDTO.status) : geneDTO.status != null) return false;
-		if (subtype != null ? !subtype.equals(geneDTO.subtype) : geneDTO.subtype != null) return false;
-		if (text != null ? !text.equals(geneDTO.text) : geneDTO.text != null) return false;
-		if (topLevelMpDefinition != null ? !topLevelMpDefinition.equals(geneDTO.topLevelMpDefinition) : geneDTO.topLevelMpDefinition != null)
+		if (uniprotHumanCanonical != null ? !uniprotHumanCanonical.equals(geneDTO.uniprotHumanCanonical) : geneDTO.uniprotHumanCanonical != null)
 			return false;
-		if (topLevelMpId != null ? !topLevelMpId.equals(geneDTO.topLevelMpId) : geneDTO.topLevelMpId != null)
+		if (uniprotMouseCanonical != null ? !uniprotMouseCanonical.equals(geneDTO.uniprotMouseCanonical) : geneDTO.uniprotMouseCanonical != null)
 			return false;
-		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(geneDTO.topLevelMpTermSynonym) : geneDTO.topLevelMpTermSynonym != null)
+		if (pfama_jsons != null ? !pfama_jsons.equals(geneDTO.pfama_jsons) : geneDTO.pfama_jsons != null) return false;
+		if (scdb_ids != null ? !scdb_ids.equals(geneDTO.scdb_ids) : geneDTO.scdb_ids != null) return false;
+		if (scdb_links != null ? !scdb_links.equals(geneDTO.scdb_links) : geneDTO.scdb_links != null) return false;
+		if (clan_ids != null ? !clan_ids.equals(geneDTO.clan_ids) : geneDTO.clan_ids != null) return false;
+		if (clan_accs != null ? !clan_accs.equals(geneDTO.clan_accs) : geneDTO.clan_accs != null) return false;
+		if (clan_descs != null ? !clan_descs.equals(geneDTO.clan_descs) : geneDTO.clan_descs != null) return false;
+		if (pfama_ids != null ? !pfama_ids.equals(geneDTO.pfama_ids) : geneDTO.pfama_ids != null) return false;
+		if (pfama_accs != null ? !pfama_accs.equals(geneDTO.pfama_accs) : geneDTO.pfama_accs != null) return false;
+		if (pfama_go_ids != null ? !pfama_go_ids.equals(geneDTO.pfama_go_ids) : geneDTO.pfama_go_ids != null)
 			return false;
-		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(geneDTO.topLevelMpTerm) : geneDTO.topLevelMpTerm != null)
+		if (pfama_go_terms != null ? !pfama_go_terms.equals(geneDTO.pfama_go_terms) : geneDTO.pfama_go_terms != null)
 			return false;
-		if (type != null ? !type.equals(geneDTO.type) : geneDTO.type != null) return false;
+		return !(pfama_go_cats != null ? !pfama_go_cats.equals(geneDTO.pfama_go_cats) : geneDTO.pfama_go_cats != null);
 
-		return true;
 	}
-
 
 	@Override
 	public int hashCode() {
-
-		int result = impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0;
+		int result = vegaIds != null ? vegaIds.hashCode() : 0;
+		result = 31 * result + (ncbiIds != null ? ncbiIds.hashCode() : 0);
+		result = 31 * result + (ccdsIds != null ? ccdsIds.hashCode() : 0);
+		result = 31 * result + (seqRegionId != null ? seqRegionId.hashCode() : 0);
+		result = 31 * result + seqRegionStart;
+		result = 31 * result + seqRegionEnd;
+		result = 31 * result + (xrefs != null ? xrefs.hashCode() : 0);
+		result = 31 * result + (impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0);
 		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
 		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerSymbolLowercase != null ? markerSymbolLowercase.hashCode() : 0);
 		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
 		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
 		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (markerSynonymLowercase != null ? markerSynonymLowercase.hashCode() : 0);
 		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
+		result = 31 * result + (ensemblGeneIds != null ? ensemblGeneIds.hashCode() : 0);
 		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
 		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
 		result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
@@ -2181,6 +2270,7 @@ public class GeneDTO {
 		result = 31 * result + (hasQc != null ? hasQc.hashCode() : 0);
 		result = 31 * result + (legacy_phenotype_status != null ? legacy_phenotype_status.hashCode() : 0);
 		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (alleleAccessionIds != null ? alleleAccessionIds.hashCode() : 0);
 		result = 31 * result + (imitsEsCellStatus != null ? imitsEsCellStatus.hashCode() : 0);
 		result = 31 * result + (esCellStatus != null ? esCellStatus.hashCode() : 0);
 		result = 31 * result + (imitsMouseStatus != null ? imitsMouseStatus.hashCode() : 0);
@@ -2191,7 +2281,14 @@ public class GeneDTO {
 		result = 31 * result + (p_value != null ? p_value.hashCode() : 0);
 		result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
 		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
+		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
 		result = 31 * result + (mpTermDefinition != null ? mpTermDefinition.hashCode() : 0);
+		result = 31 * result + (maId != null ? maId.hashCode() : 0);
+		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
+		result = 31 * result + (maTermSynonym != null ? maTermSynonym.hashCode() : 0);
+		result = 31 * result + (maTermDefinition != null ? maTermDefinition.hashCode() : 0);
+		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
+		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
 		result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
 		result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
@@ -2205,8 +2302,13 @@ public class GeneDTO {
 		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
 		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
 		result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
 		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaTermSynonym != null ? inferredSelectedTopLevelMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredChildMaId != null ? inferredChildMaId.hashCode() : 0);
+		result = 31 * result + (inferredChildMaTerm != null ? inferredChildMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredChildMaTermSynonym != null ? inferredChildMaTermSynonym.hashCode() : 0);
 		result = 31 * result + (type != null ? type.hashCode() : 0);
 		result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
 		result = 31 * result + (diseaseSource != null ? diseaseSource.hashCode() : 0);
@@ -2233,29 +2335,157 @@ public class GeneDTO {
 		result = 31 * result + (text != null ? text.hashCode() : 0);
 		result = 31 * result + (autoSuggest != null ? autoSuggest.hashCode() : 0);
 		result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (goTermIds != null ? goTermIds.hashCode() : 0);
+		result = 31 * result + (goTermNames != null ? goTermNames.hashCode() : 0);
+		result = 31 * result + (goTermDefs != null ? goTermDefs.hashCode() : 0);
+		result = 31 * result + (goTermEvids != null ? goTermEvids.hashCode() : 0);
+		result = 31 * result + (goTermDomains != null ? goTermDomains.hashCode() : 0);
+		result = 31 * result + (goCount != null ? goCount.hashCode() : 0);
+		result = 31 * result + (go_uniprot != null ? go_uniprot.hashCode() : 0);
+		result = 31 * result + (evidCodeRank != null ? evidCodeRank.hashCode() : 0);
+		result = 31 * result + (uniprotHumanCanonical != null ? uniprotHumanCanonical.hashCode() : 0);
+		result = 31 * result + (uniprotMouseCanonical != null ? uniprotMouseCanonical.hashCode() : 0);
+		result = 31 * result + (pfama_jsons != null ? pfama_jsons.hashCode() : 0);
+		result = 31 * result + (scdb_ids != null ? scdb_ids.hashCode() : 0);
+		result = 31 * result + (scdb_links != null ? scdb_links.hashCode() : 0);
+		result = 31 * result + (clan_ids != null ? clan_ids.hashCode() : 0);
+		result = 31 * result + (clan_accs != null ? clan_accs.hashCode() : 0);
+		result = 31 * result + (clan_descs != null ? clan_descs.hashCode() : 0);
+		result = 31 * result + (pfama_ids != null ? pfama_ids.hashCode() : 0);
+		result = 31 * result + (pfama_accs != null ? pfama_accs.hashCode() : 0);
+		result = 31 * result + (pfama_go_ids != null ? pfama_go_ids.hashCode() : 0);
+		result = 31 * result + (pfama_go_terms != null ? pfama_go_terms.hashCode() : 0);
+		result = 31 * result + (pfama_go_cats != null ? pfama_go_cats.hashCode() : 0);
+		result = 31 * result + (isEmbryoDataAvailable ? 1 : 0);
 		return result;
 	}
 
-
 	@Override
 	public String toString() {
-		return String
-				.format("GeneDTO [impcNovelPredictedInLocus=%s, selectedTopLevelMaId=%s, selectedTopLevelMaTermSynonym=%s, mgiPredictedKnownGene=%s, dataType=%s, mgiAccessionId=%s, markerSymbol=%s, humanGeneSymbol=%s, markerName=%s, markerSynonym=%s, markerType=%s, imitsPhenotypeStarted=%s, imitsPhenotypeComplete=%s, imitsPhenotypeStatus=%s, status=%s, latestEsCellStatus=%s, latestMouseStatus=%s, latestPhenotypeStatus=%s, latestProjectStatus=%s, latestProductionCentre=%s, latestPhenotypingCentre=%s, diseaseHumanPhenotypes=%s, hasQc=%s, legacy_phenotype_status=%s, alleleName=%s, alleleAccessionIds=%s, imitsEsCellStatus=%s, esCellStatus=%s, imitsMouseStatus=%s, mouseStatus=%s, phenotypeStatus=%s, productionCentre=%s, phenotypingCentre=%s, p_value=%s, mpId=%s, mpTerm=%s, mpTermSynonym=%s, mpTermDefinition=%s, maId=%s, maTerm=%s, maTermSynonym=%s, maTermDefinition=%s, hpId=%s, hpTerm=%s, childMpId=%s, childMpTerm=%s, childMpTermSynonym=%s, topLevelMpId=%s, topLevelMpTerm=%s, topLevelMpTermSynonym=%s, topLevelMpDefinition=%s, intermediateMpId=%s, intermediateMpTerm=%s, intermediateMpTermSynonym=%s, ontologySubset=%s, inferredMaId=%s, inferredMaTerm=%s, inferredMaTermSynonym=%s, inferredSelectedTopLevelMaId=%s, inferredSelectedTopLevelMaTerm=%s, inferredSelectedTopLevelMaTermSynonym=%s, inferredChildMaId=%s, inferredChildMaTerm=%s, inferredChildMaTermSynonym=%s, type=%s, diseaseId=%s, diseaseSource=%s, diseaseTerm=%s, diseaseAlts=%s, diseaseClasses=%s, humanCurated=%s, mouseCurated=%s, mgiPredicted=%s, impcPredicted=%s, mgiPredictedInLocus=%s, impcPredictedInLocus=%s, pipelineName=%s, pipelineStableId=%s, procedureName=%s, procedureStableId=%s, parameterName=%s, parameterStableId=%s, procParamName=%s, procParamStableId=%s, expName=%s, subtype=%s, annotatedHigherLevelMpTermName=%s, text=%s, autoSuggest=%s, selectedTopLevelMaTerm=%s, goTermIds=%s, goTermNames=%s, goTermDefs=%s, goTermEvids=%s, goTermDomains=%s, uniprotAccs=%s, pfama_jsons=%s, scdb_ids=%s, scdb_links=%s, clan_ids=%s, clan_accs=%s, clan_descs=%s, pfama_ids=%s, pfama_accs=%s, pfama_go_ids=%s, pfama_go_terms=%s, pfama_go_cats=%s]",
-						impcNovelPredictedInLocus, selectedTopLevelMaId, selectedTopLevelMaTermSynonym, mgiPredictedKnownGene, dataType, mgiAccessionId,
-						markerSymbol, humanGeneSymbol, markerName, markerSynonym, markerType, imitsPhenotypeStarted, imitsPhenotypeComplete,
-						imitsPhenotypeStatus, status, latestEsCellStatus, latestMouseStatus, latestPhenotypeStatus, latestProjectStatus,
-						latestProductionCentre, latestPhenotypingCentre, diseaseHumanPhenotypes, hasQc, legacy_phenotype_status, alleleName,
-						alleleAccessionIds, imitsEsCellStatus, esCellStatus, imitsMouseStatus, mouseStatus, phenotypeStatus, productionCentre,
-						phenotypingCentre, p_value, mpId, mpTerm, mpTermSynonym, mpTermDefinition, maId, maTerm, maTermSynonym, maTermDefinition, hpId, hpTerm,
-						childMpId, childMpTerm, childMpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, topLevelMpDefinition,
-						intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, ontologySubset, inferredMaId, inferredMaTerm, inferredMaTermSynonym,
-						inferredSelectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaTermSynonym, inferredChildMaId,
-						inferredChildMaTerm, inferredChildMaTermSynonym, type, diseaseId, diseaseSource, diseaseTerm, diseaseAlts, diseaseClasses,
-						humanCurated, mouseCurated, mgiPredicted, impcPredicted, mgiPredictedInLocus, impcPredictedInLocus, pipelineName, pipelineStableId,
-						procedureName, procedureStableId, parameterName, parameterStableId, procParamName, procParamStableId, expName, subtype,
-						annotatedHigherLevelMpTermName, text, autoSuggest, selectedTopLevelMaTerm, goTermIds, goTermNames, goTermDefs, goTermEvids,
-						goTermDomains, uniprotAccs, pfama_jsons, scdb_ids, scdb_links, clan_ids, clan_accs, clan_descs, pfama_ids, pfama_accs, pfama_go_ids,
-						pfama_go_terms, pfama_go_cats);
+		return "GeneDTO{" +
+				"vegaIds=" + vegaIds +
+				", ncbiIds=" + ncbiIds +
+				", ccdsIds=" + ccdsIds +
+				", seqRegionId='" + seqRegionId + '\'' +
+				", seqRegionStart=" + seqRegionStart +
+				", seqRegionEnd=" + seqRegionEnd +
+				", xrefs=" + xrefs +
+				", impcNovelPredictedInLocus=" + impcNovelPredictedInLocus +
+				", selectedTopLevelMaId=" + selectedTopLevelMaId +
+				", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
+				", mgiPredictedKnownGene=" + mgiPredictedKnownGene +
+				", dataType='" + dataType + '\'' +
+				", mgiAccessionId='" + mgiAccessionId + '\'' +
+				", markerSymbol='" + markerSymbol + '\'' +
+				", markerSymbolLowercase='" + markerSymbolLowercase + '\'' +
+				", humanGeneSymbol=" + humanGeneSymbol +
+				", markerName='" + markerName + '\'' +
+				", markerSynonym=" + markerSynonym +
+				", markerSynonymLowercase=" + markerSynonymLowercase +
+				", markerType='" + markerType + '\'' +
+				", ensemblGeneIds=" + ensemblGeneIds +
+				", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
+				", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
+				", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
+				", status='" + status + '\'' +
+				", latestEsCellStatus='" + latestEsCellStatus + '\'' +
+				", latestMouseStatus='" + latestMouseStatus + '\'' +
+				", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +
+				", latestProjectStatus='" + latestProjectStatus + '\'' +
+				", latestProductionCentre=" + latestProductionCentre +
+				", latestPhenotypingCentre=" + latestPhenotypingCentre +
+				", diseaseHumanPhenotypes=" + diseaseHumanPhenotypes +
+				", hasQc=" + hasQc +
+				", legacy_phenotype_status=" + legacy_phenotype_status +
+				", alleleName=" + alleleName +
+				", alleleAccessionIds=" + alleleAccessionIds +
+				", imitsEsCellStatus='" + imitsEsCellStatus + '\'' +
+				", esCellStatus=" + esCellStatus +
+				", imitsMouseStatus='" + imitsMouseStatus + '\'' +
+				", mouseStatus=" + mouseStatus +
+				", phenotypeStatus=" + phenotypeStatus +
+				", productionCentre=" + productionCentre +
+				", phenotypingCentre=" + phenotypingCentre +
+				", p_value=" + p_value +
+				", mpId=" + mpId +
+				", mpTerm=" + mpTerm +
+				", mpTermSynonym=" + mpTermSynonym +
+				", mpTermDefinition=" + mpTermDefinition +
+				", maId=" + maId +
+				", maTerm=" + maTerm +
+				", maTermSynonym=" + maTermSynonym +
+				", maTermDefinition=" + maTermDefinition +
+				", hpId=" + hpId +
+				", hpTerm=" + hpTerm +
+				", childMpId=" + childMpId +
+				", childMpTerm=" + childMpTerm +
+				", childMpTermSynonym=" + childMpTermSynonym +
+				", topLevelMpId=" + topLevelMpId +
+				", topLevelMpTerm=" + topLevelMpTerm +
+				", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
+				", topLevelMpDefinition=" + topLevelMpDefinition +
+				", intermediateMpId=" + intermediateMpId +
+				", intermediateMpTerm=" + intermediateMpTerm +
+				", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
+				", ontologySubset=" + ontologySubset +
+				", inferredMaId=" + inferredMaId +
+				", inferredMaTerm=" + inferredMaTerm +
+				", inferredMaTermSynonym=" + inferredMaTermSynonym +
+				", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId +
+				", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
+				", inferredSelectedTopLevelMaTermSynonym=" + inferredSelectedTopLevelMaTermSynonym +
+				", inferredChildMaId=" + inferredChildMaId +
+				", inferredChildMaTerm=" + inferredChildMaTerm +
+				", inferredChildMaTermSynonym=" + inferredChildMaTermSynonym +
+				", type=" + type +
+				", diseaseId=" + diseaseId +
+				", diseaseSource=" + diseaseSource +
+				", diseaseTerm=" + diseaseTerm +
+				", diseaseAlts=" + diseaseAlts +
+				", diseaseClasses=" + diseaseClasses +
+				", humanCurated=" + humanCurated +
+				", mouseCurated=" + mouseCurated +
+				", mgiPredicted=" + mgiPredicted +
+				", impcPredicted=" + impcPredicted +
+				", mgiPredictedInLocus=" + mgiPredictedInLocus +
+				", impcPredictedInLocus=" + impcPredictedInLocus +
+				", pipelineName=" + pipelineName +
+				", pipelineStableId=" + pipelineStableId +
+				", procedureName=" + procedureName +
+				", procedureStableId=" + procedureStableId +
+				", parameterName=" + parameterName +
+				", parameterStableId=" + parameterStableId +
+				", procParamName=" + procParamName +
+				", procParamStableId=" + procParamStableId +
+				", expName=" + expName +
+				", subtype=" + subtype +
+				", annotatedHigherLevelMpTermName=" + annotatedHigherLevelMpTermName +
+				", text=" + text +
+				", autoSuggest=" + autoSuggest +
+				", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
+				", goTermIds=" + goTermIds +
+				", goTermNames=" + goTermNames +
+				", goTermDefs=" + goTermDefs +
+				", goTermEvids=" + goTermEvids +
+				", goTermDomains=" + goTermDomains +
+				", goCount=" + goCount +
+				", go_uniprot=" + go_uniprot +
+				", evidCodeRank=" + evidCodeRank +
+				", uniprotHumanCanonical='" + uniprotHumanCanonical + '\'' +
+				", uniprotMouseCanonical='" + uniprotMouseCanonical + '\'' +
+				", pfama_jsons=" + pfama_jsons +
+				", scdb_ids=" + scdb_ids +
+				", scdb_links=" + scdb_links +
+				", clan_ids=" + clan_ids +
+				", clan_accs=" + clan_accs +
+				", clan_descs=" + clan_descs +
+				", pfama_ids=" + pfama_ids +
+				", pfama_accs=" + pfama_accs +
+				", pfama_go_ids=" + pfama_go_ids +
+				", pfama_go_terms=" + pfama_go_terms +
+				", pfama_go_cats=" + pfama_go_cats +
+				", isEmbryoDataAvailable=" + isEmbryoDataAvailable +
+				'}';
 	}
 
 
