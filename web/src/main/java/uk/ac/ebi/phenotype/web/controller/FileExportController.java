@@ -333,7 +333,7 @@ public class FileExportController {
 		}
 
 		Workbook wb = null;
-		List<String> dataRows = new ArrayList();
+		List<String> dataRows = new ArrayList<String>();
 		// Default to exporting 10 rows
 		length = length != null ? length : 10;
 
@@ -391,18 +391,6 @@ public class FileExportController {
 
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
 
-	}
-
-	private int parseMaxRow(String solrParams) {
-		String[] paramsList = solrParams.split("&");
-		int facetCount = 0;
-		for (String str : paramsList) {
-			if (str.startsWith("facetCount=")) {
-				String[] vals = str.split("=");
-				facetCount = Integer.parseInt(vals[1]);
-			}
-		}
-		return facetCount;
 	}
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
