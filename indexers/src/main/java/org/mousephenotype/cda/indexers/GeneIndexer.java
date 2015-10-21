@@ -200,8 +200,11 @@ public class GeneIndexer extends AbstractIndexer {
                 gene.setGoCount(allele.getGoCount());
                 gene.setGoUniprot(allele.getGoUniprot());
 
+                // mouse and human uniprot canonicals
+                gene.setUuniprotMouseCanonicalAcc(allele.getUuniprotMouseCanonicalAcc());
+                gene.setUuniprotHumanCanonicalAcc(allele.getUuniprotHumanCanonicalAcc());
+
                 // pfam stuff
-                gene.setUniprotAccs(allele.getUniprotAccs());
                 gene.setScdbIds(allele.getScdbIds());
                 gene.setScdbLinks(allele.getScdbLinks());
                 gene.setClanIds(allele.getClanIds());
