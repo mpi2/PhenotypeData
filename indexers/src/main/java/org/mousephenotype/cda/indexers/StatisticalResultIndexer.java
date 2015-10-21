@@ -636,6 +636,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         if (r.getString("dependent_variable").equals("IMPC_VIA_001_001")) {
             doc.setMaleMutantCount(r.getInt("male_mutants"));
             doc.setFemaleMutantCount(r.getInt("female_mutants"));
+
+	        // Viability parameter significant for both sexes
+	        doc.setPhenotypeSex(Arrays.asList("female", "male"));
+
+        } else if (r.getString("dependent_variable").equals("IMPC_FER_001_001")){
+	        // Fertility significant for Males
+	        doc.setPhenotypeSex(Arrays.asList("male"));
+
+        } else if (r.getString("dependent_variable").equals("IMPC_FER_019_001")){
+	        // Fertility significant for females
+	        doc.setPhenotypeSex(Arrays.asList("female"));
+
         }
 
         // Impress pipeline data details
