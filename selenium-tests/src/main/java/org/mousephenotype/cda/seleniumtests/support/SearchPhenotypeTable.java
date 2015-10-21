@@ -87,15 +87,17 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             , COL_INDEX_PHENOTYPE_ID_LINK
             , COL_INDEX_DEFINITION
             , COL_INDEX_SYNONYMS
+//            , COL_INDEX_TOP_LEVEL_MP_TERM                                     // Not found in page.
             , COL_INDEX_COMP_MAPPED_HP_TERMS
             , COL_INDEX_PHENOTYPING_CALLS
         };
         final Integer[] downloadColumns = {
               DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_TERM
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID
-            , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID_LINK
+            , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION
             , DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
+//            , DownloadSearchMapPhenotypes.COL_INDEX_TOP_LEVEL_MP_TERM         // Not found in page.
             , DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPING_CALLS
         };
