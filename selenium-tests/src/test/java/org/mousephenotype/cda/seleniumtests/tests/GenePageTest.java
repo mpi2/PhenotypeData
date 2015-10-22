@@ -515,7 +515,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         String message;
         Date start = new Date();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of 1 records.");
+        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of 1 record.");
 
         String geneId = "MGI:104874";
         String target = baseUrl + "/genes/" + geneId;
@@ -566,20 +566,20 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         status = new PageStatus();
         for (String expectedSectionTitle : expectedSectionTitles) {
             if ( ! actualSectionTitles.contains(expectedSectionTitle)) {
-                message = "Section Titles (values): [FAILED]. Mismatch: Expected section named '" + expectedSectionTitle + "' but wasn't found.";
+                message = "\tError: Mismatch: Expected section named '" + expectedSectionTitle + "' but wasn't found.";
                 status.addError(message);
                 sectionErrorCount++;
             }
         }
         for (String actualSectionTitle : actualSectionTitles) {
             if ( ! expectedSectionTitles.contains(actualSectionTitle)) {
-                message = "Section Titles (values): [FAILED]. Mismatch: Found section named '" + actualSectionTitle + "' but wasn't expected.";
+                message = "\tError: Mismatch: Found section named '" + actualSectionTitle + "' but wasn't expected.";
                 status.addError(message);
                 sectionErrorCount++;
             } else {
                 numOccurrences = testUtils.count(actualSectionTitles, actualSectionTitle);
                 if (numOccurrences > 1) {
-                    message = "Section Titles (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualSectionTitle + "' were found.";
+                    message = "\tError: " + numOccurrences + " occurrences of '" + actualSectionTitle + "' were found.";
                     status.addError(message);
                     sectionErrorCount++;
                 }
@@ -599,6 +599,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
             // Add missing ones to error list.
             errorList.addAll(status.getErrorMessages());
+            System.out.println("Section Titles (values): [FAILED]\n");
         }
 
         // Buttons: count and labels
@@ -624,20 +625,20 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         status = new PageStatus();
         for (String expectedSectionTitle : expectedButtonLabels) {
             if ( ! actualButtonLabels.contains(expectedSectionTitle)) {
-                message = "Buttons (values): [FAILED]. Mismatch: Expected button named '" + expectedSectionTitle + "' but wasn't found.";
+                message = "\tError: Mismatch: Expected button named '" + expectedSectionTitle + "' but wasn't found.";
                 status.addError(message);
                 sectionErrorCount++;
             }
         }
         for (String actualButtonLabel : actualButtonLabels) {
             if ( ! expectedButtonLabels.contains(actualButtonLabel)) {
-                message = "Buttons (values): [FAILED]. Mismatch: Found button named '" + actualButtonLabel + "' but wasn't expected.";
+                message = "\tError: Mismatch: Found button named '" + actualButtonLabel + "' but wasn't expected.";
                 status.addError(message);
                 sectionErrorCount++;
             } else {
                 numOccurrences = TestUtils.count(actualButtonLabels, actualButtonLabel);
                 if (numOccurrences > 1) {
-                    message = "Buttons (values): [FAILED]. " + numOccurrences + " occurrences of '" + actualButtonLabel + "' were found.";
+                    message = "\tError: " + numOccurrences + " occurrences of '" + actualButtonLabel + "' were found.";
                     status.addError(message);
                     sectionErrorCount++;
                 }
@@ -657,9 +658,10 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
             // Add missing ones to error list.
             errorList.addAll(status.getErrorMessages());
+            System.out.println("Buttons (values): [FAILED]\n");
         }
 
-        // Enabled Abnormalities: count and strings. As of 15-September-2015, there should be at least:
+        // Significant Abnormalities: count and values. As of 15-September-2015, there should be at least:
         //   8 - tested but not significant (blue)
         //   5 - significant (orange)
         // ... count
@@ -686,7 +688,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
                       , "vision/eye phenotype"
                 });
 
-        // Validate that there are at least 5 expectedSignificant icons.
+        // Significant Abnormalities: count
         List<String> actualSignificantList = genePage.getSignificantAbnormalities();
         if (actualSignificantList.size() < expectedSignificantList.size()) {
             sectionErrorCount++;
@@ -697,7 +699,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
             System.out.println("Significant Abnormalities (count): [PASSED]\n");
         }
 
-        // Validate that the sum of expectedSignificant and expectedNotSignificant are at least the sum of the expected list sizes.
+        // Sum of Significant and Non-Significant Abnormalities (count): validate that the sum of expectedSignificant and expectedNotSignificant are at least the sum of the expected list sizes.
         List<String> actualNotSignificantList = genePage.getNotSignificantAbnormalities();
         if (actualSignificantList.size() + actualNotSignificantList.size() < expectedSignificantList.size() + expectedNotSignificantList.size()) {
             sectionErrorCount++;
@@ -708,53 +710,68 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
             status.addError(message);
             System.out.println(message + "\n");
         } else {
-            System.out.println("Not Significant Abnormalities (count): [PASSED]\n");
+            System.out.println("Sum of Significant and Non-Significant Abnormalities (count): [PASSED]\n");
         }
 
-        // Validate the actual Significant abnormality values against the expected ones.
+        // Significant Abnormalities (values)
+        boolean hasErrors = false;
         for (String actualSignificant : actualSignificantList) {
             if ( ! expectedSignificantList.contains(actualSignificant)) {
-                message = "Significant Abnormalities (values): [FAILED]. Mismatch: Expected significant abnormality named '" + actualSignificant + "' but wasn't found.";
+                message = "\tError: Mismatch: Expected significant abnormality named '" + actualSignificant + "' but wasn't found.";
                 status.addError(message);
                 sectionErrorCount++;
+                hasErrors = true;
             }
         }
+        if (hasErrors) {
+            System.out.println("Significant Abnormalities (values): [FAILED]\n");
+        } else {
+            System.out.println("Significant Abnormalities (values): [PASSED]\n");
+        }
 
-        // Validate that the actual NotSignificant abnormality values are in either the expectedSignificantList or
+        // Not Significant Abnormalities (values): Validate that the actual NotSignificant abnormality values are in either the expectedSignificantList or
         // the expectedNonSignificantList.
         List<String> both = new ArrayList<>();
         both.addAll(expectedSignificantList);
         both.addAll(expectedNotSignificantList);
+        hasErrors = false;
         for (String actualNotSignificant : actualNotSignificantList) {
             if ( ! both.contains(actualNotSignificant)) {
-                message = "Not Significant Abnormalities (values): [FAILED]. Mismatch: Couldn't find actual Not Significant abnormality named '" + actualNotSignificant + "'";
+                message = "\tError: Mismatch: Couldn't find actual Not Significant abnormality named '" + actualNotSignificant + "'";
                 status.addError(message);
                 sectionErrorCount++;
+                hasErrors = true;
             }
         }
-
-        if (sectionErrorCount == 0) {
-            System.out.println("Significant and Not Significant Abnormalities (values): [PASSED]\n");
+        if (hasErrors) {
+            System.out.println("Not Significant Abnormalities (values): [FAILED]\n");
         } else {
-            // Dump out all Significant abnormalities.
-            for (int i = 0; i < actualSignificantList.size(); i++) {
-                if (i == 0)
-                    System.out.println("Actual Significant List:");
-                String actualAbnormality = actualSignificantList.get(i);
-                System.out.println("\t[" + i + "]: " + actualAbnormality);
-            }
-
-            // Dump out all Not Significant abnormalities.
-            for (int i = 0; i < actualNotSignificantList.size(); i++) {
-                if (i == 0)
-                    System.out.println("Actual Not Significant List:");
-                String actualAbnormality = actualNotSignificantList.get(i);
-                System.out.println("\t[" + i + "]: " + actualAbnormality);
-            }
-
-            // Add missing titles to error list.
-            errorList.addAll(status.getErrorMessages());
+            System.out.println("Not Significant Abnormalities (values): [PASSED]\n");
         }
+
+//        if (sectionErrorCount == 0) {
+////            System.out.println("Significant and Not Significant Abnormalities (values): [PASSED]\n");
+//        } else {
+////            System.out.println("Significant and Not Significant Abnormalities (values): [FAILED]\n");
+//            // Dump out all Significant abnormalities.
+//            for (int i = 0; i < actualSignificantList.size(); i++) {
+//                if (i == 0)
+//                    System.out.println("Actual Significant List:");
+//                String actualAbnormality = actualSignificantList.get(i);
+//                System.out.println("\t[" + i + "]: " + actualAbnormality);
+//            }
+//
+//            // Dump out all Not Significant abnormalities.
+//            for (int i = 0; i < actualNotSignificantList.size(); i++) {
+//                if (i == 0)
+//                    System.out.println("Actual Not Significant List:");
+//                String actualAbnormality = actualNotSignificantList.get(i);
+//                System.out.println("\t[" + i + "]: " + actualAbnormality);
+//            }
+//
+//            // Add missing titles to error list.
+//            errorList.addAll(status.getErrorMessages());
+//        }
 
         // Phenotype Associated Images and Expression sections: count. Since the data can
         // change over time, don't compare individual strings; just look for at least a count of 12.
@@ -784,6 +801,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
             // Dump out the missing/duplicated ones.
             System.out.println(status.toStringErrorMessages());
+            System.out.println("Associated Image Sections (values): [FAILED]\n");
         }
 
         //test that the order mouse and es cells content from viveks team exists on the page
@@ -793,13 +811,14 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         if (text.length() < 100) {
             message = "Order Mouse content: [FAILED]. less than 100 characters: \n\t'" + text + "'";
             errorList.add(message);
+            System.out.println(message + "\n");
             sectionErrorCount++;
         } else {
             System.out.println("Order Mouse content: [PASSED]\n");
         }
 
         if ((errorList.isEmpty() && (exceptionList.isEmpty()))) {
-            successList.add("Akt2 test: [PASSED]");
+            successList.add("Akt2 test: [PASSED]\n");
         }
 
         testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, 1);
