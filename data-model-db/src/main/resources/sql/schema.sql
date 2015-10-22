@@ -1428,7 +1428,7 @@ CREATE TABLE stats_rrplus_results (
   genotype_stderr_estimate         DOUBLE,
   genotype_effect_pvalue           VARCHAR(200),
   genotype_percentage_change       VARCHAR(200),
-  gender_parameter_estimate        DOUBLE,
+  gender_parameter_estimate        VARCHAR(200),
   gender_stderr_estimate           DOUBLE,
   gender_effect_pvalue             DOUBLE,
   weight_parameter_estimate        DOUBLE,
