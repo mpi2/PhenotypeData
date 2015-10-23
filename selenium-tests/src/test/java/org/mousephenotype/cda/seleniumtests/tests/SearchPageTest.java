@@ -959,8 +959,8 @@ public class SearchPageTest {
          // Wait for dropdown list to appear with 'blood glucose'.
         String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
-        if ( ! element.getText().contains("fasting glucose")) {
-            status.addError("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
+        if (( ! element.getText().contains("fasting")) && ( ! element.getText().contains("glucose"))){
+            status.addError("ERROR: Expected the terms 'fasting' and 'glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
             element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']")));

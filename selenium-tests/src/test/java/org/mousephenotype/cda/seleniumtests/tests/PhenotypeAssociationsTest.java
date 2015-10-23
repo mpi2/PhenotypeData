@@ -198,19 +198,20 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int i = 0;
         for (String geneId : geneIds) {
-if (i == 0) geneId = "MGI:1306779";
+if (i == 1) geneId = "MGI:1306779";
             if (i >= targetCount) {
                 break;
             }
 
-            status.add(processRow(wait, geneId, i));
+            PageStatus localStatus = processRow(wait, geneId, i);
+            if ( ! localStatus.hasErrors()) {
+                successList.add("Success");
+            }
+            status.add(localStatus);
+
             i++;
 
             commonUtils.sleep(threadWaitInMilliseconds);
-        }
-
-        if ( ! status.hasErrors()) {
-            successList.add("Success");
         }
 
         testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, geneIds.size());
