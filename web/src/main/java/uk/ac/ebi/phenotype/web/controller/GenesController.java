@@ -270,6 +270,7 @@ public class GenesController {
 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
@@ -297,9 +298,7 @@ public class GenesController {
 
 		processPhenotypes(acc, model, "", request);
 
-		System.out.println("---- phenotypeSummaryObjects" + phenotypeSummaryObjects );
-		System.out.println("---- mpGroupsSignificant" + mpGroupsSignificant);
-		
+		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
@@ -476,7 +475,7 @@ public class GenesController {
 		}
 
 		// This is a map because we need to support lookups
-		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
+		HashMap<Integer, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
@@ -484,7 +483,6 @@ public class GenesController {
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
 			// Collapse rows on sex			
 			if (phenotypes.containsKey(pr.hashCode())) {
-
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
 				for (String s : pr.getSexes()) {
@@ -497,7 +495,7 @@ public class GenesController {
 
 			phenotypes.put(pr.hashCode(), pr);
 		}
-
+		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
