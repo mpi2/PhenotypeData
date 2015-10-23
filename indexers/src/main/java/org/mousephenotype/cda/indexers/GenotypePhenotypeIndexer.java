@@ -300,6 +300,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
                 doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
+    if (!r.getString("ontology_term_id").startsWith("MP:")) {
+        System.out.println("TERM: " + r.getString("ontology_term_id"));
+        System.out.println("PIPELINE: " + doc.getPipelineName());
+        System.out.println("PROCEDURE: " + doc.getProcedureName());
+        System.out.println("PARAMETER: " + doc.getParameterName());
+    }
                 // MP association
                 if ( r.getString("ontology_term_id").startsWith("MP:") ) {
                     // some hard-coded stuff
@@ -333,6 +339,20 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpathTermName(r.getString("ontology_term_name"));
                 }
 
+                // EMAP association
+                else if ( r.getString("ontology_term_id").startsWith("EMAP:") ){
+                    // some hard-coded stuff
+                    doc.setOntologyDbId(14);
+                    doc.setAssertionType("manual");
+                    doc.setAssertionTypeId("ECO:0000218");
+
+                    doc.setMpathTermId(r.getString("ontology_term_id"));
+                    doc.setMpathTermName(r.getString("ontology_term_name"));
+                }
+                else {
+                    logger.error("Found unknown ontology term: " + r.getString("ontology_term_id"));
+                }
+
                 // set life stage by looking up a combination key of
                 // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
                 // The value is developmental_stage_acc
@@ -361,6 +381,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if (count % 1000 == 0) {
                     logger.info(" added {} beans", count);
                 }
+
 
             }
 
