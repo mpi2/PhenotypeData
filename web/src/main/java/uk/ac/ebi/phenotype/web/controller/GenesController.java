@@ -476,7 +476,7 @@ public class GenesController {
 		}
 
 		// This is a map because we need to support lookups
-		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
+		HashMap<Integer, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
@@ -484,7 +484,7 @@ public class GenesController {
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
 			// Collapse rows on sex			
 			if (phenotypes.containsKey(pr.hashCode())) {
-
+				System.out.println("pr.hashCode() " + pr.hashCode());
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
 				for (String s : pr.getSexes()) {
@@ -493,10 +493,12 @@ public class GenesController {
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
 
-			}
+			} else {System.out.println("No");}
 
 			phenotypes.put(pr.hashCode(), pr);
 		}
+		
+		System.out.println("PHENOTYPES  KEYSET " + phenotypes.keySet().size() );
 
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
