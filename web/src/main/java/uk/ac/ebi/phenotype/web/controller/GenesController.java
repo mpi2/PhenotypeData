@@ -270,6 +270,7 @@ public class GenesController {
 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
@@ -297,9 +298,7 @@ public class GenesController {
 
 		processPhenotypes(acc, model, "", request);
 
-		System.out.println("---- phenotypeSummaryObjects" + phenotypeSummaryObjects );
-		System.out.println("---- mpGroupsSignificant" + mpGroupsSignificant);
-		
+		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
@@ -484,7 +483,6 @@ public class GenesController {
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
 			// Collapse rows on sex			
 			if (phenotypes.containsKey(pr.hashCode())) {
-				System.out.println("pr.hashCode() " + pr.hashCode());
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
 				for (String s : pr.getSexes()) {
@@ -493,13 +491,11 @@ public class GenesController {
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
 
-			} else {System.out.println("No");}
+			}
 
 			phenotypes.put(pr.hashCode(), pr);
 		}
 		
-		System.out.println("PHENOTYPES  KEYSET " + phenotypes.keySet().size() );
-
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
