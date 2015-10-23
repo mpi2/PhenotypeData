@@ -548,7 +548,7 @@
                                 </c:choose>
 
                                 <c:if
-                                        test='${hasPreQcData || summaryNumber > 0}'>
+                                        test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
                                     <!-- Associations table -->
                                     <h5>Filter this table</h5>
 
