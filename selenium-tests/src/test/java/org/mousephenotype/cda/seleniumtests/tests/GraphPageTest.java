@@ -47,11 +47,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -68,7 +69,6 @@ import static org.junit.Assert.assertTrue;
 public class GraphPageTest {
 
     private CommonUtils commonUtils = new CommonUtils();
-    private WebDriver driver;
     protected TestUtils testUtils = new TestUtils();
     private WebDriverWait wait;
 
@@ -80,6 +80,13 @@ public class GraphPageTest {
     private int thread_wait_in_ms = THREAD_WAIT_IN_MILLISECONDS;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
+    @Autowired
+    WebDriver driver;
 
     @Autowired
     Environment env;
@@ -106,17 +113,9 @@ public class GraphPageTest {
     @Autowired
     PreQcService preQcService;
 
-    @Autowired
-    protected SeleniumWrapper wrapper;
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
 
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
-
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
 
     @Before
     public void setup() {
@@ -125,7 +124,7 @@ public class GraphPageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -203,19 +202,27 @@ public class GraphPageTest {
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-
+//target = "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/genes/MGI:2684058";
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
-            genePage.selectGenesLength(100);
+
             List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
+//graphUrls.clear();graphUrls.add("http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2684058&allele_accession_id=EUROALL:22&zygosity=homozygote&parameter_stable_id=ESLIM_009_001_704&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS");
 
             // Skip gene pages without graphs.
-            if (graphUrls.isEmpty())
+            if ((graphUrls.isEmpty()) || ( ! genePage.hasGraphs()))
                 continue;
+            genePage.selectGenesLength(100);
+
             try {
+                logger.info("GENE PAGE URL: " + target);
+                logger.info("GRAPH PAGE URL: " + graphUrls.get(0));
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
                 PageStatus status = graphPage.validate();
                 if ( ! status.hasErrors()) {
                     successCount++;
+                } else {
+                    logger.warn("FAILED GENE PAGE URL: " + target);
+                    logger.warn("FAILED GRAPH PAGE URL: " + graphUrls.get(0));
                 }
                 statuses.add(status);
 
@@ -237,8 +244,6 @@ public class GraphPageTest {
 
 
     // Tests known graph URLs that have historically been broken or are interesting cases, such as 2 graphs per page.
-    //
-    // NOTE: This test is configured to run on either BETA, DEV. If the profile is neither, then the test is skipped.
     @Test
 //@Ignore
     public void testKnownGraphs() throws TestException {

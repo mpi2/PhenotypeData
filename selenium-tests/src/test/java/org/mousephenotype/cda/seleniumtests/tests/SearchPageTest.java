@@ -69,7 +69,6 @@ import static org.junit.Assert.fail;
 public class SearchPageTest {
 
     private CommonUtils commonUtils = new CommonUtils();
-    private WebDriver driver;
     protected TestUtils testUtils = new TestUtils();
     private WebDriverWait wait;
 
@@ -106,8 +105,19 @@ public class SearchPageTest {
         impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
     }
 
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
+    @Autowired
+    WebDriver driver;
+
     @Autowired
     protected GeneService geneService;
+
+    @NotNull
+    @Value("${internalSolrUrl}")
+    protected String solrUrl;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -116,21 +126,12 @@ public class SearchPageTest {
     @Autowired
     protected PhenotypePipelineDAO phenotypePipelineDAO;
 
-    @Autowired
-    protected SeleniumWrapper wrapper;
-
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
-
-    @NotNull
-    @Value("${internalSolrUrl}")
-    protected String solrUrl;
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
 
 
     @PostConstruct
     public void initialise() throws TestException {
-        driver = wrapper.getDriver();
 
         try {
             komp2Connection = komp2DataSource.getConnection();
@@ -147,7 +148,7 @@ public class SearchPageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -253,7 +254,7 @@ public class SearchPageTest {
                     logger.error(message);
                     status.addError(message);
                 } else if (facetCount == 0) {
-                    logger.warn("Skipping facet " + facet + " as it has no rows.");
+                    logger.info("Skipping facet " + facet + " as it has no rows.");
                 } else {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
@@ -959,8 +960,8 @@ public class SearchPageTest {
          // Wait for dropdown list to appear with 'blood glucose'.
         String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
-        if ( ! element.getText().contains("fasting glucose")) {
-            status.addError("ERROR: Expected 'fasting glucose' but found '" + element.getText() + "'");
+        if (( ! element.getText().contains("fasting")) && ( ! element.getText().contains("glucose"))){
+            status.addError("ERROR: Expected the terms 'fasting' and 'glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
             element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']")));

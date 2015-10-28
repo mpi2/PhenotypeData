@@ -95,7 +95,7 @@ public class AlleleIndexer extends AbstractIndexer {
     //private static Map<String, Set<String>> gene2GoUniprotLookup = new HashMap<>();
 
     // Map MGI accession id to longest Uniprot accession
-    private static Map<String, Set<String>> mgi2UniprotLookup = new HashMap<>();
+    private static Map<String, UniprotCanonical> mgi2UniprotLookup = new HashMap<>();
 
     // Uniprot to pfamA mapping
 	private static Map<String, Set<PfamAnnotations>> uniprotAccPfamAnnotLookup = new HashMap<>();
@@ -635,55 +635,67 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private void populateMgi2UniprotLookup() throws IOException, SQLException, ClassNotFoundException{
 
-    	// first we need to prepare a Map for Ensembl Gene Id -> MGI id
-		String komp2Qry = "select xref_acc, acc from xref where xref_acc like 'ENSMUSG%'";
-		Map<String, String> ensg2mgi = new HashMap<>();
+        //-- w/o haplotypes
+        String queryString = "WITH human AS " +
+                "(SELECT gce.accession, gce.entry_type, gce.name mod_id, upper(eg.gene_name) gene_name, gce.LENGTH, eg.ENSG_ID " +
+                "FROM sptr.GENE_CENTRIC_ENTRY gce, ENSEMBL_GENE eg " +
+                "WHERE gce.RELEASE IN " +
+                "   (SELECT max(release) release " +
+                "   FROM sptr.GENE_CENTRIC_ENTRY " +
+                "   WHERE tax_id = 9606 AND IS_CANONICAL = 1) " +
+                "   AND gce.TAX_ID = 9606 " +
+                "   AND gce.ACCESSION IN " +
+                "       (SELECT ACCESSION " +
+                "       FROM sptr.GENE_CENTRIC_ENTRY " +
+                "       WHERE RELEASE IN " +
+                "           (SELECT max(release) release FROM sptr.GENE_CENTRIC_ENTRY WHERE tax_id = 9606 AND IS_CANONICAL = 1) " +
+                "       AND tax_id = 9606 " +
+                "       AND IS_CANONICAL = 1) " +
+                "       AND gce.GENE_NAME_TYPE = 1 " +
+                "       AND gce.name = eg.mod_id " +
+                "       AND gce.tax_id = eg.tax_id), " +
+                "mouse AS " +
+                "(SELECT gce.accession, gce.entry_type, gce.name mod_id, upper(eg.gene_name) gene_name, gce.LENGTH, eg.ENSG_ID " +
+                "FROM sptr.GENE_CENTRIC_ENTRY gce, ENSEMBL_GENE eg " +
+                "WHERE gce.RELEASE IN " +
+                "   (SELECT max(release) release " +
+                "   FROM sptr.GENE_CENTRIC_ENTRY " +
+                "   WHERE tax_id = 9606 " +
+                "   AND IS_CANONICAL = 1) " +
+                "   AND gce.TAX_ID = 10090 " +
+                "   AND gce.ACCESSION IN " +
+                "       (SELECT ACCESSION FROM sptr.GENE_CENTRIC_ENTRY " +
+                "       WHERE RELEASE IN " +
+                "           (SELECT max(release) release FROM sptr.GENE_CENTRIC_ENTRY where tax_id = 9606 and IS_CANONICAL = 1) " +
+                "   AND tax_id = 10090 " +
+                "   AND IS_CANONICAL = 1) " +
+                "   AND gce.GENE_NAME_TYPE = 1 " +
+                "   AND gce.name = eg.mod_id AND gce.tax_id = eg.tax_id) " +
+                "SELECT DISTINCT h.accession h_acc, m.accession m_acc, h.gene_name symbol " +
+                "FROM human h, mouse m " +
+                "WHERE h.gene_name = m.gene_name " +
+                "ORDER BY h.gene_name";
 
-		try (PreparedStatement s = connection.prepareStatement(komp2Qry)) {
-            ResultSet resultSet = s.executeQuery();
-
-            while (resultSet.next()) {
-            	ensg2mgi.put(resultSet.getString("xref_acc"), resultSet.getString("acc"));
-            }
-	    }
-	    catch(Exception e) {
-            e.printStackTrace();
-	    }
-
-	    String queryString = "SELECT distinct name, accession "
-	    		+ "FROM sptr.GENE_CENTRIC_ENTRY "
-	    		+ "WHERE tax_id = 10090 "
-	    		//+ "AND IS_CANONICAL = 1 " (take all, including isoforms)
-	    		+ "AND release IN "
-	    		+ " (SELECT max(release) FROM sptr.GENE_CENTRIC_ENTRY where tax_id = 10090 and IS_CANONICAL = 1 ) ";
-
-	    Connection connUniprot = uniprotDataSource.getConnection();
-
+        Connection connUniprot = uniprotDataSource.getConnection();
 
 	    // take all isoforms of gene product mapped to uniprot (swissprot or trembl)
 	    try (PreparedStatement p = connUniprot.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
 
+            UniprotCanonical uc = new UniprotCanonical();
+
             while (resultSet.next()) {
-            	String geneLabel = resultSet.getString("name");
-            	String uniprotAcc = resultSet.getString("accession");
 
-            	if ( ensg2mgi.containsKey(geneLabel) ){
-            		// ensembl gene id to mgi_id conversion
-            		String mgiId = ensg2mgi.get(geneLabel);
+                String geneLabel = resultSet.getString("symbol");
 
-            		if ( ! mgi2UniprotLookup.containsKey(mgiId) ) {
-            			mgi2UniprotLookup.put(mgiId, new HashSet<String>());
-            		}
-            		mgi2UniprotLookup.get(mgiId).add(uniprotAcc);
-            	}
-            	else {
-            		// this would be either mgi id or mgi symbol
-            		if ( ! mgi2UniprotLookup.containsKey(geneLabel) ) {
-            			mgi2UniprotLookup.put(geneLabel, new HashSet<String>());
-            		}
-            		mgi2UniprotLookup.get(geneLabel).add(uniprotAcc);
-            	}
+                if ( ! mgi2UniprotLookup.containsKey(geneLabel) ) {
+                    mgi2UniprotLookup.put(geneLabel, new UniprotCanonical());
+                }
+                uc = mgi2UniprotLookup.get(geneLabel);
+
+                uc.setHumanCanonicalProteinAcc(resultSet.getString("h_acc"));
+                uc.setMouseCanonicalProteinAcc(resultSet.getString("m_acc"));
+
             }
 	    }
 	    catch(Exception e) {
@@ -692,6 +704,29 @@ public class AlleleIndexer extends AbstractIndexer {
 
 	}
 
+    class UniprotCanonical {
+
+        String human_canonical_protein_acc;
+        String mouse_canonical_protein_acc;
+
+
+        public String getHumanCanonicalProteinAcc() {
+            return human_canonical_protein_acc;
+        }
+
+        public void setHumanCanonicalProteinAcc(String human_canonical_protein_acc) {
+            this.human_canonical_protein_acc = human_canonical_protein_acc;
+        }
+
+        public String getMouseCanonicalProteinAcc() {
+            return mouse_canonical_protein_acc;
+        }
+
+        public void setMouseCanonicalProteinAcc(String mouse_canonical_protein_acc) {
+            this.mouse_canonical_protein_acc = mouse_canonical_protein_acc;
+        }
+
+    }
     private void populateUniprot2pfamA() throws IOException, SQLException, ClassNotFoundException{
 
     	// do batch lookup of uniprot accs on pfam db (pfamA)
@@ -1134,19 +1169,13 @@ public class AlleleIndexer extends AbstractIndexer {
 
              AlleleDTO dto = alleles.get(id);
 
-             String gSymbol = dto.getMarkerSymbol();
-             String mgiAcc = dto.getMgiAccessionId();
+             String gSymbol = dto.getMarkerSymbol().toUpperCase();
 
-             if ( ! mgi2UniprotLookup.containsKey(gSymbol) && ! mgi2UniprotLookup.containsKey(mgiAcc) ) {
-                 continue;
+             if ( mgi2UniprotLookup.containsKey(gSymbol)  ){
+                 dto.setUuniprotHumanCanonicalAcc(mgi2UniprotLookup.get(gSymbol).getHumanCanonicalProteinAcc());
+                 dto.setUuniprotMouseCanonicalAcc(mgi2UniprotLookup.get(gSymbol).getMouseCanonicalProteinAcc());
              }
-             else if ( mgi2UniprotLookup.containsKey(gSymbol)  ){
 
-            	 dto.setUniprotAccs(new ArrayList<String>(mgi2UniprotLookup.get(gSymbol)));
-             }
-             else if ( mgi2UniprotLookup.containsKey(mgiAcc) ){
-            	 dto.setUniprotAccs(new ArrayList<String>(mgi2UniprotLookup.get(mgiAcc)));
-             }
          }
     }
 
@@ -1157,7 +1186,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
         	AlleleDTO dto = alleles.get(id);
 
-            List<String> uniproAccs = dto.getUniprotAccs();
+            String uniproAcc = dto.getUuniprotMouseCanonicalAcc();
 
         	List<String> scdbIds = new ArrayList<>();
             List<String> scdbLinks = new ArrayList<>();
@@ -1171,26 +1200,24 @@ public class AlleleIndexer extends AbstractIndexer {
             List<String> pfamAgoCats = new ArrayList<>();
             List<String> pfamAjsons = new ArrayList<>();
 
-            for ( String uniproAcc : uniproAccs ){
-
-            	if ( ! uniprotAccPfamAnnotLookup.containsKey(uniproAcc) ) {
-            		continue;
-            	}
-
-	            for ( PfamAnnotations pa : uniprotAccPfamAnnotLookup.get(uniproAcc) ) {
-	            	scdbIds.add(pa.scdbId);
-	            	scdbLinks.add(pa.scdbLink);
-	                clanIds.add(pa.clanId);
-	                clanAccs.add(pa.clanAcc);
-	                clanDescs.add(pa.clanDesc);
-	                pfamAIds.add(pa.pfamAId);
-	                pfamAaccs.add(pa.pfamAacc);
-	                pfamAgoIds.add(pa.pfamAgoId);
-	                pfamAgoTerms.add(pa.pfamAgoTerm);
-	                pfamAgoCats.add(pa.pfamAgoCat);
-	                pfamAjsons.add(pa.pfamAjson);
-	            }
+            if ( ! uniprotAccPfamAnnotLookup.containsKey(uniproAcc) ) {
+                continue;
             }
+
+            for ( PfamAnnotations pa : uniprotAccPfamAnnotLookup.get(uniproAcc) ) {
+                scdbIds.add(pa.scdbId);
+                scdbLinks.add(pa.scdbLink);
+                clanIds.add(pa.clanId);
+                clanAccs.add(pa.clanAcc);
+                clanDescs.add(pa.clanDesc);
+                pfamAIds.add(pa.pfamAId);
+                pfamAaccs.add(pa.pfamAacc);
+                pfamAgoIds.add(pa.pfamAgoId);
+                pfamAgoTerms.add(pa.pfamAgoTerm);
+                pfamAgoCats.add(pa.pfamAgoCat);
+                pfamAjsons.add(pa.pfamAjson);
+            }
+
             // get unique
             dto.getScdbIds().addAll(new ArrayList<>(new LinkedHashSet<>(scdbIds)));
             dto.getScdbLinks().addAll(new ArrayList<>(new LinkedHashSet<>(scdbLinks)));

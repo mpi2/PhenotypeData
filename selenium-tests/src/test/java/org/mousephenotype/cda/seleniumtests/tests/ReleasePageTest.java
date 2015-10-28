@@ -27,7 +27,6 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
@@ -41,7 +40,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -60,7 +58,6 @@ import java.util.Date;
 public class ReleasePageTest {
 
     private CommonUtils commonUtils = new CommonUtils();
-    private WebDriver driver;
     protected TestUtils testUtils = new TestUtils();
     private WebDriverWait wait;
 
@@ -73,20 +70,19 @@ public class ReleasePageTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    Environment env;
-
-    @Autowired
-    protected SeleniumWrapper wrapper;
-
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
+    @Autowired
+    WebDriver driver;
+
+    @Autowired
+    Environment env;
+
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
+
 
     @Before
     public void setup() {
@@ -95,7 +91,7 @@ public class ReleasePageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();

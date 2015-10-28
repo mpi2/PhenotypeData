@@ -75,7 +75,9 @@ public class AlleleDTO {
 	public static final String GO_COUNT = "go_count";
 	public static final String GO_UNIPROT = "go_uniprot";
 	public static final String EVID_CODE_RANK = "evidCodeRank";
-	public static final String UNIPROT_ACC = "uniprot_acc";
+
+	public static final String UNIPROT_HUMAN_CANONICAL = "uniprot_human_canonical";
+	public static final String UNIPROT_MOUSE_CANONICAL = "uniprot_mouse_canonical";
 
 	public static final String PFAMA_JSON = "pfama_json";
 	public static final String SCDB_ID = "scdb_id"; // structural classification db id
@@ -253,8 +255,11 @@ public class AlleleDTO {
 	@Field(EVID_CODE_RANK)
 	private Integer evidCodeRank;
 
-	@Field(UNIPROT_ACC)
-	private List<String> uniprotAccs = new ArrayList<>();
+	@Field(UNIPROT_HUMAN_CANONICAL)
+	private String uniprotHumanCanonical;
+
+	@Field(UNIPROT_MOUSE_CANONICAL)
+	private String uniprotMouseCanonical;
 
 	@Field(PFAMA_JSON)
 	private List<String> pfama_jsons = new ArrayList<>();
@@ -907,19 +912,35 @@ public class AlleleDTO {
 	}
 
 	/**
-	 * @return the uniprotAccs
+	 * @return the uniprot_human_canonical
 	 */
-	public List<String> getUniprotAccs() {
-		return uniprotAccs;
+	public String getUuniprotHumanCanonicalAcc() {
+		return uniprotHumanCanonical;
 	}
 
 	/**
-	 * @param uniprotAccs
-	 *            the uniprotAccs to set
+	 * @param uniprotHumanCanonical
+	 *            the uniprotHumanCanonical to set
 	 */
-	public void setUniprotAccs(List<String> uniprotAccs) {
-		this.uniprotAccs = uniprotAccs;
+	public void setUuniprotHumanCanonicalAcc(String uniprotHumanCanonical) {
+		this.uniprotHumanCanonical = uniprotHumanCanonical;
 	}
+
+	/**
+	 * @return the uniprot_mouse_canonical
+	 */
+	public String getUuniprotMouseCanonicalAcc() {
+		return uniprotMouseCanonical;
+	}
+
+	/**
+	 * @param uniprotMouseCanonical
+	 *            the uniprotMouseCanonical to set
+	 */
+	public void setUuniprotMouseCanonicalAcc(String uniprotMouseCanonical) {
+		this.uniprotMouseCanonical = uniprotMouseCanonical;
+	}
+
 
 	/**
 	 * @return the scdb_ids
@@ -1382,7 +1403,6 @@ public class AlleleDTO {
 		this.chrStrand = chrStrand;
 	}
 
-
 	@Override
 	public String toString() {
 		return "AlleleDTO{" +
@@ -1433,7 +1453,8 @@ public class AlleleDTO {
 				", goCount=" + goCount +
 				", go_uniprot=" + go_uniprot +
 				", evidCodeRank=" + evidCodeRank +
-				", uniprotAccs=" + uniprotAccs +
+				", uniprotHumanCanonical='" + uniprotHumanCanonical + '\'' +
+				", uniprotMouseCanonical='" + uniprotMouseCanonical + '\'' +
 				", pfama_jsons=" + pfama_jsons +
 				", scdb_ids=" + scdb_ids +
 				", scdb_links=" + scdb_links +

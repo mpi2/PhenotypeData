@@ -270,6 +270,7 @@ public class GenesController {
 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
@@ -297,6 +298,7 @@ public class GenesController {
 
 		processPhenotypes(acc, model, "", request);
 
+		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
 		model.addAttribute("prodStatusIcons", prodStatusIcons);
 		model.addAttribute("gene", gene);
@@ -387,9 +389,8 @@ public class GenesController {
 		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
 		
-		if (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 0){
-			JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
-				JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
+		if (gene.getUuniprotHumanCanonicalAcc() != null){
+			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUuniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		
@@ -416,9 +417,8 @@ public class GenesController {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		if (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 0){
-			JSONObject pfamJson = (gene.getUniprotAccs() != null && gene.getUniprotAccs().size() > 1) ?
-				JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotAccs().get(0) + "/graphic").getJSONObject(0) : null;
+		if (gene.getUuniprotHumanCanonicalAcc() != null){
+			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUuniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		return "pfamDomain";
@@ -475,7 +475,7 @@ public class GenesController {
 		}
 
 		// This is a map because we need to support lookups
-		Map<Integer, DataTableRow> phenotypes = new HashMap<>();
+		HashMap<Integer, DataTableRow> phenotypes = new HashMap<>();
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
@@ -483,7 +483,6 @@ public class GenesController {
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
 			// Collapse rows on sex			
 			if (phenotypes.containsKey(pr.hashCode())) {
-
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
 				for (String s : pr.getSexes()) {
@@ -496,7 +495,7 @@ public class GenesController {
 
 			phenotypes.put(pr.hashCode(), pr);
 		}
-
+		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
 		model.addAttribute("phenotypes", l);
