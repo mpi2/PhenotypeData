@@ -309,19 +309,18 @@
                                     </p>
                                 </c:if>
                                 <p class="with-label">
-                                    <span class="label">ENSEMBL Links</span>
-                                    <a
-                                            href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"><i
-                                            class="fa fa-external-link"></i>&nbsp;Gene&nbsp;View</a>&nbsp;&nbsp;
-                                    <a
-                                            href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels"><i
-                                            class="fa fa-external-link"></i>&nbsp;Location&nbsp;View</a>&nbsp;&nbsp;
-                                    <a
-                                            href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}"><i
-                                            class="fa fa-external-link"></i>&nbsp;Compara&nbsp;View</a>
+                                    <span class="label">Links</span>
+                                    <a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Gene&nbsp;View</a>&nbsp;&nbsp;
+                                    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;
+                                    <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Compara&nbsp;View</a>
+                                     &nbsp;<a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>        
                                 </p>
-
-
+                                <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
+									<p class="with-label">
+	                                    <span class="label">Viability</span>
+	                                	<t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>    
+	                                </p>
+								</c:if>
                                 <!-- hide GWAS stuff for now
                                     <c:if test="${gwasPhenoMapping != null }">
                                     	
@@ -349,12 +348,6 @@
                                    		
                                		</c:if>
  									-->
-
-
-                                <p>
-                                    <a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span
-                                        id="enu"></span>
-                                </p>
 
                             </div>
 
