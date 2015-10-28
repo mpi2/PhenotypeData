@@ -19,7 +19,10 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.support.*;
+import org.mousephenotype.cda.seleniumtests.support.GenePage;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.Paginator;
+import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
@@ -33,7 +36,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -53,7 +55,6 @@ import java.util.List;
 public class PhenotypeAssociationsTest {
 
     private CommonUtils commonUtils = new CommonUtils();
-    private WebDriver driver;
     private List<String> successList = new ArrayList<>();
     protected TestUtils testUtils = new TestUtils();
     private WebDriverWait wait;
@@ -67,6 +68,13 @@ public class PhenotypeAssociationsTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
+    @Autowired
+    WebDriver driver;
+
     @Autowired
     Environment env;
 
@@ -77,18 +85,9 @@ public class PhenotypeAssociationsTest {
     @Autowired
     protected PhenotypePipelineDAO phenotypePipelineDAO;
 
-    @Autowired
-    protected SeleniumWrapper wrapper;
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
 
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
-
-
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
 
     @Before
     public void setup() {
@@ -97,7 +96,7 @@ public class PhenotypeAssociationsTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();

@@ -22,11 +22,11 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -62,7 +61,6 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
 public class GenePageTest {
 
     private CommonUtils commonUtils = new CommonUtils();
-    private WebDriver driver;
     protected TestUtils testUtils = new TestUtils();
     private WebDriverWait wait;
 
@@ -84,18 +82,16 @@ public class GenePageTest {
     @Autowired
     protected PhenotypePipelineDAO phenotypePipelineDAO;
 
-    @Autowired
-    protected SeleniumWrapper wrapper;
-
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
 
+    @Autowired
+    WebDriver driver;
 
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
+
 
     @Before
     public void setup() {
@@ -104,7 +100,7 @@ public class GenePageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -511,6 +507,10 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         int sectionErrorCount;
         int numOccurrences;
 
+        System.out.println("browserName: " + ((RemoteWebDriver) driver).getCapabilities().getBrowserName());
+        System.out.println("platform:    " + ((RemoteWebDriver) driver).getCapabilities().getPlatform());
+        System.out.println("version:     " + ((RemoteWebDriver) driver).getCapabilities().getVersion());
+
         PageStatus status;
         String message;
         Date start = new Date();
@@ -519,7 +519,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         String geneId = "MGI:104874";
         String target = baseUrl + "/genes/" + geneId;
-        System.out.println("URL: " + target);
+        logger.info("URL: " + target);
         GenePage genePage;
 
         try {
@@ -534,11 +534,11 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         // Title
         String title = genePage.getTitle();
         if (title.contains("Akt2")) {
-            System.out.println("Title: [PASSED]\n");
+            System.out.println("Title: [PASSED]");
         } else {
             message = "Title: [FAILED]: Expected title to contain 'Akt2' but it was not found. Title: '" + title + "'";
             errorList.add(message);
-            System.out.println(message + "\n");
+            System.out.println(message);
         }
 
         // Section Titles: count and values (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
@@ -556,9 +556,9 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         List<String> actualSectionTitles = genePage.getSectionTitles();
         if (actualSectionTitles.size() != sectionTitlesArray.length) {
             sectionErrorCount++;
-            message = "Section Titles (count): [FAILED]. Expected " + sectionTitlesArray.length + " section titles but found " + actualSectionTitles.size() + ".";
+            message = "Section Titles (count): [FAILED]. Expected " + sectionTitlesArray.length + " section titles but found " + actualSectionTitles.size() + ":";
             errorList.add(message);
-            System.out.println(message + "\n");
+            System.out.println(message);
         } else {
             System.out.println("Section Titles (count): [PASSED]\n");
         }
@@ -706,7 +706,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
             message = "Sum of Significant and Non-Significant Abnormalities (count): [FAILED]. Expected "
                      + expectedSignificantList.size() + expectedNotSignificantList.size()
                      + " strings but found "
-                     + actualSignificantList.size() + actualNotSignificantList.size() + ".";
+                     + Integer.sum(actualSignificantList.size(), actualNotSignificantList.size()) + ".";
             status.addError(message);
             System.out.println(message + "\n");
         } else {
@@ -783,11 +783,11 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         List<String> actualAssociatedImageSections = genePage.getAssociatedImageSections();
         if (actualAssociatedImageSections.size() < expectedAssociatedImageSize) {
             sectionErrorCount++;
-            message = "Associated Image Sections (count): [FAILED]. Expected at least 12 strings but found " + actualAssociatedImageSections.size() + ".";
+            message = "Associated Image Sections (count): [FAILED]. Expected at least 12 strings but found " + actualAssociatedImageSections.size() + ":";
             errorList.add(message);
-            System.out.println(message + "\n");
+            System.out.println(message);
         } else {
-            System.out.println("Associate Image Sections (count): [PASSED]\n");
+            System.out.println("Associated Image Sections (count): [PASSED]\n");
         }
 
         if (sectionErrorCount == 0) {
