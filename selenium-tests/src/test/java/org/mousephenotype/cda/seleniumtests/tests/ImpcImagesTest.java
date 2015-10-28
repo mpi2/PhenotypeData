@@ -21,7 +21,6 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -39,7 +38,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -60,7 +58,6 @@ import java.util.List;
 public class ImpcImagesTest {
 
     private CommonUtils commonUtils = new CommonUtils();
-    private WebDriver driver;
     protected TestUtils testUtils = new TestUtils();
     private WebDriverWait wait;
 
@@ -73,24 +70,21 @@ public class ImpcImagesTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NotNull
+    @Value("${baseUrl}")
+    protected String baseUrl;
+
+    @Autowired
+    WebDriver driver;
+
     @Autowired
     protected GeneService geneService;
 
     @Autowired
     protected PhenotypePipelineDAO phenotypePipelineDAO;
 
-    @Autowired
-    protected SeleniumWrapper wrapper;
-
-    @NotNull
-    @Value("${baseUrl}")
-    protected String baseUrl;
-
-
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
 
     @Before
     public void setup() {
@@ -99,7 +93,7 @@ public class ImpcImagesTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();

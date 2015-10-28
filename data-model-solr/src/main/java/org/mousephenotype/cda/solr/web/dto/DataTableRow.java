@@ -412,7 +412,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         result = 31 * result + (phenotypeTerm != null ? phenotypeTerm.hashCode() : 0);
         result = 31 * result + (gene != null ? gene.hashCode() : 0);
         result = 31 * result + (allele != null ? allele.hashCode() : 0);
-        result = 31 * result + (sexes != null ? sexes.hashCode() : 0);
+ //       result = 31 * result + (sexes != null ? sexes.hashCode() : 0);
         result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
         result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
         result = 31 * result + (lifeStageAcc != null ? lifeStageAcc.hashCode() : 0);
@@ -426,6 +426,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
         result = 31 * result + (isPreQc ? 1 : 0);
         result = 31 * result + (gid != null ? gid.hashCode() : 0);
+        
         return result;
     }
 
@@ -457,7 +458,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getGraphUrl();
         } else if (targetPage.equalsIgnoreCase("phenotype")) {
             res = getGene().getSymbol() + "\t"
-                    + getAllele().getName() + "\t"
+                    + getAllele().getSymbol() + "\t"
                     + getZygosity() + "\t"
                     + getSexes().get(0) + "\t"
                     + getLifeStageName() + "\t"

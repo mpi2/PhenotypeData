@@ -28,6 +28,8 @@ public class GenotypePhenotypeDTO {
     public static final String GID = "preqc_gid"; // preqc only
     public static final String MPATH_TERM_ID = "mpath_term_id";
     public static final String MPATH_TERM_NAME = "mpath_term_name";
+    public static final String EMAP_TERM_ID = "emap_term_id";
+    public static final String EMAP_TERM_NAME = "emap_term_name";
     public static final String MP_TERM_ID = "mp_term_id";
     public static final String MP_TERM_NAME = "mp_term_name";
     public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
@@ -90,6 +92,12 @@ public class GenotypePhenotypeDTO {
 
     @Field(MPATH_TERM_NAME)
     String mpathTermName;
+
+    @Field(EMAP_TERM_ID)
+    String emapTermId;
+
+    @Field(EMAP_TERM_NAME)
+    String emapTermName;
 
     @Field(MP_TERM_ID)
     String mpTermId;
@@ -279,6 +287,27 @@ public class GenotypePhenotypeDTO {
 
         this.mpathTermName = mpathTermName;
     }
+
+    public String getEmapTermId() {
+
+        return emapTermId;
+    }
+
+    public void setEmapTermId(String emapTermId) {
+
+        this.emapTermId = emapTermId;
+    }
+
+    public String getEmapTermName() {
+
+        return emapTermName;
+    }
+
+    public void setEmapTermName(String emapTermName) {
+
+        this.emapTermName = emapTermName;
+    }
+
 
     public String getMpTermId() {
 
@@ -725,6 +754,8 @@ public class GenotypePhenotypeDTO {
         if (mpathTermId != null ? !mpathTermId.equals(that.mpathTermId) : that.mpathTermId != null) return false;
         if (mpathTermName != null ? !mpathTermName.equals(that.mpathTermName) : that.mpathTermName != null)
             return false;
+        if (emapTermId != null ? !emapTermId.equals(that.emapTermId) : that.emapTermId != null) return false;
+        if (emapTermName != null ? !emapTermName.equals(that.emapTermName) : that.emapTermName != null) return false;
         if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
         if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
         if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
@@ -806,6 +837,8 @@ public class GenotypePhenotypeDTO {
         result = 31 * result + (assertion_type_id != null ? assertion_type_id.hashCode() : 0);
         result = 31 * result + (mpathTermId != null ? mpathTermId.hashCode() : 0);
         result = 31 * result + (mpathTermName != null ? mpathTermName.hashCode() : 0);
+        result = 31 * result + (emapTermId != null ? emapTermId.hashCode() : 0);
+        result = 31 * result + (emapTermName != null ? emapTermName.hashCode() : 0);
         result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
         result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
         result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
@@ -861,6 +894,8 @@ public class GenotypePhenotypeDTO {
                 ", assertion_type_id='" + assertion_type_id + '\'' +
                 ", mpathTermId='" + mpathTermId + '\'' +
                 ", mpathTermName='" + mpathTermName + '\'' +
+                ", emapTermId='" + emapTermId + '\'' +
+                ", emapTermName='" + emapTermName + '\'' +
                 ", mpTermId='" + mpTermId + '\'' +
                 ", mpTermName='" + mpTermName + '\'' +
                 ", topLevelMpTermId=" + topLevelMpTermId +

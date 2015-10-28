@@ -9,8 +9,7 @@
         <property name="locations">
             <list>
                 <value>classpath:appConfig.properties</value>
-                <value>file:${user.home}/configfiles/sdDatasourcesConfig.properties</value>
-                <value>file:${user.home}/configfiles/sdAppConfig.properties</value>
+                <value>file:${user.home}/configfiles/sd/application.properties</value>
             </list>
         </property>
     </bean>
