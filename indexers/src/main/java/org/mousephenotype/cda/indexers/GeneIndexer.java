@@ -453,10 +453,10 @@ public class GeneIndexer extends AbstractIndexer {
 
                         }
 
-                        if (image.getMaTermId() != null) {
+                        if (image.getMaId() != null) {
 
-                            gene.getMaId().addAll(image.getMaTermId());
-                            gene.getMaTerm().addAll(image.getMaTermName());
+                            gene.getMaId().addAll(image.getMaId());
+                            gene.getMaTerm().addAll(image.getMaTerms());
                             if (image.getMaTermSynonym() != null) {
                                 gene.getMaTermSynonym().addAll(image.getMaTermSynonym());
                             }
