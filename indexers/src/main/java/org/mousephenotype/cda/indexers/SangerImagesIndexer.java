@@ -450,8 +450,8 @@ public class SangerImagesIndexer extends AbstractIndexer {
 							o.setMaTopLevelTermIds(maTopLevelTermIds);
 							o.setMaTopLevelTerms(maTopLevelTerms);
 							o.setSelectedTopLevelMaTermSynonym(selected_top_level_ma_term_synonym);
-							System.out.println("ma_ids=" + ma_ids);
-							System.out.println("ma_terms=" + ma_terms);
+							//System.out.println("ma_ids=" + ma_ids);
+							//System.out.println("ma_terms=" + ma_terms);
 							o.setMaId(ma_ids);
 							o.setMaTerm(ma_terms);
 							o.setMpId(mp_ids);
