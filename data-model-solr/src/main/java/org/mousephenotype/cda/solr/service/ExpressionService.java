@@ -273,7 +273,7 @@ public class ExpressionService extends BasicService{
 		List<String> mappedIds = new ArrayList<>();
 		mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
-		
+		System.out.println("======================image response is: "+imagesResponse);		
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_MA_TERM));
 			
