@@ -498,6 +498,7 @@ public class GenesController {
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
+		System.out.println("PHENOTYPES LIST " +  l.size());
 		model.addAttribute("phenotypes", l);
 
 	}
