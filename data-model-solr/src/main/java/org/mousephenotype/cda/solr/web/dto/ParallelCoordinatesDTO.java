@@ -55,7 +55,7 @@ public class ParallelCoordinatesDTO {
 		this.allColumns = allColumns;
 		
 		for (ParameterDTO parameter: allColumns){
-			if (sortMap.get(parameter.getStableId()) % 100 != 0){
+			if (getSortValue(parameter.getStableId()) % 100 != 0){
 				means.put(parameter.getName(), new MeanBean( null, parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
 			} 
 		}
@@ -64,7 +64,7 @@ public class ParallelCoordinatesDTO {
 	
 	public void addMean( String unit, String parameterStableId, String parameterName, Integer parameterStableKey, Double mean){
 		
-		if (sortMap.get(parameterStableId) % 100 != 0){
+		if (getSortValue(parameterStableId) % 100 != 0){
 			means.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
 		} 
 		
@@ -201,19 +201,40 @@ public class ParallelCoordinatesDTO {
 			    @Override
 			    public int compare(MeanBean a, MeanBean b)
 			    {
-			    	Integer valA = sortMap.containsKey(a.getParameterStableId()) ? sortMap.get(a.getParameterStableId()) : 100000 + getHash(a.getParameterStableId());
-			    	Integer valB = sortMap.containsKey(b.getParameterStableId()) ? sortMap.get(b.getParameterStableId()) : 100001 + getHash(b.getParameterStableId());
+			    	Integer valA = getSortValue(a.getParameterStableId());
+			    	Integer valB = getSortValue(b.getParameterStableId());
 	 		        return valA.compareTo(valB);
 			    }        
 			};
 			return comp;
-		}  
+		}  	
 		
-		private Integer getHash(String str){
-			Integer hash=7;
-			for (int i=0; i < str.length(); i++) {
-			    hash = hash * 31 + str.charAt(i);
-			}
+	}
+	
+	private Integer getHash(String str){
+		Integer hash=7;
+		for (int i=0; i < str.length(); i++) {
+		    hash = hash * 31 + str.charAt(i);
+		}
+		return hash;
+	}
+	
+	/**
+	 * @author ilinca
+	 * @since 2015/10/29
+	 * @param parameterStableId
+	 * @return
+	 */
+	private int getSortValue(String parameterStableId){
+		if (sortMap.containsKey(parameterStableId)){
+			return sortMap.get(parameterStableId); 
+		} else {
+			System.out.println("WARNING: Parameter unsorted " + parameterStableId);
+			int hash = 100000 + getHash(parameterStableId); 
+			if (hash % 100 == 0){
+				hash += 1;
+			} 
+			sortMap.put(parameterStableId, hash);
 			return hash;
 		}
 	}
@@ -223,7 +244,7 @@ public class ParallelCoordinatesDTO {
 	 * 0 means no display. Since I added the procedure prefix 0 from his list translates to x%100 = 0.
 	 * Anything >0 is the sorting order.
 	 */
-	private static final Map<String, Integer> sortMap;
+	private static Map<String, Integer> sortMap;
 	static {
 			sortMap = new HashMap<String, Integer>();
 			sortMap.put("IMPC_DXA_001_001",1002); //Body weight,2,1000

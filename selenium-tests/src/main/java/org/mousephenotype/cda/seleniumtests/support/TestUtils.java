@@ -811,7 +811,8 @@ public class TestUtils {
     @Deprecated
     public List<String> removeKnownBadGeneIds(List<String> geneIdList) {
         final List<String> badGeneIds = new ArrayList<>(Arrays.asList(new String[] {
-                "MGI:3688249"
+                "MGI:3688249",
+                "MGI:1336993"   // This hangs the genes test.
         }));
 
         geneIdList.removeAll(badGeneIds);

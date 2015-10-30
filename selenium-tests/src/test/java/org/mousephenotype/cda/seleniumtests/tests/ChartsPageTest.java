@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.SeleniumWrapper;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -31,7 +30,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,31 +49,29 @@ import java.util.concurrent.TimeUnit;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
 
-    protected WebDriver driver;
     protected TestUtils testUtils = new TestUtils();
-
-    @Autowired
-    private SeleniumWrapper wrapper;
 
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
 
-    @PostConstruct
-    public void initialise() throws Exception {
-        driver = wrapper.getDriver();
-    }
+    @Autowired
+    WebDriver driver;
+
+    @Value("${seleniumUrl}")
+    protected String seleniumUrl;
+
 
     @Before
     public void setUp() throws Exception {
-        testUtils.printTestEnvironment(driver, wrapper.getSeleniumUrl());
+        testUtils.printTestEnvironment(driver, seleniumUrl);
     }
 
     @After
     public void teardown() {
-        if (driver != null) {
-            driver.quit();
-        }
+//        if (driver != null) {
+//            driver.quit();
+//        }
     }
 
     @Test
