@@ -1032,7 +1032,7 @@
                                                     <p
                                                             class="textright">
                                                         <a
-                                                                href='${baseUrl}/images?gene_id=${acc}&q=expName:"Wholemount Expression"&fq=annotated_or_inferred_higherLevelMaTermName:"${entry.name}"'>show
+                                                                href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>show
                                                             all ${entry.count} images</a>
                                                     </p>
                                                 </c:if>
