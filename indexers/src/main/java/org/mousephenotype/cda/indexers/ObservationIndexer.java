@@ -20,12 +20,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -87,6 +84,8 @@ public class ObservationIndexer extends AbstractIndexer {
         "IMPC_FER_019_001", "IMPC_FER_010_001", "IMPC_FER_011_001",
         "IMPC_FER_012_001", "IMPC_FER_013_001");
 
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.S");
+
 
     public ObservationIndexer() {
         
@@ -144,7 +143,9 @@ public class ObservationIndexer extends AbstractIndexer {
     @Override
     public void run() throws IndexerException {
 
-        Long start = System.currentTimeMillis();
+	    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+	    Long start = System.currentTimeMillis();
 
         try {
 
@@ -213,14 +214,20 @@ public class ObservationIndexer extends AbstractIndexer {
             ResultSet r = p.executeQuery();
             while (r.next()) {
 
-                ObservationDTO o = new ObservationDTO();
+	            ObservationDTO o = new ObservationDTO();
                 o.setId(r.getInt("id"));
                 o.setParameterId(r.getInt("parameter_id"));
                 o.setExperimentId(r.getInt("experiment_id"));
-                o.setDateOfExperiment(r.getDate("date_of_experiment"));
-                o.setExperimentSourceId(r.getString("external_id"));
+	            o.setExperimentSourceId(r.getString("external_id"));
 
-                o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
+	            try {
+		            o.setDateOfExperiment(dateFormat.parse(r.getString("date_of_experiment")));
+	            } catch (NullPointerException | ParseException e) {
+		            o.setDateOfExperiment(r.getDate("date_of_experiment"));
+	            }
+
+
+	            o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
                 o.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
                 o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
@@ -484,7 +491,13 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.biologicalModelId = resultSet.getInt("biological_model_id");
                 b.biologicalSampleId = resultSet.getInt("biological_sample_id");
                 b.colonyId = resultSet.getString("colony_id");
-                b.dateOfBirth = resultSet.getDate("date_of_birth");
+
+	            try {
+		            b.dateOfBirth = dateFormat.parse(resultSet.getString("date_of_birth"));
+	            } catch (NullPointerException | ParseException e) {
+		            b.dateOfBirth = resultSet.getDate("date_of_birth");
+	            }
+
                 b.externalSampleId = resultSet.getString("external_sample_id");
                 b.geneAcc = resultSet.getString("acc");
                 b.geneSymbol = resultSet.getString("symbol");
@@ -562,17 +575,15 @@ public class ObservationIndexer extends AbstractIndexer {
                     try (PreparedStatement p2 = connection.prepareStatement(query2)) {
                         p2.setString(1, resultSet.getString("colony_id"));
                         ResultSet resultSet2 = p2.executeQuery();
-                        while (resultSet2.next()) {
-                            b.strainAcc = resultSet2.getString("strain_acc");
-                            b.strainName = resultSet2.getString("strain_name");
-                            b.geneticBackground = resultSet2.getString("genetic_background");
-                            b.alleleAccession = resultSet2.getString("allele_accession");
-                            b.alleleSymbol = resultSet2.getString("allele_symbol");
-                            b.biologicalModelId = resultSet2.getInt("biological_model_id");
-                            b.geneAcc = resultSet2.getString("acc");
-                            b.geneSymbol = resultSet2.getString("symbol");
-                            break;
-                        }
+	                    resultSet2.next();
+	                    b.strainAcc = resultSet2.getString("strain_acc");
+	                    b.strainName = resultSet2.getString("strain_name");
+	                    b.geneticBackground = resultSet2.getString("genetic_background");
+	                    b.alleleAccession = resultSet2.getString("allele_accession");
+	                    b.alleleSymbol = resultSet2.getString("allele_symbol");
+	                    b.biologicalModelId = resultSet2.getInt("biological_model_id");
+	                    b.geneAcc = resultSet2.getString("acc");
+	                    b.geneSymbol = resultSet2.getString("symbol");
                     }
                 }
 
@@ -830,8 +841,12 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-                b.date = resultSet.getDate("date_of_experiment");
-                b.weight = resultSet.getFloat("weight");
+	            try {
+		            b.date = dateFormat.parse(resultSet.getString("date_of_experiment"));
+	            } catch (NullPointerException | ParseException e) {
+		            b.date = resultSet.getDate("date_of_experiment");
+	            }
+	            b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 

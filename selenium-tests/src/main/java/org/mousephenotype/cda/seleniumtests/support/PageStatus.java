@@ -31,10 +31,12 @@ import java.util.List;
 public class PageStatus {
     private final List<String> errorMessages;
     private final List<String> warningMessages;
+    public int successCount;
 
     public PageStatus() {
         errorMessages = new ArrayList<>();
         warningMessages = new ArrayList<>();
+        successCount = 0;
     }
 
     public List<String> getErrorMessages() {
@@ -48,6 +50,7 @@ public class PageStatus {
     public void add(PageStatus pageStatus) {
         errorMessages.addAll(pageStatus.errorMessages);
         warningMessages.addAll(pageStatus.warningMessages);
+        successCount += pageStatus.successCount;
     }
 
     public void addError(String errorMessage) {
@@ -76,7 +79,7 @@ public class PageStatus {
     
     @Override
     public String toString() {
-        return "PageStatus{" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + '}';
+        return "PageStatus{" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + ", successCount=" + successCount + "}";
     }
 
     /**
