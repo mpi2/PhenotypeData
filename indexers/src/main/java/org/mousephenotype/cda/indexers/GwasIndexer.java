@@ -105,7 +105,13 @@ public class GwasIndexer extends AbstractIndexer {
     @Override
     public void run() throws IndexerException, SQLException {
         try {
+            gwasCore.deleteByQuery("*:*");
+            gwasCore.commit();
+
+            logger.info("Removed previous data...");
+
             logger.info("Starting GWAS Indexer...");
+
             //initialiseSupportingBeans();
 
             List<GwasDTO> gwasBatch = new ArrayList(BATCH_SIZE);
