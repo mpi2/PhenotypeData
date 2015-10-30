@@ -65,7 +65,7 @@ public class ImagesController {
 		private static final long serialVersionUID = 1L;
 		{
 			put("expName", "Procedure");
-			put("annotated_or_inferred_higherLevelMaTermName", "Anatomy");
+			put("selected_top_level_ma_term", "Anatomy");
 			put("annotatedHigherLevelMpTermName", "Phenotype group");
 			put("annotationTermId", "Annotation term");
 			put("subtype", "Type");
