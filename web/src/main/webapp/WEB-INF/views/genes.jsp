@@ -354,7 +354,7 @@
                         </div>
                         <!-- section end -->
 
-                        <!--  Phenotype Associations for xxx -->
+                        <!--  Phenotype Associations -->
                         <div class="section">
 
                             <h2 class="title "
@@ -482,7 +482,7 @@
                                     </c:when>
                                     <c:when test="${summaryNumber == 0}">
 
-                                        <c:if  test="${empty dataMapList}">
+                                        <c:if  test="${empty dataMapList && empty phenotypes}">
                                         	<c:if test="${attemptRegistered}">                                        	
 	                                        	<div class="alert alert-info">
 	                                                <h5>Registered for phenotyping</h5>
@@ -501,7 +501,7 @@
                                             </c:if>
                                             <br/>
                                         </c:if>
-                                        <c:if  test="${!(empty dataMapList)}">
+                                        <c:if  test="${!(empty dataMapList) && empty phenotypes}">
                                             <div class="alert alert-info">
                                                 <h5>No Significant Phenotype Associations Found</h5>
 
