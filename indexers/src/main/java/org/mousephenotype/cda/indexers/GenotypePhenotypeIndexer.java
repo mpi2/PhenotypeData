@@ -46,11 +46,16 @@ import java.util.*;
  */
 public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
-    public final static Set<String> source3iProcedurePrefixes = new HashSet(Arrays.asList(
+    public final static Set<String> source3iProcedurePrefixes = new HashSet<>(Arrays.asList(
         "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
     ));
 
-    private static final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
+	// Do not process parameters from these procecures
+	public final static Set<String> skipProcedures = new HashSet<>(Arrays.asList(
+		"IMPC_ELZ", "IMPC_EOL", "IMPC_EMO", "IMPC_MAA", "IMPC_EMA"
+	));
+
+	private static final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
     private static Connection connection;
 
     @Autowired
@@ -73,7 +78,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
     Map<String, DevelopmentalStage> liveStageMap = new HashMap<>();
 
-    public GenotypePhenotypeIndexer() {
+	public GenotypePhenotypeIndexer() {
     }
 
     @Override
@@ -295,6 +300,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
                 doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
                 doc.setProcedureStableId(procedureStableId);
+
+	            if (skipProcedures.contains(procedurePrefix)) {
+		            // Do not store phenotype associations for these parameters
+		            // if somehow they make it into the database
+		            continue;
+	            }
 
                 doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
