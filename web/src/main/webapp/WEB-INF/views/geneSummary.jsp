@@ -135,7 +135,7 @@
 									<c:if test="${phenotypeSummaryObjects.keySet().size() == 0}">
 											<p class="alert alert-info">IMPC has no phenotype associations to ${gene.markerSymbol} yet.</p>
 									</c:if>
-									<div class=clear"></div>
+									<div class="clear"></div>
 										
 									<c:if test="${imageSummary.size() > 0}">
 										<br/>
@@ -159,31 +159,40 @@
 	                                </h3>
                                     
                                     <div> 
-                                     	<p class="with-label">
-	                                    	<span class="label">Function</span>${uniprotData.getFunction()}
-	                               	 	</p>
-	                               		<p class="with-label">
-	                                    	<span class="label">GO Process</span>
-	                                    	<c:forEach var="var" items="${uniprotData.getGoProcess()}" varStatus="loop">
-	                                            ${var}<c:if test="${!loop.last}">, </c:if>
-	                                            <c:if test="${loop.last}"></c:if>
-	                                        </c:forEach>
-	                               	 	</p>
-                                   		<p class="with-label">
-	                                    	<span class="label">GO Function</span>
-	                                    	<c:forEach var="var" items="${uniprotData.getGoMolecularFunction()}" varStatus="loop">
-	                                            ${var}<c:if test="${!loop.last}">, </c:if>
-	                                            <c:if test="${loop.last}"></c:if>
-	                                        </c:forEach>
-	                               	 	</p>
-	                               	 	<p class="with-label">
-	                                    	<span class="label">GO Cellular Component</span>
-	                                    	<c:forEach var="var" items="${uniprotData.getGoCell()}" varStatus="loop">
-	                                            ${var}<c:if test="${!loop.last}">, </c:if>
-	                                            <c:if test="${loop.last}"></c:if>
-	                                        </c:forEach>
-	                               	 	</p>
-	                               	 	<p class="credit"> These annotations were provided by <a href="http://www.uniprot.org/uniprot/${gene.getUniprotAccs().get(0)}">Uniprot</a>.</p>
+                                   		<c:if test="${uniprotData.getFunction() != null}">
+	                                     	<p class="with-label">
+		                                    	<span class="label">Function</span>${uniprotData.getFunction()}
+		                               	 	</p>
+	                               	 	</c:if>
+	                               	 	<c:if test="${uniprotData.getGoProcess() != null && uniprotData.getGoProcess().size() > 0}">
+		                               		<p class="with-label">
+		                                    	<span class="label">GO Process</span>
+		                                    	<c:forEach var="var" items="${uniprotData.getGoProcess()}" varStatus="loop">
+		                                            ${var}<c:if test="${!loop.last}">, </c:if>
+		                                            <c:if test="${loop.last}"></c:if>
+		                                        </c:forEach>
+		                               	 	</p>
+		                               	</c:if>
+	                               	 	<c:if test="${uniprotData.getGoMolecularFunction() != null && uniprotData.getGoMolecularFunction().size() > 0}">
+	                                   		<p class="with-label">
+		                                    	<span class="label">GO Function</span>
+		                                    	<c:forEach var="var" items="${uniprotData.getGoMolecularFunction()}" varStatus="loop">
+		                                            ${var}<c:if test="${!loop.last}">, </c:if>
+		                                            <c:if test="${loop.last}"></c:if>
+		                                        </c:forEach>
+	                               	 		</p>
+	                               	 	</c:if>
+	                               	 	<c:if test="${uniprotData.getGoCell() != null && uniprotData.getGoCell().size() > 0}">
+		                               	 	<p class="with-label">
+		                                    	<span class="label">GO Cellular Component</span>
+		                                    	<c:forEach var="var" items="${uniprotData.getGoCell()}" varStatus="loop">
+		                                            ${var}<c:if test="${!loop.last}">, </c:if>
+		                                            <c:if test="${loop.last}"></c:if>
+		                                        </c:forEach>
+		                               	 	</p>
+	                               	 	</c:if>
+	                               	 	<br/>
+	                               	 	<p class="credit"> These annotations were provided by <a href="http://www.uniprot.org/uniprot/${gene.getUuniprotHumanCanonicalAcc()}">Uniprot</a>.</p>
                                     
 	                               	 	<br/>
                                     </div>
@@ -191,7 +200,7 @@
                                     <div>
                                     	<h4>Domains for canonical protein</h4>
                                     	<iframe id="pfam" src="${baseUrl}/pFam/${gene.mgiAccessionId}"></iframe>
-                                    	<p class="credit"> This image was generated by <a href="http://pfam.xfam.org/protein/${gene.getUniprotAccs().get(0)}">Pfam</a>. Hover for domain description.</p>
+                                    	<p class="credit"> This image was generated by <a href="http://pfam.xfam.org/protein/${gene.getUuniprotHumanCanonicalAcc()}">Pfam</a>. Hover for domain description.</p>
                                     	<br/> <br/>
                                     </div>
                                    

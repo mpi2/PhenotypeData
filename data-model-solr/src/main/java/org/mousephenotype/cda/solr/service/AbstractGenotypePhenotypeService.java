@@ -484,7 +484,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
             SolrQuery solrQuery = new SolrQuery();
             solrQuery.setQuery(query);
-            solrQuery.setRows(1000000);
+            solrQuery.setRows(Integer.MAX_VALUE);
             solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
             solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
             solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY, 
@@ -575,6 +575,14 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return rsp.getResults();
     }
 
+    
+    /**
+     * 
+     * @param gene
+     * @param zyg
+     * @return HashMap topLevelTerms <mp_id, mp_name>
+     * @throws SolrServerException
+     */
     public HashMap<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
         throws SolrServerException {
 
@@ -590,6 +598,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         if (zyg != null) {
             query.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zyg.getName());
         }
+        query.setFields(GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
                
         SolrDocumentList result = solr.query(query).getResults();
 
