@@ -36,20 +36,8 @@
 		                    		<option value="${center}">${center}</option>
 		                    	</c:forEach>
 		                    </select>
-		                    <div class="widgets" class="right">
-								<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>
-								<a href="#" id="export_selected" class="button right filter_control btn" title = "Export raw data in the table">Export</a>
-								<a href="#" id="remove_filters" class="button right filter_control btn" title = "Remove filters">Clear filters</a>
-								<!-- a href="#" id="keep_selected" class="button green filter_control">Keep</a-->
-								<!-- div id="totals" class="widget right">Total Selected<br /></div>
-								<div id="pie" class="widget right">	Group Breakdown<br /></div-->
-								<!-- a href="#" id="remove_selected" class="button red filter_control btn" title = "Remove selections">Remove</a-->
-								<!-- div id="legend"></div-->
-								<br/>
-								<div class="right">
-									<input type="range" min="0" max="1" value="0.2" step="0.01"	name="power" list="powers" id="line_opacity"></input> 
-									Opacity: <span id="opacity_level">20%</span>
-								</div>
+		                    <div id="widgets_pc" class="widgets" class="right">
+								
 							</div>
 		                	<div class="clear"></div>
 	                    </form>

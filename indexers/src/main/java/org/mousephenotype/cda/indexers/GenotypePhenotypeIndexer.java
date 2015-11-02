@@ -311,6 +311,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
                 doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
+
                 // MP association
                 if ( r.getString("ontology_term_id").startsWith("MP:") ) {
                     // some hard-coded stuff

@@ -31,9 +31,9 @@
 	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="${komp2url}" />
-		<property name="username" value="${komp2username}" />
-		<property name="password" value="${komp2password}" />
+		<property name="url" value="${datasource.komp2.url}" />
+		<property name="username" value="${datasource.komp2.username}" />
+		<property name="password" value="${datasource.komp2.password}" />
 	</bean>
 
 	<bean id="admintoolsDataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -120,7 +120,8 @@
 	</bean>
 	<bean id="alleleReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/allele" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/allele" />
+		<!-- <constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/allele" /> -->
 	</bean>
 
 	<bean id="preqcIndexing"
@@ -132,7 +133,7 @@
 
 	<bean id="preqcReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/preqc" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc" />
 	</bean>
 
 	<!-- used for concurrently loading the experiment core -->
@@ -146,7 +147,7 @@
 	<bean id="observationReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/experiment" />
+			value="${buildIndexesSolrUrl}/experiment" />
 	</bean>
 
 	<!-- used for concurrently loading the MA core -->
@@ -158,7 +159,7 @@
 	</bean>
 	<bean id="maReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/ma" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/ma" />
 	</bean>
 
 	<!-- used for concurrently loading the disease core -->
@@ -172,7 +173,7 @@
 	<bean id="diseaseReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/disease" />
+			value="${buildIndexesSolrUrl}/disease" />
 	</bean>
 	
 
@@ -185,7 +186,7 @@
 	</bean>
 	<bean id="geneReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/gene" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gene" />
 	</bean>
 
 	<!-- used for concurrently loading the genotype phenotype core -->
@@ -201,7 +202,7 @@
 	<bean id="genotypePhenotypeReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/genotype-phenotype" />
+			value="${buildIndexesSolrUrl}/genotype-phenotype" />
 	</bean>
 
 	<!-- used for concurrently loading the pipeline core -->
@@ -215,7 +216,7 @@
 	<bean id="pipelineReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/pipeline" />
+			value="${buildIndexesSolrUrl}}/pipeline" />
 	</bean>
 
 
@@ -228,7 +229,7 @@
 	</bean>
 	<bean id="sangerImagesReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/images" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/images" />
 	</bean>
 
 	<!-- used for concurrently loading the MP core -->
@@ -240,7 +241,7 @@
 	</bean>
 	<bean id="mpReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/mp" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/mp" />
 	</bean>
 	
 	<!-- used for concurrently loading the EMAP core -->
@@ -252,7 +253,7 @@
 	</bean>
 	<bean id="emapReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/emap" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/emap" />
 	</bean>
 	
 	<!-- used for concurrently loading the autosuggest core -->
@@ -266,7 +267,7 @@
 	<bean id="autosuggestReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/autosuggest" />
+			value="${buildIndexesSolrUrl}/autosuggest" />
 	</bean>
 	
 	<!-- used for concurrently loading the impc_images core -->
@@ -280,7 +281,7 @@
 	<bean id="impcImagesReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/impc_images" />
+			value="${buildIndexesSolrUrl}/impc_images" />
 	</bean>
 	
 	<!-- used for concurrently loading the statistical results core -->
@@ -294,7 +295,7 @@
 	<bean id="statisticalResultsReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0"
-			value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/statistical-result" />
+			value="${buildIndexesSolrUrl}/statistical-result" />
 	</bean>
 	
 	<!-- IMPC to GWAS similarity annotation indexing core -->
@@ -306,7 +307,7 @@
 	</bean>
 	<bean id="gwasReadOnlyIndexing"
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/gwas" />
+		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gwas" />
 	</bean>
 	
 

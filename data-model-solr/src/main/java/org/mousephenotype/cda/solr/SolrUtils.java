@@ -134,7 +134,7 @@ public class SolrUtils {
 
         int pos = 0;
         long total = Integer.MAX_VALUE;
-        SolrQuery query = new SolrQuery(SangerImageDTO.MA_TERM_ID + ":*");
+        SolrQuery query = new SolrQuery(SangerImageDTO.MA_ID + ":*");
         query.setRows(BATCH_SIZE);
         while (pos < total) {
             query.setStart(pos);
@@ -145,7 +145,7 @@ public class SolrUtils {
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
 
             for (SangerImageDTO image : imageList) {
-                for (String termId : image.getMaTermId()) {
+                for (String termId : image.getMaId()) {
                     if ( ! map.containsKey(termId)) {
                         map.put(termId, new ArrayList<SangerImageDTO>());
                     }

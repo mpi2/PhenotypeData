@@ -23,6 +23,9 @@ package org.mousephenotype.cda.seleniumtests.tests;
  * Created by mrelac on 29/06/2015.
  */
 
+import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -39,15 +42,17 @@ import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
  * resource directory, which must contain an applicationTest.properties file.
  *
- * Examples: /Users/mrelac/configfiles/beta/applicationTest.properties,
- *           /Users/mrelac/configfiles/dev/applicationTest.properties,
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/applicationTest.properties
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/applicationTest.properties
+ * Examples: /Users/mrelac/configfiles/beta/application.properties,
+ *           /Users/mrelac/configfiles/dev/application.properties,
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/application.properties
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/application.properties
  */
 
 // NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
@@ -75,13 +80,21 @@ public class TestConfig {
     @Value("${internalSolrUrl}")
     private String internalSolrUrl;
 
+	@Value("${seleniumUrl}")
+ 	private String seleniumUrl;
+
+	@Value("${browserName}")
+ 	private String browserName;
+
     @PostConstruct
-    public void initialise() {
+    public void initialise() throws TestException {
         logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
         logger.info("phenodigm.solrserver: " + phenodigmSolrserver);
         logger.info("solr.host:            " + solrHost);
         logger.info("baseUrl:              " + baseUrl);
         logger.info("internalSolrUrl:      " + internalSolrUrl);
+		logger.info("seleniumUrl:          " + seleniumUrl);
+		logger.info("browserName:          " + browserName);
     }
 
 	@Bean
@@ -116,6 +129,41 @@ public class TestConfig {
 		return new DataSourceTransactionManager(komp2DataSource());
 	}
 
+    @Bean(name = "driver")
+    public RemoteWebDriver driver() throws TestException {
+        RemoteWebDriver retVal = null;
+
+        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+
+        switch (browserName) {
+            case "chrome":
+                desiredCapabilities = DesiredCapabilities.chrome();
+                break;
+
+            case "firefox":
+                desiredCapabilities = DesiredCapabilities.firefox();
+                break;
+
+            case "internetExplorer":
+                desiredCapabilities = DesiredCapabilities.internetExplorer();
+                break;
+
+            case "safari":
+                desiredCapabilities = DesiredCapabilities.safari();
+                break;
+
+            default:
+                throw new TestException("Unknown browserName '" + browserName + "'");
+        }
+
+        try {
+            retVal = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
+        } catch (MalformedURLException e) {
+            throw new TestException("Unable to get driver from wrapper. Reason: " + e.getLocalizedMessage());
+        }
+
+        return retVal;
+    }
 
 	@Bean
 	@ConfigurationProperties(prefix = "datasource.admintools")
