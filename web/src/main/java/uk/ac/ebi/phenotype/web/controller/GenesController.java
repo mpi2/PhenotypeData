@@ -389,8 +389,8 @@ public class GenesController {
 		String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
 		List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
 		
-		if (gene.getUuniprotHumanCanonicalAcc() != null){
-			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUuniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
+		if (gene.getUniprotHumanCanonicalAcc() != null){
+			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		
@@ -417,8 +417,8 @@ public class GenesController {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
-		if (gene.getUuniprotHumanCanonicalAcc() != null){
-			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUuniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
+		if (gene.getUniprotHumanCanonicalAcc() != null){
+			JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		return "pfamDomain";

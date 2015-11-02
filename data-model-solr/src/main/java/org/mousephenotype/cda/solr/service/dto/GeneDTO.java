@@ -1833,7 +1833,7 @@ public class GeneDTO {
 	/**
 	 * @return the uniprot_human_canonical
 	 */
-	public String getUuniprotHumanCanonicalAcc() {
+	public String getUniprotHumanCanonicalAcc() {
 		return uniprotHumanCanonical;
 	}
 
