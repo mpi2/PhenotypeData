@@ -93,7 +93,6 @@ public class ImpcImagesTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -131,9 +130,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         String message;
         Date start = new Date();
 
-        System.out.println(dateFormat.format(start) + ": " + testName
-                + " started. Expecting to process " + geneIds.size()
-                + " of a total of " + geneIds.size() + " records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, geneIds.size(), geneIds.size());
 
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
