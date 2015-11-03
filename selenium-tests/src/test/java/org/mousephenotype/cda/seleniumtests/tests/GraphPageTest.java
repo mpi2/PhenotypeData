@@ -124,7 +124,6 @@ public class GraphPageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -157,7 +156,7 @@ public class GraphPageTest {
         int successCount = 0;
 
         int targetCount = graphUrls.size();
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, graphUrls.size());
 
         int i = 1;
         for (String graphUrl : graphUrls) {
