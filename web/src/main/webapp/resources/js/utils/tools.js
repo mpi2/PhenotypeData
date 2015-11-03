@@ -2136,13 +2136,18 @@
 			}
 
 		} else if (facet == 'disease') {
+
+			//disease_human_phenotypes may not be in every document
+
 			if (q.match(wildCardStr) && q != '*:*') {
 				oParams.bq = 'disease_term:(' + q.replace(/\*/g, '') + ')^1000'
 						+ ' disease_alts:(' + q.replace(/\*/g, '') + ')^700'
-						+ ' disease_human_phenotypes:(' + q.replace(/\*/g, '') + ')^500'
+						//+ ' disease_human_phenotypes:(' + q.replace(/\*/g, '') + ')^500'
 						+ ' disease_source:(' + q.replace(/\*/g, '')	+ ')^200';
 			} else {
-				oParams.pf = 'disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200';
+				//oParams.pf = 'disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200';
+				oParams.pf = 'disease_term^1000 disease_alts^700 disease_source^200';
+
 			}
 		} else if (facet == 'ma') {
 			if (q.match(/^MA:\d*$/i)) {
