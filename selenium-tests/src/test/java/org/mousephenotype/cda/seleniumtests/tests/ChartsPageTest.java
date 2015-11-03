@@ -24,6 +24,7 @@ import org.mousephenotype.cda.seleniumtests.support.PageStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -31,6 +32,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +54,8 @@ public class ChartsPageTest {
 
     protected TestUtils testUtils = new TestUtils();
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
@@ -64,7 +69,7 @@ public class ChartsPageTest {
 
     @Before
     public void setUp() throws Exception {
-        testUtils.printTestEnvironment(driver, seleniumUrl);
+
     }
 
     @After
@@ -74,13 +79,17 @@ public class ChartsPageTest {
         }
     }
 
+
     @Test
     public void testExampleCategorical() throws Exception {
         String testName = "testExampleCategorical";
         PageStatus status = new PageStatus();
         List<String> successList = new ArrayList<>();
         Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         int targetCount = 1;
+
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, 1);
 
         String mgiGeneAcc = "MGI:2444584";
         String impressParameter = "ESLIM_001_001_004";
@@ -88,7 +97,7 @@ public class ChartsPageTest {
         String geneSymbol = "Mysm1";
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         String target = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
-        System.out.println("Target: " + target);
+        logger.info("Target: " + target);
         driver.get(target);
         String title = driver.findElement(By.className("title")).getText();
         if ( ! title.contains(geneSymbol)) {
@@ -99,7 +108,6 @@ public class ChartsPageTest {
         }
 
         testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
-        System.out.println();
     }
 
     @Test
@@ -109,7 +117,10 @@ public class ChartsPageTest {
 
         List<String> successList = new ArrayList<>();
         Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         int targetCount = 1;
+
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, 1);
 
         String mgiGeneAcc = "MGI:98373";
         String impressParameter = "M-G-P_014_001_001";

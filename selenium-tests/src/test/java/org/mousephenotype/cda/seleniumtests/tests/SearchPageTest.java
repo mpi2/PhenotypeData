@@ -148,7 +148,6 @@ public class SearchPageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -221,7 +220,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         int totalNonzeroCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         int successCount = 0;
 
@@ -428,7 +427,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String[] geneSymbols = {
               "Klk4"
@@ -478,7 +477,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String queryStr = baseUrl + "/search";
 
@@ -535,7 +534,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         int successCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         Map<String, Integer> solrCoreCountMap = getSolrCoreCounts(null);
 
@@ -626,7 +625,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         int successCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         // Create an array of SearchTermGroup from searchTermGroups that expands the original list by 4,
         // prepending '*', appending '*', and prepending AND appending '*' to the original searchTermGroups values.
@@ -674,7 +673,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String searchString = "Hox";
         String target = baseUrl + "/search";
@@ -709,7 +708,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String searchString = "Hox*";
         String target = baseUrl + "/search";
@@ -743,10 +742,11 @@ public class SearchPageTest {
         String testName = "testImageFacetImageView";
         String searchString = "";
         Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
         Facet facet;
 
-        System.out.println("\n\n----- " + testName + " -----");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         try {
             String target = baseUrl + "/search";
@@ -779,9 +779,10 @@ public class SearchPageTest {
         String testName = "testImageFacetImageViewLastPage";
         String searchString = "";
         Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println("\n\n----- " + testName + " -----");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         try {
             String target = baseUrl + "/search";
@@ -816,10 +817,11 @@ public class SearchPageTest {
         String testName = "testImpcImageFacetImageView";
         String searchString = "";
         Date start = new Date();
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
         Facet facet;
 
-        System.out.println("\n\n----- " + testName + " -----");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         try {
             String target = baseUrl + "/search";
@@ -881,7 +883,7 @@ public class SearchPageTest {
         int successCount = 0;
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String target = baseUrl + "/search";
 
@@ -950,7 +952,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
          String queryStr = baseUrl + "/search";
          driver.get(queryStr);
@@ -984,7 +986,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         int successCount = 0;
         int buttonElementsSize = 0;
@@ -1047,7 +1049,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         int successCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String target;
         String message;
@@ -1117,7 +1119,7 @@ public class SearchPageTest {
         int nbRows = 20;
         int successCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + nbRows + " gene symbols.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, nbRows, nbRows);
 
         Random rn = new Random();
         int startIndex = rn.nextInt(60000 - 0 + 1) + 1;
@@ -1185,7 +1187,7 @@ public class SearchPageTest {
         int nbRows = 20;
         int successCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + nbRows + " gene symbols.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, nbRows, nbRows);
 
         String newQueryString = "/gene/select?q=mgi_accession_id:*&fq=-marker_symbol:CGI_* AND -marker_symbol:Gm*&fl=mgi_accession_id,marker_symbol&wt=json";
         Random rn = new Random();
@@ -1235,7 +1237,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
         int successCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String message;
         successList.clear();
@@ -1342,6 +1344,7 @@ public class SearchPageTest {
         PageStatus status = new PageStatus();
 
         System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String searchString = "Wnt1";
         String target = baseUrl + "/search";

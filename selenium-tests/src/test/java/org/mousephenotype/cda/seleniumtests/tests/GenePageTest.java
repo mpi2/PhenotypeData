@@ -17,7 +17,9 @@
 package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
@@ -100,7 +102,6 @@ public class GenePageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -112,14 +113,6 @@ public class GenePageTest {
         if (driver != null) {
             driver.quit();
         }
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
     }
 
 
@@ -138,7 +131,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         Date start = new Date();
 
         int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneIds.size());
 
         // Loop through all genes, testing each one for valid page load.
         int i = 0;
