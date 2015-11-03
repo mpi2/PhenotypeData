@@ -328,6 +328,8 @@ public class ObservationIndexer extends AbstractIndexer {
                     o.setGroup(b.sampleGroup);
                     o.setBiologicalSampleId(b.biologicalSampleId);
                     o.setExternalSampleId(b.externalSampleId);
+                    o.setDevelopmentStageAcc(b.developmentalStageAcc);
+                    o.setDevelopmentStageName(b.developmentalStageName);
 
                 }
 
@@ -510,6 +512,8 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.strainName = resultSet.getString("strain_name");
                 b.geneticBackground = resultSet.getString("genetic_background");
                 b.zygosity = resultSet.getString("zygosity");
+                b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
+                b.developmentalStageName = resultSet.getString("developmental_stage_name");
 
                 biologicalData.put(resultSet.getString("biological_sample_id"), b);
             }
@@ -906,6 +910,9 @@ public class ObservationIndexer extends AbstractIndexer {
         public String strainName;
         public String geneticBackground;
         public String zygosity;
+        public String developmentalStageAcc;
+        public String developmentalStageName;
+        
     }
 
     /**
