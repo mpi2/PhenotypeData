@@ -27,7 +27,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -727,22 +726,20 @@ public class TestUtils {
     /**
      * Given an initialized <code>WebDriver</code> instance and a selenium URL,
      * prints the test environment for the test associated with <code>driver<code>.
-     * @param driver the initialized <code>WebDriver</code> instance
-     * @param seleniumUrl the Selenium URL
+     * @param logger the logger to use
+     * @param testClass the test class
+     * @param testName the test name
+     * @param requestedRecordCount the number of test records requested
+     * @param maxRecordCount the maximum number of test records available
      */
-    public void printTestEnvironment(WebDriver driver, String seleniumUrl) {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
-        }
+    public void logTestStartup(Logger logger, Class testClass, String testName, int requestedRecordCount, int maxRecordCount) {
+        String testClassAndName = testClass.getSimpleName() + "." + testName + "() started.";
+        String message = "Expecting to process " + requestedRecordCount + " of a total of " + maxRecordCount + " records.";
 
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
+        logger.info("####################################################################################################");
+        logger.info("#" + StringUtils.center(testClassAndName, 98, " ") + "#");
+        logger.info("#" + StringUtils.center(message, 98, "") + "#");
+        logger.info("####################################################################################################");
     }
 
     /**
