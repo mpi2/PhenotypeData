@@ -328,6 +328,8 @@ public class ObservationIndexer extends AbstractIndexer {
                     o.setGroup(b.sampleGroup);
                     o.setBiologicalSampleId(b.biologicalSampleId);
                     o.setExternalSampleId(b.externalSampleId);
+                    o.setDevelopmentStageAcc(b.developmentalStageAcc);
+                    o.setDevelopmentStageName(b.developmentalStageName);
 
                 }
 
@@ -464,7 +466,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
         String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
                 + "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
-                + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, "
+                + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
                 + "bms.biological_model_id, "
                 + "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, "
                 + "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
@@ -477,7 +479,8 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id "
                 + "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id "
                 + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
-                + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id ";
+                + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
+                + "INNER JOIN  ontology_term ot ON ot.acc=ls.developmental_stage_acc";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -509,6 +512,8 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.strainName = resultSet.getString("strain_name");
                 b.geneticBackground = resultSet.getString("genetic_background");
                 b.zygosity = resultSet.getString("zygosity");
+                b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
+                b.developmentalStageName = resultSet.getString("developmental_stage_name");
 
                 biologicalData.put(resultSet.getString("biological_sample_id"), b);
             }
@@ -905,6 +910,9 @@ public class ObservationIndexer extends AbstractIndexer {
         public String strainName;
         public String geneticBackground;
         public String zygosity;
+        public String developmentalStageAcc;
+        public String developmentalStageName;
+        
     }
 
     /**
