@@ -593,19 +593,18 @@ public class ObservationIndexer extends AbstractIndexer {
         }
     }
 
-    /**
-     * Add all the relevant data required for translating the category names in
-     * the cases where the category names are numerals, but the actual name is
-     * in the description field
-     *
-     * @throws SQLException when a database exception occurs
-     */
+	/**
+	 * Add all the relevant data required for translating the category names in the cases where the category names are
+	 * numerals, but the actual name is in the description field
+	 *
+	 * @throws SQLException when a database exception occurs
+	 */
 	public void populateCategoryNamesDataMap() throws SQLException {
 
-		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp \n"
-				+ "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id\n"
-				+ "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id \n"
-				+ "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!=''";
+		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp "
+			+ "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id "
+			+ "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id "
+			+ "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!='' ";
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -614,21 +613,22 @@ public class ObservationIndexer extends AbstractIndexer {
 			while (resultSet.next()) {
 
 				String stableId = resultSet.getString("stable_id");
-				System.out.println("parameter_stable_id for numeric cat=" + stableId);
-				
+				logger.debug("parameter_stable_id for numeric category: {}", stableId);
+
 				if (!translateCategoryNames.containsKey(stableId)) {
 					translateCategoryNames.put(stableId, new HashMap<>());
 				}
 
 				String name = resultSet.getString("name");
 				String description = resultSet.getString("description");
-				//System.out.println("raw categorical data=" + name + " desc=" + description);
 				if (name.matches("[0-9]+")) {
-					name+=".0";//add .0 onto string as this is what our numerical categories look in solr!!!!
-					//System.out.println("adding " + name + " desc" + description);
+
+					// add .0 onto string as this is what our numerical categories look in solr!!!!
+					name += ".0";
+
 					translateCategoryNames.get(stableId).put(name, description);
-				}else{
-					System.out.println("not translating non alphebetical category for parameter"+stableId+"name=" + name + " desc=" + description);
+				} else {
+					logger.debug("Not translating non alphabetical category for parameter: " + stableId + ", name: " + name + ", desc:" + description);
 				}
 
 			}
