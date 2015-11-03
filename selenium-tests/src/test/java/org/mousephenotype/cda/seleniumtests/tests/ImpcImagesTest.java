@@ -102,9 +102,9 @@ public class ImpcImagesTest {
 
     @After
     public void teardown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @BeforeClass

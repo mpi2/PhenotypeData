@@ -28,6 +28,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
@@ -130,6 +131,7 @@ public class TestConfig {
 	}
 
     @Bean(name = "driver")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public RemoteWebDriver driver() throws TestException {
         RemoteWebDriver retVal = null;
 
