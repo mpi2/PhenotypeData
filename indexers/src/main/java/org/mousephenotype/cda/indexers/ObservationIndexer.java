@@ -464,7 +464,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
         String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
                 + "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
-                + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as development_stage_acc,"
+                + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
                 + "bms.biological_model_id, "
                 + "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, "
                 + "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
