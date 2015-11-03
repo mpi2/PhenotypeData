@@ -86,7 +86,7 @@ public class ObservationDTO {
     public final static String WEIGHT_DAYS_OLD = "weight_days_old";
     public final static String WEIGHT = "weight";
 	private static final String DEVELOPMENTAL_STAGE_ACCESSION = "developmental_stage_acc";
-	private static final String DEVELOPMENTAL_STAGE_NAME = "developmental_stage_acc";
+	private static final String DEVELOPMENTAL_STAGE_NAME = "developmental_stage_name";
 
 
     @Field(ID)
