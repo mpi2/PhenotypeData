@@ -2114,9 +2114,14 @@
 		} else if (facet == 'mp') {
 
 			oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
-			var moreBqStr = ' mp_term:(' + q.replace(/\*/g, '') + ')^1000'
-				+ ' mp_term_synonym:(' + q.replace(/\*/g, '') + ')^500'
-				+ ' mp_definition:(' + q.replace(/\*/g, '') + ')^100';
+			//var moreBqStr = ' mp_term:(' + q.replace(/\*/g, '') + ')^1000'
+			//	+ ' mp_term_synonym:(' + q.replace(/\*/g, '') + ')^500'
+			//	+ ' mp_definition:(' + q.replace(/\*/g, '') + ')^100';
+
+			// works with wild card, eg, abnor* phy*
+			var moreBqStr = ' mp_term:(' + q + ')^1000'
+				+ ' mp_term_synonym:(' + q + ')^500'
+				+ ' mp_definition:(' + q + ')^100';
 
 			if (q.match(/^MP:\d*$/i)) {
 				oParams.q = q.toUpperCase();
@@ -2140,10 +2145,10 @@
 			//disease_human_phenotypes may not be in every document
 
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'disease_term:(' + q.replace(/\*/g, '') + ')^1000'
-						+ ' disease_alts:(' + q.replace(/\*/g, '') + ')^700'
+				oParams.bq = 'disease_term:(' + q + ')^1000'
+						+ ' disease_alts:(' + q + ')^700'
 						//+ ' disease_human_phenotypes:(' + q.replace(/\*/g, '') + ')^500'
-						+ ' disease_source:(' + q.replace(/\*/g, '')	+ ')^200';
+						+ ' disease_source:(' + q + ')^200';
 			} else {
 				//oParams.pf = 'disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200';
 				oParams.pf = 'disease_term^1000 disease_alts^700 disease_source^200';
@@ -2156,40 +2161,40 @@
 			}
 			// else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){
 			else if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'ma_term:(' + q.replace(/\*/g, '') + ')^1000'
-						+ ' ma_term_synonym:(' + q.replace(/\*/g, '') + ')^500';
+				oParams.bq = 'ma_term:(' + q + ')^1000'
+						+ ' ma_term_synonym:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'ma_term^1000 ma_term_synonym^500';
 			}
 		} else if (facet == 'pipeline') {
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'parameter_name:(' + q.replace(/\*/g, '') + ')^1000'
-						+ ' procedure_name:(' + q.replace(/\*/g, '') + ')^500';
+				oParams.bq = 'parameter_name:(' + q + ')^1000'
+						+ ' procedure_name:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'parameter_name^1000 procedure_name^500';
 			}
 		} else if (facet == 'images') {
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'annotationTermName:(' + q.replace(/\*/g, '') + ')^500'
-						+ ' expName:(' + q.replace(/\*/g, '') + ')^500'
-						+ ' symbol:(' + q.replace(/\*/g, '') + ')^500';
+				oParams.bq = 'annotationTermName:(' + q + ')^500'
+						+ ' expName:(' + q + ')^500'
+						+ ' symbol:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'annotationTermName^500 expName^500 symbol^500';
 			}
 		} else if (facet == 'impc_images') {
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'procedure_name:(' + q.replace(/\*/g, '') + ')^500'
-						+ ' gene_symbol:(' + q.replace(/\*/g, '') + ')^500';
+				oParams.bq = 'procedure_name:(' + q + ')^500'
+						+ ' gene_symbol:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'procedure_name^500 gene_symbol^500';
 			}
 		}
 		if (typeof oParams.bq != 'undefined') {
-			// oParams.bq = oParams.bq.replace(/~/g, '\\~');
+			oParams.bq = oParams.bq.replace(/~/g, '\\~');
 		}
 
 		return oParams;
