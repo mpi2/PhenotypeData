@@ -81,6 +81,9 @@ public class GraphPage {
             status.add(graphSection.validate());
         }
 
+        if (! status.hasErrors())
+            status.successCount++;  // Don't increment per section; increment per page.
+
         return status;
     }
 

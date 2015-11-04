@@ -313,7 +313,7 @@ public class ReportsManager implements CommandLineRunner {
                 log.info("Created report '" + reportType + "' in " + fqFilename + ".");
 
             } catch (ReportException e) {
-                systemExitCode = 1;
+
                 log.error("FAILED to create report '" + reportType + " in " + parser.getTargetDirectory() + ". Reason: " + e.getLocalizedMessage());
                 e.printStackTrace();
             }
