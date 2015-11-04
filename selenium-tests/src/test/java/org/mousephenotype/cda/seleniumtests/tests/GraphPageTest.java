@@ -153,14 +153,12 @@ public class GraphPageTest {
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
-        int successCount = 0;
 
         int targetCount = graphUrls.size();
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, graphUrls.size());
 
         int i = 1;
         for (String graphUrl : graphUrls) {
-            PageStatus status = new PageStatus();
 
             // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
@@ -169,11 +167,7 @@ public class GraphPageTest {
             try {
                 logger.info("Testing graph " + graphUrl);
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
-                status.add(graphPage.validate());
-                if ( ! status.hasErrors()) {
-                    successCount++;
-                }
-                statuses.add(status);
+                statuses.add(graphPage.validate());
 
             } catch (TestException e) {
                 statuses.addError(e.getLocalizedMessage());
@@ -184,7 +178,7 @@ public class GraphPageTest {
             }
         }
 
-        testUtils.printEpilogue(testName, start, statuses, successCount, targetCount, graphUrls.size());
+        testUtils.printEpilogue(testName, start, statuses, targetCount, graphUrls.size());
         System.out.println();
     }
 
@@ -267,7 +261,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
@@ -298,7 +292,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
@@ -308,7 +302,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testUnidimensionalGraphs() throws TestException {
         String testName = "testUnidimensionalGraphs";
 
@@ -318,7 +312,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
@@ -328,7 +322,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
@@ -338,7 +332,7 @@ public class GraphPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testTimeSeriesGraphs() throws TestException {
         String testName = "testTimeSeriesGraphs";
 

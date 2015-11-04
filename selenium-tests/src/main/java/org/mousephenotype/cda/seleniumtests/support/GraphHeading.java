@@ -327,11 +327,9 @@ public class GraphHeading {
             case TIME_SERIES_LINE:
             case TIME_SERIES_LINE_BODYWEIGHT:
                 mutantKey = testUtils.makeKey(alleleSymbol,      geneticBackground, geneSymbol,
-                                              metadataGroup,     
                                               phenotypingCenter, pipelineName);
                 
                 controlKey = testUtils.makeKey(                   geneticBackground,
-                                               metadataGroup,     
                                                phenotypingCenter);
                 break;
                 
