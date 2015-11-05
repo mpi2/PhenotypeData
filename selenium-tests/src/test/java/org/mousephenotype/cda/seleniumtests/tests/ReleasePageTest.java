@@ -91,7 +91,6 @@ public class ReleasePageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             thread_wait_in_ms = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -100,9 +99,9 @@ public class ReleasePageTest {
 
     @After
     public void teardown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @BeforeClass
@@ -121,7 +120,7 @@ public class ReleasePageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String target = baseUrl + "/release.json";
         driver.get(target);

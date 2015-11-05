@@ -487,10 +487,10 @@ public class MetabolismCalorimetryReport extends AbstractReport {
                 retVal.add(DATA_ERROR);
                 retVal.add(DATA_ERROR);
             } else {
-                retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_007_001").min));
-                retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_007_001").max));
-                retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_007_001").sum / mouseInfoMap.get("IMPC_CAL_007_001").count));
-                retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_007_001").count));
+                retVal.add(Float.toString(mouseInfoMap.get(RER_DATA_PARAMETER).min));
+                retVal.add(Float.toString(mouseInfoMap.get(RER_DATA_PARAMETER).max));
+                retVal.add(Float.toString(mouseInfoMap.get(RER_DATA_PARAMETER).sum / mouseInfoMap.get(RER_DATA_PARAMETER).count));
+                retVal.add(Float.toString(mouseInfoMap.get(RER_DATA_PARAMETER).count));
             }
         } else {
             retVal.add(NO_INFO_AVAILABLE);

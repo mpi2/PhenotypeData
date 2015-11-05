@@ -205,6 +205,7 @@ public class ReportsManager implements CommandLineRunner {
 
         logInputParameters();
 
+        int systemExitCode = 0;
         for (ReportType reportType : parser.getReports()) {
             try {
                 switch (reportType) {
@@ -312,6 +313,7 @@ public class ReportsManager implements CommandLineRunner {
                 log.info("Created report '" + reportType + "' in " + fqFilename + ".");
 
             } catch (ReportException e) {
+
                 log.error("FAILED to create report '" + reportType + " in " + parser.getTargetDirectory() + ". Reason: " + e.getLocalizedMessage());
                 e.printStackTrace();
             }
@@ -321,7 +323,7 @@ public class ReportsManager implements CommandLineRunner {
             usage();
         }
 
-        System.exit(0);
+        System.exit(systemExitCode);
     }
 
 

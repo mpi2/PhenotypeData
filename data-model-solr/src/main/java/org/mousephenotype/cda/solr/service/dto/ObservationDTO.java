@@ -85,6 +85,8 @@ public class ObservationDTO {
     public final static String WEIGHT_DATE = "weight_date";
     public final static String WEIGHT_DAYS_OLD = "weight_days_old";
     public final static String WEIGHT = "weight";
+	private static final String DEVELOPMENTAL_STAGE_ACCESSION = "developmental_stage_acc";
+	private static final String DEVELOPMENTAL_STAGE_NAME = "developmental_stage_name";
 
 
     @Field(ID)
@@ -252,6 +254,12 @@ public class ObservationDTO {
 
     @Field(WEIGHT)
     private Float weight;
+    
+    @Field(DEVELOPMENTAL_STAGE_ACCESSION)
+	private String developmentalStageAcc;
+    
+    @Field(DEVELOPMENTAL_STAGE_NAME)
+   	private String developmentalStageName;
 
     
 	public List<String> getParameterAssociationValue() {
@@ -1186,4 +1194,16 @@ public class ObservationDTO {
 
         this.weight = weight;
     }
+
+
+	public void setDevelopmentStageAcc(String developmentalStageAcc) {
+		this.developmentalStageAcc=developmentalStageAcc;
+		
+	}
+
+
+	public void setDevelopmentStageName(String developmentalStageName) {
+		this.developmentalStageName=developmentalStageName;
+		
+	}
 }

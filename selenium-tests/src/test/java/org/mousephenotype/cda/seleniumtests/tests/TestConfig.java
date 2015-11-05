@@ -27,7 +27,9 @@ import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
@@ -86,6 +88,9 @@ public class TestConfig {
 	@Value("${browserName}")
  	private String browserName;
 
+    @Autowired
+    private RemoteWebDriver privateDriver;
+
     @PostConstruct
     public void initialise() throws TestException {
         logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
@@ -94,7 +99,10 @@ public class TestConfig {
         logger.info("baseUrl:              " + baseUrl);
         logger.info("internalSolrUrl:      " + internalSolrUrl);
 		logger.info("seleniumUrl:          " + seleniumUrl);
-		logger.info("browserName:          " + browserName);
+
+        logger.info("browserName:          " + privateDriver.getCapabilities().getBrowserName());
+        logger.info("version:              " + privateDriver.getCapabilities().getVersion());
+        logger.info("platform:             " + privateDriver.getCapabilities().getPlatform().name());
     }
 
 	@Bean
@@ -130,12 +138,13 @@ public class TestConfig {
 	}
 
     @Bean(name = "driver")
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public RemoteWebDriver driver() throws TestException {
         RemoteWebDriver retVal = null;
 
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
 
-        switch (browserName) {
+        switch (browserName.toLowerCase()) {
             case "chrome":
                 desiredCapabilities = DesiredCapabilities.chrome();
                 break;
@@ -144,7 +153,10 @@ public class TestConfig {
                 desiredCapabilities = DesiredCapabilities.firefox();
                 break;
 
-            case "internetExplorer":
+            case "internetexplorer":
+            case "internet explorer":
+            case "ie":
+            case "iexplorer":
                 desiredCapabilities = DesiredCapabilities.internetExplorer();
                 break;
 
