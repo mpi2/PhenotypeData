@@ -50,7 +50,7 @@
 
 <script type="text/javascript">
 	$(function() {
-		
+				
 		/** Add widgets **/
 		$('#widgets_pc').html("");
 		$('#widgets_pc').append('<a href="#" id="shadows" class="button right filter_control btn">Shadows</a>');
@@ -73,7 +73,7 @@
 		});
 
 		var columns = _(foods[0]).keys();
-		var axes = _(columns).without('name', 'group');
+		var axes = _(columns).without('name', 'accession', 'group');
 
 		var foodgroups = [ "WT", "Mutant"];
 		// "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
