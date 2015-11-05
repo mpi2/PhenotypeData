@@ -62,6 +62,19 @@ public class TestUtils {
 
 
     /**
+     * Returns a list of the given values, each on a separate line, in the format "\t[0]: xxx"
+     * @param values the values to be formatted and returned
+     * @return a list of the given values, each on a separate line, in the format "\t[0]: xxx"
+     */
+    public String buildIndexedList(List<String> values) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.size(); i++) {
+            sb.append("\t[").append(i).append("]: ").append(values.get(i)).append("\n");
+        }
+
+        return sb.toString();
+    }
+    /**
      * Counts and returns the number of sex icons in <code>table</code>
      * @param table the data store
      * @param sexColumnIndex the zero-relative sex column index in the data store
