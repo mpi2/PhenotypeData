@@ -27,7 +27,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -701,6 +700,7 @@ public class TestUtils {
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
+    @Deprecated
     public void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
@@ -725,24 +725,56 @@ public class TestUtils {
     }
 
     /**
-     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
-     * prints the test environment for the test associated with <code>driver<code>.
-     * @param driver the initialized <code>WebDriver</code> instance
-     * @param seleniumUrl the Selenium URL
+     * Given a test name, test start time, error list, exception list, success list,
+     * and total number of expected records to be processed, writes the given
+     * information to stdout.
+     *
+     * @param testName the test name (must not be null)
+     * @param start the test start time (must not be null)
+     * @param status the <code>PageStatus</code> instance
+     * @param totalRecords the total number of expected records to process
+     * @param totalPossible the total number of possible records to process
      */
-    public void printTestEnvironment(WebDriver driver, String seleniumUrl) {
-        String browserName = "<Unknown>";
-        String version = "<Unknown>";
-        String platform = "<Unknown>";
-        if (driver instanceof RemoteWebDriver) {
-            RemoteWebDriver remoteWebDriver = (RemoteWebDriver)driver;
-            browserName = remoteWebDriver.getCapabilities().getBrowserName();
-            version = remoteWebDriver.getCapabilities().getVersion();
-            platform = remoteWebDriver.getCapabilities().getPlatform().name();
+    public void printEpilogue(String testName, Date start, PageStatus status, int totalRecords, int totalPossible) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        Date stop;
+
+        if (status.hasWarnings()) {
+            System.out.println(status.getWarningMessages().size() + " records had warnings:");
+            System.out.println(status.toStringWarningMessages());
         }
 
-        System.out.println("\nTESTING AGAINST " + browserName + " version " + version + " on platform " + platform);
-        System.out.println("seleniumUrl: " + seleniumUrl);
+        if (status.hasErrors()) {
+            System.out.println(status.getErrorMessages().size() + " errors:");
+            System.out.println(status.toStringErrorMessages());
+        }
+
+        stop = new Date();
+        String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
+        System.out.println(dateFormat.format(stop) + ": " + status.successCount + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + formatDateDifference(start, stop) + ".");
+        if (status.hasErrors()) {
+            fail("ERRORS: " + status.getErrorMessages().size());
+        }
+    }
+
+    /**
+     * Given an initialized <code>WebDriver</code> instance and a selenium URL,
+     * prints the test environment for the test associated with <code>driver<code>.
+     * @param logger the logger to use
+     * @param testClass the test class
+     * @param testName the test name
+     * @param requestedRecordCount the number of test records requested
+     * @param maxRecordCount the maximum number of test records available
+     */
+    public void logTestStartup(Logger logger, Class testClass, String testName, int requestedRecordCount, int maxRecordCount) {
+        String testClassAndName = testClass.getSimpleName() + "." + testName + "() started.";
+        String message = "Expecting to process " + requestedRecordCount + " of a total of " + maxRecordCount + " records.";
+
+        logger.info("####################################################################################################");
+        logger.info("#" + StringUtils.center(testClassAndName, 98, " ") + "#");
+        logger.info("#" + StringUtils.center(message, 98, "") + "#");
+        logger.info("####################################################################################################");
     }
 
     /**
