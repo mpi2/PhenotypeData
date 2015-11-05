@@ -200,6 +200,10 @@ public class ExpressionService extends BasicService{
 			String... fields) throws SolrServerException {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
+		//for embryo data the fields would be like this
+		//"parameter_name": "LacZ images section",
+        //"procedure_name": "Embryo LacZ",
+		
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
 		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME
@@ -214,6 +218,8 @@ public class ExpressionService extends BasicService{
 		
 		return response;
 	}
+	
+	
 
 	/**
 	 *
@@ -234,7 +240,7 @@ public class ExpressionService extends BasicService{
 	 * @throws SQLException 
 	 */
 	public void getLacImageDataForGene(String acc, String topMaNameFilter,
-			boolean imagesOverview, boolean expressionOverview, Model model)
+			boolean imagesOverview, boolean embryoOnly, Model model)
 			throws SolrServerException {
 		QueryResponse laczResponse = null;
 		if (imagesOverview) {
@@ -279,7 +285,7 @@ public class ExpressionService extends BasicService{
 			
 			// work out list of uberon/efo ids with/without expressions
 			if ( doc.containsKey(ImageDTO.MA_ID) ){
-				System.out.println(doc.toString());
+				//System.out.println(doc.toString());
 				List<String> maIds = Arrays.asList(doc.getFieldValues(ImageDTO.MA_ID).toArray());
 				//List<String> maTerms = Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
 				
@@ -376,6 +382,19 @@ public class ExpressionService extends BasicService{
 		model.addAttribute("anatomogram", anatomogram);
 
 	}
+	
+	public SolrDocumentList getEmbryoLacImageDataForGene(String acc, String... fields) throws SolrServerException {
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + acc + "\"");
+		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME
+				+ ":\"Embryo LacZ\"");
+		solrQuery.setRows(100000);
+		QueryResponse response = imagesSolr.query(solrQuery);
+		SolrDocumentList imagesDocs = response.getResults();
+		return imagesDocs;
+		
+	}
+	
         
 	/**
 	 *
@@ -817,5 +836,7 @@ public class ExpressionService extends BasicService{
 		}
 
 	}
+
+	
 
 }

@@ -635,6 +635,11 @@ public class GenesController {
 		boolean expressionOverview=true;
 		expressionService.getLacImageDataForGene(acc, null, overview, expressionOverview, model);
 		expressionService.getExpressionDataForGene(acc, model);
+		
+		SolrDocumentList embryoExpressionDocs=expressionService.getEmbryoLacImageDataForGene(acc);
+		long numberEmbryoExpressionImages=embryoExpressionDocs.getNumFound();
+		model.addAttribute("numberEmbryoExpressionImages", numberEmbryoExpressionImages);
+		model.addAttribute("embryoExpressionDocs", embryoExpressionDocs);
 	}
 
 	/**
