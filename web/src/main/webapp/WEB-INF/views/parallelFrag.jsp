@@ -197,7 +197,9 @@
 			var link = document.createElement('a');
 			link.download = "parallel_coordinates_data.csv";
 			link.href = "data:application/octet-stream," + encodeURIComponent(csv);
+			document.body.appendChild(link);
 			link.click();
+			document.body.appendChild(link);
 			return false;
 		});
 

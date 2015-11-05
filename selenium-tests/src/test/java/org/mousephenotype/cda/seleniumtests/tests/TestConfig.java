@@ -144,7 +144,7 @@ public class TestConfig {
 
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
 
-        switch (browserName) {
+        switch (browserName.toLowerCase()) {
             case "chrome":
                 desiredCapabilities = DesiredCapabilities.chrome();
                 break;
@@ -153,7 +153,10 @@ public class TestConfig {
                 desiredCapabilities = DesiredCapabilities.firefox();
                 break;
 
-            case "internetExplorer":
+            case "internetexplorer":
+            case "internet explorer":
+            case "ie":
+            case "iexplorer":
                 desiredCapabilities = DesiredCapabilities.internetExplorer();
                 break;
 
