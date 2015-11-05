@@ -96,7 +96,6 @@ public class PhenotypeAssociationsTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -105,9 +104,9 @@ public class PhenotypeAssociationsTest {
 
     @After
     public void teardown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @BeforeClass
@@ -191,7 +190,7 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
 
         geneIds.set(0, "MGI:1336993");         // Always test this mgi id, as it spans two 100-element pages.
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + geneIds.size() + " records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneIds.size());
 
         // Loop through all genes, testing each one for valid page load.
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);

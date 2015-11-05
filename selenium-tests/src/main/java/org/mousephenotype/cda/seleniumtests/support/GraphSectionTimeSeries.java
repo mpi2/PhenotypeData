@@ -83,8 +83,10 @@ public class GraphSectionTimeSeries extends GraphSection {
     public PageStatus validate() throws TestException {
         PageStatus status = super.validate();                                   // Validate common components.
 
-        if (getHeading().getObservationType() != ObservationType.time_series) {
-            status.addError("ERROR: Expected time series graph but found " + getHeading().getObservationType().name());
+        // Careful! Derived parameters can have a null observation type.
+        ObservationType observationType = getHeading().getObservationType();
+        if ((observationType != null) && (observationType != ObservationType.time_series)) {
+            status.addError("ERROR: Expected time series graph but found " + observationType.name());
         }
 
         // Validate that there is a 'More statistics' link, click it and validate it.

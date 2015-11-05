@@ -87,7 +87,6 @@ public class DownloadSection {
           ALLELE_SYMBOL_COL_INDEX
         , GENETIC_BACKGROUND_COL_INDEX
         , GENE_SYMBOL_COL_INDEX
-        , METADATA_GROUP_COL_INDEX
         , PHENOTYPING_CENTER_COL_INDEX
         , PIPELINE_NAME_COL_INDEX
     };
@@ -125,7 +124,6 @@ public class DownloadSection {
     };
     public static final int[] DOWNLOAD_CONTROL_KEYS_TIME_SERIES_LINE_COLUMN_INDEXES = {
           GENETIC_BACKGROUND_COL_INDEX
-        , METADATA_GROUP_COL_INDEX
         , PHENOTYPING_CENTER_COL_INDEX
     };
     public static final int[] DOWNLOAD_CONTROL_KEYS_ABR_COLUMN_INDEXES = {

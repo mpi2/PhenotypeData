@@ -100,17 +100,15 @@ public class PhenotypePageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
-
         driver.navigate().refresh();
         try { Thread.sleep(threadWaitInMilliseconds); } catch (Exception e) { }
     }
 
     @After
     public void teardown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @BeforeClass
@@ -148,7 +146,7 @@ public class PhenotypePageTest {
         Date start = new Date();
 
         int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, phenotypeIds.size());
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
         int i = 0;
@@ -282,7 +280,7 @@ public class PhenotypePageTest {
         String phenotypeId = "junkBadPhenotype";
         final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 of a total of 1 records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         boolean found = false;
         target = baseUrl + "/phenotypes/" + phenotypeId;
@@ -342,7 +340,7 @@ public class PhenotypePageTest {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int errorCount = 0;
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 3 of a total of 3 records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 3, 3);
 
         for (int i = 0; i < phenotypeIdArray.length; i++) {
             target = baseUrl + "/phenotypes/" + phenotypeIdArray[i];
@@ -395,7 +393,7 @@ public class PhenotypePageTest {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
         int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, phenotypeIds.size());
 
         // Loop through all phenotypes, testing each one for valid page load.
         int i = 0;

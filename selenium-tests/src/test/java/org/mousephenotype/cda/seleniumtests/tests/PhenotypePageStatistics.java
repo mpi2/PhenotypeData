@@ -102,7 +102,6 @@ public class PhenotypePageStatistics {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        testUtils.printTestEnvironment(driver, seleniumUrl);
         wait = new WebDriverWait(driver, timeoutInSeconds);
 
         driver.navigate().refresh();
@@ -111,9 +110,9 @@ public class PhenotypePageStatistics {
 
     @After
     public void teardown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @BeforeClass
@@ -154,7 +153,7 @@ public class PhenotypePageStatistics {
         List<String> urlsWithNeitherPhenotypeTableNorImage = new ArrayList();
 
         int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " of a total of " + phenotypeIds.size() + " records.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, phenotypeIds.size());
 
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
         int i = 0;

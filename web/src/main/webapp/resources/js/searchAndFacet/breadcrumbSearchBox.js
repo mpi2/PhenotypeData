@@ -39,7 +39,7 @@ $(document).ready(function () {
 					+ '<p>'
 					+ '<a href="' + baseUrl + '/search?q=abnormal phy*#fq=top_level_mp_term:*&facet=mp">abnormal phy*</a>'
 					+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
-					+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.<br>NOTE that leading wildcard, eg. *abnormal is not supported.'
+					+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.'
 					+ '</p>';
 		    
 	    	//$('a#searchExample').mouseover(function(){

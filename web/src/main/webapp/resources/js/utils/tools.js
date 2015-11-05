@@ -2083,8 +2083,8 @@
 				oParams.qf = 'mgi_accession_id';
 			} else if (q.match(wildCardStr) && q != '*:*') {
 
-				oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000'
-						+ ' marker_symbol_bf:' + qBoost + '^100';
+				oParams.bq = 'marker_symbol_lowercase:(' + qBoost + ')^1000'
+						+ ' marker_symbol_bf:(' + qBoost + ')^100';
 				// oParams.bq = 'marker_symbol_lowercase:' + q.replace(/\*/g,
 				// '') + '^1000'
 				// + ' human_gene_symbol:' + q.replace(/\*/g, '') + '^800'
@@ -2093,8 +2093,8 @@
 			} else if (q.match(/^.+\S+.+$/)) {
 				// simple phrase search
 
-				oParams.bq = 'marker_symbol_lowercase:"' + qBoost + '"^1000'
-						+ ' marker_symbol_bf:"' + qBoost + '"^100';
+				oParams.bq = 'marker_symbol_lowercase:(' + qBoost + ')^1000'
+						+ ' marker_symbol_bf:(' + qBoost + ')^100';
 			}
 
 			else {
@@ -2105,8 +2105,8 @@
 
 				// oParams.pf = 'marker_symbol^1000 human_gene_symbol^800
 				// marker_synonym^100 marker_name^200';
-				oParams.bq = 'marker_symbol_lowercase:' + qBoost + '^1000'
-						+ ' marker_symbol_bf:' + qBoost + '^100';
+				oParams.bq = 'marker_symbol_lowercase:(' + qBoost + ')^1000'
+						+ ' marker_symbol_bf:(' + qBoost + ')^100';
 				oParams.pf = 'marker_symbol_lowercase^1000 human_gene_symbol^500';
 
 			}
@@ -2114,6 +2114,14 @@
 		} else if (facet == 'mp') {
 
 			oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
+			//var moreBqStr = ' mp_term:(' + q.replace(/\*/g, '') + ')^1000'
+			//	+ ' mp_term_synonym:(' + q.replace(/\*/g, '') + ')^500'
+			//	+ ' mp_definition:(' + q.replace(/\*/g, '') + ')^100';
+
+			// works with wild card, eg, abnor* phy*
+			var moreBqStr = ' mp_term:(' + q + ')^1000'
+				+ ' mp_term_synonym:(' + q + ')^500'
+				+ ' mp_definition:(' + q + ')^100';
 
 			if (q.match(/^MP:\d*$/i)) {
 				oParams.q = q.toUpperCase();
@@ -2121,28 +2129,30 @@
 			}
 			// else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){
 			else if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq += ' mp_term:' + q.replace(/\*/g, '') + '^1000'
-						+ ' mp_term_synonym:' + q.replace(/\*/g, '') + '^500'
-						+ ' mp_definition:' + q.replace(/\*/g, '') + '^100';
+				oParams.bq += moreBqStr;
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'mp_term^1000 mp_term_synonym^500 mp_definition^100';
 			}
 
 			if (q != '*:*') {
-				delete oParams.bq; // don't want to use the default bq when
+				oParams.bq = moreBqStr; // don't want to use the default bq when
 									// users search for something specific
 			}
 
 		} else if (facet == 'disease') {
+
+			//disease_human_phenotypes may not be in every document
+
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'disease_term:' + q.replace(/\*/g, '') + '^1000'
-						+ ' disease_alts:' + q.replace(/\*/g, '') + '^700'
-						+ ' disease_human_phenotypes:' + q.replace(/\*/g, '')
-						+ '^500' + ' disease_source:' + q.replace(/\*/g, '')
-						+ '^200';
+				oParams.bq = 'disease_term:(' + q + ')^1000'
+						+ ' disease_alts:(' + q + ')^700'
+						//+ ' disease_human_phenotypes:(' + q.replace(/\*/g, '') + ')^500'
+						+ ' disease_source:(' + q + ')^200';
 			} else {
-				oParams.pf = 'disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200';
+				//oParams.pf = 'disease_term^1000 disease_alts^700 disease_human_phenotypes^500 disease_source^200';
+				oParams.pf = 'disease_term^1000 disease_alts^700 disease_source^200';
+
 			}
 		} else if (facet == 'ma') {
 			if (q.match(/^MA:\d*$/i)) {
@@ -2151,41 +2161,40 @@
 			}
 			// else if ( q.match(/^\*\w*|\w*\*$|^\*\w*\*$/) && q != '*:*'){
 			else if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'ma_term:' + q.replace(/\*/g, '') + '^1000'
-						+ ' ma_term_synonym:' + q.replace(/\*/g, '') + '^500';
+				oParams.bq = 'ma_term:(' + q + ')^1000'
+						+ ' ma_term_synonym:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'ma_term^1000 ma_term_synonym^500';
 			}
 		} else if (facet == 'pipeline') {
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'parameter_name: ' + q.replace(/\*/g, '')
-						+ '^1000' + ' procedure_name: ' + q.replace(/\*/g, '')
-						+ '^500';
+				oParams.bq = 'parameter_name:(' + q + ')^1000'
+						+ ' procedure_name:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'parameter_name^1000 procedure_name^500';
 			}
 		} else if (facet == 'images') {
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'annotationTermName: ' + q.replace(/\*/g, '')
-						+ '^500' + ' expName: ' + q.replace(/\*/g, '') + '^500'
-						+ ' symbol: ' + q.replace(/\*/g, '') + '^500';
+				oParams.bq = 'annotationTermName:(' + q + ')^500'
+						+ ' expName:(' + q + ')^500'
+						+ ' symbol:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'annotationTermName^500 expName^500 symbol^500';
 			}
 		} else if (facet == 'impc_images') {
 			if (q.match(wildCardStr) && q != '*:*') {
-				oParams.bq = 'procedure_name: ' + q.replace(/\*/g, '') + '^500'
-						+ ' gene_symbol: ' + q.replace(/\*/g, '') + '^500';
+				oParams.bq = 'procedure_name:(' + q + ')^500'
+						+ ' gene_symbol:(' + q + ')^500';
 			} else {
 				// does not seem to take effect if complexphrase is in use
 				oParams.pf = 'procedure_name^500 gene_symbol^500';
 			}
 		}
 		if (typeof oParams.bq != 'undefined') {
-			// oParams.bq = oParams.bq.replace(/~/g, '\\~');
+			oParams.bq = oParams.bq.replace(/~/g, '\\~');
 		}
 
 		return oParams;
@@ -2246,7 +2255,8 @@
 			oUrlParams.params += '&bq=latest_phenotype_status:"Phenotyping Complete"^200';
 		}
 		if (oUrlParams.widgetName == 'mpFacet') {
-			oUrlParams.params += '&sort=pheno_calls desc';
+			//oUrlParams.params += '&sort=pheno_calls desc';
+			//oUrlParams.params += '&sort=mp_term asc,pheno_calls desc';
 		}
 
 		if (facetDivId == 'imagesFacet' || facetDivId == 'impc_imagesFacet') {
@@ -2263,8 +2273,8 @@
 			oUrlParams.facetName = oUrlParams.facetName;
 		}
 
-		oUrlParams.params += '&fl='
-				+ MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fl;
+		oUrlParams.params += '&fl=' + MPI2.searchAndFacetConfig.facetParams[facetDivId].filterParams.fl;
+
 
 		$.fn.updateBreadCrumb(coreName);
 		$.fn.openFacet(coreName);
