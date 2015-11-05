@@ -190,7 +190,7 @@ public class GraphPageTest {
         int successCount = 0;
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
 
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
@@ -272,7 +272,7 @@ public class GraphPageTest {
         int successCount = 0;
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graphs.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
 
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
