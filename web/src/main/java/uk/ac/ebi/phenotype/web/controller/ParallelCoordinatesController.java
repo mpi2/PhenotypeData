@@ -85,8 +85,9 @@ public class ParallelCoordinatesController {
 			model.addAttribute("dataJs", getJsonForParallelCoordinates(null) + ";");	
 			
 		} else {
-			
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false));
+			String mappedHostname = (String)request.getAttribute("mappedHostname");
+			mappedHostname += (String)request.getAttribute("baseUrl");
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname));
 			model.addAttribute("dataJs", data + ";");
 
 			String title = "";
