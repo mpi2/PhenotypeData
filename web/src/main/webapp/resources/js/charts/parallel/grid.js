@@ -25,13 +25,24 @@
       }
       this.model.bind('change:filtered', function() { self.update()});
       this.model.bind('change:removefilter', function() { self.clearfilters(); });
+      
       this.cols = _(this.columns).map(function(col) {
-        return {
-          id: col,
-          name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), 
-          field: function() { return col;}(),
-          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
-        }
+    	  if (col == 'name'){
+	        return {
+	          id: col,
+	          name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), 
+	          field: function() { return col;}(),
+	          formatter: linkFormatter = function ( row, cell, value, columnDef, dataContext ) {return '<a href="' + baseUrl + '/genes/' + value.split("(")[1].replace(")", "") + '">'+value.split("(")[0] + '</a>';},
+	          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
+	        }
+    	  } else {
+    		  return {
+    	          id: col,
+    	          name: function() { if (self.alias) { return self.alias[col]; } else { return col; } }(), 
+    	          field: function() { return col;}(),
+    	          width: function() { if (col == "name") { return 180; } else if (col == "group") { return 100; } else { return 80; }}()
+    		  }
+    	  }
       });
       
       this.options = {
@@ -102,6 +113,7 @@
     },
     update: function() {
       var self = this;
+     
       var data = _(this.model.get('filtered')).map(function(obj) {
         obj.id = self.counter++;
         for (var k in obj){

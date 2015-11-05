@@ -27,7 +27,7 @@
 
 			// Extract the list of dimensions and create a scale for each.
 			x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
-				return d != "name" && d != "group" && d != "id" && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
+				return d != "name" && d != "group" && d != "accession" && d != "id" && (y[d] = d3.scale.linear().domain(d3.extent(cars, function(p) {
 					return +p[d];
 				})).range([ h, 0 ]));
 			}));
