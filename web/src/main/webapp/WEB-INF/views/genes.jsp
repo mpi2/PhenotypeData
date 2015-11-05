@@ -717,7 +717,7 @@
                                     <!-- section for expression data here -->
                                     <div id="tabs">
                                         <ul class='tabs'>
-                                            <li><a href="#tabs-2">Expression Images View</a></li>
+                                            <li><a href="#tabs-2">Adult Expression Images View</a></li>
                                             <li><a href="#tabs-1">Expression Data Overview</a></li>
                                             <li><a href="#tabs-3">Embryo Expression Overview</a></li>
                                         </ul>
