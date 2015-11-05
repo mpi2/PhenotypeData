@@ -306,7 +306,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 	
 
-	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly)
+	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
 	throws SolrServerException{
 
     	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
@@ -346,6 +346,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         	query.set("group.limit", 10000);
         	query.set("group.field", StatisticalResultDTO.MARKER_SYMBOL);
         	query.addField(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
+        	query.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
         	query.addField(StatisticalResultDTO.FEMALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.MALE_KO_PARAMETER_ESTIMATE);
         	query.addField(StatisticalResultDTO.PHENOTYPING_CENTER);
@@ -355,7 +356,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         		query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
         	}
         	
-        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameters);
+        	row = addMaxGenotypeEffect(solr.query(query), row, p, parameters, baseUrl);
     	}
 
     	row = addDefaultValues(row, parameters);
@@ -380,15 +381,17 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 	}
 
 
-    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, ParameterDTO p, List<ParameterDTO> allParameterNames) {
+    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, ParameterDTO p, List<ParameterDTO> allParameterNames, String baseUrl) {
 
     	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
 
+    	 
     	 for (Group gr : solrGroups) {
              
     		 SolrDocumentList resDocs = gr.getResult();
         	 HashMap<String, Double> dataByGroup = new HashMap<>(); // <center, maxValue> for each gene
-             
+             String geneAccession = null;
+        	 
         	 for (int i = 0; i < resDocs.getNumFound(); i ++) {
              
         		 SolrDocument doc = resDocs.get(i);
@@ -412,14 +415,17 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
                  if (dataByGroup.get(center) == null || Math.abs(dataByGroup.get(center)) < Math.abs(val)){
             		 dataByGroup.put(center, val);
             	 }
+                 if (geneAccession == null){
+                	 geneAccession = doc.getFieldValue(StatisticalResultDTO.MARKER_ACCESSION_ID).toString();
+                 }
              }
 
              String gene = gr.getGroupValue();
-             
+                          
              for (String center : dataByGroup.keySet()){
                 
             	 String group = (gene == null) ? "WT " : "Mutant";
-	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  null, group, allParameterNames);
+	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  geneAccession, group, allParameterNames);
 	             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
 	             beans.put(gene + " " + group, currentBean);
              }
