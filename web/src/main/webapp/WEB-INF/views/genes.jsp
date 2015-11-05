@@ -717,8 +717,11 @@
                                     <!-- section for expression data here -->
                                     <div id="tabs">
                                         <ul class='tabs'>
-                                            <li><a href="#tabs-2">Expression Images View</a></li>
+                                            <li><a href="#tabs-2">Adult Expression Images View</a></li>
                                             <li><a href="#tabs-1">Expression Data Overview</a></li>
+                                            <c:if test="${not empty embryoExpressionDocs}">
+                                            	<li><a href="#tabs-3">Embryo Expression Overview</a></li>
+                                            </c:if>
                                         </ul>
 
 
@@ -881,6 +884,37 @@
                                             <!--  end of tabs-2 -->
 
                                         </div>
+                                        
+                                        
+                                       <!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
+         		<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
+         								<c:if test="${not empty embryoExpressionDocs}">
+         								<div id="tabs-3">
+
+                                         
+                                             	
+                                             	<div class="accordion-body"
+                                                 style="display: block;">
+                                                 
+                                                 ${embryoExpressionDocs[0].procedure_name} (${numberEmbryoExpressionImages})
+                                                 
+                                             	<c:set var="href"
+                                                           scope="page"
+                                                           value="${baseUrl}/imagePicker/${acc}/${embryoExpressionDocs[0].parameter_stable_id}"></c:set>
+                            					<!-- IMPC Phenotype Associated Images -->
+                            						<ul>
+                                                        <t:impcimgdisplay2
+                                                               
+                                                                 href="${href}"
+                                                                img="${embryoExpressionDocs[0]}"
+                                                                impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                    </ul>
+                                                    </div>
+                        						
+
+                                        </div>
+                                        </c:if>
+         		
                                         <!-- end of tabs -->
                                     </div>
 
@@ -905,6 +939,7 @@
 
                                         <c:forEach var="doc"
                                                    items="${impcFacetToDocs[entry.name]}">
+                                             <c:if test="${doc.procedure_name ne 'Embryo LacZ' }">      
                                             <div
                                                     id="impc-images-heading" class="accordion-group">
 
@@ -932,8 +967,10 @@
                                                                 <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                                                             </c:if> --%>
                                                 </div>
+                                               
                                                 <!--  end of accordion body -->
                                             </div>
+                                             </c:if>
                                         </c:forEach>
 
                                     </c:forEach>
