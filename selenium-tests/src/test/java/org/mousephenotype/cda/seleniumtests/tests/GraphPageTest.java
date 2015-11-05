@@ -153,14 +153,12 @@ public class GraphPageTest {
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
-        int successCount = 0;
 
         int targetCount = graphUrls.size();
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, graphUrls.size());
 
         int i = 1;
         for (String graphUrl : graphUrls) {
-            PageStatus status = new PageStatus();
 
             // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
@@ -169,11 +167,7 @@ public class GraphPageTest {
             try {
                 logger.info("Testing graph " + graphUrl);
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
-                status.add(graphPage.validate());
-                if ( ! status.hasErrors()) {
-                    successCount++;
-                }
-                statuses.add(status);
+                statuses.add(graphPage.validate());
 
             } catch (TestException e) {
                 statuses.addError(e.getLocalizedMessage());
@@ -184,7 +178,7 @@ public class GraphPageTest {
             }
         }
 
-        testUtils.printEpilogue(testName, start, statuses, successCount, targetCount, graphUrls.size());
+        testUtils.printEpilogue(testName, start, statuses, targetCount, graphUrls.size());
         System.out.println();
     }
 
@@ -249,7 +243,7 @@ public class GraphPageTest {
         String testName = "testKnownGraphs";
 
         List<String> graphUrls = Arrays.asList(new String[]{
-                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"               // ABR
+                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                // ABR
                 , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // ABR
                 , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
                 , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
@@ -258,7 +252,6 @@ public class GraphPageTest {
                 , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
                 , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
                 , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // Unidimensional
-                , baseUrl + "/charts?accession=MGI:1923455&allele_accession_id=EUROALL:3&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_001&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"
                 , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"
                 , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"
         });

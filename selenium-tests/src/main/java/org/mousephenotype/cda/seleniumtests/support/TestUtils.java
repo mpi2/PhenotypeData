@@ -700,6 +700,7 @@ public class TestUtils {
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
+    @Deprecated
     public void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
@@ -724,6 +725,40 @@ public class TestUtils {
     }
 
     /**
+     * Given a test name, test start time, error list, exception list, success list,
+     * and total number of expected records to be processed, writes the given
+     * information to stdout.
+     *
+     * @param testName the test name (must not be null)
+     * @param start the test start time (must not be null)
+     * @param status the <code>PageStatus</code> instance
+     * @param totalRecords the total number of expected records to process
+     * @param totalPossible the total number of possible records to process
+     */
+    public void printEpilogue(String testName, Date start, PageStatus status, int totalRecords, int totalPossible) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
+        Date stop;
+
+        if (status.hasWarnings()) {
+            System.out.println(status.getWarningMessages().size() + " records had warnings:");
+            System.out.println(status.toStringWarningMessages());
+        }
+
+        if (status.hasErrors()) {
+            System.out.println(status.getErrorMessages().size() + " errors:");
+            System.out.println(status.toStringErrorMessages());
+        }
+
+        stop = new Date();
+        String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
+        System.out.println(dateFormat.format(stop) + ": " + status.successCount + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + formatDateDifference(start, stop) + ".");
+        if (status.hasErrors()) {
+            fail("ERRORS: " + status.getErrorMessages().size());
+        }
+    }
+
+    /**
      * Given an initialized <code>WebDriver</code> instance and a selenium URL,
      * prints the test environment for the test associated with <code>driver<code>.
      * @param logger the logger to use
@@ -736,10 +771,10 @@ public class TestUtils {
         String testClassAndName = testClass.getSimpleName() + "." + testName + "() started.";
         String message = "Expecting to process " + requestedRecordCount + " of a total of " + maxRecordCount + " records.";
 
-        logger.info("####################################################################################################");
-        logger.info("#" + StringUtils.center(testClassAndName, 98, " ") + "#");
-        logger.info("#" + StringUtils.center(message, 98, "") + "#");
-        logger.info("####################################################################################################");
+        System.out.println("####################################################################################################");
+        System.out.println("#" + StringUtils.center(testClassAndName, 98, " ") + "#");
+        System.out.println("#" + StringUtils.center(message, 98, "") + "#");
+        System.out.println("####################################################################################################");
     }
 
     /**
