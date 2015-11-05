@@ -771,10 +771,10 @@ public class TestUtils {
         String testClassAndName = testClass.getSimpleName() + "." + testName + "() started.";
         String message = "Expecting to process " + requestedRecordCount + " of a total of " + maxRecordCount + " records.";
 
-        logger.info("####################################################################################################");
-        logger.info("#" + StringUtils.center(testClassAndName, 98, " ") + "#");
-        logger.info("#" + StringUtils.center(message, 98, "") + "#");
-        logger.info("####################################################################################################");
+        System.out.println("####################################################################################################");
+        System.out.println("#" + StringUtils.center(testClassAndName, 98, " ") + "#");
+        System.out.println("#" + StringUtils.center(message, 98, "") + "#");
+        System.out.println("####################################################################################################");
     }
 
     /**
