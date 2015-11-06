@@ -19,7 +19,6 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -250,7 +249,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testForBadGeneIds() throws Exception {
         PageStatus status = new PageStatus();
         String testName = "testForBadGeneIds";
@@ -307,7 +306,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList(geneService.getAllGenes());
@@ -327,7 +326,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -355,7 +354,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -383,7 +382,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -411,7 +410,7 @@ public class GenePageTest {
      * @throws SolrServerException [
      */
     @Test
-    @Ignore
+//@Ignore
     public void testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI() throws SolrServerException {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
@@ -433,7 +432,7 @@ public class GenePageTest {
      * @throws SolrServerException
      */
     @Test
-    @Ignore
+//@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         PageStatus status = new PageStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
@@ -489,7 +488,7 @@ public class GenePageTest {
     // Test for the minimum number of blue and orange icons. Match orange icons with phenotype summary strings
     // appearing on the left side of the gene page.
     @Test
-    @Ignore
+//@Ignore
     public void testAkt2() throws Exception {
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testAkt2";
@@ -933,7 +932,7 @@ public class GenePageTest {
 
     // Tests gene page with more than one Production Status [blue] order button.
     @Test
-    @Ignore
+//@Ignore
     public void testOrderButtons() throws SolrServerException {
         String testName = "testOrderButtons";
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
