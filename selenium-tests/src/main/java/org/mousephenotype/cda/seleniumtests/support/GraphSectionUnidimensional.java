@@ -94,26 +94,26 @@ public class GraphSectionUnidimensional extends GraphSection {
             status.addError("ERROR: parameter name mismatch. parameter on graph: '"
                     + getHeading().parameterName
                     + "'. From parameterObject: " + parameterObjectName
-                    + ". URL: " + graphUrl);
+                    + ". URL:\n" + graphUrl);
         }
 
         // Validate that the required HTML table 'globalTest' exists and is valid.
         GraphGlobalTestTable globalTestTable = getGlobalTestTable();
         if (globalTestTable == null) {
-            status.addError("ERROR: unidimensional graph has no globalTest table. URL: " + graphUrl);
+            status.addError("ERROR: unidimensional graph has no globalTest table. URL:\n" + graphUrl);
         } else {
             status.add(globalTestTable.validate());
         }
 
         // Validate that the required HTML table 'continuousTable' exists.
         if (getContinuousTable() == null) {
-            status.addError("ERROR: unidimensional graph has no continuousTable. URL: " + graphUrl);
+            status.addError("ERROR: unidimensional graph has no continuousTable. URL:\n" + graphUrl);
         }
 
         // Validate that there is a 'More statistics' link, click it and validate it.
         GraphSection.MoreStatisticsLink moreStatisticsLink = getMoreStatisticsLink();
         if (moreStatisticsLink == null) {
-            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL: " + graphUrl);
+            status.addError("ERROR: unidimensional graph expected 'More statistics' link. URL:\n" + graphUrl);
         } else {
             status.add(moreStatisticsLink.validate());
         }
