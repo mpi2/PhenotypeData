@@ -56,7 +56,10 @@ public class GraphValidatorPreqc {
             // Make sure there is a div.viz-tools.
             List<WebElement> elements = driver.findElements(By.xpath("//div[@class='viz-tools' or @class='phenodcc-heatmap']"));
             if (elements.isEmpty()) {
-                message = "ERROR: " + "\n\tpreQc graph[ " + geneGraph.getProcedureParameterName() + "] URL: " + url + ". Gene page: " + genePage.getTarget() + "\n[FAILED]";
+                message = "ERROR: " + "\n\tpreQc graph[ " + geneGraph.getProcedureParameterName()
+                        + "] failed to load.  procedureName: " + geneGraph.getProcedureName()
+                        + ". parameterName: " + geneGraph.getParameterName() + ". URL:\n"
+                        + url + ". Gene page: " + genePage.getTarget() + "\n[FAILED]";
                 status.addError(message);
             }
         }

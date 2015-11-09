@@ -268,9 +268,7 @@ public class GraphPageTest {
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         String target;
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
-        int successCount = 0;
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
@@ -278,16 +276,17 @@ public class GraphPageTest {
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            System.out.println("[" + (i) + "]: GENE PAGE URL:  " + target);
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             GraphValidatorPreqc validator = new GraphValidatorPreqc();
             PageStatus status = validator.validate(driver, genePage, geneGraph);
             if ( ! status.hasErrors())
-                successCount++;
+                status.successCount++;
             statuses.add(status);
         }
 
-        testUtils.printEpilogue(testName, start, statuses, successCount, targetCount, geneGraphs.size());
+        testUtils.printEpilogue(testName, start, statuses, targetCount, geneGraphs.size());
         System.out.println();
     }
 
