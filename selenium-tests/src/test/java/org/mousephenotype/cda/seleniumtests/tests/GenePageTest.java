@@ -126,7 +126,6 @@ public class GenePageTest {
         geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         String target = "";
-        List<String> successList = new ArrayList();
         String message;
         Date start = new Date();
 
@@ -143,7 +142,7 @@ public class GenePageTest {
             i++;
 
             target = baseUrl + "/genes/" + geneId;
-            logger.debug("gene[" + i + "] URL: " + target);
+            System.out.println("gene[" + i + "] URL: " + target);
 
             try {
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
@@ -161,13 +160,14 @@ public class GenePageTest {
                 continue;
             }
 
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
+            if ( ! status.hasErrors()) {
+                status.successCount++;
+            }
 
             commonUtils.sleep(threadWaitInMilliseconds);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, geneIds.size());
+        testUtils.printEpilogue(testName, start, status, targetCount, geneIds.size());
     }
 
     private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
@@ -309,7 +309,7 @@ public class GenePageTest {
 //@Ignore
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
-        List<String> geneIds = new ArrayList(geneService.getAllGenes());
+        List<String> geneIds = new ArrayList<>(geneService.getAllGenes());
 
         geneIdsTestEngine(testName, geneIds);
     }
