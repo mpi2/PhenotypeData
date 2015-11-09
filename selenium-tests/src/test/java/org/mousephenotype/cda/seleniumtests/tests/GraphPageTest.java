@@ -165,7 +165,7 @@ public class GraphPageTest {
                 continue;
 
             try {
-                logger.info("Testing graph " + graphUrl);
+                System.out.println("[" + (i - 1) + "]: Testing graph " + graphUrl);
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
                 statuses.add(graphPage.validate());
 
@@ -190,11 +190,12 @@ public class GraphPageTest {
         int successCount = 0;
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graph pages.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
 
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            System.out.println("[" + (i - 1) + "]: GENE PAGE URL:  " + target);
 //target = "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/genes/MGI:2684058";
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
 
@@ -207,8 +208,7 @@ public class GraphPageTest {
             genePage.selectGenesLength(100);
 
             try {
-                logger.info("GENE PAGE URL: " + target);
-                logger.info("GRAPH PAGE URL: " + graphUrls.get(0));
+                System.out.println("[" + (i - 1) + "]: GRAPH PAGE URL: " + graphUrls.get(0));
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
                 PageStatus status = graphPage.validate();
                 if ( ! status.hasErrors()) {
@@ -254,6 +254,7 @@ public class GraphPageTest {
                 , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // Unidimensional
                 , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"
                 , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"
+                , baseUrl + "/charts?accession=MGI:1930948&allele_accession_id=MGI:4432700&zygosity=heterozygote&parameter_stable_id=ESLIM_015_001_006&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"              // Uni with 4 graphs
         });
 
         graphEngine(testName, graphUrls);
@@ -267,26 +268,25 @@ public class GraphPageTest {
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         String target;
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus statuses = new PageStatus();
-        int successCount = 0;
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process " + targetCount + " graphs.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
 
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            System.out.println("[" + (i) + "]: GENE PAGE URL:  " + target);
             GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
             genePage.selectGenesLength(100);
             GraphValidatorPreqc validator = new GraphValidatorPreqc();
             PageStatus status = validator.validate(driver, genePage, geneGraph);
             if ( ! status.hasErrors())
-                successCount++;
+                status.successCount++;
             statuses.add(status);
         }
 
-        testUtils.printEpilogue(testName, start, statuses, successCount, targetCount, geneGraphs.size());
+        testUtils.printEpilogue(testName, start, statuses, targetCount, geneGraphs.size());
         System.out.println();
     }
 

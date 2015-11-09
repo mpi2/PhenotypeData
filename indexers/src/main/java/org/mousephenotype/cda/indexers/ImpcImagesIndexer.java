@@ -147,6 +147,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		logger.info("populated alleles");
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
+		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
 		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
@@ -196,7 +197,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						if(downloadFilePath.endsWith(".pdf")){
 							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
 							imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/annotation/" + omeroId);
-							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + 119501);//pdf thumnail placeholder
+							imageDTO.setJpegUrl(pdfThumbnailUrl);//pdf thumnail placeholder
 						}else{
 							imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);

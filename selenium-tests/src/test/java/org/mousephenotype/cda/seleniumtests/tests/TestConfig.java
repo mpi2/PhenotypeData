@@ -103,6 +103,7 @@ public class TestConfig {
         logger.info("browserName:          " + privateDriver.getCapabilities().getBrowserName());
         logger.info("version:              " + privateDriver.getCapabilities().getVersion());
         logger.info("platform:             " + privateDriver.getCapabilities().getPlatform().name());
+        privateDriver.quit();
     }
 
 	@Bean

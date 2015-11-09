@@ -114,7 +114,7 @@ public class GenePage {
     public List<String> getSignificantAbnormalities() {
         List<String> abnormalityStrings = new ArrayList();
 
-        List<WebElement> significantAbnormalityElements = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']//div[contains(@class, 'sprite_orange') and not (contains(@class, 'sprite_NA'))]"));
+        List<WebElement> significantAbnormalityElements = driver.findElements(By.xpath("//div[@class='abnormalities']//div[contains(@class, 'sprite_orange') and not (contains(@class, 'sprite_NA'))]"));
 
         for (WebElement significantAbnormalityElement : significantAbnormalityElements) {
             String abnormality = significantAbnormalityElement.getAttribute("oldtitle");
@@ -132,7 +132,7 @@ public class GenePage {
     public List<String> getNotSignificantAbnormalities() {
         List<String> abnormalityStrings = new ArrayList();
 
-        List<WebElement> notSignificantAbnormalityElements = driver.findElements(By.xpath("//div[@class='inner']/div[@class='abnormalities']//div[contains(@class, 'sprite_blue') and not (contains(@class, 'sprite_NA'))]"));
+        List<WebElement> notSignificantAbnormalityElements = driver.findElements(By.xpath("//div[@class='abnormalities']//div[contains(@class, 'sprite_blue') and not (contains(@class, 'sprite_NA'))]"));
 
         for (WebElement notSignificantAbnormalityElement : notSignificantAbnormalityElements) {
             String abnormality = notSignificantAbnormalityElement.getAttribute("oldtitle");
@@ -698,8 +698,8 @@ public class GenePage {
             int i = 0;
             while (it.hasNext()) {
                 String value = (String) it.next();
-                logger.error("[" + i + "]:\t page data: " + value);
-                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                logger.error("[" + i + "]:\t page data:\n\t" + value);
+                logger.error("\t download data:\n\t" + testUtils.closestMatch(downloadSet, value) + "\n");
                 i++;
                 errorCount++;
             }

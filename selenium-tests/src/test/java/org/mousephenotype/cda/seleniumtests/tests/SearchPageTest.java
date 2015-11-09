@@ -397,7 +397,7 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         int successCount = 0;
         String target = baseUrl + "/search?q=" + qry;
@@ -1343,7 +1343,6 @@ public class SearchPageTest {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
-        System.out.println(dateFormat.format(start) + ": " + testName + " started. Expecting to process 1 page.");
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String searchString = "Wnt1";
