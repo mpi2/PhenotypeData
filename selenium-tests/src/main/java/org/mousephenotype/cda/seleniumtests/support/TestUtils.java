@@ -769,6 +769,7 @@ public class TestUtils {
         if (status.hasErrors()) {
             fail("ERRORS: " + status.getErrorMessages().size());
         }
+        System.out.println();
     }
 
     /**
@@ -781,7 +782,8 @@ public class TestUtils {
      * @param maxRecordCount the maximum number of test records available
      */
     public void logTestStartup(Logger logger, Class testClass, String testName, int requestedRecordCount, int maxRecordCount) {
-        String testClassAndName = testClass.getSimpleName() + "." + testName + "() started.";
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        String testClassAndName = testClass.getSimpleName() + "." + testName + "() started " + dateFormat.format(new Date());
         String message = "Expecting to process " + requestedRecordCount + " of a total of " + maxRecordCount + " records.";
 
         System.out.println("####################################################################################################");
