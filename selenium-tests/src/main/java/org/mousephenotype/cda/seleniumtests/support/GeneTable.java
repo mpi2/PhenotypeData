@@ -155,8 +155,14 @@ public class GeneTable {
             sourceColIndex = 0;
             boolean skipLink = false;
             for (WebElement cell : cells) {
+                value = "";
                 if (sourceColIndex == COL_INDEX_GENES_PHENOTYPE) {
-                    value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
+                    List<WebElement> elements = cell.findElements(By.cssSelector("a"));
+                    if ( ! elements.isEmpty()) {
+                        value = elements.get(0).getText();
+                    } else {
+                        value = cell.getText();
+                    }
                 } else if (sourceColIndex == COL_INDEX_GENES_ALLELE) {
                     String rawAllele = cell.getText();
                     List<WebElement> supList = cell.findElements(By.cssSelector("sup"));
@@ -169,10 +175,12 @@ public class GeneTable {
                     }
                 } else if (sourceColIndex == COL_INDEX_GENES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
-                    if (sex.size() == 2) {
-                        value = "both";
-                    } else {
-                        value = sex.get(0).getAttribute("alt").toLowerCase();
+                    if ( ! sex.isEmpty()) {
+                        if (sex.size() == 2) {
+                            value = "both";
+                        } else {
+                            value = sex.get(0).getAttribute("alt").toLowerCase();
+                        }
                     }
                 } else if (sourceColIndex == COL_INDEX_GENES_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
                     // NOTE: Graph links are disabled if there is no supporting data.
