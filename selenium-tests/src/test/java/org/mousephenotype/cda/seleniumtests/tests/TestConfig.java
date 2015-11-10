@@ -143,11 +143,15 @@ public class TestConfig {
     public RemoteWebDriver driver() throws TestException {
         RemoteWebDriver retVal = null;
 
-        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+        DesiredCapabilities desiredCapabilities;
 
         switch (browserName.toLowerCase()) {
             case "chrome":
                 desiredCapabilities = DesiredCapabilities.chrome();
+                break;
+
+            case "edge":
+                desiredCapabilities = DesiredCapabilities.edge();
                 break;
 
             case "firefox":
