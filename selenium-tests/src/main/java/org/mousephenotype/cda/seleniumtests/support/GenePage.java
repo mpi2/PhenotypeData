@@ -19,6 +19,8 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
+import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -47,6 +49,7 @@ public class GenePage {
     private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String target;
     protected final TestUtils testUtils = new TestUtils();
+    protected final UrlUtils urlUtils = new UrlUtils();
     private final WebDriverWait wait;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
@@ -621,7 +624,7 @@ public class GenePage {
             return status;
         }
 
-        status = validateDownload(pageMap, downloadData);
+        status = validateDownload(pageMap, downloadData, DownloadType.TSV);
         if (status.hasErrors()) {
             return status;
         }
@@ -632,7 +635,7 @@ public class GenePage {
             return status;
         }
 
-        status = validateDownload(pageMap, downloadData);
+        status = validateDownload(pageMap, downloadData, DownloadType.XLS);
         if (status.hasErrors()) {
             return status;
         }
@@ -647,7 +650,7 @@ public class GenePage {
      * @param downloadData a loaded download store
      * @return status
      */
-    private PageStatus validateDownload(GridMap pageData, GridMap downloadData) {
+    private PageStatus validateDownload(GridMap pageData, GridMap downloadData, DownloadType downloadType) {
         PageStatus status = new PageStatus();
         int downloadDataLineCount = downloadData.getBody().length;
 
@@ -660,12 +663,18 @@ public class GenePage {
                     sexIconCount + ").");
         }
 
+        // XLS download links are expected to be encoded.
+        if (downloadType == DownloadType.XLS) {
+            logger.info("GenePage: Encoding page data for XLS image link comparison.");
+            pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
+        }
+
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
         final Integer[] pageColumns = {
-                GeneTable.COL_INDEX_GENES_ALLELE
+                  GeneTable.COL_INDEX_GENES_ALLELE
                 , GeneTable.COL_INDEX_GENES_ZYGOSITY
                 , GeneTable.COL_INDEX_GENES_PHENOTYPE
                 , GeneTable.COL_INDEX_GENES_LIFE_STAGE
@@ -674,7 +683,7 @@ public class GenePage {
                 , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
-                DownloadGeneMap.COL_INDEX_ALLELE
+                  DownloadGeneMap.COL_INDEX_ALLELE
                 , DownloadGeneMap.COL_INDEX_ZYGOSITY
                 , DownloadGeneMap.COL_INDEX_PHENOTYPE
                 , DownloadGeneMap.COL_INDEX_LIFE_STAGE
