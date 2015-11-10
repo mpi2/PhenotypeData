@@ -19,6 +19,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -97,11 +98,9 @@ public class GraphSectionUnidimensional extends GraphSection {
                     + ". URL:\n" + graphUrl);
         }
 
-        // Validate that the required HTML table 'globalTest' exists and is valid.
+        // If the HTML table 'globalTest' exists, validate it.
         GraphGlobalTestTable globalTestTable = getGlobalTestTable();
-        if (globalTestTable == null) {
-            status.addError("ERROR: unidimensional graph has no globalTest table. URL:\n" + graphUrl);
-        } else {
+        if (globalTestTable != null) {
             status.add(globalTestTable.validate());
         }
 
@@ -143,6 +142,7 @@ public class GraphSectionUnidimensional extends GraphSection {
     private PageStatus validateDownload() {
         PageStatus status = new PageStatus();
         GraphHeading heading = getHeading();
+        UrlUtils urlUtils = new UrlUtils();
 
         // For all download types in the map, walk each download section, using
         // the key defined by the group. When found, add the rows to a set.

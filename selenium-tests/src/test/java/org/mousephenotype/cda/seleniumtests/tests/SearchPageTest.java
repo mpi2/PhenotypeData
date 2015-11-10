@@ -1003,13 +1003,13 @@ public class SearchPageTest {
             // Use the first gene div element in the search results.
             List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
             if (geneElements.isEmpty()) {
-                fail("Can't find first 'geneGrid' div element in gene search results list.");
+                fail("Can't find first 'geneGrid' div element in gene search results list. URL: " + target);
             }
 
             buttonElementsSize = searchPage.getProductionStatusOrderButtons(geneElements.get(0)).size();
 
             if (buttonElementsSize != 2) {
-                status.addError("This test expects two order buttons. Number of buttons found: " + buttonElementsSize);
+                status.addError("This test expects two order buttons. Number of buttons found: " + buttonElementsSize + ". URL: " + target);
             } else {
                 for (int i = 0; i < buttonElementsSize; i++) {
                     String path = "//*[@id='geneGrid']/tbody/tr[1]";

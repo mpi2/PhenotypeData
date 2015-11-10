@@ -227,8 +227,8 @@ public class GenePageTest {
      * @return gene count if found; 0 otherwise
      */
     private int getGeneCount() {
-        WebElement element = driver.findElement(By.xpath("//div[@id=\"resultMsg\"]/span[@id=\"resultCount\"]/a"));
-
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")));
         String s = element.getText().replace(" genes", "");
         Integer i = commonUtils.tryParseInt(s);
         return (i == null ? 0 : i);

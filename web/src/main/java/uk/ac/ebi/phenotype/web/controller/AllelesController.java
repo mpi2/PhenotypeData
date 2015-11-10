@@ -804,7 +804,7 @@ public class AllelesController {
             return null;
         }
 
-        log.info("#### content: " + content);
+        log.debug("#### content: " + content);
 
         JSONArray json = (JSONArray) JSONSerializer.toJSON(content);
 
