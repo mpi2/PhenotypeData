@@ -110,7 +110,7 @@ public class UrlUtils {
      * @param url
      * @return
      */
-    private String urlEncode(String url) {
+    public String urlEncode(String url) {
         String retVal = url;
 
         try {
