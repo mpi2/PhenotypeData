@@ -22,8 +22,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.seleniumtests.support.PageStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,12 +35,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -52,7 +50,16 @@ import java.util.concurrent.TimeUnit;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class ChartsPageTest {
 
+    CommonUtils commonUtils = new CommonUtils();
     protected TestUtils testUtils = new TestUtils();
+    protected WebDriverWait wait;
+
+    private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
+    private final int TIMEOUT_IN_SECONDS = 120;         // Increased timeout from 4 to 120 secs as some of the graphs take a long time to load.
+    private final int THREAD_WAIT_IN_MILLISECONDS = 20;
+
+    private int timeoutInSeconds = TIMEOUT_IN_SECONDS;
+    private int threadWaitInMilliseconds = THREAD_WAIT_IN_MILLISECONDS;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -69,6 +76,15 @@ public class ChartsPageTest {
 
     @Before
     public void setUp() throws Exception {
+        if (commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS")) != null)
+            timeoutInSeconds = commonUtils.tryParseInt(System.getProperty("TIMEOUT_IN_SECONDS"));
+        if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
+            threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
+
+        wait = new WebDriverWait(driver, timeoutInSeconds);
+
+        driver.navigate().refresh();
+        commonUtils.sleep(threadWaitInMilliseconds);
 
     }
 
@@ -84,9 +100,7 @@ public class ChartsPageTest {
     public void testExampleCategorical() throws Exception {
         String testName = "testExampleCategorical";
         PageStatus status = new PageStatus();
-        List<String> successList = new ArrayList<>();
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         int targetCount = 1;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, 1);
@@ -95,19 +109,18 @@ public class ChartsPageTest {
         String impressParameter = "ESLIM_001_001_004";
         String zygosity = "homozygote";
         String geneSymbol = "Mysm1";
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         String target = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
         logger.info("Target: " + target);
         driver.get(target);
-        String title = driver.findElement(By.className("title")).getText();
+        String title  = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("title"))).getText();
         if ( ! title.contains(geneSymbol)) {
             status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
         } else {
-            successList.add("OK");
+            status.successCount++;
 
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
+        testUtils.printEpilogue(testName, start, status, targetCount, targetCount);
     }
 
     @Test
@@ -115,9 +128,7 @@ public class ChartsPageTest {
         String testName = "testExampleCategorical2";
         PageStatus status = new PageStatus();
 
-        List<String> successList = new ArrayList<>();
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         int targetCount = 1;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, 1);
@@ -126,17 +137,17 @@ public class ChartsPageTest {
         String impressParameter = "M-G-P_014_001_001";
         String zygosity = "homozygote";
         String geneSymbol = "Sparc";
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        String tempUrl = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
-        driver.get(tempUrl);
-        String title = driver.findElement(By.className("title")).getText();
+        String target = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+        logger.info("Target: " + target);
+        driver.get(target);
+        String title  = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("title"))).getText();
         if ( ! title.contains(geneSymbol)) {
-            status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + tempUrl + "'");
+            status.addError("ERROR: Expected title to contain '" + geneSymbol + "' but was '" + title + "'.  URL: " + target + "'");
         } else {
-            successList.add("OK");
+            status.successCount++;
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, targetCount);
+        testUtils.printEpilogue(testName, start, status, targetCount, targetCount);
         System.out.println();
     }
 
