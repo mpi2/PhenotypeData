@@ -333,6 +333,7 @@
 				<entry key="imits.solrserver" value="${imits.solrserver}" />
 				<entry key="buildIndexesSolrUrl" value="${buildIndexesSolrUrl}" />
 				<entry key="embryoRestUrl" value="${embryoRestUrl}" />
+				<entry key="pdfThumbnailUrl" value="${pdfThumbnailUrl}" />
 			</map>
 		</property>
 	</bean>
