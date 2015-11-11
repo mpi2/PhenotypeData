@@ -38,7 +38,7 @@
 
 	<jee:jndi-lookup id="admintoolsDataSource"
 					 jndi-name="java:comp/env/jdbc/admintoolsDataSource" expected-type="javax.sql.DataSource" /> -->
-					 
+
 <bean id="komp2DataSource" destroy-method="close"
   class="org.apache.commons.dbcp.BasicDataSource">
     <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
@@ -46,8 +46,9 @@
     <property name="username" value="${datasource.komp2.username}"/>
     <property name="password" value="${datasource.komp2.password}"/>
     <property name="initialSize" value="3"/>
-     <property name="removeAbandonedTimeout"  value="60"/>
-     <property name="logAbandoned"  value="true"/>
+    <property name="removeAbandoned" value="true"/>
+    <property name="removeAbandonedTimeout" value="60"/>
+    <property name="logAbandoned" value="true"/>
 </bean>
 
 <bean id="admintoolsDataSource" destroy-method="close"
@@ -57,11 +58,12 @@
     <property name="username" value="${admintoolsusername}"/>
     <property name="password" value="${admintoolspassword}"/>
     <property name="initialSize" value="3"/>
-    <property name="removeAbandonedTimeout"  value="60"/>
-     <property name="logAbandoned"  value="true"/>
+    <property name="removeAbandoned" value="true"/>
+    <property name="removeAbandonedTimeout" value="60"/>
+    <property name="logAbandoned" value="true"/>
 </bean>
-					 
-					 
+
+
 
 	<!-- Spring annotated objects -->
 	<bean id="sessionFactory"
