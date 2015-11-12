@@ -58,7 +58,7 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class GenePageTest {
 

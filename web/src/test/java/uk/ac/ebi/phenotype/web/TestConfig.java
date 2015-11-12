@@ -46,12 +46,12 @@ import java.util.Map;
 
 /**
  * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
- * resource directory, which must contain an applicationTest.properties file.
+ * resource directory, which must contain a test.properties file.
  *
- * Examples: /Users/mrelac/configfiles/beta/applicationTest.properties,
- *           /Users/mrelac/configfiles/dev/applicationTest.properties,
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/applicationTest.properties
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/applicationTest.properties
+ * Examples: /Users/mrelac/configfiles/beta/test.properties,
+ *           /Users/mrelac/configfiles/dev/test.properties,
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/test.properties
+ *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/test.properties
  */
 
 // NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper

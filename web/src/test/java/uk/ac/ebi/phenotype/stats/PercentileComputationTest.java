@@ -22,22 +22,21 @@
 
 package uk.ac.ebi.phenotype.stats;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 import uk.ac.ebi.phenotype.chart.PercentileComputation;
 import uk.ac.ebi.phenotype.web.TestConfig;
 
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PercentileComputationTest {
 

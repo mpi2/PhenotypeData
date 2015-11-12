@@ -52,7 +52,7 @@ import java.util.List;
   * Selenium test for phenotype page coverage ensuring each page works as expected.
   */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypePageTest {
 
