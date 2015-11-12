@@ -228,7 +228,7 @@ public class GenePageTest {
      */
     private int getGeneCount() {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")));
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")));
         String s = element.getText().replace(" genes", "");
         Integer i = commonUtils.tryParseInt(s);
         return (i == null ? 0 : i);
@@ -336,8 +336,9 @@ public class GenePageTest {
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Started", null, GeneService.GeneFieldValue.CENTRE_WTSI);
-        int geneCount = getGeneCount();
-        assertEquals(geneCount, geneIds.size());
+        int actualGeneCount = getGeneCount();
+        int expectedGeneCount = geneIds.size();
+        assertEquals(actualGeneCount, expectedGeneCount);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -364,8 +365,9 @@ public class GenePageTest {
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Started", GeneService.GeneFieldValue.CENTRE_WTSI, null);
-        int geneCount = getGeneCount();
-        assertEquals(geneCount, geneIds.size());
+        int actualGeneCount = getGeneCount();
+        int expectedGeneCount = geneIds.size();
+        assertEquals(actualGeneCount, expectedGeneCount);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -392,8 +394,9 @@ public class GenePageTest {
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Complete", null, GeneService.GeneFieldValue.CENTRE_WTSI);
-        int geneCount = getGeneCount();
-        assertEquals(geneCount, geneIds.size());
+        int actualGeneCount = getGeneCount();
+        int expectedGeneCount = geneIds.size();
+        assertEquals(actualGeneCount, expectedGeneCount);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -420,8 +423,9 @@ public class GenePageTest {
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Complete", GeneService.GeneFieldValue.CENTRE_WTSI, null);
-        int geneCount = getGeneCount();
-        assertEquals(geneCount, geneIds.size());
+        int actualGeneCount = getGeneCount();
+        int expectedGeneCount = geneIds.size();
+        assertEquals(actualGeneCount, expectedGeneCount);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -742,30 +746,6 @@ public class GenePageTest {
             System.out.println("Not Significant Abnormalities (values): [PASSED]\n");
         }
 
-//        if (sectionErrorCount == 0) {
-////            System.out.println("Significant and Not Significant Abnormalities (values): [PASSED]\n");
-//        } else {
-////            System.out.println("Significant and Not Significant Abnormalities (values): [FAILED]\n");
-//            // Dump out all Significant abnormalities.
-//            for (int i = 0; i < actualSignificantList.size(); i++) {
-//                if (i == 0)
-//                    System.out.println("Actual Significant List:");
-//                String actualAbnormality = actualSignificantList.get(i);
-//                System.out.println("\t[" + i + "]: " + actualAbnormality);
-//            }
-//
-//            // Dump out all Not Significant abnormalities.
-//            for (int i = 0; i < actualNotSignificantList.size(); i++) {
-//                if (i == 0)
-//                    System.out.println("Actual Not Significant List:");
-//                String actualAbnormality = actualNotSignificantList.get(i);
-//                System.out.println("\t[" + i + "]: " + actualAbnormality);
-//            }
-//
-//            // Add missing titles to error list.
-//            errorList.addAll(status.getErrorMessages());
-//        }
-
         // Phenotype Associated Images and Expression sections: count. Since the data can
         // change over time, don't compare individual strings; just look for at least a count of 12.
         // ... count
@@ -820,15 +800,12 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testImageThumbnails() throws Exception {
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testImageThumbnails";
         int targetCount = 1;
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
-        PageStatus status;
+        PageStatus status = new PageStatus();
+        PageStatus masterStatus = new PageStatus();
         String message;
         Date start = new Date();
 
@@ -837,79 +814,74 @@ public class GenePageTest {
         String geneId = "MGI:1935151";
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("URL: " + target);
-        GenePage genePage;
+        GenePage genePage = null;
 
         try {
             genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
-            System.out.println(message);
-            fail(message);
+            status.addError(message);
+            testUtils.printEpilogue(testName, start, status, targetCount, 1);
             return;
         }
 
         // Title
         String title = genePage.getTitle();
         if (title.contains("Klf7")) {
-            System.out.println("Title: [PASSED]\n");
+            System.out.println("Title: [PASSED]");
         } else {
             message = "Title: [FAILED]: Expected title to contain 'Klf7' but it was not found. Title: '" + title + "'";
-            errorList.add(message);
-            System.out.println(message + "\n");
+            status.addError(message);
         }
-
+        masterStatus.add(status);
         status = new PageStatus();
 
-        // Phenotype Associated Images and Expression sections: count. Since the data can
-        // change over time, don't compare individual strings; just look for at least a count of 4 with the given
-        // string values.
-        int sectionErrorCount = 0;
+        // Phenotype Associated Images : count. Since the data can change over time, compare only the first four.
         List<String> expectedPhenotypeAssociatedImageSections = Arrays.asList(
             new String[] {
                 "M-Mode Images",
                 "XRay Images Dorso Ventral",
                 "XRay Images Lateral Orientation",
-                "Click-evoked + 6 to 30kHz tone waveforms (pdf format)"
+                "Click-evoked + 6 To 30kHz Tone Waveforms (pdf Format)"
         });
 
         List<String> actualPhenotypeAssociatedImageSections = genePage.getAssociatedImpcImageSections();
         if (actualPhenotypeAssociatedImageSections.size() < expectedPhenotypeAssociatedImageSections.size()) {
-            sectionErrorCount++;
             message = "IMPC Phenotype Associated Images (count): [FAILED]. Expected at least " + expectedPhenotypeAssociatedImageSections.size() + " strings but found " + actualPhenotypeAssociatedImageSections.size() + ".";
-            errorList.add(message);
             status.addError(message);
         } else {
-            System.out.println("IMPC Phenotype Associated Images (count): [PASSED]\n");
+            System.out.println("IMPC Phenotype Associated Images (count): [PASSED]");
         }
 
-        sectionErrorCount = 0;
+        masterStatus.add(status);
+        status = new PageStatus();
+
         // Test for at least the four expected strings.
-
-
         for (String expectedPhenotypeAssociatedImageSection : expectedPhenotypeAssociatedImageSections) {
             boolean subsetFound = false;
             for (String actualPhenotypeAssociatedImageSection : actualPhenotypeAssociatedImageSections) {
-                if (actualPhenotypeAssociatedImageSection.contains(expectedPhenotypeAssociatedImageSection)) {
+                if (actualPhenotypeAssociatedImageSection.trim().toLowerCase().contains(expectedPhenotypeAssociatedImageSection.trim().toLowerCase())) {
                     subsetFound = true;
                     break;
                 }
             }
 
             if ( ! subsetFound) {
-                sectionErrorCount++;
                 message = "IMPC Phenotype Associated Images (values): [FAILED]. Expected:\n"
                         + testUtils.buildIndexedList(expectedPhenotypeAssociatedImageSections)
                         + "\nActual:\n"
                         + testUtils.buildIndexedList(actualPhenotypeAssociatedImageSections);
-                errorList.add(message);
                 status.addError(message);
                 break;
             }
         }
 
-        if (sectionErrorCount == 0) {
-            System.out.println("IMPC Phenotype Associated Images (values): [PASSED]\n");
+        if ( ! status.hasErrors()) {
+            System.out.println("IMPC Phenotype Associated Images (values): [PASSED]");
         }
+
+        masterStatus.add(status);
+        status = new PageStatus();
 
         //test that the order mouse and es cells content from viveks team exists on the page
         WebElement orderAlleleDiv = driver.findElement(By.id("allele2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
@@ -917,17 +889,17 @@ public class GenePageTest {
         String text = orderAlleleDiv.getText();
         if (text.length() < 100) {
             message = "Order Mouse content: [FAILED]. less than 100 characters: \n\t'" + text + "'";
-            errorList.add(message);
-            sectionErrorCount++;
+            status.addError(message);
         } else {
-            System.out.println("Order Mouse content: [PASSED]\n");
+            System.out.println("Order Mouse content: [PASSED]");
         }
 
-        if ((errorList.isEmpty() && (exceptionList.isEmpty()))) {
-            successList.add("testImageThumbnails: [PASSED]");
-        }
+        masterStatus.add(status);
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, 1);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, targetCount, 1);
     }
 
     // Tests gene page with more than one Production Status [blue] order button.

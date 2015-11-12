@@ -996,7 +996,7 @@ public class SearchPageTest {
         System.out.println(dateFormat.format(start) + ": " + testName + " started.");
 
         try {
-            target = baseUrl + "/search?q=MGI%3A1353431#fq=*:*&facet=gene";
+            target = baseUrl + "/search?q=MGI\\%3A1353431#fq=*:*&facet=gene";
             logger.info("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
@@ -1239,11 +1239,10 @@ public class SearchPageTest {
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        String message;
         successList.clear();
         errorList.clear();
         String target = baseUrl + "/search";
-        logger.debug("target Page URL: " + target);
+        logger.info("target Page URL: " + target);
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
 
         // For each core:
@@ -1265,7 +1264,7 @@ public class SearchPageTest {
 
             searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
             PageStatus coreStatus = new PageStatus();
-            if (!firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
+            if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
                 coreStatus.addError("Failed to check input filter for " + facet + " facet.");
             } else {
 
