@@ -165,6 +165,10 @@ public class TestConfig {
                 desiredCapabilities = DesiredCapabilities.internetExplorer();
                 break;
 
+            case "opera":
+                desiredCapabilities = DesiredCapabilities.operaBlink();
+                break;
+
             case "safari":
                 desiredCapabilities = DesiredCapabilities.safari();
                 break;
