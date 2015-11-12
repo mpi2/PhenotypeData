@@ -58,7 +58,7 @@ import java.util.Map;
 
 @Configuration
 @ComponentScan({"org.mousephenotype", "uk.ac.ebi.phenotype"})
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@PropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @EnableAutoConfiguration
 public class TestConfig {
 
