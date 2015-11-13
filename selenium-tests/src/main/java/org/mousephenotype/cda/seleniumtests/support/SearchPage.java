@@ -458,16 +458,21 @@ public class SearchPage {
     }
 
     public void clickToolbox(WindowState desiredWindowState) {
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        WebElement dnldElement = driver.findElement(By.xpath("//span[@id='dnld']"));
+        testUtils.scrollToTop(driver, dnldElement, -100);
+
+        String toolBoxStyle = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
         switch (desiredWindowState) {
             case CLOSED:
-                if (style.contains("block;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                if (toolBoxStyle.contains("block")) {
+                    dnldElement.click();
+                }
                 break;
 
             case OPEN:
-                if (style.contains("none;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                if ((toolBoxStyle.isEmpty()) || (toolBoxStyle.contains("none"))) {
+                    dnldElement.click();
+                }
                 break;
         }
     }
@@ -1036,7 +1041,7 @@ public class SearchPage {
      * @param facet facet
      * @return page status instance
      */
-    public PageStatus validateDownload(Facet facet) throws TestException {
+    public PageStatus validateDownload(Facet facet) {
         PageStatus status = new PageStatus();
 
         DownloadType[] downloadTypes = {
@@ -1044,20 +1049,28 @@ public class SearchPage {
             , DownloadType.XLS
         };
 
-        String[][] downloadData;
+        String[][] downloadData = new String[0][0];
         // Validate the download types for this facet.
         for (DownloadType downloadType : downloadTypes) {
-            downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
-            SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
+            SearchFacetTable table = null;
+            try {
+                downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
+                table = getFacetTable(facet);                                       // Get the facet table.
+            } catch (Exception e) {
+                String message = "Error getting download data for " + downloadType + " from URL: " + baseUrl;
+                status.addError(message);
+                System.out.println(message);
+            }
+
             if (table != null) {
                 status.add(table.validateDownload(downloadData, downloadType)); // Validate it.
             }
         }
 
         if (status.hasErrors()) {
-            logger.error("TEST for facet '" + facet + "' FAILED");
+            System.out.println("TEST for facet '" + facet + "' FAILED");
         } else {
-            logger.info("TEST for facet '" + facet + "' OK");
+            System.out.println("TEST for facet '" + facet + "' OK");
         }
 
         return status;
@@ -1250,9 +1263,10 @@ public class SearchPage {
      * @return the download url base embedded in the <i>downloadType</i> button.
      */
     private String getDownloadUrlBase(DownloadType downloadType) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+
         // show the toolbox if it is not already showing.
         clickToolbox(WindowState.OPEN);
-        driver.findElement(By.xpath("//span[@id='dnld']")).click();
 
         String className = "";
 
@@ -1261,7 +1275,8 @@ public class SearchPage {
             case XLS: className = "xls_grid"; break;
         }
 
-        return driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).getAttribute("data-exporturl");
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(@class, '" + className + "')]")));
+        return element.getAttribute("data-exporturl");
     }
 
     /**
