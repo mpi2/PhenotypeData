@@ -1307,6 +1307,8 @@ public class SearchPageTest {
             if (status.hasErrors()) {
                 masterStatus.add(status);
             }
+
+            searchPage.closeFacet(facet);                                           // Close the facet.
         }
 
         if ( ! masterStatus.hasErrors())
