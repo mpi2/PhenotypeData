@@ -158,7 +158,7 @@ public class SearchPageTest {
         params.put("disease", "fq=*:*");
         params.put("ma", "fq=selected_top_level_ma_term:*");
         params.put("impc_images", "fq=*:*");
-        params.put("images", "fq=annotationTermId:M* OR expName:* OR symbol:*");
+        params.put("images", "fq=*:*");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams        = "/gene/select?"        + commonParam + "&" + params.get("gene");
@@ -1254,8 +1254,8 @@ public class SearchPageTest {
             int iterationErrorCount = 0;
             Facet facet = searchPage.getFacetByCoreName(core);
             searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
-
             WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
+            testUtils.scrollToTop(driver, firstSubfacetElement, -50);           // Scroll first subfacet element into view.
             firstSubfacetElement.click();                                       // Select the first subfacet.
 
             searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
