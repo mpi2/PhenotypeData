@@ -216,13 +216,10 @@ public class SearchPageTest {
      */
     private void downloadTestEngine(String testName, String searchString, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
+        PageStatus masterStatus = new PageStatus();
         int totalNonzeroCount = 0;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-
-        int successCount = 0;
 
         if (searchString == null)
             searchString = "";
@@ -230,7 +227,7 @@ public class SearchPageTest {
         try {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
             String target = baseUrl + "/search";
-            logger.info("target: " + target);
+            System.out.println("target: " + target);
 
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
             if (! searchString.isEmpty()) {
@@ -250,33 +247,33 @@ public class SearchPageTest {
                 Integer facetCount = searchPage.getFacetCount(facet);
                 if (facetCount == null) {
                     String message = "ERROR: the facet count for facet '" + facet + "' was null, which means the search page had no facet count.";
-                    logger.error(message);
-                    status.addError(message);
+                    System.out.println(message);
+                    masterStatus.addError(message);
                 } else if (facetCount == 0) {
-                    logger.info("Skipping facet " + facet + " as it has no rows.");
+                    System.out.println("Skipping facet " + facet + " as it has no rows.");
                 } else {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
 
-                    logger.debug("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
-                    PageStatus localStatus = searchPage.validateDownload(facet);
-                    if ( ! localStatus.hasErrors()) {
-                        successCount++;
-                    }
+                    System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+                    PageStatus status = searchPage.validateDownload(facet);
 
-                    status.add(localStatus);
+                    masterStatus.add(status);
                     totalNonzeroCount++;
                 }
             }
         } catch (Exception e) {
             String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-            logger.error(message);
+            System.out.println(message);
             e.printStackTrace();
-            status.addError(message);
+            masterStatus.addError(message);
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, totalNonzeroCount, paramList.size());
+        if ( ! masterStatus.hasErrors())
+            masterStatus.successCount++;
+
+        testUtils.printEpilogue(testName, start, masterStatus, totalNonzeroCount, paramList.size());
     }
 
     // Dump the page and db lists.
@@ -586,7 +583,7 @@ public class SearchPageTest {
         , new SearchTermGroup("\\*",        "\\%2A")            // *    %2A
         , new SearchTermGroup("\\%28",      "\\%28")            // (    %28
         , new SearchTermGroup(")",          ")")                // )    %29
-        , new SearchTermGroup("-",          "-")                // -    %2D (hyphen)
+        , new SearchTermGroup("\\-",        "\\-")              // -    %2D (hyphen)
         , new SearchTermGroup("_",          "_")                // _    %5F (underscore)
         , new SearchTermGroup("\\=",        "\\=")              // =    %3D
         , new SearchTermGroup("\\%2B",      "\\%2B")            // +    %2B
@@ -988,7 +985,6 @@ public class SearchPageTest {
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        int successCount = 0;
         int buttonElementsSize = 0;
         String message;
         String target = "";
@@ -1023,8 +1019,6 @@ public class SearchPageTest {
                     boolean expectedUrlEnding = driver.getCurrentUrl().endsWith("#order2");
                     if ( ! expectedUrlEnding) {
                         status.addError("Expected url to end in '#order2'. URL: " + driver.getCurrentUrl());
-                    } else {
-                        successCount++;
                     }
 
                     driver.navigate().back();
@@ -1037,7 +1031,10 @@ public class SearchPageTest {
             status.addError(message);
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, buttonElementsSize, buttonElementsSize);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, buttonElementsSize, buttonElementsSize);
     }
 
     @Test
@@ -1234,15 +1231,14 @@ public class SearchPageTest {
         String testName = "testTickingFacetFilters";
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
-        int successCount = 0;
+        PageStatus masterStatus = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         successList.clear();
         errorList.clear();
         String target = baseUrl + "/search";
-        logger.info("target Page URL: " + target);
+        System.out.println("target Page URL: " + target);
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
 
         // For each core:
@@ -1263,9 +1259,9 @@ public class SearchPageTest {
             firstSubfacetElement.click();                                       // Select the first subfacet.
 
             searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
-            PageStatus coreStatus = new PageStatus();
+            PageStatus status = new PageStatus();
             if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
-                coreStatus.addError("Failed to check input filter for " + facet + " facet.");
+                status.addError("Failed to check input filter for " + facet + " facet.");
             } else {
 
                 // Check that there is a filter matching the selected facet above the Genes facet.
@@ -1280,7 +1276,7 @@ public class SearchPageTest {
                     }
                 }
                 if ( ! found) {
-                    coreStatus.addError("ERROR: Expeted subfacet '" + facetText + "' in facet " + facet);
+                    status.addError("ERROR: Expeted subfacet '" + facetText + "' in facet " + facet);
                 }
 
                 searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
@@ -1292,30 +1288,31 @@ public class SearchPageTest {
                 firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
 
                 if (firstSubfacetElement.isSelected()) {                            // Verify that the subfacet is no longer selected.
-                    coreStatus.addError("Failed to uncheck input filter for " + facet + " facet.");
+                    status.addError("Failed to uncheck input filter for " + facet + " facet.");
                 }
 
                 // Check that there are no filters.
                 if (searchPage.hasFilters()) {
-                    coreStatus.addError("ERROR: Expected filters to be cleared, but there were filters in place for facet " + facet);
+                    status.addError("ERROR: Expected filters to be cleared, but there were filters in place for facet " + facet);
                 }
 
                 if (iterationErrorCount == 0) {
-                    logger.info("   " + core + " OK");
+                    System.out.println("   " + core + " OK");
                     successList.add(core);
                 }
 
                 searchPage.clearFilters();
             }
 
-            if (coreStatus.hasErrors()) {
-                status.add(coreStatus);
-            } else {
-                successCount++;
+            if (status.hasErrors()) {
+                masterStatus.add(status);
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, cores.size(), cores.size());
+        if ( ! masterStatus.hasErrors())
+            masterStatus.successCount++;
+
+        testUtils.printEpilogue(testName, start, masterStatus, 1, 1);
     }
 
     @Test
