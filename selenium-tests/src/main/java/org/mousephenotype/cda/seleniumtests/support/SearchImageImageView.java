@@ -25,6 +25,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -104,6 +105,16 @@ public class SearchImageImageView extends SearchFacetTable {
             , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID_LINK
             , DownloadSearchMapImagesImageView.COL_INDEX_IMAGE_LINK
         };
+        final Integer[] pageSortColumns = {
+              COL_INDEX_ANNOTATION_TERM
+            , COL_INDEX_ANNOTATION_ID
+            , COL_INDEX_ANNOTATION_ID_LINK
+        };
+        final Integer[] downloadSortColumns = {
+              DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_TERM
+            , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID
+            , DownloadSearchMapImagesImageView.COL_INDEX_ANNOTATION_ID_LINK
+        };
 
         // XLS download links are expected to be encoded.
         if (downloadType == DownloadType.XLS) {
@@ -113,6 +124,10 @@ public class SearchImageImageView extends SearchFacetTable {
             logger.info("Decoding page data for TSV image link comparison.");
             pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), COL_INDEX_IMAGE_LINK), pageData.getTarget());
         }
+
+        downloadDataArray = testUtils.sortDelimitedArray(downloadDataArray, "|", Arrays.asList(downloadSortColumns));
+        String[][] pageDataArray = testUtils.sortDelimitedArray(pageData.getData(), "|", Arrays.asList(pageSortColumns));
+        pageData = new GridMap(pageDataArray, pageData.getTarget());
 
         return validateDownloadInternal(pageData, pageColumns, downloadDataArray, downloadColumns, driver.getCurrentUrl());
     }
