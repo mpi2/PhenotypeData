@@ -111,10 +111,10 @@ public class SearchImpcImageImageView extends SearchFacetTable {
 
         // XLS download links are expected to be encoded.
         if (downloadType == DownloadType.XLS) {
-            logger.info("Encoding page data for XLS image link comparison.");
+            System.out.println("Encoding page data for XLS image link comparison.");
             pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), COL_INDEX_IMAGE_LINK), pageData.getTarget());
         } else {
-            logger.info("Decoding page data for TSV image link comparison.");
+            System.out.println("Decoding page data for TSV image link comparison.");
             pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), COL_INDEX_IMAGE_LINK), pageData.getTarget());
         }
 
