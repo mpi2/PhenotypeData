@@ -2114,14 +2114,15 @@
 		} else if (facet == 'mp') {
 
 			oParams.bq = 'mp_term:"male infertility"^100 mp_term:"female infertility"^100 mp_term:"infertility"^90';
-			//var moreBqStr = ' mp_term:(' + q.replace(/\*/g, '') + ')^1000'
-			//	+ ' mp_term_synonym:(' + q.replace(/\*/g, '') + ')^500'
-			//	+ ' mp_definition:(' + q.replace(/\*/g, '') + ')^100';
 
 			// works with wild card, eg, abnor* phy*
-			var moreBqStr = ' mp_term:(' + q + ')^1000'
-				+ ' mp_term_synonym:(' + q + ')^500'
-				+ ' mp_definition:(' + q + ')^100';
+			var qQuote = undefined;
+			if ( q.indexOf(":") != -1 ){
+				qQuote = q.replace(/:/g, '\\:');
+			}
+			var moreBqStr = ' mp_term:(' + qQuote + ')^1000'
+				+ ' mp_term_synonym:(' + qQuote + ')^500'
+				+ ' mp_definition:(' + qQuote + ')^100';
 
 			if (q.match(/^MP:\d*$/i)) {
 				oParams.q = q.toUpperCase();
