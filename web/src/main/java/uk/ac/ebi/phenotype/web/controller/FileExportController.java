@@ -877,9 +877,10 @@ public class FileExportController {
 				List<String> ids = new ArrayList<String>();
 
 				for (SimpleOntoTerm term : hpTerms) {
-					ids.add(term.getTermId());
-
-					terms.add(term.getTermName().equals("") ? NO_INFO_MSG : term.getTermName());
+					if ( !term.getTermName().equals("")) {
+						ids.add(term.getTermId());
+						terms.add(term.getTermName());
+					}
 				}
 
 				data.add(StringUtils.join(terms, "|"));
