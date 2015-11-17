@@ -342,7 +342,10 @@ public class SearchPage {
      * @return the [total] results count
      */
     public int clickFacetById(String facetId) {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
+        // Clicking the li element opens the facet but does not close it. Click on the text in the span instead.
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facetId + "']//span[@class='flabel']")));
+        testUtils.scrollToTop(driver, element, -50);           // Scroll element into view.
+        element.click();
 
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[contains(@class, 'dataTable')]")));            // Wait for facet to load.
@@ -350,7 +353,7 @@ public class SearchPage {
             setFacetTable();
 
         } catch (Exception e) {
-            logger.error("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
+            System.out.println("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             e.printStackTrace();
         }
 
@@ -1000,7 +1003,7 @@ public class SearchPage {
             geneTable = new SearchGeneTable(driver, timeoutInSeconds);
         } else if (hasImageTable()) {
             imageTable = new SearchImageTable(driver, timeoutInSeconds);
-        } else if (hasImageTable()) {
+        } else if (hasImpcImageTable()) {
             impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
         } else if (hasPhenotypeTable()) {
             phenotypeTable = new SearchPhenotypeTable(driver, timeoutInSeconds);
