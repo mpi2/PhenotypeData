@@ -247,7 +247,7 @@
                         </h1>
 
                         <div class="section">
-                            <div class="inner">
+                            < class="inner">
                                 <!--  login interest button -->
                                 <div class="floatright">
                                     <c:choose>
@@ -321,7 +321,8 @@
 	                                	<t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>    
 	                                </p>
 								</c:if>
-                                <!-- hide GWAS stuff for now
+                                <!-- GWAS stuff -->
+                                <c:if test="${!isLive}">
                                     <c:if test="${gwasPhenoMapping != null }">
                                     	
                                        	<c:if test="${gwasPhenoMapping == 'no mapping' }">
@@ -347,7 +348,7 @@
                                			</c:if>
                                    		
                                		</c:if>
- 									-->
+                                </c:if>
 
                             </div>
 
