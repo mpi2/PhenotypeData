@@ -980,7 +980,6 @@ public class SearchPageTest {
     public void testOrderButtons() throws TestException {
         String testName = "testOrderButtons";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -988,8 +987,6 @@ public class SearchPageTest {
         int buttonElementsSize = 0;
         String message;
         String target = "";
-
-        System.out.println(dateFormat.format(start) + ": " + testName + " started.");
 
         try {
             target = baseUrl + "/search?q=MGI\\%3A1353431#fq=*:*&facet=gene";
@@ -1034,7 +1031,7 @@ public class SearchPageTest {
         if ( ! status.hasErrors())
             status.successCount++;
 
-        testUtils.printEpilogue(testName, start, status, buttonElementsSize, buttonElementsSize);
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     @Test

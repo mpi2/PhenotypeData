@@ -1092,9 +1092,12 @@ public class SearchPage {
      */
     public List<WebElement> getProductionStatusOrderButtons(WebElement geneTrElement) {
         List<WebElement> retVal = new ArrayList();
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(".//*[@oldtitle]")));
 
         try {
             List<WebElement> elements = geneTrElement.findElements(By.xpath(".//*[@oldtitle]"));
+
             for (WebElement element : elements) {
                 if (element.getTagName().equals("a"))
                     retVal.add(element);
