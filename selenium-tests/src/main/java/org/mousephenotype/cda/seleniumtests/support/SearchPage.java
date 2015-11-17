@@ -1070,12 +1070,6 @@ public class SearchPage {
             }
         }
 
-        if (status.hasErrors()) {
-            System.out.println("TEST for facet '" + facet + "' FAILED");
-        } else {
-            System.out.println("TEST for facet '" + facet + "' OK");
-        }
-
         return status;
     }
 
