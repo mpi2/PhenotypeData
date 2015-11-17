@@ -28,7 +28,6 @@ import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.*;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
@@ -253,17 +252,15 @@ public class GenePageTest {
     public void testForBadGeneIds() throws Exception {
         PageStatus status = new PageStatus();
         String testName = "testForBadGeneIds";
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         List<String> geneIds = new ArrayList(geneService.getAllNonConformingGenes());
         String target = "";
-        List<String> successList = new ArrayList();
         String message;
         Date start = new Date();
 
         int targetCount = testUtils.getTargetCount(env, testName, geneIds, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneIds.size());
 
-        // Loop through all non-conforming genes, testing each one for valid page load (they will likely fail).
+        // Loop through all non-conforming genes, testing each one for valid page load.
         int i = 0;
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         for (String geneId : geneIds) {
@@ -273,26 +270,27 @@ public class GenePageTest {
             i++;
 
             target = baseUrl + "/genes/" + geneId;
-            logger.debug("gene[" + i + "] URL: " + target);
+            System.out.println("gene[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
-// 25-Mar-2015 (mrelac) These CGI genes are now back in the game.
-//                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-//                errorList.add(message);
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                status.addError(message);
             } catch (Exception e) {
                 status.addError("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
                 continue;
             }
 
             message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-            successList.add(message);
             Thread.sleep(threadWaitInMilliseconds);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, geneIds.size());
+        if (( ! geneIds.isEmpty()) && ( ! status.hasErrors()))
+            status.successCount++;
+        
+        testUtils.printEpilogue(testName, start, status, targetCount, geneIds.size());
     }
 
     /**
@@ -439,13 +437,9 @@ public class GenePageTest {
 //@Ignore
     public void testInvalidGeneId() throws SolrServerException {
         PageStatus status = new PageStatus();
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testInvalidGeneId";
         String target = "";
         int targetCount = 1;
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
         String geneId = "junkBadGene";
@@ -463,8 +457,8 @@ public class GenePageTest {
                     .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.node h1")));
 
             if (geneLinks == null) {
-                message = "Expected error page for MP_TERM_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
+                message = "ERROR: Expected error page for MP_TERM_ID " + geneId + "(" + target + ") but found none.";
+                status.addError(message);
             }
 
             for (WebElement element : geneLinks) {
@@ -474,19 +468,19 @@ public class GenePageTest {
                 }
             }
 
-            if (!found) {
-                message = "Expected error page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                errorList.add(message);
+            if ( ! found) {
+                message = "ERROR: Expected error page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                status.addError(message);
             }
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
             status.addError(message);
-            exceptionList.add(message);
         }
 
-        message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: " + target;
-        successList.add(message);
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, 1);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, targetCount, 1);
     }
 
     // Test for the minimum number of blue and orange icons. Match orange icons with phenotype summary strings
@@ -494,25 +488,15 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testAkt2() throws Exception {
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
         String testName = "testAkt2";
-        int targetCount = 1;
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        int sectionErrorCount;
         int numOccurrences;
 
-        System.out.println("browserName: " + ((RemoteWebDriver) driver).getCapabilities().getBrowserName());
-        System.out.println("platform:    " + ((RemoteWebDriver) driver).getCapabilities().getPlatform());
-        System.out.println("version:     " + ((RemoteWebDriver) driver).getCapabilities().getVersion());
-
-        PageStatus status;
+        PageStatus masterStatus = new PageStatus();
         String message;
         Date start = new Date();
 
-        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, 1);
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String geneId = "MGI:104874";
         String target = baseUrl + "/genes/" + geneId;
@@ -524,23 +508,23 @@ public class GenePageTest {
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
             System.out.println(message);
-            fail(message);
+            masterStatus.addError(message);
+            testUtils.printEpilogue(testName, start, masterStatus, 1, 1);
             return;
         }
 
         // Title
         String title = genePage.getTitle();
         if (title.contains("Akt2")) {
-            System.out.println("Title: [PASSED]");
+            System.out.println("PASSED [Title]");
         } else {
-            message = "Title: [FAILED]: Expected title to contain 'Akt2' but it was not found. Title: '" + title + "'";
-            errorList.add(message);
+            message = "FAILED [Title]: Expected title to contain 'Akt2' but it was not found. Title: '" + title + "'";
+            masterStatus.addError(message);
             System.out.println(message);
         }
 
         // Section Titles: count and values (e.g. 'Gene: Akt2', 'Phenotype associations for Akt2', 'Pre-QC phenotype heatmap', etc.)
         // ... count
-        sectionErrorCount = 0;
         String[] sectionTitlesArray = {
                 "Gene: Akt2",
                 "Phenotype associations for Akt2",
@@ -552,56 +536,49 @@ public class GenePageTest {
         List<String> expectedSectionTitles = Arrays.asList(sectionTitlesArray);
         List<String> actualSectionTitles = genePage.getSectionTitles();
         if (actualSectionTitles.size() != sectionTitlesArray.length) {
-            sectionErrorCount++;
-            message = "Section Titles (count): [FAILED]. Expected " + sectionTitlesArray.length + " section titles but found " + actualSectionTitles.size() + ":";
-            errorList.add(message);
+            message = "FAILED [Section Titles (count)]: Expected " + sectionTitlesArray.length + " section titles but found " + actualSectionTitles.size() + ":";
+            masterStatus.addError(message);
             System.out.println(message);
         } else {
-            System.out.println("Section Titles (count): [PASSED]\n");
+            System.out.println("PASSED [Section Titles (count)]");
         }
         // ... values
-        status = new PageStatus();
+        PageStatus status = new PageStatus();
         for (String expectedSectionTitle : expectedSectionTitles) {
-            if (!actualSectionTitles.contains(expectedSectionTitle)) {
-                message = "\tError: Mismatch: Expected section named '" + expectedSectionTitle + "' but wasn't found.";
+            if ( ! actualSectionTitles.contains(expectedSectionTitle)) {
+                message = "\tERROR: Mismatch: Expected section named '" + expectedSectionTitle + "' but wasn't found.";
                 status.addError(message);
-                sectionErrorCount++;
             }
         }
         for (String actualSectionTitle : actualSectionTitles) {
-            if (!expectedSectionTitles.contains(actualSectionTitle)) {
-                message = "\tError: Mismatch: Found section named '" + actualSectionTitle + "' but wasn't expected.";
+            if ( ! expectedSectionTitles.contains(actualSectionTitle)) {
+                message = "\tERROR: Mismatch: Found section named '" + actualSectionTitle + "' but wasn't expected.";
                 status.addError(message);
-                sectionErrorCount++;
             } else {
                 numOccurrences = testUtils.count(actualSectionTitles, actualSectionTitle);
                 if (numOccurrences > 1) {
-                    message = "\tError: " + numOccurrences + " occurrences of '" + actualSectionTitle + "' were found.";
+                    message = "\tERROR: " + numOccurrences + " occurrences of '" + actualSectionTitle + "' were found.";
                     status.addError(message);
-                    sectionErrorCount++;
                 }
             }
         }
-        if (sectionErrorCount == 0) {
-            System.out.println("Section Titles (values): [PASSED]\n");
-        } else {
+        if (status.hasErrors()) {
             // Dump out all titles.
             for (int i = 0; i < actualSectionTitles.size(); i++) {
                 String sectionTitle = actualSectionTitles.get(i);
                 System.out.println("\t[" + i + "]: " + sectionTitle);
             }
 
-            // Dump out the missing ones.
+            // Dump out the missing titles.
             System.out.println(status.toStringErrorMessages());
-
-            // Add missing ones to error list.
-            errorList.addAll(status.getErrorMessages());
-            System.out.println("Section Titles (values): [FAILED]\n");
+            System.out.println("FAILED [Section Titles (values)]");
+            masterStatus.add(status);
+        } else {
+            System.out.println("PASSED [Section Titles (values)]");
         }
 
         // Buttons: count and labels
         // ... count
-        sectionErrorCount = 0;
         String[] buttonLabelsArray = {
                 "Login to register interest",
                 "Order",
@@ -611,60 +588,53 @@ public class GenePageTest {
         List<String> expectedButtonLabels = Arrays.asList(buttonLabelsArray);
         List<String> actualButtonLabels = genePage.getButtonLabels();
         if (actualButtonLabels.size() != buttonLabelsArray.length) {
-            sectionErrorCount++;
-            message = "Buttons (count): [FAILED]. Expected " + buttonLabelsArray.length + " buttons but found " + actualButtonLabels.size() + ".";
-            errorList.add(message);
-            System.out.println(message + "\n");
+            message = "FAILED [Buttons (count)]. Expected " + buttonLabelsArray.length + " buttons but found " + actualButtonLabels.size() + ".";
+            masterStatus.addError(message);
+            System.out.println(message);
         } else {
-            System.out.println("Buttons (count): [PASSED]\n");
+            System.out.println("PASSED [Buttons (count)]");
         }
         // ... values
         status = new PageStatus();
         for (String expectedSectionTitle : expectedButtonLabels) {
-            if (!actualButtonLabels.contains(expectedSectionTitle)) {
-                message = "\tError: Mismatch: Expected button named '" + expectedSectionTitle + "' but wasn't found.";
+            if ( ! actualButtonLabels.contains(expectedSectionTitle)) {
+                message = "\tERROR: Mismatch: Expected button named '" + expectedSectionTitle + "' but wasn't found.";
                 status.addError(message);
-                sectionErrorCount++;
             }
         }
         for (String actualButtonLabel : actualButtonLabels) {
-            if (!expectedButtonLabels.contains(actualButtonLabel)) {
-                message = "\tError: Mismatch: Found button named '" + actualButtonLabel + "' but wasn't expected.";
+            if ( ! expectedButtonLabels.contains(actualButtonLabel)) {
+                message = "\tERROR: Mismatch: Found button named '" + actualButtonLabel + "' but wasn't expected.";
                 status.addError(message);
-                sectionErrorCount++;
             } else {
                 numOccurrences = TestUtils.count(actualButtonLabels, actualButtonLabel);
                 if (numOccurrences > 1) {
-                    message = "\tError: " + numOccurrences + " occurrences of '" + actualButtonLabel + "' were found.";
+                    message = "\tERROR: " + numOccurrences + " occurrences of '" + actualButtonLabel + "' were found.";
                     status.addError(message);
-                    sectionErrorCount++;
                 }
             }
         }
-        if (sectionErrorCount == 0) {
-            System.out.println("Buttons (values): [PASSED]\n");
-        } else {
+        if (status.hasErrors()) {
             // Dump out all buttons.
             for (int i = 0; i < actualButtonLabels.size(); i++) {
                 String sectionTitle = actualButtonLabels.get(i);
                 System.out.println("\t[" + i + "]: " + sectionTitle);
             }
 
-            // Dump out the missing ones.
+            // Dump out the missing buttons.
             System.out.println(status.toStringErrorMessages());
-
-            // Add missing ones to error list.
-            errorList.addAll(status.getErrorMessages());
-            System.out.println("Buttons (values): [FAILED]\n");
+            System.out.println("FAILED [Buttons (values)]");
+            masterStatus.add(status);
+        } else {
+            System.out.println("PASSED [Buttons (values)]");
         }
 
         // Significant Abnormalities: count and values. As of 15-September-2015, there should be at least:
         //   8 - tested but not significant (blue)
         //   5 - significant (orange)
         // ... count
-        sectionErrorCount = 0;
         numOccurrences = 0;
-        status = new PageStatus();
+        masterStatus = new PageStatus();
         final List<String> expectedSignificantList = Arrays.asList(
                 new String[]{
                         "growth/size/body region phenotype"
@@ -688,42 +658,39 @@ public class GenePageTest {
         // Significant Abnormalities: count
         List<String> actualSignificantList = genePage.getSignificantAbnormalities();
         if (actualSignificantList.size() < expectedSignificantList.size()) {
-            sectionErrorCount++;
-            message = "Significant Abnormalities (count): [FAILED]. Expected " + expectedSignificantList.size() + " strings but found " + actualSignificantList.size() + ".";
-            status.addError(message);
-            System.out.println(message + "\n");
+            message = "FAILED [Significant Abnormalities (count)]. Expected " + expectedSignificantList.size() + " strings but found " + actualSignificantList.size() + ".";
+            masterStatus.addError(message);
+            System.out.println(message);
         } else {
-            System.out.println("Significant Abnormalities (count): [PASSED]\n");
+            System.out.println("PASSED [Significant Abnormalities (count)]");
         }
 
         // Sum of Significant and Non-Significant Abnormalities (count): validate that the sum of expectedSignificant and expectedNotSignificant are at least the sum of the expected list sizes.
         List<String> actualNotSignificantList = genePage.getNotSignificantAbnormalities();
         if (actualSignificantList.size() + actualNotSignificantList.size() < expectedSignificantList.size() + expectedNotSignificantList.size()) {
-            sectionErrorCount++;
-            message = "Sum of Significant and Non-Significant Abnormalities (count): [FAILED]. Expected "
+            message = "FAILED [Sum of Significant and Non-Significant Abnormalities (count)]. Expected "
                     + expectedSignificantList.size() + expectedNotSignificantList.size()
                     + " strings but found "
                     + Integer.sum(actualSignificantList.size(), actualNotSignificantList.size()) + ".";
-            status.addError(message);
-            System.out.println(message + "\n");
+            masterStatus.addError(message);
+            System.out.println(message);
         } else {
-            System.out.println("Sum of Significant and Non-Significant Abnormalities (count): [PASSED]\n");
+            System.out.println("PASSED [Sum of Significant and Non-Significant Abnormalities (count)]");
         }
 
         // Significant Abnormalities (values)
         boolean hasErrors = false;
         for (String actualSignificant : actualSignificantList) {
             if (!expectedSignificantList.contains(actualSignificant)) {
-                message = "\tError: Mismatch: Expected significant abnormality named '" + actualSignificant + "' but wasn't found.";
-                status.addError(message);
-                sectionErrorCount++;
+                message = "\tERROR: Mismatch: Expected significant abnormality named '" + actualSignificant + "' but wasn't found.";
+                masterStatus.addError(message);
                 hasErrors = true;
             }
         }
         if (hasErrors) {
-            System.out.println("Significant Abnormalities (values): [FAILED]\n");
+            System.out.println("FAILED [Significant Abnormalities (values)]");
         } else {
-            System.out.println("Significant Abnormalities (values): [PASSED]\n");
+            System.out.println("PASSED [Significant Abnormalities (values)]");
         }
 
         // Not Significant Abnormalities (values): Validate that the actual NotSignificant abnormality values are in either the expectedSignificantList or
@@ -734,38 +701,32 @@ public class GenePageTest {
         hasErrors = false;
         for (String actualNotSignificant : actualNotSignificantList) {
             if (!both.contains(actualNotSignificant)) {
-                message = "\tError: Mismatch: Couldn't find actual Not Significant abnormality named '" + actualNotSignificant + "'";
-                status.addError(message);
-                sectionErrorCount++;
+                message = "\tERROR: Mismatch: Couldn't find actual Not Significant abnormality named '" + actualNotSignificant + "'";
+                masterStatus.addError(message);
                 hasErrors = true;
             }
         }
         if (hasErrors) {
-            System.out.println("Not Significant Abnormalities (values): [FAILED]\n");
+            System.out.println("FAILED [Not Significant Abnormalities (values)]");
         } else {
-            System.out.println("Not Significant Abnormalities (values): [PASSED]\n");
+            System.out.println("PASSED [Not Significant Abnormalities (values)]");
         }
 
         // Phenotype Associated Images and Expression sections: count. Since the data can
         // change over time, don't compare individual strings; just look for at least a count of 12.
         // ... count
-        sectionErrorCount = 0;
-        numOccurrences = 0;
-
+        status = new PageStatus();
         final int expectedAssociatedImageSize = 12;
         List<String> actualAssociatedImageSections = genePage.getAssociatedImageSections();
         if (actualAssociatedImageSections.size() < expectedAssociatedImageSize) {
-            sectionErrorCount++;
-            message = "Associated Image Sections (count): [FAILED]. Expected at least 12 strings but found " + actualAssociatedImageSections.size() + ":";
-            errorList.add(message);
+            message = "FAILED [Associated Image Sections (count)]. Expected at least 12 strings but found " + actualAssociatedImageSections.size() + ":";
+            status.addError(message);
             System.out.println(message);
         } else {
-            System.out.println("Associated Image Sections (count): [PASSED]\n");
+            System.out.println("PASSED [Associated Image Sections (count)]");
         }
 
-        if (sectionErrorCount == 0) {
-            System.out.println("Associated Image Sections (values): [PASSED]\n");
-        } else {
+        if (status.hasErrors()) {
             // Dump out all associated image sections.
             for (int i = 0; i < actualAssociatedImageSections.size(); i++) {
                 String actualAssociatedImageSection = actualAssociatedImageSections.get(i);
@@ -773,8 +734,11 @@ public class GenePageTest {
             }
 
             // Dump out the missing/duplicated ones.
-            System.out.println(status.toStringErrorMessages());
-            System.out.println("Associated Image Sections (values): [FAILED]\n");
+            System.out.println(masterStatus.toStringErrorMessages());
+            System.out.println("FAILED [Associated Image Sections (values)]");
+            masterStatus.add(status);
+        } else {
+            System.out.println("PASSED [Associated Image Sections (values)]");
         }
 
         //test that the order mouse and es cells content from viveks team exists on the page
@@ -782,19 +746,18 @@ public class GenePageTest {
         // This used to be called id="allele". That id still exists but is empty and causes the test to fail here. Now they use id="allele2".
         String text = orderAlleleDiv.getText();
         if (text.length() < 100) {
-            message = "Order Mouse content: [FAILED]. less than 100 characters: \n\t'" + text + "'";
-            errorList.add(message);
-            System.out.println(message + "\n");
-            sectionErrorCount++;
+            message = "FAILED [Order Mouse content]. less than 100 characters: \n\t'" + text + "'";
+            masterStatus.addError(message);
+            System.out.println(message);
         } else {
-            System.out.println("Order Mouse content: [PASSED]\n");
+            System.out.println("PASSED [Order Mouse content]");
         }
 
-        if ((errorList.isEmpty() && (exceptionList.isEmpty()))) {
-            successList.add("Akt2 test: [PASSED]\n");
+        if ( ! masterStatus.hasErrors()) {
+            masterStatus.successCount++;
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, 1);
+        testUtils.printEpilogue(testName, start, masterStatus, 1, 1);
     }
 
     @Test
@@ -949,6 +912,9 @@ public class GenePageTest {
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, 1, 1, 1);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 }
