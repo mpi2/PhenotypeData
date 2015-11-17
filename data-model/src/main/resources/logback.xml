@@ -3,9 +3,9 @@
 
     <!-- FRAMEWORK -->
     <logger name="ch.qos.logback"                                               level="WARN" />
-    <logger name="org.apache.tomcat.jdbc.pool"                                  level="${log.level:-INFO}" />
-    <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                 level="${log.level:-INFO}" />
-    <logger name="org.hibernate"                                                level="${log.level:-INFO}" />
+    <logger name="org.apache.tomcat.jdbc.pool"                                  level="${log.level:-WARN}" />
+    <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                 level="${log.level:-ERROR}" />
+    <logger name="org.hibernate"                                                level="${log.level:-WARN}" />
     <logger name="org.springframework"                                          level="WARN" />
 
 
