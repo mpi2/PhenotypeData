@@ -664,7 +664,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	
 	private Map<String,ObservationType> getObservationTypeMap(){
 		Map<String,ObservationType> paramterToObservationTypeMap=new HashMap<>();
-		String query= "select distinct parameter_stable_id, observation_type from observation where parameter_stable_id=?";
+		String query= "select distinct parameter_stable_id, observation_type from observation";
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
 			
@@ -678,7 +678,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					obType = ObservationType.valueOf(obsType);
 					paramterToObservationTypeMap.put(parameterId, obType);
 				} catch (IllegalArgumentException e) {
-					logger.warn("no ObservationType found for parameter:"+parameterId);
+					logger.warn("no ObservationType found for parameter: {}", parameterId);
 					e.printStackTrace();
 				}
 				
