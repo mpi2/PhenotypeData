@@ -341,7 +341,7 @@ public class SearchPage {
      * @param facetId HTML 'li' id of desired facet to click
      * @return the [total] results count
      */
-    public int clickFacetById(String facetId) {
+    public int clickFacetById(String facetId) throws TestException {
         // Clicking the li element opens the facet but does not close it. Click on the text in the span instead.
         WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facetId + "']//span[@class='flabel']")));
         testUtils.scrollToTop(driver, element, -50);           // Scroll element into view.
@@ -355,6 +355,7 @@ public class SearchPage {
         } catch (Exception e) {
             System.out.println("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             e.printStackTrace();
+            throw new TestException(e);
         }
 
         return getResultCount();
@@ -413,23 +414,24 @@ public class SearchPage {
      */
     public void clickPageButton(PageDirective pageButton) throws TestException {
         List<WebElement> ulElements = driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li"));
+        WebElement pageButtonElement = null;
         try {
             switch (pageButton) {
-                case PREVIOUS:          ulElements.get(0).click();      break;
+                case PREVIOUS:          pageButtonElement = ulElements.get(0);      break;
 
-                case FIRST_NUMBERED:    ulElements.get(1).click();      break;
+                case FIRST_NUMBERED:    pageButtonElement = ulElements.get(1);      break;
 
-                case SECOND_NUMBERED:   ulElements.get(2).click();      break;
+                case SECOND_NUMBERED:   pageButtonElement = ulElements.get(2);      break;
 
-                case THIRD_NUMBERED:    ulElements.get(3).click();      break;
+                case THIRD_NUMBERED:    pageButtonElement = ulElements.get(3);      break;
 
-                case FOURTH_NUMBERED:   ulElements.get(4).click();      break;
+                case FOURTH_NUMBERED:   pageButtonElement = ulElements.get(4);      break;
 
-                case FIFTH_NUMBERED:    ulElements.get(5).click();      break;
+                case FIFTH_NUMBERED:    pageButtonElement = ulElements.get(5);      break;
 
                 case ELLIPSIS:                                          break;
 
-                case LAST:              ulElements.get(7).click();      break;
+                case LAST:              pageButtonElement = ulElements.get(7);      break;
 
                 case NEXT:
                     // See javadoc for getPageDirective() below for mapping of 'Next' button.
@@ -439,12 +441,16 @@ public class SearchPage {
                         case 5:
                         case 6:
                         case 7:
-                            ulElements.get(getNumPageButtons() - 1).click();    break;
+                            pageButtonElement = ulElements.get(getNumPageButtons() - 1);    break;
                         case 9:
-                            ulElements.get(8).click();                          break;
+                            pageButtonElement = ulElements.get(8);                          break;
                     }
                     break;
             }
+
+            // Scroll the page buttons into view before clicking it.
+            testUtils.scrollToTop(driver, pageButtonElement, -50);
+            pageButtonElement.click();
 
             // After a new page has been selected, we must update the old, stale image/impc_image table to fetch the new page's data.
             if (hasImageTable())
