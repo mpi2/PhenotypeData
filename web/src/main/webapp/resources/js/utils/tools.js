@@ -3225,7 +3225,7 @@
 		return sorted;
 	}
 
-})(jQuery);
+//})(jQuery);
 
 // HIGHLIGHT FCT
 $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
@@ -3617,3 +3617,6 @@ $.extend($.ui.autocomplete.prototype.options, {
 		});
 	}
 });
+
+
+})(jQuery);
