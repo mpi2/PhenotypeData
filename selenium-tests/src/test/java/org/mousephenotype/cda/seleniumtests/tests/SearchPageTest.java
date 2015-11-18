@@ -33,6 +33,7 @@ import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -71,8 +72,9 @@ import static org.junit.Assert.fail;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 
-    private CommonUtils commonUtils = new CommonUtils();
+    protected CommonUtils commonUtils = new CommonUtils();
     protected TestUtils testUtils = new TestUtils();
+    protected UrlUtils urlUtils = new UrlUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -87,11 +89,6 @@ public class SearchPageTest {
     private final HashMap<String, String> params = new HashMap();
     private final List<String> paramList = new ArrayList();
     private final List<String> cores = new ArrayList();
-    private final List<String> errorList = new ArrayList();
-    private final List<String> successList = new ArrayList();
-    private final static List<String> sumErrorList = new ArrayList();
-    private final static List<String> sumSuccessList = new ArrayList();
-    private static String startTime;
     protected Connection komp2Connection;
 
     private static final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
@@ -248,22 +245,22 @@ public class SearchPageTest {
 
             for (Facet facet : facets) {
                 Integer facetCount = searchPage.getFacetCount(facet);
+                message = "";
                 if (facetCount == null) {
-                    message = "ERROR: the facet count for facet '" + facet + "' was null. URL: " + target;
-                    System.out.println(message);
+                    message = "ERROR: the facet count was null. URL: " + driver.getCurrentUrl();
                     masterStatus.addError(message);
                 } else if (facetCount == 0) {
-                    System.out.println("Skipping facet " + facet + " as it has no rows.");
+                    System.out.println("\tSKIPPING [" + facet + "] as it has no rows.");
                     continue;
                 } else {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
 
-                    message = "[" + facet + " facet. Search string: '" + searchString + "']. URL: " + driver.getCurrentUrl();
                     PageStatus status = searchPage.validateDownload(facet);
-                    String statusString = "\t" + (status.hasErrors() ? "FAILED " : "PASSED " );
+                    String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
                     System.out.println(statusString + message);
+
                     masterStatus.add(status);
                 }
             }
@@ -935,7 +932,7 @@ public class SearchPageTest {
 
     /**
      * Test for Jira bug MPII-806: from the search page, searching for the characters
-     * "fasting glu" should autosuggest 'fasting glucose'. Click on 'fasting glucose'
+     * "fasting glu" should autosuggest 'fasting' and 'glucose'. Click on 'fasting glucose'
      * and verify that the correct phenotype page appears.
      * @throws TestException
      */
@@ -953,16 +950,16 @@ public class SearchPageTest {
          String characters = "fasting glu";
          driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
 
-         // Wait for dropdown list to appear with 'blood glucose'.
+         // Wait for dropdown list to appear with candidates.
         String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
         if (( ! element.getText().contains("fasting")) && ( ! element.getText().contains("glucose"))){
             status.addError("ERROR: Expected the terms 'fasting' and 'glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
-            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']")));
-            if (element.getText().contains("Found") == false) {
-                status.addError("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
+            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[@id='resultCount']")));
+            if ( ! element.getText().contains("Found")) {
+                status.addError("ERROR: Expected 'Found xxx genes' message but actual text was '" + element.getText() + "'");
             }
         }
 
@@ -1043,7 +1040,7 @@ public class SearchPageTest {
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String target;
-        String message;
+        String message = "";
         final String showing_1 = "Showing 1 to ";
         final String showing_11 = "Showing 11 to ";
         String expectedShowingPhrase = "";
@@ -1052,16 +1049,17 @@ public class SearchPageTest {
         for (String core : cores ) {
             PageStatus status = new PageStatus();
             target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
-            System.out.println("Testing URL: " + target);
+
             try {
                 SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.clickFacetById(core);
+                Facet facet = searchPage.getFacetByCoreName(core);
 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
                 expectedShowingPhrase = showing_1;
                 actualShowing = searchPage.getShowing().toString();
                 if ( ! actualShowing.contains(expectedShowingPhrase)) {
-                    message = "ERROR: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target;
+                    message = "Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target;
                     status.addError(message);
                 }
 
@@ -1070,24 +1068,23 @@ public class SearchPageTest {
                     searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
                     expectedShowingPhrase = showing_11;
 
-                    // Sometimes the new string is slow to display.
-                    int loopCount = 20;
-                    for (int i = 0; i < loopCount; i++) {
-                        actualShowing = searchPage.getShowing().toString();
-                        if ( ! actualShowing.contains(expectedShowingPhrase)) {
-                            if (i < loopCount - 1) {
-                                commonUtils.sleep(1000);
-                                continue;
-                            }
-                            message = "ERROR: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target;
-                            status.addError(message);
-                        }
+                    actualShowing = searchPage.getShowing().toString();
+                    if ( ! actualShowing.contains(expectedShowingPhrase)) {
+                        message = "Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target;
+                        status.addError(message);
                     }
                 }
 
+                String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+                System.out.println(statusString + message);
+
+                if ( ! status.hasErrors())
+                    status.successCount++;
+
                 masterStatus.add(status);
+
             } catch (TestException e) {
-                message = "EXCEPTION: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target + "/nmessage: " + e.getLocalizedMessage();
+                message = "Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target + "/nmessage: " + e.getLocalizedMessage();
                 masterStatus.addError(message);
                 e.printStackTrace();
             }
@@ -1149,8 +1146,12 @@ public class SearchPageTest {
 
                     List<WebElement> elems = driver.findElements(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm"));
                     String geneSymbol2 = null;
+                    String autosuggestCandidates = "";
                     for (WebElement elem : elems) {
                         String autosuggestGene = elem.getText();
+                        if ( ! autosuggestCandidates.isEmpty())
+                            autosuggestCandidates += ",";
+                        autosuggestCandidates += autosuggestGene;
                         if (autosuggestGene.equals(geneSymbol1)) {
                             geneSymbol2 = elem.getText();
                             break;
@@ -1158,10 +1159,12 @@ public class SearchPageTest {
                     }
 
                     if (geneSymbol1.equals(geneSymbol2)) {
-                        System.out.println("PASSED [" + geneSymbol1 + "]");
+                        System.out.println("\tPASSED [" + geneSymbol1 + "]");
                     } else {
-                        message = "FAILED [Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found]. URL: " + target;
+                        message = "\tFAILED [Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found]. URL: " + target;
                         System.out.println(message);
+                        System.out.println("\tWas searching for '" + geneSymbol1 + "' in [" + autosuggestCandidates + "]");
+
                         masterStatus.addError(message);
                     }
                 } catch (Exception e) {
@@ -1207,9 +1210,10 @@ public class SearchPageTest {
                 count = i + 1;
                 String mgiId = docs.getJSONObject(i).getString("mgi_accession_id");
                 String symbol = docs.getJSONObject(i).getString("marker_symbol");
-                logger.info("Testing MGI ID " + String.format("%3d", count) + ": " + String.format("%-10s", mgiId));
+                String target = baseUrl + "/search?q=" + mgiId;
+                String message = "[" + String.format("% 2d", i) + ": " + String.format("%-10s", mgiId) + "]. URL: " + target;
 
-                driver.get(baseUrl + "/search?q=" + mgiId);
+                driver.get(target);
 
                 new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
                 try {
@@ -1217,9 +1221,14 @@ public class SearchPageTest {
                     if ( ! status.hasErrors())
                         status.successCount++;
 
+                    String statusString = "\t" + (status.hasErrors() ? "FAILED " : "PASSED " );
+                    System.out.println(statusString + message);
                     masterStatus.add(status);
+
                 } catch (Exception e) {
-                    masterStatus.addError("ERROR: Expected to find gene symbol '" + symbol + "' but it was not found.");
+                    System.out.println("FAILED [ " + message + "]\n[" + e.getLocalizedMessage() + "]");
+                    e.printStackTrace();
+                    masterStatus.addError(message);
                 }
             }
         }
@@ -1232,13 +1241,10 @@ public class SearchPageTest {
     public void testTickingFacetFilters() throws TestException {
         String testName = "testTickingFacetFilters";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus masterStatus = new PageStatus();
-
+        String message = "";
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        successList.clear();
-        errorList.clear();
         String target = baseUrl + "/search";
         System.out.println("target Page URL: " + target);
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
@@ -1253,7 +1259,6 @@ public class SearchPageTest {
         for (String core :  cores) {
             String subfacetCheckboxCssSelector = "li#" + core + " li.fcat input[type='checkbox']";
             String subfacetTextCssSelector = "li#" + core + " li.fcat span.flabel";
-            int iterationErrorCount = 0;
             Facet facet = searchPage.getFacetByCoreName(core);
             searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
             WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
@@ -1263,7 +1268,8 @@ public class SearchPageTest {
             searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
             PageStatus status = new PageStatus();
             if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
-                status.addError("Failed to check input filter for " + facet + " facet.");
+                message = "Failed to tick input filter. Expected first subfacet filter to be checked, but it wasn't. URL = " + driver.getCurrentUrl();
+                status.addError(message);
             } else {
 
                 // Check that there is a filter matching the selected facet above the Genes facet.
@@ -1278,7 +1284,8 @@ public class SearchPageTest {
                     }
                 }
                 if ( ! found) {
-                    status.addError("ERROR: Expeted subfacet '" + facetText + "' in facet " + facet);
+                    message = "Expected subfacet filter for '" + facetText + "' but it was not found. URL: " + driver.getCurrentUrl();
+                    status.addError(message);
                 }
 
                 searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
@@ -1290,25 +1297,23 @@ public class SearchPageTest {
                 firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
 
                 if (firstSubfacetElement.isSelected()) {                            // Verify that the subfacet is no longer selected.
-                    status.addError("Failed to uncheck input filter for " + facet + " facet.");
+                    message = "Expected subfacet checkbox to be unchecked. URL: " + driver.getCurrentUrl();
+                    status.addError(message);
                 }
 
                 // Check that there are no filters.
                 if (searchPage.hasFilters()) {
-                    status.addError("ERROR: Expected filters to be cleared, but there were filters in place for facet " + facet);
-                }
-
-                if (iterationErrorCount == 0) {
-                    System.out.println("\tPASSED [" + core + "]");
-                    successList.add(core);
+                    message = "Expected filters to be cleared. URL: " + driver.getCurrentUrl();
+                    status.addError(message);
                 }
 
                 searchPage.clearFilters();
             }
 
-            if (status.hasErrors()) {
-                masterStatus.add(status);
-            }
+            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+            System.out.println(statusString + message);
+
+            masterStatus.add(status);
 
             searchPage.closeFacet(facet);                                           // Close the facet.
         }
