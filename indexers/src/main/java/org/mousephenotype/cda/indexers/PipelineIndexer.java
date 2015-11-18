@@ -132,12 +132,12 @@ public class PipelineIndexer extends AbstractIndexer {
 	private void initialiseSupportingBeans()
 	throws IndexerException {
 
+		parameterToObservationTypeMap = getObservationTypeMap();
 		paramIdToParameter = populateParamIdToParameterMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populatePipelineList();
 		addAbnormalMaOntologyMap();
 		mpIdToMp = populateMpIdToMp();
-		parameterToObservationTypeMap=getObservationTypeMap();
 	}
 	
 
