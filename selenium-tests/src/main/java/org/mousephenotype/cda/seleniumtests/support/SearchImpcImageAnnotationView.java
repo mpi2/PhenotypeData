@@ -96,7 +96,6 @@ public class SearchImpcImageAnnotationView extends SearchFacetTable {
             logger.info("Encoding page data for XLS image link comparison.");
             pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), COL_INDEX_IMAGES_LINK), pageData.getTarget());
         } else {
-            logger.info("Decoding page data for TSV image link comparison.");
             pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), COL_INDEX_IMAGES_LINK), pageData.getTarget());
         }
 

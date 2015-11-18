@@ -25,11 +25,15 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.seleniumtests.support.*;
+import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.SearchFacetTable;
+import org.mousephenotype.cda.seleniumtests.support.SearchPage;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;
+import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -68,8 +72,9 @@ import static org.junit.Assert.fail;
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class SearchPageTest {
 
-    private CommonUtils commonUtils = new CommonUtils();
+    protected CommonUtils commonUtils = new CommonUtils();
     protected TestUtils testUtils = new TestUtils();
+    protected UrlUtils urlUtils = new UrlUtils();
     private WebDriverWait wait;
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -84,11 +89,6 @@ public class SearchPageTest {
     private final HashMap<String, String> params = new HashMap();
     private final List<String> paramList = new ArrayList();
     private final List<String> cores = new ArrayList();
-    private final List<String> errorList = new ArrayList();
-    private final List<String> successList = new ArrayList();
-    private final static List<String> sumErrorList = new ArrayList();
-    private final static List<String> sumSuccessList = new ArrayList();
-    private static String startTime;
     protected Connection komp2Connection;
 
     private static final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
@@ -218,6 +218,7 @@ public class SearchPageTest {
         Date start = new Date();
         PageStatus masterStatus = new PageStatus();
         int totalNonzeroCount = 0;
+        String message = "";
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -227,7 +228,6 @@ public class SearchPageTest {
         try {
             // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
             String target = baseUrl + "/search";
-            System.out.println("target: " + target);
 
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
             if (! searchString.isEmpty()) {
@@ -245,27 +245,28 @@ public class SearchPageTest {
 
             for (Facet facet : facets) {
                 Integer facetCount = searchPage.getFacetCount(facet);
+                message = "";
                 if (facetCount == null) {
-                    String message = "ERROR: the facet count for facet '" + facet + "' was null, which means the search page had no facet count.";
-                    System.out.println(message);
+                    message = "ERROR: the facet count was null. URL: " + driver.getCurrentUrl();
                     masterStatus.addError(message);
                 } else if (facetCount == 0) {
-                    System.out.println("Skipping facet " + facet + " as it has no rows.");
+                    System.out.println("\tSKIPPING [" + facet + "] as it has no rows.");
+                    continue;
                 } else {
                     searchPage.clickFacet(facet);
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
 
-                    System.out.println("\nTesting " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
                     PageStatus status = searchPage.validateDownload(facet);
+                    String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+                    System.out.println(statusString + message);
 
                     masterStatus.add(status);
-                    totalNonzeroCount++;
                 }
             }
+            totalNonzeroCount++;
         } catch (Exception e) {
-            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
-            System.out.println(message);
+            System.out.println("FAILED [ " + message + "]\n[" + e.getLocalizedMessage() + "]");
             e.printStackTrace();
             masterStatus.addError(message);
         }
@@ -391,12 +392,10 @@ public class SearchPageTest {
 
     private void specialStrQueryTest(String testName, String qry) throws TestException {
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        int successCount = 0;
         String target = baseUrl + "/search?q=" + qry;
         driver.get(target);
 
@@ -406,10 +405,10 @@ public class SearchPageTest {
             status.addError("ERROR: query string '" + qry + "' was not found. URL: " + target);
         }
         else {
-            successCount++;
+            status.successCount++;
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
 
@@ -421,8 +420,7 @@ public class SearchPageTest {
     public void testAutosuggestForSpecificKnownGenes() throws TestException {
         String testName = "testAutosuggestForSpecificKnownGenes";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
+        PageStatus masterStatus = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -431,15 +429,14 @@ public class SearchPageTest {
             , "Del(7Gabrb3-Ube3a)1Yhj"
         };
 
-        System.out.println("TESTING autosuggest for specific gene symbols. NOTE: Results don't seem to be ordered, so it's possible the gene is beyond the first 10 shown.");
+        // NOTE: Results don't seem to be ordered, so it's possible the gene is beyond the first 10 shown.
         String message;
 
         for (String geneSymbol : geneSymbols) {
+            PageStatus status = new PageStatus();
             String target = baseUrl + "/search";
 
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
-            System.out.println("Testing symbol " + geneSymbol + ":\t. URL: " + driver.getCurrentUrl());
-
             List<SearchPage.AutosuggestRow> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
 
             boolean found = false;
@@ -450,19 +447,21 @@ public class SearchPageTest {
                 }
             }
 
-            int successCount = 0;
             if (found) {
-                successCount++;
+                status.successCount++;
             } else {
-                message = "[FAILED]: Expected to find gene id '" + geneSymbol + "' in the autosuggest list but it was not found.";
+                message = "\tFAILED [Expected to find gene id '" + geneSymbol + "' in the autosuggest list but it was not found].";
+                status.addError(message);
                 for (SearchPage.AutosuggestRow row : autoSuggestions) {
                     message += "\n" + row.toString();
                 }
                 status.addError(message);
             }
+
+            masterStatus.add(status);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), geneSymbols.length, geneSymbols.length);
+        testUtils.printEpilogue(testName, start, masterStatus, geneSymbols.length, geneSymbols.length);
     }
 
     @Test
@@ -471,7 +470,6 @@ public class SearchPageTest {
     public void testAutosuggestMinCharacters() throws TestException {
         String testName = "testAutosuggestMinCharacters";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -483,16 +481,15 @@ public class SearchPageTest {
         driver.findElement(By.cssSelector("input#s")).sendKeys(testKw);
         commonUtils.sleep(2000);            // wait until the dropdown list pops up
 
-        int successCount = 0;
          int numTerms = driver.findElements(By.cssSelector("ul.ui-autocomplete li")).size();
          if ( numTerms > 0) {
-            successCount++;
+            status.successCount++;
          }
          else {
             status.addError("Entered " + testKw + " into search box. Expected matches but found none.");
          }
 
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     @Test
@@ -527,9 +524,7 @@ public class SearchPageTest {
     public void testFacetCountsNoSearchTerm() throws TestException {
         String testName = "testFacetCountsNoSearchTerm";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
-        int successCount = 0;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -549,12 +544,12 @@ public class SearchPageTest {
                 if (facetCountFromSolr != resultCount) {
                     status.addError("Search term facet count MISMATCH: facet count from page: " + resultCount + ". facet count from solr core (" + core + ") = " + facetCountFromSolr + ".");
                 } else {
-                    successCount++;
+                    status.successCount++;
                 }
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, localCores.length, localCores.length);
+        testUtils.printEpilogue(testName, start, status, localCores.length, localCores.length);
     }
 
     private class SearchTermGroup {
@@ -619,8 +614,7 @@ public class SearchPageTest {
         String testName = "testFacetCountsSpecialCharacters";
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
-        int successCount = 0;
+        PageStatus masterStatus = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -651,14 +645,14 @@ public class SearchPageTest {
             // Build the solarUrlCounts.
             String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
 
-            PageStatus localStatus = facetCountEngine(target, searchTermGroup, imageMap);
-            if ( ! localStatus.hasErrors()) {
-                successCount++;
-            }
-            status.add(localStatus);
+            PageStatus status = facetCountEngine(target, searchTermGroup, imageMap);
+            if ( ! status.hasErrors())
+                status.successCount++;
+
+            masterStatus.add(status);
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, searchTermGroupWildcard.length, searchTermGroupWildcard.length);
+        testUtils.printEpilogue(testName, start, masterStatus, searchTermGroupWildcard.length, searchTermGroupWildcard.length);
     }
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
@@ -667,7 +661,6 @@ public class SearchPageTest {
     public void testHox() throws TestException {
         String testName = "testHox";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -692,8 +685,11 @@ public class SearchPageTest {
             }
         }
 
-        int successCount = (status.hasErrors() ? 0 : 1);
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        if ( ! status.hasErrors()) {
+            status.successCount++;
+        }
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
@@ -702,7 +698,6 @@ public class SearchPageTest {
     public void testHoxStar() throws TestException {
         String testName = "testHoxStar";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -727,45 +722,50 @@ public class SearchPageTest {
             }
         }
 
-        int successCount = (status.hasErrors() ? 0 : 1);
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        if ( ! status.hasErrors()) {
+            status.successCount++;
+        }
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
-//    // This test doesn't use the download test engine as it requires an extra
-//    // click to switch to the Image facet's 'Image' view.
+    // This test doesn't use the download test engine as it requires an extra
+    // click to switch to the Image facet's 'Image' view.
     @Test
 //@Ignore
     public void testImageFacetImageView() throws TestException {
         String testName = "testImageFacetImageView";
         String searchString = "";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
         Facet facet;
+        String message = "";
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+        String target = "";
 
         try {
-            String target = baseUrl + "/search";
+            target = baseUrl + "/search";
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
             searchPage.clickPageButton();
 
-            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
 
         } catch (TestException e) {
-            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
+            System.out.println(message);
+            e.printStackTrace();
             status.addError(message);
-        } finally {
-            if ( ! status.hasErrors()) {
-                successList.add(testName + ": SUCCESS.");
-            }
-
-            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
+
+        if ( ! status.hasErrors()) {
+            status.successCount++;
+        }
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     // This test was spawned from testImageFacetImageView() when it came across
@@ -774,36 +774,34 @@ public class SearchPageTest {
 //@Ignore
     public void testImageFacetImageViewLastPage() throws TestException {
         String testName = "testImageFacetImageViewLastPage";
-        String searchString = "";
+        String message = "";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+        String target = "";
 
         try {
-            String target = baseUrl + "/search";
+            target = baseUrl + "/search";
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             Facet facet = Facet.IMAGES;
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
             searchPage.clickPageButton(SearchPage.PageDirective.LAST);
-            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
             status.add(searchPage.validateDownload(facet));
+
         } catch (TestException e) {
-            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
             System.out.println(message);
             e.printStackTrace();
             status.addError(message);
-        } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            } else {
-                successList.add(testName + ": SUCCESS.");
-            }
-
-            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
+
+        if ( ! status.hasErrors()) {
+            status.successCount++;
+        }
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     // This test doesn't use the download test engine as it requires an extra
@@ -814,38 +812,37 @@ public class SearchPageTest {
         String testName = "testImpcImageFacetImageView";
         String searchString = "";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
         Facet facet;
+        String message = "";
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+        String target = "";
 
         try {
-            String target = baseUrl + "/search";
+            target = baseUrl + "/search";
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
             facet = Facet.IMPC_IMAGES;
             searchPage.clickFacet(facet);
             searchPage.getImpcImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
 
-            System.out.println("Testing " + facet + " facet. Search string: '" + searchString + "'. URL: " + driver.getCurrentUrl());
+            message = "[facet " + facet + "], image view. Search string: '" + searchString + "'. URL: " + target;
 
             status.add(searchPage.validateDownload(facet));
 
         } catch (TestException e) {
-            String message = "EXCEPTION: SearchPageTest." + testName + "(): Message: " + e.getLocalizedMessage();
+            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
             System.out.println(message);
             e.printStackTrace();
             status.addError(message);
-        } finally {
-            if (status.hasErrors()) {
-                errorList.add(status.toStringErrorMessages());
-            } else {
-                successList.add(testName + ": SUCCESS.");
-            }
-
-            testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
         }
+
+        if ( ! status.hasErrors()) {
+            status.successCount++;
+        }
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     @Test
@@ -875,9 +872,7 @@ public class SearchPageTest {
     public void testMaTermNamesMatchFacetNames() throws TestException {
         String testName = "testMaTermNamesMatchFacetNames";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         int expectedCount;
-        int successCount = 0;
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -925,19 +920,19 @@ public class SearchPageTest {
 
         for (int i = 0; i < pageSet.size(); i++) {
             if (pageMaFacetTermNames[i].equals(dbMaFacetTermNames.get(i))) {
-                successCount++;
+                status.successCount++;
             } else {
                 status.addError("facet name mismatch: "
                   + dumpLists(Arrays.asList(pageMaFacetTermNames), dbMaFacetTermNames));
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, expectedCount, expectedCount);
+        testUtils.printEpilogue(testName, start, status, expectedCount, expectedCount);
     }
 
     /**
      * Test for Jira bug MPII-806: from the search page, searching for the characters
-     * "fasting glu" should autosuggest 'fasting glucose'. Click on 'fasting glucose'
+     * "fasting glu" should autosuggest 'fasting' and 'glucose'. Click on 'fasting glucose'
      * and verify that the correct phenotype page appears.
      * @throws TestException
      */
@@ -946,7 +941,6 @@ public class SearchPageTest {
     public void testMPII_806() throws TestException {
         String testName = "testMPII_806";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -956,21 +950,23 @@ public class SearchPageTest {
          String characters = "fasting glu";
          driver.findElement(By.cssSelector("input#s")).sendKeys(characters);
 
-         // Wait for dropdown list to appear with 'blood glucose'.
+         // Wait for dropdown list to appear with candidates.
         String xpathSelector = "//ul[@id='ui-id-1']/li[@class='ui-menu-item']/a";
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
         if (( ! element.getText().contains("fasting")) && ( ! element.getText().contains("glucose"))){
             status.addError("ERROR: Expected the terms 'fasting' and 'glucose' but found '" + element.getText() + "'");
         } else {
             element.click();
-            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']")));
-            if (element.getText().contains("Found") == false) {
-                status.addError("ERROR: Expected 'Found xxx genes' message. Text = '" + element.getText() + "'");
+            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[@id='resultCount']")));
+            if ( ! element.getText().contains("Found")) {
+                status.addError("ERROR: Expected 'Found xxx genes' message but actual text was '" + element.getText() + "'");
             }
         }
 
-        int successCount = (status.hasErrors() ? 0 : 1);
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     // Tests search page with more than one Production Status [blue] order button.
@@ -990,7 +986,7 @@ public class SearchPageTest {
 
         try {
             target = baseUrl + "/search?q=MGI\\%3A1353431#fq=*:*&facet=gene";
-            logger.info("target: " + target);
+            System.out.println("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
             // Use the first gene div element in the search results.
@@ -1039,31 +1035,31 @@ public class SearchPageTest {
     public void testPagination() throws TestException {
         String testName = "testPagination";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
-        int successCount = 0;
+        PageStatus masterStatus = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String target;
-        String message;
+        String message = "";
         final String showing_1 = "Showing 1 to ";
         final String showing_11 = "Showing 11 to ";
         String expectedShowingPhrase = "";
         String actualShowing = "";
 
-        for (String core : cores ){
+        for (String core : cores ) {
+            PageStatus status = new PageStatus();
             target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
-            logger.info("Testing URL: " + target);
+
             try {
                 SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.clickFacetById(core);
+                Facet facet = searchPage.getFacetByCoreName(core);
 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
                 expectedShowingPhrase = showing_1;
                 actualShowing = searchPage.getShowing().toString();
                 if ( ! actualShowing.contains(expectedShowingPhrase)) {
-                    message = "ERROR: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'.";
+                    message = "Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target;
                     status.addError(message);
                 }
 
@@ -1071,23 +1067,30 @@ public class SearchPageTest {
                     // Wait for facet page to load, then click the page '2' link. The 'showing' string should start with 'Showing 11 to 20 of".
                     searchPage.clickPageButton(SearchPage.PageDirective.SECOND_NUMBERED);
                     expectedShowingPhrase = showing_11;
+
                     actualShowing = searchPage.getShowing().toString();
                     if ( ! actualShowing.contains(expectedShowingPhrase)) {
-                        message = "ERROR: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'.";
+                        message = "Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target;
                         status.addError(message);
                     }
                 }
 
-                if (errorList.isEmpty())
-                    successCount++;
+                String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+                System.out.println(statusString + message);
+
+                if ( ! status.hasErrors())
+                    status.successCount++;
+
+                masterStatus.add(status);
+
             } catch (TestException e) {
-                message = "EXCEPTION: Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. message: " + e.getLocalizedMessage();
-                status.addError(message);
+                message = "Expected '" + expectedShowingPhrase + "' but found '" + actualShowing + "'. URL: " + target + "/nmessage: " + e.getLocalizedMessage();
+                masterStatus.addError(message);
                 e.printStackTrace();
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, cores.size(), cores.size());
+        testUtils.printEpilogue(testName, start, masterStatus, cores.size(), cores.size());
     }
 
     @Test
@@ -1108,10 +1111,8 @@ public class SearchPageTest {
     public void testQueryingRandomGeneSymbols() throws TestException {
         String testName = "testQueryingRandomGeneSymbols";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
+        PageStatus masterStatus = new PageStatus();
         int nbRows = 20;
-        int successCount = 0;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, nbRows, nbRows);
 
@@ -1119,7 +1120,7 @@ public class SearchPageTest {
         int startIndex = rn.nextInt(60000 - 0 + 1) + 1;
 
         String target = baseUrl + "/search#fq=*:*&facet=gene";
-        logger.info("URL: " + target);
+        System.out.println("URL: " + target);
         String queryString = solrUrl + "/gene/select?q=*:*&start=" + startIndex + "&rows=" + nbRows + "&fl=marker_symbol&wt=json&indent=true";
 
         JSONObject geneResults;
@@ -1137,17 +1138,20 @@ public class SearchPageTest {
                 String geneSymbol1 = "";
                 try {
                     geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
-
-                    logger.info("Testing gene symbol " + geneSymbol1);
-                    SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+                    SearchPage searchPage = new SearchPage(driver, timeoutInSeconds * 2, target, phenotypePipelineDAO, baseUrl, imageMap);
                     searchPage.submitSearch(geneSymbol1);
                     WebDriverWait localWait = new WebDriverWait(driver, 10);        // Wait up to 10 seconds.
                     localWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//ul[contains(@class, 'ui-autocomplete')]")));
+                    localWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm")));
 
                     List<WebElement> elems = driver.findElements(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm"));
                     String geneSymbol2 = null;
+                    String autosuggestCandidates = "";
                     for (WebElement elem : elems) {
                         String autosuggestGene = elem.getText();
+                        if ( ! autosuggestCandidates.isEmpty())
+                            autosuggestCandidates += ",";
+                        autosuggestCandidates += autosuggestGene;
                         if (autosuggestGene.equals(geneSymbol1)) {
                             geneSymbol2 = elem.getText();
                             break;
@@ -1155,20 +1159,24 @@ public class SearchPageTest {
                     }
 
                     if (geneSymbol1.equals(geneSymbol2)) {
-                        logger.debug("[" + i + "] (OK): '" + geneSymbol1 + "'");
-                        successCount++;
+                        System.out.println("\tPASSED [" + geneSymbol1 + "]");
                     } else {
-                        message = "ERROR[" + i + "]: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found.";
-                        logger.error(message);
-                        status.addError(message);
+                        message = "\tFAILED [Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found]. URL: " + target;
+                        System.out.println(message);
+                        System.out.println("\tWas searching for '" + geneSymbol1 + "' in [" + autosuggestCandidates + "]");
+
+                        masterStatus.addError(message);
                     }
                 } catch (Exception e) {
-                    logger.error("ERROR testing gene symbol " + geneSymbol1 + ": " + e.getLocalizedMessage());
+                    masterStatus.addError("ERROR testing gene symbol " + geneSymbol1 + ": " + e.getLocalizedMessage());
                 }
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, nbRows, nbRows);
+        if ( ! masterStatus.hasErrors())
+            masterStatus.successCount++;
+
+        testUtils.printEpilogue(testName, start, masterStatus, nbRows, nbRows);
     }
 
     @Test
@@ -1176,10 +1184,8 @@ public class SearchPageTest {
     public void testRandomMgiIds() throws TestException {
         String testName = "testRandomMgiIds";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
+        PageStatus masterStatus = new PageStatus();
         int nbRows = 20;
-        int successCount = 0;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, nbRows, nbRows);
 
@@ -1200,26 +1206,34 @@ public class SearchPageTest {
             int size = docs.size();
             int count;
             for (int i = 0; i < size; i++) {
-
+                PageStatus status = new PageStatus();
                 count = i + 1;
                 String mgiId = docs.getJSONObject(i).getString("mgi_accession_id");
                 String symbol = docs.getJSONObject(i).getString("marker_symbol");
-                logger.info("Testing MGI ID " + String.format("%3d", count) + ": " + String.format("%-10s", mgiId));
+                String target = baseUrl + "/search?q=" + mgiId;
+                String message = "[" + String.format("% 2d", i) + ": " + String.format("%-10s", mgiId) + "]. URL: " + target;
 
-                driver.get(baseUrl + "/search?q=" + mgiId);
+                driver.get(target);
 
                 new WebDriverWait(driver, 25).until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.geneCol")));
-                WebElement geneLink = null;
                 try {
                     driver.findElement(By.cssSelector("div.geneCol a").linkText(symbol));
-                    successCount++;
+                    if ( ! status.hasErrors())
+                        status.successCount++;
+
+                    String statusString = "\t" + (status.hasErrors() ? "FAILED " : "PASSED " );
+                    System.out.println(statusString + message);
+                    masterStatus.add(status);
+
                 } catch (Exception e) {
-                    status.addError("ERROR: Expected to find gene symbol '" + symbol + "' but it was not found.");
+                    System.out.println("FAILED [ " + message + "]\n[" + e.getLocalizedMessage() + "]");
+                    e.printStackTrace();
+                    masterStatus.addError(message);
                 }
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successCount, nbRows, nbRows);
+        testUtils.printEpilogue(testName, start, masterStatus, nbRows, nbRows);
     }
 
     @Test
@@ -1227,13 +1241,10 @@ public class SearchPageTest {
     public void testTickingFacetFilters() throws TestException {
         String testName = "testTickingFacetFilters";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus masterStatus = new PageStatus();
-
+        String message = "";
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        successList.clear();
-        errorList.clear();
         String target = baseUrl + "/search";
         System.out.println("target Page URL: " + target);
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
@@ -1248,7 +1259,6 @@ public class SearchPageTest {
         for (String core :  cores) {
             String subfacetCheckboxCssSelector = "li#" + core + " li.fcat input[type='checkbox']";
             String subfacetTextCssSelector = "li#" + core + " li.fcat span.flabel";
-            int iterationErrorCount = 0;
             Facet facet = searchPage.getFacetByCoreName(core);
             searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
             WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
@@ -1258,7 +1268,8 @@ public class SearchPageTest {
             searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
             PageStatus status = new PageStatus();
             if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
-                status.addError("Failed to check input filter for " + facet + " facet.");
+                message = "Failed to tick input filter. Expected first subfacet filter to be checked, but it wasn't. URL = " + driver.getCurrentUrl();
+                status.addError(message);
             } else {
 
                 // Check that there is a filter matching the selected facet above the Genes facet.
@@ -1273,7 +1284,8 @@ public class SearchPageTest {
                     }
                 }
                 if ( ! found) {
-                    status.addError("ERROR: Expeted subfacet '" + facetText + "' in facet " + facet);
+                    message = "Expected subfacet filter for '" + facetText + "' but it was not found. URL: " + driver.getCurrentUrl();
+                    status.addError(message);
                 }
 
                 searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
@@ -1285,25 +1297,23 @@ public class SearchPageTest {
                 firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
 
                 if (firstSubfacetElement.isSelected()) {                            // Verify that the subfacet is no longer selected.
-                    status.addError("Failed to uncheck input filter for " + facet + " facet.");
+                    message = "Expected subfacet checkbox to be unchecked. URL: " + driver.getCurrentUrl();
+                    status.addError(message);
                 }
 
                 // Check that there are no filters.
                 if (searchPage.hasFilters()) {
-                    status.addError("ERROR: Expected filters to be cleared, but there were filters in place for facet " + facet);
-                }
-
-                if (iterationErrorCount == 0) {
-                    System.out.println("   " + core + " OK");
-                    successList.add(core);
+                    message = "Expected filters to be cleared. URL: " + driver.getCurrentUrl();
+                    status.addError(message);
                 }
 
                 searchPage.clearFilters();
             }
 
-            if (status.hasErrors()) {
-                masterStatus.add(status);
-            }
+            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+            System.out.println(statusString + message);
+
+            masterStatus.add(status);
 
             searchPage.closeFacet(facet);                                           // Close the facet.
         }
@@ -1335,7 +1345,6 @@ public class SearchPageTest {
     public void testWnt1IsAtTop() throws TestException {
         String testName = "testWnt1IsAtTop";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         PageStatus status = new PageStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
@@ -1357,7 +1366,9 @@ public class SearchPageTest {
             }
         }
 
-        int successCount = (status.hasErrors() ? 0 : 1);
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 }
