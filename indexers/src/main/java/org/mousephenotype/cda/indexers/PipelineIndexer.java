@@ -686,6 +686,8 @@ public class PipelineIndexer extends AbstractIndexer {
 				
 				
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		logger.info("Populated Parameter type map with {} entries.", map.size());
 		return map;
