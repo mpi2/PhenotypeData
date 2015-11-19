@@ -341,8 +341,11 @@ public class SearchPage {
      * @param facetId HTML 'li' id of desired facet to click
      * @return the [total] results count
      */
-    public int clickFacetById(String facetId) {
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + facetId + "']"))).click();
+    public int clickFacetById(String facetId) throws TestException {
+        // Clicking the li element opens the facet but does not close it. Click on the text in the span instead.
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facetId + "']//span[@class='flabel']")));
+        testUtils.scrollToTop(driver, element, -50);           // Scroll element into view.
+        element.click();
 
         try {
             wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//table[contains(@class, 'dataTable')]")));            // Wait for facet to load.
@@ -350,8 +353,9 @@ public class SearchPage {
             setFacetTable();
 
         } catch (Exception e) {
-            logger.error("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
+            System.out.println("SearchPage.clickFacetById: Exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             e.printStackTrace();
+            throw new TestException(e);
         }
 
         return getResultCount();
@@ -410,23 +414,24 @@ public class SearchPage {
      */
     public void clickPageButton(PageDirective pageButton) throws TestException {
         List<WebElement> ulElements = driver.findElements(By.xpath("//div[contains(@class, 'dataTables_paginate')]/ul/li"));
+        WebElement pageButtonElement = null;
         try {
             switch (pageButton) {
-                case PREVIOUS:          ulElements.get(0).click();      break;
+                case PREVIOUS:          pageButtonElement = ulElements.get(0);      break;
 
-                case FIRST_NUMBERED:    ulElements.get(1).click();      break;
+                case FIRST_NUMBERED:    pageButtonElement = ulElements.get(1);      break;
 
-                case SECOND_NUMBERED:   ulElements.get(2).click();      break;
+                case SECOND_NUMBERED:   pageButtonElement = ulElements.get(2);      break;
 
-                case THIRD_NUMBERED:    ulElements.get(3).click();      break;
+                case THIRD_NUMBERED:    pageButtonElement = ulElements.get(3);      break;
 
-                case FOURTH_NUMBERED:   ulElements.get(4).click();      break;
+                case FOURTH_NUMBERED:   pageButtonElement = ulElements.get(4);      break;
 
-                case FIFTH_NUMBERED:    ulElements.get(5).click();      break;
+                case FIFTH_NUMBERED:    pageButtonElement = ulElements.get(5);      break;
 
                 case ELLIPSIS:                                          break;
 
-                case LAST:              ulElements.get(7).click();      break;
+                case LAST:              pageButtonElement = ulElements.get(7);      break;
 
                 case NEXT:
                     // See javadoc for getPageDirective() below for mapping of 'Next' button.
@@ -436,12 +441,16 @@ public class SearchPage {
                         case 5:
                         case 6:
                         case 7:
-                            ulElements.get(getNumPageButtons() - 1).click();    break;
+                            pageButtonElement = ulElements.get(getNumPageButtons() - 1);    break;
                         case 9:
-                            ulElements.get(8).click();                          break;
+                            pageButtonElement = ulElements.get(8);                          break;
                     }
                     break;
             }
+
+            // Scroll the page buttons into view before clicking it.
+            testUtils.scrollToTop(driver, pageButtonElement, -50);
+            pageButtonElement.click();
 
             // After a new page has been selected, we must update the old, stale image/impc_image table to fetch the new page's data.
             if (hasImageTable())
@@ -458,16 +467,21 @@ public class SearchPage {
     }
 
     public void clickToolbox(WindowState desiredWindowState) {
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
+        WebElement dnldElement = driver.findElement(By.xpath("//span[@id='dnld']"));
+        testUtils.scrollToTop(driver, dnldElement, -100);
+
+        String toolBoxStyle = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
         switch (desiredWindowState) {
             case CLOSED:
-                if (style.contains("block;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                if (toolBoxStyle.contains("block")) {
+                    dnldElement.click();
+                }
                 break;
 
             case OPEN:
-                if (style.contains("none;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
+                if ((toolBoxStyle.isEmpty()) || (toolBoxStyle.contains("none"))) {
+                    dnldElement.click();
+                }
                 break;
         }
     }
@@ -995,7 +1009,7 @@ public class SearchPage {
             geneTable = new SearchGeneTable(driver, timeoutInSeconds);
         } else if (hasImageTable()) {
             imageTable = new SearchImageTable(driver, timeoutInSeconds);
-        } else if (hasImageTable()) {
+        } else if (hasImpcImageTable()) {
             impcImageTable = new SearchImpcImageTable(driver, timeoutInSeconds);
         } else if (hasPhenotypeTable()) {
             phenotypeTable = new SearchPhenotypeTable(driver, timeoutInSeconds);
@@ -1036,7 +1050,7 @@ public class SearchPage {
      * @param facet facet
      * @return page status instance
      */
-    public PageStatus validateDownload(Facet facet) throws TestException {
+    public PageStatus validateDownload(Facet facet) {
         PageStatus status = new PageStatus();
 
         DownloadType[] downloadTypes = {
@@ -1044,20 +1058,22 @@ public class SearchPage {
             , DownloadType.XLS
         };
 
-        String[][] downloadData;
+        String[][] downloadData = new String[0][0];
         // Validate the download types for this facet.
         for (DownloadType downloadType : downloadTypes) {
-            downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
-            SearchFacetTable table = getFacetTable(facet);                      // Get the facet table.
+            SearchFacetTable table = null;
+            try {
+                downloadData = getDownload(downloadType, baseUrl);                  // Get the data for this download type.
+                table = getFacetTable(facet);                                       // Get the facet table.
+            } catch (Exception e) {
+                String message = "Error getting download data for " + downloadType + " from URL: " + baseUrl;
+                status.addError(message);
+                System.out.println(message);
+            }
+
             if (table != null) {
                 status.add(table.validateDownload(downloadData, downloadType)); // Validate it.
             }
-        }
-
-        if (status.hasErrors()) {
-            logger.error("TEST for facet '" + facet + "' FAILED");
-        } else {
-            logger.info("TEST for facet '" + facet + "' OK");
         }
 
         return status;
@@ -1076,9 +1092,12 @@ public class SearchPage {
      */
     public List<WebElement> getProductionStatusOrderButtons(WebElement geneTrElement) {
         List<WebElement> retVal = new ArrayList();
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(".//*[@oldtitle]")));
 
         try {
             List<WebElement> elements = geneTrElement.findElements(By.xpath(".//*[@oldtitle]"));
+
             for (WebElement element : elements) {
                 if (element.getTagName().equals("a"))
                     retVal.add(element);
@@ -1250,9 +1269,10 @@ public class SearchPage {
      * @return the download url base embedded in the <i>downloadType</i> button.
      */
     private String getDownloadUrlBase(DownloadType downloadType) {
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+
         // show the toolbox if it is not already showing.
         clickToolbox(WindowState.OPEN);
-        driver.findElement(By.xpath("//span[@id='dnld']")).click();
 
         String className = "";
 
@@ -1261,7 +1281,8 @@ public class SearchPage {
             case XLS: className = "xls_grid"; break;
         }
 
-        return driver.findElement(By.xpath("//button[contains(@class, '" + className + "')]")).getAttribute("data-exporturl");
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(@class, '" + className + "')]")));
+        return element.getAttribute("data-exporturl");
     }
 
     /**

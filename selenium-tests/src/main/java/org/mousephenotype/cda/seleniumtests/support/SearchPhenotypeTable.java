@@ -41,15 +41,14 @@ public class SearchPhenotypeTable extends SearchFacetTable {
     private final static Map<TableComponent, By> map = new HashMap();
     private GridMap pageData;
     protected final TestUtils testUtils = new TestUtils();
-    
-    public static final int COL_INDEX_COMP_MAPPED_HP_TERMS = 0;
-    public static final int COL_INDEX_DEFINITION           = 1;
-    public static final int COL_INDEX_PHENOTYPE_ID         = 2;
-    public static final int COL_INDEX_PHENOTYPE_TERM       = 3;
-    public static final int COL_INDEX_PHENOTYPE_ID_LINK    = 4;
-    public static final int COL_INDEX_SYNONYMS             = 5;
-    public static final int COL_INDEX_TOP_LEVEL_MP_TERM    = 6;
-    public static final int COL_INDEX_PHENOTYPING_CALLS    = 7;
+
+    public static final int COL_INDEX_PHENOTYPE_TERM       = 0;
+    public static final int COL_INDEX_PHENOTYPE_ID         = 1;
+    public static final int COL_INDEX_PHENOTYPE_ID_LINK    = 2;
+    public static final int COL_INDEX_DEFINITION           = 3;
+    public static final int COL_INDEX_SYNONYMS             = 4;
+    public static final int COL_INDEX_COMP_MAPPED_HP_TERMS = 5;
+    public static final int COL_INDEX_PHENOTYPING_CALLS    = 6;
     public static final int COL_INDEX_LAST = COL_INDEX_PHENOTYPING_CALLS;       // Should always point to the last (highest-numbered) index.
 
     static {
@@ -87,7 +86,6 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             , COL_INDEX_PHENOTYPE_ID_LINK
             , COL_INDEX_DEFINITION
             , COL_INDEX_SYNONYMS
-//            , COL_INDEX_TOP_LEVEL_MP_TERM                                     // Not found in page.
             , COL_INDEX_COMP_MAPPED_HP_TERMS
             , COL_INDEX_PHENOTYPING_CALLS
         };
@@ -97,7 +95,6 @@ public class SearchPhenotypeTable extends SearchFacetTable {
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPE_ID_LINK
             , DownloadSearchMapPhenotypes.COL_INDEX_DEFINITION
             , DownloadSearchMapPhenotypes.COL_INDEX_SYNONYMS
-//            , DownloadSearchMapPhenotypes.COL_INDEX_TOP_LEVEL_MP_TERM         // Not found in page.
             , DownloadSearchMapPhenotypes.COL_INDEX_COMP_MAPPED_HP_TERMS
             , DownloadSearchMapPhenotypes.COL_INDEX_PHENOTYPING_CALLS
         };

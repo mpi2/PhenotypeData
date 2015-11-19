@@ -22,9 +22,6 @@
 
 package uk.ac.ebi.phenotype.data.impress;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
@@ -39,11 +36,13 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
 import uk.ac.ebi.phenotype.web.TestConfig;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 @Transactional
 public class UtilitiesTest {

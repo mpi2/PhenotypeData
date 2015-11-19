@@ -1,9 +1,5 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.io.IOException;
-
-import javax.xml.bind.JAXBException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +7,10 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
 import uk.ac.ebi.phenotype.web.TestConfig;
+
+import javax.xml.bind.JAXBException;
+import java.io.IOException;
 
 
 /**
@@ -22,7 +20,7 @@ import uk.ac.ebi.phenotype.web.TestConfig;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/applicationTest.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 @Transactional
 public class UniprotServiceTest {
@@ -34,7 +32,7 @@ public class UniprotServiceTest {
     @Test
     public void testCheckTypeParameterString() {
        
-        UniprotDTO dto = null;
+        UniprotDTO dto = new UniprotDTO();
 		try {
 			
 			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" , dto);
@@ -47,9 +45,5 @@ public class UniprotServiceTest {
 		} catch (JAXBException | IOException e) {
 			e.printStackTrace();
 		}
-
-        
     }
-    
 }
-

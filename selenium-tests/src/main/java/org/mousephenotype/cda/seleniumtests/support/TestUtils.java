@@ -948,7 +948,7 @@ public class TestUtils {
     }
 
     /**
-     * Sorts <code>delimitedString</code> alphabetically, first splitting the
+     * Sorts <code>delimitedString</code> alphabetically, case-insensitive, first splitting the
      * string into separate segments, delimited by <code>delimiter</code>.
      *
      * @param delimitedString the delimited string to sort
@@ -962,7 +962,7 @@ public class TestUtils {
 
         String[] partsArray = delimitedString.split(Pattern.quote(delimiter));
         List<String> partsList = Arrays.asList(partsArray);
-        Collections.sort(partsList);
+        Collections.sort(partsList, String.CASE_INSENSITIVE_ORDER);
 
         String retVal = "";
         for (String part : partsList) {
@@ -978,7 +978,9 @@ public class TestUtils {
     }
 
     /**
-     * Sorts the delimited cells in the specified columns of each row in <code>delimitedArray</code> alphabetically
+     * Sorts the delimited cells in the specified columns of each row in <code>delimitedArray</code> alphabetically,
+     * case-insensitive.
+     *
      * For example, given:
      *      [0]           [1]           [2]
      *      "abc"         "f|e|d"       "ghi"

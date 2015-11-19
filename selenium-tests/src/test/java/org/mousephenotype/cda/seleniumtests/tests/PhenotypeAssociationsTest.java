@@ -50,7 +50,7 @@ import java.util.List;
  * Selenium test for phenotype association coverage ensuring each page works as expected.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
 public class PhenotypeAssociationsTest {
 
@@ -176,8 +176,20 @@ public class PhenotypeAssociationsTest {
      *
      * @throws SolrServerException
      */
+
+
+
+
+
+    // 12-Nov-2015: THIS TEST HANGS IN FIREFOX ON WINDOWS AND MAC WITH MGI:1336993.
+
+
+
+
+
+
     @Test
-//@Ignore
+@Ignore
     public void testTotalsCount() throws SolrServerException {
         PageStatus status = new PageStatus();
         String testName = "testTotalsCount";
