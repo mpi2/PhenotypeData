@@ -15,11 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -153,16 +149,18 @@ public class MpService extends BasicService{
     	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
     	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
 
-    	Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
-
+    	//Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
+		Map<String, SimpleOntoTerm> computationalHPTerms = new HashMap<>();
     	for ( int i=0; i< hpIds.size(); i++  ){
     		SimpleOntoTerm term = new SimpleOntoTerm();
     		term.setTermId(hpIds.get(i));
     		term.setTermName(hpTerms.get(i));
-    		computationalHPTerms.add(term);
+
+			computationalHPTerms.put(hpIds.get(i), term);
 		}
 
-    	return computationalHPTerms;
+		return new HashSet<SimpleOntoTerm>(computationalHPTerms.values());
+
     }
 
 	/**
