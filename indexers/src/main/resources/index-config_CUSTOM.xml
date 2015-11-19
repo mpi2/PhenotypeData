@@ -8,7 +8,7 @@
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>file:${user.home}/configfiles/reports3.0/application.properties</value>
+                <value>file:${user.home}/configfiles/weight/application.properties</value>
             </list>
         </property>
     </bean>
