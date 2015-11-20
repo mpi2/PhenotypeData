@@ -91,19 +91,8 @@ public class SearchPageTest {
     private final List<String> cores = new ArrayList();
     protected Connection komp2Connection;
 
-    private static final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
-    static {
-        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
-        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
-        imageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
-    }
-
-    private static final Map<SearchFacetTable.TableComponent, By> impcImageMap = new HashMap();
-    static {
-        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
-        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
-        impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
-    }
+    private final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
+    private final Map<SearchFacetTable.TableComponent, By> impcImageMap = new HashMap();
 
     @NotNull
     @Value("${baseUrl}")
@@ -139,6 +128,16 @@ public class SearchPageTest {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+
+        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='imagesGrid']"));
+        imageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='imagesGrid']/tbody/tr"));
+        imageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='imagesGrid_length']"));
+
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE, By.xpath("//table[@id='impc_imagesGrid']"));
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_TABLE_TR, By.xpath("//table[@id='impc_imagesGrid']/tbody/tr"));
+        impcImageMap.put(SearchFacetTable.TableComponent.BY_SELECT_GRID_LENGTH, By.xpath("//select[@name='impc_imagesGrid_length']"));
+
+
     }
 
     @Before
@@ -985,7 +984,7 @@ public class SearchPageTest {
         String target = "";
 
         try {
-            target = baseUrl + "/search?q=MGI\\%3A1353431#fq=*:*&facet=gene";
+            target = urlUtils.urlEncode(baseUrl + "/search?q=MGI:1353431#fq=*:*&facet=gene");
             System.out.println("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
