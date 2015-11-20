@@ -19,7 +19,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Datasource;
+import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
@@ -27,7 +29,6 @@ import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class GeneIndexer extends AbstractIndexer {
 	DatasourceDAO datasourceDAO;
 
     @Autowired
-    ImpressService ims;
+    PhenotypePipelineDAO phenotypePipelineDAO;
 
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
     private Map<String, Map<String, String>> genomicFeatureCoordinates = new HashMap<>();
@@ -227,8 +228,7 @@ public class GeneIndexer extends AbstractIndexer {
 
                 		for( EmbryoStrain strain : embryoStrainsForGene){
                 			for ( String procedureStableKey : strain.getProcedureStableKeys() ){
-                				ProcedureDTO procedure = ims.getProcedureByStableKey(procedureStableKey);
-
+                                Procedure procedure = phenotypePipelineDAO.getProcedureByStableId(procedureStableKey);
                 				logger.info("procedure info: " + procedure);
 
                 				if ( gene.getProcedureStableId() == null ){
