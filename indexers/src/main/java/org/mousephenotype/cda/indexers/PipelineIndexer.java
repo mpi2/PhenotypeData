@@ -132,12 +132,12 @@ public class PipelineIndexer extends AbstractIndexer {
 	private void initialiseSupportingBeans()
 	throws IndexerException {
 
+		parameterToObservationTypeMap = getObservationTypeMap();
 		paramIdToParameter = populateParamIdToParameterMap();
 		procedureIdToProcedure = populateProcedureIdToProcedureMap();
 		pipelines = populatePipelineList();
 		addAbnormalMaOntologyMap();
 		mpIdToMp = populateMpIdToMp();
-		parameterToObservationTypeMap=getObservationTypeMap();
 	}
 	
 
@@ -664,7 +664,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	
 	private Map<String,ObservationType> getObservationTypeMap(){
 		Map<String,ObservationType> paramterToObservationTypeMap=new HashMap<>();
-		String query= "select distinct parameter_stable_id, observation_type from observation where parameter_stable_id=?";
+		String query= "select distinct parameter_stable_id, observation_type from observation";
 		
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
 			

@@ -247,7 +247,7 @@
                         </h1>
 
                         <div class="section">
-                            < class="inner">
+                            <div class="inner">
                                 <!--  login interest button -->
                                 <div class="floatright">
                                     <c:choose>
