@@ -11,13 +11,17 @@
 	<context:component-scan base-package="org.mousephenotype.cda.db">
 		<context:exclude-filter type="annotation"
 			expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant" />
+			
 	</context:component-scan>
 	<context:component-scan base-package="org.mousephenotype.cda.utilities">
 		
 	</context:component-scan>
 	
 	<context:component-scan base-package="org.mousephenotype.cda.solr">
+	<context:exclude-filter type="regex"
+			expression="org\.mousephenotype\.cda\.solr\.service.*" />
 	</context:component-scan>
+
 
 	<!-- <bean id="dccConvertMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" 
 		/> -->
