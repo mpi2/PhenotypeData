@@ -581,118 +581,117 @@ public class PipelineIndexer extends AbstractIndexer {
 	// Method should only be used at indexing time. After that query pipeline core to find type.
 	protected ObservationType assignType(ParameterDTO parameter) 
 	throws SolrServerException {
-		return parameterToObservationTypeMap.get(parameter.getStableId());
-		
-//		Map<String, String> MAPPING = new HashMap<>();
-//		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
-//		MAPPING.put("M-G-P_022_001_001", "FLOAT");
-//		MAPPING.put("ESLIM_006_001_035", "FLOAT");
-//		MAPPING = Collections.unmodifiableMap(MAPPING);
-//
-//		ObservationType observationType = null;
-//		String datatype = parameter.getDataType();
-//		
-//		if (MAPPING.containsKey(parameter.getStableId())) {
-//			datatype = MAPPING.get(parameter.getStableId());
-//		}
-//
-//		if (parameter.isMetadata()) {
-//
-//			observationType = ObservationType.metadata;
-//
-//		} else {
-//
-//			if (parameter.isOptions()) {
-//
-//				observationType = ObservationType.categorical;
-//
-//			} else {
-//
-//				if (datatype.equals("TEXT")) {
-//
-//					observationType = ObservationType.text;
-//
-//				} else if (datatype.equals("DATETIME") || datatype.equals("DATE")  || datatype.equals("TIME")) {
-//
-//					observationType = ObservationType.datetime;
-//
-//				} else if (datatype.equals("BOOL")) {
-//
-//					observationType = ObservationType.categorical;
-//
-//				} else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
-//
-//					if (parameter.isIncrement()) {
-//
-//						observationType = ObservationType.time_series;
-//
-//					} else {
-//
-//						observationType = ObservationType.unidimensional;
-//
-//					}
-//
-//				} else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.getName().contains("images"))) {
-//
-//					observationType = ObservationType.image_record;
-//
-//				} else if (datatype.equals("") && !parameter.isOptions() && !parameter.getName().contains("images")) {
-//
-//					/* Look up in observation core. If we have a value the observation type will be correct. 
-//					 * If not use the approximation below (categorical will always be missed).
-//					 * See declaration of checkType(param, value) in impress utils.
-//					 */					
-//					ObservationType obs = os.getObservationTypeForParameterStableId(parameter.getStableId());
-//					if (obs != null){
-//						observationType = obs;
-//					} else {			
-//						if (parameter.isIncrement()) {
-//							observationType = ObservationType.time_series;
-//						} else {
-//							observationType = ObservationType.unidimensional;
-//						}
-//					}
-//
-//				} else {
-//					logger.warn("UNKNOWN data type : " + datatype  + " " + parameter.getStableId());
-//				}
-//			}
-//		}
 
-		//return observationType;
+		Map<String, String> MAPPING = new HashMap<>();
+		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
+		MAPPING.put("M-G-P_022_001_001", "FLOAT");
+		MAPPING.put("ESLIM_006_001_035", "FLOAT");
+		MAPPING = Collections.unmodifiableMap(MAPPING);
+
+		ObservationType observationType = null;
+		String datatype = parameter.getDataType();
+
+		if (MAPPING.containsKey(parameter.getStableId())) {
+			datatype = MAPPING.get(parameter.getStableId());
+		}
+
+		if (parameter.isMetadata()) {
+
+			observationType = ObservationType.metadata;
+
+		} else {
+
+			if (parameter.isOptions()) {
+
+				observationType = ObservationType.categorical;
+
+			} else {
+
+				if (datatype.equals("TEXT")) {
+
+					observationType = ObservationType.text;
+
+				} else if (datatype.equals("DATETIME") || datatype.equals("DATE")  || datatype.equals("TIME")) {
+
+					observationType = ObservationType.datetime;
+
+				} else if (datatype.equals("BOOL")) {
+
+					observationType = ObservationType.categorical;
+
+				} else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
+
+					if (parameter.isIncrement()) {
+
+						observationType = ObservationType.time_series;
+
+					} else {
+
+						observationType = ObservationType.unidimensional;
+
+					}
+
+				} else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.getName().contains("images"))) {
+
+					observationType = ObservationType.image_record;
+
+				} else if (datatype.equals("") && !parameter.isOptions() && !parameter.getName().contains("images")) {
+
+					/* Look up in observation core. If we have a value the observation type will be correct.
+					 * If not use the approximation below (categorical will always be missed).
+					 * See declaration of checkType(param, value) in impress utils.
+					 */
+					// Do not use the Service here because it has likely not been loaded yet (or is pointing to the wrong context
+					// ObservationType obs = os.getObservationTypeForParameterStableId(parameter.getStableId());
+					logger.info("Getting type from observations for parameter {}: Got {}", parameter.getStableId(), parameterToObservationTypeMap.get(parameter.getStableId()));
+					ObservationType obs = parameterToObservationTypeMap.get(parameter.getStableId());
+					if (obs != null){
+						observationType = obs;
+					} else {
+						if (parameter.isIncrement()) {
+							observationType = ObservationType.time_series;
+						} else {
+							observationType = ObservationType.unidimensional;
+						}
+					}
+
+				} else {
+					logger.warn("UNKNOWN data type : " + datatype  + " " + parameter.getStableId());
+				}
+			}
+		}
+
+		return observationType;
 	}
-	
+
 	private Map<String,ObservationType> getObservationTypeMap(){
-		Map<String,ObservationType> paramterToObservationTypeMap=new HashMap<>();
+		Map<String,ObservationType> map = new HashMap<>();
 		String query= "select distinct parameter_stable_id, observation_type from observation";
-		
+
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("parameter_stable_id");
 				String obsType=resultSet.getString("observation_type");
-				
+
 				ObservationType obType;
 				try {
 					obType = ObservationType.valueOf(obsType);
-					paramterToObservationTypeMap.put(parameterId, obType);
+					map.put(parameterId, obType);
 				} catch (IllegalArgumentException e) {
-					logger.warn("no ObservationType found for parameter:"+parameterId);
+					logger.warn("no ObservationType found for parameter: {}", parameterId);
 					e.printStackTrace();
 				}
-				
-				
-				
-			}
 
+
+
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return paramterToObservationTypeMap;
+		logger.info("Populated Parameter type map with {} entries.", map.size());
+		return map;
 	}
 	
 }
-
-
-
