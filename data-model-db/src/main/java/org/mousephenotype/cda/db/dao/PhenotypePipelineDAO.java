@@ -109,6 +109,14 @@ public interface PhenotypePipelineDAO extends HibernateDAO {
 	 */
 	Parameter getParameterByStableId(String stableId);
 
+	/**
+	 * Find a procedure by stable key only
+	 * It will return the latest version of the procedure
+	 * @param stableKey the procedure stable key
+	 * @return the procedure
+	 */
+	Procedure getProcedureByStableKey(String stableKey);
+
 
 
 	List<Parameter> getProcedureMetaDataParametersByStableIdAndVersion(String stableId, int majorVersion, int minorVersion);

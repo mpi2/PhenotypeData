@@ -227,8 +227,8 @@ public class GeneIndexer extends AbstractIndexer {
                 		logger.info("setting embryo true");
 
                 		for( EmbryoStrain strain : embryoStrainsForGene){
-                			for ( String procedureStableKey : strain.getProcedureStableKeys() ){
-                                Procedure procedure = phenotypePipelineDAO.getProcedureByStableId(procedureStableKey);
+                			for ( String procedureStableKey : strain .getProcedureStableKeys() ){
+                                Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);
                 				logger.info("procedure info: " + procedure);
 
                 				if ( gene.getProcedureStableId() == null ){
