@@ -9,27 +9,25 @@
 	<context:annotation-config />
 
 	<context:component-scan base-package="org.mousephenotype.cda.db">
-		<context:exclude-filter type="annotation"
-			expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant" />
-			
-	</context:component-scan>
-	<context:component-scan base-package="org.mousephenotype.cda.utilities">
-		
-	</context:component-scan>
-	
-	<context:component-scan base-package="org.mousephenotype.cda.solr">
-	<context:exclude-filter type="regex"
-			expression="org\.mousephenotype\.cda\.solr\.service.*" />
-	</context:component-scan>
+		<context:exclude-filter type="annotation" expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant" />
+    </context:component-scan>
+
+    <!--
+        <context:component-scan base-package="org.mousephenotype.cda.utilities">
+        </context:component-scan>
+
+        <context:component-scan base-package="org.mousephenotype.cda.solr">
+            <context:exclude-filter type="regex" expression="org\.mousephenotype\.cda\.solr\.service.*" />
+        </context:component-scan>
+    -->
+
+    <bean id="encodedOrganisationConversionMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" />
 
 
-	<!-- <bean id="dccConvertMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" 
-		/> -->
-
-<bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">
+    <bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
-	
+
 	<!-- Get the datasources from the filesystem overrides -->
 	<!-- Creates a MySQL Datasource -->
 	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -179,7 +177,7 @@
 		<constructor-arg index="0"
 			value="${buildIndexesSolrUrl}/disease" />
 	</bean>
-	
+
 
 	<!-- used for concurrently loading the gene core -->
 	<bean id="geneIndexing"
@@ -247,7 +245,7 @@
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/mp" />
 	</bean>
-	
+
 	<!-- used for concurrently loading the EMAP core -->
 	<bean id="emapIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -259,7 +257,7 @@
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/emap" />
 	</bean>
-	
+
 	<!-- used for concurrently loading the autosuggest core -->
 	<bean id="autosuggestIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -273,7 +271,7 @@
 		<constructor-arg index="0"
 			value="${buildIndexesSolrUrl}/autosuggest" />
 	</bean>
-	
+
 	<!-- used for concurrently loading the impc_images core -->
 	<bean id="impcImagesIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -287,7 +285,7 @@
 		<constructor-arg index="0"
 			value="${buildIndexesSolrUrl}/impc_images" />
 	</bean>
-	
+
 	<!-- used for concurrently loading the statistical results core -->
 	<bean id="statisticalResultsIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -301,7 +299,7 @@
 		<constructor-arg index="0"
 			value="${buildIndexesSolrUrl}/statistical-result" />
 	</bean>
-	
+
 	<!-- IMPC to GWAS similarity annotation indexing core -->
 	<bean id="gwasIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -313,7 +311,7 @@
 		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gwas" />
 	</bean>
-	
+
 
 	<!-- Global configuration parameters -->
 	<bean id="globalConfiguration" class="org.springframework.beans.factory.config.MapFactoryBean">
