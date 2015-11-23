@@ -122,7 +122,8 @@
                                 <div class="container span12">
                                     <h3>Data release 4.0</h3>
 
-                                    <p>Data release 4.0 is a major release.</p>
+                                    <p>Data release 4.0 is a major release.  It includes more and updated data from all centers is a more complete profile of the IMPC standard pipeline as described in <a href="http://www.mousephenotype.org/impress/">IMPReSS</a>.</p>
+                                    <p>Starting with this release, the <a href="https://www.mousephenotype.org/impress/protocol/174/7">IMPC Immunotphenotyping procedure</a> results are statistically analysed using the Reference Range Plus method as described in the <a href="http://pinot.fhcrc.org/packages/release/bioc/vignettes/PhenStat/inst/doc/PhenStatUsersGuide.pdf">PhenStat User Guide</a>.</p>
 
                                 </div>
                                 <div class="clear"></div>
