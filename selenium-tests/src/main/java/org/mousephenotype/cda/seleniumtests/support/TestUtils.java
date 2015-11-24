@@ -1018,25 +1018,6 @@ public class TestUtils {
     }
 
     /**
-     * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
-     * file is separated by a newline.
-     *
-     * @return the classpath, prefaced by the string 'Classpath:\n'. Each
-     * file is separated by a newline.
-     */
-    public static String getClasspath() {
-        StringBuilder sb = new StringBuilder("Classpath:\n");
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        URL[] urls = ((URLClassLoader) cl).getURLs();
-
-        for (URL url : urls) {
-            sb.append(url.getFile()).append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    /**
      * Queries the preqc core for <code>count</code> mpIds of phenotype pages that
      * contain preqc links.
      * @param count the number of random mpIds to return. A null or 0 value means return all.

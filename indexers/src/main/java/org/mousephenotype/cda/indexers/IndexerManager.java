@@ -322,7 +322,7 @@ public class IndexerManager {
             appContext = new FileSystemXmlApplicationContext("file:" + context);
         } else {
             // Try context as a class path resource
-//            logger.info(TestUtils.getClasspath());
+            logger.info(commonUtils.toStringClasspath());
             logger.info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }
