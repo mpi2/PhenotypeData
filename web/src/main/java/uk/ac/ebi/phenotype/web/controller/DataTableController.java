@@ -975,8 +975,8 @@ public class DataTableController {
 
                     String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                     String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                    String smallThumbNailPath = thumbnailPath + "/200";  //width in pixel
-                    String largeThumbNailPath = thumbnailPath + "/800";  //width in pixel
+                    String smallThumbNailPath = thumbnailPath + "/200/";  //width in pixel
+                    String largeThumbNailPath = thumbnailPath + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
                     if(doc.getString("download_url").contains("annotation")){
                     	imgLink = "<a href='" + doc.getString("download_url") + "'>" + img + "</a>";
