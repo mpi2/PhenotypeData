@@ -430,8 +430,8 @@ public class SolrIndex {
                 String downloadUrl=doc.getString("download_url");
                 //System.out.println("download Url="+downloadUrl);
                 String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
-                String smallThumbNailPath = thumbnailPath + "/200";
-                String largeThumbNailPath = thumbnailPath + "/800";
+                String smallThumbNailPath = thumbnailPath + "/200/";
+                String largeThumbNailPath = thumbnailPath + "/800/";
                 String img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
                 	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
