@@ -710,7 +710,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		// <field column="symbol" name="symbol" />
 		// <field column="acc" name="accession" />
 		// <field column="name" name="geneName" />
-		String query = "select * from `genomic_feature";// where
+		String query = "select * from genomic_feature";// where
 		// MOUSE_ID=${ima_image_record.FOREIGN_KEY_ID}");//
 		// image record.foreignkeyid to
 		// mouse_id
