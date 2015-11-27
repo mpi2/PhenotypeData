@@ -140,7 +140,8 @@ public class DrupalHttpProxy extends HttpProxy {
 	 *         drupal could not be contacted for some reason
 	 */
 	public String getDrupalMenu(String drupalBaseUrl) {
-
+		
+		long time = System.currentTimeMillis();
 		String secureDrupalBaseUrl = drupalBaseUrl;
 
 		if (secureDrupalBaseUrl != null) {
@@ -208,7 +209,7 @@ public class DrupalHttpProxy extends HttpProxy {
 				"<div class=\"clear\"></div></div>  \n" +
 				"</div>\n";
 		}
-
+		System.out.println("Retrieving drupal menu took " + (System.currentTimeMillis() - time));
 		return content;
 	}
 
