@@ -329,14 +329,14 @@ public class GenePageTest {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
 
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Started", null, GeneService.GeneFieldValue.CENTRE_WTSI);
         int actualGeneCount = getGeneCount();
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
+
+        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -358,14 +358,14 @@ public class GenePageTest {
         String testName = "testPageForGenesByLatestPhenotypeStatusStartedAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_STARTED, GeneService.GeneFieldValue.CENTRE_WTSI));
 
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Started", GeneService.GeneFieldValue.CENTRE_WTSI, null);
         int actualGeneCount = getGeneCount();
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
+
+        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -387,14 +387,14 @@ public class GenePageTest {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndPhenotypeCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndPhenotypeCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
 
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Complete", null, GeneService.GeneFieldValue.CENTRE_WTSI);
         int actualGeneCount = getGeneCount();
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
+
+        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -416,14 +416,14 @@ public class GenePageTest {
         String testName = "testPageForGenesByLatestPhenotypeStatusCompleteAndProductionCentreWTSI";
         List<String> geneIds = new ArrayList(geneService.getGenesByLatestPhenotypeStatusAndProductionCentre(GeneService.GeneFieldValue.PHENOTYPE_STATUS_COMPLETE, GeneService.GeneFieldValue.CENTRE_WTSI));
 
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         // Check that the count of fetched genes looks correct by ticking the appropriate boxes for this test and comparing
         // the result against the number of gene rows.
         tick("Complete", GeneService.GeneFieldValue.CENTRE_WTSI, null);
         int actualGeneCount = getGeneCount();
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
+
+        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         geneIdsTestEngine(testName, geneIds);
     }
