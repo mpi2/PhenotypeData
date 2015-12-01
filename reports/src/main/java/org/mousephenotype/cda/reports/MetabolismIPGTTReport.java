@@ -246,7 +246,9 @@ public class MetabolismIPGTTReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_IPG_002_001");
         if (data != null) {
             if (hasWarnings[1]) {
-                retVal.add(DATA_ERROR);
+	            for (int i=0; i<data.length; i++) {
+		            retVal.add(DATA_ERROR);
+	            }
             } else {
 	            for (Float aData : data) {
 		            if (aData == null) {
