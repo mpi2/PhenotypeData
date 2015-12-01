@@ -957,8 +957,10 @@ public class SearchPageTest {
         } else {
             element.click();
             element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[@id='resultCount']")));
-            if ( ! element.getText().contains("Found")) {
-                status.addError("ERROR: Expected 'Found xxx genes' message but actual text was '" + element.getText() + "'");
+            if (( ! element.getText().toLowerCase().contains("gene")) &&
+                ( ! element.getText().toLowerCase().contains("phenotype")) &&
+                ( ! element.getText().toLowerCase().contains("disease"))) {
+                status.addError("ERROR: Expected result text 'xxx gene' or 'xxx phenotype' or 'xxx disease' but actual text was '" + element.getText() + "'");
             }
         }
 

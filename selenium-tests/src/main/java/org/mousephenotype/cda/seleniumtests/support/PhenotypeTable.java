@@ -138,15 +138,15 @@ public class PhenotypeTable {
 
         // Loop through all of the tr objects for this page, gathering the data.
         int sourceRowIndex = 1;
-//int rowIndex = 0;
         for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
+//            int colIndex = 0;
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             boolean isPreQcLink = false;
             sourceColIndex = 0;
             boolean skipLink = false;
             for (WebElement cell : cells) {
-//System.out.println("tagName = " + cell.getTagName() +  ". text = " h+ cell.getText());
-//System.out.println("rowIndex = " + rowIndex++);
+//System.out.println("tagName =tagName " + cell.getTagName() +  ". text = " + cell.getText());
+//System.out.println("sourceRowIndex = " + sourceRowIndex + ". colIndex = " + colIndex++);
                 if (sourceColIndex == COL_INDEX_PHENOTYPES_GENE_ALLELE) {
                     String rawAllele = cell.findElement(By.cssSelector("span.smallerAlleleFont")).getText();
                     List<WebElement> alleleElements = cell.findElements(By.cssSelector("sup"));
@@ -161,10 +161,11 @@ public class PhenotypeTable {
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
                     value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_SEX) {                      // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                    value = "";
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
                     if (sex.size() == 2) {
                         value = "both";
-                    } else {
+                    } else if (sex.size() > 0) {
                         value = sex.get(0).getAttribute("alt").toLowerCase();
                     }
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
@@ -197,8 +198,8 @@ public class PhenotypeTable {
                 preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
             } else {
                 if ( ! skipLink) {
-                    postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the postQc list.
-                    if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
+                    postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the postQc list.
+                    if (postQcList.size() >= numRows) {                         // Return when we have the number of requested rows.
                         data = new GridMap(postQcList, target);
                         return data;
                     }
@@ -207,7 +208,7 @@ public class PhenotypeTable {
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
             sourceRowIndex++;
         }
-
+//System.out.println("sourceRowIndex: " + sourceRowIndex);
         data = new GridMap(postQcList, target);
         return data;
     }
