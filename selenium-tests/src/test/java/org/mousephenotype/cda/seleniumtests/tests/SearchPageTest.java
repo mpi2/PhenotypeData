@@ -1145,7 +1145,7 @@ public class SearchPageTest {
                     localWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//ul[contains(@class, 'ui-autocomplete')]")));
                     localWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm")));
 
-                    List<WebElement> elems = driver.findElements(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm"));
+                    List<WebElement> elems = localWait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm")));
                     String geneSymbol2 = null;
                     String autosuggestCandidates = "";
                     for (WebElement elem : elems) {
@@ -1162,7 +1162,7 @@ public class SearchPageTest {
                     if (geneSymbol1.equals(geneSymbol2)) {
                         System.out.println("\tPASSED [" + geneSymbol1 + "]");
                     } else {
-                        message = "\tFAILED [Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found]. URL: " + target;
+                        message = "\tFAILED [" + geneSymbol1 + "]: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found. URL: " + target;
                         System.out.println(message);
                         System.out.println("\tWas searching for '" + geneSymbol1 + "' in [" + autosuggestCandidates + "]");
 
