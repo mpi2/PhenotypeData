@@ -60,7 +60,6 @@ import static org.junit.Assert.assertTrue;
  *
  * Selenium test for graph page query coverage ensuring each page works as expected.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)

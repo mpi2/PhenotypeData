@@ -27,7 +27,6 @@ import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -40,7 +39,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
@@ -88,11 +86,11 @@ public class TestConfig {
 	@Value("${browserName}")
  	private String browserName;
 
-    @Autowired
-    private RemoteWebDriver privateDriver;
+//    @Autowired
+//    private RemoteWebDriver privateDriver;
 
-    @PostConstruct
-    public void initialise() throws TestException {
+//    @PostConstruct
+    private void logParameters(RemoteWebDriver privateDriver) throws TestException {
         logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
         logger.info("phenodigm.solrserver: " + phenodigmSolrserver);
         logger.info("solr.host:            " + solrHost);
@@ -103,7 +101,7 @@ public class TestConfig {
         logger.info("browserName:          " + privateDriver.getCapabilities().getBrowserName());
         logger.info("version:              " + privateDriver.getCapabilities().getVersion());
         logger.info("platform:             " + privateDriver.getCapabilities().getPlatform().name());
-        privateDriver.quit();
+//        privateDriver.quit();
     }
 
 	@Bean
@@ -179,6 +177,7 @@ public class TestConfig {
 
         try {
             retVal = new RemoteWebDriver(new URL(seleniumUrl), desiredCapabilities);
+            logParameters(retVal);
         } catch (MalformedURLException e) {
             throw new TestException("Unable to get driver from wrapper. Reason: " + e.getLocalizedMessage());
         }
