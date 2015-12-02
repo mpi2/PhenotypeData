@@ -86,10 +86,6 @@ public class TestConfig {
 	@Value("${browserName}")
  	private String browserName;
 
-//    @Autowired
-//    private RemoteWebDriver privateDriver;
-
-//    @PostConstruct
     private void logParameters(RemoteWebDriver privateDriver) throws TestException {
         logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
         logger.info("phenodigm.solrserver: " + phenodigmSolrserver);
@@ -101,7 +97,6 @@ public class TestConfig {
         logger.info("browserName:          " + privateDriver.getCapabilities().getBrowserName());
         logger.info("version:              " + privateDriver.getCapabilities().getVersion());
         logger.info("platform:             " + privateDriver.getCapabilities().getPlatform().name());
-//        privateDriver.quit();
     }
 
 	@Bean
