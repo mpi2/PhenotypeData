@@ -643,7 +643,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					 */
 					// Do not use the Service here because it has likely not been loaded yet (or is pointing to the wrong context
 					// ObservationType obs = os.getObservationTypeForParameterStableId(parameter.getStableId());
-					logger.info("Getting type from observations for parameter {}: Got {}", parameter.getStableId(), parameterToObservationTypeMap.get(parameter.getStableId()));
+//					logger.info("Getting type from observations for parameter {}: Got {}", parameter.getStableId(), parameterToObservationTypeMap.get(parameter.getStableId()));
 					ObservationType obs = parameterToObservationTypeMap.get(parameter.getStableId());
 					if (obs != null){
 						observationType = obs;

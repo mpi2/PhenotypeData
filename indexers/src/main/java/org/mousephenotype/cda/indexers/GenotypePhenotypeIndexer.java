@@ -384,7 +384,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 count ++;
 
-                if (count % 1000 == 0) {
+                if (count % 5000 == 0) {
                     logger.info(" added {} beans", count);
                 }
 
