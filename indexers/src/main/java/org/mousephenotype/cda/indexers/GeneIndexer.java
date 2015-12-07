@@ -224,12 +224,10 @@ public class GeneIndexer extends AbstractIndexer {
                 	//for the moment lets just set an embryo data available flag!
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
-                		logger.info("setting embryo true");
 
                 		for( EmbryoStrain strain : embryoStrainsForGene){
                 			for ( String procedureStableKey : strain .getProcedureStableKeys() ){
                                 Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);
-                				logger.info("procedure info: " + procedure);
 
                 				if ( gene.getProcedureStableId() == null ){
 
@@ -604,7 +602,7 @@ public class GeneIndexer extends AbstractIndexer {
                 geneCore.addBean(gene, 60000);
                 count ++;
 
-                if (count % 10000 == 0) {
+                if (count % 20000 == 0) {
                     logger.info(" added " + count + " beans");
                 }
             }

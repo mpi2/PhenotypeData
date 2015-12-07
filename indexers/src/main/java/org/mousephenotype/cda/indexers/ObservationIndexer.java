@@ -304,12 +304,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 					// All line level parameters are sample group "experimental" due to the nature of the
                     // procedures (i.e. no control mice will go through VIA or FER procedures.)
-
-                    // 03-Dec-2015 (mrelac) Sometimes the next line of code throws a NoClassDefFoundError exception. Try referencing an instance.
-                    // See http://stackoverflow.com/questions/34413/why-am-i-getting-a-noclassdeffounderror-in-java
-                    //o.setGroup(BiologicalSampleType.experimental.getName());
-                    BiologicalSampleType bst = BiologicalSampleType.experimental;
-                    o.setGroup(bst.getName());
+                    o.setGroup(BiologicalSampleType.experimental.getName());
 
                 } else {
                     // Specimen level data
@@ -446,7 +441,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 count ++;
 
-                if (count % 100000 == 0) {
+                if (count % 1000000 == 0) {
                     logger.info(" added " + count + " beans");
                 }
 

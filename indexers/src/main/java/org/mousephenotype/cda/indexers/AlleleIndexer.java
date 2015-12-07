@@ -263,7 +263,9 @@ public class AlleleIndexer extends AbstractIndexer {
 
                 start += BATCH_SIZE;
 
-                logger.info("Indexed {} records", start);
+                if (start % 20000 == 0) {
+                    logger.info("Indexed {} records", start);
+                }
 
             }
 
