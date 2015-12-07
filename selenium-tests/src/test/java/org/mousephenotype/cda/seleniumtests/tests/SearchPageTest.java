@@ -987,7 +987,7 @@ public class SearchPageTest {
         String target = "";
 
         try {
-            target = urlUtils.urlEncode(baseUrl + "/search?q=MGI:1353431#fq=*:*&facet=gene");
+            target = urlUtils.urlEncode(baseUrl + "/search?q=MGI\\:1353431#fq=*:*&facet=gene");
             System.out.println("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
