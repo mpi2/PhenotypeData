@@ -987,7 +987,7 @@ public class SearchPageTest {
         String target = "";
 
         try {
-            target = urlUtils.urlEncode(baseUrl + "/search?q=MGI:1353431#fq=*:*&facet=gene");
+            target = urlUtils.urlEncode(baseUrl + "/search?q=MGI\\:1353431#fq=*:*&facet=gene");
             System.out.println("target: " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
@@ -1144,8 +1144,6 @@ public class SearchPageTest {
                     searchPage.submitSearch(geneSymbol1);
                     WebDriverWait localWait = new WebDriverWait(driver, 10);        // Wait up to 10 seconds.
                     localWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//ul[contains(@class, 'ui-autocomplete')]")));
-                    localWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm")));
-
                     List<WebElement> elems = localWait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("ul#ui-id-1 li.ui-menu-item a span b.sugTerm")));
                     String geneSymbol2 = null;
                     String autosuggestCandidates = "";
@@ -1160,7 +1158,7 @@ public class SearchPageTest {
                         }
                     }
 
-                    if (geneSymbol1.equals(geneSymbol2)) {
+                    if (geneSymbol1.trim().toLowerCase().equals(geneSymbol2.trim().toLowerCase())) {
                         System.out.println("\tPASSED [" + geneSymbol1 + "]");
                     } else {
                         message = "\tFAILED [" + geneSymbol1 + "]: Expected to find gene id '" + geneSymbol1 + "' in the autosuggest list but it was not found. URL: " + target;
