@@ -62,12 +62,10 @@ public class EmbryoRestGetter {
 			EmbryoStrain embryoStrain = null;
 			
 			JSONObject json=new JSONObject(content);
-			System.out.println("json="+json.toString());
-			//String []names=JSONObject.getNames(json);
+//			System.out.println("json="+json.toString());
 			JSONArray coloniesArray=json.getJSONArray("colonies");
 			for(int i=0;i<coloniesArray.length(); i++){
 				JSONObject jsonObject = coloniesArray.getJSONObject(i);
-					System.out.println("start of object");
 					embryoStrain = new EmbryoStrain();
 					embryoStrain.setColonyId(jsonObject.getString("colony_id"));
 					embryoStrain.setMgi(jsonObject.getString("mgi"));

@@ -27,7 +27,6 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
 import java.io.BufferedReader;
@@ -100,7 +99,7 @@ public class IndexerMap {
 			}	
 			
 			logger.info("Converted " + maUberonEfoMap.size() + " MA Ids");
-			logger.info(maUberonEfoMap.toString()); 
+//			logger.info(maUberonEfoMap.toString());
     	}
 		return maUberonEfoMap;
 	        

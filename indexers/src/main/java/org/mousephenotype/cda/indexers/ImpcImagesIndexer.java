@@ -340,14 +340,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
 					}
-					//System.out.println("actually adding a bean - so we have good data - delete me now!");
+
 					server.addBean(imageDTO);
 					
 				}
 
 
 
-				if (count % 10000 == 0 && count != 0) {
+				if (count % 50000 == 0 && count != 0) {
 					logger.info(" added ImageDTO " + count + " beans");
 				}
 			}
