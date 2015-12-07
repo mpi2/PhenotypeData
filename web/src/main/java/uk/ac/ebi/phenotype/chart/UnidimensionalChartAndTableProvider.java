@@ -111,7 +111,6 @@ public class UnidimensionalChartAndTableProvider {
 		}
 
 		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter, expBiologicalModel);
-
 		unidimensionalStatsObjects.addAll(unidimensionalStatsObject);
 		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
 		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
@@ -462,6 +461,7 @@ public class UnidimensionalChartAndTableProvider {
 				tempStatsObject = generateStats(experiment, tempStatsObject, mutants, zType, sexType);
 
 				for (StatisticalResult result : results) {
+				
 					UnidimensionalResult unidimensionalResult = (UnidimensionalResult) result;
 					if (result.getZygosityType().equals(zType)) {
 						tempStatsObject.setResult((UnidimensionalResult) result);

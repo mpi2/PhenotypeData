@@ -89,8 +89,19 @@ public class StatisticalResult {
 
     @Column(name = "raw_output")
     private String rawOutput;
+    
+    @Column(name = "status")
+    private String status;
 
-    @Transient
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	@Transient
     private Double effectSize;
 
     @Transient

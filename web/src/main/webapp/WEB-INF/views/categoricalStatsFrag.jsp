@@ -4,6 +4,7 @@
 
 
 <!-- categorical here -->
+
 						
  				<c:forEach var="categoricalChartDataObject" items="${categoricalResultAndChart.maleAndFemale}" varStatus="chartLoop">
   				 	
@@ -14,7 +15,17 @@
    							</script>
 				
 					
-					<div style="overflow:hidden; overflow-x: auto;">  
+					<div style="overflow:hidden; overflow-x: auto;"> 
+					<c:forEach var="result" items="${categoricalResultAndChart.statsResults}">
+<c:if test="${result.status ne 'Success'}">
+ 	<div class="alert">
+           <strong>Statistics ${result.status}.  Control Sex ${result.controlSex}
+ 	 Experimental Sex ${result.experimentalSex}</strong>
+            
+    </div>
+</c:if>
+ 	
+ </c:forEach> 
 					<table id="catTable">
  							<thead><tr>
  										
