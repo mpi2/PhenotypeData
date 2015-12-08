@@ -22,7 +22,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,8 +38,9 @@ import java.util.*;
 
 
 public class PipelineIndexer extends AbstractIndexer {
+    private CommonUtils commonUtils = new CommonUtils();
 
-	private static final Logger logger = LoggerFactory.getLogger(PipelineIndexer.class);
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Connection komp2DbConnection;
 
 	@Autowired
@@ -93,12 +94,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					+ " pipeline documents but SOLR reports " + numFound
 					+ " documents.");
 		}
-		else{
-			logger.info("validateBuild(): Indexed " + documentCount
-					+ " pipeline documents.");
-		}
 	}
-	
 
 	@Override
 	public void initialise(String[] args) 
@@ -126,13 +122,12 @@ public class PipelineIndexer extends AbstractIndexer {
 		addAbnormalMaOntologyMap();
 		mpIdToMp = populateMpIdToMp();
 	}
-	
 
 	@Override
 	public void run() 
 	throws IndexerException {
-
-		long startTime = System.currentTimeMillis();
+        int count = 0;
+		long start = System.currentTimeMillis();
 
 		try {
 			initialiseSupportingBeans();
@@ -218,13 +213,11 @@ public class PipelineIndexer extends AbstractIndexer {
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
 						pipelineCore.addBean(doc);
-						documentCount++;
+						count++;
 					}
 				}
 
 			}
-
-            logger.info(" added {} total beans", documentCount);
 
 			pipelineCore.commit();
 
@@ -234,15 +227,10 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
 		}
-	}
-	
-	
-	@Override
-	protected Logger getLogger() {
-		return logger;
+
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
-	
 	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {
 
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();

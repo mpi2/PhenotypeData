@@ -23,7 +23,6 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -50,9 +49,8 @@ import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
  * @author mrelac
  */
 public class IndexerManager {
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     protected CommonUtils commonUtils = new CommonUtils();
-    private static final Logger logger = LoggerFactory.getLogger(IndexerManager.class);
 
     // core names.
     //      These are built only for a new data release.
@@ -217,10 +215,6 @@ public class IndexerManager {
         return daily;
     }
 
-    public static Logger getLogger() {
-        return logger;
-    }
-
     public Boolean getNodeps() {
         return nodeps;
     }
@@ -274,9 +268,6 @@ public class IndexerManager {
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
             for (int i = 0; i <= RETRY_COUNT; i++) {
                 try {
-
-                    buildStagingArea();
-
                     System.out.println("Starting core " + indexerItem.name + " build at      " + dateFormatter.format(new Date()));
                     indexerItem.indexer.run();
                     System.out.println("Starting core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()));
@@ -287,7 +278,7 @@ public class IndexerManager {
                     if (i < RETRY_COUNT) {
                         logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
                         logErrors(ie);
-                        sleep(RETRY_SLEEP_IN_MS);
+                        commonUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw ie;
@@ -296,7 +287,7 @@ public class IndexerManager {
                     if (i < RETRY_COUNT) {
                         logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
                         logErrors(new IndexerException(e));
-                        sleep(RETRY_SLEEP_IN_MS);
+                        commonUtils.sleep(RETRY_SLEEP_IN_MS);
                     } else {
                         System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
                         throw new IndexerException(e);
@@ -318,16 +309,15 @@ public class IndexerManager {
         File file = new File(context);
         if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system file {} ...", context);
             appContext = new FileSystemXmlApplicationContext("file:" + context);
         } else {
             // Try context as a class path resource
-//            logger.info(commonUtils.toStringClasspath());
-            logger.info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }
 
-        getLogger().info("Context loaded");
+        if (appContext == null) {
+            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
+        }
 
         return appContext;
     }
@@ -616,28 +606,6 @@ public class IndexerManager {
         return options;
     }
 
-    private void buildStagingArea() {
-//////        // Insure staging cores are deleted.
-//////        for (String core : cores) {
-//////            String stagingCoreFilename = buildIndexesSolrUrl + File.separator + core + STAGING_SUFFIX;
-//////            File file = new File(stagingCoreFilename);
-//////
-//////            boolean b = file.canRead();
-//////            System.out.println();
-//////
-//////
-//////
-//////            System.exit(999);
-//////        }
-
-        // Build and initialise staging core directories.
-
-        // Fetch schemas from git.
-
-        // Create the cores.
-    }
-
-
     public static void main(String[] args) throws IndexerException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
@@ -650,7 +618,7 @@ public class IndexerManager {
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);
             manager.run();
-            logger.info("IndexerManager process finished successfully.  Exiting.");
+
         } catch (IndexerException ie) {
             logErrors(ie);
             if (ie.getCause() instanceof NoDepsException) {
@@ -676,8 +644,7 @@ public class IndexerManager {
     private static void logErrors(IndexerException ie) {
         // Print out the exceptions.
         if (ie.getLocalizedMessage() != null) {
-            logger.error(ie.getLocalizedMessage());
-            logger.error("Exception is: ", ie);
+            System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
         }
         int i = 0;
         Throwable t = ie.getCause();
@@ -688,8 +655,7 @@ public class IndexerManager {
             } else {
                 errMsg.append("<null>");
             }
-            logger.error(errMsg.toString());
-            logger.error("Exception is: ", ie);
+            System.out.println("ERROR: IndexerManager: " + errMsg.toString());
             i++;
             t = t.getCause();
         }
@@ -827,12 +793,5 @@ public class IndexerManager {
         public void setErrorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
         }
-    }
-
-    private void sleep(Integer threadWaitInMs) {
-        if ((threadWaitInMs != null) && (threadWaitInMs > 0))
-            try { Thread.sleep(threadWaitInMs); } catch (Exception e) {
-            	e.printStackTrace();
-            }
     }
 }

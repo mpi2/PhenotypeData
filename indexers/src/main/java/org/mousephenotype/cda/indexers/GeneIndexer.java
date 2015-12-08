@@ -30,7 +30,7 @@ import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,8 +49,8 @@ import java.util.*;
  * Populate the MA core
  */
 public class GeneIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(GeneIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private Connection komp2DbConnection;
 
     @Autowired
@@ -105,8 +105,6 @@ public class GeneIndexer extends AbstractIndexer {
 
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " gene documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " gene documents.");
     }
 
     @Override
@@ -128,23 +126,18 @@ public class GeneIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-
+        int count = 0;
+        long start = System.currentTimeMillis();
 
     	Datasource ensembl = datasourceDAO.getDatasourceByShortName("Ensembl");
 		Datasource vega = datasourceDAO.getDatasourceByShortName("VEGA");
 		Datasource ncbi = datasourceDAO.getDatasourceByShortName("EntrezGene");
 		Datasource ccds = datasourceDAO.getDatasourceByShortName("cCDS");
 
-        long startTime = System.currentTimeMillis();
         try {
-            logger.info("Starting Gene Indexer...");
-
             initialiseSupportingBeans();
 
-            int count = 0;
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
-            logger.info("alleles size=" + alleles.size());
-
             geneCore.deleteByQuery("*:*");
 
             for (AlleleDTO allele : alleles) {
@@ -601,13 +594,8 @@ public class GeneIndexer extends AbstractIndexer {
                 documentCount++;
                 geneCore.addBean(gene, 60000);
                 count ++;
-
-                if (count % 20000 == 0) {
-                    logger.info(" added " + count + " beans");
-                }
             }
 
-            logger.info("Committing to gene core for last time");
             geneCore.commit();
 
         } catch (IOException | SolrServerException e) {
@@ -615,27 +603,19 @@ public class GeneIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        long endTime = System.currentTimeMillis();
-        logger.info("time was " + (endTime - startTime) / 1000);
-
-        logger.info("Gene Indexer complete!");
-        System.out.println("Gene Indexer complete!");
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
-	// PROTECTED METHODS
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
-    }
 
 	// PRIVATE METHODS
+
+
     private void initialiseSupportingBeans() throws IndexerException {
 
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
-        logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
+//        logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData=IndexerMap.populateEmbryoData(config.get("embryoRestUrl"));
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
@@ -657,7 +637,7 @@ public class GeneIndexer extends AbstractIndexer {
 
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
     	Map<String, List<Map<String, String>>> localPhenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
-        logger.info("populating PCS pipeline info");
+//        logger.info("populating PCS pipeline info");
         String queryString = "select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"
                 + " from phenotype_call_summary pcs"
                 + " inner join ontology_term term on term.acc=mp_acc"
@@ -704,7 +684,7 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<Xref>> populateXrefs() {
 
         Map<String, List<Xref>> localGenomicFeatureXrefs = new HashMap<>();
-        logger.info("populating xref info");
+//        logger.info("populating xref info");
         String queryString = "select acc, xref_acc, xref_db_id from xref";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
@@ -743,7 +723,7 @@ public class GeneIndexer extends AbstractIndexer {
     }
     private Map<String, Map<String, String>> populateGeneGenomicCoords() {
     	Map<String, Map<String, String>> localGenomicFeatureCoordinates = new HashMap<>();
-        logger.info("populating Gene Genomic location info");
+//        logger.info("populating Gene Genomic location info");
         String queryString = "select  gf.acc, gf.seq_region_id, gf.seq_region_start, gf.seq_region_end, gf.subtype_db_id, gf.db_id from genomic_feature gf";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
@@ -780,15 +760,5 @@ public class GeneIndexer extends AbstractIndexer {
         indexer.initialise(args);
         indexer.run();
         indexer.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
-
-//    private class GfBean{
-//    	String acc;
-//    	int start;
-//    	int end;
-//    	String seqRegionId;
-//
-//    }
 }

@@ -28,7 +28,7 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,8 +49,8 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
  * Populate the MA core
  */
 public class MAIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
    
     @Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
@@ -86,8 +86,6 @@ public class MAIndexer extends AbstractIndexer {
 
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " ma documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " ma documents.");
     }
 
     @Override
@@ -97,12 +95,14 @@ public class MAIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException, SQLException {
+        int count = 0;
+        long start = System.currentTimeMillis();
+
     	try {
     		logger.info("Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
-            int count = 0;
 
             // Add all ma terms to the index.
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
@@ -190,24 +190,19 @@ public class MAIndexer extends AbstractIndexer {
                 count += maBatch.size();
             }
 
-            logger.info(" added {} total beans", count);
-
             // Send a final commit
             maCore.commit();
 
         } catch (SolrServerException| IOException e) {
             throw new IndexerException(e);
         }
+
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
     // PROTECTED METHODS
 
-
-    @Override
-    protected Logger getLogger() {
-        return logger;
-    }
 
     @Override
     protected void printConfiguration() {

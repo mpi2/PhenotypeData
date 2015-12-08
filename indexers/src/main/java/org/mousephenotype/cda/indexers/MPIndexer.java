@@ -31,14 +31,13 @@ import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,8 +50,8 @@ import java.util.*;
  *
  */
 public class MPIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    CommonUtils commonUtils = new CommonUtils();
 
     @Autowired
     @Qualifier("alleleIndexing")
@@ -139,19 +138,16 @@ public class MPIndexer extends AbstractIndexer {
         
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " mp documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " mp documents.");
     }
 
     @Override
     public void run() throws IndexerException {
-        initializeSolrCores();
-
-        initializeDatabaseConnections();
-
-        initialiseSupportingBeans();
-
         int count = 0;
+        long start = System.currentTimeMillis();
+
+        initializeSolrCores();
+        initializeDatabaseConnections();
+        initialiseSupportingBeans();
 
         try {
 
@@ -204,7 +200,7 @@ public class MPIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans", count);
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
@@ -561,7 +557,7 @@ public class MPIndexer extends AbstractIndexer {
         return beans;
     }
 
-    public static Map<String, List<String>> getMaTopLevelNodes() throws SQLException {
+    public Map<String, List<String>> getMaTopLevelNodes() throws SQLException {
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct ti.term_id, ti.name from ma_node2term nt, ma_node_2_selected_top_level_mapping m, ma_term_infos ti where nt.node_id=m.node_id and m.top_level_term_id=ti.term_id";
@@ -1277,10 +1273,7 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     // PROTECTED METHODS
-    @Override
-    protected Logger getLogger() {
-        return logger;
-    }
+
 
     public static void main(String[] args) throws IndexerException {
 

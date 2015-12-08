@@ -26,7 +26,7 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,9 +51,8 @@ import java.util.Map;
  * @author jwarren
  */
 public class ImpcImagesIndexer extends AbstractIndexer {
-
-	private static final Logger logger = LoggerFactory
-		.getLogger(ImpcImagesIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	@Qualifier("observationReadOnlyIndexing")
@@ -107,8 +106,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		if (numFound != documentCount)
 			logger.warn("WARNING: Added " + documentCount + " impc_images documents but SOLR reports " + numFound + " documents.");
-		else
-			logger.info("validateBuild(): Indexed " + documentCount + " impc_images documents.");
 	}
 
 
@@ -123,7 +120,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void run() throws IndexerException, SQLException {
-		int count = 0;
+        int count = 0;
+        long start = System.currentTimeMillis();
 
 		try {
 	    	parameterStableIdToMaTermIdMap=this.populateParameterStableIdToMaIdMap();
@@ -132,18 +130,18 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		}
 
 		imageBeans = populateImageUrls();
-		logger.info(" added {} total Image URL beans", imageBeans.size());
+//		logger.info(" added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
 			logger.error("Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
 		}
 
 		this.alleles = populateAlleles();
-		logger.info(" added {} total allele beans", alleles.size());
+//		logger.info(" added {} total allele beans", alleles.size());
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
-		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+//		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
@@ -198,7 +196,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
 						}
 					} else {
-						logger.info("omero id is null for " + downloadFilePath);
+						logger.warn("omero id is null for " + downloadFilePath);
 					}
 
 					// add the extra stuf we need for the searching and faceting here
@@ -341,8 +339,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				}
 			}
 
-            logger.info(" added {} total ImageDTO beans", count);
-
 			server.commit();
 			documentCount = count;
 
@@ -350,6 +346,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			throw new IndexerException(e);
 		}
 
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
 
@@ -395,14 +392,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		String fullResFilePath;
 		String image_link;
 	}
-
-
-	@Override
-	protected Logger getLogger() {
-
-		return logger;
-	}
-
 
 	public Map<String, List<AlleleDTO>> populateAlleles()
 		throws IndexerException {
@@ -533,5 +522,4 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		System.out.println("paramToMa size="+paramToMa.size());
 		return paramToMa;
 	}
-
 }
