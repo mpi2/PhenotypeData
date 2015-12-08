@@ -167,7 +167,7 @@ public class IndexerMap {
                 throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
             }
         }
-        logger.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
+        logger.debug("mpToHpTermsMap size = " + mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
 

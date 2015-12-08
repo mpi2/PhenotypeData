@@ -255,7 +255,7 @@ public class AlleleIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - count));
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     private void initializeSolrCores() {

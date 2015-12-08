@@ -268,11 +268,10 @@ public class IndexerManager {
             // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
             for (int i = 0; i <= RETRY_COUNT; i++) {
                 try {
-                    System.out.println("Starting core " + indexerItem.name + " build at      " + dateFormatter.format(new Date()));
+                    logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
                     indexerItem.indexer.run();
-                    System.out.println("Starting core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()));
                     indexerItem.indexer.validateBuild();
-                    System.out.println("Finished core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()) + "\n");
+                    logger.info("[END]   {} at {}\n", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
                     break;
                 } catch (IndexerException ie) {
                     if (i < RETRY_COUNT) {

@@ -499,7 +499,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 			// Final commit to save the rest of the docs
 			sangerImagesCore.commit();
-			System.out.println("commited ");
 
 		} catch (Exception e) {
 			logger.error("Big error {}", e.getMessage(), e);
@@ -903,7 +902,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("Sanger image annotations map size=" + annotationsMap.size());
+		logger.debug("Sanger image annotations map size = " + annotationsMap.size());
 
 	}
 
