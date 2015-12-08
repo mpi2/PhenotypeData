@@ -5,12 +5,20 @@
 
     <c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
         <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
-
-
+<c:if test="${data.result.status ne 'Success'}">
+ 	<div class="alert">
+           <strong>Statistics ${data.result.status}</strong>
+    </div>
+</c:if>
         <%-- Display result of a mixed model calculation --%>
 
         <c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
+    
+   
+    
             <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+            
+             
                 <table id="globalTest">
                     <thead>
                         <tr>
