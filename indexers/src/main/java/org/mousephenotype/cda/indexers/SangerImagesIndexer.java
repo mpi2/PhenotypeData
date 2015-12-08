@@ -24,7 +24,7 @@ import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.solr.bean.GenomicFeatureBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,10 +41,10 @@ import java.util.*;
  * Populate the experiment core
  */
 public class SangerImagesIndexer extends AbstractIndexer {
-
-	private static final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
-	private static Connection komp2DbConnection;
-	private static Connection ontoDbConnection;
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+	private Connection komp2DbConnection;
+	private Connection ontoDbConnection;
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -112,8 +112,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		if (numFound != documentCount)
 			logger.warn("WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound
 					+ " documents.");
-		else
-			logger.info("validateBuild(): Indexed " + documentCount + " images documents.");
 	}
 
 	@Override
@@ -164,32 +162,24 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		main.initialise(args);
 		main.run();
 		main.validateBuild();
-
-		logger.info("Process finished.  Exiting.");
-	}
-
-	@Override
-	protected Logger getLogger() {
-
-		return logger;
 	}
 
 	@Override
 	public void run() throws IndexerException {
+        long count = 0;
+		long start = System.currentTimeMillis();
 
-		Long start = System.currentTimeMillis();
 		try {
-			populateSangerImagesCore();
+			count = populateSangerImagesCore();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
-		logger.debug("Populating sanger images solr core - done [took: {}s]",
-				(System.currentTimeMillis() - start) / 1000.0);
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
-	public void populateSangerImagesCore() throws SQLException, IOException, SolrServerException {
+	public int populateSangerImagesCore() throws SQLException, IOException, SolrServerException {
 
 		int count = 0;
         Set<String> noTopLevelSet = new HashSet<>();
@@ -441,12 +431,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
 								}
 							}
 
-                            List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
-                            Collections.sort(noTopLevelList);
-                            for (String mpId : noTopLevelList) {
-                                logger.warn("No top level for " + mpId);
-                            }
-
 							o.setTopLevelMpTermSynonym(topLevelMpTermSynonym);
 							o.setAnnotatedHigherLevelMpTermId(annotatedHigherLevelMpTermId);
 							o.setAnnotatedHigherLevelMpTermName(annotatedHigherLevelMpTermName);
@@ -501,14 +485,17 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 				}
 
-				// xxxxxxxxxxxxx0 seconds between commits
 				documentCount++;
 				sangerImagesCore.addBean(o, 10000);
 
 				count++;
 			}
 
-            logger.info(" added {} total beans", count);
+            List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
+            Collections.sort(noTopLevelList);
+            for (String mpId : noTopLevelList) {
+                logger.warn("No top level for " + mpId);
+            }
 
 			// Final commit to save the rest of the docs
 			sangerImagesCore.commit();
@@ -518,6 +505,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 			logger.error("Big error {}", e.getMessage(), e);
 		}
 
+        return count;
 	}
 
 	public void populateMaSynonyms() {
@@ -554,7 +542,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 				// termToNodeMap.put(termId, nodeId);
 
 			}
-			logger.info("termIdToMaSynonyms size=" + termIdToMaSynonyms.size());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

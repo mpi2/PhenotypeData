@@ -18,12 +18,11 @@ package org.mousephenotype.cda.indexers;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -42,6 +41,8 @@ import java.sql.SQLException;
  */
 public abstract class AbstractIndexer {
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
     static final String CONTEXT_ARG = "context";
 
     protected static final String KOMP2_DATASOURCE_BEAN = "komp2DataSource";
@@ -53,8 +54,6 @@ public abstract class AbstractIndexer {
     // This is used to track the number of documents that were requested to be added by the core.addBeans() call.
     // It is used for later validation by querying the core after the build.
     protected int documentCount = 0;
-
-    protected abstract Logger getLogger();
 
     public abstract void run() throws IndexerException, SQLException, IOException, SolrServerException;
 
@@ -73,7 +72,7 @@ public abstract class AbstractIndexer {
     }
     
     public void initialise(String[] args) throws IndexerException {
-        getLogger().info("args = " + StringUtils.join(args));
+//        getLogger().info("args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
             applicationContext = loadApplicationContext((String) options.valuesOf(CONTEXT_ARG).get(0));
@@ -118,15 +117,15 @@ public abstract class AbstractIndexer {
         File file = new File(context);
         if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system file {} ...", context);
             appContext = new FileSystemXmlApplicationContext("file:" + context);
         } else {
             // Try context as a class path resource
-            getLogger().info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }
-            
-        getLogger().info("Context loaded");
+
+        if (appContext == null) {
+            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
+        }
         
         return appContext;
     }

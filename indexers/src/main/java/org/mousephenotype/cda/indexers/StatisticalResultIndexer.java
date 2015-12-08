@@ -29,7 +29,7 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,9 +46,10 @@ import java.util.*;
  * Load documents into the statistical-results SOLR core
  */
 public class StatisticalResultIndexer extends AbstractIndexer {
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final Logger logger = LoggerFactory.getLogger(StatisticalResultIndexer.class);
-    private static Connection connection;
+    private Connection connection;
 
     public static final String RESOURCE_3I = "3i";
 
@@ -89,8 +90,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " statistical-result documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " statistical-result documents.");
     }
 
     @Override
@@ -102,19 +101,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             connection = komp2DataSource.getConnection();
 
-            logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
             organisationMap = IndexerMap.getOrganisationMap(connection);
 
-            logger.info("Populating biological data map");
             populateBiologicalDataMap();
-
-            logger.info("Populating resource map");
             populateResourceDataMap();
-
-            logger.info("Populating statistical result sexes map");
             populateSexesMap();
 
         } catch (SQLException e) {
@@ -129,30 +122,22 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
-    }
-
-    @Override
-    protected Logger getLogger() {
-        return logger;
     }
 
     @Override
     public void run() throws IndexerException {
 
-        Long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
-        logger.info("Populating statistical-results solr core");
-        populateStatisticalResultsSolrCore();
+        long count = populateStatisticalResultsSolrCore();
 
-        logger.info("Populating statistical-results solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
-    private void populateStatisticalResultsSolrCore() throws IndexerException {
+    private int populateStatisticalResultsSolrCore() throws IndexerException {
+        int count = 0;
 
         try {
-            int count = 0;
 
             statResultCore.deleteByQuery("*:*");
 
@@ -210,11 +195,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 500000 == 0) {
-                        logger.info(" added {} unidimensional beans", count);
-                    }
                 }
+
                 logger.info(" added {} unidimensional beans", count);
             }
 
@@ -297,10 +279,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} line level parameter beans", count);
-                    }
                 }
                 logger.info(" added {} viability parameter beans", count);
             }
@@ -335,15 +313,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} line level parameter beans", count);
-                    }
                 }
                 logger.info(" added {} fertility parameter beans", count);
             }
-
-            logger.info(" added {} total beans", count);
 
             // Final commit to save the rest of the docs
             // waitflush, waitserver = true
@@ -353,6 +325,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             logger.error("Big error {}", e.getMessage(), e);
         }
 
+        return count;
     }
 
     private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {

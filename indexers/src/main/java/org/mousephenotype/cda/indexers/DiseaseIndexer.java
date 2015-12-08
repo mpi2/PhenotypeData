@@ -24,18 +24,17 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-
 import java.io.IOException;
 import java.util.*;
 
@@ -43,6 +42,8 @@ import java.util.*;
  * @author Jeremy
  */
 public class DiseaseIndexer extends AbstractIndexer {
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("geneIndexing")
@@ -55,7 +56,6 @@ public class DiseaseIndexer extends AbstractIndexer {
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
-    private static final Logger logger = LoggerFactory.getLogger(DiseaseIndexer.class);
     public static final int MAX_DISEASES = 10000;
 
     // Map disease ID to list of gene data objects
@@ -76,24 +76,17 @@ public class DiseaseIndexer extends AbstractIndexer {
         
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " disease documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " disease documents.");
     }
 
     @Override
     public void run() throws IndexerException {
-
-        long startTime = new Date().getTime();
+        int count = 0;
+        long start = System.currentTimeMillis();
 
         try {
 
             initializeSolrCores();
-
-            logger.info("Populating lookups");
             populateGenesLookup();
-            logger.info("Populated genes lookup, {} records", geneLookup.size());
-
-            logger.info("Removing existing documents from index");
             diseaseCore.deleteByQuery("*:*");
             diseaseCore.commit();
 
@@ -113,14 +106,12 @@ public class DiseaseIndexer extends AbstractIndexer {
                                                            DiseaseBean.MGI_NOVEL_PREDICTED_IN_LOCUS,
                                                            DiseaseBean.IMPC_NOVEL_PREDICTED_IN_LOCUS), ",");
 
-            logger.info("Querying external PhenoDigm index");
             SolrQuery query = new SolrQuery("*:*");
             query.addFilterQuery("type:disease");
             query.setFields(fields);
             query.setRows(MAX_DISEASES);
             List<DiseaseBean> diseases = phenodigmCore.query(query).getBeans(DiseaseBean.class);
 
-            int count = 0;
             for (DiseaseBean phenDisease : diseases) {
 
                 DiseaseDTO disease = new DiseaseDTO();
@@ -180,8 +171,6 @@ public class DiseaseIndexer extends AbstractIndexer {
                 count ++;
             }
 
-            logger.info("Indexed {} records", count);
-
             diseaseCore.commit();
 
         } catch (SolrServerException | IOException e) {
@@ -191,7 +180,7 @@ public class DiseaseIndexer extends AbstractIndexer {
 
         }
 
-        logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     /**
@@ -335,16 +324,7 @@ public class DiseaseIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
-
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
-    }
-
 
     /*
      Internal class which collects the gene information per disease

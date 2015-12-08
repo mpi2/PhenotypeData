@@ -34,7 +34,6 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,14 +57,11 @@ import java.util.*;
  */
 public class AlleleIndexer extends AbstractIndexer {
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     protected CommonUtils commonUtils = new CommonUtils();
-
-    private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
     public static final int PHENODIGM_BATCH_SIZE = 50000;
     private static Connection connection;
-
     private static final int BATCH_SIZE = 2500;
-
     private int assignedEvidCodeRank = 1; // default
 
     // Fetch all phenotyping completed genes with MP calls from genotype-phenotype core
@@ -162,22 +158,13 @@ public class AlleleIndexer extends AbstractIndexer {
 
         if (numFound != documentCount)
             logger.warn("WARNING: Added " + documentCount + " allele documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " allele documents.");
-    }
-
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
     }
 
     @Override
     public void run() throws IndexerException {
-
-    	int start = 0;
+        int count = 0;
         long rows = 0;
-        long startTime = new Date().getTime();
+        long start = System.currentTimeMillis();
 
         try {
             connection = komp2DataSource.getConnection();
@@ -220,8 +207,8 @@ public class AlleleIndexer extends AbstractIndexer {
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
 
-            while (start <= rows) {
-                query.setStart(start);
+            while (count <= rows) {
+                query.setStart(count);
                 QueryResponse response = sangerAlleleCore.query(query);
                 rows = response.getResults().getNumFound();
                 List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
@@ -259,10 +246,8 @@ public class AlleleIndexer extends AbstractIndexer {
                 documentCount += alleles.size();
                 indexAlleles(alleles);
 
-                start += BATCH_SIZE;
+                count += BATCH_SIZE;
             }
-
-            logger.info(" added {} total beans", start);
 
             alleleCore.commit();
 
@@ -270,7 +255,7 @@ public class AlleleIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
+        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - count));
     }
 
     private void initializeSolrCores() {
@@ -900,8 +885,6 @@ public class AlleleIndexer extends AbstractIndexer {
 
             docsRetrieved += PHENODIGM_BATCH_SIZE;
         }
-
-        logger.info(" added {} total phenodigm beans. {} genes in the index", docsRetrieved, diseaseLookup.size());
     }
 
     private int getDiseaseDocCount() throws SolrServerException {
@@ -1239,8 +1222,5 @@ public class AlleleIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
-
 }
