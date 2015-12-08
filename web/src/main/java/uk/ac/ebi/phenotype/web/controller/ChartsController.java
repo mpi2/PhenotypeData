@@ -293,7 +293,6 @@ public class ChartsController {
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 
         if (experiment != null) {
-
             if (pipeline == null) {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
