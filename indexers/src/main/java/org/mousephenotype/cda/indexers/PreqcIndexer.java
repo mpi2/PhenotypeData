@@ -106,7 +106,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-        int count = 0;
+        int count = 1;
         long start = System.currentTimeMillis();
 
         zygosityMapping.put("Heterozygous", "heterozygote");
