@@ -248,11 +248,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} categorical beans", count);
-                    }
                 }
+
                 logger.info(" added {} categorical beans", count);
             }
 
@@ -346,9 +343,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 logger.info(" added {} fertility parameter beans", count);
             }
 
-            // Final commit to save the rest of the docs
             logger.info(" added {} total beans", count);
 
+            // Final commit to save the rest of the docs
             // waitflush, waitserver = true
             statResultCore.commit(true, true);
 

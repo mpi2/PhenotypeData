@@ -444,8 +444,9 @@ public class ObservationIndexer extends AbstractIndexer {
                 if (count % 1000000 == 0) {
                     logger.info(" added " + count + " beans");
                 }
-
             }
+
+            logger.info(" added {} total beans", count);
 
             // Final commit to save the rest of the docs
             observationSolrServer.commit();

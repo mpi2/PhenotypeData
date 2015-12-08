@@ -145,8 +145,6 @@ public class MPIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-        logger.info("Starting MP Indexer...");
-
         initializeSolrCores();
 
         initializeDatabaseConnections();
@@ -154,8 +152,6 @@ public class MPIndexer extends AbstractIndexer {
         initialiseSupportingBeans();
 
         int count = 0;
-
-        logger.info("Starting indexing loop");
 
         try {
 
@@ -207,10 +203,8 @@ public class MPIndexer extends AbstractIndexer {
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
-        
-        logger.info("Indexed {} beans", count);
 
-        logger.info("MP Indexer complete!");
+        logger.info(" added {} total beans", count);
     }
 
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
@@ -249,8 +243,6 @@ public class MPIndexer extends AbstractIndexer {
     	
     		mpCalls.put(mpAcc, calls);
     	}
-    	
-    	logger.info("Finished creating a mapping of MP to postqc phenotyping calls");
     }
 
     /**
@@ -1296,9 +1288,6 @@ public class MPIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
-
     }
 
 }

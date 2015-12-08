@@ -189,35 +189,33 @@ public class AlleleIndexer extends AbstractIndexer {
 
             query.setRows(BATCH_SIZE);
 
-            logger.info("Populating lookups");
-
             populateStatusLookup();
-            logger.info("Populated status lookup, {} records", statusLookup.size());
+            logger.info(" added {} total status lookup beans", statusLookup.size());
 
             populateHumanSymbolLookup();
-            logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
+            logger.info(" added {} total human symbol lookup beans", humanSymbolLookup.size());
 
             populateDiseaseLookup();
-            logger.info("Populated disease lookup, {} records", diseaseLookup.size());
+            logger.info(" added {} total disease lookup beans", diseaseLookup.size());
 
             populateLegacyLookup();
-            logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
+            logger.info(" added {} total legacy project lookup beans", legacyProjectLookup.size());
 
             populateMgiGeneId2EnsemblGeneId();
-            logger.info("Populated Ensembl id to MGI gene id lookup, {} records", mgiGeneId2EnsemblGeneId.size());
+            logger.info(" added {} total Ensembl id to MGI gene id lookup beans", mgiGeneId2EnsemblGeneId.size());
 
             // GoTerm from GO at EBI: MGI gene id to GO term mapping
             populateGoTermLookup();
-            logger.info("Populated go terms lookup, {} records", goTermLookup.size());
+            logger.info(" added {} total GO term lookup beans", goTermLookup.size());
 
             // MGI gene id to Uniprot accession mapping
             populateMgi2UniprotLookup();
-            logger.info("Populated mgi to uniprot lookup, {} records", mgi2UniprotLookup.size());
+            logger.info(" added {} MGI to UNIPROT lookup beans", mgi2UniprotLookup.size());
 
             // Uniprot to pfamA mapping
             //populateUniprot2pfamA();
             //logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
-            logger.info("Populated uniprot to pfamA lookup is skipped for now");
+//            logger.info("Populated uniprot to pfamA lookup is skipped for now");
 
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
@@ -262,12 +260,9 @@ public class AlleleIndexer extends AbstractIndexer {
                 indexAlleles(alleles);
 
                 start += BATCH_SIZE;
-
-                if (start % 20000 == 0) {
-                    logger.info("Indexed {} records", start);
-                }
-
             }
+
+            logger.info(" added {} total beans", start);
 
             alleleCore.commit();
 
@@ -626,10 +621,8 @@ public class AlleleIndexer extends AbstractIndexer {
 
     			goTermLookup.get(ga.mgiSymbol).add(ga);
             }
-
-            logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
-
         }
+
 	    catch (Exception e) {
             e.printStackTrace();
         }
@@ -906,9 +899,9 @@ public class AlleleIndexer extends AbstractIndexer {
             }
 
             docsRetrieved += PHENODIGM_BATCH_SIZE;
-            logger.info("Processed {} documents from phenodigm. {} genes in the index", docsRetrieved, diseaseLookup.size());
-
         }
+
+        logger.info(" added {} total phenodigm beans. {} genes in the index", docsRetrieved, diseaseLookup.size());
     }
 
     private int getDiseaseDocCount() throws SolrServerException {
