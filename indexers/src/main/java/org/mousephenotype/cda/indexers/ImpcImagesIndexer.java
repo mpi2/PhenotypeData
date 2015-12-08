@@ -118,8 +118,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		main.initialise(args);
 		main.run();
 		main.validateBuild();
-
-		logger.info("Process finished.  Exiting.");
 	}
 
 
@@ -127,24 +125,21 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	public void run() throws IndexerException, SQLException {
 		int count = 0;
 
-		logger.info("running impc_images indexer");
-
-		try{
+		try {
 	    	parameterStableIdToMaTermIdMap=this.populateParameterStableIdToMaIdMap();
-	    	} catch(SQLException e){
-	    		e.printStackTrace();
-	    	}
-		logger.info("populating image urls from db");
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+
 		imageBeans = populateImageUrls();
-		logger.info("Image beans map size=" + imageBeans.size());
+		logger.info(" added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
 			logger.error("Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
 		}
 
-		logger.info("populating alleles");
 		this.alleles = populateAlleles();
-		logger.info("populated alleles");
+		logger.info(" added {} total allele beans", alleles.size());
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
@@ -344,13 +339,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					server.addBean(imageDTO);
 					
 				}
-
-
-
-				if (count % 50000 == 0 && count != 0) {
-					logger.info(" added ImageDTO " + count + " beans");
-				}
 			}
+
+            logger.info(" added {} total ImageDTO beans", count);
 
 			server.commit();
 			documentCount = count;

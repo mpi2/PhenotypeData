@@ -387,12 +387,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if (count % 5000 == 0) {
                     logger.info(" added {} beans", count);
                 }
-
-
             }
 
+            logger.info(" added {} total beans", count);
+
             // Final commit to save the rest of the docs
-            logger.info(" added {} beans", count);
             gpSolrServer.commit();
 
         } catch (Exception e) {

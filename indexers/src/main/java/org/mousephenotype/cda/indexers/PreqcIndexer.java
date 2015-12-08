@@ -377,12 +377,9 @@ public class PreqcIndexer extends AbstractIndexer {
                     documentCount++;
                     preqcCore.addBean(o);
                 }
-
-                if (counter % 1000 == 0) {
-                    logger.info("Added {} preqc documents to index", counter);
-                }
-
             }
+
+            logger.info(" added {} total beans", counter);
 
             preqcCore.commit();
 
