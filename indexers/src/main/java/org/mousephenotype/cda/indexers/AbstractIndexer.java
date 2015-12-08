@@ -67,7 +67,7 @@ public abstract class AbstractIndexer {
         } catch (SolrServerException sse) {
             throw new IndexerException(sse);
         }
-        System.out.println("number found="+numFound);
+        logger.debug("number found = " + numFound);
         return numFound;
     }
     
