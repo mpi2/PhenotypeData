@@ -224,7 +224,7 @@ public class IndexerManager {
 
 
     public void initialise(String[] args) throws IndexerException {
-        logger.info("IndexerManager called with args = " + StringUtils.join(args, ", "));
+        logger.debug("IndexerManager called with args = " + StringUtils.join(args, ", "));
 
         try {
             OptionSet options = parseCommandLine(args);
@@ -259,8 +259,8 @@ public class IndexerManager {
     public void run() throws IndexerException {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
-        logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
-        logger.info("\t" + StringUtils.join(cores));
+        logger.debug("IndexerManager: nodeps = " + nodeps);
+        System.out.println("Building these cores in this order:	" + StringUtils.join(cores));
 
         for (IndexerItem indexerItem : indexerItems) {
             long start = new Date().getTime();
@@ -600,7 +600,7 @@ public class IndexerManager {
             throw new IndexerException(t);
         }
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
-        logger.info("indexer config file: '" + indexerArgs[0] + "'");
+        logger.debug("indexer config file: '" + indexerArgs[0] + "'");
 
         return options;
     }

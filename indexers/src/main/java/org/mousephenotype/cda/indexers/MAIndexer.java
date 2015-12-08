@@ -99,7 +99,7 @@ public class MAIndexer extends AbstractIndexer {
         long start = System.currentTimeMillis();
 
     	try {
-    		logger.info("Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
+    		logger.info(" Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);

@@ -98,8 +98,8 @@ public class IndexerMap {
 				}	
 			}	
 			
-			logger.info("Converted " + maUberonEfoMap.size() + " MA Ids");
-//			logger.info(maUberonEfoMap.toString());
+			logger.debug("Converted " + maUberonEfoMap.size() + " MA Ids");
+//			logger.debug(maUberonEfoMap.toString());
     	}
 		return maUberonEfoMap;
 	        
