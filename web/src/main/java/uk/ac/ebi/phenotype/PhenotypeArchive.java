@@ -44,7 +44,13 @@ public class PhenotypeArchive extends SpringBootServletInitializer {
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
                 logger.info("Adding WebMvc resources");
-//                registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
+                registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/");
+                registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/");
+                registry.addResourceHandler("/img/**").addResourceLocations("/resources/img/");
+                registry.addResourceHandler("/documentation/**").addResourceLocations("/resources/documentation/");
+                registry.addResourceHandler("/dalliance/**").addResourceLocations("/resources/dalliance/");
+                registry.addResourceHandler("/release_notes/**").addResourceLocations("/resources/release_notes/");
+                registry.addResourceHandler("/image_compara/**").addResourceLocations("/resources/image_compara/");
             }
 
 
