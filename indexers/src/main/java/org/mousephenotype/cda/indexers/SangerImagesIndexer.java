@@ -16,7 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -171,12 +170,10 @@ public class SangerImagesIndexer extends AbstractIndexer {
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
-	public int populateSangerImagesCore() throws SQLException, IOException, SolrServerException {
+	public int populateSangerImagesCore() throws IndexerException {
 
 		int count = 0;
         Set<String> noTopLevelSet = new HashSet<>();
-
-		sangerImagesCore.deleteByQuery("*:*");
 
 		// <entity dataSource="komp2ds" name="ima_image_record"
 		//
@@ -204,8 +201,12 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ";// and
 		// IMA_IMAGE_RECORD.ID=70220
 
+		boolean hasWarnings = false;
+
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
+
+			sangerImagesCore.deleteByQuery("*:*");
 
 			p.setFetchSize(Integer.MIN_VALUE);
 
@@ -486,6 +487,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
             List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
             Collections.sort(noTopLevelList);
             for (String mpId : noTopLevelList) {
+				hasWarnings = true;
                 logger.warn(" No top level for " + mpId);
             }
 
@@ -493,7 +495,11 @@ public class SangerImagesIndexer extends AbstractIndexer {
 			sangerImagesCore.commit();
 
 		} catch (Exception e) {
-			logger.error(" Big error {}", e.getMessage(), e);
+			throw new IndexerException(e.getMessage());
+		}
+
+		if (hasWarnings) {
+			throw new IndexerException("", RunStatus.WARN);
 		}
 
         return count;
