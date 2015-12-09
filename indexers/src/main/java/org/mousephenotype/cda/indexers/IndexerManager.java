@@ -50,7 +50,7 @@ import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
  * @author mrelac
  */
 public class IndexerManager {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IndexerManager.class);
     protected CommonUtils commonUtils = new CommonUtils();
 
     // core names.
@@ -629,22 +629,26 @@ public class IndexerManager {
     }
 
     private static void logErrors(IndexerException ie) {
-        // Print out the exceptions.
-        if (ie.getLocalizedMessage() != null) {
-            System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
-        }
-        int i = 0;
-        Throwable t = ie.getCause();
-        while (t != null) {
-            StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
-            if (t.getLocalizedMessage() != null) {
-                errMsg.append(t.getLocalizedMessage());
-            } else {
-                errMsg.append("<null>");
+        if (ie.getRunStatus() == RunStatus.WARN) {
+            logger.warn(ie.getLocalizedMessage());
+        } else {
+            // Print out the exceptions.
+            if (ie.getLocalizedMessage() != null) {
+                System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
             }
-            System.out.println("ERROR: IndexerManager: " + errMsg.toString());
-            i++;
-            t = t.getCause();
+            int i = 0;
+            Throwable t = ie.getCause();
+            while (t != null) {
+                StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
+                if (t.getLocalizedMessage() != null) {
+                    errMsg.append(t.getLocalizedMessage());
+                } else {
+                    errMsg.append("<null>");
+                }
+                System.out.println("ERROR: IndexerManager: " + errMsg.toString());
+                i++;
+                t = t.getCause();
+            }
         }
     }
 
