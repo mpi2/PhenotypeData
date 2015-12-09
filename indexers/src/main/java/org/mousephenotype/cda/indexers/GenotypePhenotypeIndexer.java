@@ -90,7 +90,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual genotype-phenotype document count is " + numFound + "."));
 
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -129,7 +129,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         doLiveStageLookup();
 
         int count = populateGenotypePhenotypeSolrCore();
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     public void doLiveStageLookup() throws SQLException {
@@ -151,7 +151,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             p1.executeUpdate();
 
             Long tmpTableTime = System.currentTimeMillis();
-//            logger.info("Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
+//            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
@@ -174,7 +174,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error populating live stage lookup map: {}", e.getMessage());
+            logger.error(" Error populating live stage lookup map: {}", e.getMessage());
         }
     }
 
@@ -342,7 +342,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpathTermName(r.getString("ontology_term_name"));
                 }
                 else {
-                    logger.error("Found unknown ontology term: " + r.getString("ontology_term_id"));
+                    logger.error(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
                 // set life stage by looking up a combination key of
@@ -375,7 +375,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             gpSolrServer.commit();
 
         } catch (Exception e) {
-            logger.error("Big error {}", e.getMessage(), e);
+            logger.error(" Big error {}", e.getMessage(), e);
         }
 
         return count;

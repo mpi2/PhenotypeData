@@ -75,7 +75,7 @@ public class DiseaseIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual disease document count is " + numFound + "."));
         
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " disease documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " disease documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -180,7 +180,7 @@ public class DiseaseIndexer extends AbstractIndexer {
 
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     /**
@@ -204,7 +204,7 @@ public class DiseaseIndexer extends AbstractIndexer {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 

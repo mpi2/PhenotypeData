@@ -69,7 +69,7 @@ public class GwasIndexer extends AbstractIndexer {
 	            throw new IndexerException(new ValidationException("Actual gwas document count is " + numFound + "."));
 
 	        if (numFound != documentCount)
-	            logger.warn("WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
+	            logger.warn(" WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
 	   
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -100,15 +100,9 @@ public class GwasIndexer extends AbstractIndexer {
             gwasCore.deleteByQuery("*:*");
             gwasCore.commit();
 
-            logger.info("Removed previous data...");
-
-            logger.info("Starting GWAS Indexer...");
-
             //initialiseSupportingBeans();
 
             List<GwasDTO> gwasBatch = new ArrayList(BATCH_SIZE);
-
-            logger.info("Starting indexing loop");
 
             // Add all ma terms to the index.
             List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
@@ -141,7 +135,7 @@ public class GwasIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
@@ -151,7 +145,7 @@ public class GwasIndexer extends AbstractIndexer {
     @Override
     protected void printConfiguration() {
         if (logger.isDebugEnabled()) {
-            logger.debug("WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasCore));
+            logger.debug(" WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasCore));
         }
     }
 

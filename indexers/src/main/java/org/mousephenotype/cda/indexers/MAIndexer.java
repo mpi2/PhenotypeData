@@ -85,7 +85,7 @@ public class MAIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual ma document count is " + numFound + "."));
 
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " ma documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " ma documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -197,7 +197,7 @@ public class MAIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
@@ -207,8 +207,8 @@ public class MAIndexer extends AbstractIndexer {
     @Override
     protected void printConfiguration() {
         if (logger.isDebugEnabled()) {
-            logger.debug("WRITING ma     CORE TO: " + SolrUtils.getBaseURL(maCore));
-            logger.debug("USING   images CORE AT: " + SolrUtils.getBaseURL(imagesCore));
+            logger.debug(" WRITING ma     CORE TO: " + SolrUtils.getBaseURL(maCore));
+            logger.debug(" USING   images CORE AT: " + SolrUtils.getBaseURL(imagesCore));
         }
     }
 

@@ -137,7 +137,7 @@ public class MPIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual mp document count is " + numFound + "."));
         
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " mp documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " mp documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -186,7 +186,7 @@ public class MPIndexer extends AbstractIndexer {
                 //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
-                logger.debug("{}: Built MP DTO {}", count, termId);
+                logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
 
                 documentCount++;
@@ -200,7 +200,7 @@ public class MPIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
@@ -279,7 +279,7 @@ public class MPIndexer extends AbstractIndexer {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
@@ -356,7 +356,7 @@ public class MPIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
         
-        logger.debug("Loaded {} mphp docs", count);
+        logger.debug(" Added {} mphp records", count);
 
         return beans;
     }
@@ -377,7 +377,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(nId);
             count ++;
         }
-        logger.debug("Loaded {} node Ids", count);
+        logger.debug(" Added {} node Ids", count);
 
         return beans;
     }
@@ -404,7 +404,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(nId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} top level terms", count);
+        logger.debug(" Added {} top level terms", count);
 
         return beans;
     }
@@ -432,7 +432,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(childId).add(nodeId);
             count ++;
         }
-        logger.debug("Loaded {} intermediate node Ids", count);
+        logger.debug(" Added {} intermediate node Ids", count);
 
         return beans;
     }
@@ -459,7 +459,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(nId).add(childId);
             count ++;
         }
-        logger.debug("Loaded {} child node Ids", count);
+        logger.debug(" Added {} child node Ids", count);
 
         return beans;
     }
@@ -485,7 +485,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(nId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} intermediate level terms", count);
+        logger.debug(" Added {} intermediate level terms", count);
 
         return beans;
     }
@@ -506,7 +506,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(nId).add(parentId);
             count ++;
         }
-        logger.debug("Loaded {} parent node Ids", count);
+        logger.debug(" Added {} parent node Ids", count);
 
         return beans;
     }
@@ -527,7 +527,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(syn);
             count ++;
         }
-        logger.debug("Loaded {} MP term synonyms", count);
+        logger.debug(" Added {} MP term synonyms", count);
 
         return beans;
     }
@@ -552,7 +552,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} MA term nodes", count);
+        logger.debug(" Added {} MA term nodes", count);
 
         return beans;
     }
@@ -573,7 +573,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(name);
             count ++;
         }
-        logger.debug("Loaded {} inferred selected MA term nodes", count);
+        logger.debug(" Added {} inferred selected MA term nodes", count);
 
         return beans;
     }
@@ -598,7 +598,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} MA child term nodes", count);
+        logger.debug(" Added {} MA child term nodes", count);
 
         return beans;
     }
@@ -619,7 +619,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(syn);
             count ++;
         }
-        logger.debug("Loaded {} MA term synonyms", count);
+        logger.debug(" Added {} MA term synonyms", count);
 
         return beans;
     }
@@ -640,7 +640,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(subset);
             count ++;
         }
-        logger.debug("Loaded {} subsets", count);
+        logger.debug(" Added {} subsets", count);
 
         return beans;
     }
@@ -661,7 +661,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(xrefId);
             count ++;
         }
-        logger.debug("Loaded {} xrefs", count);
+        logger.debug(" Added {} xrefs", count);
 
         return beans;
     }
@@ -693,7 +693,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(mpAcc).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} phenotype call summaries (1)", count);
+        logger.debug(" Added {} phenotype call summaries (1)", count);
 
         return beans;
     }
@@ -714,7 +714,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(impc);
             count ++;
         }
-        logger.debug("Loaded {} IMPC", count);
+        logger.debug(" Added {} IMPC records", count);
 
         return beans;
     }
@@ -735,7 +735,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(tId).add(legacy);
             count ++;
         }
-        logger.debug("Loaded {} legacy", count);
+        logger.debug(" Added {} legacy records", count);
 
         return beans;
     }
@@ -767,7 +767,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(mpAcc).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} phenotype call summaries (2)", count);
+        logger.debug(" Added {} phenotype call summaries (2)", count);
 
         return beans;
     }
@@ -793,7 +793,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(acc).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} strain beans", count);
+        logger.debug(" Added {} strain beans", count);
 
         return beans;
     }
@@ -826,7 +826,7 @@ public class MPIndexer extends AbstractIndexer {
             beans.get(id).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} PPP beans", count);
+        logger.debug(" Added {} PPP beans", count);
 
         return beans;
     }
@@ -1075,11 +1075,8 @@ public class MPIndexer extends AbstractIndexer {
                     mp.getLatestPhenotypeStatus().add("Phenotyping Started");
                 }
             }
-        } catch (SolrServerException e) {
-            logger.error("Caught error accessing PreQC core: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Caught error accessing PreQC core: {}", e.getMessage());
-            logger.error("Query was: {}", query);
+            logger.error(" Caught error accessing PreQC core: {}.\nQuery: {}", e.getMessage(), query);
         }
     }
 
