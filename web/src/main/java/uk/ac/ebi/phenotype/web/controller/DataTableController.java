@@ -84,12 +84,14 @@ public class DataTableController {
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
-    @Autowired
-    @Qualifier("admintoolsDataSource")
+//    @Autowired
+//    @Qualifier("admintoolsDataSource")
+	@Resource(name="admintoolsDataSource")
     private DataSource admintoolsDataSource;
 
-    @Autowired
-    @Qualifier("komp2DataSource")
+//    @Autowired
+//    @Qualifier("komp2DataSource")
+	@Resource(name="komp2DataSource")
     private DataSource komp2DataSource;
 
     private String IMG_NOT_FOUND = "Image coming soon<br>";
