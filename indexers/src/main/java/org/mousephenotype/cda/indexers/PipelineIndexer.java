@@ -187,6 +187,13 @@ public class PipelineIndexer extends AbstractIndexer {
 							for (String mpId : param.getMpIds()){
 								doc.addMpId(mpId);
 								MpDTO mp = mpIdToMp.get(mpId);
+
+
+if (mp == null) {
+	int mm = 17;
+	System.out.println();
+}
+
 								doc.addMpTerm(mp.getMpTerm());
 								if (mp.getIntermediateMpId() != null && mp.getIntermediateMpId().size() > 0){
 									doc.addIntermediateMpId(mp.getIntermediateMpId());
