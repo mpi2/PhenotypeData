@@ -241,7 +241,7 @@ public class IndexerManager {
                 throw new IndexerException("Failed to parse command-line options.");
             }
 
-            // Print the jvm memory configuration.
+            // Print the starting jvm memory configuration.
             printJvmMemoryConfiguration();
         } catch (Exception e) {
             if (e.getLocalizedMessage() != null) {
@@ -281,7 +281,7 @@ public class IndexerManager {
                 runStatus = ie.getRunStatus();
             }
 
-            logger.info("[END]   {} at {}\n", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
+            logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runStatus, start, new Date().getTime()));
             printJvmMemoryConfiguration();
         }
@@ -655,10 +655,10 @@ public class IndexerManager {
         final int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
         DecimalFormat formatter = new DecimalFormat("#,###");
-        logger.info("Used memory : " + (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
-        logger.info("Free memory : " + formatter.format(runtime.freeMemory()));
-        logger.info("Total memory: " + formatter.format(runtime.totalMemory()));
-        logger.info("Max memory  : " + formatter.format(runtime.maxMemory()));
+        logger.info("Used memory:  {}", (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
+        logger.info("Free memory : {}", formatter.format(runtime.freeMemory()));
+        logger.info("Total memory: {}", formatter.format(runtime.totalMemory()));
+        logger.info("Max memory:   {}\n", formatter.format(runtime.maxMemory()));
     }
 
     /**
