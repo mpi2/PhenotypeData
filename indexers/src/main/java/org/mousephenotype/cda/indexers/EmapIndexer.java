@@ -21,7 +21,6 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermEmapBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
@@ -123,17 +122,11 @@ public class EmapIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(emapCore);
-        System.out.println("num found: " + numFound);
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual emap document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " emap documents but SOLR reports " + numFound + " documents.");
+        super.validateBuild(emapCore);
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public void run() throws IndexerException {
         int count = 0;
         long start = System.currentTimeMillis();
 

@@ -21,6 +21,7 @@ import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -32,9 +33,6 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-
 
 /**
  * @author Matt Pearce
@@ -55,7 +53,7 @@ public abstract class AbstractIndexer {
     // It is used for later validation by querying the core after the build.
     protected int documentCount = 0;
 
-    public abstract void run() throws IndexerException, SQLException, IOException, SolrServerException;
+    public abstract void run() throws IndexerException;
 
     public abstract void validateBuild() throws IndexerException;
 
@@ -149,4 +147,24 @@ public abstract class AbstractIndexer {
 
     }
 
+    /**
+     * Common core validator
+     *
+     * @param solrServer the solr server to be validated
+     * @throws IndexerException
+     */
+    protected void validateBuild(SolrServer solrServer) throws IndexerException {
+        Long actualSolrDocumentCount = getDocumentCount(solrServer);
+        String message;
+
+        if (actualSolrDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
+            message = "ERROR: Expected at least " + MINIMUM_DOCUMENT_COUNT + " documents. Actual count: " + actualSolrDocumentCount + ".";
+            throw new IndexerException(message, RunStatus.FAIL);
+        }
+
+        if (actualSolrDocumentCount != documentCount) {
+            message = "WARNING: SOLR reports " + actualSolrDocumentCount + ". Actual count: " + documentCount;
+            throw new IndexerException(message, RunStatus.WARN);
+        }
+    }
 }

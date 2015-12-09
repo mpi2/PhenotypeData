@@ -18,7 +18,6 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.solr.bean.GenomicFeatureBean;
@@ -104,14 +103,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void validateBuild() throws IndexerException {
-		Long numFound = getDocumentCount(sangerImagesCore);
-
-		if (numFound <= MINIMUM_DOCUMENT_COUNT)
-			throw new IndexerException(new ValidationException("Actual images document count is " + numFound + "."));
-
-		if (numFound != documentCount)
-			logger.warn(" WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound
-					+ " documents.");
+		super.validateBuild(sangerImagesCore);
 	}
 
 	@Override

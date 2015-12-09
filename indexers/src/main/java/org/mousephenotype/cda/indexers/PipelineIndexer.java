@@ -19,7 +19,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -80,20 +79,8 @@ public class PipelineIndexer extends AbstractIndexer {
 	
 
 	@Override
-	public void validateBuild() 
-	throws IndexerException {
-		
-		Long numFound = getDocumentCount(pipelineCore);
-
-		if (numFound <= MINIMUM_DOCUMENT_COUNT){
-			throw new IndexerException(new ValidationException(
-					"Actual pipeline document count is " + numFound + "."));
-		}
-		if (numFound != documentCount){
-			logger.warn(" Added " + documentCount
-					+ " pipeline documents but SOLR reports " + numFound
-					+ " documents.");
-		}
+	public void validateBuild()	throws IndexerException {
+		super.validateBuild(pipelineCore);
 	}
 
 	@Override
@@ -227,7 +214,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			List<String> noTermList = new ArrayList<>(noTermSet);
 			Collections.sort(noTermList);
 			for (String mpId : noTermList) {
-				logger.warn(" No mp term for mpId {}. Skipping.", mpId);
+				logger.warn(" No mp term for '{}'.", mpId);
 			}
 
 			pipelineCore.commit();
