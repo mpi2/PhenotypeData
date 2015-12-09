@@ -630,7 +630,7 @@ public class IndexerManager {
 
     private static void logErrors(IndexerException ie) {
         if (ie.getRunStatus() == RunStatus.WARN) {
-            logger.warn(ie.getLocalizedMessage());
+            logger.warn(" " + ie.getLocalizedMessage());
         } else {
             // Print out the exceptions.
             if (ie.getLocalizedMessage() != null) {
