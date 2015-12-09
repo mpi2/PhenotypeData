@@ -128,6 +128,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	throws IndexerException {
         int count = 0;
 		long start = System.currentTimeMillis();
+		Set<String> noTermSet = new HashSet<>();
 
 		try {
 			initialiseSupportingBeans();
@@ -187,12 +188,10 @@ public class PipelineIndexer extends AbstractIndexer {
 							for (String mpId : param.getMpIds()){
 								doc.addMpId(mpId);
 								MpDTO mp = mpIdToMp.get(mpId);
-
-
-if (mp == null) {
-	int mm = 17;
-	System.out.println();
-}
+								if (mp == null) {
+									noTermSet.add(pipeline.getName() + ":" + procedure.getName() + ":" + mpId);
+									continue;
+								}
 
 								doc.addMpTerm(mp.getMpTerm());
 								if (mp.getIntermediateMpId() != null && mp.getIntermediateMpId().size() > 0){
@@ -223,7 +222,12 @@ if (mp == null) {
 						count++;
 					}
 				}
+			}
 
+			List<String> noTermList = new ArrayList<>(noTermSet);
+			Collections.sort(noTermList);
+			for (String mpId : noTermList) {
+				logger.warn(" No mp term for mpId {}. Skipping.", mpId);
 			}
 
 			pipelineCore.commit();
