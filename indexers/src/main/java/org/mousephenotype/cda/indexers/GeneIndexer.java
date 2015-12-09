@@ -24,7 +24,6 @@ import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -98,13 +97,8 @@ public class GeneIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
+        super.validateBuild(geneCore);
         Long numFound = getDocumentCount(geneCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual gene document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " gene documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override

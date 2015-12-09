@@ -23,7 +23,6 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
@@ -79,13 +78,8 @@ public class MAIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
+        super.validateBuild(maCore);
         Long numFound = getDocumentCount(maCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual ma document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " ma documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -94,7 +88,7 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public void run() throws IndexerException {
         int count = 0;
         long start = System.currentTimeMillis();
 
@@ -193,7 +187,7 @@ public class MAIndexer extends AbstractIndexer {
             // Send a final commit
             maCore.commit();
 
-        } catch (SolrServerException| IOException e) {
+        } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
