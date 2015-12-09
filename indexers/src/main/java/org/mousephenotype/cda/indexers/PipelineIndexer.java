@@ -90,7 +90,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					"Actual pipeline document count is " + numFound + "."));
 		}
 		if (numFound != documentCount){
-			logger.warn("Added " + documentCount
+			logger.warn(" Added " + documentCount
 					+ " pipeline documents but SOLR reports " + numFound
 					+ " documents.");
 		}
@@ -105,7 +105,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		try {
 			this.komp2DbConnection = komp2DataSource.getConnection();
 		} catch (SQLException sqle) {
-			logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
+			logger.error(" Caught SQL Exception initialising database connections: {}", sqle.getMessage());
 			throw new IndexerException(sqle);
 		}
 	}
@@ -228,7 +228,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			npe.printStackTrace();
 		}
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
 	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {
@@ -258,13 +258,13 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.setMedia(resultSet.getBoolean("media"));
 				param.setObservationType(assignType(param));
 				if (param.getObservationType() == null){
-					logger.warn("Obs type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
+					logger.warn(" Observation type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
 				}
 				localParamDbIdToParameter.put(id, param);
 			}
 
             if (localParamDbIdToParameter.size() < 5704) {
-                logger.warn("localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
+                logger.warn(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
             }
 
 		} catch (Exception e) {
@@ -416,7 +416,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
         if (procIdToParams.size() < 5704) {
-            logger.warn("procIdToParams # records = " + procIdToParams.size() + ". Expected at least 5704 records.");
+            logger.warn(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least 5704 records.");
         }
 
 		return procIdToParams;
@@ -455,7 +455,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
         if (procedureIdToProcedureMap.size() < 190) {
-            logger.warn("procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
+            logger.warn(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
         }
 		
 		return procedureIdToProcedureMap;
@@ -623,7 +623,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					}
 
 				} else {
-					logger.warn("UNKNOWN data type : " + datatype  + " " + parameter.getStableId());
+					logger.warn(" Unknown data type : " + datatype  + " " + parameter.getStableId());
 				}
 			}
 		}
@@ -647,7 +647,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					obType = ObservationType.valueOf(obsType);
 					map.put(parameterId, obType);
 				} catch (IllegalArgumentException e) {
-					logger.warn("no ObservationType found for parameter: {}", parameterId);
+					logger.warn(" No ObservationType found for parameter: {}", parameterId);
 					e.printStackTrace();
 				}
 

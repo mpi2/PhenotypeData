@@ -104,7 +104,7 @@ public class GeneIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual gene document count is " + numFound + "."));
 
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " gene documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " gene documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -118,7 +118,7 @@ public class GeneIndexer extends AbstractIndexer {
             komp2DbConnection = komp2DataSource.getConnection();
 
         } catch (SQLException sqle) {
-            logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
+            logger.error(" Caught SQL Exception initialising database connections: {}", sqle.getMessage());
             throw new IndexerException(sqle);
         }
 
@@ -603,7 +603,7 @@ public class GeneIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
@@ -615,7 +615,7 @@ public class GeneIndexer extends AbstractIndexer {
         phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
         sangerImages = IndexerMap.getSangerImagesByMgiAccession(imagesCore);
         mgiAccessionToMP = populateMgiAccessionToMp();
-//        logger.info("mgiAccessionToMP size=" + mgiAccessionToMP.size());
+//        logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData=IndexerMap.populateEmbryoData(config.get("embryoRestUrl"));
         genomicFeatureCoordinates=this.populateGeneGenomicCoords();
         genomicFeatureXrefs=this.populateXrefs();
@@ -637,7 +637,7 @@ public class GeneIndexer extends AbstractIndexer {
 
     private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
     	Map<String, List<Map<String, String>>> localPhenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
-//        logger.info("populating PCS pipeline info");
+//        logger.debug(" Populating PCS pipeline info");
         String queryString = "select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"
                 + " from phenotype_call_summary pcs"
                 + " inner join ontology_term term on term.acc=mp_acc"
@@ -684,7 +684,7 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<Xref>> populateXrefs() {
 
         Map<String, List<Xref>> localGenomicFeatureXrefs = new HashMap<>();
-//        logger.info("populating xref info");
+//        logger.debug(" Populating xref info");
         String queryString = "select acc, xref_acc, xref_db_id from xref";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
@@ -723,7 +723,7 @@ public class GeneIndexer extends AbstractIndexer {
     }
     private Map<String, Map<String, String>> populateGeneGenomicCoords() {
     	Map<String, Map<String, String>> localGenomicFeatureCoordinates = new HashMap<>();
-//        logger.info("populating Gene Genomic location info");
+//        logger.debug(" Populating Gene Genomic location info");
         String queryString = "select  gf.acc, gf.seq_region_id, gf.seq_region_start, gf.seq_region_end, gf.subtype_db_id, gf.db_id from genomic_feature gf";
 
         try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {

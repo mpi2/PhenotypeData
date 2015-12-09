@@ -129,7 +129,7 @@ public class EmapIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual emap document count is " + numFound + "."));
 
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " emap documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " emap documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -200,7 +200,7 @@ public class EmapIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     /**
@@ -274,7 +274,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(tId).add(nId);
             count ++;
         }
-        logger.debug("Loaded {} node Ids", count);
+        logger.debug(" Added {} node Ids", count);
 
         return beans;
     }
@@ -302,7 +302,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} top level terms", count);
+        logger.debug(" Added {} top level terms", count);
 
         return beans;
     }
@@ -331,7 +331,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(childId).add(nodeId);
             count ++;
         }
-        logger.debug("Loaded {} intermediate node Ids", count);
+        logger.debug(" Added {} intermediate node Ids", count);
 
         return beans;
     }
@@ -359,7 +359,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(childId);
             count ++;
         }
-        logger.debug("Loaded {} child node Ids", count);
+        logger.debug(" Added {} child node Ids", count);
 
         return beans;
     }
@@ -386,7 +386,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} intermediate level terms", count);
+        logger.debug(" Added {} intermediate level terms", count);
 
         return beans;
     }
@@ -408,7 +408,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(parentId);
             count ++;
         }
-        logger.debug("Loaded {} parent node Ids", count);
+        logger.debug(" Added {} parent node Ids", count);
 
         return beans;
     }
@@ -429,7 +429,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(tId).add(syn);
             count ++;
         }
-        logger.debug("Loaded {} EMAP term synonyms", count);
+        logger.debug(" Added {} EMAP term synonyms", count);
 
         return beans;
     }

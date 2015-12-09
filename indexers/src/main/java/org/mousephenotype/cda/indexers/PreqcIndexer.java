@@ -101,7 +101,7 @@ public class PreqcIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
 
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -278,7 +278,7 @@ public class PreqcIndexer extends AbstractIndexer {
                 o.setEffect_size(effectSize);
 
                 if ( ! zygosityMapping.containsKey(zygosity)) {
-                    logger.warn("Zygosity {} not found for record id {}", zygosity, id);
+                    logger.warn(" Zygosity {} not found for record id {}", zygosity, id);
                     continue;
                 }
                 o.setZygosity(zygosityMapping.get(zygosity));
@@ -345,7 +345,7 @@ public class PreqcIndexer extends AbstractIndexer {
                         SexType.valueOf(sex.toLowerCase());
 
                     } catch (IllegalArgumentException se) {
-                        logger.error("Got unexpected sex value '{}' from PreQC file. Not loading", se);
+                        logger.error(" Got unexpected sex value '{}' from PreQC file. Not loading", se);
                         continue;
                     }
 
@@ -362,15 +362,15 @@ public class PreqcIndexer extends AbstractIndexer {
         }
 
         if (missingPhenotypeTerm.size() > 0) {
-            logger.warn("Phenotype terms are missing for %s record(s):\n %s", missingPhenotypeTerm.size(), StringUtils.join(missingPhenotypeTerm, ", "));
+            logger.warn(" Phenotype terms are missing for %s record(s):\n %s", missingPhenotypeTerm.size(), StringUtils.join(missingPhenotypeTerm, ", "));
         }
 
         if (bad.size() > 0) {
-            logger.warn("found {} unique mps not in ontodb", bad.size());
-            logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
+            logger.warn(" Found {} unique mps not in ontodb", bad.size());
+            logger.warn(" MP terms not found: {} ", StringUtils.join(bad, ","));
         }
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {

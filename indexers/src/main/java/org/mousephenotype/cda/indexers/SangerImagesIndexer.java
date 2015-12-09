@@ -110,7 +110,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 			throw new IndexerException(new ValidationException("Actual images document count is " + numFound + "."));
 
 		if (numFound != documentCount)
-			logger.warn("WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound
+			logger.warn(" WARNING: Added " + documentCount + " images documents but SOLR reports " + numFound
 					+ " documents.");
 	}
 
@@ -176,7 +176,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 			throw new IndexerException(e);
 		}
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
 	public int populateSangerImagesCore() throws SQLException, IOException, SolrServerException {
@@ -494,14 +494,14 @@ public class SangerImagesIndexer extends AbstractIndexer {
             List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
             Collections.sort(noTopLevelList);
             for (String mpId : noTopLevelList) {
-                logger.warn("No top level for " + mpId);
+                logger.warn(" No top level for " + mpId);
             }
 
 			// Final commit to save the rest of the docs
 			sangerImagesCore.commit();
 
 		} catch (Exception e) {
-			logger.error("Big error {}", e.getMessage(), e);
+			logger.error(" Big error {}", e.getMessage(), e);
 		}
 
         return count;
@@ -902,7 +902,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.debug("Sanger image annotations map size = " + annotationsMap.size());
+		logger.debug(" Sanger image annotations map size = " + annotationsMap.size());
 
 	}
 

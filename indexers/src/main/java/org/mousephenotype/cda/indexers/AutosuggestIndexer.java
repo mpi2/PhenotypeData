@@ -135,7 +135,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             throw new IndexerException(new ValidationException("Actual autosuggest document count is " + numFound + "."));
         
         if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " autosuggest documents but SOLR reports " + numFound + " documents.");
+            logger.warn(" WARNING: Added " + documentCount + " autosuggest documents but SOLR reports " + numFound + " documents.");
     }
 
     private void initializeSolrCores() {
@@ -152,7 +152,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
@@ -187,7 +187,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 

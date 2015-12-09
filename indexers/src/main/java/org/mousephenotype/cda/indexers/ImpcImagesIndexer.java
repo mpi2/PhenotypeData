@@ -105,7 +105,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			throw new IndexerException(new ValidationException("Actual impc_images document count is " + numFound + "."));
 
 		if (numFound != documentCount)
-			logger.warn("WARNING: Added " + documentCount + " impc_images documents but SOLR reports " + numFound + " documents.");
+			logger.warn(" WARNING: Added " + documentCount + " impc_images documents but SOLR reports " + numFound + " documents.");
 	}
 
 
@@ -133,15 +133,15 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 //		logger.info(" added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
-			logger.error("Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+			logger.error(" Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
 		}
 
 		this.alleles = populateAlleles();
-//		logger.info(" added {} total allele beans", alleles.size());
+//		logger.info(" Added {} total allele beans", alleles.size());
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
-//		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+//		logger.info(" omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
@@ -178,14 +178,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)){// || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
-						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
+						//logger.warn(" Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
 
 					// need to add a full path to image in omero as part of api
 					// e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if (omeroId != 0 && downloadFilePath != null) {
-						// logger.info("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
+						// logger.info(" Setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 						// /webgateway/archived_files/download/
 						if(downloadFilePath.endsWith(".pdf")){
 							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
@@ -196,7 +196,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
 						}
 					} else {
-						logger.warn("omero id is null for " + downloadFilePath);
+						logger.warn(" omero id is null for " + downloadFilePath);
 					}
 
 					// add the extra stuf we need for the searching and faceting here
@@ -302,7 +302,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 									String maTerm = maTerms.get(i);
 									maIdTerms.add(maId + "_" + maTerm);
 								} catch (Exception e) {
-									logger.warn("Could not find term when indexing MA {}", maId, e);
+									logger.warn(" Could not find term when indexing MA {}", maId, e);
 								}
 							}
 							imageDTO.setMaIdTerm(maIdTerms);
@@ -346,7 +346,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			throw new IndexerException(e);
 		}
 
-        logger.info(" added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
 
@@ -441,7 +441,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// />
 				//
 				if (allele.getStatus() != null) {
-					// logger.info("adding status="+allele.getStatus());
+					// logger.info(" Adding status="+allele.getStatus());
 					img.addStatus(allele.getStatus());
 				}
 				// <!-- latest project status (ES cells/mice production status)
@@ -518,7 +518,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				paramToMa.put(parameterStableId, maAcc);
 			}
 		}
-		logger.debug("paramToMa size = " + paramToMa.size());
+		logger.debug(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
 }
