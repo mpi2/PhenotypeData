@@ -18,18 +18,16 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.dto.MaDTO;
+import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,9 +35,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
-
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,12 +42,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
+
 /**
  * Populate the MA core
  */
 public class MAIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(MAIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
    
     @Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
@@ -81,15 +78,8 @@ public class MAIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
+        super.validateBuild(maCore);
         Long numFound = getDocumentCount(maCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual ma document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " ma documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " ma documents.");
     }
 
     @Override
@@ -98,21 +88,16 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public void run() throws IndexerException {
+        int count = 0;
+        long start = System.currentTimeMillis();
+
     	try {
-    		logger.info("Starting MA Indexer...");
-    		
-    		
-    		logger.info("Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
+    		logger.info(" Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
-            int count = 0;
 
-            logger.info("Starting indexing loop");
-
-            
-            
             // Add all ma terms to the index.
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
             for (OntologyTermBean bean : beans) {
@@ -201,13 +186,12 @@ public class MAIndexer extends AbstractIndexer {
 
             // Send a final commit
             maCore.commit();
-            logger.info("Indexed {} beans in total", count);
-        } catch (SolrServerException| IOException e) {
+
+        } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
-
-        logger.info("MA Indexer complete!");
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
@@ -215,15 +199,10 @@ public class MAIndexer extends AbstractIndexer {
 
 
     @Override
-    protected Logger getLogger() {
-        return logger;
-    }
-
-    @Override
     protected void printConfiguration() {
         if (logger.isDebugEnabled()) {
-            logger.debug("WRITING ma     CORE TO: " + SolrUtils.getBaseURL(maCore));
-            logger.debug("USING   images CORE AT: " + SolrUtils.getBaseURL(imagesCore));
+            logger.debug(" WRITING ma     CORE TO: " + SolrUtils.getBaseURL(maCore));
+            logger.debug(" USING   images CORE AT: " + SolrUtils.getBaseURL(imagesCore));
         }
     }
 
@@ -248,7 +227,5 @@ public class MAIndexer extends AbstractIndexer {
         indexer.initialise(args);
         indexer.run();
         indexer.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
 }

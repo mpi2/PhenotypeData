@@ -58,9 +58,11 @@ public class CategoricalResult extends StatisticalResult implements Serializable
     @Column(name = "effect_size")
     private Double categoricalEffectSize;
 
+    
 	private String mpTermId;
 
 	private String mpTermName;
+	
 
     public String getMpTermName() {
 		return mpTermName;

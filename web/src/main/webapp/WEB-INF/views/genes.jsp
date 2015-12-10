@@ -362,14 +362,14 @@
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 
-                                              <div class="floatright"
-                                                 style="clear: both">
-                                                <p>
-                                                    <a class="btn"
-                                                       href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-                                                       style="margin: 10px">All Adult Data</a>
+        									<div class="floatright"  style="clear: both">
+												<p>
+                                                	<a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+												<br/> 
                                                 </p>
                                             </div>
+                                            <div class="clear"></div>
+
                                         </c:if>
 
                                         <c:if
@@ -385,8 +385,7 @@
                                         <p> Phenotype Summary based on automated MP annotations supported by experiments
                                             on knockout mouse models. </p>
 
-                                        <c:forEach var="zyg"
-                                                   items="${phenotypeSummaryObjects.keySet()}">
+                                        <c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
                                             <p>In <b>${zyg} :</b>
                                             </p>
                                             <ul>
@@ -496,12 +495,12 @@
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
                                             <div class="floatright"
                                                  style="clear: both">
-
-                                                <a class="btn"
-                                                   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-                                                   style="margin: 0px">All Adult Data</a>
-
+												<p>
+                                                	<a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+												<br/> 
+                                                </p>
                                             </div>
+                                            <div class="clear"></div>
                                         </c:if>
 
                                         <c:if

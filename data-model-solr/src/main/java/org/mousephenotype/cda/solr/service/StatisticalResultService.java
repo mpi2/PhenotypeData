@@ -1021,6 +1021,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         	r.setMpTermId(result.getMpTermId());
         }
         if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
+        if(result.getStatus()!=null)r.setStatus(result.getStatus());
 
         return r;
     }
@@ -1056,7 +1057,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getSex()!= null) r.setExperimentalSex(SexType.valueOf(result.getSex()));
         if(result.getMpTermId()!= null) r.setMpTermId(result.getMpTermId());
         if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
-
+        if(result.getStatus()!=null)r.setStatus(result.getStatus());
         return r;
     }
 

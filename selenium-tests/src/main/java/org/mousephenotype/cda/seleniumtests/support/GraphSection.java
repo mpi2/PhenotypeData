@@ -252,7 +252,7 @@ public abstract class GraphSection {
                     if (style.contains("display: none;"))
                         break;
                     else
-                        commonUtils.sleep(50);
+                        commonUtils.sleep(500);
                 }
                 if ( ! style.contains("display: none;"))
                     status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");

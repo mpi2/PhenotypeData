@@ -30,23 +30,21 @@ import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
 
 public class AutosuggestIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("autosuggestIndexing")
@@ -130,15 +128,8 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
+        super.validateBuild(autosuggestCore);
         Long numFound = getDocumentCount(autosuggestCore);
-        
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual autosuggest document count is " + numFound + "."));
-        
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " autosuggest documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " autosuggest documents.");
     }
 
     private void initializeSolrCores() {
@@ -155,7 +146,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
@@ -167,7 +158,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public void run() throws IndexerException {
+
+        long start = System.currentTimeMillis();
+
         try {
             initializeSolrCores();
 
@@ -182,13 +176,12 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
             // Final commit
             autosuggestCore.commit();
-            
-            // FIXME
-//            logger.info("Added {} beans", results.size());
 
-        } catch (SolrServerException | IOException e) {
+        } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
+
+        logger.info(" Added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
@@ -837,17 +830,5 @@ public class AutosuggestIndexer extends AbstractIndexer {
         AutosuggestIndexer main = new AutosuggestIndexer();
         main.initialise(args);
         main.run();
-
-        logger.info("Process finished.  Exiting.");
-
     }
-
-
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
-    }
-
 }
-

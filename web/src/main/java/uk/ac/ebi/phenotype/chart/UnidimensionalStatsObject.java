@@ -34,7 +34,16 @@ public class UnidimensionalStatsObject {
 	private String allele = "allele not found";
 	private String geneticBackground = "genetic background not found";
 	private UnidimensionalResult result;
+	private String status;
 
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	public String getMpTermId() {
 		return mpTermId;
@@ -133,6 +142,7 @@ public class UnidimensionalStatsObject {
 	public void setSd(Float sd) {
 		this.sd = sd;
 	}
+	
 
 	@Override
 	public String toString() {
