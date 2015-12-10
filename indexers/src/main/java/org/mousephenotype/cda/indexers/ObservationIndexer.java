@@ -15,17 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -39,18 +28,28 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Populate the experiment core
  */
 public class ObservationIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private static Connection connection;
+    CommonUtils commonUtils = new CommonUtils();
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -93,15 +92,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(observationSolrServer);
-        
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual observation document count is " + numFound + "."));
-        
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " observation documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " observation documents.");
+        super.validateBuild(observationSolrServer);
     }
 
     public static void main(String[] args) throws IndexerException {
@@ -109,14 +100,8 @@ public class ObservationIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
 
-    @Override
-    protected Logger getLogger() {
-        return logger;
-    }
 
     @Override
     public void initialise(String[] args) throws IndexerException {
@@ -127,7 +112,6 @@ public class ObservationIndexer extends AbstractIndexer {
 
             connection = komp2DataSource.getConnection();
 
-            logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
@@ -142,40 +126,31 @@ public class ObservationIndexer extends AbstractIndexer {
 
     @Override
     public void run() throws IndexerException {
-
-	    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-	    Long start = System.currentTimeMillis();
+        long count = 0;
+        long start = System.currentTimeMillis();
 
         try {
 
-            logger.info("Populating data source, project, and category translation maps");
             populateDatasourceDataMap();
             populateCategoryNamesDataMap();
 
-            logger.info("Populating biological data maps");
             populateBiologicalDataMap();
             populateLineBiologicalDataMap();
             populateParameterAssociationMap();
 
-            logger.info("Populating weight maps");
             populateWeightMap();
             populateIpgttWeightMap();
 
-            logger.info("Populating experiment solr core");
-            populateObservationSolrCore();
+            count = populateObservationSolrCore();
 
         } catch (SolrServerException | SQLException | IOException e) {
             throw new IndexerException(e);
         }
 
-        logger.info("Populating experiment solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
-
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
-    
 
-
-    public void populateObservationSolrCore() throws SQLException, IOException, SolrServerException {
+    public long populateObservationSolrCore() throws SQLException, IOException, SolrServerException {
 
         int count = 0;
 
@@ -265,7 +240,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
                     BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
                     if (b == null) {
-                        logger.error("Cannot find biological data for experiment {}", r.getString("experiment_id"));
+                        logger.error(" Cannot find biological data for experiment {}", r.getString("experiment_id"));
                         continue;
                     }
                     o.setBiologicalModelId(b.biologicalModelId);
@@ -441,19 +416,19 @@ public class ObservationIndexer extends AbstractIndexer {
 
                 count ++;
 
-                if (count % 100000 == 0) {
-                    logger.info(" added " + count + " beans");
+                if (count % 2000000 == 0) {
+                    logger.info(" Added " + count + " beans");
                 }
-
             }
 
             // Final commit to save the rest of the docs
             observationSolrServer.commit();
 
         } catch (Exception e) {
-            logger.error("Big error {}", e.getMessage(), e);
+            logger.error(" Big error {}", e.getMessage(), e);
         }
 
+        return count;
     }
 
     /**
@@ -618,7 +593,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			while (resultSet.next()) {
 
 				String stableId = resultSet.getString("stable_id");
-				logger.debug("parameter_stable_id for numeric category: {}", stableId);
+				logger.debug(" parameter_stable_id for numeric category: {}", stableId);
 
 				if (!translateCategoryNames.containsKey(stableId)) {
 					translateCategoryNames.put(stableId, new HashMap<>());
@@ -633,7 +608,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 					translateCategoryNames.get(stableId).put(name, description);
 				} else {
-					logger.debug("Not translating non alphabetical category for parameter: " + stableId + ", name: " + name + ", desc:" + description);
+					logger.debug(" Not translating non alphabetical category for parameter: " + stableId + ", name: " + name + ", desc:" + description);
 				}
 
 			}
@@ -822,7 +797,7 @@ public class ObservationIndexer extends AbstractIndexer {
             }
         }
 
-        logger.info("Added {} weights to the weightmap for {} specimens", count, weightMap.size());
+        logger.info(" Added {} specimen weight data map entries", count, weightMap.size());
     }
 
     /**

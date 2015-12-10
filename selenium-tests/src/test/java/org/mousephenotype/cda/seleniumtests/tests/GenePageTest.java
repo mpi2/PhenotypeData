@@ -336,8 +336,6 @@ public class GenePageTest {
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
 
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         geneIdsTestEngine(testName, geneIds);
     }
 
@@ -364,8 +362,6 @@ public class GenePageTest {
         int actualGeneCount = getGeneCount();
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
-
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         geneIdsTestEngine(testName, geneIds);
     }
@@ -394,8 +390,6 @@ public class GenePageTest {
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
 
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         geneIdsTestEngine(testName, geneIds);
     }
 
@@ -422,8 +416,6 @@ public class GenePageTest {
         int actualGeneCount = getGeneCount();
         int expectedGeneCount = geneIds.size();
         assertEquals(actualGeneCount, expectedGeneCount);
-
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
 
         geneIdsTestEngine(testName, geneIds);
     }

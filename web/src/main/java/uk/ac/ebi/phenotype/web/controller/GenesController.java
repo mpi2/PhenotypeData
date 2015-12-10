@@ -369,13 +369,14 @@ public class GenesController {
 	 * @throws Exception
 	 * @since 2015/10/02
 	 */
-	@RequestMapping("/geneSummary/{acc}")
-	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	@RequestMapping("/genes/summary")
+	public String geneSummary(@RequestParam(value = "acc", required = true) String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws Exception {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
+		System.out.println("Gene is null? " + (gene == null) + " for " + acc);
 		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);

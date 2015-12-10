@@ -15,21 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -38,24 +23,32 @@ import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Load documents into the statistical-results SOLR core
  */
 public class StatisticalResultIndexer extends AbstractIndexer {
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final Logger logger = LoggerFactory.getLogger(StatisticalResultIndexer.class);
-    private static Connection connection;
+    private Connection connection;
 
     public static final String RESOURCE_3I = "3i";
 
@@ -89,15 +82,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(statResultCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual statistical-result document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " statistical-result documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " statistical-result documents.");
+        super.validateBuild(statResultCore);
     }
 
     @Override
@@ -109,19 +94,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
             connection = komp2DataSource.getConnection();
 
-            logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
             organisationMap = IndexerMap.getOrganisationMap(connection);
 
-            logger.info("Populating biological data map");
             populateBiologicalDataMap();
-
-            logger.info("Populating resource map");
             populateResourceDataMap();
-
-            logger.info("Populating statistical result sexes map");
             populateSexesMap();
 
         } catch (SQLException e) {
@@ -136,30 +115,22 @@ public class StatisticalResultIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
-    }
-
-    @Override
-    protected Logger getLogger() {
-        return logger;
     }
 
     @Override
     public void run() throws IndexerException {
 
-        Long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
-        logger.info("Populating statistical-results solr core");
-        populateStatisticalResultsSolrCore();
+        long count = populateStatisticalResultsSolrCore();
 
-        logger.info("Populating statistical-results solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
-    private void populateStatisticalResultsSolrCore() throws IndexerException {
+    private int populateStatisticalResultsSolrCore() throws IndexerException {
+        int count = 0;
 
         try {
-            int count = 0;
 
             statResultCore.deleteByQuery("*:*");
 
@@ -217,12 +188,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} unidimensional beans", count);
-                    }
                 }
-                logger.info(" added {} unidimensional beans", count);
+
+                logger.info(" Added {} unidimensional beans", count);
             }
 
             // Populate categorical statistic results
@@ -255,12 +223,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} categorical beans", count);
-                    }
                 }
-                logger.info(" added {} categorical beans", count);
+
+                logger.info(" Added {} categorical beans", count);
             }
 
             // Populate viability results
@@ -307,12 +272,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} line level parameter beans", count);
-                    }
                 }
-                logger.info(" added {} viability parameter beans", count);
+                logger.info(" Added {} viability parameter beans", count);
             }
 
             // Populate fertility results
@@ -345,24 +306,19 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                     documentCount++;
                     statResultCore.addBean(doc, 30000);
                     count ++;
-
-                    if (count % 10000 == 0) {
-                        logger.info(" added {} line level parameter beans", count);
-                    }
                 }
-                logger.info(" added {} fertility parameter beans", count);
+                logger.info(" Added {} fertility parameter beans", count);
             }
 
             // Final commit to save the rest of the docs
-            logger.info(" added {} total beans", count);
-
             // waitflush, waitserver = true
             statResultCore.commit(true, true);
 
         } catch (SQLException | IOException | SolrServerException e) {
-            logger.error("Big error {}", e.getMessage(), e);
+            logger.error(" Big error {}", e.getMessage(), e);
         }
 
+        return count;
     }
 
     private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
@@ -804,7 +760,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 biologicalDataMap.put(resultSet.getInt("id"), b);
             }
         }
-        logger.info("Populated biological data map with {} entries", biologicalDataMap.size());
+        logger.info(" Added {} biological data map entries", biologicalDataMap.size());
+
     }
 
 
@@ -830,7 +787,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 resourceMap.put(resultSet.getString("short_name"), b);
             }
         }
-        logger.info("Populated resource data map with {} entries", resourceMap.size());
+        logger.info(" Added {} resource data map entries", resourceMap.size());
     }
 
     /**
@@ -859,7 +816,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
                 }
             }
         }
-        logger.info("Populated sexes data map with {} entries", sexesMap.size());
+        logger.info(" Added {} sexes data map entries", sexesMap.size());
     }
 
     protected class ResourceBean {

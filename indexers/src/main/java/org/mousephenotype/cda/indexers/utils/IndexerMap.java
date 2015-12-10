@@ -27,7 +27,6 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
 import java.io.BufferedReader;
@@ -99,16 +98,14 @@ public class IndexerMap {
 				}	
 			}	
 			
-			logger.info("Converted " + maUberonEfoMap.size() + " MA Ids");
-			logger.info(maUberonEfoMap.toString()); 
+			logger.debug(" Converted " + maUberonEfoMap.size() + " MA Ids");
+//			logger.debug(" " + maUberonEfoMap.toString());
     	}
 		return maUberonEfoMap;
 	        
     }
 
 	public static Map<String, List<EmbryoStrain>> populateEmbryoData(final String embryoRestUrl) {
-    	System.out.println("populating embryo data");
-    	
     	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoRestUrl);
     	
 		EmbryoRestData restData=null;
@@ -168,7 +165,7 @@ public class IndexerMap {
                 throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
             }
         }
-        logger.info("mpToHpTermsMap size=" + mpToHpTermsMap.size());
+        logger.debug(" mpToHpTermsMap size = " + mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
 

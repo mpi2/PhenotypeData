@@ -455,9 +455,8 @@ public class SearchImpcImageImageView extends SearchFacetTable {
 // dumpElement("imgAnnotsElement", imgAnnotsElement);
                 parseImageAnnots(imgAnnotsElement);
             }
-            
-            imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("fullres");
-//            imageLink = urlUtils.urlDecode(imageLink);                         // Decode the link.
+
+            imageLink = trElement.findElement(By.cssSelector("td a img")).getAttribute("src");
             imageLink = testUtils.setProtocol(imageLink, TestUtils.HTTP_PROTOCOL.http); // remap protocol to http to facilitate match.
         }
     

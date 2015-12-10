@@ -21,12 +21,11 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,17 +50,16 @@ import java.util.Map;
  * @author jwarren
  */
 public class ImpcImagesIndexer extends AbstractIndexer {
-
-	private static final Logger logger = LoggerFactory
-		.getLogger(ImpcImagesIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	@Qualifier("observationReadOnlyIndexing")
-	private SolrServer observationService;
+	private SolrServer observationCore;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
-	SolrServer server;
+	SolrServer impcImagesCore;
 
 	@Autowired
 	@Qualifier("alleleReadOnlyIndexing")
@@ -99,16 +97,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void validateBuild() throws IndexerException {
-
-		Long numFound = getDocumentCount(server);
-
-		if (numFound <= MINIMUM_DOCUMENT_COUNT)
-			throw new IndexerException(new ValidationException("Actual impc_images document count is " + numFound + "."));
-
-		if (numFound != documentCount)
-			logger.warn("WARNING: Added " + documentCount + " impc_images documents but SOLR reports " + numFound + " documents.");
-		else
-			logger.info("validateBuild(): Indexed " + documentCount + " impc_images documents.");
+		super.validateBuild(impcImagesCore);
 	}
 
 
@@ -118,52 +107,48 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		main.initialise(args);
 		main.run();
 		main.validateBuild();
-
-		logger.info("Process finished.  Exiting.");
 	}
 
 
 	@Override
-	public void run() throws IndexerException, SQLException {
-		int count = 0;
+	public void run() throws IndexerException {
+        int count = 0;
+        long start = System.currentTimeMillis();
 
-		logger.info("running impc_images indexer");
-
-		try{
+		try {
 	    	parameterStableIdToMaTermIdMap=this.populateParameterStableIdToMaIdMap();
-	    	} catch(SQLException e){
-	    		e.printStackTrace();
-	    	}
-		logger.info("populating image urls from db");
-		imageBeans = populateImageUrls();
-		logger.info("Image beans map size=" + imageBeans.size());
-
-		if (imageBeans.size() < 100) {
-			logger.error("Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+		} catch(SQLException e){
+			e.printStackTrace();
 		}
 
-		logger.info("populating alleles");
+		imageBeans = populateImageUrls();
+//		logger.info(" added {} total Image URL beans", imageBeans.size());
+
+		if (imageBeans.size() < 100) {
+			logger.error(" Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+		}
+
 		this.alleles = populateAlleles();
-		logger.info("populated alleles");
+//		logger.info(" Added {} total allele beans", alleles.size());
 
 		String impcMediaBaseUrl = config.get("impcMediaBaseUrl");
 		String pdfThumbnailUrl = config.get("pdfThumbnailUrl");
-		logger.info("omeroRootUrl=" + impcMediaBaseUrl);
+//		logger.info(" omeroRootUrl=" + impcMediaBaseUrl);
 		impcAnnotationBaseUrl=impcMediaBaseUrl.replace("webgateway",  "webclient");
 
 		try {
 			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
-		} catch (IOException e1) {
+		} catch (SQLException | IOException e1) {
 			e1.printStackTrace();
 		}
 		
 		try {
 
-			server.deleteByQuery("*:*");
+			impcImagesCore.deleteByQuery("*:*");
 
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 
-			List<ImageDTO> imageList = observationService.query(query).getBeans(ImageDTO.class);
+			List<ImageDTO> imageList = observationCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
 
 				count++;
@@ -185,14 +170,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)){// || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
-						//logger.warn("Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
+						//logger.warn(" Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
 						continue;
 					}
 
 					// need to add a full path to image in omero as part of api
 					// e.g. https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/4855/
 					if (omeroId != 0 && downloadFilePath != null) {
-						// logger.info("setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
+						// logger.info(" Setting downloadurl="+impcMediaBaseUrl+"/render_image/"+omeroId);
 						// /webgateway/archived_files/download/
 						if(downloadFilePath.endsWith(".pdf")){
 							//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
@@ -203,7 +188,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
 						}
 					} else {
-						logger.info("omero id is null for " + downloadFilePath);
+						logger.warn(" omero id is null for " + downloadFilePath);
 					}
 
 					// add the extra stuf we need for the searching and faceting here
@@ -309,7 +294,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 									String maTerm = maTerms.get(i);
 									maIdTerms.add(maId + "_" + maTerm);
 								} catch (Exception e) {
-									logger.warn("Could not find term when indexing MA {}", maId, e);
+									logger.warn(" Could not find term when indexing MA {}", maId, e);
 								}
 							}
 							imageDTO.setMaIdTerm(maIdTerms);
@@ -340,25 +325,20 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
 					}
-					//System.out.println("actually adding a bean - so we have good data - delete me now!");
-					server.addBean(imageDTO);
+
+					impcImagesCore.addBean(imageDTO);
 					
-				}
-
-
-
-				if (count % 10000 == 0 && count != 0) {
-					logger.info(" added ImageDTO " + count + " beans");
 				}
 			}
 
-			server.commit();
+			impcImagesCore.commit();
 			documentCount = count;
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);
 		}
 
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 	}
 
 
@@ -404,14 +384,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		String fullResFilePath;
 		String image_link;
 	}
-
-
-	@Override
-	protected Logger getLogger() {
-
-		return logger;
-	}
-
 
 	public Map<String, List<AlleleDTO>> populateAlleles()
 		throws IndexerException {
@@ -461,7 +433,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				// />
 				//
 				if (allele.getStatus() != null) {
-					// logger.info("adding status="+allele.getStatus());
+					// logger.info(" Adding status="+allele.getStatus());
 					img.addStatus(allele.getStatus());
 				}
 				// <!-- latest project status (ES cells/mice production status)
@@ -527,7 +499,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	}
 	
 	public Map<String,String> populateParameterStableIdToMaIdMap() throws SQLException{
-    	System.out.println("populating parameterStableId to MA map");
 		Map<String,String> paramToMa = new HashMap<String, String>();
 		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)){
@@ -539,8 +510,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				paramToMa.put(parameterStableId, maAcc);
 			}
 		}
-		System.out.println("paramToMa size="+paramToMa.size());
+		logger.debug(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
-
 }
