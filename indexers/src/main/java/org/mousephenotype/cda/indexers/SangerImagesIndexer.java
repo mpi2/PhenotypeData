@@ -169,9 +169,9 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
-		}
-
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+		} finally {
+            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        }
 	}
 
 	public int populateSangerImagesCore() throws IndexerException {
@@ -503,7 +503,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		}
 
 		if (hasWarnings) {
-			throw new IndexerException("", RunStatus.WARN);
+			throw new IndexerException("No top level COUNT: " + noTopLevelSet.size(), RunStatus.WARN);
 		}
 
         return count;
