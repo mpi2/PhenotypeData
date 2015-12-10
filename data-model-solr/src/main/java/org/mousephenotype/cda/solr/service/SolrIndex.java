@@ -40,7 +40,7 @@ import java.util.*;
 @Service
 public class SolrIndex {
 
-	private static final String IMG_NOT_FOUND = "No information available";
+	public static final String IMG_NOT_FOUND = "No information available";
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
