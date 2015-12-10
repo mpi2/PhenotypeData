@@ -79,7 +79,7 @@ public class HttpProxy {
                             content = getNonSecureContent(escapedUrl, external);
                     }
                 } catch (Exception e) {
-                    log.error("EXCEPTION for protocol " + url.getProtocol().toLowerCase() + ": " + e.getLocalizedMessage() + ". Solr URL: " + escapedUrl);
+                    log.error("EXCEPTION for protocol " + url.getProtocol().toLowerCase() + ": " + e.getLocalizedMessage() + ". URL: " + escapedUrl);
                     throw e;
                 }
 

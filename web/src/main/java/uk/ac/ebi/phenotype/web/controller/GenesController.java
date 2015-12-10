@@ -420,12 +420,11 @@ public class GenesController {
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		
-		Map<String, Double> stringDBTable = readStringDbTable(acc);
+		Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
 		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
-
-		model.addAttribute("stringdbTable", stringDBTable);		
+		model.addAttribute("stringDbTable", stringDBTable);		
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
@@ -453,23 +452,33 @@ public class GenesController {
 		return "pfamDomain";
 	}
 	
+	
+	
 	private Map<String, Double> readStringDbTable(String geneSymbol) throws MalformedURLException, IOException, URISyntaxException{
 		
 		Map<String, Double> map = new java.util.HashMap<>();
 		
-		//TODO get string db id
-		String stringDbUrl = "http://string-db.org/api/tsv-no-header/resolve?identifier=" + geneSymbol + "&format=only-ids&species=10090";
-		String id = proxy.getContent(new URL(stringDbUrl), true);
-		
-		//TODO get interactions for id
-		
-		//TODO parse gene name and score
-		
-		
-		//TODO return 
-		
-		// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
-	//	DataReaderTsv dataReaderTsv = new DataReaderTsv("???????????");
+		try{
+			String stringDbUrl = "http://string-db.org/api/tsv-no-header/resolve?identifier=" + geneSymbol + "&format=only-ids&species=10090";
+			String id = proxy.getContent(new URL(stringDbUrl), true);
+			
+			// Parse interactor gene symbol and score
+			// Example return format : 
+			// string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
+			// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
+			
+			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
+			DataReaderTsv tsvReader = new DataReaderTsv(new URL(stringDbUrl));
+			String[][] data = tsvReader.getData();
+			for (int i=0; i < data.length; i++ ){
+				if (data[i][2].equalsIgnoreCase(geneSymbol)) {// direct interaction
+					map.put(data[i][3], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|t")[0]));
+				}
+			}
+		} catch (Exception e){
+			log.error("STRING db could not be accessed.");
+			System.out.println(e.getStackTrace());
+		}
 		
 		return map;		
 	}
