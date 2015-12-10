@@ -14,9 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.seleniumtests.support;
-
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
+package org.mousephenotype.cda.utilities;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,7 +47,7 @@ public abstract class DataReader implements AutoCloseable {
      * 
      * @throws TestException
      */
-    public String[][] getData() throws TestException {
+    public String[][] getData() throws Exception {
         return getData(null);
     }
     
@@ -62,7 +60,7 @@ public abstract class DataReader implements AutoCloseable {
      * 
      * @throws TestException
      */
-    public String[][] getData(Integer maxRows) throws TestException {
+    public String[][] getData(Integer maxRows) throws Exception {
         String message;
 
         if (maxRows == null)
@@ -87,7 +85,7 @@ public abstract class DataReader implements AutoCloseable {
                 }
             }
         } catch (Exception e) {
-            throw new TestException(e);
+            throw new Exception(e);
         }
 
         reset();
@@ -115,7 +113,7 @@ public abstract class DataReader implements AutoCloseable {
      * including headings.
      * @throws TestException
      */
-    public int lineCount() throws TestException {
+    public int lineCount() throws Exception {
         String message;
         int lineCount = 0;
 
@@ -126,7 +124,7 @@ public abstract class DataReader implements AutoCloseable {
 
             reset();
         } catch (Exception e) {
-            throw new TestException(e);
+            throw new Exception(e);
         }
 
         return lineCount;

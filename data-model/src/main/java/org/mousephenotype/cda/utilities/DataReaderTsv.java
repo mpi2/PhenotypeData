@@ -14,9 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.seleniumtests.support;
-
-import org.mousephenotype.cda.utilities.CommonUtils;
+package org.mousephenotype.cda.utilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;
