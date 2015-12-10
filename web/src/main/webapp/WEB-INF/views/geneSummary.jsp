@@ -15,7 +15,7 @@
 	<jsp:attribute name="addToFooter">
 	    <script type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/vendor.bundle.js"></script>
 		<script type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/expression-atlas-heatmap.bundle.js"></script>
-    	<script type="text/javascript" src="${baseUrl}/js/vendor/jquery.tooltipster.min.js"></script>
+    	<!-- script type="text/javascript" src="${baseUrl}/js/vendor/jquery.tooltipster.min.js"></script-->
     	
 		<script type="text/javascript">
 		    var AtlasHeatmapBuilder = window.exposed;
@@ -30,7 +30,7 @@
 		</script>
     
 		<link rel="stylesheet" href="${baseUrl}/css/customanatomogram.css" />
-		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/vendor/tooltipster.css" />
+		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/vendor/tooltipster.css" /-->
       
 	</jsp:attribute>
 	
