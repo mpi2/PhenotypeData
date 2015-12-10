@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.utilities.DataReader;
+import org.mousephenotype.cda.utilities.DataReaderFactory;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
