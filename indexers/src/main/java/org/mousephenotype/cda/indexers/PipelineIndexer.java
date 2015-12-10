@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -116,6 +117,7 @@ public class PipelineIndexer extends AbstractIndexer {
         int count = 0;
 		long start = System.currentTimeMillis();
 		Set<String> noTermSet = new HashSet<>();
+		boolean hasWarnings = false;
 
 		try {
 			initialiseSupportingBeans();
@@ -215,6 +217,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			Collections.sort(noTermList);
 			for (String mpId : noTermList) {
 				logger.warn(" No mp term for '{}'.", mpId);
+				hasWarnings = true;
 			}
 
 			pipelineCore.commit();
@@ -227,6 +230,10 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+		if (hasWarnings) {
+			throw new IndexerException("No mp term COUNT: " + noTermSet.size(), RunStatus.WARN);
+		}
 	}
 
 	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {

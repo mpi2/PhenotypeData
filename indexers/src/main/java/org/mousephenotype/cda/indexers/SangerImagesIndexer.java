@@ -503,7 +503,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		}
 
 		if (hasWarnings) {
-			throw new IndexerException("", RunStatus.WARN);
+			throw new IndexerException("No top level COUNT: " + noTopLevelSet.size(), RunStatus.WARN);
 		}
 
         return count;
