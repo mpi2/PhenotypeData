@@ -400,9 +400,12 @@ public class GenesController {
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		
+		
+		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
 
+//		model.addAttribute("stringdbTable", stringDBTable);		
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
