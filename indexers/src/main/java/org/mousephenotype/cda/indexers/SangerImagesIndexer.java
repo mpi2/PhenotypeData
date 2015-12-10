@@ -169,9 +169,9 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
-		}
-
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+		} finally {
+            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        }
 	}
 
 	public int populateSangerImagesCore() throws IndexerException {

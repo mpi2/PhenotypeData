@@ -227,13 +227,13 @@ public class PipelineIndexer extends AbstractIndexer {
 			throw new IndexerException(e);
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-		}
+		} finally {
+            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        }
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-
-		if (hasWarnings) {
-			throw new IndexerException("No mp term COUNT: " + noTermSet.size(), RunStatus.WARN);
-		}
+        if (hasWarnings) {
+            throw new IndexerException(" No mp term COUNT: " + noTermSet.size(), RunStatus.WARN);
+        }
 	}
 
 	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {
