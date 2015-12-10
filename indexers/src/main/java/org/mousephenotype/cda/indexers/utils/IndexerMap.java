@@ -98,16 +98,14 @@ public class IndexerMap {
 				}	
 			}	
 			
-			logger.debug("Converted " + maUberonEfoMap.size() + " MA Ids");
-//			logger.debug(maUberonEfoMap.toString());
+			logger.debug(" Converted " + maUberonEfoMap.size() + " MA Ids");
+//			logger.debug(" " + maUberonEfoMap.toString());
     	}
 		return maUberonEfoMap;
 	        
     }
 
 	public static Map<String, List<EmbryoStrain>> populateEmbryoData(final String embryoRestUrl) {
-    	System.out.println("populating embryo data");
-    	
     	EmbryoRestGetter embryoGetter=new EmbryoRestGetter(embryoRestUrl);
     	
 		EmbryoRestData restData=null;
@@ -167,7 +165,7 @@ public class IndexerMap {
                 throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
             }
         }
-        logger.debug("mpToHpTermsMap size = " + mpToHpTermsMap.size());
+        logger.debug(" mpToHpTermsMap size = " + mpToHpTermsMap.size());
         return mpToHpTermsMap;
     }
 
