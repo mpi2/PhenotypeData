@@ -488,13 +488,15 @@ public class ImageService {
 								.toString());
 					}
 					if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME) != null) {
-						for (Object obj : doc
-								.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
-							paramValuess.add(obj.toString());
-						}
-						for (Object obj : doc
-								.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME)) {
+						for (Object obj : doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME)) {
 							params.add(obj.toString());
+						}
+						if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE) != null) {
+							for (Object obj : doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE)) {
+								paramValuess.add(obj.toString());
+							}
+						} else {
+							logger.warn("PARAMETER_ASSOCIATION_NAME " + ImageDTO.PARAMETER_ASSOCIATION_NAME + " has no associated value!");
 						}
 					}
 				}
@@ -525,7 +527,6 @@ public class ImageService {
 	 * @param date
 	 * @param numberOfImagesToRetrieve
 	 * @param sex
-	 * @param anatomy if this is specified then filter by parameter_association_name and don't filter on date
 	 * @return
 	 * @throws SolrServerException
 	 */
