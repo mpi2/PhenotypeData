@@ -369,7 +369,7 @@ public class GenesController {
 	 * @throws Exception
 	 * @since 2015/10/02
 	 */
-	@RequestMapping("/gene/summary")
+	@RequestMapping("/genes/summary")
 	public String geneSummary(@RequestParam(value = "acc", required = true) String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws Exception {
 
