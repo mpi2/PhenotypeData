@@ -15,6 +15,8 @@
 	<jsp:attribute name="addToFooter">
 	    <script type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/vendor.bundle.js"></script>
 		<script type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/expression-atlas-heatmap.bundle.js"></script>
+    	<script type="text/javascript" src="${baseUrl}/js/vendor/jquery.tooltipster.min.js"></script>
+    	
 		<script type="text/javascript">
 		    var AtlasHeatmapBuilder = window.exposed;
 		    AtlasHeatmapBuilder({
@@ -22,9 +24,13 @@
 		        isMultiExperiment: true,
 		        target: "heatmapContainer"
 		    });
+		    $(document).ready(function() {
+	            $('.tooltip').tooltipster();
+	        });
 		</script>
-		
+    
 		<link rel="stylesheet" href="${baseUrl}/css/customanatomogram.css" />
+		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/vendor/tooltipster.css" />
       
 	</jsp:attribute>
 	
@@ -158,50 +164,47 @@
 	                                       ${symbol}<c:if test="${!loop.last}">, </c:if>    <c:if test="${loop.last}"></c:if> </c:forEach>
 	                                </h3>
                                     
-                                    <div> 
-                                   		<c:if test="${uniprotData.getFunction() != null}">
-	                                     	<p class="with-label">
-		                                    	<span class="label">Function</span>${uniprotData.getFunction()}
-		                               	 	</p>
-	                               	 	</c:if>
-	                               	 	<c:if test="${uniprotData.getGoProcess() != null && uniprotData.getGoProcess().size() > 0}">
-		                               		<p class="with-label">
-		                                    	<span class="label">GO Process</span>
-		                                    	<c:forEach var="var" items="${uniprotData.getGoProcess()}" varStatus="loop">
-		                                            ${var}<c:if test="${!loop.last}">, </c:if>
-		                                            <c:if test="${loop.last}"></c:if>
-		                                        </c:forEach>
-		                               	 	</p>
-		                               	</c:if>
-	                               	 	<c:if test="${uniprotData.getGoMolecularFunction() != null && uniprotData.getGoMolecularFunction().size() > 0}">
-	                                   		<p class="with-label">
-		                                    	<span class="label">GO Function</span>
-		                                    	<c:forEach var="var" items="${uniprotData.getGoMolecularFunction()}" varStatus="loop">
-		                                            ${var}<c:if test="${!loop.last}">, </c:if>
-		                                            <c:if test="${loop.last}"></c:if>
-		                                        </c:forEach>
-	                               	 		</p>
-	                               	 	</c:if>
-	                               	 	<c:if test="${uniprotData.getGoCell() != null && uniprotData.getGoCell().size() > 0}">
-		                               	 	<p class="with-label">
-		                                    	<span class="label">GO Cellular Component</span>
-		                                    	<c:forEach var="var" items="${uniprotData.getGoCell()}" varStatus="loop">
-		                                            ${var}<c:if test="${!loop.last}">, </c:if>
-		                                            <c:if test="${loop.last}"></c:if>
-		                                        </c:forEach>
-		                               	 	</p>
-	                               	 	</c:if>
-	                               	 	<br/>
-	                               	 	<p class="credit"> These annotations were provided by <a href="http://www.uniprot.org/uniprot/${gene.getUniprotHumanCanonicalAcc()}">Uniprot</a>.</p>
-                                    
-	                               	 	<br/>
-                                    </div>
-                                    
+                                    <c:if test="${gene.getUniprotHumanCanonicalAcc() == null}">
+                                    	<p class="alert alert-info"> No human orthologs could be found.</p>
+                                    </c:if>
+                                    <c:if test="${gene.getUniprotHumanCanonicalAcc() != null}">
+	                                    <div> 
+	                                   		<c:if test="${uniprotData.getFunction() != null}">
+		                                     	<p class="with-label">
+			                                    	<span class="label">Function</span>${uniprotData.getFunction()}
+			                               	 	</p>
+		                               	 	</c:if>
+		                               	 	<c:if test="${uniprotData.getGoProcess() != null && uniprotData.getGoProcess().size() > 0}">
+		                               	 		<c:set var="count" value="0" scope="page" />
+			                               		<p class="with-label">
+			                                    	<span class="label">GO Process</span>
+			                                    	<t:restrictTextDisplay title="GO Process" displayList="${uniprotData.getGoProcess()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                               	 	</p>
+			                               	</c:if>
+		                               	 	<c:if test="${uniprotData.getGoMolecularFunction() != null && uniprotData.getGoMolecularFunction().size() > 0}">
+		                                   		<p class="with-label">
+			                                    	<span class="label">GO Function</span>
+			                                    	<t:restrictTextDisplay title="GO Function" displayList="${uniprotData.getGoMolecularFunction()}" numberToDisplay="5"> </t:restrictTextDisplay>
+		                               	 		</p>
+		                               	 	</c:if>
+		                               	 	<c:if test="${uniprotData.getGoCell() != null && uniprotData.getGoCell().size() > 0}">
+			                               	 	<p class="with-label">
+			                                    	<span class="label">GO Cellular Component</span>
+			                                    	<t:restrictTextDisplay title="GO Cellular Component" displayList="${uniprotData.getGoCell()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                               	 	</p>
+		                               	 	</c:if>
+		                               	 	<br/>
+		                               	 	<p class="credit"> These annotations were provided by <a href="http://www.uniprot.org/uniprot/${gene.getUniprotHumanCanonicalAcc()}">Uniprot</a>.</p>
+		                               	 	<br/>
+	                                    </div>
+                                    </c:if>
                                     <div>
-                                    	<h4>Domains for canonical protein</h4>
-                                    	<iframe id="pfam" src="${baseUrl}/pFam/${gene.mgiAccessionId}"></iframe>
-                                    	<p class="credit"> This image was generated by <a href="http://pfam.xfam.org/protein/${gene.getUniprotHumanCanonicalAcc()}">Pfam</a>. Hover for domain description.</p>
-                                    	<br/> <br/>
+                                    	<c:if test="${gene.getUniprotHumanCanonicalAcc() != null}">
+	                                    	<h4>Domains for canonical protein</h4>	                                    	
+	                                    	<iframe id="pfam" src="${baseUrl}/pFam/${gene.mgiAccessionId}"></iframe>
+	                                    	<p class="credit"> This image was generated by <a href="http://pfam.xfam.org/protein/${gene.getUniprotHumanCanonicalAcc()}">Pfam</a>. Hover for domain description.</p>
+	                                    	<br/> <br/>
+	                                    </c:if>
                                     </div>
                                    
                                     <c:if test="${not empty orthologousDiseaseAssociations}">
