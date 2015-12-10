@@ -876,7 +876,6 @@ public class GeneService extends BasicService{
 		try {
 			// add facet for latest_project_status 
 			solrQuery.addFacetField(GeneDTO.LATEST_ES_CELL_STATUS);
-			System.out.println("---- " + solr.getBaseURL() + "/select?" + solrQuery);
 			solrResponse = solr.query(solrQuery);
 			// put all values in the hash
 			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_ES_CELL_STATUS).getValues()){
