@@ -21,7 +21,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
@@ -56,11 +55,11 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Autowired
 	@Qualifier("observationReadOnlyIndexing")
-	private SolrServer observationService;
+	private SolrServer observationCore;
 
 	@Autowired
 	@Qualifier("impcImagesIndexing")
-	SolrServer server;
+	SolrServer impcImagesCore;
 
 	@Autowired
 	@Qualifier("alleleReadOnlyIndexing")
@@ -98,14 +97,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public void validateBuild() throws IndexerException {
-
-		Long numFound = getDocumentCount(server);
-
-		if (numFound <= MINIMUM_DOCUMENT_COUNT)
-			throw new IndexerException(new ValidationException("Actual impc_images document count is " + numFound + "."));
-
-		if (numFound != documentCount)
-			logger.warn(" WARNING: Added " + documentCount + " impc_images documents but SOLR reports " + numFound + " documents.");
+		super.validateBuild(impcImagesCore);
 	}
 
 
@@ -119,7 +111,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void run() throws IndexerException, SQLException {
+	public void run() throws IndexerException {
         int count = 0;
         long start = System.currentTimeMillis();
 
@@ -146,17 +138,17 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		try {
 			maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
-		} catch (IOException e1) {
+		} catch (SQLException | IOException e1) {
 			e1.printStackTrace();
 		}
 		
 		try {
 
-			server.deleteByQuery("*:*");
+			impcImagesCore.deleteByQuery("*:*");
 
 			SolrQuery query = ImageService.allImageRecordSolrQuery().setRows(Integer.MAX_VALUE);
 
-			List<ImageDTO> imageList = observationService.query(query).getBeans(ImageDTO.class);
+			List<ImageDTO> imageList = observationCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
 
 				count++;
@@ -334,12 +326,12 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						}
 					}
 
-					server.addBean(imageDTO);
+					impcImagesCore.addBean(imageDTO);
 					
 				}
 			}
 
-			server.commit();
+			impcImagesCore.commit();
 			documentCount = count;
 
 		} catch (SolrServerException | IOException e) {

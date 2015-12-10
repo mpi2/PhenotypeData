@@ -70,7 +70,7 @@ public class GwasIndexer extends AbstractIndexer {
 
 	        if (numFound != documentCount)
 	            logger.warn(" WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
-	   
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -92,7 +92,7 @@ public class GwasIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public void run() throws IndexerException {
         int count = 0;
         long start = System.currentTimeMillis();
 
@@ -131,7 +131,7 @@ public class GwasIndexer extends AbstractIndexer {
             // Send a final commit
             gwasCore.commit();
 
-        } catch (SolrServerException| IOException e) {
+        } catch (SQLException | SolrServerException| IOException e) {
             throw new IndexerException(e);
         }
 

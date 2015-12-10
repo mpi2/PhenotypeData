@@ -15,12 +15,15 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers.exceptions;
 
+import org.mousephenotype.cda.enumerations.RunStatus;
+
 /**
  * @author Matt Pearce
  */
 public class IndexerException extends Exception {
 
 	private static final long serialVersionUID = 1L;
+	private RunStatus runStatus = RunStatus.FAIL;
 
 	public IndexerException() {
 		super();
@@ -38,4 +41,10 @@ public class IndexerException extends Exception {
 		super(message, cause);
 	}
 
+	public IndexerException(String message, RunStatus runStatus) {
+		super(message);
+		this.runStatus = runStatus;
+	}
+
+	public RunStatus getRunStatus() { return runStatus; }
 }

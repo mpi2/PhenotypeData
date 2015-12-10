@@ -21,6 +21,7 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
  * @author mrelac
  */
 public class IndexerManager {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IndexerManager.class);
     protected CommonUtils commonUtils = new CommonUtils();
 
     // core names.
@@ -72,15 +73,17 @@ public class IndexerManager {
 
     // main return values.
     public static final int STATUS_OK                  = 0;
-    public static final int STATUS_NO_DEPS             = 1;
-    public static final int STATUS_NO_ARGUMENT         = 2;
-    public static final int STATUS_UNRECOGNIZED_OPTION = 3;
-    public static final int STATUS_INVALID_CORE_NAME   = 4;
-    public static final int STATUS_VALIDATION_ERROR    = 5;
+    public static final int STATUS_WARN                = 1;
+    public static final int STATUS_NO_DEPS             = 2;
+    public static final int STATUS_NO_ARGUMENT         = 3;
+    public static final int STATUS_UNRECOGNIZED_OPTION = 4;
+    public static final int STATUS_INVALID_CORE_NAME   = 5;
+    public static final int STATUS_VALIDATION_ERROR    = 6;
 
     public static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
             case STATUS_OK:                     return "STATUS_OK";
+            case STATUS_WARN:                   return "STATUS_WARN";
             case STATUS_NO_DEPS:                return "STATUS_NO_DEPS";
             case STATUS_NO_ARGUMENT:            return "STATUS_NO_ARGUMENT";
             case STATUS_UNRECOGNIZED_OPTION:    return "STATUS_UNRECOGNIZED_OPTION";
@@ -137,7 +140,7 @@ public class IndexerManager {
     public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
 
-    private enum RunStatus { OK, FAIL };
+    ;
 
     @Autowired
     ObservationIndexer observationIndexer;
@@ -238,7 +241,7 @@ public class IndexerManager {
                 throw new IndexerException("Failed to parse command-line options.");
             }
 
-            // Print the jvm memory configuration.
+            // Print the starting jvm memory configuration.
             printJvmMemoryConfiguration();
         } catch (Exception e) {
             if (e.getLocalizedMessage() != null) {
@@ -263,38 +266,23 @@ public class IndexerManager {
         System.out.println("Building these cores in this order:	" + StringUtils.join(cores));
 
         for (IndexerItem indexerItem : indexerItems) {
-            long start = new Date().getTime();
-            indexerItem.indexer.initialise(indexerArgs);
-            // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
-            for (int i = 0; i <= RETRY_COUNT; i++) {
-                try {
-                    logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
-                    indexerItem.indexer.run();
-                    indexerItem.indexer.validateBuild();
-                    logger.info("[END]   {} at {}\n", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
-                    break;
-                } catch (IndexerException ie) {
-                    if (i < RETRY_COUNT) {
-                        logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
-                        logErrors(ie);
-                        commonUtils.sleep(RETRY_SLEEP_IN_MS);
-                    } else {
-                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
-                        throw ie;
-                    }
-                } catch (Exception e) {
-                    if (i < RETRY_COUNT) {
-                        logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
-                        logErrors(new IndexerException(e));
-                        commonUtils.sleep(RETRY_SLEEP_IN_MS);
-                    } else {
-                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
-                        throw new IndexerException(e);
-                    }
-                }
+            long start = System.currentTimeMillis();
+            RunStatus runStatus;
+
+            logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
+            try {
+                indexerItem.indexer.initialise(indexerArgs);
+                indexerItem.indexer.run();
+                indexerItem.indexer.validateBuild();
+                runStatus = RunStatus.OK;
+
+            } catch (IndexerException ie) {
+                logErrors(ie);
+                runStatus = ie.getRunStatus();
             }
 
-            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.OK, start, new Date().getTime()));
+            logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
+            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runStatus, start, new Date().getTime()));
             printJvmMemoryConfiguration();
         }
 
@@ -641,22 +629,26 @@ public class IndexerManager {
     }
 
     private static void logErrors(IndexerException ie) {
-        // Print out the exceptions.
-        if (ie.getLocalizedMessage() != null) {
-            System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
-        }
-        int i = 0;
-        Throwable t = ie.getCause();
-        while (t != null) {
-            StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
-            if (t.getLocalizedMessage() != null) {
-                errMsg.append(t.getLocalizedMessage());
-            } else {
-                errMsg.append("<null>");
+        if (ie.getRunStatus() == RunStatus.WARN) {
+            logger.warn(" " + ie.getLocalizedMessage());
+        } else {
+            // Print out the exceptions.
+            if (ie.getLocalizedMessage() != null) {
+                System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
             }
-            System.out.println("ERROR: IndexerManager: " + errMsg.toString());
-            i++;
-            t = t.getCause();
+            int i = 0;
+            Throwable t = ie.getCause();
+            while (t != null) {
+                StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
+                if (t.getLocalizedMessage() != null) {
+                    errMsg.append(t.getLocalizedMessage());
+                } else {
+                    errMsg.append("<null>");
+                }
+                System.out.println("ERROR: IndexerManager: " + errMsg.toString());
+                i++;
+                t = t.getCause();
+            }
         }
     }
 
@@ -667,10 +659,10 @@ public class IndexerManager {
         final int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
         DecimalFormat formatter = new DecimalFormat("#,###");
-        logger.info("Used memory : " + (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
-        logger.info("Free memory : " + formatter.format(runtime.freeMemory()));
-        logger.info("Total memory: " + formatter.format(runtime.totalMemory()));
-        logger.info("Max memory  : " + formatter.format(runtime.maxMemory()));
+        logger.info("Used memory:  {}", (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
+        logger.info("Free memory : {}", formatter.format(runtime.freeMemory()));
+        logger.info("Total memory: {}", formatter.format(runtime.totalMemory()));
+        logger.info("Max memory:   {}\n", formatter.format(runtime.maxMemory()));
     }
 
     /**

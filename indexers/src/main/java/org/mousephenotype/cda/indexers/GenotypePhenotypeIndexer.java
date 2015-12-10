@@ -22,7 +22,6 @@ import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
@@ -84,13 +83,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(gpSolrServer);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual genotype-phenotype document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
+        super.validateBuild(gpSolrServer);
     }
 
     @Override
@@ -121,14 +114,19 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException, IOException, SolrServerException {
-
+    public void run() throws IndexerException {
+        int count = 0;
         long start = System.currentTimeMillis();
 
-        // prepare a live stage lookup
-        doLiveStageLookup();
+        try {
+            // prepare a live stage lookup
+            doLiveStageLookup();
 
-        int count = populateGenotypePhenotypeSolrCore();
+            count = populateGenotypePhenotypeSolrCore();
+
+        } catch (SQLException | IOException | SolrServerException ex) {
+
+        }
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 

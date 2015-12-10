@@ -26,7 +26,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -69,13 +68,8 @@ public class DiseaseIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
+        super.validateBuild(diseaseCore);
         Long numFound = getDocumentCount(diseaseCore);
-        
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual disease document count is " + numFound + "."));
-        
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " disease documents but SOLR reports " + numFound + " documents.");
     }
 
     @Override
@@ -165,6 +159,7 @@ public class DiseaseIndexer extends AbstractIndexer {
                     disease.setOntologySubset(gene.ONTOLOGY_SUBSET);
 
                 }
+
                 documentCount++;
                 diseaseCore.addBean(disease, 60000);
 

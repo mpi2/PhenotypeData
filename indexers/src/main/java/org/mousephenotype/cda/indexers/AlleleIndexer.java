@@ -31,7 +31,6 @@ import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
@@ -151,13 +150,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(alleleCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual allele document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " allele documents but SOLR reports " + numFound + " documents.");
+        super.validateBuild(alleleCore);
     }
 
     @Override

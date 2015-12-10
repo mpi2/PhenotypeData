@@ -92,13 +92,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(observationSolrServer);
-        
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual observation document count is " + numFound + "."));
-        
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " observation documents but SOLR reports " + numFound + " documents.");
+        super.validateBuild(observationSolrServer);
     }
 
     public static void main(String[] args) throws IndexerException {
