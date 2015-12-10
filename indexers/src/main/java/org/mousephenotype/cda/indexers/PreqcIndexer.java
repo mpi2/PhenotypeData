@@ -20,7 +20,6 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -95,13 +94,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
 	@Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(preqcCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn(" WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
+        super.validateBuild(preqcCore);
     }
 
     @Override
