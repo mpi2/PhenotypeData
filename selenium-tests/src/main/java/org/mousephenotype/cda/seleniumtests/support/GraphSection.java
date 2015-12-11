@@ -19,6 +19,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -81,8 +82,8 @@ public abstract class GraphSection {
         load();
     }
 
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
 
         // Verify title contains 'Allele'.
         if ( ! getHeading().title.startsWith("Allele -")) {
@@ -225,8 +226,8 @@ public abstract class GraphSection {
             this.chartElement = chartElement;
         }
 
-        public PageStatus validate() {
-            PageStatus status = new PageStatus();
+        public RunStatus validate() {
+            RunStatus status = new RunStatus();
             List<WebElement> moreStatisticsList = chartElement.findElements(By.xpath(moreStatisticsIXpath));
             if (moreStatisticsList.isEmpty()) {
                 status.addError("ERROR: Expected 'More statistics' link but wasn't found. URL: " + graphUrl);

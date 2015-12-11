@@ -21,6 +21,7 @@ import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.DataReaderXls;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -76,8 +77,8 @@ public class GraphPage {
         load();
     }
 
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
 
         for (GraphSection graphSection : graphSections) {
             status.add(graphSection.validate());

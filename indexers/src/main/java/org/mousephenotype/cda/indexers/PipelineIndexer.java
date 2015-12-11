@@ -232,7 +232,7 @@ public class PipelineIndexer extends AbstractIndexer {
         }
 
         if (hasWarnings) {
-            throw new IndexerException(" No mp term COUNT: " + noTermSet.size(), RunStatus.WARN);
+            throw new IndexerException("No mp term COUNT: " + noTermSet.size(), RunStatus.WARN);
         }
 	}
 
