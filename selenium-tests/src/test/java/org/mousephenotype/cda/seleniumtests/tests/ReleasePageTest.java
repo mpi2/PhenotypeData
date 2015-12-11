@@ -26,7 +26,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.RunStatus;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;

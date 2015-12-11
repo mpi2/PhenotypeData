@@ -25,7 +25,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.seleniumtests.support.RunStatus;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.SearchFacetTable;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;

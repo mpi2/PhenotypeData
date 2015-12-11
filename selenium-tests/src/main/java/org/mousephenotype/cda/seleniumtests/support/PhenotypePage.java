@@ -17,10 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.utilities.DataReaderTsv;
-import org.mousephenotype.cda.utilities.DataReaderXls;
-import org.mousephenotype.cda.utilities.UrlUtils;
+import org.mousephenotype.cda.utilities.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;

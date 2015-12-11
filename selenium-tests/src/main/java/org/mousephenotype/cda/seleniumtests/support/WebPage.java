@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.utilities.RunStatus;
+
 /**
  *
  * @author mrelac
