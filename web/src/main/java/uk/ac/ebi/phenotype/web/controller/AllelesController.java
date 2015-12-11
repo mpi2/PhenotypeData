@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
+import org.mousephenotype.cda.utilities.HttpProxy;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
