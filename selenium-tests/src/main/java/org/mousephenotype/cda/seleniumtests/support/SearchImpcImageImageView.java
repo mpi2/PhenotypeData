@@ -91,7 +91,7 @@ public class SearchImpcImageImageView extends SearchFacetTable {
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
+    public RunStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
               COL_INDEX_PROCEDURE
             , COL_INDEX_GENE_SYMBOL

@@ -1047,13 +1047,13 @@ public class SearchPage {
     /**
      * Compares each facet's grid (on the right-hand side of the search page)
      * with each of the download data streams (page/all and tsv/xls). Any
-     * errors are returned in the <code>PageStatus</code> instance.
+     * errors are returned in the <code>RunStatus</code> instance.
 
      * @param facet facet
      * @return page status instance
      */
-    public PageStatus validateDownload(Facet facet) {
-        PageStatus status = new PageStatus();
+    public RunStatus validateDownload(Facet facet) {
+        RunStatus status = new RunStatus();
 
         DownloadType[] downloadTypes = {
               DownloadType.TSV

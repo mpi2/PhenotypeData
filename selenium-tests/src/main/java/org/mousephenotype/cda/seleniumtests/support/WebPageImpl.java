@@ -61,8 +61,8 @@ public abstract class WebPageImpl implements WebPage {
      * @return status
      */
     @Override
-    public PageStatus testDownload(String baseUrl) {
-        PageStatus status = new PageStatus();
+    public RunStatus testDownload(String baseUrl) {
+        RunStatus status = new RunStatus();
             
         try {
             String downloadTargetUrlBase = getDownloadTargetUrlBase();

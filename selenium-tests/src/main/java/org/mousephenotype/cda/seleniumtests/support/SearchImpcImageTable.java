@@ -118,8 +118,8 @@ public class SearchImpcImageTable extends SearchFacetTable {
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] data, DownloadType downloadType) {
-        PageStatus status = new PageStatus();
+    public RunStatus validateDownload(String[][] data, DownloadType downloadType) {
+        RunStatus status = new RunStatus();
 
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:

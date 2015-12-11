@@ -42,7 +42,7 @@ public abstract class GraphValidator {
     }
 
 
-    public PageStatus validate() throws TestException {
+    public RunStatus validate() throws TestException {
         return pageSection.getHeading().validate();
     }
 }

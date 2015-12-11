@@ -48,8 +48,8 @@ public class GraphSectionPie extends GraphSection {
     }
 
     @Override
-    public PageStatus validate() throws TestException {
-        PageStatus status = super.validate();                                   // Validate common components.
+    public RunStatus validate() throws TestException {
+        RunStatus status = super.validate();                                   // Validate common components.
 
         return status;
     }

@@ -79,8 +79,8 @@ public class GraphSectionCategorical extends GraphSection {
     }
     
     @Override
-    public PageStatus validate() throws TestException {
-        PageStatus status = super.validate();                                   // Validate common components.
+    public RunStatus validate() throws TestException {
+        RunStatus status = super.validate();                                   // Validate common components.
         
         if (getHeading().getObservationType() != ObservationType.categorical) {
             status.addError("ERROR: Expected categorical graph but found " + getHeading().getObservationType().name());
@@ -111,7 +111,7 @@ public class GraphSectionCategorical extends GraphSection {
     
     /**
      * Validates what is displayed on the page with the TSV and XLS download
-     * streams. Any errors are returned in a new <code>PageStatus</code> instance.
+     * streams. Any errors are returned in a new <code>RunStatus</code> instance.
      * 
      * Categorical graphs need to test the following:
      * <ul><li>that the TSV and XLS links create a download stream</li>
@@ -122,8 +122,8 @@ public class GraphSectionCategorical extends GraphSection {
      * 
      * @return validation results
      */
-     private PageStatus validateDownload() {
-        PageStatus status = new PageStatus();
+     private RunStatus validateDownload() {
+        RunStatus status = new RunStatus();
         GraphHeading heading = getHeading();
         
         // For all download types in the map, walk each download section, using
@@ -175,8 +175,8 @@ public class GraphSectionCategorical extends GraphSection {
      * @return validation status
      * 
      */
-    private PageStatus validateDownloadCounts(GraphCatTable catTable, List<List<String>> downloadDataBlock) {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownloadCounts(GraphCatTable catTable, List<List<String>> downloadDataBlock) {
+        RunStatus status = new RunStatus();
         String[][] downloadData = testUtils.listToArray(downloadDataBlock);
         
         // key = "Control" or "Experimental". value is zygosity hash map.

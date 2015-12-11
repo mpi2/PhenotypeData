@@ -26,7 +26,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
@@ -115,7 +115,7 @@ public class ReleasePageTest {
     public void testJSONVersion() {
         String testName = "testJSONVersion";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 

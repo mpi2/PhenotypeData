@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
@@ -99,7 +99,7 @@ public class ChartsPageTest {
     @Test
     public void testExampleCategorical() throws Exception {
         String testName = "testExampleCategorical";
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         Date start = new Date();
         int targetCount = 1;
 
@@ -126,7 +126,7 @@ public class ChartsPageTest {
     @Test
     public void testExampleCategorical2() throws Exception {
         String testName = "testExampleCategorical2";
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         Date start = new Date();
         int targetCount = 1;

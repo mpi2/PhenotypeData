@@ -399,8 +399,8 @@ public class GenePage {
      * is no phenotype HTML table.
      * @return validation status
      */
-    public PageStatus validate(boolean genesTableRequired) {
-        PageStatus status = new PageStatus();
+    public RunStatus validate(boolean genesTableRequired) {
+        RunStatus status = new RunStatus();
 
         // Validate title starts with 'Gene:'
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@id='top']")));
@@ -529,7 +529,7 @@ public class GenePage {
      * @param status Indicates the success or failure of the operation
      * @return the full TSV data store
      */
-    private GridMap getDownloadTsv(String baseUrl, PageStatus status) {
+    private GridMap getDownloadTsv(String baseUrl, RunStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
 
@@ -571,7 +571,7 @@ public class GenePage {
      * @param status Indicates the success or failure of the operation
      * @return the full XLS data store
      */
-    private GridMap getDownloadXls(String baseUrl, PageStatus status) {
+    private GridMap getDownloadXls(String baseUrl, RunStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
 
@@ -612,12 +612,12 @@ public class GenePage {
      *     many rows as the number of [non-preqc] sex icons shown on the first page.</li>
      * <li>Do a set difference between the rows on the first displayed page
      *     and the rows in the download file. The difference should be empty.</li></ul>
-     * Any errors are returned in the <code>PageStatus</code> instance.
+     * Any errors are returned in the <code>RunStatus</code> instance.
      *
      * @return page status instance
      */
-    private PageStatus validateDownload() {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload() {
+        RunStatus status = new RunStatus();
         GridMap pageMap = geneTable.load();                                        // Load all of the genes table pageMap data.
 
         // Test the TSV.
@@ -652,8 +652,8 @@ public class GenePage {
      * @param downloadData a loaded download store
      * @return status
      */
-    private PageStatus validateDownload(GridMap pageData, GridMap downloadData, DownloadType downloadType) {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload(GridMap pageData, GridMap downloadData, DownloadType downloadType) {
+        RunStatus status = new RunStatus();
         int downloadDataLineCount = downloadData.getBody().length;
 
         // Check that the number of rows in the download file is at least as

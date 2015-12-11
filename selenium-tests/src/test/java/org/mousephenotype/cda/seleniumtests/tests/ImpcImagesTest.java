@@ -20,7 +20,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
@@ -120,7 +120,7 @@ public class ImpcImagesTest {
 
     private void geneIdsTestEngine(String testName, List<String> geneIds)
             throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
 geneIds = testUtils.removeKnownBadGeneIds(geneIds);

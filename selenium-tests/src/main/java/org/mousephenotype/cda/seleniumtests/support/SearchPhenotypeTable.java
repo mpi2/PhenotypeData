@@ -79,7 +79,7 @@ public class SearchPhenotypeTable extends SearchFacetTable {
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
+    public RunStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
               COL_INDEX_PHENOTYPE_TERM
             , COL_INDEX_PHENOTYPE_ID

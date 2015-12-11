@@ -106,8 +106,8 @@ public class GraphHeading {
      * 
      * @throws TestException
      */
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
         boolean validatePipeline;
         boolean validateSop;
         

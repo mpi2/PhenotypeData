@@ -244,7 +244,7 @@ public abstract class SearchFacetTable {
      * @param downloadType Supported download type - e.g. TSV, XLS
      * @return validation status
      */
-    public abstract PageStatus validateDownload(String[][] data, DownloadType downloadType);
+    public abstract RunStatus validateDownload(String[][] data, DownloadType downloadType);
 
 
     // PROTECTED METHODS
@@ -261,8 +261,8 @@ public abstract class SearchFacetTable {
      *
      * @return validation status
      */
-    protected PageStatus validateDownloadInternal(GridMap pageData, Integer[] pageColumns, String[][] downloadDataArray,  Integer[] downloadColumns, String downloadUrl) {
-        PageStatus status = new PageStatus();
+    protected RunStatus validateDownloadInternal(GridMap pageData, Integer[] pageColumns, String[][] downloadDataArray, Integer[] downloadColumns, String downloadUrl) {
+        RunStatus status = new RunStatus();
         List<List<String>> downloadDataList = new ArrayList();
         for (String[] row : downloadDataArray) {
             List rowList = Arrays.asList(row);

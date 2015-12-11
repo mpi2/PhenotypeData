@@ -40,8 +40,8 @@ public class GraphValidatorPreqc {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
+        RunStatus status = new RunStatus();
         String message;
 
         List<String> urls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), GenePage.GraphUrlType.PREQC);

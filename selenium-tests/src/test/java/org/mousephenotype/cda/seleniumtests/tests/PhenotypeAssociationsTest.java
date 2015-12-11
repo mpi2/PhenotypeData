@@ -20,7 +20,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.Paginator;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.PostQcService;
@@ -121,8 +121,8 @@ public class PhenotypeAssociationsTest {
     // PRIVATE METHODS
 
 
-    private PageStatus processRow(WebDriverWait wait, String geneId, int index) {
-        PageStatus status = new PageStatus();
+    private RunStatus processRow(WebDriverWait wait, String geneId, int index) {
+        RunStatus status = new RunStatus();
         String message;
         String target = baseUrl + "/genes/" + geneId;
         System.out.println("gene[" + index + "] URL: " + target);
@@ -191,7 +191,7 @@ public class PhenotypeAssociationsTest {
     @Test
 @Ignore
     public void testTotalsCount() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testTotalsCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date start = new Date();
@@ -213,7 +213,7 @@ if (i == 1) geneId = "MGI:1306779";
                 break;
             }
 
-            PageStatus localStatus = processRow(wait, geneId, i);
+            RunStatus localStatus = processRow(wait, geneId, i);
             if ( ! localStatus.hasErrors()) {
                 successList.add("Success");
             }

@@ -80,8 +80,8 @@ public class GraphSectionTimeSeries extends GraphSection {
     }
 
     @Override
-    public PageStatus validate() throws TestException {
-        PageStatus status = super.validate();                                   // Validate common components.
+    public RunStatus validate() throws TestException {
+        RunStatus status = super.validate();                                   // Validate common components.
 
         // Careful! Derived parameters can have a null observation type.
         ObservationType observationType = getHeading().getObservationType();
@@ -108,7 +108,7 @@ public class GraphSectionTimeSeries extends GraphSection {
 
     /**
      * Validates what is displayed on the page with the TSV and XLS download
-     * streams. Any errors are returned in a new <code>PageStatus</code> instance.
+     * streams. Any errors are returned in a new <code>RunStatus</code> instance.
      *
      * Time series graphs need to test the following:
      * <ul><li>that the TSV and XLS links create a download stream</li>
@@ -117,8 +117,8 @@ public class GraphSectionTimeSeries extends GraphSection {
      *
      * @return validation results
      */
-    private PageStatus validateDownload() {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload() {
+        RunStatus status = new RunStatus();
         GraphHeading heading = getHeading();
 
         // For all download types in the map, walk each download section, using
