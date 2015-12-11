@@ -1144,7 +1144,7 @@ CREATE TABLE phenotype_call_summary (
 /*
  * Phenotype to genotype association when analyzed with weight
  */
-
+DROP TABLE IF EXISTS phenotype_call_summary_withWeight;
 CREATE TABLE phenotype_call_summary_withWeight (
 
   id                        INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1429,7 +1429,7 @@ CREATE TABLE stats_unidimensional_results (
  * store the result of a PhenStat calculation when analyzed with weight
  */
 DROP TABLE IF EXISTS stats_unidimensional_results_withWeight;
-CREATE TABLE stats_unidimensional_results (
+CREATE TABLE stats_unidimensional_results_withWeight (
 
   id                               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   control_id                       INT(10) UNSIGNED,
