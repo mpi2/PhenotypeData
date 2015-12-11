@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Random;
+import org.mousephenotype.cda.utilities.HttpProxy;
 
 public class DrupalHttpProxy extends HttpProxy {
 

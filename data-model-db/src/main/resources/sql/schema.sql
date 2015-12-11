@@ -542,6 +542,8 @@ CREATE TABLE biological_sample (
 	sample_type_db_id         INT(10) NOT NULL,
 	sample_group              VARCHAR(100) NOT NULL,
 	organisation_id           INT(10) UNSIGNED NOT NULL,
+  production_center_id      INT(10) UNSIGNED NULL,
+  litter_id                 VARCHAR(200) NULL,
 
 	PRIMARY KEY (id),
 	KEY external_id_idx(external_id),
@@ -1641,9 +1643,9 @@ CREATE TABLE statistical_result_manual (
 	ENGINE =MyISAM;
 
 
--- 
+--
 -- Sanger Imaging tables schema
--- 
+--
 DROP TABLE IF EXISTS PHN_REQUIRED_OBSERVATION;
 CREATE TABLE PHN_REQUIRED_OBSERVATION (
   ID                    INT(11)      NOT NULL,

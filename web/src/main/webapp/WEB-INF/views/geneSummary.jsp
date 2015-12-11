@@ -263,16 +263,34 @@
 	                            
 	                            <div class="bordertop">
 	                            	<br/>
-                        			<h3>STRING Predicted Functional Partners</h3>
-                        			<img src="http://string-db.org/api/image/network?identifier=${gene.markerSymbol}&amp;species=10090">
-                        			<p class="credit"> This network is provided by <a href="http://string-db.org/">STRING</a>.</p> <br/>
+                        			<h3>STRING Predicted Functional Partners (Mouse)</h3>
+                        			
+                        			<c:if test="${stringDbTable.size() > 0}">
+	                        			<div class="half">
+		                        			<img src="http://string-db.org/api/image/network?identifier=${gene.markerSymbol}&amp;species=10090">
+		                        			<p class="credit"> This network is provided by <a href="http://string-db.org/">STRING</a>.</p> <br/>
+	                        			</div>
+	                        			<div class="half">
+	                        				<table> 
+	                        					<thead> <tr> <td>Symbol</td> <td> STRING Score</td> </tr></thead>
+	                        					<tbody> 
+	                        						<c:forEach var="key" items="${stringDbTable.keySet()}" varStatus="loop" >
+	                        							<tr> <td>${key}</td> <td>${stringDbTable.get(key)}</td></tr>
+	                        						</c:forEach>                        					
+	                        					</tbody>
+	                        				</table>
+	                        			</div>
+	                        		</c:if>
+                        			<c:if test="${stringDbTable.size() == 0}">
+                        				<div class="alert alert-info">STRING has no information for ${gene.markerSymbol}.</div>
+                        			</c:if>
+	                        		
                         		</div>
-                        		
-                        		
+	                            <div class="clear"></div>
+	                            
 	                            <div class="bordertop"> <!-- EXPRESSION heatmap from ExpressionAtlas -->
 	                            	<div id="heatmapContainer" class="bordertop"></div>
 	                            </div>
-	                             
 	                            <div class="clear"></div>
 	                            
                         	</div>
