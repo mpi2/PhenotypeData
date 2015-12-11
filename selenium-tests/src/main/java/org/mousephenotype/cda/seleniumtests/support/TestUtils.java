@@ -31,8 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -708,13 +706,13 @@ public class TestUtils {
      *
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
-     * @param status the <code>PageStatus</code> instance
+     * @param status the <code>RunStatus</code> instance
      * @param successRecords the number of success records processed
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
     @Deprecated
-    public void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
+    public void printEpilogue(String testName, Date start, RunStatus status, int successRecords, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
@@ -744,11 +742,11 @@ public class TestUtils {
      *
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
-     * @param status the <code>PageStatus</code> instance
+     * @param status the <code>RunStatus</code> instance
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
-    public void printEpilogue(String testName, Date start, PageStatus status, int totalRecords, int totalPossible) {
+    public void printEpilogue(String testName, Date start, RunStatus status, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;

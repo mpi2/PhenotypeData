@@ -81,8 +81,8 @@ public abstract class GraphSection {
         load();
     }
 
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
 
         // Verify title contains 'Allele'.
         if ( ! getHeading().title.startsWith("Allele -")) {
@@ -225,8 +225,8 @@ public abstract class GraphSection {
             this.chartElement = chartElement;
         }
 
-        public PageStatus validate() {
-            PageStatus status = new PageStatus();
+        public RunStatus validate() {
+            RunStatus status = new RunStatus();
             List<WebElement> moreStatisticsList = chartElement.findElements(By.xpath(moreStatisticsIXpath));
             if (moreStatisticsList.isEmpty()) {
                 status.addError("ERROR: Expected 'More statistics' link but wasn't found. URL: " + graphUrl);

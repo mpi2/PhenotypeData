@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.seleniumtests.support.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -119,7 +119,7 @@ public class GenePageTest {
 
 
     private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
         geneIds = testUtils.removeKnownBadGeneIds(geneIds);
@@ -250,7 +250,7 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testForBadGeneIds() throws Exception {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testForBadGeneIds";
         List<String> geneIds = new ArrayList(geneService.getAllNonConformingGenes());
         String target = "";
@@ -428,7 +428,7 @@ public class GenePageTest {
     @Test
 //@Ignore
     public void testInvalidGeneId() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testInvalidGeneId";
         String target = "";
         int targetCount = 1;
@@ -484,7 +484,7 @@ public class GenePageTest {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         int numOccurrences;
 
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         String message;
         Date start = new Date();
 
@@ -535,7 +535,7 @@ public class GenePageTest {
             System.out.println("PASSED [Section Titles (count)]");
         }
         // ... values
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         for (String expectedSectionTitle : expectedSectionTitles) {
             if ( ! actualSectionTitles.contains(expectedSectionTitle)) {
                 message = "\tERROR: Mismatch: Expected section named '" + expectedSectionTitle + "' but wasn't found.";
@@ -587,7 +587,7 @@ public class GenePageTest {
             System.out.println("PASSED [Buttons (count)]");
         }
         // ... values
-        status = new PageStatus();
+        status = new RunStatus();
         for (String expectedSectionTitle : expectedButtonLabels) {
             if ( ! actualButtonLabels.contains(expectedSectionTitle)) {
                 message = "\tERROR: Mismatch: Expected button named '" + expectedSectionTitle + "' but wasn't found.";
@@ -626,7 +626,7 @@ public class GenePageTest {
         //   5 - significant (orange)
         // ... count
         numOccurrences = 0;
-        masterStatus = new PageStatus();
+        masterStatus = new RunStatus();
         final List<String> expectedSignificantList = Arrays.asList(
                 new String[]{
                         "growth/size/body region phenotype"
@@ -707,7 +707,7 @@ public class GenePageTest {
         // Phenotype Associated Images and Expression sections: count. Since the data can
         // change over time, don't compare individual strings; just look for at least a count of 12.
         // ... count
-        status = new PageStatus();
+        status = new RunStatus();
         final int expectedAssociatedImageSize = 12;
         List<String> actualAssociatedImageSections = genePage.getAssociatedImageSections();
         if (actualAssociatedImageSections.size() < expectedAssociatedImageSize) {
@@ -759,8 +759,8 @@ public class GenePageTest {
         int targetCount = 1;
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
-        PageStatus status = new PageStatus();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus status = new RunStatus();
+        RunStatus masterStatus = new RunStatus();
         String message;
         Date start = new Date();
 
@@ -789,7 +789,7 @@ public class GenePageTest {
             status.addError(message);
         }
         masterStatus.add(status);
-        status = new PageStatus();
+        status = new RunStatus();
 
         // Phenotype Associated Images : count. Since the data can change over time, compare only the first four.
         List<String> expectedPhenotypeAssociatedImageSections = Arrays.asList(
@@ -809,7 +809,7 @@ public class GenePageTest {
         }
 
         masterStatus.add(status);
-        status = new PageStatus();
+        status = new RunStatus();
 
         // Test for at least the four expected strings.
         for (String expectedPhenotypeAssociatedImageSection : expectedPhenotypeAssociatedImageSections) {
@@ -836,7 +836,7 @@ public class GenePageTest {
         }
 
         masterStatus.add(status);
-        status = new PageStatus();
+        status = new RunStatus();
 
         //test that the order mouse and es cells content from viveks team exists on the page
         WebElement orderAlleleDiv = driver.findElement(By.id("allele2"));//this div is in the ebi jsp which should be populated but without the ajax call success will be empty.
@@ -866,7 +866,7 @@ public class GenePageTest {
         int targetCount = 1;
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String message;
         Date start = new Date();
 

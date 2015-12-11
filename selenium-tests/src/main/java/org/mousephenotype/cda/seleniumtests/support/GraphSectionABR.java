@@ -79,8 +79,8 @@ public class GraphSectionABR extends GraphSection {
     }
 
     @Override
-    public PageStatus validate() throws TestException {
-        PageStatus status = super.validate();                                   // Validate common components.
+    public RunStatus validate() throws TestException {
+        RunStatus status = super.validate();                                   // Validate common components.
         
         status.add(validateDownload());                                         // Validate download streams.
         
@@ -93,7 +93,7 @@ public class GraphSectionABR extends GraphSection {
     
     /**
      * Validates what is displayed on the page with the TSV and XLS download
-     * streams. Any errors are returned in a new <code>PageStatus</code> instance.
+     * streams. Any errors are returned in a new <code>RunStatus</code> instance.
      * 
      * ABR graphs need to test the following:
      * <ul><li>that the TSV and XLS links create a download stream</li>
@@ -104,8 +104,8 @@ public class GraphSectionABR extends GraphSection {
      * 
      * @throws TestException
      */
-    private PageStatus validateDownload() throws TestException {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload() throws TestException {
+        RunStatus status = new RunStatus();
         GraphHeading heading = getHeading();
         
         // For all download types in the map, walk each download section, using

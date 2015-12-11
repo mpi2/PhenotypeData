@@ -20,7 +20,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
  import org.junit.*;
  import org.junit.runner.RunWith;
  import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
- import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+ import org.mousephenotype.cda.seleniumtests.support.RunStatus;
  import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
  import org.mousephenotype.cda.seleniumtests.support.TestUtils;
  import org.mousephenotype.cda.solr.service.MpService;
@@ -135,7 +135,7 @@ public class PhenotypePageTest {
     @Test
 //@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
@@ -270,7 +270,7 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
 //@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testInvalidMpTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
@@ -320,7 +320,7 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
 //@Ignore
     @Test
     public void testDefinitionAndSynonymCount() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testDefinitionAndSynonymCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
@@ -385,7 +385,7 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
 
 
     private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
         List<String> errorList = new ArrayList();
@@ -414,7 +414,7 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
                 if (phenotypePage.hasPhenotypesTable()) {
                     phenotypePage.selectPhenotypesLength(100);
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-                    PageStatus localStatus = phenotypePage.validate();
+                    RunStatus localStatus = phenotypePage.validate();
                     if (localStatus.hasErrors()) {
                         status.add(localStatus);
                         errorCount++;

@@ -76,8 +76,8 @@ public class GraphPage {
         load();
     }
 
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
 
         for (GraphSection graphSection : graphSections) {
             status.add(graphSection.validate());
