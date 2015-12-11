@@ -25,7 +25,6 @@
         <module>data-model-db</module>
         <module>data-model-solr</module>
         <module>indexers</module>
-         <module>loads</module>
         <module>reports</module>
         <module>selenium-tests</module>
     </modules>

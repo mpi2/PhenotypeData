@@ -24,9 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.ctc.wstx.util.StringUtil;
-
-import uk.ac.ebi.phenotype.web.util.HttpProxy;
+import org.mousephenotype.cda.utilities.HttpProxy;
 
 import javax.annotation.Resource;
 import java.io.IOException;

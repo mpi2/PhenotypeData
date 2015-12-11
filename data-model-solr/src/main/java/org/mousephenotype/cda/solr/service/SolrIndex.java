@@ -25,7 +25,7 @@ import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.solr.generic.util.HttpProxy;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ import java.util.*;
 @Service
 public class SolrIndex {
 
-	private static final String IMG_NOT_FOUND = "No information available";
+	public static final String IMG_NOT_FOUND = "No information available";
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
