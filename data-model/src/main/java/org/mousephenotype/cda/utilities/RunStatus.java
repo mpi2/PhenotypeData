@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.seleniumtests.support;
+package org.mousephenotype.cda.utilities;
 
 import java.util.ArrayList;
 import java.util.List;

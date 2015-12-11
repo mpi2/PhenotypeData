@@ -31,7 +31,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.RunStatus;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
