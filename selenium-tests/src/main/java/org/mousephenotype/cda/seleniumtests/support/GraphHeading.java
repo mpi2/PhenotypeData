@@ -22,6 +22,7 @@ import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -106,8 +107,8 @@ public class GraphHeading {
      * 
      * @throws TestException
      */
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
         boolean validatePipeline;
         boolean validateSop;
         

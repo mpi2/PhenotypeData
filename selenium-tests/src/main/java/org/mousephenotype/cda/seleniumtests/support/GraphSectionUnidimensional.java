@@ -19,6 +19,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -82,8 +83,8 @@ public class GraphSectionUnidimensional extends GraphSection {
     }
 
     @Override
-    public PageStatus validate() throws TestException {
-        PageStatus status = super.validate();                                   // Validate common components.
+    public RunStatus validate() throws TestException {
+        RunStatus status = super.validate();                                   // Validate common components.
 
         if (getHeading().getObservationType() != ObservationType.unidimensional) {
             status.addError("ERROR: Expected unidimensional graph but found " + getHeading().getObservationType().name());
@@ -128,7 +129,7 @@ public class GraphSectionUnidimensional extends GraphSection {
 
     /**
      * Validates what is displayed on the page with the TSV and XLS download
-     * streams. Any errors are returned in a new <code>PageStatus</code> instance.
+     * streams. Any errors are returned in a new <code>RunStatus</code> instance.
      *
      * Unidimensional graphs need to test the following:
      * <ul><li>that the TSV and XLS links create a download stream</li>
@@ -139,8 +140,8 @@ public class GraphSectionUnidimensional extends GraphSection {
      *
      * @return validation results
      */
-    private PageStatus validateDownload() {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload() {
+        RunStatus status = new RunStatus();
         GraphHeading heading = getHeading();
         UrlUtils urlUtils = new UrlUtils();
 
@@ -192,8 +193,8 @@ public class GraphSectionUnidimensional extends GraphSection {
      * @return validation status
      *
      */
-    private PageStatus validateDownloadCounts(List<List<String>> downloadDataBlock) {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownloadCounts(List<List<String>> downloadDataBlock) {
+        RunStatus status = new RunStatus();
         String[][] downloadData = testUtils.listToArray(downloadDataBlock);
 
         // key = "Control" or "Experimental". value is zygosity hash map.

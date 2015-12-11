@@ -14,7 +14,7 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.seleniumtests.support;
+package org.mousephenotype.cda.utilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +23,16 @@ import java.util.List;
  *
  * @author mrelac
  * 
- * This class encapsulates the code and data necessary to represent a page status
- * for Selenium testing purposes. Use this class to accumulate error and warning
- * messages for later presentation to the testing interface.
+ * This class encapsulates the code and data necessary to represent a run status.
+ * Use this class to accumulate error and warning messages and optionally to track a success count.
  * 
  */
-public class PageStatus {
+public class RunStatus {
     private final List<String> errorMessages;
     private final List<String> warningMessages;
     public int successCount;
 
-    public PageStatus() {
+    public RunStatus() {
         errorMessages = new ArrayList<>();
         warningMessages = new ArrayList<>();
         successCount = 0;
@@ -47,10 +46,10 @@ public class PageStatus {
         return warningMessages;
     }
     
-    public void add(PageStatus pageStatus) {
-        errorMessages.addAll(pageStatus.errorMessages);
-        warningMessages.addAll(pageStatus.warningMessages);
-        successCount += pageStatus.successCount;
+    public void add(RunStatus runStatus) {
+        errorMessages.addAll(runStatus.errorMessages);
+        warningMessages.addAll(runStatus.warningMessages);
+        successCount += runStatus.successCount;
     }
 
     public void addError(String errorMessage) {
@@ -79,7 +78,7 @@ public class PageStatus {
     
     @Override
     public String toString() {
-        return "PageStatus{" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + ", successCount=" + successCount + "}";
+        return "RunStatus{" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + ", successCount=" + successCount + "}";
     }
 
     /**
