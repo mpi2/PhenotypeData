@@ -461,23 +461,28 @@ public class GenesController {
 		try{
 			String stringDbUrl = "http://string-db.org/api/tsv-no-header/resolve?identifier=" + geneSymbol + "&format=only-ids&species=10090";
 			String id = proxy.getContent(new URL(stringDbUrl), true);
+			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
 			
 			// Parse interactor gene symbol and score
 			// Example return format : 
 			// string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
 			// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
 			
-			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
 			DataReaderTsv tsvReader = new DataReaderTsv(new URL(stringDbUrl));
 			String[][] data = tsvReader.getData();
+			
 			for (int i=0; i < data.length; i++ ){
 				if (data[i][2].equalsIgnoreCase(geneSymbol)) {// direct interaction
-					map.put(data[i][3], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|t")[0]));
+					map.put(data[i][3], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|")[0]));
+				}
+				else if (data[i][3].equalsIgnoreCase(geneSymbol)) {// direct interaction presented in reverse order
+					map.put(data[i][2], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|")[0]));
 				}
 			}
+			
 		} catch (Exception e){
 			log.error("STRING db could not be accessed.");
-			System.out.println(e.getStackTrace());
+			e.printStackTrace();
 		}
 		
 		return map;		
