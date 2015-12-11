@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.RunStatus;
 
 /**
  * This abstract class encapsulates the common code and data necessary to
@@ -42,7 +43,7 @@ public abstract class GraphValidator {
     }
 
 
-    public PageStatus validate() throws TestException {
+    public RunStatus validate() throws TestException {
         return pageSection.getHeading().validate();
     }
 }

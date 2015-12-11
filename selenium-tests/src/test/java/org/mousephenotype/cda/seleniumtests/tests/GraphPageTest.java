@@ -34,6 +34,7 @@ import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.openqa.selenium.WebDriver;
@@ -147,7 +148,7 @@ public class GraphPageTest {
 
 
     private void graphEngine(String testName, List<String> graphUrls) throws TestException {
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         String message = "";
         Date start = new Date();
 
@@ -156,7 +157,7 @@ public class GraphPageTest {
 
         int i = 1;
         for (String graphUrl : graphUrls) {
-            PageStatus status = new PageStatus();
+            RunStatus status = new RunStatus();
 
             // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
@@ -188,7 +189,7 @@ public class GraphPageTest {
     }
 
     private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GenePage.GraphUrlType graphUrlType) throws TestException {
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         String message = "";
         Date start = new Date();
         String genePageTarget;
@@ -199,7 +200,7 @@ public class GraphPageTest {
 
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
-            PageStatus status = new PageStatus();
+            RunStatus status = new RunStatus();
 
             genePageTarget = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
             message = "";
@@ -277,7 +278,7 @@ public class GraphPageTest {
         String target;
         String message = "";
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
@@ -290,7 +291,7 @@ public class GraphPageTest {
                 GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
                 genePage.selectGenesLength(100);
                 GraphValidatorPreqc validator = new GraphValidatorPreqc();
-                PageStatus status = validator.validate(driver, genePage, geneGraph);
+                RunStatus status = validator.validate(driver, genePage, geneGraph);
                 if (status.hasErrors()) {
                     message = "FAILED [" + i + "]: URL: " + target;
                 } else {

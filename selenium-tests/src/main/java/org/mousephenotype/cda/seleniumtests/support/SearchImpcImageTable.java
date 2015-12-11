@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -118,8 +119,8 @@ public class SearchImpcImageTable extends SearchFacetTable {
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] data, DownloadType downloadType) {
-        PageStatus status = new PageStatus();
+    public RunStatus validateDownload(String[][] data, DownloadType downloadType) {
+        RunStatus status = new RunStatus();
 
         switch (getCurrentView()) {
             case ANNOTATION_VIEW:
