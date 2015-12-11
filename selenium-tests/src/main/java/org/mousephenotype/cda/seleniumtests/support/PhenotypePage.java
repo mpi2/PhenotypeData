@@ -17,10 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.utilities.DataReaderTsv;
-import org.mousephenotype.cda.utilities.DataReaderXls;
-import org.mousephenotype.cda.utilities.UrlUtils;
+import org.mousephenotype.cda.utilities.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -204,8 +201,8 @@ public class PhenotypePage {
      * </ul>
      * @return validation status
      */
-    public PageStatus validate() {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() {
+        RunStatus status = new RunStatus();
 
         // Validate title starts with 'Phenotype:'
         WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//h1[@id='top']")));
@@ -272,7 +269,7 @@ public class PhenotypePage {
      * @param status Indicates the success or failure of the operation
      * @return the full TSV data store
      */
-    private GridMap getDownloadTsv(PageStatus status) {
+    private GridMap getDownloadTsv(RunStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
 
@@ -313,7 +310,7 @@ public class PhenotypePage {
      * @param status Indicates the success or failure of the operation
      * @return the full XLS data store
      */
-    private GridMap getDownloadXls(PageStatus status) {
+    private GridMap getDownloadXls(RunStatus status) {
         String[][] data = new String[0][0];
         String downloadUrlBase = getDownloadUrlBase();
 
@@ -388,12 +385,12 @@ public class PhenotypePage {
      *     many rows as the number of [non-preqc] sex icons shown on the first page.</li>
      * <li>Do a set difference between the rows on the first displayed page
      *     and the rows in the download file. The difference should be empty.</li></ul>
-     * Any errors are returned in the <code>PageStatus</code> instance.
+     * Any errors are returned in the <code>RunStatus</code> instance.
      *
      * @return page status instance
      */
-    private PageStatus validateDownload() {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload() {
+        RunStatus status = new RunStatus();
         GridMap pageData = phenotypeTable.load();                                   // Load all of the phenotypes table pageMap data.
 
         // Decode pageData link columns.
@@ -435,8 +432,8 @@ public class PhenotypePage {
      * @param downloadData a loaded download store
      * @return status
      */
-    private PageStatus validateDownload(GridMap pageData, GridMap downloadData) {
-        PageStatus status = new PageStatus();
+    private RunStatus validateDownload(GridMap pageData, GridMap downloadData) {
+        RunStatus status = new RunStatus();
         int downloadDataLineCount = downloadData.getBody().length;
 
         // Check that the number of rows in the download file is at least as

@@ -25,7 +25,7 @@ import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.SearchFacetTable;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage;
 import org.mousephenotype.cda.seleniumtests.support.SearchPage.Facet;
@@ -215,7 +215,7 @@ public class SearchPageTest {
      */
     private void downloadTestEngine(String testName, String searchString, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         int totalNonzeroCount = 0;
         String message = "";
 
@@ -256,7 +256,7 @@ public class SearchPageTest {
                     searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
                     searchPage.clickPageButton();
 
-                    PageStatus status = searchPage.validateDownload(facet);
+                    RunStatus status = searchPage.validateDownload(facet);
                     String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
                     System.out.println(statusString + message);
 
@@ -300,7 +300,7 @@ public class SearchPageTest {
      * @param map image map
      * @return page status
      */
-    private PageStatus facetCountEngine(String target, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+    private RunStatus facetCountEngine(String target, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         return facetCountEngine(target, null, map);
     }
 
@@ -311,8 +311,8 @@ public class SearchPageTest {
      * @map image map
      * @return page status
      */
-    private PageStatus facetCountEngine(String target, SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
-        PageStatus status = new PageStatus();
+    private RunStatus facetCountEngine(String target, SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+        RunStatus status = new RunStatus();
         String message;
 
         // Get the solarUrlCounts.
@@ -391,7 +391,7 @@ public class SearchPageTest {
 
     private void specialStrQueryTest(String testName, String qry) throws TestException {
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -419,7 +419,7 @@ public class SearchPageTest {
     public void testAutosuggestForSpecificKnownGenes() throws TestException {
         String testName = "testAutosuggestForSpecificKnownGenes";
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -432,7 +432,7 @@ public class SearchPageTest {
         String message;
 
         for (String geneSymbol : geneSymbols) {
-            PageStatus status = new PageStatus();
+            RunStatus status = new RunStatus();
             String target = baseUrl + "/search";
 
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
@@ -469,7 +469,7 @@ public class SearchPageTest {
     public void testAutosuggestMinCharacters() throws TestException {
         String testName = "testAutosuggestMinCharacters";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -523,7 +523,7 @@ public class SearchPageTest {
     public void testFacetCountsNoSearchTerm() throws TestException {
         String testName = "testFacetCountsNoSearchTerm";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -534,7 +534,7 @@ public class SearchPageTest {
         String[] localCores = { "mp", "disease", "ma", "impc_images", "images" };
         for (String core : localCores) {
             String target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
-            PageStatus localStatus = facetCountEngine(target, imageMap);
+            RunStatus localStatus = facetCountEngine(target, imageMap);
             if ( ! localStatus.hasErrors()) {
                 SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 int facetCountFromSolr = solrCoreCountMap.get(core);
@@ -613,7 +613,7 @@ public class SearchPageTest {
         String testName = "testFacetCountsSpecialCharacters";
         Date start = new Date();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -644,7 +644,7 @@ public class SearchPageTest {
             // Build the solarUrlCounts.
             String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
 
-            PageStatus status = facetCountEngine(target, searchTermGroup, imageMap);
+            RunStatus status = facetCountEngine(target, searchTermGroup, imageMap);
             if ( ! status.hasErrors())
                 status.successCount++;
 
@@ -660,7 +660,7 @@ public class SearchPageTest {
     public void testHox() throws TestException {
         String testName = "testHox";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -697,7 +697,7 @@ public class SearchPageTest {
     public void testHoxStar() throws TestException {
         String testName = "testHoxStar";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -736,7 +736,7 @@ public class SearchPageTest {
         String testName = "testImageFacetImageView";
         String searchString = "";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         Facet facet;
         String message = "";
 
@@ -775,7 +775,7 @@ public class SearchPageTest {
         String testName = "testImageFacetImageViewLastPage";
         String message = "";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
         String target = "";
@@ -811,7 +811,7 @@ public class SearchPageTest {
         String testName = "testImpcImageFacetImageView";
         String searchString = "";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         Facet facet;
         String message = "";
 
@@ -872,7 +872,7 @@ public class SearchPageTest {
         String testName = "testMaTermNamesMatchFacetNames";
         Date start = new Date();
         int expectedCount;
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -940,7 +940,7 @@ public class SearchPageTest {
     public void testMPII_806() throws TestException {
         String testName = "testMPII_806";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -978,7 +978,7 @@ public class SearchPageTest {
     public void testOrderButtons() throws TestException {
         String testName = "testOrderButtons";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -1037,7 +1037,7 @@ public class SearchPageTest {
     public void testPagination() throws TestException {
         String testName = "testPagination";
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -1049,7 +1049,7 @@ public class SearchPageTest {
         String actualShowing = "";
 
         for (String core : cores ) {
-            PageStatus status = new PageStatus();
+            RunStatus status = new RunStatus();
             target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
 
             try {
@@ -1113,7 +1113,7 @@ public class SearchPageTest {
     public void testQueryingRandomGeneSymbols() throws TestException {
         String testName = "testQueryingRandomGeneSymbols";
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         int nbRows = 20;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, nbRows, nbRows);
@@ -1184,7 +1184,7 @@ public class SearchPageTest {
     public void testRandomMgiIds() throws TestException {
         String testName = "testRandomMgiIds";
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         int nbRows = 20;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, nbRows, nbRows);
@@ -1206,7 +1206,7 @@ public class SearchPageTest {
             int size = docs.size();
             int count;
             for (int i = 0; i < size; i++) {
-                PageStatus status = new PageStatus();
+                RunStatus status = new RunStatus();
                 count = i + 1;
                 String mgiId = docs.getJSONObject(i).getString("mgi_accession_id");
                 String symbol = docs.getJSONObject(i).getString("marker_symbol");
@@ -1241,7 +1241,7 @@ public class SearchPageTest {
     public void testTickingFacetFilters() throws TestException {
         String testName = "testTickingFacetFilters";
         Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         String message = "";
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -1266,7 +1266,7 @@ public class SearchPageTest {
             firstSubfacetElement.click();                                       // Select the first subfacet.
 
             searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
-            PageStatus status = new PageStatus();
+            RunStatus status = new RunStatus();
             if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
                 message = "Failed to tick input filter. Expected first subfacet filter to be checked, but it wasn't. URL = " + driver.getCurrentUrl();
                 status.addError(message);
@@ -1345,7 +1345,7 @@ public class SearchPageTest {
     public void testWnt1IsAtTop() throws TestException {
         String testName = "testWnt1IsAtTop";
         Date start = new Date();
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 

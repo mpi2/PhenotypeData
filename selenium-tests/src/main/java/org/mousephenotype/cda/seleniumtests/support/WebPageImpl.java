@@ -18,6 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.utilities.DataReader;
 import org.mousephenotype.cda.utilities.DataReaderFactory;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -61,8 +62,8 @@ public abstract class WebPageImpl implements WebPage {
      * @return status
      */
     @Override
-    public PageStatus testDownload(String baseUrl) {
-        PageStatus status = new PageStatus();
+    public RunStatus testDownload(String baseUrl) {
+        RunStatus status = new RunStatus();
             
         try {
             String downloadTargetUrlBase = getDownloadTargetUrlBase();
