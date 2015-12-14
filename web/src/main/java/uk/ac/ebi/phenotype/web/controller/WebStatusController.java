@@ -8,8 +8,11 @@ import javax.annotation.PostConstruct;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
+import org.mousephenotype.cda.solr.service.Allele2Service;
 import org.mousephenotype.cda.solr.service.AlleleService;
+import org.mousephenotype.cda.solr.service.AutoSuggestService;
 import org.mousephenotype.cda.solr.service.DiseaseService;
+import org.mousephenotype.cda.solr.service.EucommCreProductService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -83,14 +86,21 @@ public class WebStatusController {
 	@Autowired
 	DiseaseService diseaseService;
 	
-	//@Autowired
-	//AutoSuggestService autoSuggestService;
+	@Autowired
+	AutoSuggestService autoSuggestService;
 	
-	
-
-
-
 	List<WebStatus> webStatusObjects;
+	
+
+	//imits solr services
+	
+	@Autowired
+	Allele2Service allele2;
+	@Autowired
+	EucommCreProductService eucommCreProductService;
+	List<WebStatus> imitsWebStatusObjects;
+
+	
 
 	@PostConstruct
 	public void initialise() {
@@ -110,11 +120,18 @@ public class WebStatusController {
 		webStatusObjects.add(pipelineService);
 		webStatusObjects.add(geneService);
 		webStatusObjects.add(diseaseService);
+		webStatusObjects.add(autoSuggestService);
+		
+		
+		imitsWebStatusObjects=new ArrayList<>();
+		imitsWebStatusObjects.add(allele2);
+		imitsWebStatusObjects.add(eucommCreProductService);
 	}
 
 	@RequestMapping("/webstatus")
 	public String webStatus(Model model) throws SolrServerException {
 		System.out.println("calling webstatus controller");
+		//check our core solr instances are returning via the services
 		List<WebStatusModel> webStatusModels=new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
 			String name=status.getServiceName();
@@ -124,6 +141,19 @@ public class WebStatusController {
 		}
 
 		model.addAttribute("webStatusModels", webStatusModels);
+		
+		//check the imits services
+		List<WebStatusModel> imitsWebStatusModels=new ArrayList<>();
+		for (WebStatus status : imitsWebStatusObjects) {
+			String name=status.getServiceName();
+			long number = status.getWebStatus();
+			WebStatusModel wModel=new WebStatusModel(name, number);
+			imitsWebStatusModels.add(wModel);
+		}
+
+		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
+		
+		
 		return "webStatus";
 	}
 	
