@@ -1908,6 +1908,6 @@ public class ObservationService extends BasicService implements WebStatus {
 
 	@Override
 	public String getServiceName(){
-		return "impc_images";
+		return "Obesrvation Service (experiment core)";
 	}
 }
