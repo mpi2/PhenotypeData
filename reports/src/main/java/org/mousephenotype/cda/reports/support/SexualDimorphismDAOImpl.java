@@ -178,7 +178,7 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 		PreparedStatement statement = null;
 
 		if (withBodyWeight) {
-			database = "logistic_regression.";
+			database = "komp2_4_0_with_weight.";
 		} else {
 			database = "";
 		}

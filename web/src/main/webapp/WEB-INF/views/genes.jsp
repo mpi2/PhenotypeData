@@ -8,7 +8,7 @@
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
-	
+
 	</jsp:attribute>
 	<jsp:attribute name="addToFooter">
             <!--  start of floating menu for genes page -->
@@ -112,7 +112,7 @@
             <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-  
+
             <script type="text/javascript">
                 var gene_id = '${acc}';
 
@@ -122,7 +122,7 @@
                     $("#tabs").tabs();
 
                     $('ul.tabs li a').click(function () {
-                       
+
                         $(this).css({
                             'border': '1px solid #666',
                             'border-bottom': '1px solid white',
@@ -131,7 +131,7 @@
                         });
                     });
 
-                   
+
                     $('ul.tabs li a#ui-id-1').css({
                         'border': '1px solid #666',
                         'border-bottom': '1px solid white',
@@ -251,58 +251,43 @@
                                 <!--  login interest button -->
                                 <div class="floatright">
                                     <c:choose>
-                                        <c:when
-                                                test="${registerButtonAnchor!=''}">
-                                            <p><a class="btn"
-                                                  href='${registerButtonAnchor}'><i
-                                                  class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
+                                        <c:when test="${registerButtonAnchor!=''}">
+                                            <p><a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
                                             </p>
                                         </c:when>
                                         <c:otherwise>
-                                            <p><a
-                                                    class="btn interest" id='${registerButtonId}'><i
-                                                    class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
+                                            <p><a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
                                             </p>
                                         </c:otherwise>
                                     </c:choose>
-                                    <c:if
-                                            test="${orderPossible}">
-                                        <p><a class="btn"
-                                              href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a></p>
+                                    <c:if test="${orderPossible}">
+                                        <p><a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a></p>
                                     </c:if>
-
                                 </div>
 
-								<c:if test="${gene.markerName != null}">
-	                                <p class="with-label no-margin">
-	                                    <span class="label">Name</span>
-	                                        ${gene.markerName}
-	                                </p>
-								</c:if>
+                                <c:if test="${gene.markerName != null}">
+                                    <p class="with-label no-margin">
+                                        <span class="label">Name</span> ${gene.markerName}
+                                    </p>
+                                </c:if>
 
-                                <c:if
-                                        test="${!(empty gene.markerSynonym)}">
+                                <c:if test="${!(empty gene.markerSynonym)}">
                                     <p class="with-label no-margin">
                                         <span class="label">Synonyms</span>
-                                        <c:forEach var="synonym"
-                                                   items="${gene.markerSynonym}" varStatus="loop">
+                                        <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
                                             ${synonym}
-                                            <c:if
-                                                    test="${!loop.last}">, </c:if>
-                                            <c:if
-                                                    test="${loop.last}"></c:if>
+                                            <c:if test="${!loop.last}">, </c:if>
+                                            <c:if test="${loop.last}"></c:if>
                                         </c:forEach>
                                     </p>
                                 </c:if>
 
                                 <p class="with-label">
                                     <span class="label">MGI Id</span>
-                                    <a
-                                            href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
+                                    <a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
                                 </p>
 
-                                <c:if
-                                        test="${!(prodStatusIcons == '')}">
+                                <c:if test="${!(prodStatusIcons == '')}">
                                     <p class="with-label">
                                         <span class="label">Status</span>
                                             ${prodStatusIcons}
@@ -313,30 +298,30 @@
                                     <a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Gene&nbsp;View</a>&nbsp;&nbsp;
                                     <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;
                                     <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Compara&nbsp;View</a>
-                                     &nbsp;<a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>        
+                                     &nbsp;<a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>
                                 </p>
                                 <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
 									<p class="with-label">
 	                                    <span class="label">Viability</span>
-	                                	<t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>    
+	                                	<t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
 	                                </p>
 								</c:if>
                                 <!-- GWAS stuff -->
                                 <c:if test="${!isLive}">
                                     <c:if test="${gwasPhenoMapping != null }">
-                                    	
+
                                        	<c:if test="${gwasPhenoMapping == 'no mapping' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
                                    				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
                                				</p>
-                               			</c:if>	
+                               			</c:if>
                                			<c:if test="${gwasPhenoMapping == 'indirect' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
                                    				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
                                    				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
-                                   				
+
                                				</p>
                                			</c:if>
                                			<c:if test="${gwasPhenoMapping == 'direct' }">
@@ -346,7 +331,7 @@
                                    				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                				</p>
                                			</c:if>
-                                   		
+
                                		</c:if>
                                 </c:if>
 
@@ -371,20 +356,20 @@
 
                                         <jsp:include page="phenotype_icons_frag.jsp"/>
 
-                                       
+
                                         <c:if
                                                 test="${!(empty dataMapList)}">
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-                                          
-                                              <div class="floatright"
-                                                 style="clear: both">
-                                                <p>
-                                                    <a class="btn"
-                                                       href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-                                                       style="margin: 10px">All Adult Data</a>
+
+        									<div class="floatright"  style="clear: both">
+												<p>
+                                                	<a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+												<br/> 
                                                 </p>
                                             </div>
+                                            <div class="clear"></div>
+
                                         </c:if>
 
                                         <c:if
@@ -400,8 +385,7 @@
                                         <p> Phenotype Summary based on automated MP annotations supported by experiments
                                             on knockout mouse models. </p>
 
-                                        <c:forEach var="zyg"
-                                                   items="${phenotypeSummaryObjects.keySet()}">
+                                        <c:forEach var="zyg"  items="${phenotypeSummaryObjects.keySet()}">
                                             <p>In <b>${zyg} :</b>
                                             </p>
                                             <ul>
@@ -484,20 +468,17 @@
                                     <c:when test="${summaryNumber == 0}">
 
                                         <c:if  test="${empty dataMapList && empty phenotypes}">
-                                        	<c:if test="${attemptRegistered}">                                        	
+                                        	<c:if test="${attemptRegistered}">
 	                                        	<div class="alert alert-info">
 	                                                <h5>Registered for phenotyping</h5>
 	                                                <p>Phenotyping is planned for a knockout strain of this gene but data is not currently available.</p>
-	                                            </div>                                            
+	                                            </div>
                                         	</c:if>
-                                        	
-                                        	<c:if test="${!attemptRegistered}"> 
+
+                                        	<c:if test="${!attemptRegistered}">
 	                                            <div class="alert alert-info">
-	                                                <h5>Phenotype data is undergoing quality control</h5>
-	
-	                                                <p>Any phenotype assocations appearing below are preliminary and may
-	                                                    change. Links are provided to the Pheno-DCC quality control
-	                                                    resource.</p>
+                                                    <h5>Currently not registered for phenotyping</h5>
+                                                    <p>Phenotyping is not currently planned for this gene.</p>
 	                                            </div>
                                             </c:if>
                                             <br/>
@@ -506,20 +487,20 @@
                                             <div class="alert alert-info">
                                                 <h5>No Significant Phenotype Associations Found</h5>
 
-                                                <p>No significant phenotype associations were found with data that has passed quality control (QC), but you can click 
-                                                on the "All Adult Data" button to see all phenotype data that has passed QC. Preliminary phenotype assocations 
+                                                <p>No significant phenotype associations were found with data that has passed quality control (QC), but you can click
+                                                on the "All Adult Data" button to see all phenotype data that has passed QC. Preliminary phenotype assocations
                                                 may appear with new pre-QC phenotype data.</p>
                                             </div>
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
                                             <div class="floatright"
                                                  style="clear: both">
-
-                                                <a class="btn"
-                                                   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-                                                   style="margin: 0px">All Adult Data</a>
-
+												<p>
+                                                	<a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+												<br/> 
+                                                </p>
                                             </div>
+                                            <div class="clear"></div>
                                         </c:if>
 
                                         <c:if
@@ -658,7 +639,7 @@
                         <c:if test="${not empty impcExpressionImageFacets}">
                             <!-- Expression in Anatomogram -->
                             <c:if test="${!isLive}">
-                            
+
         					<div class="section">
                                 <h2 class="title" id="expression-anatomogram">Expression in Anatomogram<span
                                         class="documentation"><a href='' id='expressionAnatomogramPanel'
@@ -703,7 +684,7 @@
                                     <c:set var="ambiguousIcon" scope="page" value="fa fa-circle"/>
                                     <c:set var="yesColor" scope="page" value="#0978a1"/>
                                     <c:set var="noColor" scope="page" value="gray"/>
-		
+
                                     <span title="Expression" class="${expressionIcon}"
                                           style="color:${yesColor}">&nbsp;Expression</span>&nbsp;&nbsp;
                                     <span title="No Expression" class="${noExpressionIcon}"
@@ -714,7 +695,7 @@
                                           style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 
 									<br/> <br/>
-									
+
                                     <!-- section for expression data here -->
                                     <div id="tabs">
                                         <ul class='tabs'>
@@ -885,37 +866,37 @@
                                             <!--  end of tabs-2 -->
 
                                         </div>
-                                        
-                                        
+
+
                                        <!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
          		<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
          								<c:if test="${not empty embryoExpressionDocs}">
          								<div id="tabs-3">
 
-                                         
-                                             	
+
+
                                              	<div class="accordion-body"
                                                  style="display: block;">
-                                                 
+
                                                  ${embryoExpressionDocs[0].procedure_name} (${numberEmbryoExpressionImages})
-                                                 
+
                                              	<c:set var="href"
                                                            scope="page"
                                                            value="${baseUrl}/imagePicker/${acc}/${embryoExpressionDocs[0].parameter_stable_id}"></c:set>
                             					<!-- IMPC Phenotype Associated Images -->
                             						<ul>
                                                         <t:impcimgdisplay2
-                                                               
+
                                                                  href="${href}"
                                                                 img="${embryoExpressionDocs[0]}"
                                                                 impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                     </ul>
                                                     </div>
-                        						
+
 
                                         </div>
                                         </c:if>
-         		
+
                                         <!-- end of tabs -->
                                     </div>
 
@@ -940,7 +921,7 @@
 
                                         <c:forEach var="doc"
                                                    items="${impcFacetToDocs[entry.name]}">
-                                             <c:if test="${doc.procedure_name ne 'Embryo LacZ' }">      
+                                             <c:if test="${doc.procedure_name ne 'Embryo LacZ' }">
                                             <div
                                                     id="impc-images-heading" class="accordion-group">
 
@@ -968,7 +949,7 @@
                                                                 <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                                                             </c:if> --%>
                                                 </div>
-                                               
+
                                                 <!--  end of accordion body -->
                                             </div>
                                              </c:if>

@@ -34,6 +34,7 @@ import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.openqa.selenium.WebDriver;
@@ -48,8 +49,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +61,6 @@ import static org.junit.Assert.assertTrue;
  *
  * Selenium test for graph page query coverage ensuring each page works as expected.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
@@ -150,80 +148,87 @@ public class GraphPageTest {
 
 
     private void graphEngine(String testName, List<String> graphUrls) throws TestException {
+        RunStatus masterStatus = new RunStatus();
+        String message = "";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus statuses = new PageStatus();
 
         int targetCount = graphUrls.size();
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, graphUrls.size());
 
         int i = 1;
         for (String graphUrl : graphUrls) {
+            RunStatus status = new RunStatus();
 
             // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
                 continue;
 
             try {
-                System.out.println("[" + (i - 1) + "]: Testing graph " + graphUrl);
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
-                statuses.add(graphPage.validate());
+                status.add(graphPage.validate());
 
             } catch (TestException e) {
-                statuses.addError(e.getLocalizedMessage());
+                status.addError(e.getLocalizedMessage());
             }
+
+            if ( ! status.hasErrors())
+                status.successCount++;
+
+            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + (i - 1) + "] " + graphUrl;
+            System.out.println(statusString + message);
+
+            masterStatus.add(status);
 
             if (i++ >= targetCount) {
                 break;
             }
         }
 
-        testUtils.printEpilogue(testName, start, statuses, targetCount, graphUrls.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, graphUrls.size());
         System.out.println();
     }
 
     private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GenePage.GraphUrlType graphUrlType) throws TestException {
-        String target;
-        Date start = new Date();
-        PageStatus masterStatus = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
         String message = "";
+        Date start = new Date();
+        String genePageTarget;
+        String graphPageTarget = "";
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
 
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
-            PageStatus status = new PageStatus();
-            target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-            message = "[" + (i - 1) + "]: GENE PAGE URL:  " + target;
+            RunStatus status = new RunStatus();
+
+            genePageTarget = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            message = "";
 
             try {
-                GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
+                GenePage genePage = new GenePage(driver, wait, genePageTarget, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
 
                 List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
 
                 // Skip gene pages without graphs.
-                if ((graphUrls.isEmpty()) || ( ! genePage.hasGraphs()))
+                if ((graphUrls.isEmpty()) || (!genePage.hasGraphs()))
                     continue;
 
                 genePage.selectGenesLength(100);
 
-                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
-                status = graphPage.validate();
-                if ( ! status.hasErrors()) {
-                    status.successCount++;
-                    System.out.println("PASSED " + message);
-                } else {
-                    message = "FAILED [GENE PAGE URL: " + target + "]\n\tGRAPH PAGE URL: " + graphUrls.get(0);
-                    System.out.println(message);
-                    status.addError(message);
-                }
+                graphPageTarget = graphUrls.get(0);
+                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphPageTarget, baseUrl);
+                status.add(graphPage.validate());
 
             } catch (Exception e) {
-                message = "FAILED [" + message + "]\n\t[" + e.getLocalizedMessage() + "]";
-                System.out.println(message);
-                status.addError(message);
+                status.addError(e.getLocalizedMessage());
             }
+
+            if ( ! status.hasErrors())
+                status.successCount++;
+
+            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + (i - 1) + "] " + graphPageTarget;
+            System.out.println(statusString + message);
 
             masterStatus.add(status);
 
@@ -233,6 +238,7 @@ public class GraphPageTest {
         }
 
         testUtils.printEpilogue(testName, start, masterStatus, targetCount, geneGraphs.size());
+        System.out.println();
     }
 
 
@@ -270,8 +276,9 @@ public class GraphPageTest {
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         String target;
+        String message = "";
         Date start = new Date();
-        PageStatus statuses = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
@@ -279,17 +286,27 @@ public class GraphPageTest {
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-            System.out.println("[" + (i) + "]: GENE PAGE URL:  " + target);
-            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
-            genePage.selectGenesLength(100);
-            GraphValidatorPreqc validator = new GraphValidatorPreqc();
-            PageStatus status = validator.validate(driver, genePage, geneGraph);
-            if ( ! status.hasErrors())
-                status.successCount++;
-            statuses.add(status);
+
+            try {
+                GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
+                genePage.selectGenesLength(100);
+                GraphValidatorPreqc validator = new GraphValidatorPreqc();
+                RunStatus status = validator.validate(driver, genePage, geneGraph);
+                if (status.hasErrors()) {
+                    message = "FAILED [" + i + "]: URL: " + target;
+                } else {
+                    message = "PASSED [" + i + "]: " + target;
+                    status.successCount++;
+                }
+                masterStatus.add(status);
+            } catch (Exception e) {
+                message = "FAILED [" + i + "]: " + e.getLocalizedMessage() + "\nGENE PAGE URL:  " + target;
+            }
+
+            System.out.println(message);
         }
 
-        testUtils.printEpilogue(testName, start, statuses, targetCount, geneGraphs.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, geneGraphs.size());
         System.out.println();
     }
 

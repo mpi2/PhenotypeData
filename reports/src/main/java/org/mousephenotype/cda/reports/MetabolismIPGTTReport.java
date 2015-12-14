@@ -48,8 +48,6 @@ public class MetabolismIPGTTReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-    private boolean[] hasWarnings = {false, false, false};  // Parameters IMPC_IPG_001_001, 002_001, and 010_001
-
     private String[] header = new String[] {
              "Mouse id", "Sample Type", "Gene", "Allele", "Zygosity"
             ,"Sex", "Colony id", "Phenotyping center", "Metadata group"
@@ -123,7 +121,10 @@ public class MetabolismIPGTTReport extends AbstractReport {
      * @throws ReportException
      */
     private List<String> createReportRow(List<ObservationDTO> mouseInfoDTOs) throws ReportException {
-        List<String> retVal = new ArrayList<>();
+
+	    boolean[] hasWarnings = {false, false, false};  // Parameters IMPC_IPG_001_001, 002_001, and 010_001
+
+	    List<String> retVal = new ArrayList<>();
 
         Map<String, Float[]> mouseInfoMap = new HashMap<>();    // key = parameterStableId
                                                                 // value = dataPoint.discretePoint[0], [15], [30], [60], [120] for IMPC_IPG_002,
@@ -193,12 +194,11 @@ public class MetabolismIPGTTReport extends AbstractReport {
                             localWarn.add("Unexpected discretePoint '" + dataPoint + "' for biological_sample_id '" + biologicalSampleId + "' (" + externalSampleId + ").");
                     }
                     if (!localWarn.isEmpty()) {
-                        for (int i = 0; i < localWarn.size(); i++) {
-                            if (!warnings[1].isEmpty())
-                                warnings[1] += "\n";
-                            warnings[1] += localWarn.get(i);
-                            hasWarnings[1] = true;
-                        }
+	                    for (String aLocalWarn : localWarn) {
+		                    if (!warnings[1].isEmpty()) warnings[1] += "\n";
+		                    warnings[1] += aLocalWarn;
+		                    hasWarnings[1] = true;
+	                    }
                     }
                     break;
 
@@ -232,7 +232,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
         Float[] data = mouseInfoMap.get("IMPC_IPG_001_001");
         if (data != null) {
-            if (hasWarnings[2]) {
+            if (hasWarnings[0]) {
                 retVal.add(DATA_ERROR);
             } else if (data[0] == null) {
                 retVal.add(NO_INFO_AVAILABLE);
@@ -246,15 +246,17 @@ public class MetabolismIPGTTReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_IPG_002_001");
         if (data != null) {
             if (hasWarnings[1]) {
-                retVal.add(DATA_ERROR);
+	            for (int i=0; i<data.length; i++) {
+		            retVal.add(DATA_ERROR);
+	            }
             } else {
-                for (int i = 0; i < data.length; i++) {
-                    if (data[i] == null) {
-                        retVal.add(NO_INFO_AVAILABLE);
-                    } else {
-                        retVal.add(Float.toString(data[i]));
-                    }
-                }
+	            for (Float aData : data) {
+		            if (aData == null) {
+			            retVal.add(NO_INFO_AVAILABLE);
+		            } else {
+			            retVal.add(Float.toString(aData));
+		            }
+	            }
             }
         } else {
             retVal.add(NO_INFO_AVAILABLE);

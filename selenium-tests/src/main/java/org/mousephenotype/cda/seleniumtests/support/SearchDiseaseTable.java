@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -83,7 +84,7 @@ public class SearchDiseaseTable extends SearchFacetTable {
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
+    public RunStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
               COL_INDEX_DISEASE_ID
             , COL_INDEX_DISEASE_ID_LINK

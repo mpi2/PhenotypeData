@@ -101,6 +101,13 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	}
 
 	@Transactional(readOnly = true)
+	public Procedure getProcedureByStableKey(String stableKey) {
+		return (Procedure) getCurrentSession().createQuery("from Procedure as p where p.stableKey = :stableKey")
+				.setString("stableKey", stableKey)
+				.uniqueResult();
+	}
+
+	@Transactional(readOnly = true)
 	public List<Procedure> getProcedureByMatchingStableId(String stableId) {
 		stableId += "%";
 		List<Procedure> results = getCurrentSession().createQuery("from Procedure as p where p.stableId like :stableId")

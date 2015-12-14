@@ -14,10 +14,9 @@
  * License.
  *******************************************************************************/
 
-package org.mousephenotype.cda.seleniumtests.support;
+package org.mousephenotype.cda.utilities;
 
 import org.apache.poi.ss.usermodel.*;
-import org.mousephenotype.cda.seleniumtests.exception.TestException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,7 +69,7 @@ public class DataReaderXls extends DataReader {
      * @throws IOException
      */
     @Override
-    public void close() throws TestException {
+    public void close() throws Exception {
         // nothing to do.
     }
     

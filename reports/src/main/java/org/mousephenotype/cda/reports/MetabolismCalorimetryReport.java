@@ -48,8 +48,6 @@ public class MetabolismCalorimetryReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-    private boolean hasRerWarnings = false;
-
     private String[] header = new String[] {
              "Mouse id", "Sample Type", "Gene", "Allele", "Zygosity"
             ,"Sex", "Colony id", "Phenotyping center", "Metadata group"
@@ -214,7 +212,10 @@ public class MetabolismCalorimetryReport extends AbstractReport {
      * @throws ReportException
      */
     private List<String> createReportRow(List<ObservationDTO> mouseInfoDTOs) throws ReportException {
-        List<String> retVal = new ArrayList<>();
+
+	    boolean hasRerWarnings = false;
+
+	    List<String> retVal = new ArrayList<>();
         Map<String, CalorimetryData> mouseInfoMap = new HashMap<>();  // key = parameterStableId or equivalent parameter identifier (e.g. RER_DATA_PARAMETER)
                                                                       // value = CalorimetryData instance
 
@@ -325,7 +326,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         } else {
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_002_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
@@ -337,7 +338,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         } else {
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_003_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_003_001").min));
@@ -350,7 +351,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_004_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_004_001").min));
@@ -363,7 +364,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_005_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_005_001").min));
@@ -376,7 +377,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_006_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_006_001").min));
@@ -389,7 +390,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_007_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_007_001").min));
@@ -402,7 +403,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_008_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
@@ -414,7 +415,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         } else {
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_009_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_009_001").min));
@@ -427,7 +428,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_017_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
@@ -439,7 +440,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         } else {
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_021_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {
@@ -451,7 +452,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
         } else {
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_022_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_022_001").min));
@@ -464,7 +465,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
             retVal.add(NO_INFO_AVAILABLE);
             retVal.add(NO_INFO_AVAILABLE);
         }
-        
+
         calorimetryData = mouseInfoMap.get("IMPC_CAL_042_001");
         if (calorimetryData != null) {
             retVal.add(Float.toString(mouseInfoMap.get("IMPC_CAL_042_001").min));

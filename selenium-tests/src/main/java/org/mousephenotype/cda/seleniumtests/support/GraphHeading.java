@@ -21,6 +21,8 @@ import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -28,6 +30,7 @@ import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +51,7 @@ public class GraphHeading {
     protected final Utilities impressUtils = new Utilities();
     protected PhenotypePipelineDAO phenotypePipelineDAO;
     protected final TestUtils testUtils = new TestUtils();
+    protected final CommonUtils commonUtils = new CommonUtils();
     protected final WebDriverWait wait;
 
     // Heading variables
@@ -103,8 +107,8 @@ public class GraphHeading {
      * 
      * @throws TestException
      */
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
         boolean validatePipeline;
         boolean validateSop;
         
@@ -270,9 +274,21 @@ public class GraphHeading {
     private void parse(ChartType chartType) throws TestException {
         // Wait for all charts to load.
         wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
-        
-        List<WebElement> titleElements = chartElement.findElements(By.xpath("./h2[@id='section-associations']"));
-        if (titleElements.isEmpty()) {
+        List<WebElement> titleElements = new ArrayList<>();
+
+        // Sometimes this times out. Try a few times before failing.
+        boolean found = false;
+        for (int i = 0; i < 5; i++) {
+            titleElements = chartElement.findElements(By.xpath("./h2[@id='section-associations']"));
+            if (titleElements.isEmpty()) {
+                commonUtils.sleep(2000);
+                continue;
+            } else {
+                found = true;
+                break;
+            }
+        }
+        if ( ! found) {
             throw new RuntimeException("GraphHeading.parse(): Wait to get chart timed out!");
         }
         WebElement titleElement = titleElements.get(0);

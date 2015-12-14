@@ -31,10 +31,8 @@ import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,14 +56,11 @@ import java.util.*;
  */
 public class AlleleIndexer extends AbstractIndexer {
 
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     protected CommonUtils commonUtils = new CommonUtils();
-
-    private static final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
     public static final int PHENODIGM_BATCH_SIZE = 50000;
     private static Connection connection;
-
     private static final int BATCH_SIZE = 2500;
-
     private int assignedEvidCodeRank = 1; // default
 
     // Fetch all phenotyping completed genes with MP calls from genotype-phenotype core
@@ -155,29 +150,14 @@ public class AlleleIndexer extends AbstractIndexer {
 
     @Override
     public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(alleleCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual allele document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " allele documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " allele documents.");
-    }
-
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
+        super.validateBuild(alleleCore);
     }
 
     @Override
     public void run() throws IndexerException {
-
-    	int start = 0;
+        int count = 0;
         long rows = 0;
-        long startTime = new Date().getTime();
+        long start = System.currentTimeMillis();
 
         try {
             connection = komp2DataSource.getConnection();
@@ -189,41 +169,39 @@ public class AlleleIndexer extends AbstractIndexer {
 
             query.setRows(BATCH_SIZE);
 
-            logger.info("Populating lookups");
-
             populateStatusLookup();
-            logger.info("Populated status lookup, {} records", statusLookup.size());
+            logger.info(" Added {} total status lookup beans", statusLookup.size());
 
             populateHumanSymbolLookup();
-            logger.info("Populated human symbol lookup, {} records", humanSymbolLookup.size());
+            logger.info(" Added {} total human symbol lookup beans", humanSymbolLookup.size());
 
             populateDiseaseLookup();
-            logger.info("Populated disease lookup, {} records", diseaseLookup.size());
+            logger.info(" Added {} total disease lookup beans", diseaseLookup.size());
 
             populateLegacyLookup();
-            logger.info("Populated legacy project lookup, {} records", legacyProjectLookup.size());
+            logger.info(" Added {} total legacy project lookup beans", legacyProjectLookup.size());
 
             populateMgiGeneId2EnsemblGeneId();
-            logger.info("Populated Ensembl id to MGI gene id lookup, {} records", mgiGeneId2EnsemblGeneId.size());
+            logger.info(" Added {} total Ensembl id to MGI gene id lookup beans", mgiGeneId2EnsemblGeneId.size());
 
             // GoTerm from GO at EBI: MGI gene id to GO term mapping
             populateGoTermLookup();
-            logger.info("Populated go terms lookup, {} records", goTermLookup.size());
+            logger.info(" Added {} total GO term lookup beans", goTermLookup.size());
 
             // MGI gene id to Uniprot accession mapping
             populateMgi2UniprotLookup();
-            logger.info("Populated mgi to uniprot lookup, {} records", mgi2UniprotLookup.size());
+            logger.info(" Added {} MGI to UNIPROT lookup beans", mgi2UniprotLookup.size());
 
             // Uniprot to pfamA mapping
             //populateUniprot2pfamA();
-            //logger.info("Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
-            logger.info("Populated uniprot to pfamA lookup is skipped for now");
+            //logger.info(" Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
+//            logger.info(" Populated uniprot to pfamA lookup is skipped for now");
 
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
 
-            while (start <= rows) {
-                query.setStart(start);
+            while (count <= rows) {
+                query.setStart(count);
                 QueryResponse response = sangerAlleleCore.query(query);
                 rows = response.getResults().getNumFound();
                 List<SangerGeneBean> sangerGenes = response.getBeans(SangerGeneBean.class);
@@ -261,10 +239,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 documentCount += alleles.size();
                 indexAlleles(alleles);
 
-                start += BATCH_SIZE;
-
-                logger.info("Indexed {} records", start);
-
+                count += BATCH_SIZE;
             }
 
             alleleCore.commit();
@@ -273,7 +248,7 @@ public class AlleleIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.debug("Complete - took {}ms", (new Date().getTime() - startTime));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
     private void initializeSolrCores() {
@@ -291,7 +266,7 @@ public class AlleleIndexer extends AbstractIndexer {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.sangerAlleleCore = new HttpSolrServer(SANGER_ALLELE_URL, client);
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
@@ -624,10 +599,8 @@ public class AlleleIndexer extends AbstractIndexer {
 
     			goTermLookup.get(ga.mgiSymbol).add(ga);
             }
-
-            logger.info("Populated goTerm lookup, {} records", goTermLookup.size());
-
         }
+
 	    catch (Exception e) {
             e.printStackTrace();
         }
@@ -813,7 +786,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             }
         } catch (SQLException e) {
-            logger.error("SQL Exception looking up legacy projects: {}", e.getMessage());
+            logger.error(" SQL Exception looking up legacy projects: {}", e.getMessage());
         }
 
     }
@@ -904,8 +877,6 @@ public class AlleleIndexer extends AbstractIndexer {
             }
 
             docsRetrieved += PHENODIGM_BATCH_SIZE;
-            logger.info("Processed {} documents from phenodigm. {} genes in the index", docsRetrieved, diseaseLookup.size());
-
         }
     }
 
@@ -994,7 +965,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
         //System.out.println("QRY: " + query);
         try {
-            logger.debug("Starting marker synonym lookup");
+            logger.debug(" Starting marker synonym lookup");
             PreparedStatement ps = connection.prepareStatement(query);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -1010,9 +981,9 @@ public class AlleleIndexer extends AbstractIndexer {
                 allele.getMarkerSynonymLowercase().add(rs.getString("marker_synonym"));
                 allele.setMarkerName(rs.getString("marker_name"));
             }
-            logger.debug("Finished marker synonym lookup");
+            logger.debug(" Finished marker synonym lookup");
         } catch (SQLException sqle) {
-            logger.error("SQL Exception looking up marker symbols: {}", sqle.getMessage());
+            logger.error(" SQL Exception looking up marker symbols: {}", sqle.getMessage());
         }
     }
 
@@ -1027,7 +998,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
         }
 
-        logger.debug("Finished human marker symbol lookup");
+        logger.debug(" Finished human marker symbol lookup");
     }
 
     private void lookupMgiGeneId2EnsemblGeneId(Map<String, AlleleDTO> alleles){
@@ -1039,7 +1010,7 @@ public class AlleleIndexer extends AbstractIndexer {
             }
         }
 
-        logger.debug("Finished MGI gene id to Ensembl gene id lookup");
+        logger.debug(" Finished MGI gene id to Ensembl gene id lookup");
     }
 
     private String buildIdQuery(Collection<String> ids) {
@@ -1087,12 +1058,12 @@ public class AlleleIndexer extends AbstractIndexer {
             }
         }
 
-        logger.debug("Finished ES cell status lookup");
+        logger.debug(" Finished ES cell status lookup");
     }
 
     private void lookupDiseaseData(Map<String, AlleleDTO> alleles) {
 
-        logger.debug("Starting disease data lookup");
+        logger.debug(" Starting disease data lookup");
         for (String id : alleles.keySet()) {
 
             AlleleDTO dto = alleles.get(id);
@@ -1122,7 +1093,7 @@ public class AlleleIndexer extends AbstractIndexer {
             }
 
         }
-        logger.debug("Finished disease data lookup");
+        logger.debug(" Finished disease data lookup");
     }
 
     private Integer assignCodeRank(int currRank){
@@ -1132,7 +1103,7 @@ public class AlleleIndexer extends AbstractIndexer {
     }
 
     private void lookupGoData(Map<String, AlleleDTO> alleles) {
-        logger.debug("Starting GO data lookup");
+        logger.debug(" Starting GO data lookup");
 
         //GO evidence code ranking mapping
         Map<String,Integer> codeRank = commonUtils.getGoCodeRank();
@@ -1164,7 +1135,7 @@ public class AlleleIndexer extends AbstractIndexer {
     }
 
     private void lookupUniprotAcc(Map<String, AlleleDTO> alleles) {
-    	 logger.debug("Starting Uniprot Acc lookup");
+    	 logger.debug(" Starting Uniprot Acc lookup");
          for (String id : alleles.keySet()) {
 
              AlleleDTO dto = alleles.get(id);
@@ -1180,7 +1151,7 @@ public class AlleleIndexer extends AbstractIndexer {
     }
 
     private void lookupUniprotAcc2pfamA(Map<String, AlleleDTO> alleles) {
-    	logger.debug("Starting Uniprot to pfamA lookup");
+    	logger.debug(" Starting Uniprot to pfamA lookup");
 
         for (String id : alleles.keySet()) {
 
@@ -1244,8 +1215,5 @@ public class AlleleIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
-
 }
