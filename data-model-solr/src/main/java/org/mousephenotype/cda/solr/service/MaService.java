@@ -42,7 +42,7 @@ import org.springframework.stereotype.Service;
 import net.sf.json.JSONObject;
 
 @Service
-public class MaService extends BasicService{
+public class MaService extends BasicService implements WebStatus{
 
 
 	@Autowired
@@ -143,6 +143,22 @@ public class MaService extends BasicService{
         return children;
     }
 
+    
+    @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "MA Service";
+	}
     
 	
 }
