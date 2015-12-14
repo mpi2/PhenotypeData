@@ -15,8 +15,7 @@
 		<c:set var="tooltip" value="${tooltip}${var}, " scope="page" />
 	</c:if>
 	<c:if test="${count == numberToDisplay}">
-		<c:set var="tooltip" value='${tooltip}</b>' scope="page" />
-		<c:set var="tooltip" value="${tooltip}${var}, " scope="page" />
+		<c:set var="tooltip" value='${tooltip}</b>${var}, ' scope="page" />
 	</c:if>
 	<c:if test="${count > numberToDisplay}">
 		<c:set var="tooltip" value="${tooltip}${var}, " scope="page" />
@@ -25,5 +24,5 @@
 </c:forEach>
 
 <c:if test="${displayList.size() >= numberToDisplay }">
-	<a href="#" class="tooltip" title='${tooltip}'>...</a>
+	<a href="#" class="tooltip" title="${tooltip}">...</a>
 </c:if>
