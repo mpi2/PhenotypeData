@@ -27,7 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
@@ -54,7 +56,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class ExperimentService {
+public class ExperimentService{
 
     private static final Logger LOG = LoggerFactory.getLogger(ExperimentService.class);
 
@@ -587,4 +589,5 @@ public class ExperimentService {
         // object
         return new AllControlsStrategy();
     }
+
 }

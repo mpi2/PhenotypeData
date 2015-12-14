@@ -43,7 +43,7 @@ import javax.validation.constraints.NotNull;
 import java.util.*;
 
 @Service
-public class ImageService {
+public class ImageService implements WebStatus{
 
 	@Autowired
 	@Qualifier("impcImagesCore")
@@ -887,6 +887,22 @@ public class ImageService {
 		}
 		return true;
 
+	}
+	
+	public long getWebStatus() throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	
+	public String getServiceName(){
+		return "impc_images";
 	}
 
 }

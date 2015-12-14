@@ -67,7 +67,7 @@ import java.util.concurrent.ExecutionException;
 
 
 @Service
-public class ObservationService extends BasicService {
+public class ObservationService extends BasicService implements WebStatus {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -1891,4 +1891,23 @@ public class ObservationService extends BasicService {
 
 		return pipelines;
     }
+    
+    @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+
+
+
+	@Override
+	public String getServiceName(){
+		return "impc_images";
+	}
 }
