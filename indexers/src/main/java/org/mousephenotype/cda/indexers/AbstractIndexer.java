@@ -21,8 +21,8 @@ import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -53,9 +53,9 @@ public abstract class AbstractIndexer {
     // It is used for later validation by querying the core after the build.
     protected int documentCount = 0;
 
-    public abstract void run() throws IndexerException;
+    public abstract RunStatus run() throws IndexerException;
 
-    public abstract void validateBuild() throws IndexerException;
+    public abstract RunStatus validateBuild() throws IndexerException;
 
     public long getDocumentCount(SolrServer solrServer) throws IndexerException {
         Long numFound = 0L;
@@ -151,20 +151,22 @@ public abstract class AbstractIndexer {
      * Common core validator
      *
      * @param solrServer the solr server to be validated
+     * @return <code>RunStatus</code> indicating success, failure, or warning.
      * @throws IndexerException
      */
-    protected void validateBuild(SolrServer solrServer) throws IndexerException {
+    protected RunStatus validateBuild(SolrServer solrServer) throws IndexerException {
         Long actualSolrDocumentCount = getDocumentCount(solrServer);
-        String message;
+        RunStatus runStatus = new RunStatus();
 
         if (actualSolrDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
-            message = "ERROR: Expected at least " + MINIMUM_DOCUMENT_COUNT + " documents. Actual count: " + actualSolrDocumentCount + ".";
-            throw new IndexerException(message, RunStatus.FAIL);
+            runStatus.addError("Expected at least " + MINIMUM_DOCUMENT_COUNT + " documents. Actual count: " + actualSolrDocumentCount + ".");
         }
 
         if (actualSolrDocumentCount != documentCount) {
-            message = "WARNING: SOLR reports " + actualSolrDocumentCount + ". Actual count: " + documentCount;
-            throw new IndexerException(message, RunStatus.WARN);
+            runStatus.addWarning("SOLR reports " + actualSolrDocumentCount + ". Actual count: " + documentCount);
         }
+
+        return runStatus;
     }
+
 }

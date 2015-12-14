@@ -26,6 +26,7 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -96,8 +97,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void validateBuild() throws IndexerException {
-		super.validateBuild(impcImagesCore);
+	public RunStatus validateBuild() throws IndexerException {
+		return super.validateBuild(impcImagesCore);
 	}
 
 
@@ -111,8 +112,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void run() throws IndexerException {
+	public RunStatus run() throws IndexerException {
         int count = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
 		try {
@@ -339,6 +341,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		}
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
 	}
 
 
