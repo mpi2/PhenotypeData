@@ -40,8 +40,9 @@ public class UniprotService {
 		String id = gene.getUniprotHumanCanonicalAcc();
 	    UniprotDTO dto = new UniprotDTO();
 
-    	dto = readXml("http://www.uniprot.org/uniprot/" + id + ".xml", dto);
-
+	    if (id != null){ // not all genes have a human entry in uniprot
+	    	dto = readXml("http://www.uniprot.org/uniprot/" + id + ".xml", dto);
+	    }
 	    
 	    return dto;
 	}

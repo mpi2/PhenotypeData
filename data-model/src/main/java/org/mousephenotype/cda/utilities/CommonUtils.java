@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.utilities;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +31,26 @@ import java.util.concurrent.TimeUnit;
 public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;
+
+
+    /**
+     * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
+     * file is separated by a newline.
+     *
+     * @return the classpath, prefaced by the string 'Classpath:\n'. Each
+     * file is separated by a newline.
+     */
+    public String toStringClasspath() {
+        StringBuilder sb = new StringBuilder("Classpath:\n");
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader) cl).getURLs();
+
+        for (URL url : urls) {
+            sb.append(url.getFile()).append("\n");
+        }
+
+        return sb.toString();
+    }
 
     public Map<String,Integer> getGoCodeRank() {
 

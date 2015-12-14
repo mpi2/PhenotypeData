@@ -18,39 +18,30 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
-import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.sql.DataSource;
-
-import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
 /**
- * Populate the MA core
+ * Populate the GWAS core
  */
 public class GwasIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(GwasIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
 	@Qualifier("admintoolsDataSource")
@@ -78,10 +69,8 @@ public class GwasIndexer extends AbstractIndexer {
 	            throw new IndexerException(new ValidationException("Actual gwas document count is " + numFound + "."));
 
 	        if (numFound != documentCount)
-	            logger.warn("WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
-	        else
-	            logger.info("validateBuild(): Indexed " + documentCount + " gwas documents.");
-	   
+	            logger.warn(" WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -103,21 +92,17 @@ public class GwasIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public void run() throws IndexerException {
+        int count = 0;
+        long start = System.currentTimeMillis();
+
         try {
             gwasCore.deleteByQuery("*:*");
             gwasCore.commit();
 
-            logger.info("Removed previous data...");
-
-            logger.info("Starting GWAS Indexer...");
-
             //initialiseSupportingBeans();
 
             List<GwasDTO> gwasBatch = new ArrayList(BATCH_SIZE);
-            int count = 0;
-
-            logger.info("Starting indexing loop");
 
             // Add all ma terms to the index.
             List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
@@ -145,13 +130,12 @@ public class GwasIndexer extends AbstractIndexer {
 
             // Send a final commit
             gwasCore.commit();
-            logger.info("Indexed {} beans in total", count);
-        } catch (SolrServerException| IOException e) {
+
+        } catch (SQLException | SolrServerException| IOException e) {
             throw new IndexerException(e);
         }
 
-
-        logger.info("GWAS Indexer complete!");
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
     }
 
 
@@ -159,15 +143,9 @@ public class GwasIndexer extends AbstractIndexer {
 
 
     @Override
-    protected Logger getLogger() {
-        return logger;
-    }
-
-    @Override
     protected void printConfiguration() {
         if (logger.isDebugEnabled()) {
-            logger.debug("WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasCore));
-            
+            logger.debug(" WRITING Gwas     CORE TO: " + SolrUtils.getBaseURL(gwasCore));
         }
     }
 
@@ -177,20 +155,10 @@ public class GwasIndexer extends AbstractIndexer {
 
     private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
 
-//    private void initialiseSupportingBeans() throws IndexerException {
-//        // Grab all the supporting database content
-//        maImagesMap = IndexerMap.getSangerImagesByMA(imagesCore);
-//        if (logger.isDebugEnabled()) {
-//            IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
-//        }
-//    }
-
     public static void main(String[] args) throws IndexerException, SQLException {
         GwasIndexer indexer = new GwasIndexer();
         indexer.initialise(args);
         indexer.run();
         indexer.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
 }
