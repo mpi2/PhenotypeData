@@ -21,9 +21,9 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -200,6 +200,16 @@ public class IndexerManager {
         }
     }
 
+    private enum RunResult {
+        OK,
+        WARNING,
+        FAIL;
+
+        private String getName(){
+       		return this.toString();
+       	}
+    }
+
     protected ApplicationContext applicationContext;
 
 
@@ -267,22 +277,53 @@ public class IndexerManager {
 
         for (IndexerItem indexerItem : indexerItems) {
             long start = System.currentTimeMillis();
-            RunStatus runStatus;
+            RunStatus runStatus = new RunStatus();
+            RunResult runResult;
 
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
                 indexerItem.indexer.initialise(indexerArgs);
-                indexerItem.indexer.run();
-                indexerItem.indexer.validateBuild();
-                runStatus = RunStatus.OK;
+                runStatus = indexerItem.indexer.run();
+                if (runStatus.hasErrors()) {
+                    for (String errorMessage : runStatus.getErrorMessages()) {
+                        logger.error(errorMessage);
+                        runResult = RunResult.FAIL;
+                    }
+                } else {
+                    if (runStatus.hasWarnings()) {
+                        for (String warningMessage : runStatus.getWarningMessages()) {
+                            logger.warn(warningMessage);
+                            runResult = RunResult.WARNING;
+                        }
+                    }
+
+                    runStatus = indexerItem.indexer.validateBuild();
+                    if (runStatus.hasErrors()) {
+                        for (String errorMessage : runStatus.getErrorMessages()) {
+                            logger.error(errorMessage);
+                            runResult = RunResult.FAIL;
+                        }
+                    } else {
+                        if (runStatus.hasWarnings()) {
+                            for (String warningMessage : runStatus.getWarningMessages()) {
+                                logger.warn(warningMessage);
+                                runResult = RunResult.WARNING;
+                            }
+                        }
+                    }
+                }
+
+                runResult = RunResult.OK;
+
 
             } catch (IndexerException ie) {
-                logErrors(ie);
-                runStatus = ie.getRunStatus();
+                runStatus.addError(ie.getLocalizedMessage());
+                logExceptions(ie);
+                runResult = RunResult.FAIL;
             }
 
             logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
-            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runStatus, start, new Date().getTime()));
+            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runResult, start, new Date().getTime()));
             printJvmMemoryConfiguration();
         }
 
@@ -607,7 +648,7 @@ public class IndexerManager {
             manager.run();
 
         } catch (IndexerException ie) {
-            logErrors(ie);
+            logExceptions(ie);
             if (ie.getCause() instanceof NoDepsException) {
                 return STATUS_NO_DEPS;
             } else if (ie.getCause() instanceof MissingRequiredArgumentException) {
@@ -628,27 +669,23 @@ public class IndexerManager {
         return STATUS_OK;
     }
 
-    private static void logErrors(IndexerException ie) {
-        if (ie.getRunStatus() == RunStatus.WARN) {
-            logger.warn(" " + ie.getLocalizedMessage());
-        } else {
-            // Print out the exceptions.
-            if (ie.getLocalizedMessage() != null) {
-                System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
+    private static void logExceptions(IndexerException ie) {
+        // Print out the exceptions.
+        if (ie.getLocalizedMessage() != null) {
+            System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
+        }
+        int i = 0;
+        Throwable t = ie.getCause();
+        while (t != null) {
+            StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
+            if (t.getLocalizedMessage() != null) {
+                errMsg.append(t.getLocalizedMessage());
+            } else {
+                errMsg.append("<null>");
             }
-            int i = 0;
-            Throwable t = ie.getCause();
-            while (t != null) {
-                StringBuilder errMsg = new StringBuilder("Level " + i + ": ");
-                if (t.getLocalizedMessage() != null) {
-                    errMsg.append(t.getLocalizedMessage());
-                } else {
-                    errMsg.append("<null>");
-                }
-                System.out.println("ERROR: IndexerManager: " + errMsg.toString());
-                i++;
-                t = t.getCause();
-            }
+            System.out.println("ERROR: IndexerManager: " + errMsg.toString());
+            i++;
+            t = t.getCause();
         }
     }
 
@@ -672,17 +709,17 @@ public class IndexerManager {
      */
     private class ExecutionStatsRow {
         private String coreName;
-        private RunStatus status;
+        private RunResult runResult;
         private Long startTimeInMs;
         private Long endTimeInMs;
 
         public ExecutionStatsRow() {
-            this("<undefined>", RunStatus.FAIL, 0, 0);
+            this("<undefined>", RunResult.FAIL, 0, 0);
         }
 
-        public ExecutionStatsRow(String coreName, RunStatus status, long startTimeInMs, long endTimeInMs) {
+        public ExecutionStatsRow(String coreName, RunResult runResult, long startTimeInMs, long endTimeInMs) {
             this.coreName = coreName;
-            this.status = status;
+            this.runResult = runResult;
             this.startTimeInMs = startTimeInMs;
             this.endTimeInMs = endTimeInMs;
         }
@@ -695,7 +732,7 @@ public class IndexerManager {
             long millis = endTimeInMs - startTimeInMs;
             String elapsed = commonUtils.msToHms(millis);
             formatter.format("%20s started %s. Finished (%s) %s. Elapsed time: %s",
-                             coreName, dateFormatter.format(startTimeInMs), status.name(),
+                             coreName, dateFormatter.format(startTimeInMs), runResult.name(),
                              dateFormatter.format(endTimeInMs), elapsed);
 
             return sb.toString();

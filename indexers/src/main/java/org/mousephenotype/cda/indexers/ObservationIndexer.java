@@ -23,12 +23,12 @@ import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -91,8 +91,8 @@ public class ObservationIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(observationSolrServer);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(observationSolrServer);
     }
 
     public static void main(String[] args) throws IndexerException {
@@ -125,8 +125,9 @@ public class ObservationIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         long count = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
@@ -148,6 +149,8 @@ public class ObservationIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     public long populateObservationSolrCore() throws SQLException, IOException, SolrServerException {
