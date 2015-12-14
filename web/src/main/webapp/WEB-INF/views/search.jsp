@@ -4,163 +4,843 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">IMPC Search</jsp:attribute>
-	<jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute> 
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
+	<jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-	<style>
-	
-	</style>
-	<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+		<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
+		<style>
+			div#tabs {
+				margin-top: 30px;
+			}
+			table th:
+			.tabLabel{margin-bottom: 10px;}
+
+			ul.tabLabel li {
+				float: left;
+				padding: 5px 10px;
+				visibility: hidden;
+			}
+			li a {
+				padding: 5px;
+				color: gray;
+				text-decoration: none;
+				/*font-weight: bold;*/
+			}
+			li a:hover, .currDataType {
+				background-color: #EF7B0B;
+				color: white;
+				text-decoration: none;
+				border-radius: 3px;
+			}
+			div#resultMsg {
+				clear: both;
+				margin-bottom: 20px;
+				padding: 10px 0;
+			}
+			div#dTable_pagination, div#dTable_info {
+				display: inline;
+			}
+			div#dTable_pagination {
+				float: right;
+			}
+			.hideme {
+				display: none;
+			}
+
+			div.flist {
+				margin-top: 45px !important;
+			}
+			span.tabfc {
+				font-weight: normal;
+				font-size: 13px;
+			}
+
+
+		</style>
+
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">	
-	<div class="region region-pinned">
-            
-        <div id="flyingnavi" class="block">
-            
-            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-            
-            <ul>
-                <li><a href="#top">Search</a></li>
-            </ul>
-            
-            <div class="clear"></div>
-            
-        </div>
-        
-    </div>		
-	
+		<div class="region region-pinned"></div>
 	</jsp:attribute>
 
+	<jsp:body>
 
-    <jsp:body>		
-   
-		<div class="region region-sidebar-first">
-			<div id='facet' class='fblock block'>	
-				<div class="head">Filter your search</div>
-				<div class='content'>
+		<div id="tabs">
 
-										
-					<p class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</p>
-										
-					<div id='facetSrchMsg'><img src='img/loading_small.gif' /> Processing search ...</div> 
-					<div class="flist">
+			<ul class="tabLabel">
+				<li id="geneT"><a href="${baseUrl}/search/gene?kw=*">Genes</a></li>
+				<li id="mpT"><a href="${baseUrl}/search/mp?kw=*">Phenotypes</a></li>
+				<li id="diseaseT"><a href="${baseUrl}/search/disease?kw=*">Diseases</a></li>
+				<li id="maT"><a href="${baseUrl}/search/ma?kw=*">Anatomy</a></li>
+				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">IMPC Images</a></li>
+				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
+			</ul>
 
-						<ul>
-							<c:if test="${currTab != 'gene' }">
-							<li class="fmcat" id="gene">
-								<span class="flabel">Genes</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							</c:if>
+			<div id="resultMsg"></div>
 
-							<c:if test="${currTab == 'mp' }">
-							<li class="fmcat" id="mp">
-								<span class="flabel">Phenotypes</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							</c:if>
+			<div id="geneTab" class="hideme">
+				<div class="region region-sidebar-first">
+					<div id='facet' class='fblock block'>
+						<div class="head">Filter your search</div>
+						<div class='content'>
 
-							<c:if test="${currTab == 'disease' }">
-							<li class="fmcat" id="disease">
-								<span class="flabel">Diseases</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							</c:if>
+							<p class='documentation title textright'>
+								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+							</p>
 
-							<c:if test="${currTab == 'ma' }">
-							<li class="fmcat" id="ma">
-								<span class="flabel">Anatomy</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							</c:if>
-							<!-- <li class="fmcat" id="pipeline">
-								<span class="flabel">Procedures</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							-->
-
-							<c:if test="${currTab == 'impc_images' }">
-							<li class="fmcat" id="impc_images">
-								<span class="flabel">IMPC Images</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							</c:if>
-
-							<c:if test="${currTab == 'images' }">
-							<li class="fmcat" id="images">
-								<span class="flabel">Images</span>
-								<span class="fcount"></span>
-								<ul></ul>
-							</li>
-							</c:if>
-
-						</ul>
-					</div>				
-				</div>
-			</div>	
-		</div>	
-				
-		<div class="region region-content">
-			<div class="block block-system">
-				<div class='content'>
-					<!--  <div class='searchcontent'>
-						<div id="bigsearchbox" class="block">
-							<div class="content">								
-								<p><i id="sicon" class="fa fa-search"></i>
-									
-									<div class="ui-widget">
-										<input id="s">
-									</div>
-								</p>									
+							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div class="flist">
+								<ul>
+									<li class="fmcat" id="gene">
+										<span class="flabel">Genes</span>
+										<span class="fcount"></span>
+										<ul></ul>
+									</li>
+								</ul>
 							</div>
 						</div>
 					</div>
-					
-					<div class="textright">
-						<a id="searchExample" class="">View example search</a>						
-					</div>	
-					-->
-					<div class="clear"></div>
-					<!-- facet filter block -->								
-					<!-- container to display dataTable -->									
-					<div class="HomepageTable" id="mpi2-search"></div>				
+
+				</div>
+
+				<div class="region region-content">
+					<div class="block block-system">
+						<div class='content'>
+							<div class="clear"></div>
+
+							<!-- container to display dataTable -->
+							<div class="HomepageTable" id="mpi2-search"></div>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>		       
-        
-        <compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">	    
+
+			<div id="mpTab" class="hideme">
+				<div class="region region-sidebar-first">
+					<div id='facet' class='fblock block'>
+						<div class="head">Filter your search</div>
+						<div class='content'>
+
+							<p class='documentation title textright'>
+								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+							</p>
+
+							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div class="flist">
+								<ul>
+									<li class="fmcat" id="mp">
+										<span class="flabel">Phenotypes</span>
+										<span class="fcount"></span>
+										<ul></ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="region region-content">
+					<div class="block block-system">
+						<div class='content'>
+							<div class="clear"></div>
+
+							<!-- container to display dataTable -->
+							<div class="HomepageTable" id="mpi2-search"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="diseaseTab" class="hideme">
+				<div class="region region-sidebar-first">
+					<div id='facet' class='fblock block'>
+						<div class="head">Filter your search</div>
+						<div class='content'>
+
+							<p class='documentation title textright'>
+								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+							</p>
+
+							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div class="flist">
+								<ul>
+									<li class="fmcat" id="disease">
+										<span class="flabel">Diseases</span>
+										<span class="fcount"></span>
+										<ul></ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="region region-content">
+					<div class="block block-system">
+						<div class='content'>
+							<div class="clear"></div>
+
+							<!-- container to display dataTable -->
+							<div class="HomepageTable" id="mpi2-search"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="maTab" class="hideme">
+				<div class="region region-sidebar-first">
+					<div id='facet' class='fblock block'>
+						<div class="head">Filter your search</div>
+						<div class='content'>
+
+							<p class='documentation title textright'>
+								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+							</p>
+
+							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div class="flist">
+								<ul>
+									<li class="fmcat" id="ma">
+										<span class="flabel">Anatomy</span>
+										<span class="fcount"></span>
+										<ul></ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="region region-content">
+					<div class="block block-system">
+						<div class='content'>
+							<div class="clear"></div>
+
+							<!-- container to display dataTable -->
+							<div class="HomepageTable" id="mpi2-search"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="impc_imagesTab" class="hideme">
+				<div class="region region-sidebar-first">
+					<div id='facet' class='fblock block'>
+						<div class="head">Filter your search</div>
+						<div class='content'>
+
+							<p class='documentation title textright'>
+								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+							</p>
+
+							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div class="flist">
+								<ul>
+									<li class="fmcat" id="impc_images">
+										<span class="flabel">IMPC Images</span>
+										<span class="fcount"></span>
+										<ul></ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="region region-content">
+					<div class="block block-system">
+						<div class='content'>
+							<div class="clear"></div>
+
+							<!-- container to display dataTable -->
+							<div class="HomepageTable" id="mpi2-search"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<div id="imagesTab" class="hideme">
+				<div class="region region-sidebar-first">
+					<div id='facet' class='fblock block'>
+						<div class="head">Filter your search</div>
+						<div class='content'>
+
+							<p class='documentation title textright'>
+								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+							</p>
+
+							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+							<div class="flist">
+								<ul>
+									<li class="fmcat" id="images">
+										<span class="flabel">Images</span>
+										<span class="fcount"></span>
+										<ul></ul>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="region region-content">
+					<div class="block block-system">
+						<div class='content'>
+							<div class="clear"></div>
+
+							<!-- container to display dataTable -->
+							<div class="HomepageTable" id="mpi2-search"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacetWidget.js?v=${version}'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchFacets.js?v=${version}'></script>
+			<!--<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacet.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js?v=${version}'></script>
-			<!--  <script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script> -->
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacetWidget.js?v=${version}'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script>
+			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacet.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/impc_imagesFacetWidget.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js?v=${version}'></script> 
-	    </compress:html>
-
-
-
+			-->
+		<!--	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js?v=${version}'></script> -->
+		</compress:html>
 
 		<script>
-       	$(document).ready(function(){
-       		'use strict';	
+			$(document).ready(function(){
+				'use strict';
 
-        });        
-        </script>
-			
-						
-    </jsp:body>
+				$.fn.qTip(
+						{'pageName':'search'}
+				);
+				// populate facet counts to all "tabs"
+				$('ul.tabLabel li').each(function(){
+					var id = $(this).attr('id').replace('T','');
+					//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only
+					$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");
+				});
+
+				// so that we don't see the "tabs" appear w/o facet counts
+				// because the counts are appended after those "tabs" markup are loaded
+				$('ul.tabLabel li').css('visibility', 'visible');
+				$('div#resultMsg').css('border-top', '1px solid grey');
+
+
+				var path = window.location.pathname.replace(baseUrl, '');
+				var vals = path.split('/'); // [1]search, [2]corename
+
+				var params = window.location.search; // includes leading "?"
+
+				var query, coreName, solrFilters;
+				var solrFqs = [];
+				var showImgViewStr = "showImgView=false";  // default
+
+				//---------------------- parse URL ----------------------------
+				if ( /search\/\w+\?.+$/.exec(location.href) ){
+					// with filter(s)
+
+					var regex = /search\/(\w+)\?(.+)$/;
+					var matches = location.href.match(regex);
+
+					var filters = [];
+
+					//query = matches[1];
+					var hasFq = false;
+					coreName = matches[1];
+
+					// activate this 'tab'
+					//alert('div#' + coreName +'Tab')
+					$('div#' + coreName +'Tab').show();
+
+					var paramStr = matches[2];
+					var kw = paramStr.split("&");
+					for ( var i=0; i<kw.length; i++ ){
+						var pairs = kw[i].split("=");
+						var k = pairs[0];
+						var v = pairs[1];
+						if( k == 'kw' ){
+							query = v;
+						}
+						else if ( k == 'showImgView' ){
+							showImgViewStr = kw[i];
+
+						}
+						else if ( k == 'fq' ){
+							hasFq = true;
+							var solrFqStr = decodeURI(v.replace("fq=", "")).replace(/\)|\(/g, "");
+							var fv = solrFqStr.split(" AND ");
+							for (var j=0; j<fv.length; j++){
+								var fv2 = fv[j].split(":");
+								var fkey = fv2[0];
+								var fval = fv2[1];
+								//alert(fval)
+								solrFqs.push(fkey+"|"+fval.replace(/"/g,""));
+								if ( fkey == 'embryo_data_available' ){
+									fval = '"' + fkey + '"';
+								}
+								else if ( fkey == 'legacy_phenotype_status' ){
+									fval = '"Legacy"';
+								}
+								else  if ( fval == '"Phenotyping Complete"' ){
+									fval = '"Approved"';
+								}
+								else if (coreName == 'disease' && fval == "\"true\"" ){
+									fval = '"' + $.fn.labelMap(fkey) + '"';
+								}
+
+								filters.push(fval);
+							}
+						}
+					}
+
+					if ( filters.length > 0){
+						solrFilters = filters.join(" AND ");
+					}
+
+					query = query.replace("\\%3A", ":");
+					$('input#s').val(decodeURI(query));
+				}
+
+				//---------------------- end of parse URL ----------------------------
+
+
+				// remove active tab highlight
+				$("ul.tabLabel > li a").removeClass('currDataType');
+
+
+				$("ul.tabLabel > li a").each(function(){
+
+					var thisId = $(this).parent().attr('id').replace("T","");
+					// ----------- update "tab" url ---------------------
+
+					var currKw = $.fn.fetchUrlParams('kw');
+					if ( thisId != coreName ) {
+						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+					}
+
+					// ----------- end of update "tab" url ---------------------
+
+					// ----------- highlights current "tab" and populates its facet filters and dataTable -----------
+					if ( thisId == coreName ){
+
+						// update "tab" link url
+						if ( $.fn.fetchUrlParams('fq') != undefined ){
+							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));
+						}
+						else {
+							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+						}
+
+						$(this).addClass('currDataType').click();
+
+						$.fn.displayFacets(coreName, ${jsonStr});
+
+						// check(highlight) filter(s) based on URL fq str
+						if ( solrFqs.length != 0 ){
+							highlightFilters(solrFqs);
+						}
+
+						var tabId = '#' + coreName + 'Tab';
+						var parentContainer = $(tabId).find("div#mpi2-search");
+
+
+						if ( coreName.indexOf('images') != -1 ) {
+
+							var foundMsg, switcher, viewMsg;
+							if (showImgViewStr == "showImgView=false" ){
+
+								viewMsg = '<div id="imgView" rel="annotView">'
+										+ '<span id="imgViewSubTitle">Annotation View: groups images by annotation</span>'
+										+ '<span id="imgViewSwitcher">Show Image View</span>';
+								foundMsg = '<p>Found '
+										+ '<span id="resultCount">'
+										+ '<span id="annotCount">' + ${jsonStr}.iTotalRecords + ' annotations / </span>'
+								+ '<a href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
+								+ '</span></div>';
+							}
+							else {
+
+								viewMsg = '<div id="imgView" rel="imgView">'
+										+ '<span id="imgViewSubTitle">Image View: lists annotations to an image</span>'
+										+ '<span id="imgViewSwitcher">Show Annotation View</span>';
+								foundMsg = '<p>Found '
+										+ '<span id="resultCount">'
+										+ '<a href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
+								+ '</span></div>';
+							}
+							switcher = viewMsg + foundMsg;
+
+							parentContainer.append(switcher);
+
+							// add js to switcher
+							activateImgViewSwitcher();
+						}
+
+						var tableId = "dTable";
+
+						//console.log("${gridHeaderListStr}");
+						prepare_dataTable("${gridHeaderListStr}", tableId, parentContainer);
+
+						var infoDivId = tableId + "_info";
+						var paginationDivId = tableId + "_pagination";
+
+						$('table#'+tableId).dataTable({
+									"bSort" : false,
+									"bProcessing" : true,
+									//"bServerSide" : true,
+									"sDom" : "<<'#exportSpinner'><'#tableTool'>r>t<'#" + infoDivId + "'><'#" + paginationDivId + "'>",
+									"sPaginationType" : "bootstrap",
+									"aaData" : ${jsonStr}.aaData,  // array of objects
+								"iTotalRecords" : ${jsonStr}.iTotalRecords
+						});
+
+						// adjust col width
+						adjustColWidth();
+
+						// update pagination control
+						addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
+
+						// add Download
+						addDownloadTool();
+
+						// highlight synonyms
+						highlighSynonym();
+
+						// register interest js
+						addRegisterInterestJs();
+					}
+				});
+				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
+
+
+				// ----------- when a "tab" is clicked ----------------
+				$("ul.tabLabel > li a").click(function(){
+					$('#resultMsg').text("Fetching data ....");
+				});
+
+
+				// submit query when facet filter is ticked
+				fetchResultByFilters();
+
+
+				//------------------------- FUNCTIONS ------------------------
+
+				function highlighSynonym(){
+
+					// mouseover synonyms in results dataTable
+					$('ul.synonym li, ul.hpTerms li, ul.ortholog li').mouseover(function() {
+						$(this).addClass("highlight");
+					}).mouseout(function() {
+						$(this).removeClass("highlight");
+					});
+				}
+				function addRegisterInterestJs(){
+
+					$('a.interest').click(function() {
+
+						var termId = $(this).attr('id');
+						var endpoint = null;
+
+						if (/^MP:/.exec(termId)) {
+							endpoint = "/togglempflagfromjs/";
+						} else if (/^MGI:/.exec(termId)) {
+							endpoint = "/toggleflagfromjs/";
+						}
+
+						var label = $(this).text();
+						var regBtn = $(this);
+
+						$.ajax({
+							url : endpoint + termId,
+							success : function(response) {
+								// console.log('success');
+
+								if (response === 'null') {
+									window.alert('Null error trying to register interest');
+								} else {
+									// 3 labels (before login is 'Interest')
+									// compare using the actual raw character for &nbsp;
+									if (label == String.fromCharCode(160) + 'Register interest') {
+										regBtn.text(String.fromCharCode(160) + 'Unregister interest');
+										regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
+										.parent().attr('oldtitle', 'Unregister interest').qtip({
+											style : {
+												classes : 'qtipimpc flat'
+											},
+											position : {
+												my : 'top center',
+												at : 'bottom center'
+											},
+											content : {
+												text : $(this).attr('oldtitle')
+											}
+										}); // refresh
+											// tooltip
+									} else if (label == String.fromCharCode(160) + 'Unregister interest') {
+										regBtn.text(String.fromCharCode(160) + 'Register interest');
+										regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
+										.parent().attr('oldtitle', 'Register interest').qtip({
+											style : {
+												classes : 'qtipimpc flat'
+											},
+											position : {
+												my : 'top center',
+												at : 'bottom center'
+											},
+											content : {
+												text : $(this).attr('oldtitle')
+											}
+										}); // refresh
+									}
+								}
+							},
+							error : function() {
+								window.alert('AJAX error trying to register interest');
+							}
+						});
+						return false;
+					});
+
+					// applied when result page first loads
+					$('div.registerforinterest, td .status').each(function() {
+						$(this).qtip({
+							style : {
+								classes : 'qtipimpc flat'
+							},
+							position : {
+								my : 'top center',
+								at : 'bottom center'
+							},
+							content : {
+								text : $(this).attr('oldtitle')
+							}
+						});
+					});
+				}
+
+
+				function addDownloadTool(){
+					var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
+
+					var vals = $('div#dTable_pagination li.active a').attr('href').split("?");
+					var params = vals[1];
+					var dataType = "dataType=" + coreName;
+					var fileTypeTsv = "fileType=tsv";
+					var fileTypeXls = "fileType=xls";
+					var fileName = "fileName=" + coreName + "_table_dump";
+
+					var paramList = [dataType, params, fileName];
+					var paramStr = paramList.join("&");
+
+
+					var urltsv = "${baseUrl}/export2?" + paramStr + "&" + fileTypeTsv;
+					var urlxls = "${baseUrl}/export2?" + paramStr + "&" + fileTypeXls;
+
+					var toolBox = '<div id="toolBox" style="display: block;">'
+							+ '<div class="dataName">Current paginated entries in table</div>'
+							+ '<p>Export as: &nbsp;'
+							//+ '<button class="tsv_grid fa fa-download gridDump gridDump" data-exporturl=' + urltsv + '>TSV</button>&nbsp;or&nbsp;'
+							//+ '<button class="xls_grid fa fa-download gridDump gridDump" data-exporturl=' + urlxls + '>XLS</button></p><p>'
+							+ '<a class="tsv_grid fa fa-download gridDump gridDump" href="' + urltsv + '">TSV</a>&nbsp;or&nbsp;'
+							+ '<a class="tsv_grid fa fa-download gridDump gridDump" href="' + urlxls + '">XLS</a></p><p>'
+							+ 'For larger dataset, use <a href=${baseUrl}/batchQuery>Batch query</a>';
+
+					$('div.dataTables_processing').siblings('div#tableTool').append(
+							saveTool, toolBox);
+
+					$('div#toolBox').hide();
+					$('span#dnld').click(function(){
+						if ($('div#toolBox').is(":visible")) {
+							$('div#toolBox').hide();
+						}
+						else {
+							$('div#toolBox').show();
+						}
+					});
+				}
+
+				function adjustColWidth(){
+
+					if ( coreName == 'disease' || coreName == 'gene' ) {
+						$('table th:first-child').css('width', '45%');
+					}
+					else if ( coreName.indexOf('images') != -1 ) {
+						$('table th:first-child').css('width', '30%');
+					}
+					else if ( coreName.indexOf('mp') != -1 ) {
+						$('table th:nth-child(3)').css('width', '10%');
+					}
+				}
+
+				function activateImgViewSwitcher(){
+					$('div#imgView').click(function(){
+						var fqStr = $.fn.fetchUrlParams("fq") == undefined ? "" : "&fq=" + $.fn.fetchUrlParams("fq");
+						var mode = $(this).attr('rel');
+
+						if ( mode == 'annotView' ){
+							document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr + "&showImgView=true";
+						}
+						else {
+							document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr + "&showImgView=false";
+						}
+					});
+				}
+
+
+				function fetchResultByFilters(){
+					$('li.fcat input').click(function () {
+
+						// parse checked filters and build a SOLR fq str
+						var fqs = [];
+						$('li.fcat span.highlight').each(function () {
+
+							var vals = $(this).prev().attr("rel").split("|");
+							var fq = vals[1];
+							var val = vals[2];
+							fqs.push("(" + fq + ":\"" + val + "\")");
+						});
+
+						var fqStr = fqs.length != 0 ? "&fq=" + fqs.join(" AND ") : "";
+
+						//document.location.href = baseUrl + '/search/' + query + '/' + coreName + fqStr;
+						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr;
+					});
+				}
+
+				function highlightFilters(solrFqs){
+
+					for( var i=0; i<solrFqs.length; i++){
+
+						$('div.flist li.fcat input').each(function() {
+
+							if ($(this).attr("rel").indexOf(solrFqs[i]+"|") != -1) {
+								$(this).next().click();
+
+								// if there is a filter checked, open its container facet if not yet
+								var container = $(this).parent().parent().parent();
+								if ( ! container.hasClass('open') ){
+									container.click();
+								}
+							}
+						});
+					}
+				}
+
+				function prepare_dataTable(colListStr, tableId, parentContainer){
+
+					var colList = colListStr.split(',');
+
+					var th = '';
+					for ( var i=0; i<colList.length; i++){
+						th += "<th>" + colList[i] + "</th>";
+					}
+
+					var tableHeader = "<thead>" + th + "</thead>";
+					var tableCols = colList.length;
+
+					var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, tableId);
+
+					parentContainer.append(dTable);
+				}
+
+				function addPaginationControl(parentContainer, infoDivId, paginationDivId, json){
+					//console.log("total records: " + json.iTotalRecords);
+
+					var start  = json.iDisplayStart;
+					var length = json.iDisplayLength;
+					//var total  = json.iTotalRecords;
+					var total = ${facetCount}[coreName];
+
+					var numX = parseInt(start+1);
+					var numY = parseInt(start+length) > total ? total : parseInt(start+length);
+					var defaultRows = 10;
+					var currPageNum = (start/length)+1;
+
+					parentContainer.find('div#' + infoDivId).html("Showing " + numX + " to " + numY + " of " + total + " entries");
+
+					var filters = solrFilters != undefined ? " filtered by " + solrFilters : "";
+					$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
+
+					// work out how many pages
+					var pages = Math.ceil(total / length);
+					var defaultPaginationLength = pages > 6 ? 5 : pages;
+					var lis = [];
+					var href = undefined;
+
+					// work out correct url to append start and length for pagination
+					if ( location.href.indexOf("&iDisplayStart") != -1 ){
+						var pos = location.href.indexOf("&iDisplayStart");
+						href = location.href.substr(0, pos);
+					}
+					else {
+						href = location.href;
+					}
+
+					var dLen = "&iDisplayLength=10";
+
+					var currHref = href + "&iDisplayStart=0" + dLen;
+
+					lis.push("<li><a href='" + currHref + "'>&larr; First</a>");
+
+					var cycles, loopStart;
+					if ( currPageNum < 4 ){
+						// show pagination buttons starting from 1
+						loopStart = 0;
+						cycles = defaultPaginationLength;
+					}
+					else {
+						// show pagination buttons starting > 1 (higher numbers)
+						// always display 5 buttons (ie, if there is a total of 12 pages, click on either one of the 11/12 numbers
+						// will always show 8,9,10,11,12,
+						// but click on 9 will show 7,8,9.10,11..12
+						// and click on 10 will show 8,9,10,11,12
+						loopStart = currPageNum > pages-4 ? pages-5 : currPageNum - 3;
+						cycles = defaultPaginationLength  + loopStart;
+					}
+
+					var fifthNum = undefined;
+					for (var i = loopStart; i < cycles; i++) {
+						currHref = href + "&iDisplayStart=" + parseInt(i * length) + dLen;
+						var sClass = i + 1 == currPageNum ? "active" : "";
+						if ( i < pages ) {
+							lis.push("<li class='" + sClass + "'><a href='" + currHref + "'>" + parseInt(i + 1) + "</a>");
+						}
+						fifthNum = i+1;
+					}
+
+					if (pages > fifthNum ) {
+						var sClass = pages == currPageNum ? "active" : "";
+						currHref = href + "&iDisplayStart=" + parseInt((pages - 1) * length) + dLen;
+						lis.push("<li><span class='ellipse'>...</span></li>");
+						lis.push("<li class='" + sClass + "'><a href='" + currHref + "'>" + pages + "</a>");
+					}
+					else {
+
+					}
+
+					currHref = href + "&iDisplayStart=" + parseInt((pages-1)*length) + dLen;
+					lis.push("<li><a href='" + currHref + "'>Last &rarr;</a>");
+
+					parentContainer.find('div#' + paginationDivId).html("<ul>"+ lis.join("") + "</ul>").addClass("dataTables_paginate paging_bootstrap pagination");
+
+				}
+
+			});
+
+		</script>
+
+	</jsp:body>
 
 </t:genericpage>
 
