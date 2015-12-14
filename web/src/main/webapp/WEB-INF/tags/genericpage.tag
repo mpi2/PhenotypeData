@@ -222,6 +222,7 @@
 
                 <div id="main">
                     <div class="breadcrumb">
+
                         <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
 
                         <div class='searchcontent'>

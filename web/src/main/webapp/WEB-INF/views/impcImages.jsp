@@ -6,7 +6,7 @@
 
     <jsp:attribute name="title">${queryTerms} IMPC Images Information</jsp:attribute>
 
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=impc_images">IMPC Images</a> &raquo; Results</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/impc_images?kw=*">IMPC Images</a> &raquo; Results</jsp:attribute>
 
     <jsp:attribute name="header">
 
