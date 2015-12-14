@@ -34,7 +34,7 @@
     </jsp:attribute>
 
     <jsp:attribute name="breadcrumb">
-        &nbsp;&raquo; <a href="${baseUrl}/search#q=*:*&facet=disease"> Diseases</a>&nbsp;&raquo; ${disease.diseaseId}
+        &nbsp;&raquo; <a href="${baseUrl}/search/disease?kw=*"> Diseases</a>&nbsp;&raquo; ${disease.diseaseId}
     </jsp:attribute>
 
     <jsp:body>

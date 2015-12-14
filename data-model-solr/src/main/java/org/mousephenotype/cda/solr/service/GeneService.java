@@ -41,7 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class GeneService extends BasicService{
+public class GeneService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("geneCore")
@@ -341,20 +341,29 @@ public class GeneService extends BasicService{
 		try {		
 			if ( mouseStatus != null ){				
 				
-				for ( int i=0; i< mouseStatus.size(); i++ ) {		
-					String mouseStatusStr = mouseStatus.get(i).toString();					
-					statusMap.put(mouseStatusStr, "yes");
-				}		
-								
-				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
-				for ( int j=0; j< alleleNames.size(); j++ ) {
-					String alleleName = alleleNames.get(j).toString();
-					if ( !alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("") ){	
-						statusMap.put("mice production planned", "yes");						
-					}				
+				for ( int i=0; i< mouseStatus.size(); i++ ) {
+					String mouseStatusStr = mouseStatus.get(i).toString();
+
+					if ( !mouseStatusStr.equals("") ) {
+
+						statusMap.put(mouseStatusStr, "yes");
+					}
 				}
-				
+
+				// if no mice status found but there is already allele produced, mark it as "mice produced planned"
+				if ( alleleNames != null ) {
+
+					for (int j = 0; j < alleleNames.size(); j++) {
+
+						String alleleName = alleleNames.get(j).toString();
+						if (!alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("")) {
+							statusMap.put("mice production planned", "yes");
+						}
+					}
+				}
+
 				if ( statusMap.containsKey("Mice Produced") ){
+
 					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
@@ -377,6 +386,7 @@ public class GeneService extends BasicService{
 		} catch (Exception e) {
 			log.error("Error getting ES cell/Mice status");
 			log.error(e.getLocalizedMessage());
+
 		}
 		
 		return miceStatus;
@@ -434,9 +444,11 @@ public class GeneService extends BasicService{
 	 * @return the latest status at the gene level for both ES cells and alleles
 	 */
 	public String getLatestProductionStatuses(JSONObject doc, boolean toExport, String geneLink){
-		
+
+
 		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
 		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+
 		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 		
 		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);		
@@ -607,7 +619,7 @@ public class GeneService extends BasicService{
 	 * @return the latest status at the gene level for ES cells and all statuses at the allele level for mice as a comma separated string
 	 */
 	public String getProductionStatusForEsCellAndMice(JSONObject doc, String url, boolean toExport){
-		
+
 		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), url, toExport);
 		String miceStatus = "";		
 		final List<String> exportMiceStatus = new ArrayList<String>();
@@ -623,13 +635,16 @@ public class GeneService extends BasicService{
 			if ( doc.containsKey("mouse_status") ){
 				
 				JSONArray alleleNames = doc.getJSONArray("allele_name");
+
 				JSONArray mouseStatus = doc.getJSONArray("mouse_status");
 				
 				for ( int i=0; i< mouseStatus.size(); i++ ) {		
 					String mouseStatusStr = mouseStatus.get(i).toString();	
 					
 					if ( mouseStatusStr.equals("Mice Produced") ){
-						String alleleName = alleleNames.getString(i).toString();						
+
+						String alleleName = alleleNames.getString(i).toString();
+
 						Matcher matcher = pattern.matcher(alleleName);
 						//System.out.println(matcher.toString());
 							
@@ -654,20 +669,22 @@ public class GeneService extends BasicService{
 						}						
 					}					
 				}	
-				// if no mice status found but there is already allele produced, mark it as "mice produced planned"				
-				for ( int j=0; j< alleleNames.size(); j++ ) {
-					String alleleName = alleleNames.get(j).toString();
-					if ( !alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("") ){	
-						Matcher matcher = pattern.matcher(alleleName);
-						if (matcher.find()) {
-							String alleleType = matcher.group(1);						
-							miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
-									+  "<span>Mice<br>" + alleleType + "</span>"
-									+  "</span>";
-							
-							exportMiceStatus.add(alleleType + " mice production planned");
-						}	
-					}						
+				// if no mice status found but there is already allele produced, mark it as "mice produced planned"
+				if ( alleleNames != null ) {
+					for (int j = 0; j < alleleNames.size(); j++) {
+						String alleleName = alleleNames.get(j).toString();
+						if (!alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("")) {
+							Matcher matcher = pattern.matcher(alleleName);
+							if (matcher.find()) {
+								String alleleType = matcher.group(1);
+								miceStatus += "<span class='status none' oldtitle='Mice production planned' title=''>"
+										+ "<span>Mice<br>" + alleleType + "</span>"
+										+ "</span>";
+
+								exportMiceStatus.add(alleleType + " mice production planned");
+							}
+						}
+					}
 				}
 			}
 		} 
@@ -702,10 +719,10 @@ public class GeneService extends BasicService{
 		solrQuery.setRows(100000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.LATEST_MOUSE_STATUS);
 		
-		System.out.println("getProductionStatusForGeneSet solr url " + solr.getBaseURL() + "/select?" + solrQuery);
+		//System.out.println("getProductionStatusForGeneSet solr url " + solr.getBaseURL() + "/select?" + solrQuery);
 		
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
-		System.out.println("solr query in basicbean=" + solrQuery);
+		//System.out.println("solr query in basicbean=" + solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		for (SolrDocument doc : res) {
 			
@@ -827,7 +844,7 @@ public class GeneService extends BasicService{
 		List<GeneDTO> genes = new ArrayList<>();
 		
 		String symbolsStr = StringUtils.join(symbols, ",");  // ["bla1","bla2"]
-		System.out.println("symbol str: " + symbolsStr);
+
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM_LOWERCASE + ":(" + symbolsStr + ")")
 			.setRows(symbols.size())
@@ -867,7 +884,7 @@ public class GeneService extends BasicService{
 		
 		// build query for these genes
 		String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
-		System.out.println("geneQuery: " + geneQuery);
+
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(geneQuery)
 			.setRows(1)
@@ -924,5 +941,22 @@ public class GeneService extends BasicService{
 		return geneToHumanOrthologMap;
 	}
 
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	
+	@Override
+	public String getServiceName(){
+		return "Gene Service";
+	}
 	
 }
