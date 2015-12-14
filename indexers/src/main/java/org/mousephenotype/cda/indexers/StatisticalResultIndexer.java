@@ -29,6 +29,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -81,8 +82,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(statResultCore);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(statResultCore);
     }
 
     @Override
@@ -118,13 +119,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
 
         long start = System.currentTimeMillis();
+        RunStatus runStatus = new RunStatus();
 
         long count = populateStatisticalResultsSolrCore();
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     private int populateStatisticalResultsSolrCore() throws IndexerException {
@@ -315,7 +319,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
             statResultCore.commit(true, true);
 
         } catch (SQLException | IOException | SolrServerException e) {
-            logger.error(" Big error {}", e.getMessage(), e);
+            throw new IndexerException(e);
         }
 
         return count;

@@ -24,6 +24,7 @@ import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,21 +62,24 @@ public class GwasIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
+    public RunStatus validateBuild() throws IndexerException {
         Integer numFound;
+        RunStatus runStatus = new RunStatus();
+
 		try {
 			numFound = getDocCount();
 			if (numFound <= MINIMUM_DOCUMENT_COUNT)
 	            throw new IndexerException(new ValidationException("Actual gwas document count is " + numFound + "."));
 
 	        if (numFound != documentCount)
-	            logger.warn(" WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
+	            runStatus.addWarning(" WARNING: Added " + documentCount + " gwas documents but SOLR reports " + numFound + " documents.");
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+            throw new IndexerException(e);
 		}
 
+        return runStatus;
     }
 
     public Integer getDocCount() throws SQLException {
@@ -92,8 +96,9 @@ public class GwasIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
@@ -136,6 +141,8 @@ public class GwasIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
 
