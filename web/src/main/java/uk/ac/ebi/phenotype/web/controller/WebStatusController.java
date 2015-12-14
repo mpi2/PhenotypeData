@@ -6,13 +6,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
-import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.DiseaseService;
-import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -23,14 +20,12 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.WebStatus;
-import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
-import uk.ac.ebi.phenotype.service.UniprotService;
 
 /**
  * Class to handle the nagios web status monitoring pages
