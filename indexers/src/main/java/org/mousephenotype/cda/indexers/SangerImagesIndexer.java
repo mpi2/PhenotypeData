@@ -163,10 +163,6 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 		try {
 			count = populateSangerImagesCore(runStatus);
-            for (String warning : runStatus.getWarningMessages()) {
-                logger.warn(warning);
-            }
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
