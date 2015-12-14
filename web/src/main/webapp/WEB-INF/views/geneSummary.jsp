@@ -171,26 +171,29 @@
 	                                    <div> 
 	                                   		<c:if test="${uniprotData.getFunction() != null}">
 		                                     	<p class="with-label">
-			                                    	<span class="label">Function</span>${uniprotData.getFunction()}
+			                                    	<span class="label">Function</span>${uniprotData.getFunctionSummary()}
+			                                    	<c:if test="${!uniprotData.getFunction().equalsIgnoreCase(uniprotData.getFunctionSummary())}">
+														<a href="#" class="tooltip" title="${uniprotData.getFunction()}">...</a>
+			                                    	</c:if>
 			                               	 	</p>
 		                               	 	</c:if>
 		                               	 	<c:if test="${uniprotData.getGoProcess() != null && uniprotData.getGoProcess().size() > 0}">
 		                               	 		<c:set var="count" value="0" scope="page" />
 			                               		<p class="with-label">
 			                                    	<span class="label">GO Process</span>
-			                                    	<t:restrictTextDisplay title="GO Process" displayList="${uniprotData.getGoProcess()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                                    	<t:restrictListDisplay title="GO Process" displayList="${uniprotData.getGoProcess()}" numberToDisplay="5"> </t:restrictListDisplay>
 			                               	 	</p>
 			                               	</c:if>
 		                               	 	<c:if test="${uniprotData.getGoMolecularFunction() != null && uniprotData.getGoMolecularFunction().size() > 0}">
 		                                   		<p class="with-label">
 			                                    	<span class="label">GO Function</span>
-			                                    	<t:restrictTextDisplay title="GO Function" displayList="${uniprotData.getGoMolecularFunction()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                                    	<t:restrictListDisplay title="GO Function" displayList="${uniprotData.getGoMolecularFunction()}" numberToDisplay="5"> </t:restrictListDisplay>
 		                               	 		</p>
 		                               	 	</c:if>
 		                               	 	<c:if test="${uniprotData.getGoCell() != null && uniprotData.getGoCell().size() > 0}">
 			                               	 	<p class="with-label">
 			                                    	<span class="label">GO Cellular Component</span>
-			                                    	<t:restrictTextDisplay title="GO Cellular Component" displayList="${uniprotData.getGoCell()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                                    	<t:restrictListDisplay title="GO Cellular Component" displayList="${uniprotData.getGoCell()}" numberToDisplay="5"> </t:restrictListDisplay>
 			                               	 	</p>
 		                               	 	</c:if>
 		                               	 	<br/><br/>
