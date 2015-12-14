@@ -298,11 +298,7 @@ public class AllelesController {
         boolean isMirko = summary.get("pipeline").toString().equals("Mirko");
 
         String id;
-        String loa_link_id;
-
-        loa_link_id = summary.get("loa_link_id").toString();
-
-        if(isMirko) {
+       if(isMirko) {
             id = summary.get("design_id").toString();
         }
         else {
@@ -312,9 +308,8 @@ public class AllelesController {
         JSONObject object = getPcrDetails(isMirko, id);
         model.addAttribute("lrpcr", object);
 
-        log.info("#### GENOTYPE PRIMERS " + loa_link_id);
-        JSONObject object2 = getLoaDetails(loa_link_id);
-        model.addAttribute("loapcr", object2);
+        
+     
 
         if (id != null) {
             model.addAttribute("lrpcr_title", summary.get("symbol") + " LRPCR Genotyping Primers");
@@ -322,7 +317,11 @@ public class AllelesController {
             model.addAttribute("lrpcr_title", "LRPCR Genotyping Primers not available");
         }
 
-        if (loa_link_id != null) {
+        if(summary.get("loa_link_id")!=null && !summary.get("loa_link_id").equals("null")){
+        	String loa_link_id = summary.get("loa_link_id").toString();
+        	log.info("#### GENOTYPE PRIMERS " + loa_link_id);
+            JSONObject object2 = getLoaDetails(loa_link_id);
+            model.addAttribute("loapcr", object2);
             model.addAttribute("loa_title", summary.get("symbol") + " LOA Genotyping Primers");
         } else {
             model.addAttribute("loa_title", "LOA Genotyping Primers not available");
