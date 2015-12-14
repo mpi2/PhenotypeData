@@ -141,6 +141,11 @@ public class FileExportController {
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
 
+	@Autowired
+	private DataTableController dataTableController;
+
+	@Autowired
+	private SearchController searchController;
 	/**
 	 * Return a TSV formatted response which contains all datapoints
 	 *
@@ -243,6 +248,41 @@ public class FileExportController {
 		}
 
 		return StringUtils.join(rows, "\n");
+	}
+
+	@RequestMapping(value = "/export2", method = RequestMethod.GET)
+	public void exportTableAsExcelTsv2(
+		// used for search Version 2
+		@RequestParam(value = "kw", required = true) String query,
+		@RequestParam(value = "fq", required = false) String fqStr,
+		@RequestParam(value = "dataType", required = true) String dataType,
+		//@RequestParam(value = "params", required = false) String solrFilters,
+		@RequestParam(value = "fileType", required = true) String fileType,
+		@RequestParam(value = "fileName", required = true) String fileName,
+		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
+		@RequestParam(value = "iDisplayStart", required = true) Integer iDisplayStart,
+		@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
+		HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+
+		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+		Boolean legacyOnly = false;
+		String gridFields = null;
+
+		String solrFilters = "q=" + query + "&fq=" + fqStr;
+
+//		JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
+//				length, showImgView);
+
+		JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+		System.out.println(json.toString());
+
+		List<String> dataRows = new ArrayList<>();
+		dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
+				solrFilters, request, legacyOnly, fqStr);
+
+		Workbook wb = null;
+		writeOutputFile(response, dataRows, fileType, fileName, wb);
+
 	}
 
 	/**
@@ -829,6 +869,7 @@ public class FileExportController {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
 
+		System.out.println("baseUrl: " + baseUrl);
 		List<String> rowData = new ArrayList();
 		rowData.add(
 				"Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tPostqc call(s)"); // column
