@@ -9,56 +9,6 @@
 
 	<jsp:attribute name="header">
 		<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />
-		<style>
-			div#tabs {
-				margin-top: 30px;
-			}
-			table th:
-			.tabLabel{margin-bottom: 10px;}
-
-			ul.tabLabel li {
-				float: left;
-				padding: 5px 10px;
-				visibility: hidden;
-			}
-			li a {
-				padding: 5px;
-				color: gray;
-				text-decoration: none;
-				/*font-weight: bold;*/
-			}
-			li a:hover, .currDataType {
-				background-color: #EF7B0B;
-				color: white;
-				text-decoration: none;
-				border-radius: 3px;
-			}
-			div#resultMsg {
-				clear: both;
-				margin-bottom: 20px;
-				padding: 10px 0;
-			}
-			div#dTable_pagination, div#dTable_info {
-				display: inline;
-			}
-			div#dTable_pagination {
-				float: right;
-			}
-			.hideme {
-				display: none;
-			}
-
-			div.flist {
-				margin-top: 45px !important;
-			}
-			span.tabfc {
-				font-weight: normal;
-				font-size: 13px;
-			}
-
-
-		</style>
-
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">	
@@ -78,7 +28,7 @@
 				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
 			</ul>
 
-			<div id="resultMsg"></div>
+			<div><div id="resultMsg"></div><div id="tableTool"></div></div>
 
 			<div id="geneTab" class="hideme">
 				<div class="region region-sidebar-first">
@@ -306,15 +256,6 @@
 		<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchFacets.js?v=${version}'></script>
-			<!--<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/geneFacet.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/mpFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/maFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/pipelineFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/diseaseFacet.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/impc_imagesFacetWidget.js?v=${version}'></script>
-			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/imagesFacetWidget.js?v=${version}'></script>
-			-->
-		<!--	<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/search.js?v=${version}'></script> -->
 		</compress:html>
 
 		<script>
@@ -335,7 +276,6 @@
 				// because the counts are appended after those "tabs" markup are loaded
 				$('ul.tabLabel li').css('visibility', 'visible');
 				$('div#resultMsg').css('border-top', '1px solid grey');
-
 
 				var path = window.location.pathname.replace(baseUrl, '');
 				var vals = path.split('/'); // [1]search, [2]corename
@@ -499,7 +439,8 @@
 									"bSort" : false,
 									"bProcessing" : true,
 									//"bServerSide" : true,
-									"sDom" : "<<'#exportSpinner'><'#tableTool'>r>t<'#" + infoDivId + "'><'#" + paginationDivId + "'>",
+									//"sDom" : "<<'#exportSpinner'><'#tableTool'>r>t<'#" + infoDivId + "'><'#" + paginationDivId + "'>",
+									"sDom" : "<<'#exportSpinner'>r>t<'#" + infoDivId + "'><'#" + paginationDivId + "'>",
 									"sPaginationType" : "bootstrap",
 									"aaData" : ${jsonStr}.aaData,  // array of objects
 								"iTotalRecords" : ${jsonStr}.iTotalRecords
@@ -656,8 +597,8 @@
 							+ '<a class="tsv_grid fa fa-download gridDump gridDump" href="' + urlxls + '">XLS</a></p><p>'
 							+ 'For larger dataset, use <a href=${baseUrl}/batchQuery>Batch query</a>';
 
-					$('div.dataTables_processing').siblings('div#tableTool').append(
-							saveTool, toolBox);
+					//$('div.dataTables_processing').siblings('div#tableTool').append(
+					$('div#tableTool').append(saveTool, toolBox);
 
 					$('div#toolBox').hide();
 					$('span#dnld').click(function(){
