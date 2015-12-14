@@ -278,7 +278,7 @@ public class IndexerManager {
         for (IndexerItem indexerItem : indexerItems) {
             long start = System.currentTimeMillis();
             RunStatus runStatus = new RunStatus();
-            RunResult runResult;
+            RunResult runResult = RunResult.OK;
 
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
@@ -312,9 +312,6 @@ public class IndexerManager {
                         }
                     }
                 }
-
-                runResult = RunResult.OK;
-
 
             } catch (IndexerException ie) {
                 runStatus.addError(ie.getLocalizedMessage());
