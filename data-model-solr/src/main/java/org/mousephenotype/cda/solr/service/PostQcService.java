@@ -123,9 +123,9 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
 	}
-	
+	@Override
 	public String getServiceName(){
-		return "posQc";
+		return "posQc (genotype-phenotype core)";
 	}
 
 }
