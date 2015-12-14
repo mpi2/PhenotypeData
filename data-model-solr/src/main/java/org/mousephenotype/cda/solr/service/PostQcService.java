@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service("postqcService")
-public class PostQcService extends AbstractGenotypePhenotypeService {
+public class PostQcService extends AbstractGenotypePhenotypeService implements WebStatus {
 
     @Autowired
     @Qualifier("genotypePhenotypeCore")
@@ -111,5 +111,21 @@ public class PostQcService extends AbstractGenotypePhenotypeService {
 
         return retVal;
     }
+
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	
+	public String getServiceName(){
+		return "posQc";
+	}
 
 }
