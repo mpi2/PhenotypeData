@@ -183,6 +183,7 @@
 	<field name="mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
     <field name="mp_term_definition" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="alt_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="top_level_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="top_level_mp_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
@@ -341,6 +342,7 @@
 	<copyField source="latest_phenotyping_centre" dest="auto_suggest"/>
 	<copyField source="allele_name" dest="auto_suggest"/>
 	<copyField source="go_term_id" dest="auto_suggest"/>
+	<copyField source="alt_mp_id" dest="auto_suggest" />
 
 	<copyField source="annotatedHigherLevelMaTermName" dest="auto_suggest"/>	
 	<copyField source="ma_term" dest="auto_suggest" />

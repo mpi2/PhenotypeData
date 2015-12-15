@@ -78,7 +78,7 @@ public class MpOntologyDAO extends OntologyDAO {
           + "WHERE n2t.term_id != 'MP:0000001'\n"
           + "GROUP BY n2t.term_id\n"
           + "ORDER BY n2t.term_id, n2t.node_id\n";
-        
+
         populateAllTerms(query);
     }
     

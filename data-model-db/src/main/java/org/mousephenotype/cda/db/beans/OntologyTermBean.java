@@ -33,8 +33,9 @@ public class OntologyTermBean {
     private String id;
     private String name;
     private String definition;
-    private List<String> synonyms=new ArrayList<>();
+    private List<String> synonyms = new ArrayList<>();
     private String topLevelTermId;
+    private List<String> altMaIds = new ArrayList<>();;
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -88,7 +89,13 @@ public class OntologyTermBean {
         this.synonyms = synonyms;
     }
 
+    public List<String> getAltMaIds() {
+        return altMaIds;
+    }
 
+    public void setAltMaIds(List<String> altMaIds) {
+        this.altMaIds = altMaIds;
+    }
 
     // AUXILIARY METHODS
 
