@@ -167,7 +167,6 @@ public class MaOntologyDAO extends OntologyDAO {
                 + "GROUP BY n2t.term_id\n"
                 + "ORDER BY n2t.term_id, n2t.node_id\n";
 
-        System.out.println("MA QUERY: " + query);
         populateAllTerms(query);
     }
     
