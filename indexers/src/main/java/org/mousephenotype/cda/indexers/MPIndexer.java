@@ -168,8 +168,9 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setMpDefinition(rs.getString("definition"));
 
                 // alternative MP ID
-                if (rs.getString("alt_ids") != null) {
-                    mp.setAltMpIds(Arrays.asList(rs.getString("alt_ids").split(",")));
+                String alt_ids = rs.getString("alt_ids");
+                if ( !rs.wasNull() ) {
+                    mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
                 }
 
                 addMpHpTerms(mp, mphpBeans.get(termId));

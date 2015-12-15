@@ -446,7 +446,7 @@ public abstract class OntologyDAO {
 
 
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
-            System.out.println("QRY*** "+ query);
+
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 String mapKey = resultSet.getString("termId");
@@ -455,13 +455,17 @@ public abstract class OntologyDAO {
                 bean.setName(resultSet.getString("termName"));
                 bean.setDefinition(resultSet.getString("termDefinition") == null
                             ? "" : resultSet.getString("termDefinition"));
+
+                // alternative ID
+                String alt_ids = resultSet.getString("alt_ids");
+
+                if (! resultSet.wasNull() ) {
+                    bean.setAltIds(Arrays.asList(alt_ids.split(",")));
+                }
+
                 map.put(mapKey, bean);            
                 id2nodesMap.put(mapKey, Arrays.asList(resultSet.getString("nodes").split(",")));
 
-                // alternative MA ID
-                if (resultSet.getString("alt_ids") != null) {
-                    bean.setAltMaIds(Arrays.asList(resultSet.getString("alt_ids").split(",")));
-                }
             }
             
             ps.close();

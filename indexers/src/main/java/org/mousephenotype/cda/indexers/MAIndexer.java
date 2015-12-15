@@ -109,8 +109,11 @@ public class MAIndexer extends AbstractIndexer {
                 ma.setDataType("ma");
                 ma.setMaId(maId);
                 ma.setMaTerm(bean.getName());
-                ma.setAltMaIds(bean.getAltMaIds());
-                
+
+                if ( bean.getAltIds().size() > 0) {
+                    ma.setAltMaIds(bean.getAltIds());
+                }
+
                 // index UBERON/EFO id for MA id
                 if ( maUberonEfoMap.containsKey(maId) ){
                 	
