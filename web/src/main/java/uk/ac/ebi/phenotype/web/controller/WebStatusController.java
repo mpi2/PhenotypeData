@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.OntodbDAOImpl;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.OntologyTermDAOImpl;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.Allele2Service;
 import org.mousephenotype.cda.solr.service.AlleleService;
@@ -122,7 +119,7 @@ public class WebStatusController {
 	public void initialise() {
 		
 		//cores we need to test are at least this set: experiment,genotype-phenotype,statistical-result,preqc,allele,images,impc_images,mp,ma,pipeline,gene,disease,autosuggest
-		System.out.println("calling webStatus initialisation method");
+		//System.out.println("calling webStatus initialisation method");
 		webStatusObjects = new ArrayList<>();
 		webStatusObjects.add(observationService);
 		webStatusObjects.add(postqcService);
@@ -151,8 +148,9 @@ public class WebStatusController {
 	}
 
 	@RequestMapping("/webstatus")
-	public String webStatus(Model model){
-		System.out.println("calling webstatus controller");
+	public String webStatus(Model model, HttpServletResponse response){
+		boolean ok=true;
+		//System.out.println("calling webstatus controller");
 		//check our core solr instances are returning via the services
 		List<WebStatusModel> webStatusModels=new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
@@ -162,6 +160,7 @@ public class WebStatusController {
 				number = status.getWebStatus();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
+				ok= false;
 				e.printStackTrace();
 			}
 			WebStatusModel wModel=new WebStatusModel(name, number);
@@ -179,6 +178,7 @@ public class WebStatusController {
 				number = status.getWebStatus();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
+				ok=false;
 				e.printStackTrace();
 			}
 			WebStatusModel wModel=new WebStatusModel(name, number);
@@ -186,7 +186,13 @@ public class WebStatusController {
 		}
 
 		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
-		
+		if(ok){
+			response.setStatus(HttpServletResponse.SC_OK);
+			model.addAttribute("statusOk", true);
+		}else{
+			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			model.addAttribute("status", false);
+		}
 		
 		return "webStatus";
 	}
