@@ -114,7 +114,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Override
 	public RunStatus run()
 	throws IndexerException {
-        int count = 0;
+        documentCount = 0;
         Set<String> noTermSet = new HashSet<>();
         RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
@@ -208,7 +208,7 @@ public class PipelineIndexer extends AbstractIndexer {
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
 						pipelineCore.addBean(doc);
-						count++;
+						documentCount++;
 					}
 				}
 			}
@@ -232,7 +232,7 @@ public class PipelineIndexer extends AbstractIndexer {
             runStatus.addWarning("No mp term COUNT: " + noTermSet.size());
         }
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
 	}

@@ -154,8 +154,8 @@ public class MPIndexer extends AbstractIndexer {
             mpCore.commit();
 
             // Loop through the mp_term_infos
-            String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
-            
+            //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
+            String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -166,6 +166,11 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setMpId(termId);
                 mp.setMpTerm(rs.getString("name"));
                 mp.setMpDefinition(rs.getString("definition"));
+
+                // alternative MP ID
+                if (rs.getString("alt_ids") != null) {
+                    mp.setAltMpIds(Arrays.asList(rs.getString("alt_ids").split(",")));
+                }
 
                 addMpHpTerms(mp, mphpBeans.get(termId));
                 mp.setMpNodeId(termNodeIds.get(termId));
