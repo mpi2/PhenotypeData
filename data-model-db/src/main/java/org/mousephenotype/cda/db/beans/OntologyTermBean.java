@@ -89,11 +89,11 @@ public class OntologyTermBean {
         this.synonyms = synonyms;
     }
 
-    public List<String> getAltMaIds() {
+    public List<String> getAltIds() {
         return altMaIds;
     }
 
-    public void setAltMaIds(List<String> altMaIds) {
+    public void setAltIds(List<String> altMaIds) {
         this.altMaIds = altMaIds;
     }
 
