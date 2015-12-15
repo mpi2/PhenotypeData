@@ -17,7 +17,6 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
@@ -31,14 +30,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -352,7 +348,7 @@ public class PreqcIndexer extends AbstractIndexer {
 
             preqcCore.commit();
 
-        } catch (ParserConfigurationException | SAXException | SQLException | SolrServerException | IOException e) {
+        } catch (Exception e) {
             throw new IndexerException(e);
         }
 
