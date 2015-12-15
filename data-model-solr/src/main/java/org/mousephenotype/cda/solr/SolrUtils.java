@@ -140,7 +140,7 @@ public class SolrUtils {
             query.setStart(pos);
             QueryResponse response = null;
             response = imagesCore.query(query);
-
+            
             total = response.getResults().getNumFound();
             List<SangerImageDTO> imageList = response.getBeans(SangerImageDTO.class);
 
