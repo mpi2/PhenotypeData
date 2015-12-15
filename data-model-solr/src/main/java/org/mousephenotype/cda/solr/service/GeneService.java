@@ -41,7 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class GeneService extends BasicService{
+public class GeneService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("geneCore")
@@ -941,5 +941,22 @@ public class GeneService extends BasicService{
 		return geneToHumanOrthologMap;
 	}
 
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	
+	@Override
+	public String getServiceName(){
+		return "Gene Service";
+	}
 	
 }

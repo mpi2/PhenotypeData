@@ -28,6 +28,7 @@ import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -82,8 +83,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(gpSolrServer);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(gpSolrServer);
     }
 
     @Override
@@ -114,8 +115,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
@@ -125,9 +127,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             count = populateGenotypePhenotypeSolrCore();
 
         } catch (SQLException | IOException | SolrServerException ex) {
-
+            throw new IndexerException(ex);
         }
+
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     public void doLiveStageLookup() throws SQLException {

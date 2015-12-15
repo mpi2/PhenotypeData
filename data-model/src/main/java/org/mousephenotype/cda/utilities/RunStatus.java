@@ -78,7 +78,7 @@ public class RunStatus {
     
     @Override
     public String toString() {
-        return "RunStatus{" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + ", successCount=" + successCount + "}";
+        return "RunStatus {" + "errors=" + errorMessages.size() + ", warnings=" + warningMessages.size() + ", successCount=" + successCount + "}";
     }
 
     /**

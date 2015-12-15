@@ -6,6 +6,27 @@
 	<header>
 	</header>
 		<body>
-Staus information should be here!
+SOLR cores statuses:
+				<ol>
+					<c:forEach var="status" items="${webStatusModels}">
+				
+						<li>${status.name} : ${status.number}</li>
+					
+					</c:forEach>
+				</ol>
+				
+				Imits statuses:
+				
+				<ol>
+					<c:forEach var="status" items="${imitsWebStatusModels}">
+				
+						<li>${status.name} : ${status.number}</li>
+					
+					</c:forEach>
+				</ol>
+				
+				Database is ok?
+				
+				
 		</body>
 </html>
