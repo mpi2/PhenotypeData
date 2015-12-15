@@ -113,7 +113,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Override
 	public RunStatus run() throws IndexerException {
-        int count = 0;
+       
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
@@ -152,8 +152,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 			List<ImageDTO> imageList = observationCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
-
-				count++;
 
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
@@ -329,18 +327,18 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 
 					impcImagesCore.addBean(imageDTO);
-					
+					documentCount++;
 				}
 			}
 
 			impcImagesCore.commit();
-			documentCount = count;
+		
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);
 		}
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
 	}
