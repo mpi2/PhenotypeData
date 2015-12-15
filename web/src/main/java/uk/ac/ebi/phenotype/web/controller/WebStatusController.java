@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.Allele2Service;
 import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.AutoSuggestService;
 import org.mousephenotype.cda.solr.service.DiseaseService;
 import org.mousephenotype.cda.solr.service.EucommCreProductService;
+import org.mousephenotype.cda.solr.service.EucommToolsCreAllele2Service;
+import org.mousephenotype.cda.solr.service.EucommToolsProductService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -22,7 +25,7 @@ import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.WebStatus;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,8 +46,8 @@ public class WebStatusController {
 	private PhenotypeSummaryDAO phenSummary;
 
 
-	@Autowired
-	private PhenotypeCallSummarySolr phenoDAO;
+//	@Autowired
+//	private PhenotypeCallSummarySolr phenoDAO;
 
 	//uses admintools db which we don't need for web so don't status test it.
 	//@Autowired
@@ -89,6 +92,12 @@ public class WebStatusController {
 	@Autowired
 	AutoSuggestService autoSuggestService;
 	
+	 @Autowired
+	 private OntologyTermDAO ontoTermDao;
+	 
+	 @Autowired
+	 private PhenotypePipelineDAO ppDAO;
+	
 	List<WebStatus> webStatusObjects;
 	
 
@@ -98,6 +107,10 @@ public class WebStatusController {
 	Allele2Service allele2;
 	@Autowired
 	EucommCreProductService eucommCreProductService;
+	@Autowired
+	EucommToolsProductService eucommToolsProductService;
+	@Autowired
+	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
 	List<WebStatus> imitsWebStatusObjects;
 
 	
@@ -106,7 +119,7 @@ public class WebStatusController {
 	public void initialise() {
 		
 		//cores we need to test are at least this set: experiment,genotype-phenotype,statistical-result,preqc,allele,images,impc_images,mp,ma,pipeline,gene,disease,autosuggest
-		System.out.println("calling webStatus initialisation method");
+		//System.out.println("calling webStatus initialisation method");
 		webStatusObjects = new ArrayList<>();
 		webStatusObjects.add(observationService);
 		webStatusObjects.add(postqcService);
@@ -121,21 +134,35 @@ public class WebStatusController {
 		webStatusObjects.add(geneService);
 		webStatusObjects.add(diseaseService);
 		webStatusObjects.add(autoSuggestService);
+		webStatusObjects.add(ontoTermDao);
+		webStatusObjects.add(ppDAO);
+		
+		
 		
 		
 		imitsWebStatusObjects=new ArrayList<>();
 		imitsWebStatusObjects.add(allele2);
 		imitsWebStatusObjects.add(eucommCreProductService);
+		imitsWebStatusObjects.add(eucommToolsProductService);
+		imitsWebStatusObjects.add(eucommToolsCreAllele2Service);
 	}
 
 	@RequestMapping("/webstatus")
-	public String webStatus(Model model) throws SolrServerException {
-		System.out.println("calling webstatus controller");
+	public String webStatus(Model model, HttpServletResponse response){
+		boolean ok=true;
+		//System.out.println("calling webstatus controller");
 		//check our core solr instances are returning via the services
 		List<WebStatusModel> webStatusModels=new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
 			String name=status.getServiceName();
-			long number = status.getWebStatus();
+			long number = 0;
+			try {
+				number = status.getWebStatus();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				ok= false;
+				e.printStackTrace();
+			}
 			WebStatusModel wModel=new WebStatusModel(name, number);
 			webStatusModels.add(wModel);
 		}
@@ -146,13 +173,26 @@ public class WebStatusController {
 		List<WebStatusModel> imitsWebStatusModels=new ArrayList<>();
 		for (WebStatus status : imitsWebStatusObjects) {
 			String name=status.getServiceName();
-			long number = status.getWebStatus();
+			long number = 0;
+			try {
+				number = status.getWebStatus();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				ok=false;
+				e.printStackTrace();
+			}
 			WebStatusModel wModel=new WebStatusModel(name, number);
 			imitsWebStatusModels.add(wModel);
 		}
 
 		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
-		
+		if(ok){
+			response.setStatus(HttpServletResponse.SC_OK);
+			model.addAttribute("statusOk", true);
+		}else{
+			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			model.addAttribute("status", false);
+		}
 		
 		return "webStatus";
 	}
