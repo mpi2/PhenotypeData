@@ -28,6 +28,8 @@ public class MaDTO {
     public static final String DATA_TYPE = "dataType";
     public static final String MA_ID = "ma_id";
     public static final String MA_TERM = "ma_term";
+    public static final String ALT_MA_ID = "alt_ma_id";
+
     public static final String UBERON_ID = "uberon_id";
     public static final String EFO_ID = "efo_id";
     public static final String MA_TERM_SYNONYM = "ma_term_synonym";
@@ -194,6 +196,9 @@ public class MaDTO {
 
     @Field(MA_TERM_SYNONYM)
     private List<String> maTermSynonym;
+
+    @Field(ALT_MA_ID)
+    private List<String> altMaIds;
 
     @Field(ONTOLOGY_SUBSET)
     private List<String> ontologySubset;
@@ -549,6 +554,15 @@ public class MaDTO {
     public void setMaId(String maId) {
         this.maId = maId;
     }
+
+    public List<String> getAltMaIds() {
+        return altMaIds;
+    }
+
+    public void setAltMaIds(List<String> altMaIds) {
+        this.altMaIds = altMaIds;
+    }
+
 
     public List<String> getUberonIds() {
         return uberonIds;

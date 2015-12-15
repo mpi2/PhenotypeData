@@ -443,9 +443,10 @@ public abstract class OntologyDAO {
      */
     protected final void populateAllTerms(String query) throws SQLException {
         Map<String, OntologyTermBean> map = new HashMap();
-        
-         
+
+
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
+            System.out.println("QRY*** "+ query);
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 String mapKey = resultSet.getString("termId");
@@ -456,6 +457,11 @@ public abstract class OntologyDAO {
                             ? "" : resultSet.getString("termDefinition"));
                 map.put(mapKey, bean);            
                 id2nodesMap.put(mapKey, Arrays.asList(resultSet.getString("nodes").split(",")));
+
+                // alternative MA ID
+                if (resultSet.getString("alt_ids") != null) {
+                    bean.setAltMaIds(Arrays.asList(resultSet.getString("alt_ids").split(",")));
+                }
             }
             
             ps.close();
