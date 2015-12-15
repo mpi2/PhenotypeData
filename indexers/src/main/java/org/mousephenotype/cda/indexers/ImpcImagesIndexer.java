@@ -26,6 +26,7 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -96,8 +97,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void validateBuild() throws IndexerException {
-		super.validateBuild(impcImagesCore);
+	public RunStatus validateBuild() throws IndexerException {
+		return super.validateBuild(impcImagesCore);
 	}
 
 
@@ -111,8 +112,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void run() throws IndexerException {
-        int count = 0;
+	public RunStatus run() throws IndexerException {
+       
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
 		try {
@@ -150,8 +152,6 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 			List<ImageDTO> imageList = observationCore.query(query).getBeans(ImageDTO.class);
 			for (ImageDTO imageDTO : imageList) {
-
-				count++;
 
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
@@ -327,18 +327,20 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 
 					impcImagesCore.addBean(imageDTO);
-					
+					documentCount++;
 				}
 			}
 
 			impcImagesCore.commit();
-			documentCount = count;
+		
 
 		} catch (SolrServerException | IOException e) {
 			throw new IndexerException(e);
 		}
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
 	}
 
 

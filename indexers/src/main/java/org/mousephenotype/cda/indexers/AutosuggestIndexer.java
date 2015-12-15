@@ -32,6 +32,7 @@ import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -127,9 +128,8 @@ public class AutosuggestIndexer extends AbstractIndexer {
     String mapKey;
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(autosuggestCore);
-        Long numFound = getDocumentCount(autosuggestCore);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(autosuggestCore);
     }
 
     private void initializeSolrCores() {
@@ -158,8 +158,8 @@ public class AutosuggestIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
-
+    public RunStatus run() throws IndexerException {
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
@@ -182,6 +182,8 @@ public class AutosuggestIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
 

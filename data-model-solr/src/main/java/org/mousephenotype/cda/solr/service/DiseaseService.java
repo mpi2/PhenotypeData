@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class DiseaseService {
+public class DiseaseService implements WebStatus{
 
     @Autowired
     @Qualifier("diseaseCore")
@@ -91,5 +91,21 @@ public class DiseaseService {
         }
         return allDiseases;
     }
+    
+    @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "Disease Service";
+	}
 
 }

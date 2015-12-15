@@ -23,6 +23,7 @@ import org.mousephenotype.cda.solr.bean.GenomicFeatureBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -100,8 +101,8 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public void validateBuild() throws IndexerException {
-		super.validateBuild(sangerImagesCore);
+	public RunStatus validateBuild() throws IndexerException {
+		return super.validateBuild(sangerImagesCore);
 	}
 
 	@Override
@@ -155,25 +156,24 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public void run() throws IndexerException {
+	public RunStatus run() throws IndexerException {
         long count = 0;
+        RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
-        List<String> warnings = new ArrayList<>();
 
 		try {
-			count = populateSangerImagesCore(warnings);
-            for (String warning : warnings) {
-                logger.warn(warning);
-            }
+			count = populateSangerImagesCore(runStatus);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		} finally {
             logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         }
+
+		return runStatus;
 	}
 
-	public int populateSangerImagesCore(List<String> warnings) throws IndexerException {
+	public int populateSangerImagesCore(RunStatus runStatus) throws IndexerException {
 
 		int count = 0;
         Set<String> noTopLevelSet = new HashSet<>();
@@ -489,7 +489,7 @@ public class SangerImagesIndexer extends AbstractIndexer {
             List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
             Collections.sort(noTopLevelList);
             for (String mpId : noTopLevelList) {
-                warnings.add(" No top level for " + mpId);
+                runStatus.addWarning(" No top level for " + mpId);
             }
 
 			// Final commit to save the rest of the docs
