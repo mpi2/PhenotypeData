@@ -85,8 +85,8 @@ public class FileExportController {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@Autowired
-	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
+//	@Autowired
+//	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 
 	@Autowired
 	private SolrIndex solrIndex;

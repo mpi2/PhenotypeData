@@ -332,7 +332,7 @@
 				<entry key="preqcXmlFilename" value="${preqcXmlfile}" />
 				<entry key="human2mouseFilename" value="${human2mouseFile}" />
 				<entry key="phenodigm.solrserver" value="${phenodigm.solrserver}" />
-				<entry key="imits.solrserver" value="${imits.solrserver}" />
+				<entry key="imits.solr.host" value="${imits.solr.host}" />
 				<entry key="buildIndexesSolrUrl" value="${buildIndexesSolrUrl}" />
 				<entry key="embryoRestUrl" value="${embryoRestUrl}" />
 				<entry key="pdfThumbnailUrl" value="${pdfThumbnailUrl}" />

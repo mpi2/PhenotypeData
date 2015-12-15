@@ -25,13 +25,14 @@ package org.mousephenotype.cda.db.dao;
 
 
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.web.WebStatus;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface PhenotypePipelineDAO extends HibernateDAO {
+public interface PhenotypePipelineDAO extends HibernateDAO , WebStatus{
 
 	/**
 	 * Get all pipelines in the system

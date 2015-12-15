@@ -25,12 +25,13 @@ package org.mousephenotype.cda.db.dao;
 
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.web.WebStatus;
 
 import java.util.Collection;
 import java.util.List;
 
 
-public interface OntologyTermDAO extends HibernateDAO {
+public interface OntologyTermDAO extends HibernateDAO, WebStatus{
 
 	public List<OntologyTerm> getAllOntologyTerms();
 

@@ -6,15 +6,15 @@
 	<header>
 	</header>
 		<body>
-SOLR cores statuses:
+Cores Services Statuses:
 				<ol>
 					<c:forEach var="status" items="${webStatusModels}">
 				
 						<li>${status.name} : ${status.number}</li>
 					
 					</c:forEach>
-				</ol>
-				
+				</ol>				
+								
 				Imits statuses:
 				
 				<ol>
@@ -25,7 +25,7 @@ SOLR cores statuses:
 					</c:forEach>
 				</ol>
 				
-				Database is ok?
+				
 				
 				
 		</body>
