@@ -25,6 +25,7 @@ package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.pojo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -376,6 +377,44 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public boolean isNumeric(String str)
 	{
 		return str.matches("-?\\d+(\\.\\d+)?");
+	}
+
+	@Override
+	public long getWebStatus() throws Exception {
+		int rows = 0;
+		String statusQuery="SELECT count(*) FROM phenotype_procedure";
+		
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
+
+		try (Connection connection = getConnection()) {
+
+			statement = connection.prepareStatement(statusQuery);
+			resultSet = statement.executeQuery();
+
+			while (resultSet.next()) {
+
+				
+			rows=resultSet.getInt(1);
+						
+			}
+			statement.close();
+
+		}catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+
+		 
+		 
+		 return rows;
+	}
+
+
+	@Override
+	public String getServiceName() {
+		return "PhenotypePipelineDAO";
 	}
 
 
