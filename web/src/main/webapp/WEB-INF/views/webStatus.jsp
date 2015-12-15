@@ -6,7 +6,7 @@
 	<header>
 	</header>
 		<body>
-		Status OK:${ok}<br/> 
+		Status OK:${ok}<br/><br/>
 Cores Services Statuses:
 				<ol>
 					<c:forEach var="status" items="${webStatusModels}">
