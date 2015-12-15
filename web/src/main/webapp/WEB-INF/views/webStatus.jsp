@@ -6,26 +6,39 @@
 	<header>
 	</header>
 		<body>
-SOLR cores statuses:
+		Status OK:${statusOk}<br/> 
+Cores Services Statuses:
 				<ol>
 					<c:forEach var="status" items="${webStatusModels}">
-				
-						<li>${status.name} : ${status.number}</li>
-					
+						<c:choose>
+							<c:when test="${status.number!=0}">
+								<li>${status.name} : ${status.number}</li>
+							</c:when>
+							<c:otherwise>
+							<li><font color="red">${status.name} : ${status.number}</font></li>
+							</c:otherwise>
+						</c:choose>
 					</c:forEach>
-				</ol>
-				
+				</ol>				
+								
 				Imits statuses:
-				
 				<ol>
 					<c:forEach var="status" items="${imitsWebStatusModels}">
 				
-						<li>${status.name} : ${status.number}</li>
+						
+						<c:choose>
+							<c:when test="${status.number!=0}">
+								<li>${status.name} : ${status.number}</li>
+							</c:when>
+							<c:otherwise>
+							<li><font color="red">${status.name} : ${status.number}</font></li>
+							</c:otherwise>
+						</c:choose>
 					
 					</c:forEach>
 				</ol>
 				
-				Database is ok?
+				
 				
 				
 		</body>

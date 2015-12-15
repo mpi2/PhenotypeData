@@ -257,7 +257,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
     private void initializeSolrCores() {
 
-        final String SANGER_ALLELE_URL = config.get("imits.solrserver");
+        final String SANGER_ALLELE_URL = config.get("imits.solr.host")+"/allele2";
         final String PHENODIGM_URL = config.get("phenodigm.solrserver");
 
         // Use system proxy if set for external solr servers

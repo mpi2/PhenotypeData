@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EucommCreProductService implements WebStatus{
+public class EucommToolsProductService implements WebStatus{
 	
-	@Autowired @Qualifier("eucommCreProductsCore")
+	@Autowired @Qualifier("eucommToolsProductCore")
 	private HttpSolrServer solr;
 
 	@Override
@@ -30,7 +30,7 @@ public class EucommCreProductService implements WebStatus{
 	
 	@Override
 	public String getServiceName(){
-		return "Imits Allele2 Core";
+		return "Imits Eucomm Product Service";
 	}
 
 }

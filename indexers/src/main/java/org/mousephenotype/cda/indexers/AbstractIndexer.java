@@ -109,7 +109,7 @@ public abstract class AbstractIndexer {
     }
 
     protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext appContext;
+        ApplicationContext appContext = null;
 
         // Try context as a file resource.
         File file = new File(context);
