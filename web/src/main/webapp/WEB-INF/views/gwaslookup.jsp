@@ -202,7 +202,7 @@
 					$('div#overviewTable').append(dTableSkeleton);
                 	
 	       	      	var dTable = $('table#gwas').dataTable({
-	       	            "bSort": true,
+	       	            "bSort": false,
 	       	            "bProcessing": true,
 	       	            "bServerSide": true,
 	       	            //"sDom": "<lr><'#caption'>tip",
@@ -219,7 +219,7 @@
 							"sInfo": "Showing all _TOTAL_ mapped genes"
 	       	        	},
 						"aoColumnDefs": [
-							{ "bSortable": false, "aTargets": [ 3 ] }
+							{ "bSortable": false, "aTargets": [ 0,1,2,3 ] }
 						],
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 	       	            	
