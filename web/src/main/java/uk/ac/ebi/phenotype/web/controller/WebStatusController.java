@@ -188,12 +188,10 @@ public class WebStatusController {
 		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
 		if(ok){
 			response.setStatus(HttpServletResponse.SC_OK);
-			model.addAttribute("statusOk", true);
 		}else{
 			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			model.addAttribute("status", false);
 		}
-		
+		model.addAttribute("ok", ok);
 		return "webStatus";
 	}
 	
