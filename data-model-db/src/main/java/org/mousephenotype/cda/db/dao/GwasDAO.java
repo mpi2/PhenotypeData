@@ -138,7 +138,6 @@ public class GwasDAO {
         		+ "FROM impc2gwas ";
 
         String groupBy = " GROUP BY gwas_disease_trait, mp_term_name";
-        String orderBy = " ORDER BY mgi_gene_symbol";
         String andClause = " AND pheno_mapping_category != 'no mapping' AND mgi_gene_symbol != ''";
 
     	if ( field.equals("keyword") ){
@@ -163,13 +162,13 @@ public class GwasDAO {
         	query = selectClause + whereClause + groupBy;
         }
         else if ( value.equals("*") ) {
-            query = selectClause + " WHERE " + field + " LIKE '%' " + andClause + groupBy + orderBy;
+            query = selectClause + " WHERE " + field + " LIKE '%' " + andClause + groupBy;
         }
         else if ( ! value.isEmpty() ) {
-        	query = selectClause + " WHERE " + field + " = ? " + andClause + groupBy + orderBy;
+        	query = selectClause + " WHERE " + field + " = ? " + andClause + groupBy;
         }
         else {
-            query = selectClause + " WHERE " + andClause + groupBy + orderBy;
+            query = selectClause + " WHERE " + andClause + groupBy;
         }
 
         //System.out.println("gwas mapping query: " + query);
@@ -207,7 +206,11 @@ public class GwasDAO {
                 GwasDTO gwasMappingRow = new GwasDTO();
 
                 gwasMappingRow.setMgiGeneId(resultSet.getString("mgi_gene_id"));
-                gwasMappingRow.setMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
+
+                String mgi_gene_symbol = resultSet.getString("mgi_gene_symbol").toLowerCase();
+                mgi_gene_symbol = Character.toUpperCase(mgi_gene_symbol.charAt(0)) + mgi_gene_symbol.substring(1);
+                gwasMappingRow.setMgiGeneSymbol(mgi_gene_symbol);
+
                 gwasMappingRow.setDiseaseTrait(resultSet.getString("gwas_disease_trait"));
                 gwasMappingRow.setMpTermName(resultSet.getString("mp_term_name"));
 
