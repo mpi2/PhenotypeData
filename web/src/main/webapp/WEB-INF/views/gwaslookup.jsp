@@ -218,11 +218,8 @@
 		       	         	//"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
 							"sInfo": "Showing all _TOTAL_ mapped genes"
 	       	        	},
-						"columnDefs": [
-							{
-								"type": "html-num-fmt", "targets": 1,
-								"orderable": false, "targets": [4]
-							}
+						"aoColumnDefs": [
+							{ "bSortable": false, "aTargets": [ 3 ] }
 						],
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 	       	            	

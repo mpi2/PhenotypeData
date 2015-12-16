@@ -138,6 +138,7 @@ public class GwasDAO {
         		+ "FROM impc2gwas ";
 
         String groupBy = " GROUP BY gwas_disease_trait, mp_term_name";
+        String orderBy = " ORDER BY mgi_gene_symbol";
         String andClause = " AND pheno_mapping_category != 'no mapping' AND mgi_gene_symbol != ''";
 
     	if ( field.equals("keyword") ){
@@ -162,13 +163,13 @@ public class GwasDAO {
         	query = selectClause + whereClause + groupBy;
         }
         else if ( value.equals("*") ) {
-            query = selectClause + " WHERE " + field + " LIKE '%' " + andClause + groupBy;
+            query = selectClause + " WHERE " + field + " LIKE '%' " + andClause + groupBy + orderBy;
         }
         else if ( ! value.isEmpty() ) {
-        	query = selectClause + " WHERE " + field + " = ? " + andClause + groupBy;
+        	query = selectClause + " WHERE " + field + " = ? " + andClause + groupBy + orderBy;
         }
         else {
-            query = selectClause + " WHERE " + andClause + groupBy;
+            query = selectClause + " WHERE " + andClause + groupBy + orderBy;
         }
 
         //System.out.println("gwas mapping query: " + query);
