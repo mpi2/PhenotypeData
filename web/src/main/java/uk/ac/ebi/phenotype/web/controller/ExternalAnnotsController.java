@@ -220,7 +220,7 @@ public class ExternalAnnotsController {
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
 
-        System.out.println("GOT " + totalDocs + " rows" );
+       // System.out.println("GOT " + totalDocs + " rows" );
         int counter = 0;
         for (GwasDTO gw : gwasMappings) {
         	counter++;
@@ -258,7 +258,7 @@ public class ExternalAnnotsController {
 		}
 		gwasMappings = gwasDao.getGwasMappingRows(field, value);
 
-		System.out.println("ExternalAnnotsController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
+		//System.out.println("ExternalAnnotsController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 
 		GwasDTO gm1 = gwasMappings.get(0);
 		String mgiGeneId = gm1.getMgiGeneId();

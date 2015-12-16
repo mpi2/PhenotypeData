@@ -177,7 +177,7 @@ public class DataTableController {
 */
 		// batch solr query
 		batchIdListStr = StringUtils.join(batchIdList, ",");
-		System.out.println("idstr: "+ batchIdListStr);
+		//System.out.println("idstr: "+ batchIdListStr);
 		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
 
 		/*
@@ -237,7 +237,7 @@ public class DataTableController {
 
     	Set<String> foundIds = new HashSet<>();
 
-    	System.out.println("responses: " + solrResponses.size());
+    	//System.out.println("responses: " + solrResponses.size());
 
     	SolrDocumentList results = new SolrDocumentList();
 
@@ -270,7 +270,7 @@ public class DataTableController {
 
 		int fieldCount = 0;
 
-		System.out.println("totaldocs:" + totalDocs);
+		//System.out.println("totaldocs:" + totalDocs);
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 
@@ -346,8 +346,8 @@ public class DataTableController {
 					String accStr = null;
 					String imgLink = null;
 
-					System.out.println("qryfield: " + qryField);
-					System.out.println("imgQryField: " + imgQryField);
+					//System.out.println("qryfield: " + qryField);
+					//System.out.println("imgQryField: " + imgQryField);
 					if ( accs != null ){
 						for( Object acc : accs ){
 							accStr = imgQryField + ":\"" + (String) acc + "\"";
@@ -715,7 +715,7 @@ public class DataTableController {
         }
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-		System.out.println((facetFields.toString()));
+
 		//facetFields.
 		j.put("facet_fields", facetFields);
 

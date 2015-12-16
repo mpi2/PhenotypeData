@@ -274,7 +274,6 @@ public class FileExportController {
 //				length, showImgView);
 
 		JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-		System.out.println(json.toString());
 
 		List<String> dataRows = new ArrayList<>();
 		dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
@@ -1626,7 +1625,7 @@ public class FileExportController {
 
 		Set<String> foundIds = new HashSet<>();
 
-		System.out.println("Number of responses: " + solrResponses.size());
+		//System.out.println("Number of responses: " + solrResponses.size());
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -1635,7 +1634,7 @@ public class FileExportController {
 		}
 
 		int totalDocs = results.size();
-		System.out.println("TOTAL DOCS FOUND: " + totalDocs);
+		//System.out.println("TOTAL DOCS FOUND: " + totalDocs);
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1684,12 +1683,8 @@ public class FileExportController {
 		List<String> rowData = new ArrayList();
 		rowData.add(StringUtils.join(colList, "\t"));
 
-		System.out.println("grid fields: " + colList);
-
 		for (int i = 0; i < results.size(); i++) {
 			SolrDocument doc = results.get(i);
-
-			System.out.println("Working on document " + i + " of " + totalDocs);
 
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap(); // Note
 																				// getFieldValueMap()
@@ -1766,7 +1761,6 @@ public class FileExportController {
 					// System.out.println("idlink id: " + accStr);
 
 					if (!oriDataTypeNAme.equals("ensembl") && !oriDataTypeNAme.equals("marker_symbol")) {
-						System.out.println("idlink check: " + accStr);
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1892,9 +1886,7 @@ public class FileExportController {
 
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-		// System.out.println("Query ids: "+ queryIds);
-		// System.out.println("Found ids: "+ new ArrayList(foundIds));
-		System.out.println("non found ids: " + nonFoundIds.size());
+
 
 		for (int i = 0; i < nonFoundIds.size(); i++) {
 			List<String> data = new ArrayList<String>();
@@ -1915,8 +1907,6 @@ public class FileExportController {
 		String outfile = fileName + "." + fileType;
 
 		try {
-
-			System.out.println("File to export: " + outfile);
 
 			if (fileType.equals("tsv")) {
 
