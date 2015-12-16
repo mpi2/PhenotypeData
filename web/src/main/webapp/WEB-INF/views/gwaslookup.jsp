@@ -202,12 +202,12 @@
 					$('div#overviewTable').append(dTableSkeleton);
                 	
 	       	      	var dTable = $('table#gwas').dataTable({
-	       	            "bSort": false,
+	       	            "bSort": true,
 	       	            "bProcessing": true,
-	       	            "bServerSide": true,
+	       	            "bServerSide": false,
 	       	            //"sDom": "<lr><'#caption'>tip",
 	       	         	//"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
-						"sDom": "<<'#exportSpinner'>i<'#tableTool'>r><'#caption'>ti",
+						"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
 	       	            "sPaginationType": "bootstrap",
 	       	         	"oLanguage": {
 	       	          		"sLengthMenu": 'Show <select>'+
@@ -215,11 +215,11 @@
 		       	            '<option value="30">30</option>'+
 		       	            '<option value="50">50</option>'+
 		       	            '</select> genes',
-		       	         	//"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
-							"sInfo": "Showing all _TOTAL_ mapped genes"
+		       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ mapped genes"
 	       	        	},
+						"order": [[ 0, "asc" ]],
 						"aoColumnDefs": [
-							{ "bSortable": false, "aTargets": [ 0,1,2,3 ] }
+							{ "bSortable": false, "aTargets": [ 3 ] }
 						],
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 	       	            	
