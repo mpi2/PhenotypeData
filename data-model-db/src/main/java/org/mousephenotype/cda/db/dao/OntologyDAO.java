@@ -146,6 +146,7 @@ public abstract class OntologyDAO {
 
     public List<String> getAltTermIds(String mpId) {
         OntologyTermBean ontologyTermBean = allTermsMap.get(mpId);
+        //System.out.println("BEAN: " + ontologyTermBean.toString());
         if ( ontologyTermBean.getAltIds() != null ) {
             return ontologyTermBean.getAltIds();
         }

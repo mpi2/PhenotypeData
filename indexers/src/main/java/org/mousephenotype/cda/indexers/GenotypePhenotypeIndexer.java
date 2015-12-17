@@ -314,7 +314,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                     OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
 
-                    // Alternative MP Term ID
+                    // Alternative MP Term ID - not working yet
 //                    if ( beanlist.getAltTermIds() != null && beanlist.getAltTermIds().size() > 0 ) {
 //                        System.out.println("ALT MP ID: " + doc.getAltMpTermId());
 //                        doc.setAltMpTermId(beanlist.getAltTermIds());
