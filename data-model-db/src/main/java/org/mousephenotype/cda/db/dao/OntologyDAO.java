@@ -143,7 +143,16 @@ public abstract class OntologyDAO {
     public List<OntologyTermBean> getAllTerms() {
         return new ArrayList(allTermsMap.values());
     }
-    
+
+    public List<String> getAltTermIds(String mpId) {
+        OntologyTermBean ontologyTermBean = allTermsMap.get(mpId);
+        if ( ontologyTermBean.getAltIds() != null ) {
+            return ontologyTermBean.getAltIds();
+        }
+        return null;
+    }
+
+
     /**
      * Dumps out the <code>OntologyTermBean</code> map, prepending the <code>
      * what</code> string for map identification.

@@ -43,7 +43,20 @@ public class OntologyTermBeanList {
     public List<String> getSynonyms() {
         return ontologyService.getSynonyms(id);
     }
-    
+
+    /**
+     * Returns this term's alt term id(s).
+     *
+     * @return this term's alt term id(s).
+     */
+    public List<String> getAltTermIds() {
+        if ( ontologyService.getAltTermIds(id) != null ){
+            return ontologyService.getAltTermIds(id);
+        }
+        return null;
+    }
+
+
     /**
      * Returns this term's top-level terms.
      * 

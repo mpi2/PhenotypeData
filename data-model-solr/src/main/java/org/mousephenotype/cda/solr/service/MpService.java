@@ -63,7 +63,7 @@ public class MpService extends BasicService implements WebStatus{
 	public MpDTO getPhenotype(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+			.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
 			.setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);
