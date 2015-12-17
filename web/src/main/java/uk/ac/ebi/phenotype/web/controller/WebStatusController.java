@@ -22,6 +22,8 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.MaService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.OmeroStatusService;
+import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -45,64 +47,68 @@ public class WebStatusController {
 	@Autowired
 	private PhenotypeSummaryDAO phenSummary;
 
+	// @Autowired
+	// private PhenotypeCallSummarySolr phenoDAO;
 
-//	@Autowired
-//	private PhenotypeCallSummarySolr phenoDAO;
-
-	//uses admintools db which we don't need for web so don't status test it.
-	//@Autowired
-	//private GwasDAO gwasDao;
+	// uses admintools db which we don't need for web so don't status test it.
+	// @Autowired
+	// private GwasDAO gwasDao;
 
 	@Autowired
 	ObservationService observationService;
-	
+
 	@Autowired
 	private PostQcService postqcService;
-	
+
 	@Autowired
 	private StatisticalResultService srService;
-	
+
 	@Autowired
 	private PreQcService preqcService;
-	
+
 	@Autowired
 	private AlleleService alleleService;
-	
+
 	@Autowired
 	private ImagesSolrJ sangerImages;
-	
+
 	@Autowired
 	ImageService impcImageService;
 
 	@Autowired
 	MpService mpService;
-	
+
 	@Autowired
 	MaService maService;
-	
+
 	@Autowired
 	ImpressService pipelineService;
-	
+
 	@Autowired
 	private GeneService geneService;
-	
+
 	@Autowired
 	DiseaseService diseaseService;
-	
+
 	@Autowired
 	AutoSuggestService autoSuggestService;
-	
-	 @Autowired
-	 private OntologyTermDAO ontoTermDao;
-	 
-	 @Autowired
-	 private PhenotypePipelineDAO ppDAO;
-	
-	List<WebStatus> webStatusObjects;
-	
 
-	//imits solr services
+	@Autowired
+	private OntologyTermDAO ontoTermDao;
+
+	@Autowired
+	private PhenotypePipelineDAO ppDAO;
+
+	@Autowired
+	PhenodigmService phenodigmService;
 	
+	@Autowired
+	OmeroStatusService omeroStatusService;
+
+	List<WebStatus> webStatusObjects;
+
+	// imits solr services
+
 	@Autowired
 	Allele2Service allele2;
 	@Autowired
@@ -113,13 +119,12 @@ public class WebStatusController {
 	EucommToolsCreAllele2Service eucommToolsCreAllele2Service;
 	List<WebStatus> imitsWebStatusObjects;
 
-	
-
 	@PostConstruct
 	public void initialise() {
-		
-		//cores we need to test are at least this set: experiment,genotype-phenotype,statistical-result,preqc,allele,images,impc_images,mp,ma,pipeline,gene,disease,autosuggest
-		//System.out.println("calling webStatus initialisation method");
+
+		// cores we need to test are at least this set:
+		// experiment,genotype-phenotype,statistical-result,preqc,allele,images,impc_images,mp,ma,pipeline,gene,disease,autosuggest
+		// System.out.println("calling webStatus initialisation method");
 		webStatusObjects = new ArrayList<>();
 		webStatusObjects.add(observationService);
 		webStatusObjects.add(postqcService);
@@ -136,11 +141,10 @@ public class WebStatusController {
 		webStatusObjects.add(autoSuggestService);
 		webStatusObjects.add(ontoTermDao);
 		webStatusObjects.add(ppDAO);
-		
-		
-		
-		
-		imitsWebStatusObjects=new ArrayList<>();
+		webStatusObjects.add(phenodigmService);
+		//webStatusObjects.add(omeroStatusService);//taken out the omero test as takes it from 100ms times to 1 second!
+
+		imitsWebStatusObjects = new ArrayList<>();
 		imitsWebStatusObjects.add(allele2);
 		imitsWebStatusObjects.add(eucommCreProductService);
 		imitsWebStatusObjects.add(eucommToolsProductService);
@@ -148,79 +152,81 @@ public class WebStatusController {
 	}
 
 	@RequestMapping("/webstatus")
-	public String webStatus(Model model, HttpServletResponse response){
-		boolean ok=true;
-		//System.out.println("calling webstatus controller");
-		//check our core solr instances are returning via the services
-		List<WebStatusModel> webStatusModels=new ArrayList<>();
+	public String webStatus(Model model, HttpServletResponse response) {
+		boolean ok = true;
+		// System.out.println("calling webstatus controller");
+		// check our core solr instances are returning via the services
+		List<WebStatusModel> webStatusModels = new ArrayList<>();
 		for (WebStatus status : webStatusObjects) {
-			String name=status.getServiceName();
+			String name = status.getServiceName();
 			long number = 0;
 			try {
 				number = status.getWebStatus();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				ok= false;
+				ok = false;
 				e.printStackTrace();
 			}
-			WebStatusModel wModel=new WebStatusModel(name, number);
+			WebStatusModel wModel = new WebStatusModel(name, number);
 			webStatusModels.add(wModel);
 		}
 
 		model.addAttribute("webStatusModels", webStatusModels);
-		
-		//check the imits services
-		List<WebStatusModel> imitsWebStatusModels=new ArrayList<>();
+
+		// check the imits services
+		List<WebStatusModel> imitsWebStatusModels = new ArrayList<>();
 		for (WebStatus status : imitsWebStatusObjects) {
-			String name=status.getServiceName();
+			String name = status.getServiceName();
 			long number = 0;
 			try {
 				number = status.getWebStatus();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				ok=false;
+				ok = true;// set the status still to be ok as imits isn't a core
+							// service - ie the website will function without
+							// it?
 				e.printStackTrace();
 			}
-			WebStatusModel wModel=new WebStatusModel(name, number);
+			WebStatusModel wModel = new WebStatusModel(name, number);
 			imitsWebStatusModels.add(wModel);
 		}
 
 		model.addAttribute("imitsWebStatusModels", imitsWebStatusModels);
-		if(ok){
+		if (ok) {
 			response.setStatus(HttpServletResponse.SC_OK);
-		}else{
+		} else {
 			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		}
 		model.addAttribute("ok", ok);
 		return "webStatus";
 	}
-	
-	public class WebStatusModel{
+
+	public class WebStatusModel {
 
 		public String name;
 		public long number;
-		
-		 public WebStatusModel(String name, long number){
-			 this.name=name;
-			 this.number=number;
-		 }
-		 
-		 public String getName() {
-				return name;
-			}
 
-			public void setName(String name) {
-				this.name = name;
-			}
+		public WebStatusModel(String name, long number) {
+			this.name = name;
+			this.number = number;
+		}
 
-			public long getNumber() {
-				return number;
-			}
+		public String getName() {
+			return name;
+		}
 
-			public void setNumber(long number) {
-				this.number = number;
-			}
-		 
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public long getNumber() {
+			return number;
+		}
+
+		public void setNumber(long number) {
+			this.number = number;
+		}
+
 	}
 
 }
