@@ -25,6 +25,12 @@ public class SolrServerConfig {
 	@NotNull
 	@Value("${phenodigm.solrserver}")
 	private String phenodigmSolrUrl;
+	
+	//Phenodigm server for our Web Status currently only
+	@Bean(name = "phenodigmCore")
+	public HttpSolrServer getPhenodigmCore() {
+		return new HttpSolrServer(phenodigmSolrUrl);
+	}
 
 	@NotNull
 	@Value("${solr.host}")
