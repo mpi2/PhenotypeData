@@ -58,6 +58,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -990,7 +991,7 @@ public class DataTableController {
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
         //System.out.println("baseurl: "+ baseUrl);
 
-        if (showImgView) {
+		if (showImgView) {
 
             // image view: one image per row
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -998,7 +999,7 @@ public class DataTableController {
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-			j.put("imgHref", mediaBaseUrl + solrParams);
+			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
 			j.put("imgCount", totalDocs);
             j.put("iTotalRecords", totalDocs);
             j.put("iTotalDisplayRecords", totalDocs);
@@ -1163,7 +1164,7 @@ public class DataTableController {
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-			j.put("imgHref", mediaBaseUrl + solrParams);
+			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
 			j.put("imgCount", json.getJSONObject("response").getInt("numFound"));
             j.put("iTotalRecords", numAnnots);
             j.put("iTotalDisplayRecords", numAnnots);
@@ -1190,7 +1191,8 @@ public class DataTableController {
                 //https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
                 String imgSubSetLink = null;
                 String thisImgUrl = null;
-                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
+
+				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
                 int imgCount = (int) pathAndImgCount.get(1);
 
@@ -1233,8 +1235,11 @@ public class DataTableController {
     public String parseJsonforImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
 
 		String mediaBaseUrl = config.get("mediaBaseUrl");
+		System.out.println("MEDIA BASE URL: "+ mediaBaseUrl);
 		int start = (int) request.getAttribute("displayStart");
 		int length = (int) request.getAttribute("displayLength");
+
+		String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
 
         if (showImgView) {
             // image view: one image per row
@@ -1243,7 +1248,7 @@ public class DataTableController {
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-			j.put("imgHref", mediaBaseUrl + solrParams);
+			j.put("imgHref", imgUrl);
 			j.put("imgCount", totalDocs);
             j.put("iTotalRecords", totalDocs);
             j.put("iTotalDisplayRecords", totalDocs);
@@ -1347,7 +1352,8 @@ public class DataTableController {
 					}
 
                     ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
-                    if (gene.size() == 1) {
+
+					if (gene.size() == 1) {
                         annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ",") + "</span>";
                     } else if (gene.size() > 1) {
                         String list = "<ul class='imgGene'><li>" + StringUtils.join(gene, "</li><li>") + "</li></ul>";
@@ -1377,7 +1383,6 @@ public class DataTableController {
 				solrParams += "&fq=*:*";
 			}
 
-			String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
 
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
@@ -1388,7 +1393,7 @@ public class DataTableController {
 			//System.out.println("Number of facets: " + numFacets);
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-			j.put("imgHref", mediaBaseUrl + solrParams);
+			j.put("imgHref", imgUrl);
 			j.put("imgCount", json.getJSONObject("response").getInt("numFound"));
             j.put("iTotalRecords", numFacets / 2);
             j.put("iTotalDisplayRecords", numFacets / 2);
