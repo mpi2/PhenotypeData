@@ -159,7 +159,7 @@ public class GwasDAO {
                 + "  OR gwas_snp_id             LIKE ?\n)"
                 + andClause;
 
-        	query = selectClause + whereClause + groupBy;
+        	query = selectClause + whereClause + andClause + groupBy;
         }
         else if ( value.equals("*") ) {
             query = selectClause + " WHERE " + field + " LIKE '%' " + andClause + groupBy;
@@ -171,7 +171,7 @@ public class GwasDAO {
             query = selectClause + " WHERE " + andClause + groupBy;
         }
 
-        //System.out.println("gwas mapping query: " + query);
+        System.out.println("gwas mapping query: " + query);
 
         List<GwasDTO> results = new ArrayList<>();
 
@@ -262,7 +262,7 @@ public class GwasDAO {
 
         String whereClause = null;
         String query = null;
-        String andClause = " AND pheno_mapping_category != 'no mapping' AND mgi_gene_symbol != ''";
+        String andClause = "pheno_mapping_category != 'no mapping' AND mgi_gene_symbol != ''";
 
         // only want gwas mapping that are either direct or indirect
         // the ones without mappings are from GWAS catalog and
@@ -286,16 +286,16 @@ public class GwasDAO {
                 + "  OR gwas_snp_id             LIKE ?\n)"
                 + andClause;
 
-        	query = "SELECT * FROM impc2gwas" + whereClause;
+        	query = "SELECT * FROM impc2gwas" + whereClause + " AND " + andClause;
         }
         else if ( ! value.isEmpty() ) {
-        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ? " + andClause;
+        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ? " + " AND " + andClause;
         }
         else {
         	query = "SELECT * FROM impc2gwas WHERE " + andClause;
         }
 
-        //System.out.println("gwas mapping query: " + query);
+        System.out.println("gwas mapping query: " + query);
 
         List<GwasDTO> results = new ArrayList<>();
 

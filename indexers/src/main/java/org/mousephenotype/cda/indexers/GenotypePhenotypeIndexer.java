@@ -313,6 +313,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
                     OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
+
+                    // Alternative MP Term ID
+//                    if ( beanlist.getAltTermIds() != null && beanlist.getAltTermIds().size() > 0 ) {
+//                        System.out.println("ALT MP ID: " + doc.getAltMpTermId());
+//                        doc.setAltMpTermId(beanlist.getAltTermIds());
+//                    }
+
                     doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
                     doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
                     doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());

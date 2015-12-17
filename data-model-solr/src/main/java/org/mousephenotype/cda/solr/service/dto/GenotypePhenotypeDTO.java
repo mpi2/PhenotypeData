@@ -32,6 +32,7 @@ public class GenotypePhenotypeDTO {
     public static final String EMAP_TERM_NAME = "emap_term_name";
     public static final String MP_TERM_ID = "mp_term_id";
     public static final String MP_TERM_NAME = "mp_term_name";
+    public static final String ALT_MP_TERM_ID = "alt_mp_term_id";
     public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
     public static final String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
     public static final String TOP_LEVEL_MP_TERM_DEFINITION = "top_level_mp_term_definition";
@@ -104,6 +105,9 @@ public class GenotypePhenotypeDTO {
 
     @Field(MP_TERM_NAME)
     String mpTermName;
+
+    @Field(ALT_MP_TERM_ID)
+    List<String> altMpTermId;
 
     @Field(TOP_LEVEL_MP_TERM_ID)
     List<String> topLevelMpTermId;
@@ -327,6 +331,16 @@ public class GenotypePhenotypeDTO {
     public void setMpTermName(String mpTermName) {
 
         this.mpTermName = mpTermName;
+    }
+
+    public List<String> getAltMpTermId() {
+
+        return altMpTermId;
+    }
+
+    public void setAltMpTermId(List<String> altMpTermId) {
+
+        this.altMpTermId = altMpTermId;
     }
 
     public List<String> getTopLevelMpTermId() {
