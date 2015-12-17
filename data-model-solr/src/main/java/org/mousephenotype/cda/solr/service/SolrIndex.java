@@ -399,17 +399,14 @@ public class SolrIndex {
 		//String mediaBaseUrl = config.get("mediaBaseUrl");
         final int maxNum = 4; // max num of images to display in grid column
 
-        String queryUrl = internalSolrUrl
-                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
-                + "&" + fqStr
-                + "&rows=" + maxNum;
+		String qryBaseUrl = internalSolrUrl + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
+				+ "&" + fqStr + "&rows=";
 
-        String queryUrlCount = internalSolrUrl
-                + "/impc_images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
-                + "&" + fqStr
-                + "&rows=0";
+        String queryUrl = qryBaseUrl + maxNum;
+        String queryUrlCount = qryBaseUrl + "0";
 
-        List<String> imgPath = new ArrayList<String>();
+		System.out.println("TEST qry: "+ queryUrl);
+		List<String> imgPath = new ArrayList<String>();
 
         JSONObject imgCountJson = getResults(queryUrlCount);
         JSONObject thumbnailJson = getResults(queryUrl);
