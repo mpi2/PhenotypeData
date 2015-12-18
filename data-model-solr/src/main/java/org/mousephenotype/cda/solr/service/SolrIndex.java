@@ -405,7 +405,7 @@ public class SolrIndex {
         String queryUrl = qryBaseUrl + maxNum;
         String queryUrlCount = qryBaseUrl + "0";
 
-		System.out.println("TEST qry: "+ queryUrl);
+
 		List<String> imgPath = new ArrayList<String>();
 
         JSONObject imgCountJson = getResults(queryUrlCount);
@@ -555,7 +555,7 @@ public class SolrIndex {
 				}
 			}
 			catch (Exception e){
-				System.out.println(Arrays.toString(e.getStackTrace()));
+				System.out.println("Stack trace: "+ Arrays.toString(e.getStackTrace()));
 			}
 		}
 

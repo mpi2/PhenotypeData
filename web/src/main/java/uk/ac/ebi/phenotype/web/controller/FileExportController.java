@@ -847,16 +847,18 @@ public class FileExportController {
 
 				int imgCount = (int) pathAndImgCount.get(1);
 
-				StringBuilder sb = new StringBuilder();
-				sb.append("");
-				sb.append(imgCount);
-				data.add(sb.toString());
+				if ( imgCount > 0 ) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("");
+					sb.append(imgCount);
+					data.add(sb.toString());
 
-				String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
-				//System.out.println("IMG LINK: " + imgSubSetLink );
-				data.add(imgSubSetLink);
+					String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
+					//System.out.println("IMG LINK: " + imgSubSetLink );
+					data.add(imgSubSetLink);
 
-				rowData.add(StringUtils.join(data, "\t"));
+					rowData.add(StringUtils.join(data, "\t"));
+				}
 			}
 		}
 
