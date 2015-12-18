@@ -3,7 +3,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,11 +11,8 @@ import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.*;
 import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -25,9 +21,9 @@ import static java.util.stream.Collectors.toList;
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
  */
 @RestController
-public class PhenoGridController {
+public class PhenogridController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PhenoGridController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PhenogridController.class);
 
     @Autowired
     private PhenoDigmWebDao phenoDigmDao;
