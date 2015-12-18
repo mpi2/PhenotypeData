@@ -58,6 +58,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -177,7 +178,7 @@ public class DataTableController {
 */
 		// batch solr query
 		batchIdListStr = StringUtils.join(batchIdList, ",");
-		System.out.println("idstr: "+ batchIdListStr);
+		//System.out.println("idstr: "+ batchIdListStr);
 		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
 
 		/*
@@ -237,7 +238,7 @@ public class DataTableController {
 
     	Set<String> foundIds = new HashSet<>();
 
-    	System.out.println("responses: " + solrResponses.size());
+    	//System.out.println("responses: " + solrResponses.size());
 
     	SolrDocumentList results = new SolrDocumentList();
 
@@ -270,7 +271,7 @@ public class DataTableController {
 
 		int fieldCount = 0;
 
-		System.out.println("totaldocs:" + totalDocs);
+		//System.out.println("totaldocs:" + totalDocs);
 		for (int i = 0; i < results.size(); ++i) {
 			SolrDocument doc = results.get(i);
 
@@ -346,8 +347,8 @@ public class DataTableController {
 					String accStr = null;
 					String imgLink = null;
 
-					System.out.println("qryfield: " + qryField);
-					System.out.println("imgQryField: " + imgQryField);
+					//System.out.println("qryfield: " + qryField);
+					//System.out.println("imgQryField: " + imgQryField);
 					if ( accs != null ){
 						for( Object acc : accs ){
 							accStr = imgQryField + ":\"" + (String) acc + "\"";
@@ -552,21 +553,23 @@ public class DataTableController {
 
     public String fetchDataTableJson(HttpServletRequest request, JSONObject json, String mode, String query, String fqOri, int start, int length, String solrParams, boolean showImgView, String solrCoreName, boolean legacyOnly, String evidRank) throws IOException, URISyntaxException {
 
+		request.setAttribute("displayStart", start);
+		request.setAttribute("displayLength", length);
         String jsonStr = null;
         if (mode.equals("geneGrid")) {
-            jsonStr = parseJsonforGeneDataTable(json, request, query, solrCoreName, legacyOnly);
+            jsonStr = parseJsonforGeneDataTable(json, request, query, fqOri, solrCoreName, legacyOnly);
         } else if (mode.equals("pipelineGrid")) {
-            jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName, start);
+            jsonStr = parseJsonforProtocolDataTable(json, request, solrCoreName);
         } else if (mode.equals("impc_imagesGrid")) {
-            jsonStr = parseJsonforImpcImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName);
+            jsonStr = parseJsonforImpcImageDataTable(json, solrParams, showImgView, request, query, fqOri, solrCoreName);
         } else if (mode.equals("imagesGrid")) {
-            jsonStr = parseJsonforImageDataTable(json, start, length, solrParams, showImgView, request, query, fqOri, solrCoreName);
+            jsonStr = parseJsonforImageDataTable(json, solrParams, showImgView, request, query, fqOri, solrCoreName);
         } else if (mode.equals("mpGrid")) {
-            jsonStr = parseJsonforMpDataTable(json, request, query, solrCoreName, start);
+            jsonStr = parseJsonforMpDataTable(json, request, query, solrCoreName);
         } else if (mode.equals("maGrid")) {
-            jsonStr = parseJsonforMaDataTable(json, request, query, solrCoreName, start);
+            jsonStr = parseJsonforMaDataTable(json, request, query, solrCoreName);
         } else if (mode.equals("diseaseGrid")) {
-            jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName, start);
+            jsonStr = parseJsonforDiseaseDataTable(json, request, solrCoreName);
         } else if (mode.equals("gene2go")) {
             jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
         }
@@ -589,6 +592,8 @@ public class DataTableController {
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
         //GO evidence code ranking mapping
 
@@ -628,7 +633,7 @@ public class DataTableController {
         return j.toString();
     }
 
-    public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, boolean legacyOnly) {
+    public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) {
 
         RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
 
@@ -637,11 +642,21 @@ public class DataTableController {
 
         log.debug("TOTAL GENEs: " + totalDocs);
 
-        JSONObject j = new JSONObject();
+		JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
+
+		if (fqOri == null ){
+			// display total GENE facet count as protein coding gene count
+			j.put("useProteinCodingGeneCount", true);
+		}
+		else {
+			j.put("useProteinCodingGeneCount", false);
+		}
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
         for (int i = 0; i < docs.size(); i ++) {
 
@@ -690,7 +705,8 @@ public class DataTableController {
                 // will strip out destination link that we don't want to see happened
                 String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
                         + "<i class='fa fa-sign-in'></i>"
-                        + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
+                       // + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=gene'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' href='/user/login?destination=data/search/gene?kw=*&fq=*:*'>&nbsp;Interest</a>"
                          + "</div>";
 
                 rowData.add(interest);
@@ -699,10 +715,15 @@ public class DataTableController {
             j.getJSONArray("aaData").add(rowData);
         }
 
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+
+		//facetFields.
+		j.put("facet_fields", facetFields);
+
         return j.toString();
     }
 
-    public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, int start) {
+    public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
 
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
         int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -712,6 +733,8 @@ public class DataTableController {
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
         String impressBaseUrl = request.getAttribute("drupalBaseUrl") + "/impress/impress/displaySOP/";
 
@@ -742,10 +765,13 @@ public class DataTableController {
             j.getJSONArray("aaData").add(rowData);
         }
 
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+		j.put("facet_fields", facetFields);
+
         return j.toString();
     }
 
-    public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start) {
+    public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) {
 
         RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
         String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
@@ -758,6 +784,8 @@ public class DataTableController {
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> rowData = new ArrayList<String>();
@@ -866,8 +894,8 @@ public class DataTableController {
                 // will strip out destination link that we don't want to see happened
                 String interest = "<div class='registerforinterest' oldtitle='Login to register interest' title=''>"
                         + "<i class='fa fa-sign-in'></i>"
-                        + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
-                        //+ "<a class='regInterest' href='#'>Interest</a>"
+                       // + "<a class='regInterest' href='/user/login?destination=data/search#fq=*:*&facet=mp'>&nbsp;Interest</a>"
+						+ "<a class='regInterest' href='/user/login?destination=data/search/mp?kw=*&fq=top_level_mp_term:*'>&nbsp;Interest</a>"
                         + "</div>";
 
                 rowData.add(interest);
@@ -876,10 +904,13 @@ public class DataTableController {
             j.getJSONArray("aaData").add(rowData);
         }
 
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+		j.put("facet_fields", facetFields);
+
         return j.toString();
     }
 
-    public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName, int start) {
+    public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) {
 
         String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 
@@ -891,6 +922,8 @@ public class DataTableController {
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> rowData = new ArrayList<String>();
@@ -939,10 +972,18 @@ public class DataTableController {
             j.getJSONArray("aaData").add(rowData);
         }
 
-        return j.toString();
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+		j.put("facet_fields", facetFields);
+
+		return j.toString();
     }
 
-    public String parseJsonforImpcImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
+    public String parseJsonforImpcImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
+
+		int start = (int) request.getAttribute("displayStart");
+		int length = (int) request.getAttribute("displayLength");
+
+		fqOri = fqOri == null ? "fq=*:*" : fqOri;
 
         String baseUrl = (String) request.getAttribute("baseUrl");
         //String mediaBaseUrl = config.get("mediaBaseUrl");
@@ -950,7 +991,7 @@ public class DataTableController {
 		//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=%28biological_sample_group:experimental%29%20AND%20%28procedure_name:%22Combined%20SHIRPA%20and%20Dysmorphology%22%29%20AND%20%28gene_symbol:Cox19%29
         //System.out.println("baseurl: "+ baseUrl);
 
-        if (showImgView) {
+		if (showImgView) {
 
             // image view: one image per row
             JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -958,9 +999,12 @@ public class DataTableController {
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-
+			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
+			j.put("imgCount", totalDocs);
             j.put("iTotalRecords", totalDocs);
             j.put("iTotalDisplayRecords", totalDocs);
+			j.put("iDisplayStart", request.getAttribute("displayStart"));
+			j.put("iDisplayLength", request.getAttribute("displayLength"));
 
 			//String imgBaseUrl = mediaBaseUrl + "/";
             for (int i = 0; i < docs.size(); i ++) {
@@ -1090,8 +1134,12 @@ public class DataTableController {
                 }
             }
 
-            return j.toString();
+			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+			j.put("facet_fields", facetFields);
+
+			return j.toString();
         } else {
+
             // annotation view: images group by annotationTerm per row
             String fqStr = fqOri;
 
@@ -1106,79 +1154,89 @@ public class DataTableController {
             String defaultFqStr = "fq=(biological_sample_group:experimental)";
 
             if ( ! fqOri.contains("fq=*:*")) {
-                fqStr = fqStr.replace("&fq=", "");
+                fqStr = fqStr.replace("fq=", "");
                 defaultFqStr = defaultFqStr + " AND " + fqStr;
             }
 
-            List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
-            int numAnnots = annots.size();
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
+
+			int numAnnots = annots.size();
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-
+			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
+			j.put("imgCount", json.getJSONObject("response").getInt("numFound"));
             j.put("iTotalRecords", numAnnots);
             j.put("iTotalDisplayRecords", numAnnots);
+			j.put("iDisplayStart", request.getAttribute("displayStart"));
+			j.put("iDisplayLength", request.getAttribute("displayLength"));
 
             int end = start + length > numAnnots ? numAnnots : start + length;
 
             for (int i = start; i < end; i = i + 1) {
 
-                List<String> rowData = new ArrayList<String>();
+				List<String> rowData = new ArrayList<String>();
 
-                AnnotNameValCount annot = annots.get(i);
+				AnnotNameValCount annot = annots.get(i);
 
-                String displayAnnotName = annot.name;
-                String annotVal = annot.val;
-                String annotId = annot.id;
+				String displayAnnotName = annot.name;
+				String annotVal = annot.val;
+				String annotId = annot.id;
 
-                String link = annot.link != null ? annot.link : "";
-                String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
+				String link = annot.link != null ? annot.link : "";
+				String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
-                String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
+				String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
 
-                //https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-                String imgSubSetLink = null;
-                String thisImgUrl = null;
-                List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
+				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
+				String imgSubSetLink = null;
+				String thisImgUrl = null;
 
-                int imgCount = (int) pathAndImgCount.get(1);
+				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
-                String unit = imgCount > 1 ? "images" : "image";
+				int imgCount = (int) pathAndImgCount.get(1);
 
-                if (imgCount == 0) {
-                    imgSubSetLink = imgCount + " " + unit;
-                } else {
-                    String currFqStr = null;
-                    if (displayAnnotName.equals("Gene")) {
-                        currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
-                    }
-                    else if (displayAnnotName.equals("Procedure")) {
-                        currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
-                    }
-                    else if  (displayAnnotName.equals("MA")) {
-                        currFqStr = defaultFqStr + " AND ma_id:\"" + annotId + "\"";
-                    }
+				String unit = imgCount > 1 ? "images" : "image";
 
-                    //String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-                    thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
+				if (imgCount > 0) {
 
-                    imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
-                }
+					String currFqStr = null;
+					if (displayAnnotName.equals("Gene")) {
+						currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+					} else if (displayAnnotName.equals("Procedure")) {
+						currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+					} else if (displayAnnotName.equals("MA")) {
+						currFqStr = defaultFqStr + " AND ma_id:\"" + annotId + "\"";
+					}
 
-                rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
-                rowData.add(pathAndImgCount.get(0).toString());
+					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 
-                j.getJSONArray("aaData").add(rowData);
+					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
+
+					rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
+					rowData.add(pathAndImgCount.get(0).toString());
+
+					j.getJSONArray("aaData").add(rowData);
+				}
 
             }
 
-            return j.toString();
+			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+			j.put("facet_fields", facetFields);
+			//System.out.println("JSON STR: " + j.toString());
+			return j.toString();
         }
     }
 
-    public String parseJsonforImageDataTable(JSONObject json, int start, int length, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
+    public String parseJsonforImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
 
-        String mediaBaseUrl = config.get("mediaBaseUrl");
+		String mediaBaseUrl = config.get("mediaBaseUrl");
+
+		int start = (int) request.getAttribute("displayStart");
+		int length = (int) request.getAttribute("displayLength");
+
+		String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
 
         if (showImgView) {
             // image view: one image per row
@@ -1187,9 +1245,12 @@ public class DataTableController {
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-
+			j.put("imgHref", imgUrl);
+			j.put("imgCount", totalDocs);
             j.put("iTotalRecords", totalDocs);
             j.put("iTotalDisplayRecords", totalDocs);
+			j.put("iDisplayStart", request.getAttribute("displayStart"));
+			j.put("iDisplayLength", request.getAttribute("displayLength"));
 
             String imgBaseUrl = mediaBaseUrl + "/";
 
@@ -1197,7 +1258,7 @@ public class DataTableController {
 
                 List<String> rowData = new ArrayList<String>();
                 JSONObject doc = docs.getJSONObject(i);
-				System.out.println("DOC: " + doc.toString());
+
 				String annots = "";
 
                 String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
@@ -1288,7 +1349,8 @@ public class DataTableController {
 					}
 
                     ArrayList<String> gene = fetchImgGeneAnnotations(doc, request);
-                    if (gene.size() == 1) {
+
+					if (gene.size() == 1) {
                         annots += "<span class='imgAnnots'><span class='annotType'>Gene</span>: " + StringUtils.join(gene, ",") + "</span>";
                     } else if (gene.size() > 1) {
                         String list = "<ul class='imgGene'><li>" + StringUtils.join(gene, "</li><li>") + "</li></ul>";
@@ -1306,19 +1368,20 @@ public class DataTableController {
                 }
             }
 
-            return j.toString();
+			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+			j.put("facet_fields", facetFields);
+
+			return j.toString();
         } else {
 			// annotation view: images group by annotationTerm per row
 
-            String fqStr = fqOri;
-            if (fqStr.equals("&fq=annotationTermId:M*%20OR%20expName:*%20OR%20symbol:*%20OR%20annotated_or_inferred_higherLevelMaTermName:*%20OR%20annotatedHigherLevelMpTermName:*")) {
-                solrParams = solrParams.replace(fqOri, "");
-                fqStr = "";
-            }
+			String fqStr = fqOri;
+			if ( fqStr == null ){
+				solrParams += "&fq=*:*";
+			}
 
-            String imgUrl = request.getAttribute("baseUrl") + "/imagesb?" + solrParams;
 
-            JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
             JSONArray facets = solrIndex.mergeFacets(facetFields);
 
@@ -1327,9 +1390,12 @@ public class DataTableController {
 			//System.out.println("Number of facets: " + numFacets);
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
-
+			j.put("imgHref", imgUrl);
+			j.put("imgCount", json.getJSONObject("response").getInt("numFound"));
             j.put("iTotalRecords", numFacets / 2);
             j.put("iTotalDisplayRecords", numFacets / 2);
+			j.put("iDisplayStart", request.getAttribute("displayStart"));
+			j.put("iDisplayLength", request.getAttribute("displayLength"));
 
             int end = start + length;
 			//System.out.println("Start: "+start*2+", End: "+end*2);
@@ -1343,51 +1409,58 @@ public class DataTableController {
             // and increase the end similarly.
             for (int i = start * 2; i < end * 2; i = i + 2) {
 
-                if (facets.size() <= i) {
-                    break;
-                }//stop when we hit the end
+				if (facets.size() <= i) {
+					break;
+				}//stop when we hit the end
 
-                String[] names = facets.get(i).toString().split("_");
+				String[] names = facets.get(i).toString().split("_");
 
-                if (names.length == 2) {  // only want facet value of xxx_yyy
+				if (names.length == 2) {  // only want facet value of xxx_yyy
 
-                    List<String> rowData = new ArrayList<String>();
+					List<String> rowData = new ArrayList<>();
 
-                    Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString(), request.getAttribute("baseUrl").toString()); //MA:xxx, MP:xxx, MGI:xxx, exp
-                    String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
-                    String facetField = hm.get("field").toString();
 
-                    String imgCount = facets.get(i + 1).toString();
-                    String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";
+					Map<String, String> hm = solrIndex.renderFacetField(names, request.getAttribute("mappedHostname").toString(), request.getAttribute("baseUrl").toString()); //MA:xxx, MP:xxx, MGI:xxx, exp
 
-                    imgUrl = imgUrl.replaceAll("&q=.+&", "&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
-                    String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
+					String displayAnnotName = "<span class='annotType'>" + hm.get("label").toString() + "</span>: " + hm.get("link").toString();
+					String facetField = hm.get("field").toString();
 
-                    rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
+					String imgCount = facets.get(i + 1).toString();
+					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";
+
+					imgUrl = imgUrl.replaceAll("&q=.+&", "&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
+					String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
+
+					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 
 					// messy here, as ontodb (the latest term name info) may not have the terms in ann_annotation table
-                    // so we just use the name from ann_annotation table
-                    String thisFqStr = "";
-                    String fq = "";
-                    if (facetField == "annotationTermName") {
-                        fq = "(" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + names[0] + "\")";
-                    } else {
-                        fq = facetField + ":\"" + names[0] + "\"";
-                    }
+					// so we just use the name from ann_annotation table
+					String thisFqStr = "";
+					String fq = "";
 
-                    thisFqStr = fqStr.equals("") ? "fq=" + fq : fqStr + " AND " + fq;
 
-                    rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
+					if (facetField == "annotationTermName") {
+						fq = "(" + facetField + ":\"" + names[0] + "\" OR annotationTermName:\"" + names[0] + "\")";
+					} else {
+						fq = facetField + ":\"" + names[0] + "\"";
+					}
 
-                    j.getJSONArray("aaData").add(rowData);
-                }
+					thisFqStr = fqStr == null ? "fq=" + fq : fqStr + " AND " + fq;
+
+					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
+
+					j.getJSONArray("aaData").add(rowData);
+				}
+
             }
 
-            return j.toString();
+			j.put("facet_fields", facetFields);
+
+			return j.toString();
         }
     }
 
-    public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, int start) {
+    public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
 
         String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
@@ -1399,6 +1472,8 @@ public class DataTableController {
 
         j.put("iTotalRecords", totalDocs);
         j.put("iTotalDisplayRecords", totalDocs);
+		j.put("iDisplayStart", request.getAttribute("displayStart"));
+		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
         for (int i = 0; i < docs.size(); i ++) {
             List<String> rowData = new ArrayList<String>();
@@ -1461,7 +1536,11 @@ public class DataTableController {
                 log.error(e.getLocalizedMessage());
             }
         }
-        return j.toString();
+
+		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
+		j.put("facet_fields", facetFields);
+
+		return j.toString();
     }
 
     private ArrayList<String> fetchImgGeneAnnotations(JSONObject doc, HttpServletRequest request) {
@@ -1493,7 +1572,7 @@ public class DataTableController {
                 + "/images/select?qf=auto_suggest&defType=edismax&wt=json&q=" + query
                 + "&" + fqStr
                 + "&rows=" + maxNum;
-        //System.out.println("URL: " +queryUrl );
+
         List<String> imgPath = new ArrayList<String>();
 
         JSONObject thumbnailJson = solrIndex.getResults(queryUrl);

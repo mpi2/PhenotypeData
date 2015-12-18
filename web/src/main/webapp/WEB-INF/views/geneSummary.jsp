@@ -171,26 +171,29 @@
 	                                    <div> 
 	                                   		<c:if test="${uniprotData.getFunction() != null}">
 		                                     	<p class="with-label">
-			                                    	<span class="label">Function</span>${uniprotData.getFunction()}
+			                                    	<span class="label">Function</span>${uniprotData.getFunctionSummary()}
+			                                    	<c:if test="${!uniprotData.getFunction().equalsIgnoreCase(uniprotData.getFunctionSummary())}">
+														<a href="#" class="tooltip" title="${uniprotData.getFunction()}">...</a>
+			                                    	</c:if>
 			                               	 	</p>
 		                               	 	</c:if>
 		                               	 	<c:if test="${uniprotData.getGoProcess() != null && uniprotData.getGoProcess().size() > 0}">
 		                               	 		<c:set var="count" value="0" scope="page" />
 			                               		<p class="with-label">
 			                                    	<span class="label">GO Process</span>
-			                                    	<t:restrictTextDisplay title="GO Process" displayList="${uniprotData.getGoProcess()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                                    	<t:restrictListDisplay title="GO Process" displayList="${uniprotData.getGoProcess()}" numberToDisplay="5"> </t:restrictListDisplay>
 			                               	 	</p>
 			                               	</c:if>
 		                               	 	<c:if test="${uniprotData.getGoMolecularFunction() != null && uniprotData.getGoMolecularFunction().size() > 0}">
 		                                   		<p class="with-label">
 			                                    	<span class="label">GO Function</span>
-			                                    	<t:restrictTextDisplay title="GO Function" displayList="${uniprotData.getGoMolecularFunction()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                                    	<t:restrictListDisplay title="GO Function" displayList="${uniprotData.getGoMolecularFunction()}" numberToDisplay="5"> </t:restrictListDisplay>
 		                               	 		</p>
 		                               	 	</c:if>
 		                               	 	<c:if test="${uniprotData.getGoCell() != null && uniprotData.getGoCell().size() > 0}">
 			                               	 	<p class="with-label">
 			                                    	<span class="label">GO Cellular Component</span>
-			                                    	<t:restrictTextDisplay title="GO Cellular Component" displayList="${uniprotData.getGoCell()}" numberToDisplay="5"> </t:restrictTextDisplay>
+			                                    	<t:restrictListDisplay title="GO Cellular Component" displayList="${uniprotData.getGoCell()}" numberToDisplay="5"> </t:restrictListDisplay>
 			                               	 	</p>
 		                               	 	</c:if>
 		                               	 	<br/><br/>
@@ -263,16 +266,34 @@
 	                            
 	                            <div class="bordertop">
 	                            	<br/>
-                        			<h3>STRING Predicted Functional Partners</h3>
-                        			<img src="http://string-db.org/api/image/network?identifier=${gene.markerSymbol}&amp;species=10090">
-                        			<p class="credit"> This network is provided by <a href="http://string-db.org/">STRING</a>.</p> <br/>
+                        			<h3>STRING Predicted Functional Partners (Mouse)</h3>
+                        			
+                        			<c:if test="${stringDbTable.size() > 0}">
+	                        			<div class="half">
+		                        			<img src="http://string-db.org/api/image/network?identifier=${gene.markerSymbol}&amp;species=10090">
+		                        			<p class="credit"> This network is provided by <a href="http://string-db.org/">STRING</a>.</p> <br/>
+	                        			</div>
+	                        			<div class="half">
+	                        				<table> 
+	                        					<thead> <tr> <td>Symbol</td> <td> STRING Score</td> </tr></thead>
+	                        					<tbody> 
+	                        						<c:forEach var="key" items="${stringDbTable.keySet()}" varStatus="loop" >
+	                        							<tr> <td>${key}</td> <td>${stringDbTable.get(key)}</td></tr>
+	                        						</c:forEach>                        					
+	                        					</tbody>
+	                        				</table>
+	                        			</div>
+	                        		</c:if>
+                        			<c:if test="${stringDbTable.size() == 0}">
+                        				<div class="alert alert-info">STRING has no information for ${gene.markerSymbol}.</div>
+                        			</c:if>
+	                        		
                         		</div>
-                        		
-                        		
+	                            <div class="clear"></div>
+	                            
 	                            <div class="bordertop"> <!-- EXPRESSION heatmap from ExpressionAtlas -->
 	                            	<div id="heatmapContainer" class="bordertop"></div>
 	                            </div>
-	                             
 	                            <div class="clear"></div>
 	                            
                         	</div>

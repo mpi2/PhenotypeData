@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -72,8 +73,8 @@ public class GraphGlobalTestTable {
      * @return a new <code>GraphParsingStatus</code> status instance containing
      * failure counts and messages.
      */
-    public final PageStatus validate() {
-        PageStatus status = new PageStatus();
+    public final RunStatus validate() {
+        RunStatus status = new RunStatus();
         
         if ((sexEffectPvalues.isEmpty()) || sexEffectPvalues.size() != sexEffects.size()) {
             status.addError("ERROR: pvalue/effect is empty/missing. URL: " + graphUrl);

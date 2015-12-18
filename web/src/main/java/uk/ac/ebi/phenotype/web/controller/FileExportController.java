@@ -85,8 +85,8 @@ public class FileExportController {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@Autowired
-	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
+//	@Autowired
+//	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
 
 	@Autowired
 	private SolrIndex solrIndex;
@@ -141,6 +141,11 @@ public class FileExportController {
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
 
+	@Autowired
+	private DataTableController dataTableController;
+
+	@Autowired
+	private SearchController searchController;
 	/**
 	 * Return a TSV formatted response which contains all datapoints
 	 *
@@ -243,6 +248,40 @@ public class FileExportController {
 		}
 
 		return StringUtils.join(rows, "\n");
+	}
+
+	@RequestMapping(value = "/export2", method = RequestMethod.GET)
+	public void exportTableAsExcelTsv2(
+		// used for search Version 2
+		@RequestParam(value = "kw", required = true) String query,
+		@RequestParam(value = "fq", required = false) String fqStr,
+		@RequestParam(value = "dataType", required = true) String dataType,
+		//@RequestParam(value = "params", required = false) String solrFilters,
+		@RequestParam(value = "fileType", required = true) String fileType,
+		@RequestParam(value = "fileName", required = true) String fileName,
+		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
+		@RequestParam(value = "iDisplayStart", required = true) Integer iDisplayStart,
+		@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
+		HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+
+		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
+		Boolean legacyOnly = false;
+		String gridFields = null;
+
+		String solrFilters = "q=" + query + "&fq=" + fqStr;
+
+//		JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
+//				length, showImgView);
+
+		JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+
+		List<String> dataRows = new ArrayList<>();
+		dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
+				solrFilters, request, legacyOnly, fqStr);
+
+		Workbook wb = null;
+		writeOutputFile(response, dataRows, fileType, fileName, wb);
+
 	}
 
 	/**
@@ -808,16 +847,18 @@ public class FileExportController {
 
 				int imgCount = (int) pathAndImgCount.get(1);
 
-				StringBuilder sb = new StringBuilder();
-				sb.append("");
-				sb.append(imgCount);
-				data.add(sb.toString());
+				if ( imgCount > 0 ) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("");
+					sb.append(imgCount);
+					data.add(sb.toString());
 
-				String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
-				//System.out.println("IMG LINK: " + imgSubSetLink );
-				data.add(imgSubSetLink);
+					String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
+					//System.out.println("IMG LINK: " + imgSubSetLink );
+					data.add(imgSubSetLink);
 
-				rowData.add(StringUtils.join(data, "\t"));
+					rowData.add(StringUtils.join(data, "\t"));
+				}
 			}
 		}
 
@@ -829,6 +870,7 @@ public class FileExportController {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
 
+		System.out.println("baseUrl: " + baseUrl);
 		List<String> rowData = new ArrayList();
 		rowData.add(
 				"Mammalian phenotype term\tMammalian phenotype id\tMammalian phenotype id link\tMammalian phenotype definition\tMammalian phenotype synonym\tMammalian phenotype top level term\tComputationally mapped human phenotype terms\tComputationally mapped human phenotype term Ids\tPostqc call(s)"); // column
@@ -1585,7 +1627,7 @@ public class FileExportController {
 
 		Set<String> foundIds = new HashSet<>();
 
-		System.out.println("Number of responses: " + solrResponses.size());
+		//System.out.println("Number of responses: " + solrResponses.size());
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -1594,7 +1636,7 @@ public class FileExportController {
 		}
 
 		int totalDocs = results.size();
-		System.out.println("TOTAL DOCS FOUND: " + totalDocs);
+		//System.out.println("TOTAL DOCS FOUND: " + totalDocs);
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1643,12 +1685,8 @@ public class FileExportController {
 		List<String> rowData = new ArrayList();
 		rowData.add(StringUtils.join(colList, "\t"));
 
-		System.out.println("grid fields: " + colList);
-
 		for (int i = 0; i < results.size(); i++) {
 			SolrDocument doc = results.get(i);
-
-			System.out.println("Working on document " + i + " of " + totalDocs);
 
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap(); // Note
 																				// getFieldValueMap()
@@ -1725,7 +1763,6 @@ public class FileExportController {
 					// System.out.println("idlink id: " + accStr);
 
 					if (!oriDataTypeNAme.equals("ensembl") && !oriDataTypeNAme.equals("marker_symbol")) {
-						System.out.println("idlink check: " + accStr);
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1851,9 +1888,7 @@ public class FileExportController {
 
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-		// System.out.println("Query ids: "+ queryIds);
-		// System.out.println("Found ids: "+ new ArrayList(foundIds));
-		System.out.println("non found ids: " + nonFoundIds.size());
+
 
 		for (int i = 0; i < nonFoundIds.size(); i++) {
 			List<String> data = new ArrayList<String>();
@@ -1874,8 +1909,6 @@ public class FileExportController {
 		String outfile = fileName + "." + fileType;
 
 		try {
-
-			System.out.println("File to export: " + outfile);
 
 			if (fileType.equals("tsv")) {
 

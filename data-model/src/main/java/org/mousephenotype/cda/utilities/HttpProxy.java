@@ -13,26 +13,29 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
-package uk.ac.ebi.phenotype.web.util;
+package org.mousephenotype.cda.utilities;
 
-import org.apache.commons.io.IOUtils;
-import org.netbeans.lib.cvsclient.commandLine.command.log;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.ac.ebi.phenotype.util.CustomizedHostNameVerifier;
-import uk.ac.ebi.phenotype.util.DefaultTrustManager;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.HashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.*;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.HashMap;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class HttpProxy {
 
@@ -43,6 +46,10 @@ public class HttpProxy {
 	protected HashMap<URL, String> cache = new HashMap<URL, String>();
 	private String cookie = null;
 
+	
+	public String getContent(URL url) throws IOException, URISyntaxException {
+		return this.getContent(url, false);
+	}
 	/**
 	 * Method to get page content from an external URL
 	 *
@@ -51,7 +58,7 @@ public class HttpProxy {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String getContent(URL url) throws IOException, URISyntaxException {
+	public String getContent(URL url, boolean external) throws IOException, URISyntaxException {
 
 		// If this url has already been fetched, return the cached content
 		// rather than re-fetching
@@ -69,10 +76,10 @@ public class HttpProxy {
                     if(url.getProtocol().toLowerCase().equals("https")) {
                             content = getSecureContent(escapedUrl);
                     } else {
-                            content = getNonSecureContent(escapedUrl);
+                            content = getNonSecureContent(escapedUrl, external);
                     }
                 } catch (Exception e) {
-                    log.error("EXCEPTION for protocol " + url.getProtocol().toLowerCase() + ": " + e.getLocalizedMessage() + ". Solr URL: " + escapedUrl);
+                    log.error("EXCEPTION for protocol " + url.getProtocol().toLowerCase() + ": " + e.getLocalizedMessage() + ". URL: " + escapedUrl);
                     throw e;
                 }
 
@@ -86,7 +93,7 @@ public class HttpProxy {
 		HttpsURLConnection urlConn;
 		InputStreamReader inStream;
 		String content = "";
-		Proxy proxy = getProxy(url);
+		Proxy proxy = getProxy(url, false);
 
 		// Set up custom SSL verification which always verifies certs, even when
 		// the server name doesn't match the cert name so that requests to
@@ -127,13 +134,24 @@ public class HttpProxy {
 
 		return content;
 	}
-
+	
 	public String getNonSecureContent(URL url) throws IOException {
+		return this.getNonSecureContent(url, false);
+	}
+
+	/**
+	 * 
+	 * @param url
+	 * @param external - seems we use a different system property for solr indexers?
+	 * @return
+	 * @throws IOException
+	 */
+	public String getNonSecureContent(URL url, boolean external) throws IOException {
 
 		HttpURLConnection urlConn;
 		InputStreamReader inStream;
 		String content = "";
-		Proxy proxy = getProxy(url);
+		Proxy proxy = getProxy(url, external);
 
 		if (proxy != null) {
 			urlConn = (HttpURLConnection) url.openConnection(proxy);
@@ -155,18 +173,35 @@ public class HttpProxy {
 		return content;
 	}
 
-	public Proxy getProxy(URL url) {
+	public Proxy getProxy(URL url, boolean external) {
 
-		String proxyHost = System.getProperty("http.proxyHost");
+		String proxyHost = null;
+		
+		
+		
 		Integer proxyPort = null;
-		try {
-			proxyPort = Integer.parseInt(System.getProperty("http.proxyPort"));
-		} catch (NumberFormatException e) {
-			// proxy port is either not defined or not defined properly
-			// don't proxy anything
-			return null;
-		}
+		if(external){
+			
+			proxyHost=System.getProperty("externalProxyHost");
+			try {
+				proxyPort = Integer.parseInt(System.getProperty("externalProxyPort"));
+			} catch (NumberFormatException e) {
+				// proxy port is either not defined or not defined properly
+				// don't proxy anything
+				return null;
+			}
 
+		}else{
+			proxyHost=System.getProperty("http.proxyHost");
+			try {
+				
+				proxyPort = Integer.parseInt(System.getProperty("http.proxyPort"));
+			} catch (NumberFormatException e) {
+				// proxy port is either not defined or not defined properly
+				// don't proxy anything
+				return null;
+			}
+		}
 		// Do not proxy requests to these hosts
 		// e.g. http.nonProxyHosts=*.ebi.ac.uk|localhost|127.0.0.1
 		String noProxyStr = System.getProperty("http.nonProxyHosts");
@@ -181,7 +216,7 @@ public class HttpProxy {
 
 		Proxy proxy = null;
 		if (proxyHost != null && proxyPort != null) {
-			log.debug("Proxy Settings: " + proxyHost + " on port: " + proxyPort);
+			log.info("Proxy Settings: " + proxyHost + " on port: " + proxyPort);
 			InetSocketAddress inet = new InetSocketAddress(proxyHost, proxyPort);
 			proxy = new Proxy(Proxy.Type.HTTP, inet);
 		}
@@ -201,6 +236,5 @@ public class HttpProxy {
 	public void setCookieString(String cookie) {
 		this.cookie = cookie;
 	}
-
 
 }

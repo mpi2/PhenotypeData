@@ -21,6 +21,7 @@ import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.DataReaderXls;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
@@ -1047,13 +1048,13 @@ public class SearchPage {
     /**
      * Compares each facet's grid (on the right-hand side of the search page)
      * with each of the download data streams (page/all and tsv/xls). Any
-     * errors are returned in the <code>PageStatus</code> instance.
+     * errors are returned in the <code>RunStatus</code> instance.
 
      * @param facet facet
      * @return page status instance
      */
-    public PageStatus validateDownload(Facet facet) {
-        PageStatus status = new PageStatus();
+    public RunStatus validateDownload(Facet facet) {
+        RunStatus status = new RunStatus();
 
         DownloadType[] downloadTypes = {
               DownloadType.TSV

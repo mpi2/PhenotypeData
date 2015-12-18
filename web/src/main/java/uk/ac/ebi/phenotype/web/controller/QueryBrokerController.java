@@ -15,13 +15,16 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
+import org.apache.solr.client.solrj.SolrServer;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,16 +34,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -57,8 +58,6 @@ public class QueryBrokerController {
 	@Resource(name="globalConfiguration")
 	private Map<String, String> config;
 
-	private String internalSolrUrl;
-
 	// Use cache to manage queries for minimizing network traffic
 	final int MAX_ENTRIES = 600;
 
@@ -71,6 +70,46 @@ public class QueryBrokerController {
 	        return size() > MAX_ENTRIES;
 	    }
 	});
+
+
+	@RequestMapping(value = "/fetchDefaultCore", method = RequestMethod.GET)
+	@ResponseBody public String fetchDefaultCore(
+			@RequestParam(value = "q", required = true) String query,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			Model model) throws IOException, URISyntaxException  {
+
+		String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
+		String solrParams = "&rows=0&wt=json&&defType=edismax&qf=auto_suggest&facet.field=docType&facet=on&facet.limit=-1&facet.mincount=1";
+		String url = internalSolrUrl + "/autosuggest/select?q=" + query + solrParams;
+		JSONObject json = solrIndex.getResults(url);
+
+		JSONArray docCount = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("docType");
+		Map<String, Integer> dc = new HashMap<>();
+		for( int i=0; i<docCount.size(); i=i+2){
+			dc.put(docCount.get(i).toString(), (Integer) docCount.get(i+1));
+		}
+
+		// priority order of facet to be opened based on search result
+		String defaultCore = "";
+		if ( dc.containsKey("gene") ) {
+			defaultCore = "gene";
+		} else if ( dc.containsKey("mp") ) {
+			defaultCore = "mp";
+		} else if ( dc.containsKey("disease") ) {
+			defaultCore = "disease";
+		} else if ( dc.containsKey("ma") ) {
+			defaultCore = "ma";
+		} else if ( dc.containsKey("impc_images") ) {
+			defaultCore = "impc_images";
+		} else if ( dc.containsKey("images") ) {
+			defaultCore = "images";
+		} else {
+			defaultCore = ""; // nothing found
+		}
+		//System.out.println("default core: " + defaultCore);
+		return defaultCore;
+	}
 
 
 	/**
@@ -114,11 +153,9 @@ public class QueryBrokerController {
 			HttpServletResponse response,
 			Model model) throws IOException, URISyntaxException  {
 
-		internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
-
 		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
 
-		JSONObject jsonResponse = createJsonResponse(subfacet, jParams);
+		JSONObject jsonResponse = createJsonResponse(subfacet, jParams, request);
 
 		return new ResponseEntity<JSONObject>(jsonResponse, createResponseHeaders(), HttpStatus.CREATED);
 	}
@@ -129,7 +166,7 @@ public class QueryBrokerController {
 		return responseHeaders;
 	}
 
-	public JSONObject createJsonResponse(String subfacet, JSONObject jParams) throws IOException, URISyntaxException {
+	public JSONObject createJsonResponse(String subfacet, JSONObject jParams, HttpServletRequest request) throws IOException, URISyntaxException {
 
 		JSONObject jsonResponse = new JSONObject();
 
@@ -145,6 +182,8 @@ public class QueryBrokerController {
 			// gene2 is a pseudo core to get only protein coding genes count for
 			// Genes main facet count on default search page
 			String solrCore = core.equals("gene2") ? "gene" : core;
+
+			String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
 			String url = internalSolrUrl + "/" + solrCore + "/select?" + param;
 
 			String key = core+param;
@@ -156,6 +195,7 @@ public class QueryBrokerController {
 				JSONObject json = solrIndex.getResults(url);
 				//System.out.println("JSON: "+ json);
 				if ( subfacet == null ){
+					// Main facet counts only
 					int numFound = json.getJSONObject("response").getInt("numFound");
 					jsonResponse.put(core, numFound);
 

@@ -31,6 +31,7 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -129,13 +130,14 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(mpCore);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(mpCore);
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         initializeSolrCores();
@@ -152,8 +154,8 @@ public class MPIndexer extends AbstractIndexer {
             mpCore.commit();
 
             // Loop through the mp_term_infos
-            String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
-            
+            //String q = "select 'mp' as dataType, ti.term_id, ti.name, ti.definition from mp_term_infos ti where ti.term_id !='MP:0000001' order by ti.term_id";
+            String q = " select distinct 'mp' as dataType, ti.term_id, ti.name, ti.definition, group_concat(distinct alt.alt_id) as alt_ids from mp_term_infos ti left join mp_alt_ids alt on ti.term_id=alt.term_id where ti.term_id != 'MP:0000001' group by ti.term_id";
             PreparedStatement ps = ontoDbConnection.prepareStatement(q);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -164,6 +166,12 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setMpId(termId);
                 mp.setMpTerm(rs.getString("name"));
                 mp.setMpDefinition(rs.getString("definition"));
+
+                // alternative MP ID
+                String alt_ids = rs.getString("alt_ids");
+                if ( !rs.wasNull() ) {
+                    mp.setAltMpIds(Arrays.asList(alt_ids.split(",")));
+                }
 
                 addMpHpTerms(mp, mphpBeans.get(termId));
                 mp.setMpNodeId(termNodeIds.get(termId));
@@ -194,6 +202,8 @@ public class MPIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
