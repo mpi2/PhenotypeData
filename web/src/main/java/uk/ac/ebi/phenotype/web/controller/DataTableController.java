@@ -1158,9 +1158,9 @@ public class DataTableController {
                 defaultFqStr = defaultFqStr + " AND " + fqStr;
             }
 
-            List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
+			List<AnnotNameValCount> annots = solrIndex.mergeImpcFacets(json, baseUrl);
 
-            int numAnnots = annots.size();
+			int numAnnots = annots.size();
 
             JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
@@ -1175,53 +1175,50 @@ public class DataTableController {
 
             for (int i = start; i < end; i = i + 1) {
 
-                List<String> rowData = new ArrayList<String>();
+				List<String> rowData = new ArrayList<String>();
 
-                AnnotNameValCount annot = annots.get(i);
+				AnnotNameValCount annot = annots.get(i);
 
-                String displayAnnotName = annot.name;
-                String annotVal = annot.val;
-                String annotId = annot.id;
+				String displayAnnotName = annot.name;
+				String annotVal = annot.val;
+				String annotId = annot.id;
 
-                String link = annot.link != null ? annot.link : "";
-                String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
+				String link = annot.link != null ? annot.link : "";
+				String valLink = "<a href='" + link + "'>" + annotVal + "</a>";
 
-                String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
+				String thisFqStr = defaultFqStr + " AND " + annot.facet + ":\"" + annotVal + "\"";
 
-                //https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
-                String imgSubSetLink = null;
-                String thisImgUrl = null;
+				//https://dev.mousephenotype.org/data/impcImages/images?q=observation_type:image_record&fq=biological_sample_group:experimental"
+				String imgSubSetLink = null;
+				String thisImgUrl = null;
 
 				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
-                int imgCount = (int) pathAndImgCount.get(1);
+				int imgCount = (int) pathAndImgCount.get(1);
 
-                String unit = imgCount > 1 ? "images" : "image";
+				String unit = imgCount > 1 ? "images" : "image";
 
-                if (imgCount == 0) {
-                    imgSubSetLink = imgCount + " " + unit;
-                } else {
-                    String currFqStr = null;
-                    if (displayAnnotName.equals("Gene")) {
-                        currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
-                    }
-                    else if (displayAnnotName.equals("Procedure")) {
-                        currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
-                    }
-                    else if  (displayAnnotName.equals("MA")) {
-                        currFqStr = defaultFqStr + " AND ma_id:\"" + annotId + "\"";
-                    }
+				if (imgCount > 0) {
 
-                    //String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
-                    thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
+					String currFqStr = null;
+					if (displayAnnotName.equals("Gene")) {
+						currFqStr = defaultFqStr + " AND gene_symbol:\"" + annotVal + "\"";
+					} else if (displayAnnotName.equals("Procedure")) {
+						currFqStr = defaultFqStr + " AND procedure_name:\"" + annotVal + "\"";
+					} else if (displayAnnotName.equals("MA")) {
+						currFqStr = defaultFqStr + " AND ma_id:\"" + annotId + "\"";
+					}
 
-                    imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
-                }
+					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
+					thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 
-                rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
-                rowData.add(pathAndImgCount.get(0).toString());
+					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 
-                j.getJSONArray("aaData").add(rowData);
+					rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
+					rowData.add(pathAndImgCount.get(0).toString());
+
+					j.getJSONArray("aaData").add(rowData);
+				}
 
             }
 
@@ -1235,7 +1232,7 @@ public class DataTableController {
     public String parseJsonforImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
 
 		String mediaBaseUrl = config.get("mediaBaseUrl");
-		System.out.println("MEDIA BASE URL: "+ mediaBaseUrl);
+
 		int start = (int) request.getAttribute("displayStart");
 		int length = (int) request.getAttribute("displayLength");
 
