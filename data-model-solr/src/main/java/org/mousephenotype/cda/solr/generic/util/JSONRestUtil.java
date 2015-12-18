@@ -15,15 +15,17 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import org.mousephenotype.cda.utilities.HttpProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 
 public class JSONRestUtil {

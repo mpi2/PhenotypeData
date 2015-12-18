@@ -17,6 +17,13 @@ public class UniprotDTO {
 	public String getFunction() {
 		return function;
 	}
+	
+	public String getFunctionSummary(){
+		if (function.length() > 100){
+			return function.substring(0, 100);
+		} else return function;
+	}
+	
 	public void setFunction(String function) {
 		this.function = function;
 	}

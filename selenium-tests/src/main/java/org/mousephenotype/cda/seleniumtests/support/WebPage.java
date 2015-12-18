@@ -16,15 +16,17 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.utilities.RunStatus;
+
 /**
  *
  * @author mrelac
  */
 public interface WebPage {
-    public PageStatus compare(String[][] downloadData, String downloadTarget);
+    public RunStatus compare(String[][] downloadData, String downloadTarget);
     public String[][] getPhenotypeTableData(Integer maxRows);
     public int getResultsCount();
-    public PageStatus testDownload(String baseUrl);
+    public RunStatus testDownload(String baseUrl);
     
     
 }

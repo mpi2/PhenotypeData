@@ -17,12 +17,12 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,14 +30,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -93,13 +90,14 @@ public class PreqcIndexer extends AbstractIndexer {
 
 
 	@Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(preqcCore);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(preqcCore);
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         int count = 1;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         zygosityMapping.put("Heterozygous", "heterozygote");
@@ -350,20 +348,22 @@ public class PreqcIndexer extends AbstractIndexer {
 
             preqcCore.commit();
 
-        } catch (ParserConfigurationException | SAXException | SQLException | SolrServerException | IOException e) {
+        } catch (Exception e) {
             throw new IndexerException(e);
         }
 
         if (missingPhenotypeTerm.size() > 0) {
-            logger.warn(" Phenotype terms are missing for %s record(s):\n %s", missingPhenotypeTerm.size(), StringUtils.join(missingPhenotypeTerm, ", "));
+            runStatus.addWarning(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s):\n " + StringUtils.join(missingPhenotypeTerm, ", "));
         }
 
         if (bad.size() > 0) {
-            logger.warn(" Found {} unique mps not in ontodb", bad.size());
-            logger.warn(" MP terms not found: {} ", StringUtils.join(bad, ","));
+            runStatus.addWarning(" Found " + bad.size() + " unique mps not in ontodb");
+            runStatus.addWarning(" MP terms not found: " + StringUtils.join(bad, ","));
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {

@@ -30,6 +30,7 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -96,9 +97,8 @@ public class GeneIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(geneCore);
-        Long numFound = getDocumentCount(geneCore);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(geneCore);
     }
 
     @Override
@@ -119,8 +119,9 @@ public class GeneIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
     	Datasource ensembl = datasourceDAO.getDatasourceByShortName("Ensembl");
@@ -598,6 +599,8 @@ public class GeneIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
 

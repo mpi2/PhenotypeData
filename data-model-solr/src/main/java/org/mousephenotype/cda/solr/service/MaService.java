@@ -35,6 +35,7 @@ import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,7 @@ import org.springframework.stereotype.Service;
 import net.sf.json.JSONObject;
 
 @Service
-public class MaService extends BasicService{
+public class MaService extends BasicService implements WebStatus{
 
 
 	@Autowired
@@ -143,6 +144,22 @@ public class MaService extends BasicService{
         return children;
     }
 
+    
+    @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "MA Service";
+	}
     
 	
 }

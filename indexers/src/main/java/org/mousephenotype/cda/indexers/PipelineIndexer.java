@@ -18,11 +18,11 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.RunStatus;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -80,8 +80,8 @@ public class PipelineIndexer extends AbstractIndexer {
 	
 
 	@Override
-	public void validateBuild()	throws IndexerException {
-		super.validateBuild(pipelineCore);
+	public RunStatus validateBuild()	throws IndexerException {
+		return super.validateBuild(pipelineCore);
 	}
 
 	@Override
@@ -112,12 +112,12 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public void run() 
+	public RunStatus run()
 	throws IndexerException {
-        int count = 0;
+        documentCount = 0;
+        Set<String> noTermSet = new HashSet<>();
+        RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
-		Set<String> noTermSet = new HashSet<>();
-		boolean hasWarnings = false;
 
 		try {
 			initialiseSupportingBeans();
@@ -208,7 +208,7 @@ public class PipelineIndexer extends AbstractIndexer {
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
 						pipelineCore.addBean(doc);
-						count++;
+						documentCount++;
 					}
 				}
 			}
@@ -216,8 +216,7 @@ public class PipelineIndexer extends AbstractIndexer {
 			List<String> noTermList = new ArrayList<>(noTermSet);
 			Collections.sort(noTermList);
 			for (String mpId : noTermList) {
-				logger.warn(" No mp term for '{}'.", mpId);
-				hasWarnings = true;
+                runStatus.addWarning( "No mp term for " + mpId);
 			}
 
 			pipelineCore.commit();
@@ -227,13 +226,15 @@ public class PipelineIndexer extends AbstractIndexer {
 			throw new IndexerException(e);
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-		} finally {
-            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+		}
+
+        if (runStatus.hasWarnings()) {
+            runStatus.addWarning("No mp term COUNT: " + noTermSet.size());
         }
 
-        if (hasWarnings) {
-            throw new IndexerException(" No mp term COUNT: " + noTermSet.size(), RunStatus.WARN);
-        }
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
 	}
 
 	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {

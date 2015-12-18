@@ -30,6 +30,7 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Service;
 import net.sf.json.JSONObject;
 
 @Service
-public class MpService extends BasicService{
+public class MpService extends BasicService implements WebStatus{
 
 
 	@Autowired
@@ -62,7 +63,7 @@ public class MpService extends BasicService{
 	public MpDTO getPhenotype(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+			.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
 			.setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);
@@ -182,5 +183,21 @@ public class MpService extends BasicService{
 			e.printStackTrace();
 		}
 		return res;
+	}
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "MP Service";
 	}
 }

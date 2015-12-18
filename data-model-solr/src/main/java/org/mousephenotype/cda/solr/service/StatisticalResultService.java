@@ -45,6 +45,7 @@ import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
+import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ import java.util.concurrent.ExecutionException;
  */
 
 @Service
-public class StatisticalResultService extends AbstractGenotypePhenotypeService {
+public class StatisticalResultService extends AbstractGenotypePhenotypeService implements WebStatus {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -1562,5 +1563,21 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
        
        return res;
    }
+
+   @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "statistical result service";
+	}
     
 }

@@ -33,6 +33,7 @@ import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -149,14 +150,15 @@ public class AlleleIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        super.validateBuild(alleleCore);
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(alleleCore);
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
         long rows = 0;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         try {
@@ -249,11 +251,13 @@ public class AlleleIndexer extends AbstractIndexer {
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     private void initializeSolrCores() {
 
-        final String SANGER_ALLELE_URL = config.get("imits.solrserver");
+        final String SANGER_ALLELE_URL = config.get("imits.solr.host")+"/allele2";
         final String PHENODIGM_URL = config.get("phenodigm.solrserver");
 
         // Use system proxy if set for external solr servers

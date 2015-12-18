@@ -35,6 +35,7 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +50,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class ImpressService {
+public class ImpressService implements WebStatus {
 
 	@Value("${drupalBaseUrl}")
 	public String DRUPAL_BASE_URL;
@@ -485,4 +486,21 @@ public class ImpressService {
 			this.name = maName;
 		}
 	}
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "ImpressService (pipeline core)";
+	}
+	
 }

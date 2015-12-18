@@ -1810,6 +1810,21 @@
 		return $.fn.getCurrentFq(facet).replace(/img_|impcImg_/g, '');
 	};
 
+	$.fn.fetchUrlParams = function(key) {
+
+		var params = {};
+		var paramStr = window.location.search.replace("?","");
+
+		var kw = paramStr.split("&");
+		for ( var i=0; i<kw.length; i++ ) {
+			var pairs = kw[i].split("=");
+			var k = pairs[0];
+			var v = pairs[1];
+			params[k] = v;
+		}
+		return params[key];
+	};
+
 	$.fn.getCurrentFq = function(facet) {
 
 		var hashStr = $(location).attr('hash');
@@ -3226,7 +3241,12 @@
 		return sorted;
 	}
 
-})(jQuery);
+
+	$.fn.startsWith = function(str, prefix, offset){
+		// offset sets the position (0-based index) where the startsWith should start
+		return str.slice(offset, prefix.length + offset) == prefix;
+	}
+//})(jQuery);
 
 // HIGHLIGHT FCT
 $.fn.dataTableExt.oApi.fnSearchHighlighting = function(oSettings) {
@@ -3618,3 +3638,6 @@ $.extend($.ui.autocomplete.prototype.options, {
 		});
 	}
 });
+
+
+})(jQuery);
