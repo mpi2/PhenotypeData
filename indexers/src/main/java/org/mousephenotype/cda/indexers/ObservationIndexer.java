@@ -39,7 +39,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -49,7 +48,10 @@ import java.util.*;
  * Populate the experiment core
  */
 public class ObservationIndexer extends AbstractIndexer {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private static Connection connection;
     CommonUtils commonUtils = new CommonUtils();
 
@@ -84,8 +86,6 @@ public class ObservationIndexer extends AbstractIndexer {
     public static final List<String> femaleFertilityParameters = Arrays.asList(
         "IMPC_FER_019_001", "IMPC_FER_010_001", "IMPC_FER_011_001",
         "IMPC_FER_012_001", "IMPC_FER_013_001");
-
-	public SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.S");
 
     public ObservationIndexer() {
     }
@@ -199,12 +199,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 o.setExperimentId(r.getInt("experiment_id"));
 	            o.setExperimentSourceId(r.getString("external_id"));
 
-//	            try {
-//		            o.setDateOfExperiment(dateFormat.parse(r.getString("date_of_experiment")));
-//	            } catch (NullPointerException | ParseException e) {
-		            //o.setDateOfExperiment(r.getDate("date_of_experiment"));
-//	            }
-	            ZonedDateTime dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S").withZone(ZoneId.of("UTC")));
+	            ZonedDateTime dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 	            o.setDateOfExperiment(dateOfExperiment);
 
 
@@ -404,7 +399,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
                     WeightBean b = getNearestWeight(o.getBiologicalSampleId(), dateOfExperiment);
 
-                    if (o.getParameterStableId().equals(ipgttWeightParameter)) {
+                    if (o.getProcedureGroup().contains("_IPG_")) {
                         b = getNearestIpgttWeight(o.getBiologicalSampleId());
                     }
 
@@ -476,13 +471,8 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.biologicalSampleId = resultSet.getInt("biological_sample_id");
                 b.colonyId = resultSet.getString("colony_id");
 
-//	            try {
-//		            b.dateOfBirth = dateFormat.parse(resultSet.getString("date_of_birth"));
-//	            } catch (NullPointerException | ParseException e) {
-//		            b.dateOfBirth = resultSet.getDate("date_of_birth");
-//	            }
 	            try {
-		            b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S").withZone(ZoneId.of("UTC")));
+		            b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 	            } catch (NullPointerException e) {
 		            b.dateOfBirth = null;
 	            }
@@ -792,9 +782,7 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-                //b.date = resultSet.getDate("date_of_experiment");
-	           // b.date = OffsetDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
-	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S").withZone(ZoneId.of("UTC")));
+	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 
 	            b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
@@ -835,12 +823,7 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-//	            try {
-//		            b.date = dateFormat.parse(resultSet.getString("date_of_experiment"));
-//	            } catch (NullPointerException | ParseException e) {
-//		            b.date = resultSet.getDate("date_of_experiment");
-//	            }
-	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S").withZone(ZoneId.of("UTC")));
+	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 	            b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
