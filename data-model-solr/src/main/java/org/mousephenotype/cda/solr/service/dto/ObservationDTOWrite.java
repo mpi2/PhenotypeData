@@ -103,6 +103,7 @@ public class ObservationDTOWrite extends ObservationDTOBase {
 
     public void setWeightDate(ZonedDateTime weightDate) {
         this.weightDate = weightDate;
+	    this.solrWeightDate = new Iso8601ZonedDateTime(weightDate);
     }
 
 
