@@ -307,7 +307,7 @@ public class SolrIndex {
 					+ iDisplayLength;
 			if (!showImgView) {
 				//url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
-				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.limit=-1&facet.mincount=1";
 			}
 //			System.out.println("IMG PARAMS: " + url);
 		} else if (mode.equals("mpGrid")) {
