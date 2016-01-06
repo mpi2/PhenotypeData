@@ -25,7 +25,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -39,15 +39,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
  * Populate the experiment core
  */
 public class ObservationIndexer extends AbstractIndexer {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     private static Connection connection;
     CommonUtils commonUtils = new CommonUtils();
 
@@ -83,11 +87,7 @@ public class ObservationIndexer extends AbstractIndexer {
         "IMPC_FER_019_001", "IMPC_FER_010_001", "IMPC_FER_011_001",
         "IMPC_FER_012_001", "IMPC_FER_013_001");
 
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.S");
-
-
     public ObservationIndexer() {
-        
     }
 
     @Override
@@ -100,6 +100,7 @@ public class ObservationIndexer extends AbstractIndexer {
         main.initialise(args);
         main.run();
         main.validateBuild();
+
     }
 
 
@@ -192,17 +193,14 @@ public class ObservationIndexer extends AbstractIndexer {
             ResultSet r = p.executeQuery();
             while (r.next()) {
 
-	            ObservationDTO o = new ObservationDTO();
+	            ObservationDTOWrite o = new ObservationDTOWrite();
                 o.setId(r.getInt("id"));
                 o.setParameterId(r.getInt("parameter_id"));
                 o.setExperimentId(r.getInt("experiment_id"));
 	            o.setExperimentSourceId(r.getString("external_id"));
 
-	            try {
-		            o.setDateOfExperiment(dateFormat.parse(r.getString("date_of_experiment")));
-	            } catch (NullPointerException | ParseException e) {
-		            o.setDateOfExperiment(r.getDate("date_of_experiment"));
-	            }
+	            ZonedDateTime dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+	            o.setDateOfExperiment(dateOfExperiment);
 
 
 	            o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
@@ -399,9 +397,9 @@ public class ObservationIndexer extends AbstractIndexer {
                 // Add weight parameters only if this observation isn't for a weight parameter
                 if ( ! Constants.weightParameters.contains(o.getParameterStableId()) && ! ipgttWeightParameter.equals(o.getParameterStableId())) {
 
-                    WeightBean b = getNearestWeight(o.getBiologicalSampleId(), o.getDateOfExperiment());
+                    WeightBean b = getNearestWeight(o.getBiologicalSampleId(), dateOfExperiment);
 
-                    if (o.getParameterStableId().equals(ipgttWeightParameter)) {
+                    if (o.getProcedureGroup().contains("_IPG_")) {
                         b = getNearestIpgttWeight(o.getBiologicalSampleId());
                     }
 
@@ -474,12 +472,12 @@ public class ObservationIndexer extends AbstractIndexer {
                 b.colonyId = resultSet.getString("colony_id");
 
 	            try {
-		            b.dateOfBirth = dateFormat.parse(resultSet.getString("date_of_birth"));
-	            } catch (NullPointerException | ParseException e) {
-		            b.dateOfBirth = resultSet.getDate("date_of_birth");
+		            b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+	            } catch (NullPointerException e) {
+		            b.dateOfBirth = null;
 	            }
 
-                b.externalSampleId = resultSet.getString("external_sample_id");
+	            b.externalSampleId = resultSet.getString("external_sample_id");
                 b.geneAcc = resultSet.getString("acc");
                 b.geneSymbol = resultSet.getString("symbol");
                 b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
@@ -710,7 +708,7 @@ public class ObservationIndexer extends AbstractIndexer {
      * @param dateOfExperiment the date
      * @return the nearest weight bean to the date of the experiment
      */
-    public WeightBean getNearestWeight(Integer specimenID, Date dateOfExperiment) {
+    public WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
 
         WeightBean nearest = null;
 
@@ -723,7 +721,7 @@ public class ObservationIndexer extends AbstractIndexer {
                     continue;
                 }
 
-                if (Math.abs(dateOfExperiment.getTime() - candidate.date.getTime()) < Math.abs(nearest.date.getTime() - candidate.date.getTime())) {
+                if (Math.abs(dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math.abs(nearest.date.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli())) {
                     nearest = candidate;
                 }
             }
@@ -733,7 +731,7 @@ public class ObservationIndexer extends AbstractIndexer {
         // since the weight of the specimen become less and less relevant
         // (Heuristic from Natasha Karp @ WTSI)
         // 4 days = 345,600,000 ms
-        if (nearest != null && Math.abs(dateOfExperiment.getTime()-nearest.date.getTime()) > 3.456E8) {
+        if (nearest != null && Math.abs(dateOfExperiment.toInstant().toEpochMilli()-nearest.date.toInstant().toEpochMilli()) > 3.456E8) {
             nearest = null;
         }
         return nearest;
@@ -784,8 +782,9 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-                b.date = resultSet.getDate("date_of_experiment");
-                b.weight = resultSet.getFloat("weight");
+	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+
+	            b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 
@@ -824,11 +823,7 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-	            try {
-		            b.date = dateFormat.parse(resultSet.getString("date_of_experiment"));
-	            } catch (NullPointerException | ParseException e) {
-		            b.date = resultSet.getDate("date_of_experiment");
-	            }
+	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 	            b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
@@ -876,7 +871,7 @@ public class ObservationIndexer extends AbstractIndexer {
         public Integer biologicalModelId;
         public Integer biologicalSampleId;
         public String colonyId;
-        public Date dateOfBirth;
+        public ZonedDateTime dateOfBirth;
         public String externalSampleId;
         public String geneAcc;
         public String geneSymbol;
@@ -890,7 +885,7 @@ public class ObservationIndexer extends AbstractIndexer {
         public String zygosity;
         public String developmentalStageAcc;
         public String developmentalStageName;
-        
+
     }
 
     /**
@@ -898,7 +893,7 @@ public class ObservationIndexer extends AbstractIndexer {
      */
     protected class WeightBean {
         public String parameterStableId;
-        public Date date;
+        public ZonedDateTime date;
         public Float weight;
         public Integer daysOld;
     }
