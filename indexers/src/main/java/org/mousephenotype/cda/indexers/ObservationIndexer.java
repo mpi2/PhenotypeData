@@ -184,7 +184,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
                 + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
                 + "INNER JOIN experiment e on eo.experiment_id=e.id "
-                + "WHERE o.missing=0 AND e.id in (46814, 46815, 46816)";
+                + "WHERE o.missing=0";
 
         try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
