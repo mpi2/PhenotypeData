@@ -481,7 +481,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		            b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 	            } catch (NullPointerException e) {
 		            b.dateOfBirth = null;
-	            	logger.info("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
+	            	logger.debug("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
 	            }
 
 	            b.externalSampleId = resultSet.getString("external_sample_id");
