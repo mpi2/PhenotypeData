@@ -199,8 +199,9 @@ public class ObservationIndexer extends AbstractIndexer {
                 o.setExperimentId(r.getInt("experiment_id"));
 	            o.setExperimentSourceId(r.getString("external_id"));
 
+	            ZonedDateTime dateOfExperiment = null;
 	            try {
-		            ZonedDateTime dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+		            dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 		            o.setDateOfExperiment(dateOfExperiment);
 	            } catch (NullPointerException e) {
 	            	logger.info("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
@@ -718,7 +719,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
         WeightBean nearest = null;
 
-        if ( weightMap.containsKey(specimenID) ) {
+        if ( dateOfExperiment != null && weightMap.containsKey(specimenID) ) {
 
             for (WeightBean candidate : weightMap.get(specimenID)) {
 
