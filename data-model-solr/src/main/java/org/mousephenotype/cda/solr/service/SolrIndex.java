@@ -134,7 +134,6 @@ public class SolrIndex {
 			gridSolrParams = "qf=auto_suggest&defType=edismax&wt=json&q=*:*";
 		}
 
-
 		return getResults(composeSolrUrl(core, mode, query, gridSolrParams,
 				start, length, showImgView));
 
@@ -300,9 +299,9 @@ public class SolrIndex {
 					+ iDisplayLength;
 			if (!showImgView) {
 				//url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=1&facet.limit=-1";
-				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.limit=-1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.limit=-1&facet.mincount=1";
 			}
-			//System.out.println("IMPC_IMG PARAMS: " + url);
+
 		} else if (mode.equals("imagesGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
@@ -502,7 +501,7 @@ public class SolrIndex {
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 
-
+		//System.out.println("FACET FIELDS*** " + facetFields.toString());
 		List<AnnotNameValCount> annots = new ArrayList<>();
 
 		Map<String, String> hm = new HashMap<String, String>();
