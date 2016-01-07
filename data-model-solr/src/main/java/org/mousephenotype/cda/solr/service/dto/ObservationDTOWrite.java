@@ -114,6 +114,11 @@ public class ObservationDTOWrite extends ObservationDTOBase {
 			inner = zdt;
 		}
 		public String toString() {
+
+			if (inner == null) {
+				return null;
+			}
+
 			return inner.format(DateTimeFormatter.ISO_INSTANT);
 		}
 	}
