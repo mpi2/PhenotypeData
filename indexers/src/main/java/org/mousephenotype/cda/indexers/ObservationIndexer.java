@@ -401,7 +401,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 			        WeightBean b = getNearestWeight(o.getBiologicalSampleId(), dateOfExperiment);
 
-			        if (o.getProcedureGroup().contains("_IPG_")) {
+			        if (o.getProcedureGroup().contains("_IPG")) {
 				        b = getNearestIpgttWeight(o.getBiologicalSampleId());
 			        }
 
