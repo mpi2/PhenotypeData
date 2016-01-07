@@ -262,9 +262,8 @@
 			$(document).ready(function(){
 				'use strict';
 
-				$.fn.qTip(
-						{'pageName':'search'}
-				);
+				$.fn.qTip({'pageName':'search'});
+
 				// populate facet counts to all "tabs"
 				$('ul.tabLabel li').each(function(){
 					var id = $(this).attr('id').replace('T','');
@@ -282,7 +281,7 @@
 
 				var params = window.location.search; // includes leading "?"
 
-				var query, coreName, solrFilters;
+				var query, queryOri, coreName, solrFilters;
 				var solrFqs = [];
 				var showImgViewStr = "showImgView=false";  // default
 
@@ -310,7 +309,7 @@
 						var k = pairs[0];
 						var v = pairs[1];
 						if( k == 'kw' ){
-							query = v;
+							query = queryOri = v;
 						}
 						else if ( k == 'showImgView' ){
 							showImgViewStr = kw[i];
@@ -347,6 +346,7 @@
 					if ( filters.length > 0){
 						solrFilters = filters.join(" AND ");
 					}
+
 
 					query = query.replace("\\%3A", ":");
 					$('input#s').val(decodeURI(query));
@@ -655,7 +655,7 @@
 						var fqStr = fqs.length != 0 ? "&fq=" + fqs.join(" AND ") : "";
 
 						//document.location.href = baseUrl + '/search/' + query + '/' + coreName + fqStr;
-						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr;
+						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + queryOri + fqStr;
 					});
 				}
 
