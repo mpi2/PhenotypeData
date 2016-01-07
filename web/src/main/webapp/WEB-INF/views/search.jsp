@@ -701,7 +701,7 @@
 					var start  = json.iDisplayStart;
 					var length = json.iDisplayLength;
 					//var total  = json.iTotalRecords;
-					var total = ${facetCount}[coreName];
+					var total = ${jsonStr}.iTotalRecords;
 
 					var numX = parseInt(start+1);
 					var numY = parseInt(start+length) > total ? total : parseInt(start+length);
