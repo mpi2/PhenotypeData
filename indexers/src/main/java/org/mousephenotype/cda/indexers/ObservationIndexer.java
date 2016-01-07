@@ -724,7 +724,7 @@ public class ObservationIndexer extends AbstractIndexer {
 					continue;
 				}
 
-				if (Math.abs(dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math.abs(nearest.date.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli())) {
+				if (Math.abs(dateOfExperiment.toInstant().toEpochMilli() - candidate.date.toInstant().toEpochMilli()) < Math.abs(dateOfExperiment.toInstant().toEpochMilli() - nearest.date.toInstant().toEpochMilli())) {
 					nearest = candidate;
 				}
 			}
@@ -875,6 +875,11 @@ public class ObservationIndexer extends AbstractIndexer {
 		return projectMap;
 	}
 
+	public Map<Integer, List<WeightBean>> getWeightMap() {
+		return weightMap;
+	}
+
+
 	/**
 	 * Internal class to act as Map value DTO for biological data
 	 */
@@ -910,6 +915,16 @@ public class ObservationIndexer extends AbstractIndexer {
 		public ZonedDateTime date;
 		public Float weight;
 		public Integer daysOld;
+
+		@Override
+		public String toString() {
+			return "WeightBean{" +
+				"parameterStableId='" + parameterStableId + '\'' +
+				", date=" + date +
+				", weight=" + weight +
+				", daysOld=" + daysOld +
+				'}';
+		}
 	}
 
 	/**
