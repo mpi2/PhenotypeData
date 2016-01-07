@@ -31,6 +31,7 @@ import uk.ac.ebi.phenotype.util.SearchConfig;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.*;
 
 
@@ -99,7 +100,7 @@ public class SearchController {
 		JSONObject jr = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 		model.addAttribute("facetCount", jr);
 
-		model.addAttribute("searchQuery", query);
+		model.addAttribute("searchQuery", query.replaceAll("\\\\",""));
 		model.addAttribute("dataType", dataType); // lowercase: core name
 		model.addAttribute("dataTypeParams", paramString);
 		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
