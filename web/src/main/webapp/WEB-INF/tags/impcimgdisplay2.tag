@@ -52,6 +52,10 @@ allele = allele.replaceAll("##", "</sup>");
          </c:otherwise>
       </c:choose>
                                                 <div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
+                                           
+                                                <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
+                                                <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>
+                                                <c:if test="${not empty img.date_of_experiment}">Exp.date: ${img.date_of_experiment}<br/></c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
                                                 <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
                                                 <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
