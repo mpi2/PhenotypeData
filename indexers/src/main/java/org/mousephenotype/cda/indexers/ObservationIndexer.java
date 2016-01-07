@@ -200,7 +200,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			        dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 			        o.setDateOfExperiment(dateOfExperiment);
 		        } catch (NullPointerException e) {
-			        logger.info("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
+			        logger.debug("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
 			        o.setDateOfExperiment(null);
 		        }
 
@@ -790,7 +790,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			        b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 		        } catch (NullPointerException e) {
 			        b.date = null;
-			        logger.info("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
+			        logger.debug("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
 		        }
 
 		        b.weight = resultSet.getFloat("weight");
@@ -836,7 +836,7 @@ public class ObservationIndexer extends AbstractIndexer {
 				    b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 			    } catch (NullPointerException e) {
 				    b.date = null;
-				    logger.info("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
+				    logger.debug("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
 
 			    }
 			    b.weight = resultSet.getFloat("weight");
