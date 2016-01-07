@@ -19,21 +19,21 @@ import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.Procedure;
-import org.mousephenotype.cda.solr.service.ImpressService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -73,28 +73,29 @@ public class ScatterChartAndTableProvider {
 			+ "     },"
 			+ "   title: {  text: 'Scatterplot of the data' },"
 			+ "     xAxis: {"
-			+ "         type: 'datetime',"
+			+ "       type: 'datetime',"
 			+ "       labels: { "
-			+ "           rotation: -45, "
-			+ "           align: 'right', "
-			+ "           style: { "
-			+ "              fontSize: '13px', "
-			+ "              fontFamily: 'Verdana, sans-serif' "
-			+ "         } "
+			+ "         rotation: -45, "
+			+ "         align: 'right', "
+			+ "         style: { "
+			+ "           fontSize: '13px', "
+			+ "           fontFamily: 'Verdana, sans-serif' "
+			+ "         }, "
+			+ "         formatter: function() { return Highcharts.dateFormat('%b %Y', this.value); } "
+			+ "       },"
+			+ "       showLastLabel: true "
 			+ "     }, "
-			+ "      showLastLabel: true "
-			+ "  }, "
-			+ "    yAxis: { "
-			+ " tickAmount: 5,"
-			+ (max != null ? "        max: " + max + ", " : "")
-			+ (min != null ? "         min: " + min + ", " : "")
-			+ "         title: { "
-			+ "             text: '" + parameter.getUnit() + "' "
-			+ "           } "
-			+ "       }, "
-			+ "      credits: { "
-			+ "         enabled: false "
-			+ "      }, "
+			+ "     yAxis: { "
+			+ "       tickAmount: 5,"
+			+ (max != null ? "       max: " + max + ", " : "")
+			+ (min != null ? "       min: " + min + ", " : "")
+			+ "       title: { "
+			+ "         text: '" + parameter.getUnit() + "' "
+			+ "       } "
+			+ "     }, "
+			+ "     credits: { "
+			+ "       enabled: false "
+			+ "     }, "
 			+ "      plotOptions: { "
 			+ "        scatter: { "
 			+ "            marker: { "
