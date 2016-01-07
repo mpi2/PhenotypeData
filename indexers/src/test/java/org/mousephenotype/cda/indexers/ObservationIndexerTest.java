@@ -16,7 +16,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-config.xml"})
@@ -65,7 +72,28 @@ public class ObservationIndexerTest {
 
     }
 
-    @Test
+
+	@Test
+	//@Ignore
+	public void testPopulateWeightMap() throws Exception {
+		String args[] = { "--context=index-config_DEV.xml" };
+		observationIndexer.initialise(args);
+
+		observationIndexer.populateWeightMap();
+		Map<Integer, List<ObservationIndexer.WeightBean>> weightMap = observationIndexer.getWeightMap();
+
+		ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29").toInstant(), ZoneId.of("UTC"));
+
+		System.out.println("Weight map for speciment 94369 is : " + weightMap.get(94369));
+		System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + observationIndexer.getNearestWeight(94369, dateOfExperiment) );
+		Assert.assertTrue(weightMap.size() > 50);
+
+		logger.info("Size of weight map {}", weightMap.size());
+
+	}
+
+
+	@Test
 //@Ignore
     public void testImpressDataMaps() throws Exception {
         Map<Integer, ImpressBaseDTO> bioDataMap;
@@ -149,5 +177,21 @@ public class ObservationIndexerTest {
         logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Immediate movement'");
 
     }
+
+	@Test
+	public void testDate() throws ParseException {
+		String dateString = "2015-06-11";
+		Date now = new Date();
+		Date d = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+		System.out.println(d);
+
+		now = new Date();
+		Date d2 = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+		System.out.println(d2);
+
+		System.out.println(TimeZone.getDefault().getDisplayName());
+
+
+	}
 
 }
