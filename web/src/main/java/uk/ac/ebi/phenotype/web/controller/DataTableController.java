@@ -1162,7 +1162,8 @@ public class DataTableController {
 
 			int numAnnots = annots.size();
 
-            JSONObject j = new JSONObject();
+			System.out.println("NUM ANNOTS: " + numAnnots);
+			JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
 			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
 			j.put("imgCount", json.getJSONObject("response").getInt("numFound"));

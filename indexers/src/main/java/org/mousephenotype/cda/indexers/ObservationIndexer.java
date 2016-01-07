@@ -199,8 +199,14 @@ public class ObservationIndexer extends AbstractIndexer {
                 o.setExperimentId(r.getInt("experiment_id"));
 	            o.setExperimentSourceId(r.getString("external_id"));
 
-	            ZonedDateTime dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
-	            o.setDateOfExperiment(dateOfExperiment);
+	            ZonedDateTime dateOfExperiment = null;
+	            try {
+		            dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+		            o.setDateOfExperiment(dateOfExperiment);
+	            } catch (NullPointerException e) {
+	            	logger.info("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
+	            	o.setDateOfExperiment(null);
+	            }
 
 
 	            o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
@@ -475,6 +481,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		            b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 	            } catch (NullPointerException e) {
 		            b.dateOfBirth = null;
+	            	logger.debug("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
 	            }
 
 	            b.externalSampleId = resultSet.getString("external_sample_id");
@@ -712,7 +719,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
         WeightBean nearest = null;
 
-        if ( weightMap.containsKey(specimenID) ) {
+        if ( dateOfExperiment != null && weightMap.containsKey(specimenID) ) {
 
             for (WeightBean candidate : weightMap.get(specimenID)) {
 
@@ -782,7 +789,12 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+	            try {
+	                b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+	            } catch (NullPointerException e) {
+	                b.date = null;
+	            	logger.info("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
+	            }
 
 	            b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
@@ -823,8 +835,14 @@ public class ObservationIndexer extends AbstractIndexer {
             while (resultSet.next()) {
 
                 WeightBean b = new WeightBean();
-	            b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
-	            b.weight = resultSet.getFloat("weight");
+                try {
+                    b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+                } catch (NullPointerException e) {
+                    b.date = null;
+                    logger.info("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
+
+                }
+                b.weight = resultSet.getFloat("weight");
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 
