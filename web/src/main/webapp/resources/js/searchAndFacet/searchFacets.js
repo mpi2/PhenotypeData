@@ -581,7 +581,6 @@
 
 	function displayImpc_imagesFacet(json) {
 
-
 		$('li#impc_images > span.fcount').text(json.imgCount);
 
 		//var foundMatch = {'Phenotype':0, 'Anatomy':0, 'Procedure':0, 'Gene':0};
@@ -615,7 +614,7 @@
 			var thisUlContainer = $("<ul></ul>");
 
 			for ( var i=0; i<aFacetFields[facetName].length; i+=2){
-				//console.log("field name: " + aFacetFields[facetName][i]);
+				console.log("field name: " + aFacetFields[facetName][i]);
 				//console.log(typeof aFacetFields[facetName][i]);
 				if (typeof aFacetFields[facetName][i] == 'string') {
 					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
