@@ -28,7 +28,8 @@
 				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
 			</ul>
 
-			<div><div id="resultMsg"></div><div id="tableTool"></div></div>
+			<!--<div><div id="resultMsg"></div><div id="tableTool"></div></div>-->
+			<div><div id="tableTool"></div></div>
 
 			<div id="geneTab" class="hideme">
 				<div class="region region-sidebar-first">
@@ -382,8 +383,8 @@
 							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 						}
 
-						$(this).addClass('currDataType').click();
-
+						//$(this).addClass('currDataType').click();
+						$(this).addClass('currDataType');//.click();
 						$.fn.displayFacets(coreName, ${jsonStr});
 
 						// check(highlight) filter(s) based on URL fq str
@@ -395,7 +396,10 @@
 						var parentContainer = $(tabId).find("div#mpi2-search");
 
 
+						// images cores related
 						if ( coreName.indexOf('images') != -1 ) {
+
+							$('div.region-content').css({"position": "relative", "top": "-25px"});
 
 							var foundMsg, switcher, viewMsg;
 							if (showImgViewStr == "showImgView=false" ){
@@ -425,6 +429,9 @@
 
 							// add js to switcher
 							activateImgViewSwitcher();
+						}
+						else {
+							$('div.region-content').css({"position": "relative", "top": "-50px"});
 						}
 
 						var tableId = "dTable";
@@ -467,7 +474,7 @@
 
 				// ----------- when a "tab" is clicked ----------------
 				$("ul.tabLabel > li a").click(function(){
-					$('#resultMsg').text("Fetching data ....");
+					//$('#resultMsg').text("Fetching data ....");
 				});
 
 
@@ -711,7 +718,7 @@
 					parentContainer.find('div#' + infoDivId).html("Showing " + numX + " to " + numY + " of " + total + " entries");
 
 					var filters = solrFilters != undefined ? " filtered by " + solrFilters : "";
-					$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
+					//$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
 
 					// work out how many pages
 					var pages = Math.ceil(total / length);

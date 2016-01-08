@@ -651,7 +651,7 @@ h1.title,
 .tabs a,
 .newslide,
 .view-header,
-.block .head            { -webkit-border-radius: 4px 4px 0 0; -moz-border-radius: 4px 4px 0 0; -o-border-radius: 4px 4px 0 0; -ms-border-radius: 4px 4px 0 0; border-radius: 4px 4px 0 0;  }
+.block            { -webkit-border-radius: 4px 4px 0 0; -moz-border-radius: 4px 4px 0 0; -o-border-radius: 4px 4px 0 0; -ms-border-radius: 4px 4px 0 0; border-radius: 4px 4px 0 0;  }
 h1.title + .section,
 .block-system .view .view-content,
 .block-system .block-view .view-content,
