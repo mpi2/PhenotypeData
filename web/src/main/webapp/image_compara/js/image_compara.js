@@ -45,6 +45,8 @@ function getURLParameter(sParam, location)
     return imgIds;
 }
 
+var mediaType=getURLParameter('mediaType', window.location);
+console.log('mediaType='+mediaType);
 //get whether we are the subframe for control or experimental from the arg passed to the page from the imageComparator frame src attribute
 var controlOrExp=getURLParameter('controlOrExp', window.location);
 //console.log('location='+window.location);
@@ -72,6 +74,9 @@ if(ids.length!=0){//only search for info related to ids if we have them.
 var thisSolrUrl = solrUrl + '/impc_images/select';
 var joinedIds=ids.join(" OR ");
 var paramStr = 'q=omero_id:(' +joinedIds + ')&wt=json&defType=edismax&qf=auto_suggest&rows=100000';
+if(mediaType=='pdf'){
+	paramStr+='&fq=full_resolution_file_path:*.pdf';
+}
 var docs;
 	$.ajax({
 	    'url': thisSolrUrl,
@@ -110,6 +115,7 @@ var docs;
 	        });
 	        if(doc.gene_accession_id){
 	        backTo='../imagePicker/'+doc.gene_accession_id+'/'+doc.parameter_stable_id;
+	        if(mediaType='pdf')backTo+='?mediaType=pdf';
 	        $("#back").addClass("btn").html("back to image picker");
 	        
 	        }
@@ -137,7 +143,16 @@ var docs;
 	
 	
 function displayDocAnnotations(doc, frame){
-	frame.attr('src', doc.jpeg_url.replace('render_image', 'img_detail').replace('http://','//'));//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
+	if(mediaType=="pdf"){
+		//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/8128
+		var pdfUrl=doc.download_url.replace('//', 'http://');
+		//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/8128
+		console.log("pdfUrl="+pdfUrl);
+		frame.attr('src', "http://docs.google.com/gview?url="+pdfUrl+"&embedded=true");//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
+		
+	}else{
+		frame.attr('src', doc.jpeg_url.replace('render_image', 'img_detail').replace('http://','//'));//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
+	}
 	//frame.attr('src','http://omeroweb.jax.org/omero/webgateway/img_detail/7541/?c=1%7C0:255$FF0000,2%7C0:255$00FF00,3%7C0:255$0000FF&m=c&p=normal&ia=0&q=0.9&zm=6.25&t=1&z=1&x=50824&y=19576');
 	$('#annotations').html(getAnnotationsDisplayString(doc));
 }
