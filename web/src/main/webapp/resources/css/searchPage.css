@@ -65,7 +65,7 @@ div#facetSrchMsg {
 .fmcat.open .fcatsection                { display: block; }
 
 /* facet - categorie headlines */
-.fcatsection > .flabel                  { font-weight: 600; }
+.fcatsection > .flabel                  { font-weight: 600;}
 .fcatsection:before                     { font-family: 'FontAwesome'; content: "\f0da"; margin-right: 0.5em; }
 .fcatsection.open:before                { content: "\f0d7"; }
 .fcatsection                            { margin-top: 0.7em; }
@@ -226,22 +226,29 @@ div#tabs {
 	margin-top: 30px;
 }
 /*table th:*/
-.tabLabel{margin-bottom: 10px;}
+ul.tabLabel{
+	margin-bottom: 10px;
+	margin-bottom: 50px;
+	height: 36px;
+	border-bottom: 1px solid gray;
+}
 
 ul.tabLabel li {
 	float: left;
 	padding: 5px 10px;
 	visibility: hidden;
+
 }
-li a {
+ul.tabLabel li a {
 	padding: 5px;
 	color: gray;
 	text-decoration: none;
-	/*font-weight: bold;*/
+	font-weight: bold;
+	font-size: 20px;
 }
-li a:hover, .currDataType {
+ul.tabLabel li a:hover, a.currDataType {
 	background-color: #EF7B0B;
-	color: white;
+	color: white !important;
 	text-decoration: none;
 	border-radius: 3px;
 }
@@ -408,4 +415,15 @@ input.facetFilterSubmit {
 	border: none;
 	box-shadow: none;
 	cursor: pointer;
+}
+.block .head {
+	font-size: 18px !important;
+}
+
+div.flist ul li.fmcat > .flabel {
+	font-size: 18px !important;
+}
+ul li.fcatsection span.flabel, ul li.fcat span.flabel {
+	font-size: 14px !important;
+	font-weight: normal !important;
 }
