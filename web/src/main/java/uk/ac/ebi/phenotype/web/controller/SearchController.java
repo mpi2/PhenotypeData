@@ -86,7 +86,6 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
-
 		iDisplayStart =  iDisplayStart == null ? 0 : iDisplayStart;
 		request.setAttribute("iDisplayStart", iDisplayStart);
 		iDisplayLength = iDisplayLength == null ? 10 : iDisplayLength;
@@ -171,7 +170,7 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-
+		//System.out.println("PARAMS*****: " + solrParamStr);
 		return solrParamStr;
 	}
 
