@@ -147,11 +147,12 @@ var len=0;
 function displayDocAnnotations(doc, frame){
 	if(mediaType=="pdf"){
 		//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/8128
-		var pdfUrl=doc.download_url.replace('//', window.parent.location.protocol+'//');//replace with http or https depending on the protocol from js url.
+		var protocol=window.parent.location.protocol;
+		var pdfUrl=doc.download_url.replace('//', protocol+'//');//replace with http or https depending on the protocol from js url.
 		//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/8128
 		//console.log("pdfUrl="+pdfUrl);
 		//console.log(window.parent.location.protocol);
-		frame.attr('src', "http://docs.google.com/gview?url="+pdfUrl+"&embedded=true");//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
+		frame.attr('src',protocol+"//docs.google.com/gview?url="+pdfUrl+"&embedded=true");//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
 		
 	}else{
 		frame.attr('src', doc.jpeg_url.replace('render_image', 'img_detail').replace('http://','//'));//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
