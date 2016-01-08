@@ -174,7 +174,9 @@ function getAnnotationsDisplayString(doc){
 	}
 	
 	if(doc.download_url){
+		if(mediaType != 'pdf'){
 		label+="<a target='_blank' href='"+doc.jpeg_url+"'>"+"jpeg</a>"+annotationBreak;
+		}
 		label+="<a href='"+doc.download_url+"'>"+"download original</a>"+annotationBreak;
 	}
 	
