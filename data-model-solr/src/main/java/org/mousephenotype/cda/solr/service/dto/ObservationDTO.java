@@ -226,7 +226,7 @@ public class ObservationDTO extends ObservationDTOBase {
 
 	    ZonedDateTime zdt = ZonedDateTime.ofInstant(dateOfExperiment.toInstant(), ZoneId.of("UTC"));
 	    if(TimeZone.getDefault().inDaylightTime(dateOfExperiment)) {
-		    zdt = dateOfExperiment.toInstant().atZone(ZoneId.of("Europe/London"));
+		    zdt = dateOfExperiment.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
 	    }
 	    return Date.from(zdt.toLocalDateTime().toInstant(ZoneOffset.ofHours(0)));
     }
@@ -246,7 +246,8 @@ public class ObservationDTO extends ObservationDTOBase {
 //        return dateOfBirth;
 	    ZonedDateTime zdt = ZonedDateTime.ofInstant(dateOfBirth.toInstant(), ZoneId.of("UTC"));
 	    if(TimeZone.getDefault().inDaylightTime(dateOfBirth)) {
-		    zdt = dateOfBirth.toInstant().atZone(ZoneId.of("Europe/London"));
+		    zdt = dateOfBirth.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
+
 	    }
 	    return Date.from(zdt.toLocalDateTime().toInstant(ZoneOffset.ofHours(0)));
 
@@ -265,7 +266,7 @@ public class ObservationDTO extends ObservationDTOBase {
     public Date getWeightDate() {
 	    ZonedDateTime zdt = ZonedDateTime.ofInstant(weightDate.toInstant(), ZoneId.of("UTC"));
 	    if(TimeZone.getDefault().inDaylightTime(weightDate)) {
-		    zdt = weightDate.toInstant().atZone(ZoneId.of("Europe/London"));
+		    zdt = weightDate.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
 	    }
 	    return Date.from(zdt.toLocalDateTime().toInstant(ZoneOffset.ofHours(0)));
 
