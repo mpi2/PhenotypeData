@@ -298,16 +298,13 @@ public class SolrIndex {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			if (!showImgView) {
-				//url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=1&facet.limit=-1";
-				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.limit=-1&facet.mincount=1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=procedure_name&facet.field=ma_id_term&facet.mincount=0&facet.limit=-1";
 			}
-
 		} else if (mode.equals("imagesGrid")) {
 			url += gridSolrParams + "&start=" + iDisplayStart + "&rows="
 					+ iDisplayLength;
 			if (!showImgView) {
-				//url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.mincount=1&facet.limit=-1";
-				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.limit=-1&facet.mincount=1";
+				url += "&facet=on&facet.field=symbol_gene&facet.field=expName_exp&facet.field=maTermName&facet.field=mpTermName&facet.limit=-1&facet.mincount=0";
 			}
 //			System.out.println("IMG PARAMS: " + url);
 		} else if (mode.equals("mpGrid")) {
@@ -476,11 +473,14 @@ public class SolrIndex {
 
 			JSONArray arr = facetFields.getJSONArray(facet);
 			for (int i = 0; i < arr.size(); i = i + 2) {
-				// We only want facet fields that contain an underscore
-				// as it contains ID info we want
-				if (((String) arr.get(i)).contains("_")) {
-					fields.add(arr.get(i));
-					fields.add(arr.get(i + 1));
+
+				if ( (Integer) arr.get(i + 1) != 0 ) {
+					// We only want facet fields that contain an underscore
+					// as it contains ID info we want
+					if (((String) arr.get(i)).contains("_")) {
+						fields.add(arr.get(i));
+						fields.add(arr.get(i + 1));
+					}
 				}
 			}
 		}
@@ -528,28 +528,30 @@ public class SolrIndex {
 					for (int i = 0; i < arr.size(); i = i + 2) {
 
 
-						AnnotNameValCount annotNameValCount = new AnnotNameValCount();
+						if ( (Integer) arr.get(i + 1) > 0) {
+							AnnotNameValCount annotNameValCount = new AnnotNameValCount();
 
-						annotNameValCount.name = hm.get(facet);
-						annotNameValCount.facet = facet;
-						annotNameValCount.val = arr.get(i).toString();
+							annotNameValCount.name = hm.get(facet);
+							annotNameValCount.facet = facet;
+							annotNameValCount.val = arr.get(i).toString();
 
-						if (facet.equals("symbol_gene")) {
-							annotNameValCount.facet = "gene_symbol"; // query field name
-							String[] fields = annotNameValCount.val.split("_");
-							annotNameValCount.val = fields[0];
-							annotNameValCount.id = fields[1];
-							annotNameValCount.link = baseUrl + "/genes/" + fields[1];
-						} else if (facet.equals("ma_id_term")) {
-							annotNameValCount.facet = "ma_term"; // query field name
-							String[] fields = annotNameValCount.val.split("_");
-							annotNameValCount.val = fields[1];
-							annotNameValCount.id = fields[0];
-							annotNameValCount.link = baseUrl + "/anatomy/" + fields[0];
+							if (facet.equals("symbol_gene")) {
+								annotNameValCount.facet = "gene_symbol"; // query field name
+								String[] fields = annotNameValCount.val.split("_");
+								annotNameValCount.val = fields[0];
+								annotNameValCount.id = fields[1];
+								annotNameValCount.link = baseUrl + "/genes/" + fields[1];
+							} else if (facet.equals("ma_id_term")) {
+								annotNameValCount.facet = "ma_term"; // query field name
+								String[] fields = annotNameValCount.val.split("_");
+								annotNameValCount.val = fields[1];
+								annotNameValCount.id = fields[0];
+								annotNameValCount.link = baseUrl + "/anatomy/" + fields[0];
+							}
+							annotNameValCount.imgCount = Integer.parseInt(arr.get(i + 1).toString());
+
+							annots.add(annotNameValCount);
 						}
-						annotNameValCount.imgCount = Integer.parseInt(arr.get(i + 1).toString());
-
-						annots.add(annotNameValCount);
 					}
 				}
 			}
