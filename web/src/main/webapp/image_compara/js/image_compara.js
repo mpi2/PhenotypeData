@@ -78,6 +78,8 @@ if(mediaType=='pdf'){
 	paramStr+='&fq=full_resolution_file_path:*.pdf';
 }
 var docs;
+var i = 0;
+var len=0;
 	$.ajax({
 	    'url': thisSolrUrl,
 	    'data': paramStr,
@@ -90,10 +92,10 @@ var docs;
 	        //console.log(docs);
 	        //
 	       //docs=["http://ves-ebi-cf/omero/webgateway/img_detail/5818/", "http://ves-ebi-cf/omero/webgateway/img_detail/5819/"];
-	        var len = docs.length;
+	        len = docs.length;
 	        var frame = $('#'+controlOrExp, window.parent.document);
 	        //var experimentalFrame = $('#experimental', window.parent.document);
-	        var i = 0;
+	        
 	        //initialise navigation to first image annotations
 	        doc=docs[0];
 	        displayDocAnnotations(doc, frame);
@@ -113,12 +115,12 @@ var docs;
 //	        	frame.attr('src', url+doc.omero_id);
 //	        	$('#annotations').html(getAnnoataionsDisplayString(doc));
 	        });
-	        if(doc.gene_accession_id){
+	       // if(doc.gene_accession_id){
 	        backTo='../imagePicker/'+doc.gene_accession_id+'/'+doc.parameter_stable_id;
 	        if(mediaType='pdf')backTo+='?mediaType=pdf';
 	        $("#back").addClass("btn").html("back to image picker");
 	        
-	        }
+	       // }
 	        $('#back').click(function(){
 	        	//console.log('nextControl clicked');
 	        	goBack();
@@ -155,12 +157,17 @@ function displayDocAnnotations(doc, frame){
 	}
 	//frame.attr('src','http://omeroweb.jax.org/omero/webgateway/img_detail/7541/?c=1%7C0:255$FF0000,2%7C0:255$00FF00,3%7C0:255$0000FF&m=c&p=normal&ia=0&q=0.9&zm=6.25&t=1&z=1&x=50824&y=19576');
 	$('#annotations').html(getAnnotationsDisplayString(doc));
+	//label+=i+1+'/'+len;
+	var count=i % len+1;
+	$('#image_counter').html('&nbsp;'+count+'/'+len+'&nbsp;');
 }
 function getAnnotationsDisplayString(doc){
 	//filename removed from display but here for debug if needed
 	var filename=doc.full_resolution_file_path.substring(doc.full_resolution_file_path.lastIndexOf("/")+1, doc.full_resolution_file_path.length);
 	var label= "";
-	
+	if(doc.external_sample_id){
+		label+=doc.external_sample_id+annotationBreak;;
+	}
 	if(doc.biological_sample_group === 'experimental'){
 		label+=doc.zygosity+annotationBreak+superscriptSymbol(doc.allele_symbol)+annotationBreak;
 	}else{
@@ -192,6 +199,10 @@ function getAnnotationsDisplayString(doc){
 	if(doc.pipeline_name){
 		label+=doc.pipeline_name+annotationBreak;
 		
+	}
+
+	if(doc.date_of_experiment){
+		label+=doc.date_of_experiment+annotationBreak;
 	}
 	
 	
