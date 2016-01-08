@@ -283,53 +283,56 @@ $(document).ready(function () {
 			// check for current datatype (tab) and use this as default core
 			// instead of figuring this out for the user
 			var facet = null;
-			$('ul.tabLabel li a').each(function(){
-				if ( $(this).hasClass('currDataType') ){
-					facet = $(this).parent().attr('id').replace("T","");
+
+			if ( $('ul.tabLabel').size() > 0 ) {
+				// is on search page
+				$('ul.tabLabel li a').each(function () {
+					if ($(this).hasClass('currDataType')) {
+						facet = $(this).parent().attr('id').replace("T", "");
+					}
+				});
+
+
+				if (input == ''){
+					document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
 				}
-			});
+				else if (input.match(/HP\\\%3A\d+/i)){
 
-			if (input == ''){
-				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
-			}
-			else if (input.match(/HP\\\%3A\d+/i)){
+					// work out the mapped mp_id and fire off the query
+					_convertHp2MpAndSearch(input, facet);
+				}
+				else if ( input.match(/MP%3A\d+ - (.+)/i) ){
+					// hover over hp mp mapping but not selecting
+					// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
+					var matched = input.match(/MP%3A\d+ - (.+)/i);
+					var mpTerm = '"' + matched[1] + '"';
+					var fqStr = $.fn.getCurrentFq('mp');
 
-				// work out the mapped mp_id and fire off the query
-				_convertHp2MpAndSearch(input, facet);
-			}
-			else if ( input.match(/MP%3A\d+ - (.+)/i) ){
-				// hover over hp mp mapping but not selecting
-				// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
-				var matched = input.match(/MP%3A\d+ - (.+)/i);
-				var mpTerm = '"' + matched[1] + '"';
-				var fqStr = $.fn.getCurrentFq('mp');
+					document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
+				}
+				else {
 
-				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
+					var fqStr = $.fn.fetchUrlParams("fq");
+					if ( fqStr != undefined ) {
+						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
+					}
+					else {
+						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
+					}
+				}
+
 			}
 			else {
 
-				var fqStr = $.fn.fetchUrlParams("fq");
-				if ( fqStr != undefined ) {
-					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
-				}
-				else {
-					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
-				}
+				// is on non-search page
 				// user typed something and hit ENTER: need to figure out default core to load on search page
-				//$.ajax({
-				//	url: baseUrl + "/fetchDefaultCore?q=" + input,
-				//	type: 'get',
-				//	success: function( defaultCore ) {
-				//
-				//		var fqStr = $.fn.fetchUrlParams("fq");
-				//		if ( fqStr != undefined ) {
-				//			document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input + '&fq=' + fqStr;
-				//		}
-				//		else {
-				//			document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
-				//		}
-				//	}
-				//});
+				$.ajax({
+					url: baseUrl + "/fetchDefaultCore?q=" + input,
+					type: 'get',
+					success: function( defaultCore ) {
+						document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
+					}
+				});
 			}
 		}
 	});
