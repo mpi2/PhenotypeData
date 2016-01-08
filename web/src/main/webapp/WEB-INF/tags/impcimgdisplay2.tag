@@ -30,7 +30,7 @@ allele = allele.replaceAll("##", "</sup>");
         <!-- href specified as arg to tag as in the case of gene page to image picker links -->
         	<c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		<!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
-         		 <a href="${baseUrl}/impcImages/images?q=*:*%20AND%20observation_type:image_record&qf=auto_suggest&defType=edismax&fq=(biological_sample_group:experimental)%20AND%20(parameter_stable_id:${img.parameter_stable_id})%20AND%20gene_symbol:${img.marker_symbol[0]}">
+         		 <a href="${href}?mediaType=pdf">
          		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a>
          	</c:if>
          	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
