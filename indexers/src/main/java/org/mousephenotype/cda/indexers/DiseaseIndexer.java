@@ -317,8 +317,9 @@ public class DiseaseIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
+        RunStatus runStatus = new RunStatus();
         DiseaseIndexer main = new DiseaseIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
     }

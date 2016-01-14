@@ -861,8 +861,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
+        RunStatus runStatus = new RunStatus();
         AutosuggestIndexer main = new AutosuggestIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
     }
 }
