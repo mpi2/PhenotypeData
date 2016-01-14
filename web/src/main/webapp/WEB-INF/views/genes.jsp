@@ -368,7 +368,6 @@
 												<br/> 
                                                 </p>
                                             </div>
-                                            <div class="clear"></div>
 
                                         </c:if>
 
