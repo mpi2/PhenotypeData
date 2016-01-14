@@ -92,8 +92,10 @@ public class ObservationIndexer extends AbstractIndexer {
 	}
 
 	public static void main(String[] args) throws IndexerException {
+
+		RunStatus runStatus = new RunStatus();
 		ObservationIndexer main = new ObservationIndexer();
-		main.initialise(args);
+		main.initialise(args, runStatus);
 		main.run();
 		main.validateBuild();
 
@@ -101,9 +103,9 @@ public class ObservationIndexer extends AbstractIndexer {
 
 
 	@Override
-	public void initialise(String[] args) throws IndexerException {
+	public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
 
-		super.initialise(args);
+		super.initialise(args, runStatus);
 
 		try {
 
@@ -139,7 +141,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			populateWeightMap();
 			populateIpgttWeightMap();
 
-			count = populateObservationSolrCore();
+			count = populateObservationSolrCore(runStatus);
 
 		} catch (SolrServerException | SQLException | IOException e) {
 			throw new IndexerException(e);
@@ -150,7 +152,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		return runStatus;
 	}
 
-	public long populateObservationSolrCore() throws SQLException, IOException, SolrServerException {
+	public long populateObservationSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
 		int count = 0;
 
@@ -243,7 +245,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 			        BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
 			        if (b == null) {
-				        logger.error(" Cannot find biological data for experiment {}", r.getString("experiment_id"));
+				        runStatus.addError(" Cannot find biological data for experiment " + r.getString("experiment_id"));
 				        continue;
 			        }
 			        o.setBiologicalModelId(b.biologicalModelId);
@@ -428,7 +430,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	        observationSolrServer.commit();
 
         } catch (Exception e) {
-	        logger.error(" Big error {}", e.getMessage(), e);
+	        runStatus.addError(" Big error :" + e.getMessage());
         }
 
 	    return count;

@@ -69,7 +69,7 @@ public abstract class AbstractIndexer {
         return numFound;
     }
     
-    public void initialise(String[] args) throws IndexerException {
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
 //        getLogger().info("args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
