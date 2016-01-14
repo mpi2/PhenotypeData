@@ -15,25 +15,18 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public class PhenomeChartProvider {
 
@@ -74,7 +67,7 @@ public class PhenomeChartProvider {
 		+ "     }, \n"
 		+ "      showLastLabel: true \n"
 		+ "  }, \n"
-		+ "    xAxis: { \n"
+		+ "    xAxis: { floor: 0, minRange: 6, ceiling: 22, \n"
 		// +"         min:"+ -Math.log(minimalPValue) + ","
 		+ "         title: { \n"
 		+ "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
@@ -85,7 +78,7 @@ public class PhenomeChartProvider {
 		+ "dashStyle : 'shortdash',\n"
 		+ "width : 2,\n"
 		+ "label : { text : 'Significance threshold " + minimalPValue + "' }\n"
-		+ "}]\n"
+		+ "}] \n"
 		+ "       }, \n"
 		+ "      credits: { \n"
 		+ "         enabled: false \n"
