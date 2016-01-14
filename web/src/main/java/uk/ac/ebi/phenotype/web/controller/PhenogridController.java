@@ -11,7 +11,6 @@ import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.*;
 import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
 
-import javax.servlet.ServletContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,8 +27,8 @@ public class PhenogridController {
     @Autowired
     private PhenoDigmWebDao phenoDigmDao;
 
-    @Autowired
-    private ServletContext servletContext;
+//    @Autowired
+//    private ServletContext servletContext;
 
     @RequestMapping(value="/phenodigm/phenogrid", method= RequestMethod.GET)
     public PhenoGrid getPhenogrid(@RequestParam String requestPageType, @RequestParam String diseaseId, @RequestParam String geneId) {
