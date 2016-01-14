@@ -206,6 +206,7 @@ $(document).ready(function () {
 
 				var fqStr = facet2Fq[facet];
 
+				// we are choosing value from drop-down list so need to double quote the value for SOLR query
 				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
 
 				// prevents escaped html tag displayed in input box
