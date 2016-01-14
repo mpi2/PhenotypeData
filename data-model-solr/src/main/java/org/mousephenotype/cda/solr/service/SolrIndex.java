@@ -474,7 +474,7 @@ public class SolrIndex {
 			JSONArray arr = facetFields.getJSONArray(facet);
 			for (int i = 0; i < arr.size(); i = i + 2) {
 
-				if ( (Integer) arr.get(i + 1) != 0 ) {
+				if ( (Integer) arr.get(i + 1) > 0 ) {
 					// We only want facet fields that contain an underscore
 					// as it contains ID info we want
 					if (((String) arr.get(i)).contains("_")) {
