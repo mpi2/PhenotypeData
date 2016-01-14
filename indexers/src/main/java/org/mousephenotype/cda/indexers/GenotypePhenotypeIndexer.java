@@ -88,9 +88,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args) throws IndexerException {
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
 
-        super.initialise(args);
+        super.initialise(args, runStatus);
 
         try {
 
@@ -108,8 +108,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
+
+        RunStatus runStatus = new RunStatus();
         GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
     }
@@ -122,9 +124,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         try {
             // prepare a live stage lookup
-            doLiveStageLookup();
+            doLiveStageLookup(runStatus);
 
-            count = populateGenotypePhenotypeSolrCore();
+            count = populateGenotypePhenotypeSolrCore(runStatus);
 
         } catch (SQLException | IOException | SolrServerException ex) {
             throw new IndexerException(ex);
@@ -135,7 +137,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
         return runStatus;
     }
 
-    public void doLiveStageLookup() throws SQLException {
+    public void doLiveStageLookup(RunStatus runStatus) throws SQLException {
 
         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
             + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
@@ -177,12 +179,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 }
             }
         } catch (Exception e) {
-            logger.error(" Error populating live stage lookup map: {}", e.getMessage());
+            runStatus.addError(" Error populating live stage lookup map: " + e.getMessage());
         }
     }
 
     // Returns document count.
-    public int populateGenotypePhenotypeSolrCore() throws SQLException, IOException, SolrServerException {
+    public int populateGenotypePhenotypeSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
         int count = 0;
 
@@ -352,7 +354,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpathTermName(r.getString("ontology_term_name"));
                 }
                 else {
-                    logger.error(" Found unknown ontology term: " + r.getString("ontology_term_id"));
+                    runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
                 // set life stage by looking up a combination key of
@@ -385,7 +387,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             gpSolrServer.commit();
 
         } catch (Exception e) {
-            logger.error(" Big error {}", e.getMessage(), e);
+            runStatus.addError(" Big error " + e.getMessage());
         }
 
         return count;

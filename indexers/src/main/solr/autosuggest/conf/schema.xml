@@ -147,8 +147,12 @@
 	<field name="gwas_upstream_gene" type="string" indexed="true" stored="true" multiValued="false" />;
 	<field name="gwas_downstream_gene" type="string" indexed="true" stored="true" multiValued="false" />;
 	<field name="gwas_snp_id" type="string" indexed="true" stored="true" multiValued="false" />;
-	
-	<!-- for copyfield -->
+
+	<!-- alternative ontology term id -->
+	<field name="alt_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="alt_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+
+	  <!-- for copyfield -->
 	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
 	
  </fields>
@@ -161,7 +165,10 @@
 
  <!-- field for the QueryParser to use when an explicit fieldname is absent -->
  <defaultSearchField>auto_suggest</defaultSearchField>
- 	
+
+	<copyField source="alt_ma_id" dest="auto_suggest"/>
+	<copyField source="alt_mp_id" dest="auto_suggest"/>
+
  	<copyField source="mgi_accession_id" dest="auto_suggest"/>
 	<copyField source="marker_symbol" dest="auto_suggest"/>
 	<copyField source="marker_name" dest="auto_suggest"/>

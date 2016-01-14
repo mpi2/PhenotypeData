@@ -41,6 +41,7 @@ public class AutosuggestBean {
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
 	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
+	public static final String ALT_MP_ID = "alt_mp_id";
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
 	public static final String CHILD_MP_TERM_SYNONYM = "child_mp_term_synonym";
@@ -53,6 +54,7 @@ public class AutosuggestBean {
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
 	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
+	public static final String ALT_MA_ID = "alt_ma_id";
 	public static final String CHILD_MA_ID = "child_ma_id";
 	public static final String CHILD_MA_TERM = "child_ma_term";
 	public static final String CHILD_MA_TERM_SYNONYM = "child_ma_term_synonym";
@@ -118,6 +120,9 @@ public class AutosuggestBean {
 	@Field(HPMP_TERM)
 	private String hpmpTerm;
 
+	@Field(ALT_MP_ID)
+	private String altMpID;
+
 	@Field(MP_ID)
 	private String mpID;
 
@@ -153,6 +158,9 @@ public class AutosuggestBean {
 
 	@Field(TOP_LEVEL_MP_TERM_SYNONYM)
 	private String topLevelMpTermSynonym;
+
+	@Field(ALT_MA_ID)
+	private String altMaID;
 
 	@Field(MA_ID)
 	private String maID;
@@ -381,16 +389,25 @@ public class AutosuggestBean {
 		this.hpmpTerm = hpmpTerm;
 	}
 
+	public String getAltMpID() {
 
-	public String getMpID() {
-
-		return mpID;
+		return altMpID;
 	}
 
+	public void setAltMpID(String altMpID) {
+
+		this.altMpID = altMpID;
+	}
 
 	public void setMpID(String mpID) {
 
 		this.mpID = mpID;
+	}
+
+
+	public String getMpID() {
+
+		return mpID;
 	}
 
 
@@ -523,6 +540,16 @@ public class AutosuggestBean {
 	public void setTopLevelMpTermSynonym(String topLevelMpTermSynonym) {
 
 		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
+	}
+
+	public String getAltMaID() {
+
+		return altMaID;
+	}
+
+	public void setAltMaID(String altMaID) {
+
+		this.altMaID = altMaID;
 	}
 
 
