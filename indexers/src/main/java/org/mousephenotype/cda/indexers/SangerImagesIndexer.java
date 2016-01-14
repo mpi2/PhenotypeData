@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.OntologyUtils;
 import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.solr.bean.GenomicFeatureBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
@@ -201,8 +202,8 @@ public class SangerImagesIndexer extends AbstractIndexer {
 		// <field column="NAME" name="sangerProcedureName" />
 		// <field column="PROCEDURE_ID" name="sangerProcedureId" />
 		// </entity>
-		String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ";// and
-		// IMA_IMAGE_RECORD.ID=70220
+
+        String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ";// and
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
@@ -391,30 +392,56 @@ public class SangerImagesIndexer extends AbstractIndexer {
 									}
 
 									// need to get top level stuff here
-									if (mpNode2termTopLevel.containsKey(annotation.mp_id)) {
-										TopLevelBean topLevelBean = mpNode2termTopLevel.get(annotation.mp_id);
-										// System.out.println("TopLevel=" +
-										// topLevelBean.termId);
-										if (nodeIdToMpTermInfo.containsKey(topLevelBean.topLevelNodeId)) {
-											TopLevelBean realTopLevel = nodeIdToMpTermInfo
-													.get(topLevelBean.topLevelNodeId);
-											// System.out.println("realTopLevel="
-											// +
-											// realTopLevel.termId+"
-											// name="+realTopLevel.termName);
-											// <field column="name"
-											// name="annotatedHigherLevelMpTermName"
-											// />
-											// <field column="mpTerm"
-											// name="annotatedHigherLevelMpTermId"
-											// />
-											annotatedHigherLevelMpTermId.add(realTopLevel.termId);
-											annotatedHigherLevelMpTermName.add(realTopLevel.termName);
-											if (mpSynMap.containsKey(realTopLevel.termId)) {
-												List<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
-												topLevelMpTermSynonym.addAll(topLevelSynonyms);
-											}
-										}
+                                    String mp_id = annotation.mp_id;
+                                    String alt_mp_id = OntologyUtils.getMpId(ontoDbConnection, mp_id);
+									if (mpNode2termTopLevel.containsKey(mp_id)) {
+                                        TopLevelBean topLevelBean = mpNode2termTopLevel.get(mp_id);
+                                        // System.out.println("TopLevel=" +
+                                        // topLevelBean.termId);
+                                        if (nodeIdToMpTermInfo.containsKey(topLevelBean.topLevelNodeId)) {
+                                            TopLevelBean realTopLevel = nodeIdToMpTermInfo
+                                                    .get(topLevelBean.topLevelNodeId);
+                                            // System.out.println("realTopLevel="
+                                            // +
+                                            // realTopLevel.termId+"
+                                            // name="+realTopLevel.termName);
+                                            // <field column="name"
+                                            // name="annotatedHigherLevelMpTermName"
+                                            // />
+                                            // <field column="mpTerm"
+                                            // name="annotatedHigherLevelMpTermId"
+                                            // />
+                                            annotatedHigherLevelMpTermId.add(realTopLevel.termId);
+                                            annotatedHigherLevelMpTermName.add(realTopLevel.termName);
+                                            if (mpSynMap.containsKey(realTopLevel.termId)) {
+                                                List<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
+                                                topLevelMpTermSynonym.addAll(topLevelSynonyms);
+                                            }
+                                        }
+                                    } else if (mpNode2termTopLevel.containsKey(alt_mp_id)) {
+                                        TopLevelBean topLevelBean = mpNode2termTopLevel.get(alt_mp_id);
+                                        // System.out.println("TopLevel=" +
+                                        // topLevelBean.termId);
+                                        if (nodeIdToMpTermInfo.containsKey(topLevelBean.topLevelNodeId)) {
+                                            TopLevelBean realTopLevel = nodeIdToMpTermInfo
+                                                    .get(topLevelBean.topLevelNodeId);
+                                            // System.out.println("realTopLevel="
+                                            // +
+                                            // realTopLevel.termId+"
+                                            // name="+realTopLevel.termName);
+                                            // <field column="name"
+                                            // name="annotatedHigherLevelMpTermName"
+                                            // />
+                                            // <field column="mpTerm"
+                                            // name="annotatedHigherLevelMpTermId"
+                                            // />
+                                            annotatedHigherLevelMpTermId.add(realTopLevel.termId);
+                                            annotatedHigherLevelMpTermName.add(realTopLevel.termName);
+                                            if (mpSynMap.containsKey(realTopLevel.termId)) {
+                                                List<String> topLevelSynonyms = mpSynMap.get(realTopLevel.termId);
+                                                topLevelMpTermSynonym.addAll(topLevelSynonyms);
+                                            }
+                                        }
 									} else {
                                         noTopLevelSet.add(annotation.mp_id);
 									}
