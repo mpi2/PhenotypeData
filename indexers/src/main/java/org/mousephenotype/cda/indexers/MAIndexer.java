@@ -83,8 +83,8 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+        super.initialise(args, runStatus);
     }
 
     @Override
@@ -229,8 +229,10 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException, SQLException {
+
+        RunStatus runStatus = new RunStatus();
         MAIndexer indexer = new MAIndexer();
-        indexer.initialise(args);
+        indexer.initialise(args, runStatus);
         indexer.run();
         indexer.validateBuild();
     }
