@@ -206,7 +206,7 @@ $(document).ready(function () {
 
 				var fqStr = facet2Fq[facet];
 
-				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=" + q + "&fq=" + fqStr;
+				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
 
 				// prevents escaped html tag displayed in input box
 				event.preventDefault(); return false;
