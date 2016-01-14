@@ -91,8 +91,8 @@ public class GwasIndexer extends AbstractIndexer {
     }
     
     @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+        super.initialise(args, runStatus);
     }
 
     @Override
@@ -163,8 +163,10 @@ public class GwasIndexer extends AbstractIndexer {
     private final Integer MAX_ITERATIONS = 2;                                   // Set to non-null value > 0 to limit max_iterations.
 
     public static void main(String[] args) throws IndexerException, SQLException {
+
+        RunStatus runStatus = new RunStatus();
         GwasIndexer indexer = new GwasIndexer();
-        indexer.initialise(args);
+        indexer.initialise(args, runStatus);
         indexer.run();
         indexer.validateBuild();
     }
