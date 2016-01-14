@@ -282,11 +282,11 @@ public class IndexerManager {
 
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
-                indexerItem.indexer.initialise(indexerArgs);
+                indexerItem.indexer.initialise(indexerArgs, runStatus);
                 runStatus = indexerItem.indexer.run();
                 if (runStatus.hasErrors()) {
                     for (String errorMessage : runStatus.getErrorMessages()) {
-                        logger.error(errorMessage);
+                        runStatus.addError(errorMessage);
                         runResult = RunResult.FAIL;
                     }
                 } else {
@@ -300,7 +300,7 @@ public class IndexerManager {
                     runStatus = indexerItem.indexer.validateBuild();
                     if (runStatus.hasErrors()) {
                         for (String errorMessage : runStatus.getErrorMessages()) {
-                            logger.error(errorMessage);
+                            runStatus.addError(errorMessage);
                             runResult = RunResult.FAIL;
                         }
                     } else {
