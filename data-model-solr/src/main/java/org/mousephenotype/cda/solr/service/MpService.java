@@ -15,8 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.*;
-
+import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -35,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONObject;
+import java.util.*;
 
 @Service
 public class MpService extends BasicService implements WebStatus{
@@ -75,7 +74,7 @@ public class MpService extends BasicService implements WebStatus{
 
 		return null;
 	}
-	
+
 
     /**
      * Return all phenotypes from the mp core.
