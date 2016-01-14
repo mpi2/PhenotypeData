@@ -104,8 +104,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public static void main(String[] args) throws IndexerException, SQLException {
 
+        RunStatus runStatus = new RunStatus();
 		ImpcImagesIndexer main = new ImpcImagesIndexer();
-		main.initialise(args);
+		main.initialise(args, runStatus);
 		main.run();
 		main.validateBuild();
 	}
@@ -127,7 +128,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 //		logger.info(" added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
-			logger.error(" Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+			runStatus.addError(" Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
 		}
 
 		this.alleles = populateAlleles();
@@ -170,7 +171,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (omeroId == 0 || imageDTO.getProcedureStableId().equals(excludeProcedureStableId)){// || downloadFilePath.endsWith(".pdf") ){//if(downloadFilePath.endsWith(".pdf")){//|| (imageDTO.getParameterStableId().equals("IMPC_ALZ_075_001") && imageDTO.getPhenotypingCenter().equals("JAX"))) {
 						// Skip records that do not have an omero_id
 						System.out.println("skipping omeroId="+omeroId+"param and center"+imageDTO.getParameterStableId()+imageDTO.getPhenotypingCenter());
-						//logger.warn(" Skipping record for image record {} -- missing omero_id or excluded procedure", fullResFilePath);
+//						runStatus.addWarning(" Skipping record for image record " + fullResFilePath + " -- missing omero_id or excluded procedure");
 						continue;
 					}
 
@@ -188,7 +189,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							imageDTO.setJpegUrl(impcMediaBaseUrl + "/render_image/" + omeroId);
 						}
 					} else {
-						logger.warn(" omero id is null for " + downloadFilePath);
+						runStatus.addWarning(" omero id is null for " + downloadFilePath);
 					}
 
 					// add the extra stuf we need for the searching and faceting here
@@ -294,7 +295,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 									String maTerm = maTerms.get(i);
 									maIdTerms.add(maId + "_" + maTerm);
 								} catch (Exception e) {
-									logger.warn(" Could not find term when indexing MA {}", maId, e);
+                                    runStatus.addWarning(" Could not find term when indexing MA " + maId + ". Exception: " + e.getLocalizedMessage());
 								}
 							}
 							imageDTO.setMaIdTerm(maIdTerms);

@@ -72,8 +72,9 @@ public class PipelineIndexer extends AbstractIndexer {
 	public static void main(String[] args) 
 	throws IndexerException {
 
+        RunStatus runStatus = new RunStatus();
 		PipelineIndexer indexer = new PipelineIndexer();
-		indexer.initialise(args);
+		indexer.initialise(args, runStatus);
 		indexer.run();
 		indexer.validateBuild();
 	}
@@ -85,27 +86,25 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public void initialise(String[] args) 
+	public void initialise(String[] args, RunStatus runStatus)
 	throws IndexerException {
 
-		super.initialise(args);
+		super.initialise(args, runStatus);
 
 		try {
 			this.komp2DbConnection = komp2DataSource.getConnection();
 		} catch (SQLException sqle) {
-			logger.error(" Caught SQL Exception initialising database connections: {}", sqle.getMessage());
+			runStatus.addError(" Caught SQL Exception initialising database connections: " + sqle.getMessage());
 			throw new IndexerException(sqle);
 		}
 	}
-	
-	
 
-	private void initialiseSupportingBeans()
+	private void initialiseSupportingBeans(RunStatus runStatus)
 	throws IndexerException {
 
-		parameterToObservationTypeMap = getObservationTypeMap();
-		paramIdToParameter = populateParamIdToParameterMap();
-		procedureIdToProcedure = populateProcedureIdToProcedureMap();
+		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
+		paramIdToParameter = populateParamIdToParameterMap(runStatus);
+		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
 		pipelines = populatePipelineList();
 		addAbnormalMaOntologyMap();
 		mpIdToMp = populateMpIdToMp();
@@ -120,7 +119,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		long start = System.currentTimeMillis();
 
 		try {
-			initialiseSupportingBeans();
+			initialiseSupportingBeans(runStatus);
 			pipelineCore.deleteByQuery("*:*");
 			pipelineCore.commit();
 
@@ -237,7 +236,14 @@ public class PipelineIndexer extends AbstractIndexer {
         return runStatus;
 	}
 
-	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {
+    /**
+     * Populate ParamDbIdToParameter
+     *
+     * @param runStatus instance to which warnings and errors are added
+     *
+     * @return ParamDbIdToParameter map
+     */
+	protected Map<String, ParameterDTO> populateParamIdToParameterMap(RunStatus runStatus) {
 
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "SELECT * FROM phenotype_parameter";
@@ -262,15 +268,15 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.setIncrement(resultSet.getBoolean("increment"));
 				param.setOptions(resultSet.getBoolean("options"));
 				param.setMedia(resultSet.getBoolean("media"));
-				param.setObservationType(assignType(param));
+				param.setObservationType(assignType(param, runStatus));
 				if (param.getObservationType() == null){
-					logger.warn(" Observation type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
+                    runStatus.addWarning(" Observation type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
 				}
 				localParamDbIdToParameter.put(id, param);
 			}
 
             if (localParamDbIdToParameter.size() < 5704) {
-                logger.warn(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
+                runStatus.addWarning(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
             }
 
 		} catch (Exception e) {
@@ -392,7 +398,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 	
 	
-	protected Map<String, Set<String>> populateProcedureToParameterMap() {
+	protected Map<String, Set<String>> populateProcedureToParameterMap(RunStatus runStatus) {
 
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
 		
@@ -422,16 +428,16 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
         if (procIdToParams.size() < 5704) {
-            logger.warn(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least 5704 records.");
+            runStatus.addWarning(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least 5704 records.");
         }
 
 		return procIdToParams;
 	}
 
 	
-	protected Map<String, ProcedureDTO> populateProcedureIdToProcedureMap() {
+	protected Map<String, ProcedureDTO> populateProcedureIdToProcedureMap(RunStatus runStatus) {
 
-		Map<String, Set<String>> procIdToParams = populateProcedureToParameterMap();
+		Map<String, Set<String>> procIdToParams = populateProcedureToParameterMap(runStatus);
 		
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
 		String queryString = "SELECT id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id "
@@ -461,7 +467,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
         if (procedureIdToProcedureMap.size() < 190) {
-            logger.warn(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
+            runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
         }
 		
 		return procedureIdToProcedureMap;
@@ -546,13 +552,14 @@ public class PipelineIndexer extends AbstractIndexer {
 	/**@since 2015
 	 * @author tudose
 	 * @param parameter
+     * @param runStatus a valid <code>RunStatus</code> instance
 	 * @return
 	 * @throws SolrServerException 
 	 */
 	// Method copied from org.mousephenotype.cda.db.impress.Utilities.
 	// Adjusted to avoid use of Parameter dao obj.
 	// Method should only be used at indexing time. After that query pipeline core to find type.
-	protected ObservationType assignType(ParameterDTO parameter) 
+	protected ObservationType assignType(ParameterDTO parameter, RunStatus runStatus)
 	throws SolrServerException {
 
 		Map<String, String> MAPPING = new HashMap<>();
@@ -629,7 +636,7 @@ public class PipelineIndexer extends AbstractIndexer {
 					}
 
 				} else {
-					logger.warn(" Unknown data type : " + datatype  + " " + parameter.getStableId());
+					runStatus.addWarning(" Unknown data type : " + datatype  + " " + parameter.getStableId());
 				}
 			}
 		}
@@ -637,7 +644,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		return observationType;
 	}
 
-	private Map<String,ObservationType> getObservationTypeMap(){
+	private Map<String,ObservationType> getObservationTypeMap(RunStatus runStatus){
 		Map<String,ObservationType> map = new HashMap<>();
 		String query= "select distinct parameter_stable_id, observation_type from observation";
 
@@ -653,18 +660,15 @@ public class PipelineIndexer extends AbstractIndexer {
 					obType = ObservationType.valueOf(obsType);
 					map.put(parameterId, obType);
 				} catch (IllegalArgumentException e) {
-					logger.warn(" No ObservationType found for parameter: {}", parameterId);
+					runStatus.addWarning(" No ObservationType found for parameter: " + parameterId);
 					e.printStackTrace();
 				}
-
-
-
 			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return map;
 	}
-	
 }

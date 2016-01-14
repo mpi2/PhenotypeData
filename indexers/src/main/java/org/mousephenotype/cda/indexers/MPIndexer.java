@@ -180,7 +180,7 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
-                addPhenotype1(mp);
+                addPhenotype1(mp, runStatus);
                  
                 // this sets the number of postqc phenotyping calls of this MP
                 mp.setPhenoCalls(sumPhenotypingCalls(termId)); 
@@ -1040,7 +1040,7 @@ public class MPIndexer extends AbstractIndexer {
         return synonyms;
     }
 
-    private void addPhenotype1(MpDTO mp) {
+    private void addPhenotype1(MpDTO mp, RunStatus runStatus) {
         if (phenotypes1.containsKey(mp.getMpId())) {
             checkMgiDetails(mp);
 
@@ -1054,7 +1054,7 @@ public class MPIndexer extends AbstractIndexer {
                     // From JS mapping script - row.get('legacy')
                     mp.setLegacyPhenotypeStatus(1);
                 }
-                addPreQc(mp, pheno1.getGfAcc());
+                addPreQc(mp, pheno1.getGfAcc(), runStatus);
                 addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
             }
         }
@@ -1067,7 +1067,7 @@ public class MPIndexer extends AbstractIndexer {
         }
     }
 
-    private void addPreQc(MpDTO mp, String gfAcc) {
+    private void addPreQc(MpDTO mp, String gfAcc, RunStatus runStatus) {
         SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id:\"" + gfAcc + "\"");
         query.setFields("mp_term_id", "marker_accession_id");
         try {
@@ -1079,7 +1079,7 @@ public class MPIndexer extends AbstractIndexer {
                 }
             }
         } catch (Exception e) {
-            logger.error(" Caught error accessing PreQC core: {}.\nQuery: {}", e.getMessage(), query);
+            runStatus.addError(" Caught error accessing PreQC core: " + e.getMessage() + ".\nQuery: " + query);
         }
     }
 
@@ -1277,8 +1277,9 @@ public class MPIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
+        RunStatus runStatus = new RunStatus();
         MPIndexer main = new MPIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
     }

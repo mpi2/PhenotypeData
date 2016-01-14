@@ -269,7 +269,7 @@ public class PreqcIndexer extends AbstractIndexer {
                 o.setEffect_size(effectSize);
 
                 if ( ! zygosityMapping.containsKey(zygosity)) {
-                    logger.warn(" Zygosity {} not found for record id {}", zygosity, id);
+                    runStatus.addWarning(" Zygosity " + zygosity + " not found for record id " + id);
                     continue;
                 }
                 o.setZygosity(zygosityMapping.get(zygosity));
@@ -336,7 +336,7 @@ public class PreqcIndexer extends AbstractIndexer {
                         SexType.valueOf(sex.toLowerCase());
 
                     } catch (IllegalArgumentException se) {
-                        logger.error(" Got unexpected sex value '{}' from PreQC file. Not loading", se);
+                        runStatus.addError(" Got unexpected sex value '" + se + "' from PreQC file. Not loading");
                         continue;
                     }
 
@@ -787,14 +787,14 @@ public class PreqcIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+        super.initialise(args, runStatus);
     }
 
     public static void main(String[] args) throws IndexerException {
-
+        RunStatus runStatus = new RunStatus();
         PreqcIndexer main = new PreqcIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
     }
