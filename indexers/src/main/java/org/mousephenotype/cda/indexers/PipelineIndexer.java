@@ -401,7 +401,8 @@ public class PipelineIndexer extends AbstractIndexer {
 	protected Map<String, Set<String>> populateProcedureToParameterMap(RunStatus runStatus) {
 
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
-		
+
+        final int MIN_ROW_COUNT = 200;     // This is the minumum number of unique procedures produced by this query on 14-Jan-2016, rounded down (GROUP BY procedure_id)
 		String queryString = "SELECT procedure_id, parameter_id, pp.stable_id as parameter_stable_id, pproc.stable_id as procedure_stable_id "
 				+ " FROM phenotype_procedure_parameter ppp "
 				+ " INNER JOIN phenotype_parameter pp ON pp.id=ppp.parameter_id "
@@ -427,8 +428,8 @@ public class PipelineIndexer extends AbstractIndexer {
 			e.printStackTrace();
 		}
 
-        if (procIdToParams.size() < 5704) {
-            runStatus.addWarning(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least 5704 records.");
+        if (procIdToParams.size() < MIN_ROW_COUNT) {
+            runStatus.addWarning(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least " + MIN_ROW_COUNT + " records.");
         }
 
 		return procIdToParams;
