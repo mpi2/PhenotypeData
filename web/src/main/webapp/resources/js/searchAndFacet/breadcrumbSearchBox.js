@@ -125,12 +125,12 @@ $(document).ready(function () {
 
 					matchedFacet = false; // reset
 					var docs = data.response.docs;
-					// console.log(docs);
+					//console.log(docs);
 					var aKV = [];
 					for ( var i=0; i<docs.length; i++ ){
 						var facet;
 						for ( var key in docs[i] ){
-							// console.log('key: '+key);
+							//console.log('key: '+key);
 							if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
 								continue;
 							}
@@ -206,7 +206,8 @@ $(document).ready(function () {
 
 				var fqStr = facet2Fq[facet];
 
-				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=" + q + "&fq=" + fqStr;
+				// we are choosing value from drop-down list so need to double quote the value for SOLR query
+				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
 
 				// prevents escaped html tag displayed in input box
 				event.preventDefault(); return false;
@@ -280,22 +281,26 @@ $(document).ready(function () {
 			// and it is not essential to escape space
 			input = input.replace(/\\?%20/g, ' ');
 
-			var facet = MPI2.searchAndFacetConfig.matchedFacet;
+			// check for current datatype (tab) and use this as default core
+			// instead of figuring this out for the user
+			var facet = null;
 
-			//console.log('matched facet: '+ facet)
-			if (input == ''){
-				document.location.href = baseUrl + '/search/gene?kw=*'; // default
-			}
-			else if (! facet){
+			if ( $('ul.tabLabel').size() > 0 ) {
+				// is on search page
+				$('ul.tabLabel li a').each(function () {
+					if ($(this).hasClass('currDataType')) {
+						facet = $(this).parent().attr('id').replace("T", "");
+					}
+				});
 
-				//alert('2: ' + input)
-				// user hits enter before autosuggest pops up
-				// ie, facet info is unknown
 
-				if (input.match(/HP\\\%3A\d+/i)){
+				if (input == ''){
+					document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
+				}
+				else if (input.match(/HP\\\%3A\d+/i)){
 
 					// work out the mapped mp_id and fire off the query
-					_convertHp2MpAndSearch(input);
+					_convertHp2MpAndSearch(input, facet);
 				}
 				else if ( input.match(/MP%3A\d+ - (.+)/i) ){
 					// hover over hp mp mapping but not selecting
@@ -304,76 +309,36 @@ $(document).ready(function () {
 					var mpTerm = '"' + matched[1] + '"';
 					var fqStr = $.fn.getCurrentFq('mp');
 
-					document.location.href = baseUrl + '/search/mp?kw=' + mpTerm + '&fq=' + fqStr;
+					document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
 				}
 				else {
-					//if ( $('ul#facetFilter li.ftag').size() == 0 ){
-					//	// if there is no existing facet filter, reload with q
-					//	document.location.href = baseUrl + '/search?q=' + input;
-					//}
-					//else {
-					//	// facet will be figured out by code
-					//	var fqStr = $.fn.getCurrentFq(facet);
-						//document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
-					//}
 
-					// user types something in the search input box and hits ENTER (ie, does not select from the autosuggest dropdown list)
-					// we need to show result of the dataType as in the URL path (eg. search/input_here/gene where gene is the dataType)
-					/*$.ajax({
-							url: baseUrl + '/fetchDefaultCore',
-							data: {'q': input},
-							type: 'get',
-							async: false,
-							success: function (facet) {
-								console.log("default core: "+ facet);
-								var fqStr = $.fn.getCurrentFq(facet) == "*:*" ? "" : "?" + $.fn.getCurrentFq(facet);
-								document.location.href = baseUrl + '/search/'+ input + '/' + facet + fqStr;
-							}
-					});*/
-
-					//var path2core = {
-					//	"genes" : "gene",
-					//	"phenotypes" : "mp",
-					//	"anatomy" : "ma",
-					//	"disease" : "disease",
-					//	"impcImages" : "impc_images",
-					//	"imagesb" : "imapges"
-					//};
-
-//					var paths = window.location.pathname.split("/");
-//
-//					var facet = paths[paths.length-2]; // convert from path to solr corename
-//alert(facet)
-//					var fqStr = $.fn.fetchUrlParams("fq");
-//
-//					if ( fqStr != undefined ) {
-//						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
-//					}
-//					else {
-//						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
-//					}
-
-					// user typed something and hit ENTER: need to figure out default core to load on search page
-					$.ajax({
-						url: baseUrl + "/fetchDefaultCore?q=" + input,
-						type: 'get',
-						success: function( defaultCore ) {
-
-							var fqStr = $.fn.fetchUrlParams("fq");
-							if ( fqStr != undefined ) {
-								document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input + '&fq=' + fqStr;
-							}
-							else {
-								document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
-							}
-						}
-					});
+					var fqStr = $.fn.fetchUrlParams("fq");
+					if ( fqStr != undefined ) {
+						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
+					}
+					else {
+						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
+					}
 				}
+
+			}
+			else {
+
+				// is on non-search page
+				// user typed something and hit ENTER: need to figure out default core to load on search page
+				$.ajax({
+					url: baseUrl + "/fetchDefaultCore?q=" + input,
+					type: 'get',
+					success: function( defaultCore ) {
+						document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
+					}
+				});
 			}
 		}
 	});
 		
-	function _convertHp2MpAndSearch(input){
+	function _convertHp2MpAndSearch(input, facet){
 		input = input.toUpperCase();
 		$.ajax({
 			url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
@@ -383,7 +348,7 @@ $(document).ready(function () {
 			async: false,
 			success: function( json ) {
 					var mpid = json.response.docs[0].hpmp_id;
-					document.location.href = baseUrl + '/search/mp?kw=' + mpid + '&fq=top_level_mp_term:*';
+					document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
 			}
 		});
 	}

@@ -28,7 +28,8 @@
 				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
 			</ul>
 
-			<div><div id="resultMsg"></div><div id="tableTool"></div></div>
+			<!--<div><div id="resultMsg"></div><div id="tableTool"></div></div>-->
+			<div><div id="tableTool"></div></div>
 
 			<div id="geneTab" class="hideme">
 				<div class="region region-sidebar-first">
@@ -262,9 +263,8 @@
 			$(document).ready(function(){
 				'use strict';
 
-				$.fn.qTip(
-						{'pageName':'search'}
-				);
+				$.fn.qTip({'pageName':'search'});
+
 				// populate facet counts to all "tabs"
 				$('ul.tabLabel li').each(function(){
 					var id = $(this).attr('id').replace('T','');
@@ -282,7 +282,7 @@
 
 				var params = window.location.search; // includes leading "?"
 
-				var query, coreName, solrFilters;
+				var query, queryOri, coreName, solrFilters;
 				var solrFqs = [];
 				var showImgViewStr = "showImgView=false";  // default
 
@@ -310,7 +310,7 @@
 						var k = pairs[0];
 						var v = pairs[1];
 						if( k == 'kw' ){
-							query = v;
+							query = queryOri = v;
 						}
 						else if ( k == 'showImgView' ){
 							showImgViewStr = kw[i];
@@ -348,6 +348,7 @@
 						solrFilters = filters.join(" AND ");
 					}
 
+
 					query = query.replace("\\%3A", ":");
 					$('input#s').val(decodeURI(query));
 				}
@@ -382,8 +383,8 @@
 							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 						}
 
-						$(this).addClass('currDataType').click();
-
+						//$(this).addClass('currDataType').click();
+						$(this).addClass('currDataType');//.click();
 						$.fn.displayFacets(coreName, ${jsonStr});
 
 						// check(highlight) filter(s) based on URL fq str
@@ -395,7 +396,10 @@
 						var parentContainer = $(tabId).find("div#mpi2-search");
 
 
+						// images cores related
 						if ( coreName.indexOf('images') != -1 ) {
+
+							$('div.region-content').css({"position": "relative", "top": "-25px"});
 
 							var foundMsg, switcher, viewMsg;
 							if (showImgViewStr == "showImgView=false" ){
@@ -425,6 +429,9 @@
 
 							// add js to switcher
 							activateImgViewSwitcher();
+						}
+						else {
+							$('div.region-content').css({"position": "relative", "top": "-50px"});
 						}
 
 						var tableId = "dTable";
@@ -467,7 +474,7 @@
 
 				// ----------- when a "tab" is clicked ----------------
 				$("ul.tabLabel > li a").click(function(){
-					$('#resultMsg').text("Fetching data ....");
+					//$('#resultMsg').text("Fetching data ....");
 				});
 
 
@@ -655,7 +662,7 @@
 						var fqStr = fqs.length != 0 ? "&fq=" + fqs.join(" AND ") : "";
 
 						//document.location.href = baseUrl + '/search/' + query + '/' + coreName + fqStr;
-						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr;
+						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + queryOri + fqStr;
 					});
 				}
 
@@ -701,7 +708,7 @@
 					var start  = json.iDisplayStart;
 					var length = json.iDisplayLength;
 					//var total  = json.iTotalRecords;
-					var total = ${facetCount}[coreName];
+					var total = ${jsonStr}.iTotalRecords;
 
 					var numX = parseInt(start+1);
 					var numY = parseInt(start+length) > total ? total : parseInt(start+length);
@@ -711,7 +718,7 @@
 					parentContainer.find('div#' + infoDivId).html("Showing " + numX + " to " + numY + " of " + total + " entries");
 
 					var filters = solrFilters != undefined ? " filtered by " + solrFilters : "";
-					$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
+					//$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
 
 					// work out how many pages
 					var pages = Math.ceil(total / length);

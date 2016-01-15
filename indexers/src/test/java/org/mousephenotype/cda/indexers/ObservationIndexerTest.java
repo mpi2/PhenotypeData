@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-config.xml"})
@@ -41,7 +49,7 @@ public class ObservationIndexerTest {
 //@Ignore
     public void testPopulateBiologicalDataMap() throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, new RunStatus());
 
         observationIndexer.populateBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
@@ -55,7 +63,7 @@ public class ObservationIndexerTest {
 //@Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, new RunStatus());
 
         observationIndexer.populateLineBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getLineBiologicalData();
@@ -65,7 +73,28 @@ public class ObservationIndexerTest {
 
     }
 
-    @Test
+
+	@Test
+	//@Ignore
+	public void testPopulateWeightMap() throws Exception {
+		String args[] = { "--context=index-config_DEV.xml" };
+		observationIndexer.initialise(args, new RunStatus());
+
+		observationIndexer.populateWeightMap();
+		Map<Integer, List<ObservationIndexer.WeightBean>> weightMap = observationIndexer.getWeightMap();
+
+		ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29").toInstant(), ZoneId.of("UTC"));
+
+		System.out.println("Weight map for speciment 94369 is : " + weightMap.get(94369));
+		System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + observationIndexer.getNearestWeight(94369, dateOfExperiment) );
+		Assert.assertTrue(weightMap.size() > 50);
+
+		logger.info("Size of weight map {}", weightMap.size());
+
+	}
+
+
+	@Test
 //@Ignore
     public void testImpressDataMaps() throws Exception {
         Map<Integer, ImpressBaseDTO> bioDataMap;
@@ -90,9 +119,9 @@ public class ObservationIndexerTest {
 
     @Test
 //@Ignore
-    public void testDatasourceDataMaps() throws Exception {
+    public void testDatasourceDataMaps(RunStatus runStatus) throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, runStatus);
 
         observationIndexer.populateDatasourceDataMap();
         Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
@@ -111,9 +140,9 @@ public class ObservationIndexerTest {
 
     @Test
 //@Ignore
-    public void testpopulateCategoryNamesDataMap() throws Exception {
+    public void testpopulateCategoryNamesDataMap(RunStatus runStatus) throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, runStatus);
 
         observationIndexer.populateCategoryNamesDataMap();
         Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
@@ -149,5 +178,21 @@ public class ObservationIndexerTest {
         logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Immediate movement'");
 
     }
+
+	@Test
+	public void testDate() throws ParseException {
+		String dateString = "2015-06-11";
+		Date now = new Date();
+		Date d = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+		System.out.println(d);
+
+		now = new Date();
+		Date d2 = new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+		System.out.println(d2);
+
+		System.out.println(TimeZone.getDefault().getDisplayName());
+
+
+	}
 
 }

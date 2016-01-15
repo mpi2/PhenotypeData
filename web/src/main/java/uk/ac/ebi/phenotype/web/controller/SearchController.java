@@ -31,6 +31,7 @@ import uk.ac.ebi.phenotype.util.SearchConfig;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.*;
 
 
@@ -85,7 +86,6 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
-
 		iDisplayStart =  iDisplayStart == null ? 0 : iDisplayStart;
 		request.setAttribute("iDisplayStart", iDisplayStart);
 		iDisplayLength = iDisplayLength == null ? 10 : iDisplayLength;
@@ -99,7 +99,7 @@ public class SearchController {
 		JSONObject jr = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 		model.addAttribute("facetCount", jr);
 
-		model.addAttribute("searchQuery", query);
+		model.addAttribute("searchQuery", query.replaceAll("\\\\",""));
 		model.addAttribute("dataType", dataType); // lowercase: core name
 		model.addAttribute("dataTypeParams", paramString);
 		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
@@ -170,7 +170,7 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-
+		//System.out.println("PARAMS*****: " + solrParamStr);
 		return solrParamStr;
 	}
 

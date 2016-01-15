@@ -180,7 +180,7 @@ public class AlleleIndexer extends AbstractIndexer {
             populateDiseaseLookup();
             logger.info(" Added {} total disease lookup beans", diseaseLookup.size());
 
-            populateLegacyLookup();
+            populateLegacyLookup(runStatus);
             logger.info(" Added {} total legacy project lookup beans", legacyProjectLookup.size());
 
             populateMgiGeneId2EnsemblGeneId();
@@ -212,7 +212,7 @@ public class AlleleIndexer extends AbstractIndexer {
                 Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
 
                 // Look up the marker synonyms
-                lookupMarkerSynonyms(alleles);
+                lookupMarkerSynonyms(alleles, runStatus);
 
                 // Look up ensembl id to MGI gene id mapping
                 lookupMgiGeneId2EnsemblGeneId(alleles);
@@ -773,7 +773,7 @@ public class AlleleIndexer extends AbstractIndexer {
        }
 	}
 
-    private void populateLegacyLookup() throws SolrServerException {
+    private void populateLegacyLookup(RunStatus runStatus) throws SolrServerException {
 
     	// old query
         //String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
@@ -790,7 +790,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             }
         } catch (SQLException e) {
-            logger.error(" SQL Exception looking up legacy projects: {}", e.getMessage());
+            runStatus.addError(" SQL Exception looking up legacy projects: " + e.getMessage());
         }
 
     }
@@ -958,7 +958,7 @@ public class AlleleIndexer extends AbstractIndexer {
         return map;
     }
 
-    private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles) {
+    private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles, RunStatus runStatus) {
         // Build the lookup string
         String lookup = buildIdQuery(alleles.keySet());
 
@@ -987,7 +987,7 @@ public class AlleleIndexer extends AbstractIndexer {
             }
             logger.debug(" Finished marker synonym lookup");
         } catch (SQLException sqle) {
-            logger.error(" SQL Exception looking up marker symbols: {}", sqle.getMessage());
+            runStatus.addError(" SQL Exception looking up marker symbols: " + sqle.getMessage());
         }
     }
 
@@ -1215,8 +1215,9 @@ public class AlleleIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
+        RunStatus runStatus = new RunStatus();
         AlleleIndexer main = new AlleleIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
     }

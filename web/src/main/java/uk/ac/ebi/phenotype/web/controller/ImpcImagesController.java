@@ -87,13 +87,14 @@ public class ImpcImagesController {
 
 	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
 	public String imagePicker(@PathVariable String acc,
-			@PathVariable String parameter_stable_id, Model model)
+			@PathVariable String parameter_stable_id, Model model, HttpServletRequest request)
 			throws SolrServerException {
 
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
 		System.out.println("calling image picker");
-
+				String mediaType=request.getParameter("mediaType");
+				 if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
@@ -118,7 +119,8 @@ public class ImpcImagesController {
 			SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 			controls.addAll(controlsTemp);
 		}
-
+		
+		model.addAttribute("mediaType", mediaType);
 		System.out.println("experimental size=" + experimental.size());
 		model.addAttribute("experimental", experimental);
 		System.out.println("controls size=" + controls.size());
