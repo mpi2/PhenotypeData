@@ -171,7 +171,7 @@ public class GwasDAO {
             query = selectClause + " WHERE " + andClause + groupBy;
         }
 
-        System.out.println("gwas mapping query: " + query);
+        log.debug("gwas mapping query: " + query);
 
         List<GwasDTO> results = new ArrayList<>();
 
@@ -295,7 +295,7 @@ public class GwasDAO {
         	query = "SELECT * FROM impc2gwas WHERE " + andClause;
         }
 
-        System.out.println("gwas mapping query: " + query);
+        log.debug("gwas mapping query: " + query);
 
         List<GwasDTO> results = new ArrayList<>();
 
