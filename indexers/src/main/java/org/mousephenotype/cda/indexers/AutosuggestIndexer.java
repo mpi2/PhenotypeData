@@ -92,6 +92,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> mpIdSet = new HashSet();
     Set<String> mpTermSet = new HashSet();
     Set<String> mpTermSynonymSet = new HashSet();
+    Set<String> mpAltIdSet = new HashSet();
     
     // disease
     Set<String> diseaseIdSet = new HashSet();
@@ -102,6 +103,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> maIdSet = new HashSet();
     Set<String> maTermSet = new HashSet();
     Set<String> maTermSynonymSet = new HashSet();
+    Set<String> maAltIdSet = new HashSet();
     
     // hp
     Set<String> hpIdSet = new HashSet();
@@ -279,7 +281,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateMpAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> mpFields = Arrays.asList(
-                MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
+                MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.ALT_MP_ID, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
                 MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
         
@@ -319,6 +321,22 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
+                                    asyn.setDocType("mp");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.ALT_MP_ID:
+                        System.out.println("Working on ALT MP ID -1");
+                        if ( mp.getAltMpIds() != null) {
+
+                            for (String s : mp.getAltMpIds()) {
+                                mapKey = s;
+                                System.out.println("GOT ALT MP ID: " + mapKey);
+                                if (mpAltIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAltMpID(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -513,7 +531,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateMaAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> maFields = Arrays.asList(
-                MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
+                MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.ALT_MA_ID, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
                 MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
                 MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
             
@@ -553,6 +571,20 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 if (maTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMaTermSynonym(s);
+                                    asyn.setDocType("ma");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MaDTO.ALT_MA_ID:
+                        if ( ma.getAltMaIds() != null ) {
+                            for (String s : ma.getAltMaIds()) {
+                                mapKey = s;
+
+                                if (maAltIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAltMaID(s);
                                     asyn.setDocType("ma");
                                     beans.add(asyn);
                                 }
@@ -829,8 +861,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
+        RunStatus runStatus = new RunStatus();
         AutosuggestIndexer main = new AutosuggestIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
     }
 }
