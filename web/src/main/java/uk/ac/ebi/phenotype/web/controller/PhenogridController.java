@@ -62,13 +62,11 @@ public class PhenogridController {
         return new PhenoGrid(title, xAxis, yAxis);
     }
 
-    private final PhenoGridTaxon HUMAN_TAXON = new PhenoGridTaxon("NCBITaxon:9606", "Homo sapiens");
-
     private PhenoGridEntity makeDiseaseEntity(DiseaseGeneAssociationDetail diseaseGeneAssociationDetail) {
         List<PhenotypeTerm> phenotypes = diseaseGeneAssociationDetail.getDiseasePhenotypes();
         String id = diseaseGeneAssociationDetail.getDiseaseId().getCompoundIdentifier();
         String label = diseaseGeneAssociationDetail.getDiseaseId().getCompoundIdentifier();
-        return new PhenoGridEntity(id, label, phenotypes, null, HUMAN_TAXON, new ArrayList<>());
+        return new PhenoGridEntity(id, label, phenotypes, null, new ArrayList<>());
     }
 
     private List<PhenoGridEntity> makeMouseModelEntities(List<DiseaseModelAssociation> diseaseAssociations, String requestPageType) {
@@ -80,8 +78,6 @@ public class PhenogridController {
         return mouseEntities;
     }
 
-    private final PhenoGridTaxon MOUSE_TAXON = new PhenoGridTaxon("NCBITaxon:10090", "Mus musculus");
-
     private PhenoGridEntity makeMouseModelEntityForPage(DiseaseModelAssociation diseaseModelAssociation, int rank, String requestPageType) {
         MouseModel mouseModel = diseaseModelAssociation.getMouseModel();
         Integer modelId = mouseModel.getMgiModelId();
@@ -90,8 +86,7 @@ public class PhenogridController {
         List<PhenotypeTerm> phenotypes = mouseModel.getPhenotypeTerms();
         PhenoGridScore score = new PhenoGridScore("phenodigm", makeScoreForPageType(requestPageType, diseaseModelAssociation), rank);
         List<EntityInfo> info = makeMouseModelInfo(mouseModel);
-        return new PhenoGridEntity(modelId.toString(), label, phenotypes, score, MOUSE_TAXON, info);
-//            return new PhenoGridEntityBuilder(label, phenotypes, score).info(info).buildMouseEntity();
+        return new PhenoGridEntity(modelId.toString(), label, phenotypes, score, info);
     }
 
     private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel) {
@@ -152,15 +147,13 @@ public class PhenogridController {
         private String label;
         private List<PhenotypeTerm> phenotypes = new ArrayList<>();
         private PhenoGridScore score;
-        private PhenoGridTaxon taxon;
         private List<EntityInfo> info = new ArrayList<>();
 
-        public PhenoGridEntity(String id, String label, List<PhenotypeTerm> phenotypes, PhenoGridScore score, PhenoGridTaxon taxon, List<EntityInfo> info) {
+        public PhenoGridEntity(String id, String label, List<PhenotypeTerm> phenotypes, PhenoGridScore score, List<EntityInfo> info) {
             this.id = id;
             this.label = label;
             this.phenotypes = phenotypes;
             this.score = score;
-            this.taxon = taxon;
             this.info = info;
         }
 
@@ -177,10 +170,6 @@ public class PhenogridController {
 
         public PhenoGridScore getScore() {
             return score;
-        }
-
-        public PhenoGridTaxon getTaxon() {
-            return taxon;
         }
 
         public List<EntityInfo> getInfo() {
@@ -212,25 +201,6 @@ public class PhenogridController {
         }
     }
 
-    private class PhenoGridTaxon {
-
-        private final String id;
-        private final String label;
-
-        public PhenoGridTaxon(String id, String label) {
-            this.id = id;
-            this.label = label;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getLabel() {
-            return label;
-        }
-    }
-
     private class EntityInfo {
         private final String id;
         private final String value;
@@ -255,12 +225,6 @@ public class PhenogridController {
         }
     }
 
-    private class PhenoGridEntityBuilder {
-
-        public PhenoGridEntityBuilder(String label, List<String> phenotypes, PhenoGridScore score) {
-        }
-
-    }
 //            "info": {
 //        "fields": [
 //        {
