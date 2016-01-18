@@ -240,7 +240,7 @@ config.facetParams = {
 		                   'embryo_data_available'],
 		solrCoreName: 'gene',			 
 		tableCols: 3, 	
-		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",		
+		tableHeader: "<thead><th>Gene</th><th>Production Status</th><th>Phenotype Status</th><th></th></thead>",
 		fq: '*:*',
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker"',//undefined,
 		//fq: 'marker_type:* -marker_type:"heritable phenotypic marker" (production_center:* AND phenotyping_center:*)',//undefined,
