@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class ObservationIndexerTest {
 //@Ignore
     public void testPopulateBiologicalDataMap() throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, new RunStatus());
 
         observationIndexer.populateBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
@@ -62,7 +63,7 @@ public class ObservationIndexerTest {
 //@Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, new RunStatus());
 
         observationIndexer.populateLineBiologicalDataMap();
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getLineBiologicalData();
@@ -77,7 +78,7 @@ public class ObservationIndexerTest {
 	//@Ignore
 	public void testPopulateWeightMap() throws Exception {
 		String args[] = { "--context=index-config_DEV.xml" };
-		observationIndexer.initialise(args);
+		observationIndexer.initialise(args, new RunStatus());
 
 		observationIndexer.populateWeightMap();
 		Map<Integer, List<ObservationIndexer.WeightBean>> weightMap = observationIndexer.getWeightMap();
@@ -118,9 +119,9 @@ public class ObservationIndexerTest {
 
     @Test
 //@Ignore
-    public void testDatasourceDataMaps() throws Exception {
+    public void testDatasourceDataMaps(RunStatus runStatus) throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, runStatus);
 
         observationIndexer.populateDatasourceDataMap();
         Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
@@ -139,9 +140,9 @@ public class ObservationIndexerTest {
 
     @Test
 //@Ignore
-    public void testpopulateCategoryNamesDataMap() throws Exception {
+    public void testpopulateCategoryNamesDataMap(RunStatus runStatus) throws Exception {
         String args[] = { "--context=index-config_DEV.xml" };
-        observationIndexer.initialise(args);
+        observationIndexer.initialise(args, runStatus);
 
         observationIndexer.populateCategoryNamesDataMap();
         Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
