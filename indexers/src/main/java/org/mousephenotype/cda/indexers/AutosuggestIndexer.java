@@ -328,12 +328,12 @@ public class AutosuggestIndexer extends AbstractIndexer {
                         }
                         break;
                     case MpDTO.ALT_MP_ID:
-                        System.out.println("Working on ALT MP ID -1");
+                        logger.debug("Working on ALT MP ID -1");
                         if ( mp.getAltMpIds() != null) {
 
                             for (String s : mp.getAltMpIds()) {
                                 mapKey = s;
-                                System.out.println("GOT ALT MP ID: " + mapKey);
+                                logger.debug("GOT ALT MP ID: " + mapKey);
                                 if (mpAltIdSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setAltMpID(s);
@@ -861,8 +861,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
+        RunStatus runStatus = new RunStatus();
         AutosuggestIndexer main = new AutosuggestIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
     }
 }

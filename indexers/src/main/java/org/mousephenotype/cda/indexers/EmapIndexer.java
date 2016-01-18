@@ -574,8 +574,9 @@ public class EmapIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
+        RunStatus runStatus = new RunStatus();
         EmapIndexer main = new EmapIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
     }

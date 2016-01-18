@@ -107,9 +107,9 @@ public class SangerImagesIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public void initialise(String[] args) throws IndexerException {
+	public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
 
-		super.initialise(args);
+		super.initialise(args, runStatus);
 
 		try {
 
@@ -150,8 +150,9 @@ public class SangerImagesIndexer extends AbstractIndexer {
 
 	public static void main(String[] args) throws IndexerException {
 
+        RunStatus runStatus = new RunStatus();
 		SangerImagesIndexer main = new SangerImagesIndexer();
-		main.initialise(args);
+		main.initialise(args, runStatus);
 		main.run();
 		main.validateBuild();
 	}

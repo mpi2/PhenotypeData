@@ -24,12 +24,12 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.indexers.IndexerManager;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.InvalidCoreNameException;
 import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentException;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -996,7 +996,7 @@ public class IndexerManagerTest {
       */
 //@Ignore
      @Test
-     public void testInstanceBuildSingleCoreNodeps() throws SQLException {
+     public void testInstanceBuildSingleCoreNodeps(RunStatus runStatus) throws SQLException {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
@@ -1016,7 +1016,7 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" }, runStatus);
             System.out.println("Command line = " + StringUtils.join(args, ","));
             indexerManager.maIndexer.run();
             indexerManager.maIndexer.validateBuild();
@@ -1058,7 +1058,7 @@ public class IndexerManagerTest {
       */
 //@Ignore
      @Test
-     public void testInstanceBuildMultipleCoresNodeps() throws SQLException {
+     public void testInstanceBuildMultipleCoresNodeps(RunStatus runStatus) throws SQLException {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
@@ -1078,7 +1078,7 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" }, runStatus);
             indexerManager.maIndexer.run();
             indexerManager.maIndexer.validateBuild();
         } catch (IndexerException ie) {

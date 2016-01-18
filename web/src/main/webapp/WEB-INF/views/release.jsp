@@ -120,9 +120,9 @@
                         <div class="inner">
                             <div id="highlightsDiv">
                                 <div class="container span12">
-                                    <h3>Data release 4.0</h3>
+                                    <h3>Data release 4.2</h3>
 
-                                    <p>Data release 4.0 is a major release.</p>
+                                    <p>Data release 4.2 is a minor release to include more final QCed data and correct genetic background strain for some legacy lines.</p>
 
                                 </div>
                                 <div class="clear"></div>
