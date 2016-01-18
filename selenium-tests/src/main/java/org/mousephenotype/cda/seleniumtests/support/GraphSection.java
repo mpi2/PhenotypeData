@@ -179,11 +179,6 @@ public abstract class GraphSection {
                 this.catTable = new GraphCatTable(elements.get(0));
             }
 
-            // Sometimes graph sections claim to have no continuous table, when they actually do. Give it time to load and ignore any failures.
-            try {
-                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("./table[starts-with(@id, 'continuousTable')]")));
-            } catch (Exception e) { }
-
             elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'continuousTable')]"));
             if ( ! elements.isEmpty()) {
                 this.continuousTable = new GraphContinuousTable(elements.get(0));
