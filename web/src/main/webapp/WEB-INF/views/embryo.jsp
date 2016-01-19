@@ -39,10 +39,15 @@
 
                         <div class="section">
                             <div class="inner">
+                            	<p> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.  </p>
+                            	<div><img src="${baseUrl}/img/embryo_impress.png"/></div>
                             	<p> Viable/subviable/lethal chart </p>
                             	<div id="viabilityChart">
 				            		<script type="text/javascript">${viabilityChart}</script>
 								</div>
+								
+                            <h2>Vignettes</h2>
+                            <h2>3D Imaging</h2>
                             </div>
                         </div>
 
@@ -57,6 +62,7 @@
                             </div>
 
                         </div>
+                        
                       </div>
                     <!--end of node wrapper should be after all secions  -->
                 </div>
