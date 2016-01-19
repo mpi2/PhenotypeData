@@ -7,12 +7,14 @@
     <jsp:attribute name="title">IMPC Embryo Landing Page</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
-
 	</jsp:attribute>          
 
 
 	<jsp:attribute name="header">
-
+		
+		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
             <c:if test="${phenotypeStarted}">
                 <!--[if !IE]><!-->
                 <link rel="stylesheet" type="text/css"
@@ -38,6 +40,9 @@
                         <div class="section">
                             <div class="inner">
                             	<p> Viable/subviable/lethal chart </p>
+                            	<div id="viabilityChart">
+				            		<script type="text/javascript">${viabilityChart}</script>
+								</div>
                             </div>
                         </div>
 
