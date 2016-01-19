@@ -33,11 +33,11 @@ allele = allele.replaceAll("##", "</sup>");
         	<c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		<!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
          		 <a href="${href}?mediaType=pdf">
-         		<img  src="${pdfThumbnailUrl}/200" style="${imgStyle}"></a>
+         		<img  src="${pdfThumbnailUrl}/200" class="thumbnailStyle"></a>
          	</c:if>
          	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		 <a href="${href}">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" style="${imgStyle}"></a>
+         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" class="thumbnailStyle"></a>
          	</c:if>
          	<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
          </c:when>
@@ -45,7 +45,7 @@ allele = allele.replaceAll("##", "</sup>");
          <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          <!-- used pdf images on normal image scrolldown pages -->
          		<a href="${img.download_url}" >
-         		<img  src="${pdfThumbnailUrl}/200" style="${imgStyle}"></a>
+         		<img  src="${pdfThumbnailUrl}/200" class="thumbnailStyle"></a>
          		<div class="caption" style="max-width: 200px; max-height: 200px;width:auto;height:auto">
          		 <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
                  <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>
@@ -55,7 +55,7 @@ allele = allele.replaceAll("##", "</sup>");
          <c:otherwise>
          <!-- used for lacz expression pages -->
          		<a href="${impcMediaBaseUrl}/render_image/${img.omero_id}/" class="fancybox" fullRes="${impcMediaBaseUrl}/render_image/${img.omero_id}/" original="${impcMediaBaseUrl}/archived_files/download/${img.omero_id}/">
-         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" style="${imgStyle}"></a>
+         		<img  src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200/" class="thumbnailStyle"></a>
          		<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
          </c:otherwise>
       </c:choose>
