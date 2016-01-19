@@ -243,12 +243,12 @@ public class SearchPageTest {
             };
 
             for (Facet facet : facets) {
-                Integer facetCount = searchPage.getFacetCount(facet);
+
+                // Select the correct tab.
+                int facetCount = searchPage.clickTab(facet);
+
                 message = "";
-                if (facetCount == null) {
-                    message = "ERROR: the facet count was null. URL: " + driver.getCurrentUrl();
-                    masterStatus.addError(message);
-                } else if (facetCount == 0) {
+                if (facetCount == 0) {
                     System.out.println("\tSKIPPING [" + facet + "] as it has no rows.");
                     continue;
                 } else {
@@ -327,10 +327,11 @@ public class SearchPageTest {
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
 
         // Verify that the core counts returned by solr match the facet counts on the page and the page.
-        String[] facets = { "gene", "mp", "disease", "ma", "impc_images", "images" };
-        for (String facet : facets) {
+        Facet[] facets = { Facet.ANATOMY, Facet.DISEASES, Facet.GENES, Facet.IMAGES, Facet.IMPC_IMAGES, Facet.PHENOTYPES };
+        for (Facet facet : facets) {
+            searchPage.clickTab(facet);
             Integer facetCountFromPage = searchPage.getFacetCount(facet);
-            int facetCountFromSolr = (int)solrCoreCountMap.get(facet);
+            int facetCountFromSolr = (int)solrCoreCountMap.get(facet.getFacetId());
 
             if (facetCountFromPage == null) {
                 message = "ERROR: the page's facet count is null. URL: " + target;
@@ -530,15 +531,14 @@ public class SearchPageTest {
         Map<String, Integer> solrCoreCountMap = getSolrCoreCounts(null);
 
         // Compare solr core count to page result count.
-        // 26-Mar-2015 (mrelac) Skip the gene core count compare. The rules are fuzzy.
-        String[] localCores = { "mp", "disease", "ma", "impc_images", "images" };
+        String[] localCores = { "mp", "disease", "ma", "impc_images", "images", "gene" };
         for (String core : localCores) {
             String target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
             RunStatus localStatus = facetCountEngine(target, imageMap);
             if ( ! localStatus.hasErrors()) {
                 SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 int facetCountFromSolr = solrCoreCountMap.get(core);
-                int resultCount = searchPage.getResultCount();
+                int resultCount = searchPage.getTabResultCount();
 
                 if (facetCountFromSolr != resultCount) {
                     status.addError("Search term facet count MISMATCH: facet count from page: " + resultCount + ". facet count from solr core (" + core + ") = " + facetCountFromSolr + ".");
@@ -747,6 +747,10 @@ public class SearchPageTest {
             target = baseUrl + "/search";
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             facet = Facet.IMAGES;
+
+            // Select the correct tab.
+            searchPage.clickTab(facet);
+
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
             searchPage.clickPageButton();
@@ -784,6 +788,10 @@ public class SearchPageTest {
             target = baseUrl + "/search";
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
             Facet facet = Facet.IMAGES;
+
+            // Select the correct tab.
+            int facetCount = searchPage.clickTab(facet);
+
             searchPage.clickFacet(facet);
             searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
             searchPage.clickPageButton(SearchPage.PageDirective.LAST);
@@ -823,6 +831,10 @@ public class SearchPageTest {
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
 
             facet = Facet.IMPC_IMAGES;
+
+            // Select the correct tab.
+            int facetCount = searchPage.clickTab(facet);
+
             searchPage.clickFacet(facet);
             searchPage.getImpcImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
 
@@ -879,6 +891,10 @@ public class SearchPageTest {
         String target = baseUrl + "/search";
 
         SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
+
+        // Select the correct tab.
+        searchPage.clickTab(Facet.ANATOMY);
+
         String[] pageMaFacetTermNames = searchPage.getFacetNames(Facet.ANATOMY);
         expectedCount = pageMaFacetTermNames.length;
         for (int i = 0; i < pageMaFacetTermNames.length; i++) {
@@ -1056,6 +1072,9 @@ public class SearchPageTest {
                 SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
                 searchPage.clickFacetById(core);
                 Facet facet = searchPage.getFacetByCoreName(core);
+
+                // Select the correct tab.
+                searchPage.clickTab(facet);
 
                 // Upon entry, the 'showing' string should start with 'Showing 1 to 10 of".
                 expectedShowingPhrase = showing_1;
