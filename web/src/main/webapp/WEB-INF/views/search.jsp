@@ -598,10 +598,8 @@
 					var toolBox = '<div id="toolBox" style="display: block;">'
 							+ '<div class="dataName">Current paginated entries in table</div>'
 							+ '<p>Export as: &nbsp;'
-							//+ '<button class="tsv_grid fa fa-download gridDump gridDump" data-exporturl=' + urltsv + '>TSV</button>&nbsp;or&nbsp;'
-							//+ '<button class="xls_grid fa fa-download gridDump gridDump" data-exporturl=' + urlxls + '>XLS</button></p><p>'
-							+ '<a class="tsv_grid fa fa-download gridDump gridDump" href="' + urltsv + '">TSV</a>&nbsp;or&nbsp;'
-							+ '<a class="tsv_grid fa fa-download gridDump gridDump" href="' + urlxls + '">XLS</a></p><p>'
+							+ '<a id="tsv" class="fa fa-download gridDump" href="' + urltsv + '">TSV</a>&nbsp;or&nbsp;'
+							+ '<a id="xls" class="fa fa-download gridDump" href="' + urlxls + '">XLS</a></p><p>'
 							+ 'For larger dataset, use <a href=${baseUrl}/batchQuery>Batch query</a>';
 
 					//$('div.dataTables_processing').siblings('div#tableTool').append(
