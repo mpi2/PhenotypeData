@@ -664,7 +664,7 @@ public class GenePage {
 
         // XLS download links are expected to be encoded.
         if (downloadType == DownloadType.XLS) {
-            logger.info("GenePage: Encoding page data for XLS image link comparison.");
+            logger.debug("GenePage: Encoding page data for XLS image link comparison.");
             pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
         }
 
