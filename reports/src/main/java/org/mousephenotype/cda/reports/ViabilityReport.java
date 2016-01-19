@@ -118,7 +118,7 @@ public class ViabilityReport extends AbstractReport {
             for (String cat : genesByVia.keySet()){
                 for (String otherCat : genesByVia.keySet()){
                     if (!otherCat.equalsIgnoreCase(cat)){
-                        Set<String> conflictingGenes = genesByVia.get(otherCat);
+                        Set<String> conflictingGenes = new HashSet(genesByVia.get(otherCat));
                         conflictingGenes.retainAll(genesByVia.get(cat));
                         conflicts.addAll(conflictingGenes);
                     }

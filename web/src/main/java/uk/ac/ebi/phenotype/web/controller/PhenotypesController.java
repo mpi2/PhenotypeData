@@ -341,7 +341,7 @@ public class PhenotypesController {
         long time = System.currentTimeMillis();
 
         // This is a map because we need to support lookups
-        Map<DataTableRow, DataTableRow> phenotypes = new HashMap<DataTableRow, DataTableRow>();
+        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
@@ -350,8 +350,8 @@ public class PhenotypesController {
             DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
 
 	        // Collapse rows on sex
-            if (phenotypes.containsKey(pr)) {
-                pr = phenotypes.get(pr);
+            if (phenotypes.containsKey(pr.hashCode())) {
+                pr = phenotypes.get(pr.hashCode());
 
                 // Use a tree set to maintain an alphabetical order (Female, Male)
                 TreeSet<String> sexes = new TreeSet<String>();
@@ -363,11 +363,11 @@ public class PhenotypesController {
             }
 
             if (pr.getParameter() != null && pr.getProcedure() != null) {
-                phenotypes.put(pr, pr);
+                phenotypes.put(pr.hashCode(), pr);
             }
         }
 
-        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.keySet());
+        List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
         Collections.sort(list);
 
         model.addAttribute("phenotypes", list);
