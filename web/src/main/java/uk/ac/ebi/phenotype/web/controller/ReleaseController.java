@@ -251,7 +251,6 @@ public class ReleaseController {
 		String sexualDimorphismChart = chartsProvider.generateSexualDimorphismChart(sexualDimorphismSummary, "Distribution of Phenotype Calls", "sexualDimorphismChart" );
 
 		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
-		HashMap<String, Integer> viabilityMap = getViabilityMap();
 
 		/**
 		 * Get all former releases: releases but the current one
@@ -279,10 +278,7 @@ public class ReleaseController {
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
 		model.addAttribute("sexualDimorphismChart", sexualDimorphismChart);
 		model.addAttribute("sexualDimorphismSummary", sexualDimorphismSummary);
-		model.addAttribute("fertilityChart", getFertilityChart(chartsProvider, fertilityDistrib));
 		model.addAttribute("fertilityMap", fertilityDistrib);
-		model.addAttribute("viabilityMap", viabilityMap);
-		model.addAttribute("viabilityChart", getViabilityChart(chartsProvider, viabilityMap));
 
 		return null;
 	}
@@ -316,39 +312,5 @@ public class ReleaseController {
 		return res;
 	}
 
-	public String getFertilityChart(AnalyticsChartProvider chartProvider, HashMap<String, Integer> fertilityMap){
-
-		HashMap<String, Integer> slicedOut = new HashMap<>(fertilityMap);
-		slicedOut.remove("fertile");
-		HashMap<String, Integer> notSliced = new HashMap<>();
-		notSliced.put("fertile" , fertilityMap.get("fertile"));
-		return chartProvider.getSlicedPieChart(slicedOut, notSliced, "Fertility Distribution", "fertilityChart");
-	}
-
-	public String getViabilityChart(AnalyticsChartProvider chartProvider, HashMap<String, Integer> fertilityMap){
-
-		HashMap<String, Integer> slicedOut = new HashMap<>(fertilityMap);
-		slicedOut.remove("viable");
-		HashMap<String, Integer> notSliced = new HashMap<>();
-		notSliced.put("viable" , fertilityMap.get("viable"));
-		return chartProvider.getSlicedPieChart(slicedOut, notSliced, "Viability Distribution", "viabilityChart");
-	}
-
-	public HashMap<String , Integer> getViabilityMap(){
-		List<String> resource = new ArrayList<>();
-		resource.add("IMPC");
-		Set<String> partialLethality = gpService.getAssociationsDistribution("partial preweaning lethality", "IMPC").keySet();
-		Set<String> completeLethality = gpService.getAssociationsDistribution("complete preweaning lethality", "IMPC").keySet();
-		Set<String> all = os.getAllColonyIdsByResource(resource, true);
-		all.removeAll(partialLethality);
-		all.removeAll(completeLethality);
-
-		HashMap<String, Integer> res = new HashMap<>();
-		res.put("partial preweaning lethality", partialLethality.size());
-		res.put("complete preweaning lethality", completeLethality.size());
-		res.put("viable", all.size());
-
-		return res;
-	}
 
 }
