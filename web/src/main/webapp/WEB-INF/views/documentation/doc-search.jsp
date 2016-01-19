@@ -19,8 +19,11 @@
           td {border: 1px solid white;
             width: 33%;
           }
-
-
+          .fleft {float: left;}
+          div.fleft {
+            font-size: 25px;
+            margin-top: 20px;
+          }
         </style>
 
 	</jsp:attribute>
@@ -32,28 +35,26 @@
   <jsp:body>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <h1>IMPC data portal documentation</h1>
-    <!--<h4>Explore how to retrieve mouse phenotype data</h4>-->
+    <div><i class="fleft fa fa-search fa-4x"></i><div class="fleft">Search data</div></div>
 
   <table style="width:100%">
     <tr>
-      <td><i class="fa fa-search fa-4x"></i></td>
-      <td><i class="fa fa-map-o fa-4x"></i></td>
-      <td><i class="fa fa-info fa-4x"></i></td>
+      <td><i class="fa-4x"></i></td>
+      <td><i class="fa fa-bar-chart fa-4x"></i></td>
+      <td><i class="fa fa-users fa-4x"></i></td>
     </tr>
     <tr>
-      <td class="descTxt">Search</td>
-      <td class="descTxt">Explore</td>
-      <td class="descTxt">FAQ</td>
+      <td class="descTxt">Genes</td>
+      <td class="descTxt">Phenotypes</td>
+      <td class="descTxt">Diseases</td>
     </tr>
     <tr>
-      <td><i class="fa fa-line-chart fa-4x"></i></td>
-      <td><i class="fa fa-sitemap fa-4x"></i></td>
-      <td><i class="fa fa-download fa-4x"></i></td>
+      <td><i class="fa fa-camera fa-4x"></i></td>
+
     </tr>
     <tr>
-      <td class="descTxt">Methods</td>
-      <td class="descTxt">Related Resources</td>
-      <td class="descTxt">Downloads, Programmatic Access, Internal Submission
+      <td class="descTxt">Images</td>
+
       </td>
     </tr>
   </table>
