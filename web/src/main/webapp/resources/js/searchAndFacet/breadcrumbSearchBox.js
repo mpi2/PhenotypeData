@@ -178,7 +178,9 @@ $(document).ready(function () {
 			});
 		},
 		focus: function (event, ui) {
-			this.value = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
+			var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
+			this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
+
 			event.preventDefault(); // Prevent the default focus
 									// behavior.
 		},
@@ -207,8 +209,8 @@ $(document).ready(function () {
 				var fqStr = facet2Fq[facet];
 
 				// we are choosing value from drop-down list so need to double quote the value for SOLR query
-				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
-
+				//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
+				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=" + q + "&fq=" + fqStr;
 				// prevents escaped html tag displayed in input box
 				event.preventDefault(); return false;
 
