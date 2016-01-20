@@ -23,10 +23,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -171,10 +171,10 @@ public class GenePageTest {
 
     private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
         // If no parameters were specified, set target to the default search page.
-        String target = baseUrl + "/search";
+        String target = baseUrl + "/search/gene?kw=*";
         String fields = "";
         if (!((phenoStatus == null) && (prodCentre == null) && (phenoCentre == null))) {
-            target += "#fq=";
+            target += "&fq=";
             if (phenoStatus != null) {
                 switch (phenoStatus) {
                     case "Complete":
@@ -208,14 +208,10 @@ public class GenePageTest {
                 }
             }
 
-            target += fields + "&facet=gene";
+            target += fields;
         }
 
         driver.get(target);
-
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        String xpathSelector = "//span[@id=\"resultCount\"]/a";
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathSelector)));
     }
 
     /**
@@ -226,10 +222,10 @@ public class GenePageTest {
      * @return gene count if found; 0 otherwise
      */
     private int getGeneCount() {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")));
-        String s = element.getText().replace(" genes", "");
-        Integer i = commonUtils.tryParseInt(s);
+        WebElement filterCountElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//li[@id='gene']/span[contains(@class, 'fcount')]")));
+        String filterCount = filterCountElement.getText();
+        Integer i = commonUtils.tryParseInt(filterCount);
+        
         return (i == null ? 0 : i);
     }
 
