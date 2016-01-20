@@ -384,6 +384,31 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query);
     }
 
+	public HashMap<String, Long> getViabilityCategories(List<String> resources) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+		HashMap<String, Long> res = new HashMap<>();
+		
+		if (resources != null) {
+			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
+					+ StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+		}
+		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+		query.setRows(0);
+		query.setFacet(true);
+		query.setFacetMinCount(1);
+		query.addFacetField(ObservationDTO.CATEGORY);
+
+		logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
+
+		try {
+			res = getFacets(solr.query(query)).get(ObservationDTO.CATEGORY);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+
+		return res;
+	}
     
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
     throws SolrServerException, InterruptedException {

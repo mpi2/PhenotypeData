@@ -125,6 +125,7 @@ public class SearchPage {
         public String getFacetId() {
             return facetId;
         }
+        public String getTabId() { return facetId + "T"; }
     }
 
     public class FacetFilter {
@@ -361,7 +362,7 @@ public class SearchPage {
             throw new TestException(e);
         }
 
-        return getResultCount();
+        return getTabResultCount();
     }
 
     /**
@@ -403,8 +404,9 @@ public class SearchPage {
         }
 
         setFacetTable();
-        getResultCount();
-        // Called purely to wait for the page to finish loading.
+
+        getTabResultCount();        // Insure page has finished loading.
+
         return pageDirective;
     }
 
@@ -461,12 +463,30 @@ public class SearchPage {
             if (hasImpcImageTable())
                 getImpcImageTable().updateImageTableAfterChange();
             setFacetTable();
-            getResultCount();                                                       // Allow page to finish loading.
+            getTabResultCount();                                                    // Allow page to finish loading.
 
         } catch (Exception e) {
             logger.error("SearchPage.clickPageButton exception: " + e.getLocalizedMessage() + "\nURL: " + driver.getCurrentUrl());
             throw e;
         }
+    }
+
+    /**
+     * Click the specified facet tab
+     *
+     * @param facet the facet tab to click
+     *
+     * @return the facet's count
+     */
+    public int clickTab(Facet facet) {
+
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facet.getTabId() + "']/a")));
+        element.click();
+
+        // Wait until "Showing x to y of z entries" at footer.
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='dTable_info']")));
+
+        return getTabResultCount(facet);
     }
 
     public void clickToolbox(WindowState desiredWindowState) {
@@ -524,10 +544,14 @@ public class SearchPage {
 
     /**
      * Fetches the autosuggest components matching <code>searchString</code>
+     *
      * @param searchString The search string
+     *
      * @return the autosuggest components matching <code>searchString</code>
+     *
+     * @throws TestException
      */
-    public List<AutosuggestRow> getAutosuggest(String searchString) {
+    public List<AutosuggestRow> getAutosuggest(String searchString) throws TestException {
         List<AutosuggestRow> results = new ArrayList();
 
         if ((searchString == null) || (searchString.trim().isEmpty()))
@@ -591,11 +615,12 @@ public class SearchPage {
      *
      * @param facet desired facet
      *
-     * @return the facet's count, if shown on page; null otherwise
      */
     public Integer getFacetCount(Facet facet) {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "']/span[@class='fcount' or @class='fcount grayout']")));
-         return commonUtils.tryParseInt(element.getText());
+
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "']/span[contains(@class, 'fcount')]")));
+
+        return commonUtils.tryParseInt(element.getText());
     }
 
     public Integer getFacetCount(String coreName) {
@@ -630,6 +655,36 @@ public class SearchPage {
         }
 
         throw new RuntimeException("No matching facet for coreName'" + coreName + "'.");
+    }
+
+    /**
+     * Returns the <code>Facet</code> matching <code>tabId</code>.
+     * @param tabId The HTML tab id, as a string
+     * @return the <code>Facet</code> matching <code>tabId</code>
+     * @throws TestException if <code>tabId</code> doesn't map to a facet.
+     */
+    public Facet getFacetByTabId(String tabId) throws TestException {
+        switch (tabId) {
+            case "geneT":
+                return Facet.GENES;
+
+            case "mpT":
+                return Facet.PHENOTYPES;
+
+            case "diseaseT":
+                return Facet.DISEASES;
+
+            case "maT":
+                return Facet.ANATOMY;
+
+            case "impc_imagesT":
+                return Facet.IMPC_IMAGES;
+
+            case "imagesT":
+                return Facet.IMAGES;
+        }
+
+        throw new TestException("No matching facet for tabName'" + tabId + "'.");
     }
 
     /**
@@ -867,31 +922,53 @@ public class SearchPage {
     }
 
     /**
-     * @return The result count. This has the side effect of waiting for the
-     * page to finish loading.
+     * Returns the count to the right of the currently selected facet tab
+     *
+     * @return the count to the right of the currently selected facet tab
+     *
+     * @throws TestException
      */
-    public int getResultCount() {
-        // Sometimes, even though we wait, the element text is still empty. Eventually it arrives (unless there are no results).
-        WebElement element;
+    public int getTabResultCount() throws TestException {
+        return getTabResultCount(getSelectedTab());
+    }
+
+    /**
+     * Returns the count to the right of the specified facet tab
+     *
+     * @param facet the facet tab for which the count is desired
+     *
+     * @return the count to the right of the specified facet tab
+     */
+    public int getTabResultCount(Facet facet) {
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "T']//span[@class='tabfc']")));
+
         Integer niCount = null;
         try {
-            int i = 0;
-            while ((element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='resultMsg']/span[@id='resultCount']/a")))).getText().isEmpty()) {
-                logger.warn("WAITING[" + i + "]");
-                commonUtils.sleep(500);
-                i++;
-                if (i > 20)
-                    return -1;
-            }
 
-            int pos = element.getText().indexOf(" ");
-            String sCount = element.getText().substring(0, pos);
+            int start = element.getText().indexOf("(");
+            int end = element.getText().indexOf(")");
+            String sCount = element.getText().substring(start + 1, end);
             niCount = commonUtils.tryParseInt(sCount);
         } catch (Exception e) {
             logger.error("SearchPage.getResultCount(): There was no result count.");
         }
 
         return (niCount == null ? 0 : niCount);
+    }
+
+    /**
+     * Returns the selected tab as a <code>Facet</code>
+     *
+     * @return the selected tab as a <code>Facet</code>
+     *
+     * @throws TestException
+     */
+    public Facet getSelectedTab() throws TestException {
+        String xpathTabName = "//div[@id='tabs']//a[@class='currDataType']/..";
+
+        String tabId = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathTabName))).getAttribute("id");
+
+        return getFacetByTabId(tabId);
     }
 
     /**
@@ -1031,8 +1108,10 @@ public class SearchPage {
      * @param searchString The keystrokes to be sent to the server
      * @return the result count. (<i>don't know if result count is returned if <code>
      * searchString</code> is not terminated by a newline</i>)
+     *
+     * @throws TestException
      */
-    public int submitSearch(String searchString) {
+    public int submitSearch(String searchString) throws TestException {
         WebElement weInput = driver.findElement(By.cssSelector("input#s"));
         weInput.clear();
         testUtils.seleniumSendKeysHack(weInput, searchString);
@@ -1042,7 +1121,7 @@ public class SearchPage {
         if (resultMsg.getText().contains("returned no entry"))
             return 0;
         else
-            return getResultCount();
+            return getTabResultCount();
     }
 
     /**
@@ -1226,17 +1305,10 @@ public class SearchPage {
      */
     private String[][] getDownload(DownloadType downloadType, String baseUrl) throws TestException {
         String[][] data = new String[0][0];
-        String downloadUrlBase = getDownloadUrlBase(downloadType);
 
         try {
-            // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            int pos = downloadUrlBase.indexOf("/export?");
 
-            downloadUrlBase = downloadUrlBase.substring(pos);
-            String downloadTarget = baseUrl + downloadUrlBase;
-            URL downloadUrl = new URL(downloadTarget);
+            URL downloadUrl = new URL(getDownloadUrl(downloadType));
 
             switch (downloadType) {
                 case TSV:
@@ -1271,21 +1343,25 @@ public class SearchPage {
      * @param downloadType The download button type (e.g. page/all, tsv/xls)
      * @return the download url base embedded in the <i>downloadType</i> button.
      */
-    private String getDownloadUrlBase(DownloadType downloadType) {
+    private String getDownloadUrl(DownloadType downloadType) {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
 
         // show the toolbox if it is not already showing.
         clickToolbox(WindowState.OPEN);
 
-        String className = "";
+        String idGrid = "";
 
         switch (downloadType) {
-            case TSV: className = "tsv_grid"; break;
-            case XLS: className = "xls_grid"; break;
+            case TSV: idGrid = "tsv"; break;
+            case XLS: idGrid = "xls"; break;
         }
 
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(@class, '" + className + "')]")));
-        return element.getAttribute("data-exporturl");
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='" + idGrid + "']")));
+
+        // hide the toolbox.
+        clickToolbox(WindowState.CLOSED);
+
+        return element.getAttribute("href");
     }
 
     /**
