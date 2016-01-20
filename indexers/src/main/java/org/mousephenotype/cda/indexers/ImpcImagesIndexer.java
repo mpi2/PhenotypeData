@@ -267,7 +267,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			ArrayList<String> intermediateLevelMaTermSynonym = new ArrayList<>();
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
 				if (stableIdToTermIdMap.containsKey(paramString)) {
-					String maTermId = parameterStableIdToMaTermIdMap.get(paramString);
+					String maTermId = stableIdToTermIdMap.get(paramString);
 					maIds.add(maTermId);
 
 					OntologyTermBean maTermBean = ontologyDAO.getTerm(maTermId);
@@ -321,19 +321,19 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						try {
 
 							// index UBERON/EFO id for MA id
-							if (maUberonEfoMap.containsKey(maId)) {
-
-								if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
-									for (String id : maUberonEfoMap.get(maId).get("uberon_id")) {
-										imageDTO.addUberonId(id);
-									}
-								}
-								if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
-									for (String id : maUberonEfoMap.get(maId).get("efo_id")) {
-										imageDTO.addEfoId(id);
-									}
-								}
-							}
+//							if (maUberonEfoMap.containsKey(maId)) {
+//
+//								if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
+//									for (String id : maUberonEfoMap.get(maId).get("uberon_id")) {
+//										imageDTO.addUberonId(id);
+//									}
+//								}
+//								if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
+//									for (String id : maUberonEfoMap.get(maId).get("efo_id")) {
+//										imageDTO.addEfoId(id);
+//									}
+//								}
+//							}
 
 							String maTerm = maTerms.get(i);
 							maIdTerms.add(maId + "_" + maTerm);
