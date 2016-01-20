@@ -587,7 +587,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public Map<String, String> populateParameterStableIdToMaIdMap() throws SQLException {
 		Map<String, String> paramToMa = new HashMap<String, String>();
-		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
+		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 1000000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 
@@ -608,7 +608,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public Map<String, String> populateParameterStableIdToEmapIdMap() throws SQLException {
 		Map<String, String> paramToEmap = new HashMap<String, String>();
-		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
+		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=14 LIMIT 1000000";
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 
