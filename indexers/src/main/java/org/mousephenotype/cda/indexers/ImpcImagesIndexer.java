@@ -256,42 +256,41 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		if (imageDTO.getParameterAssociationStableId() != null
 				&& !imageDTO.getParameterAssociationStableId().isEmpty()) {
 
-			ArrayList<String> maIds = new ArrayList<>();
-			ArrayList<String> maTerms = new ArrayList<>();
-			ArrayList<String> maTermSynonyms = new ArrayList<>();
-			ArrayList<String> topLevelMaIds = new ArrayList<>();
-			ArrayList<String> topLevelMaTerm = new ArrayList<>();
-			ArrayList<String> topLevelMaTermSynonym = new ArrayList<>();
+			ArrayList<String> termIds = new ArrayList<>();
+			ArrayList<String> terms = new ArrayList<>();
+			ArrayList<String> termSynonyms = new ArrayList<>();
+			ArrayList<String> topLevelIds = new ArrayList<>();
+			ArrayList<String> topLevelTerm = new ArrayList<>();
+			ArrayList<String> topLevelTermSynonym = new ArrayList<>();
 
-			ArrayList<String> intermediateLevelMaIds = new ArrayList<>();
-			ArrayList<String> intermediateLevelMaTerm = new ArrayList<>();
-			ArrayList<String> intermediateLevelMaTermSynonym = new ArrayList<>();
+			ArrayList<String> intermediateLevelIds = new ArrayList<>();
+			ArrayList<String> intermediateLevelTerm = new ArrayList<>();
+			ArrayList<String> intermediateLevelTermSynonym = new ArrayList<>();
 			for (String paramString : imageDTO.getParameterAssociationStableId()) {
 				if (stableIdToTermIdMap.containsKey(paramString)) {
 					String maTermId = stableIdToTermIdMap.get(paramString);
-					maIds.add(maTermId);
+					termIds.add(maTermId);
 
 					OntologyTermBean maTermBean = ontologyDAO.getTerm(maTermId);
 					if (maTermBean != null) {
-						maTerms.add(maTermBean.getName());
-						maTermSynonyms.addAll(maTermBean.getSynonyms());
-						List<OntologyTermBean> topLevels = maService.getTopLevel(maTermId);
+						terms.add(maTermBean.getName());
+						termSynonyms.addAll(maTermBean.getSynonyms());
+						List<OntologyTermBean> topLevels = ontologyDAO.getTopLevel(maTermId);
 						for (OntologyTermBean topLevel : topLevels) {
-							// System.out.println(topLevel.getName());
-							if (!topLevelMaIds.contains(topLevel.getId())) {
-								topLevelMaIds.add(topLevel.getId());
-								topLevelMaTerm.add(topLevel.getName());
-								topLevelMaTermSynonym.addAll(topLevel.getSynonyms());
+							if (!topLevelIds.contains(topLevel.getId())) {
+								topLevelIds.add(topLevel.getId());
+								topLevelTerm.add(topLevel.getName());
+								topLevelTermSynonym.addAll(topLevel.getSynonyms());
 							}
 						}
 
 						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(maTermId);
 						for (OntologyTermBean intermediateLevel : intermediateLevels) {
 							// System.out.println(topLevel.getName());
-							if (!intermediateLevelMaIds.contains(intermediateLevel.getId())) {
-								intermediateLevelMaIds.add(intermediateLevel.getId());
-								intermediateLevelMaTerm.add(intermediateLevel.getName());
-								intermediateLevelMaTermSynonym.addAll(intermediateLevel.getSynonyms());
+							if (!intermediateLevelIds.contains(intermediateLevel.getId())) {
+								intermediateLevelIds.add(intermediateLevel.getId());
+								intermediateLevelTerm.add(intermediateLevel.getName());
+								intermediateLevelTermSynonym.addAll(intermediateLevel.getSynonyms());
 							}
 						}
 					}
@@ -312,31 +311,15 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			}
 
 			if (ontologyDAO instanceof EmapOntologyDAO) {
-				if (!maIds.isEmpty()) {
-					imageDTO.setEmapTermId(maIds);
+				if (!termIds.isEmpty()) {
+					imageDTO.setEmapTermId(termIds);
 					
 					ArrayList<String> maIdTerms = new ArrayList<>();
-					for (int i = 0; i < maIds.size(); i++) {
-						String maId = maIds.get(i);
+					for (int i = 0; i < termIds.size(); i++) {
+						String maId = termIds.get(i);
 
 						try {
-
-							// index UBERON/EFO id for MA id
-//							if (maUberonEfoMap.containsKey(maId)) {
-//
-//								if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
-//									for (String id : maUberonEfoMap.get(maId).get("uberon_id")) {
-//										imageDTO.addUberonId(id);
-//									}
-//								}
-//								if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
-//									for (String id : maUberonEfoMap.get(maId).get("efo_id")) {
-//										imageDTO.addEfoId(id);
-//									}
-//								}
-//							}
-
-							String maTerm = maTerms.get(i);
+							String maTerm = terms.get(i);
 							maIdTerms.add(maId + "_" + maTerm);
 						} catch (Exception e) {
 							runStatus.addWarning(" Could not find term when indexing EMAP " + maId + ". Exception: "
@@ -345,40 +328,40 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 					imageDTO.setEmapIdTerm(maIdTerms);
 				}
-				if (!maTerms.isEmpty()) {
-					imageDTO.setEmapTerm(maTerms);
+				if (!terms.isEmpty()) {
+					imageDTO.setEmapTerm(terms);
 				}
 
-				if (!maTermSynonyms.isEmpty()) {
-					imageDTO.setEmapTermSynonym(maTermSynonyms);
+				if (!termSynonyms.isEmpty()) {
+					imageDTO.setEmapTermSynonym(termSynonyms);
 				}
-				if (!topLevelMaIds.isEmpty()) {
-					imageDTO.setTopLevelEmapIds(topLevelMaIds);
+				if (!topLevelIds.isEmpty()) {
+					imageDTO.setTopLevelEmapIds(topLevelIds);
 				}
-				if (!topLevelMaTerm.isEmpty()) {
-					imageDTO.setTopLeveEmapTerm(topLevelMaTerm);
+				if (!topLevelTerm.isEmpty()) {
+					imageDTO.setTopLeveEmapTerm(topLevelTerm);
 				}
-				if (!topLevelMaTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelEmapTermSynonym(topLevelMaTermSynonym);
+				if (!topLevelTermSynonym.isEmpty()) {
+					imageDTO.setTopLevelEmapTermSynonym(topLevelTermSynonym);
 				}
-				if (!intermediateLevelMaIds.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapId(intermediateLevelMaIds);
+				if (!intermediateLevelIds.isEmpty()) {
+					imageDTO.setIntermediateLevelEmapId(intermediateLevelIds);
 				}
-				if (!intermediateLevelMaTerm.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapTerm(intermediateLevelMaTerm);
+				if (!intermediateLevelTerm.isEmpty()) {
+					imageDTO.setIntermediateLevelEmapTerm(intermediateLevelTerm);
 				}
-				if (!intermediateLevelMaTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapTermSynonym(intermediateLevelMaTermSynonym);
+				if (!intermediateLevelTermSynonym.isEmpty()) {
+					imageDTO.setIntermediateLevelEmapTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 			
 			if (ontologyDAO instanceof MaOntologyDAO) {
-				if (!maIds.isEmpty()) {
-					imageDTO.setMaTermId(maIds);
+				if (!termIds.isEmpty()) {
+					imageDTO.setMaTermId(termIds);
 
 					ArrayList<String> maIdTerms = new ArrayList<>();
-					for (int i = 0; i < maIds.size(); i++) {
-						String maId = maIds.get(i);
+					for (int i = 0; i < termIds.size(); i++) {
+						String maId = termIds.get(i);
 
 						try {
 
@@ -397,7 +380,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 								}
 							}
 
-							String maTerm = maTerms.get(i);
+							String maTerm = terms.get(i);
 							maIdTerms.add(maId + "_" + maTerm);
 						} catch (Exception e) {
 							runStatus.addWarning(" Could not find term when indexing MA " + maId + ". Exception: "
@@ -406,30 +389,30 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 					imageDTO.setMaIdTerm(maIdTerms);
 				}
-				if (!maTerms.isEmpty()) {
-					imageDTO.setMaTerm(maTerms);
+				if (!terms.isEmpty()) {
+					imageDTO.setMaTerm(terms);
 				}
 
-				if (!maTermSynonyms.isEmpty()) {
-					imageDTO.setMaTermSynonym(maTermSynonyms);
+				if (!termSynonyms.isEmpty()) {
+					imageDTO.setMaTermSynonym(termSynonyms);
 				}
-				if (!topLevelMaIds.isEmpty()) {
-					imageDTO.setTopLevelMaId(topLevelMaIds);
+				if (!topLevelIds.isEmpty()) {
+					imageDTO.setTopLevelMaId(topLevelIds);
 				}
-				if (!topLevelMaTerm.isEmpty()) {
-					imageDTO.setTopLevelMaTerm(topLevelMaTerm);
+				if (!topLevelTerm.isEmpty()) {
+					imageDTO.setTopLevelMaTerm(topLevelTerm);
 				}
-				if (!topLevelMaTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelMaTermSynonym(topLevelMaTermSynonym);
+				if (!topLevelTermSynonym.isEmpty()) {
+					imageDTO.setTopLevelMaTermSynonym(topLevelTermSynonym);
 				}
-				if (!intermediateLevelMaIds.isEmpty()) {
-					imageDTO.setIntermediateLevelMaId(intermediateLevelMaIds);
+				if (!intermediateLevelIds.isEmpty()) {
+					imageDTO.setIntermediateLevelMaId(intermediateLevelIds);
 				}
-				if (!intermediateLevelMaTerm.isEmpty()) {
-					imageDTO.setIntermediateLevelMaTerm(intermediateLevelMaTerm);
+				if (!intermediateLevelTerm.isEmpty()) {
+					imageDTO.setIntermediateLevelMaTerm(intermediateLevelTerm);
 				}
-				if (!intermediateLevelMaTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
+				if (!intermediateLevelTermSynonym.isEmpty()) {
+					imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 		}
