@@ -181,8 +181,7 @@ $(document).ready(function () {
 			var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
 			this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
 
-			event.preventDefault(); // Prevent the default focus
-									// behavior.
+			event.preventDefault(); // Prevent the default focus behavior.
 		},
 		minLength: 3,
 		select: function( event, ui ) {
