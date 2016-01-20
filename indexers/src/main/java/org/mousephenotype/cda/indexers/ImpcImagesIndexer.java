@@ -252,6 +252,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private void addOntology(RunStatus runStatus, ImageDTO imageDTO, Map<String, String> stableIdToTermIdMap,
 			OntologyDAO ontologyDAO) {
+	
 		if (imageDTO.getParameterAssociationStableId() != null
 				&& !imageDTO.getParameterAssociationStableId().isEmpty()) {
 
@@ -284,7 +285,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 							}
 						}
 
-						List<OntologyTermBean> intermediateLevels = maService.getIntermediates(maTermId);
+						List<OntologyTermBean> intermediateLevels = ontologyDAO.getIntermediates(maTermId);
 						for (OntologyTermBean intermediateLevel : intermediateLevels) {
 							// System.out.println(topLevel.getName());
 							if (!intermediateLevelMaIds.contains(intermediateLevel.getId())) {
@@ -312,8 +313,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 			if (ontologyDAO instanceof EmapOntologyDAO) {
 				if (!maIds.isEmpty()) {
-					imageDTO.setMaTermId(maIds);
-
+					imageDTO.setEmapTermId(maIds);
+					
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < maIds.size(); i++) {
 						String maId = maIds.get(i);
