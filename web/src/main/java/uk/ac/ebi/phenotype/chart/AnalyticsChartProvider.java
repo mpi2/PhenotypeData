@@ -344,12 +344,12 @@ public class AnalyticsChartProvider {
 		return chart;
 	}
 
-	public String getSlicedPieChart(Map<String, Integer> slicedOut, Map<String, Integer> notSliced, String title, String containerId){
+	public String getSlicedPieChart(Map<String, Long> slicedOut, Map<String, Long> notSliced, String title, String containerId){
 
 			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 			JSONArray data = new JSONArray();
 			try {
-				for ( Entry<String, Integer> entry : slicedOut.entrySet()){
+				for ( Entry<String, Long> entry : slicedOut.entrySet()){
 					JSONObject obj = new JSONObject();
 					obj.put("name", entry.getKey());
 					obj.put("y", entry.getValue());
@@ -357,7 +357,7 @@ public class AnalyticsChartProvider {
 					obj.put("selected", true);
 					data.put(obj);
 				}
-				for ( Entry<String, Integer> entry : notSliced.entrySet()){
+				for ( Entry<String, Long> entry : notSliced.entrySet()){
 					JSONObject obj = new JSONObject();
 					obj.put("name", entry.getKey());
 					obj.put("y", entry.getValue());
