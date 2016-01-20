@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -72,6 +73,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	
 	@Autowired
 	MaOntologyDAO maService;
+	
+	@Autowired
+	EmapOntologyDAO emapService;
 
 
 	@Resource(name = "globalConfiguration")
@@ -90,6 +94,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private String impcAnnotationBaseUrl;
 
 	private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap();  // key: MA id
+	private Map<String, String> parameterStableIdToEmapTermIdMap= new HashMap();  // key: EMAP id;
 	
 	public ImpcImagesIndexer() {
 		super();
@@ -123,6 +128,13 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		} catch(SQLException e){
 			e.printStackTrace();
 		}
+		
+		try {
+	    	parameterStableIdToEmapTermIdMap=this.populateParameterStableIdToEmapIdMap();
+		} catch(SQLException e){
+			e.printStackTrace();
+		}
+		
 
 		imageBeans = populateImageUrls();
 //		logger.info(" added {} total Image URL beans", imageBeans.size());
@@ -207,7 +219,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					}
 					
 					if (imageDTO.getParameterAssociationStableId()!=null && !imageDTO.getParameterAssociationStableId().isEmpty()) {
-						
+						//for MA
 						ArrayList<String>maIds=new ArrayList<>();
 						ArrayList<String>maTerms=new ArrayList<>();
 						ArrayList<String>maTermSynonyms=new ArrayList<>();
@@ -218,6 +230,19 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						ArrayList<String>intermediateLevelMaIds=new ArrayList<>();
 						ArrayList<String>intermediateLevelMaTerm=new ArrayList<>();
 						ArrayList<String>intermediateLevelMaTermSynonym=new ArrayList<>();
+						
+						//for EMAP
+						ArrayList<String>emapIds=new ArrayList<>();
+						ArrayList<String>emapTerms=new ArrayList<>();
+						ArrayList<String>emapTermSynonyms=new ArrayList<>();
+						ArrayList<String>topLevelEmapIds=new ArrayList<>();
+						ArrayList<String>topLevelEmapTerm=new ArrayList<>();
+						ArrayList<String>topLevelEmapTermSynonym=new ArrayList<>();
+						
+						ArrayList<String>intermediateLevelEmapIds=new ArrayList<>();
+						ArrayList<String>intermediateLevelEmapTerm=new ArrayList<>();
+						ArrayList<String>intermediateLevelEmapTermSynonym=new ArrayList<>();
+						
 						for (String paramString : imageDTO.getParameterAssociationStableId()) {
 							if (parameterStableIdToMaTermIdMap
 									.containsKey(paramString)) {
@@ -262,6 +287,52 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 								//selected_top_level_ma_term
 								//String selectedTopLevelMaTerm=
 							}
+							else
+							if (parameterStableIdToEmapTermIdMap
+									.containsKey(paramString)) {
+								String emapTermId = parameterStableIdToEmapTermIdMap
+										.get(paramString);
+									emapIds.add(emapTermId);
+									
+								OntologyTermBean emapTermBean = emapService
+										.getTerm(emapTermId);
+								if (emapTermBean != null) {
+									emapTerms.add(emapTermBean.getName());
+									emapTermSynonyms.addAll(emapTermBean
+											.getSynonyms());
+									List<OntologyTermBean> topLevels = emapService
+											.getTopLevel(emapTermId);
+									for (OntologyTermBean topLevel : topLevels) {
+										//System.out.println(topLevel.getName());
+										if(!topLevelEmapIds.contains(topLevel.getId())){
+										topLevelEmapIds.add(topLevel.getId());
+										topLevelEmapTerm.add(topLevel.getName());
+										topLevelEmapTermSynonym.addAll(topLevel
+												.getSynonyms());
+										}
+									}
+									
+									List<OntologyTermBean> intermediateLevels = emapService
+											.getIntermediates(emapTermId);
+									for (OntologyTermBean intermediateLevel : intermediateLevels) {
+										//System.out.println(topLevel.getName());
+										if(!intermediateLevelEmapIds.contains(intermediateLevel.getId())){
+										intermediateLevelEmapIds.add(intermediateLevel.getId());
+										intermediateLevelEmapTerm.add(intermediateLevel.getName());
+										intermediateLevelEmapTermSynonym.addAll(intermediateLevel
+												.getSynonyms());
+										}
+									}
+								}
+//									<field name="selected_top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//									<field name="selected_top_level_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+//									<field name="selected_top_level_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+								//selected_top_level_ma_term
+								//String selectedTopLevelMaTerm=
+							}
+							
+							
 							// IndexerMap.get
 						}
 						if (!maIds.isEmpty()) {
@@ -325,6 +396,76 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 						if(!intermediateLevelMaTermSynonym.isEmpty()){
 							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
 						}
+						
+						//for EMAP
+						
+						if (!maIds.isEmpty()) {
+							imageDTO.setMaTermId(maIds);
+							
+							ArrayList<String>maIdTerms=new ArrayList<>();
+							for (int i = 0; i < maIds.size(); i++) {
+								String maId = maIds.get(i);
+
+								try {
+
+									// index UBERON/EFO id for MA id
+									if (maUberonEfoMap.containsKey(maId)) {
+
+										if (maUberonEfoMap.get(maId)
+										                  .containsKey("uberon_id")) {
+											for (String id : maUberonEfoMap.get(maId)
+											                               .get("uberon_id")) {
+												imageDTO.addUberonId(id);
+											}
+										}
+										if (maUberonEfoMap.get(maId)
+										                  .containsKey("efo_id")) {
+											for (String id : maUberonEfoMap.get(maId)
+											                               .get("efo_id")) {
+												imageDTO.addEfoId(id);
+											}
+										}
+									}
+
+									String maTerm = maTerms.get(i);
+									maIdTerms.add(maId + "_" + maTerm);
+								} catch (Exception e) {
+                                    runStatus.addWarning(" Could not find term when indexing MA " + maId + ". Exception: " + e.getLocalizedMessage());
+								}
+							}
+							imageDTO.setMaIdTerm(maIdTerms);
+						}
+						if (!maTerms.isEmpty()) {
+							imageDTO.setMaTerm(maTerms);
+						}
+						
+						if (!maTermSynonyms.isEmpty()) {
+							imageDTO.setMaTermSynonym(maTermSynonyms);
+						}
+						if (!topLevelMaIds.isEmpty()) {
+							imageDTO.setTopLevelMaId(topLevelMaIds);
+						}
+						if(!topLevelMaTerm.isEmpty()){
+							imageDTO.setTopLevelMaTerm(topLevelMaTerm);
+						}
+						if(!topLevelMaTermSynonym.isEmpty()){
+							imageDTO.setTopLevelMaTermSynonym(topLevelMaTermSynonym);
+						}
+						if (!intermediateLevelMaIds.isEmpty()) {
+							imageDTO.setIntermediateLevelMaId(intermediateLevelMaIds);
+						}
+						if(!intermediateLevelMaTerm.isEmpty()){
+							imageDTO.setIntermediateLevelMaTerm(intermediateLevelMaTerm);
+						}
+						if(!intermediateLevelMaTermSynonym.isEmpty()){
+							imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelMaTermSynonym);
+						}
+						
+						
+						
+						
+						
+						
 					}
 
 					impcImagesCore.addBean(imageDTO);
@@ -516,4 +657,22 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		logger.debug(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
+	//SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=14 LIMIT 100000
+
+	public Map<String,String> populateParameterStableIdToEmapIdMap() throws SQLException{
+		Map<String,String> paramToEmap = new HashMap<String, String>();
+		String query="SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=8 LIMIT 100000";
+		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)){
+		    ResultSet resultSet = statement.executeQuery();
+		   
+			while (resultSet.next()) {
+				String parameterStableId=resultSet.getString("stable_id");
+				String emapAcc=resultSet.getString("ontology_acc");
+				paramToEmap.put(parameterStableId, emapAcc);
+			}
+		}
+		logger.debug(" paramToMa size = " + paramToEmap.size());
+		return paramToEmap;
+	}
+
 }
