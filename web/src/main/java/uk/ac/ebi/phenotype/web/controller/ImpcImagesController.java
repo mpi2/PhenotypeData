@@ -282,6 +282,8 @@ public class ImpcImagesController {
 				titleString = qStr;
 				titleString = titleString.replace(
 						"observation_type:image_record AND", " ");
+				titleString = titleString.replace(
+						" AND observation_type:image_record", " ");
 
 				// also check what is in fq
 				if (request.getParameterValues("fq") != null) {
@@ -301,6 +303,8 @@ public class ImpcImagesController {
 					titleString = titleString.replace("(", " ");
 					titleString = titleString.replace(")", " ");
 					titleString = titleString.replace("_", " ");
+					titleString = titleString.replace("*", " ");
+					titleString = titleString.replace(":", " ");
 				}
 			}
 		}
