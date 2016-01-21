@@ -278,7 +278,7 @@ public class GraphHeading {
 
         // Sometimes this times out. Try a few times before failing.
         boolean found = false;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 15; i++) {
             titleElements = chartElement.findElements(By.xpath("./h2[@id='section-associations']"));
             if (titleElements.isEmpty()) {
                 commonUtils.sleep(2000);
