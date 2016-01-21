@@ -21,6 +21,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
+/**
+ * @author ilinca
+ * @since 2016/01/?
+ */
 @Controller
 public class EmbryoController {
 	
@@ -35,13 +39,50 @@ public class EmbryoController {
 		List<String> resources = new ArrayList<>();
 		resources.add("IMPC");
 		HashMap<String, Long> viabilityMap = os.getViabilityCategories(resources);
-		
-		
+		HashMap<String, Long> viabilityTable = consolidateViabilityTable(viabilityMap);
 		
 		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "IMPC Viability", "viabilityChart"));
-		
+		model.addAttribute("viabilityTable", viabilityTable);
 		
 		return "embryo";
+	}
+
+	HashMap<String, Long> consolidateViabilityTable(HashMap<String, Long> map){
+		
+		HashMap<String, Long> res = new HashMap<>();
+		Long all = Long.getLong("0");
+		
+		for (String key: map.keySet()){
+			all += map.get(key);
+			String tableKey = "subviable";
+			if (key.toLowerCase().contains(tableKey)){
+				if (res.containsKey(tableKey)){
+					res.put(tableKey, res.get(tableKey) + map.get(key));
+				} else {
+					res.put(tableKey, map.get(key));					
+				}
+			}
+			tableKey = "viable";
+			if (key.toLowerCase().contains(tableKey) && !key.contains("subviable")){
+				if (res.containsKey(tableKey)){
+					res.put(tableKey, res.get(tableKey) + map.get(key));
+				} else {
+					res.put(tableKey, map.get(key));					
+				}
+			}
+			tableKey = "lethal";
+			if (key.toLowerCase().contains(tableKey)){
+				if (res.containsKey(tableKey)){
+					res.put(tableKey, res.get(tableKey) + map.get(key));
+				} else {
+					res.put(tableKey, map.get(key));					
+				}
+			}
+		}
+		
+		res.put("all", all);
+		
+		return res;
 	}
 
 }

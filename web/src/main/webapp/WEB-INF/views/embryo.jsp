@@ -39,26 +39,50 @@
 
                         <div class="section">
                             <div class="inner">
-                            	<div id="viabilityChart">
+                            	<div id="viabilityChart" class="twothird right">
 				            		<script type="text/javascript">${viabilityChart}</script>
 								</div>
-								
-                            <h2>Vignettes</h2>
-                            <h2>3D Imaging</h2>
-                            <h2>Embryonic Pipeline</h2>
-                            <div><img src="${baseUrl}/img/embryo_impress.png"/></div>
+								<div id="viabilityChart" class="onethird right">
+				            		<table> <tbody>
+				            		<c:forEach var="key" items="${viabilityTable.keySet()}">
+					            		<tr>
+					            			<td><h4 class="capitalize">${key}</h4></td>
+					            			<td><h4>${viabilityTable.get(key)}</h4></td> 
+					            			<td><a href="" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"></i></a></td>
+					            		</tr>
+									</c:forEach>
+				            		</tbody></table>
+								</div>
+								<div class="clear"> </div>								
+	                           
                                                         	
                             </div>
                         </div>
 
-                        <!--  Phenotype Associations -->
-                        <div class="section">
+        				<div class="section">
 
-                            <h2 class="title "
-                                id="section-associations"> Subviable genes  </h2>
+                            <h2 class="title"> Vignettes </h2>
 
                             <div class="inner">
                               
+                            </div>
+
+                        </div>
+
+                        <div class="section">
+
+                            <h2 class="title"> 3D Imaging </h2>
+
+                            <div class="inner">
+                              
+                            </div>
+
+                        </div>
+                        
+                         <div class="section">
+							<h2 class="title ">IMPC Embryonic Pipeline</h2>
+                            <div class="inner">
+	                        	<div><img src="${baseUrl}/img/embryo_impress.png"/></div>
                             </div>
 
                         </div>
