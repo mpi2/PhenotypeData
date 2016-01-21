@@ -191,7 +191,7 @@
                                 <p>The screenshot below shows searching the human "cardiac" diseases:<br>
                             </div><br>
 
-                            </div><br>
+
                             <img src='img/search-disease.png' /><p>
 
                             The filters on the left are grayed out if they are not related to your search.<br><br>
