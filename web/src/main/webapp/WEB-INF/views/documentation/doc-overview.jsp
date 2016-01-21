@@ -4,7 +4,9 @@
 <t:genericpage>
 
   <jsp:attribute name="title">IMPC Search</jsp:attribute>
-  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a></jsp:attribute>
+
+
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
@@ -41,8 +43,8 @@
       <td><i class="fa fa-info fa-4x"></i></td>
     </tr>
     <tr>
-      <td class="descTxt">Search</td>
-      <td class="descTxt">Explore</td>
+      <td class="descTxt"><a href='${baseUrl}/documentation/doc-search'>Search</a></td>
+      <td class="descTxt"><a href='${baseUrl}/documentation/doc-explore'>Explore</a></td>
       <td class="descTxt">FAQ</td>
     </tr>
     <tr>
