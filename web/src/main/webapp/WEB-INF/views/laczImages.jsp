@@ -76,7 +76,35 @@
 
                                     </div><!--  end of inner -->
                                 </div> <!-- end of section -->
-                            </c:if>			
+                            </c:if>	
+                            
+                            
+                            <!--                                         if embryo we need to use another attribute as for gene page embryo data needs to be in a different data structure for display on same page -->
+                                       <c:if test="${not empty impcEmbryoExpressionImageFacets}">
+                                <div class="section">
+                                    <h2 class="title" id="section-images">LacZ images for gene ${symbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
+                                    <div class="inner">
+                                       
+                                       
+                                        <c:forEach var="entry" items="${impcEmbryoExpressionImageFacets}" varStatus="status">
+                                            <div class="accordion-group open">
+                                                <div class="accordion-heading">
+                                                    ${entry.name} (${entry.count})
+                                                </div>
+                                                <div class="accordion-body" style="display: block;">
+                                                    <ul>
+                                                        <c:forEach var="doc" items="${impcEmbryoExpressionFacetToDocs[entry.name]}">
+                                                                <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                                                        </c:forEach>
+                                                    </ul>
+                                                   
+                                                </div><!--  end of accordion body -->
+                                            </div>
+                                        </c:forEach><!-- solrFacets end -->	
+                                        </div><!--  end of inner -->
+                                </div> <!-- end of section -->
+                                </c:if>	
                 
 				</div>
 			</div>
