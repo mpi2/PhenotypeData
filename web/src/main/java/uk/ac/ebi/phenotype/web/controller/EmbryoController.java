@@ -32,7 +32,7 @@ public class EmbryoController {
 	private ObservationService os;
 
 	@RequestMapping(value = "/embryo", method = RequestMethod.GET)
-	public String loadMpPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
+	public String loadPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
 		AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
@@ -47,11 +47,18 @@ public class EmbryoController {
 		return "embryo";
 	}
 
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/01/21
+	 * @param map <viability category, number of genes in category>
+	 * @return map <simplified category, number of genes in categ>
+	 */
 	HashMap<String, Long> consolidateViabilityTable(HashMap<String, Long> map){
 		
 		HashMap<String, Long> res = new HashMap<>();
-		Long all = Long.getLong("0");
-		
+		Long all = new Long(0);
+
 		for (String key: map.keySet()){
 			all += map.get(key);
 			String tableKey = "subviable";
