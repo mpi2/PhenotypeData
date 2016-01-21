@@ -700,7 +700,7 @@
                                         <ul class='tabs'>
                                             <li><a href="#tabs-2">Adult Expression Images View</a></li>
                                             <li><a href="#tabs-1">Expression Data Overview</a></li>
-                                            <c:if test="${not empty embryoExpressionDocs}">
+                                            <c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
                                             	<li><a href="#tabs-3">Embryo Expression Overview</a></li>
                                             </c:if>
                                         </ul>
@@ -869,7 +869,7 @@
 
                                        <!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
          		<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
-         								<c:if test="${not empty embryoExpressionDocs}">
+         								<c:if test="${not empty impcEmbryoExpressionImageFacets}">
          								<div id="tabs-3">
 
 
@@ -877,20 +877,23 @@
                                              	<div class="accordion-body"
                                                  style="display: block;">
 
-                                                 ${embryoExpressionDocs[0].procedure_name} (${numberEmbryoExpressionImages})
+                                                <a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
+                                                <c:forEach var="entry" items="${impcEmbryoExpressionImageFacets}"
+                                                           varStatus="status">
 
-                                             	<c:set var="href"
+                                                    <c:set var="href"
                                                            scope="page"
-                                                           value="${baseUrl}/imagePicker/${acc}/${embryoExpressionDocs[0].parameter_stable_id}"></c:set>
-                            					<!-- IMPC Phenotype Associated Images -->
-                            						<ul>
+                                                           value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+                                                    <ul>
                                                         <t:impcimgdisplay2
-
-                                                                 href="${href}"
-                                                                img="${embryoExpressionDocs[0]}"
+                                                                category="${entry.name}(${entry.count})" href="${href}"
+                                                                img="${impcEmbryoExpressionFacetToDocs[entry.name][0]}"
                                                                 impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
                                                     </ul>
-                                                    </div>
+
+                                                </c:forEach> <!-- solrFacets end -->
+
+                                            </div>
 
 
                                         </div>
