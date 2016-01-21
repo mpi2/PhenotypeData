@@ -5,7 +5,9 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -39,7 +41,7 @@ public class EmbryoController {
 		List<String> resources = new ArrayList<>();
 		resources.add("IMPC");
 		HashMap<String, Long> viabilityMap = os.getViabilityCategories(resources);
-		HashMap<String, Long> viabilityTable = consolidateViabilityTable(viabilityMap);
+		LinkedHashMap<String, Long> viabilityTable = consolidateViabilityTable(viabilityMap);
 		
 		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "IMPC Viability", "viabilityChart"));
 		model.addAttribute("viabilityTable", viabilityTable);
@@ -54,9 +56,9 @@ public class EmbryoController {
 	 * @param map <viability category, number of genes in category>
 	 * @return map <simplified category, number of genes in categ>
 	 */
-	HashMap<String, Long> consolidateViabilityTable(HashMap<String, Long> map){
+	LinkedHashMap<String, Long> consolidateViabilityTable(HashMap<String, Long> map){
 		
-		HashMap<String, Long> res = new HashMap<>();
+		LinkedHashMap<String, Long> res = new LinkedHashMap<>();
 		Long all = new Long(0);
 
 		for (String key: map.keySet()){
@@ -86,7 +88,6 @@ public class EmbryoController {
 				}
 			}
 		}
-		
 		res.put("all", all);
 		
 		return res;
