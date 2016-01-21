@@ -877,13 +877,13 @@
                                              	<div class="accordion-body"
                                                  style="display: block;">
 
-                                                <a href="${baseUrl}/impcImages/laczimages/${acc}">All Images</a>
+                                                <a href="${baseUrl}/impcImages/embryolaczimages/${acc}">All Images</a>
                                                 <c:forEach var="entry" items="${impcEmbryoExpressionImageFacets}"
                                                            varStatus="status">
 
                                                     <c:set var="href"
                                                            scope="page"
-                                                           value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}"></c:set>
+                                                           value="${baseUrl}/impcImages/embryolaczimages/${acc}/${entry.name}"></c:set>
                                                     <ul>
                                                         <t:impcimgdisplay2
                                                                 category="${entry.name}(${entry.count})" href="${href}"
