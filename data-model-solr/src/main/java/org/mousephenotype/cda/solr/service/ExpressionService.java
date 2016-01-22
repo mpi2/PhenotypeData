@@ -299,7 +299,7 @@ public class ExpressionService extends BasicService {
 
 		mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
-		System.out.println("======================image response is: " + imagesResponse);
+		//System.out.println("======================image response is: " + imagesResponse);
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
@@ -361,7 +361,7 @@ public class ExpressionService extends BasicService {
 			if (tops.isEmpty()) {// if no top level found this image then add it
 									// to the "No top level" term docs so we can
 									// display orphaned terms and images
-				System.out.println("tops is empty");
+				//System.out.println("tops is empty");
 				expFacetToDocs.get(noTopTermId).add(doc);
 			} else {
 
