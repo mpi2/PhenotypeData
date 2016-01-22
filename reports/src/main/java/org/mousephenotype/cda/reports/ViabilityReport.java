@@ -76,7 +76,7 @@ public class ViabilityReport extends AbstractReport {
         HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
 
         try {
-            QueryResponse response = observationService.getViabilityData(resources);
+            QueryResponse response = observationService.getViabilityData(resources, null);
             String[] header = {"Gene", "Colony", "Category"};
             allTable.add(header);
             for ( SolrDocument doc : response.getResults()){

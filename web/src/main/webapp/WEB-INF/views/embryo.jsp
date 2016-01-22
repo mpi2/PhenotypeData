@@ -11,7 +11,7 @@
 
 
 	<jsp:attribute name="header">
-		
+		<script type='text/javascript' src='${baseUrl}/js/vendor/jssor.slider.min.js'></script> <!-- caroussel slider -->
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
@@ -39,26 +39,72 @@
 
                         <div class="section">
                             <div class="inner">
-                            	<div id="viabilityChart">
+                            	<h2>IMPC Viability</h2>
+                            	<div id="viabilityChart" class="half right">
 				            		<script type="text/javascript">${viabilityChart}</script>
 								</div>
-								
-                            <h2>Vignettes</h2>
-                            <h2>3D Imaging</h2>
-                            <h2>Embryonic Pipeline</h2>
-                            <div><img src="${baseUrl}/img/embryo_impress.png"/></div>
+								<div id="viabilityChart" class="half right">
+				            		<table> 
+				            		<thead>				            		
+				            			<tr> <th class="headerSort"> Category </th> <th> # Genes </th> <th> Download</th>  </tr>
+				            		</thead>
+				            		<tbody>
+				            		<c:forEach var="key" items="${viabilityTable.keySet()}">
+					            		<tr>
+					            			<td><h4 class="capitalize">${key}</h4></td>
+					            			<td><h4>${viabilityTable.get(key)}</h4></td> 
+					            			<td>
+					            				<c:choose>
+									            	<c:when test='${key.equalsIgnoreCase("All")}'>
+									            		<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"></i></a>
+									            	</c:when>
+									            	<c:otherwise>
+														<a href="" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"></i></a>
+									            	</c:otherwise>
+									           </c:choose>
+					            			</td>					            					
+					            		</tr>
+									</c:forEach>
+				            		</tbody></table>
+								</div>
+								<div class="clear"> </div>								
+	                           
                                                         	
                             </div>
                         </div>
 
-                        <!--  Phenotype Associations -->
+        				<div class="section">
+
+                            <h2 class="title"> Vignettes </h2>
+                            <div class="inner">
+                            	<div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 600px; height: 300px;">
+							    <!-- Slides Container -->
+							    <div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 600px; height: 300px;">
+							        <div><p>Some description</p><img u="image" src='http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/' /></div>
+							        <div><img u="image" src='http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/' /></div>
+							    </div>
+							</div>
+                            </div>
+
+                        </div>
+
                         <div class="section">
 
-                            <h2 class="title "
-                                id="section-associations"> Subviable genes  </h2>
-
+                            <h2 class="title"> 3D Imaging </h2>
                             <div class="inner">
-                              
+                            	<div>
+                            		<c:forEach  var="gene" items="${genesWithEmbryoViewer}">
+                            			<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${gene.mgiAccessionId}" style="margin: 10px">${gene.markerSymbol}</a>
+                            		</c:forEach>
+                            	</div>                              	
+                            </div>
+
+                        </div>
+                        
+                         <div class="section">
+							<h2 class="title ">IMPC Embryonic Pipeline</h2>
+                            <div class="inner">
+	                        	<div><img src="${baseUrl}/img/embryo_impress.png"/></div>
                             </div>
 
                         </div>
@@ -68,6 +114,53 @@
                 </div>
             </div>
         </div>
+
+
+		<script>
+		/*     jQuery(document).ready(function ($) {
+		        var options = { $AutoPlay: true, $FillMode: 1 };
+		        var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+		    }); */
+
+	        jssor_1_slider_init = function() {
+	            
+	            var jssor_1_options = {
+	              $AutoPlay: true,
+	              $ArrowNavigatorOptions: {
+	                $Class: $JssorArrowNavigator$
+	              },
+	              $ThumbnailNavigatorOptions: {
+	                $Class: $JssorThumbnailNavigator$,
+	                $Cols: 4,
+	                $SpacingX: 4,
+	                $SpacingY: 4,
+	                $Orientation: 2,
+	                $Align: 0
+	              }
+	            };
+	            
+	            var jssor_1_slider = new $JssorSlider$("slider1_container", jssor_1_options);
+	            
+	            //responsive code begin
+	            //you can remove responsive code if you don't want the slider scales while window resizing
+	            function ScaleSlider() {
+	                var refSize = jssor_1_slider.$Elmt.parentNode.clientWidth;
+	                if (refSize) {
+	                    refSize = Math.min(refSize, 810);
+	                    jssor_1_slider.$ScaleWidth(refSize);
+	                }
+	                else {
+	                    window.setTimeout(ScaleSlider, 30);
+	                }
+	            }
+	            ScaleSlider();
+	            $Jssor$.$AddEvent(window, "load", ScaleSlider);
+	            $Jssor$.$AddEvent(window, "resize", ScaleSlider);
+	            $Jssor$.$AddEvent(window, "orientationchange", ScaleSlider);
+	            //responsive code end
+	        };
+	    
+		</script>
 
       </jsp:body>
 

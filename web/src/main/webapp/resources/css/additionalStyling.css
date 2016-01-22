@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+.capitalize {
+    text-transform: capitalize;
+}
+
 .credit {
 	font-size:12px;
 }
