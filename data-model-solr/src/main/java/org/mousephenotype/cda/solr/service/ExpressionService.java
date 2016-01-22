@@ -251,7 +251,7 @@ public class ExpressionService extends BasicService {
 									// level terms
 		String termIdField = "";
 		if (embryoOnly) { // use EMAP terms and top level terms
-			noTopTermId = "No Top Level EMAP";
+			noTopTermId = "Unassigned Top Level EMAP";
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
 			termIdField = ImageDTO.EMAP_ID;
 			if (imagesOverview) {
@@ -266,7 +266,7 @@ public class ExpressionService extends BasicService {
 			}
 
 		} else {
-			noTopTermId = "No Top Level MA";
+			noTopTermId = "Unassigned Top Level MA";
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_MA_TERM;
 			termIdField = ImageDTO.MA_ID;
 			if (imagesOverview) {
@@ -390,6 +390,7 @@ public class ExpressionService extends BasicService {
 		Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
 				expFacetToDocs.get(noTopTermId).size());
 		topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
+		
 		List<Count> filteredTopLevelMaTerms = new ArrayList<>();
 		if (topMaNameFilter != null) {
 			for (Count topLevel : topLevelMaTerms) {
