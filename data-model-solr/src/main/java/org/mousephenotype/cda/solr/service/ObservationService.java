@@ -366,13 +366,17 @@ public class ObservationService extends BasicService implements WebStatus {
     }
     
 
-    public QueryResponse getViabilityData(List<String> resources)
+    public QueryResponse getViabilityData(List<String> resources, List<String> category)
     throws SolrServerException {
 
         SolrQuery query = new SolrQuery();
         if (resources != null) {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
+        if (resources != null) {
+            query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(category, " OR " + ObservationDTO.CATEGORY + ":"));
+        }
+
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.COLONY_ID);

@@ -385,7 +385,8 @@ public class ExpressionService extends BasicService {
 		System.out.println("noExpression: " + noExpList);
 		System.out.println("allPaths: " + allPaths);
 
-		List<Count> topLevelMaTerms = fields.get(0).getValues();
+		List<Count> topLevelMaTerms = new ArrayList<>();
+		topLevelMaTerms.addAll(fields.get(0).getValues());
 
 		Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
 				expFacetToDocs.get(noTopTermId).size());
