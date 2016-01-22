@@ -7,12 +7,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,6 +34,9 @@ public class EmbryoController {
 	@Autowired
 	private ObservationService os;
 
+	@Autowired
+	private GeneService gs;
+	
 	@RequestMapping(value = "/embryo", method = RequestMethod.GET)
 	public String loadPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
@@ -42,9 +46,11 @@ public class EmbryoController {
 		resources.add("IMPC");
 		HashMap<String, Long> viabilityMap = os.getViabilityCategories(resources);
 		LinkedHashMap<String, Long> viabilityTable = consolidateViabilityTable(viabilityMap);
+		List<GeneDTO> genesWithEmbryoViewer = gs.getGenesWithEmbryoViewer();
 		
-		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "IMPC Viability", "viabilityChart"));
+		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "", "viabilityChart"));
 		model.addAttribute("viabilityTable", viabilityTable);
+		model.addAttribute("genesWithEmbryoViewer", genesWithEmbryoViewer);
 		
 		return "embryo";
 	}
