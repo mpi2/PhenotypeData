@@ -201,6 +201,19 @@ public class GeneService extends BasicService implements WebStatus{
 		return allGenes;
 	}
 
+	public List<GeneDTO> getGenesWithEmbryoViewer () 
+	throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(GeneDTO.EMBRYO_DATA_AVAILABLE + ":true");
+		solrQuery.setRows(1000000);
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);
+		
+		return (List<GeneDTO>) solr.query(solrQuery).getBeans(GeneDTO.class);
+		
+	}
+	
+	
 	
 	// returns ready formatted icons
 	public Map<String, String> getProductionStatus(String geneId, String hostUrl)
