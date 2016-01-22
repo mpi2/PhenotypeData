@@ -109,6 +109,22 @@
 			  border-radius: 2px 0 0 2px;
 			}
 			
+			.nav-dots .nav-dot {
+				top: -5px;
+				width: 11px;
+				height: 11px;
+				margin: 0 4px;
+				position: relative;
+				border-radius: 100%;
+				display: inline-block;
+				background-color: rgba(0, 0, 0, 0.6);
+			}
+			
+			.nav-dots .nav-dot:hover {
+				cursor: pointer;
+				background-color: rgba(0, 0, 0, 0.8);
+			}
+						
         </style>
         
     </jsp:attribute>
@@ -169,20 +185,28 @@
 									    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. </p> </li>
 									    <li><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
 									    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy.</p></li>
-									   <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-									    	<p class="caption">This one has a caption</p></li>
-									    <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	</li>
+									     <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	</li>
 									    <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
 									    	<p class="caption"> This is interesting because see here and here and here and here </p> </li>
-									    <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-									    	<p class="caption">This one has a caption</p></li>
-									  </ul>  
+									     </ul>  
 									  <div> 
 										  <span class="control_next half left">></span>
 										  <span class="control_prev half right"><</span>
 									  </div>
 									</div>
-									<div class=clear"> </div>
+									<div class="clear"> </div>
+									
+									<ul id="navdots">
+									<li class="nav-dots">
+								      <label  class="nav-dot" ></label>
+								      <label  class="nav-dot" ></label>
+								      <label  class="nav-dot" ></label>
+								      <label  class="nav-dot" ></label>
+								      <label  class="nav-dot" ></label>
+								      <label  class="nav-dot" ></label>
+								    </li>
+								    </ul>
+									<div class="clear"> </div>
 	                           	</div>
                             </div>
 
