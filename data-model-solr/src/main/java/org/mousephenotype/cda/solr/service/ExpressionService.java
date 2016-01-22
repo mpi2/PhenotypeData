@@ -251,7 +251,7 @@ public class ExpressionService extends BasicService {
 									// level terms
 		String termIdField = "";
 		if (embryoOnly) { // use EMAP terms and top level terms
-			noTopTermId = "No Top Level EMAP";
+			noTopTermId = "Unassigned Top Level EMAP";
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
 			termIdField = ImageDTO.EMAP_ID;
 			if (imagesOverview) {
@@ -266,7 +266,7 @@ public class ExpressionService extends BasicService {
 			}
 
 		} else {
-			noTopTermId = "No Top Level MA";
+			noTopTermId = "Unassigned Top Level MA";
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_MA_TERM;
 			termIdField = ImageDTO.MA_ID;
 			if (imagesOverview) {
@@ -299,7 +299,7 @@ public class ExpressionService extends BasicService {
 
 		mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
-		System.out.println("======================image response is: " + imagesResponse);
+		//System.out.println("======================image response is: " + imagesResponse);
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
@@ -361,7 +361,7 @@ public class ExpressionService extends BasicService {
 			if (tops.isEmpty()) {// if no top level found this image then add it
 									// to the "No top level" term docs so we can
 									// display orphaned terms and images
-				System.out.println("tops is empty");
+				//System.out.println("tops is empty");
 				expFacetToDocs.get(noTopTermId).add(doc);
 			} else {
 
@@ -385,11 +385,13 @@ public class ExpressionService extends BasicService {
 		System.out.println("noExpression: " + noExpList);
 		System.out.println("allPaths: " + allPaths);
 
-		List<Count> topLevelMaTerms = fields.get(0).getValues();
+		List<Count> topLevelMaTerms = new ArrayList<>();
+		topLevelMaTerms.addAll(fields.get(0).getValues());
 
 		Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
 				expFacetToDocs.get(noTopTermId).size());
 		topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
+		
 		List<Count> filteredTopLevelMaTerms = new ArrayList<>();
 		if (topMaNameFilter != null) {
 			for (Count topLevel : topLevelMaTerms) {

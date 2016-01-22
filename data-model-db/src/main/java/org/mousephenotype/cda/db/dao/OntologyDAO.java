@@ -253,9 +253,9 @@ public abstract class OntologyDAO {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
                 if (( ! ancestorGraphId.isEmpty()) && (ancestorGraphId.size() >= level)) {
                     String topTermId = ancestorGraphId.get(level - 1);
-                    if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
+                    //if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
                         beans.add(allTermsMap.get(topTermId));
-                    }
+                    //}
                 }
             }
         }
