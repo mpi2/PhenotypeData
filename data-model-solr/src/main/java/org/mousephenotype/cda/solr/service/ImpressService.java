@@ -436,6 +436,30 @@ public class ImpressService implements WebStatus {
 		return idToAbnormalMaId;
 	}
 	
+	public Map<String,OntologyBean> getParameterStableIdToAbnormalEmapMap(){
+		
+		Map<String,OntologyBean> idToAbnormalEmapId=new HashMap<>();
+		List<ImpressDTO> pipelineDtos=null;
+		SolrQuery query = new SolrQuery()
+			.setQuery(ImpressDTO.EMAP_ID + ":*" )
+			.setFields(ImpressDTO.EMAP_ID, ImpressDTO.EMAP_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
+		QueryResponse response=null;
+		
+		try {
+			response = solr.query(query);
+			pipelineDtos = response.getBeans(ImpressDTO.class);
+			for(ImpressDTO pipe:pipelineDtos){
+				if(!idToAbnormalEmapId.containsKey(pipe.getParameterStableId())){
+					idToAbnormalEmapId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getMaTermId(),pipe.getMaName()));
+				}
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+	
+		return idToAbnormalEmapId;
+	}
+	
 	
 	/**
 	 * @author tudose

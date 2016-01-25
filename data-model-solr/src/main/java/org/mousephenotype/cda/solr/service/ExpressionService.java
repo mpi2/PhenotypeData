@@ -35,6 +35,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -78,6 +79,8 @@ public class ExpressionService extends BasicService {
 
 	Map<String, ImpressService.OntologyBean> abnormalMaFromImpress = null;
 
+	Map<String, ImpressService.OntologyBean> abnormalEmapFromImpress=null;
+
 	public ExpressionService() {
 	}
 
@@ -90,6 +93,12 @@ public class ExpressionService extends BasicService {
 	@PostConstruct
 	private void initialiseAbnormalMaMap() {
 		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
+
+	}
+	
+	@PostConstruct
+	private void initialiseAbnormalEmapMap() {
+		abnormalEmapFromImpress = impressService.getParameterStableIdToAbnormalEmapMap();
 
 	}
 
@@ -127,7 +136,7 @@ public class ExpressionService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	public QueryResponse getExpressionTableDataImages(String mgiAccession, String... fields)
+	public QueryResponse getExpressionTableDataImages(String mgiAccession, boolean embryo, String... fields)
 			throws SolrServerException {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:106209%22&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
@@ -138,8 +147,14 @@ public class ExpressionService extends BasicService {
 			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=biological_sample_group:control&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)&rows=100000
 			solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
 		}
-		solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
-				+ ":\"LacZ Images Wholemount\"");
+		if (embryo) {
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
+					+ ":\"LacZ images wholemount\"");
+		} else {
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
+					+ ":\"LacZ Images Wholemount\"");
+		}
+
 		// solrQuery.addFilterQuery(ImageDTO.ZYGOSITY
 		// + ":Homozygote");
 		// solrQuery.setFacetMinCount(1);
@@ -159,7 +174,7 @@ public class ExpressionService extends BasicService {
 	 * @return
 	 * @throws SolrServerException
 	 */
-	private QueryResponse getCategoricalAdultLacZData(String mgiAccession, String... fields)
+	private QueryResponse getCategoricalAdultLacZData(String mgiAccession, boolean embryo, String... fields)
 			throws SolrServerException {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:1351668%22&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(procedure_name:%22Adult%20LacZ%22)&rows=10000
@@ -170,11 +185,19 @@ public class ExpressionService extends BasicService {
 			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=biological_sample_group:control&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)&rows=100000
 			solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
 		}
-
-		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
-		solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+		if(embryo){
+			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
+			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+		}
+		else{
+			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+		}
+		
 		// solrQuery.setFacetMinCount(1);
 		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -299,7 +322,8 @@ public class ExpressionService extends BasicService {
 
 		mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
-		//System.out.println("======================image response is: " + imagesResponse);
+		// System.out.println("======================image response is: " +
+		// imagesResponse);
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
@@ -361,7 +385,7 @@ public class ExpressionService extends BasicService {
 			if (tops.isEmpty()) {// if no top level found this image then add it
 									// to the "No top level" term docs so we can
 									// display orphaned terms and images
-				//System.out.println("tops is empty");
+				// System.out.println("tops is empty");
 				expFacetToDocs.get(noTopTermId).add(doc);
 			} else {
 
@@ -391,7 +415,7 @@ public class ExpressionService extends BasicService {
 		Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
 				expFacetToDocs.get(noTopTermId).size());
 		topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
-		
+
 		List<Count> filteredTopLevelMaTerms = new ArrayList<>();
 		if (topMaNameFilter != null) {
 			for (Count topLevel : topLevelMaTerms) {
@@ -567,9 +591,9 @@ public class ExpressionService extends BasicService {
 	 *            Spring MVC model
 	 * @throws SolrServerException
 	 */
-	public Model getExpressionDataForGene(String acc, Model model) throws SolrServerException {
+	public Model getExpressionDataForGene(String acc, Model model, boolean embryo) throws SolrServerException {
 
-		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc, ImageDTO.ZYGOSITY,
+		QueryResponse laczDataResponse = getCategoricalAdultLacZData(acc, embryo, ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID,
 				ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList mutantCategoricalAdultLacZData = laczDataResponse.getResults();
@@ -578,7 +602,7 @@ public class ExpressionService extends BasicService {
 		Map<String, ExpressionRowBean> expressionAnatomyToRow = new TreeMap<>();
 		Map<String, ExpressionRowBean> wtAnatomyToRow = new TreeMap<>();
 
-		QueryResponse wtLaczDataResponse = getCategoricalAdultLacZData(null, ImageDTO.ZYGOSITY,
+		QueryResponse wtLaczDataResponse = getCategoricalAdultLacZData(null, embryo, ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME,
 				ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList wtCategoricalAdultLacZData = wtLaczDataResponse.getResults();
@@ -586,15 +610,16 @@ public class ExpressionService extends BasicService {
 
 		QueryResponse laczImagesResponse = null;
 
-		laczImagesResponse = getExpressionTableDataImages(acc, ImageDTO.ZYGOSITY, ImageDTO.PARAMETER_ASSOCIATION_NAME,
-				ObservationDTO.OBSERVATION_TYPE, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
+		laczImagesResponse = getExpressionTableDataImages(acc, embryo, ImageDTO.ZYGOSITY,
+				ImageDTO.PARAMETER_ASSOCIATION_NAME, ObservationDTO.OBSERVATION_TYPE,
+				ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 		SolrDocumentList imagesMutantResponse = laczImagesResponse.getResults();
 		Map<String, ExpressionRowBean> mutantImagesAnatomyToRow = new TreeMap<>();
 		Map<String, SolrDocumentList> mutantImagesAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
 
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
 
-			ExpressionRowBean expressionRow = getAnatomyRow(anatomy, expressionAnatomyToDocs);
+			ExpressionRowBean expressionRow = getAnatomyRow(anatomy, expressionAnatomyToDocs, false);
 			int hetSpecimens = 0;
 			for (String key : expressionRow.getSpecimen().keySet()) {
 
@@ -605,27 +630,33 @@ public class ExpressionService extends BasicService {
 			expressionRow.setNumberOfHetSpecimens(hetSpecimens);
 			expressionAnatomyToRow.put(anatomy, expressionRow);
 
-			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs);
+			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs, false);
 
 			if (wtRow.getSpecimenExpressed().keySet().size() > 0) {
 				wtRow.setWildTypeExpression(true);
 			}
 			wtAnatomyToRow.put(anatomy, wtRow);
 
-			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy, mutantImagesAnatomyToDocs);
+			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy, mutantImagesAnatomyToDocs, false);
 			mutantImagesRow.setNumberOfHetSpecimens(hetSpecimens);
 			mutantImagesAnatomyToRow.put(anatomy, mutantImagesRow);
 
 		}
 
-		model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
-		model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
-		model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
+		if (embryo) {
+			model.addAttribute("embryoExpressionAnatomyToRow", expressionAnatomyToRow);
+			model.addAttribute("embryoMutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
+			model.addAttribute("embryoWtAnatomyToRow", wtAnatomyToRow);
+		} else {
+			model.addAttribute("expressionAnatomyToRow", expressionAnatomyToRow);
+			model.addAttribute("mutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
+			model.addAttribute("wtAnatomyToRow", wtAnatomyToRow);
+		}
 		return model;
 
 	}
 
-	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs) {
+	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs, boolean embryo) {
 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
@@ -638,7 +669,13 @@ public class ExpressionService extends BasicService {
 					if (doc.containsKey(ImageDTO.PARAMETER_STABLE_ID) && row.getParameterStableId() == null) {
 						String parameterStableId = (String) doc.get(ImageDTO.PARAMETER_STABLE_ID);
 						row.setParameterStableId(parameterStableId);
-						OntologyBean ontologyBean = abnormalMaFromImpress.get(parameterStableId);
+						OntologyBean ontologyBean=null;
+						if(embryo){
+							ontologyBean = abnormalEmapFromImpress.get(parameterStableId);
+						}else{
+							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
+						}
+						
 
 						if (ontologyBean != null) {
 
