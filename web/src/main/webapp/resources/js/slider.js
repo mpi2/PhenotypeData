@@ -12,36 +12,39 @@
         		var sliderUlWidth = slideCount * slideWidth;
         		
         		$('#slider').css({ width: slideWidth, height: slideHeight });
-        		$('#sliderDiv').append("<p id=\"sliderControl\" class=\"sliderControl\" > All images</p>");
-        		$( "#slider ul" ).clone().appendTo( "#sliderControl" );
         		$('#slider ul').css({ width: sliderUlWidth, marginLeft: - slideWidth });
+        		$('#sliderControl ul li:first-child').clone().appendTo($('#sliderHighlight'));
+        		moveToPosition(0);
         		
-        	    $('#slider ul li:last-child').prependTo('#slider ul');
-
         	    function moveLeft() {
-        	        $('#slider ul').animate({
-        	            left: + slideWidth
-        	        }, 300, function () {
-        	            $('#slider ul li:last-child').prependTo('#slider ul');
-        	            $('#slider ul').css('left', '');
-        	        });
+         	       var index = $("#sliderOnDisplay").attr("index");
+         	       if (index > 0){
+         	    	   moveToPosition(index-1);
+         	       } else {
+         	    	  moveToPosition($("#sliderControl ul li").size()-1);
+         	       }
         	    };
 
         	    function moveRight() {
-        	        $('#slider ul').animate({
-        	            left: - slideWidth
-        	        }, 300, function () {
-        	            $('#slider ul li:first-child').appendTo('#slider ul');
-        	            $('#slider ul').css('left', '');
-        	        });
+        	    	var index = $("#sliderOnDisplay").attr("index");
+          	       	if (index < $("#sliderControl ul li").size()-1){
+          	       		index++;
+          	       		moveToPosition(index);
+          	       	} else {
+          	       		moveToPosition(0);
+          	       	}
         	    };
 
         	    function moveToPosition(pos) {
-        	    	$('#slider ul').animate({
-        	            left: 0
+        	    	
+        	        $('#sliderHighlight').animate({
+        	            left: - slideWidth
         	        }, 0, function () {
-        	            $('#slider ul li:first-child').appendTo('#slider ul');
-        	            $('#slider ul').css('left', '');
+        	        	console.log(pos);	
+       	        	 	$('#sliderHighlight li').replaceWith($('#item'+pos).clone().attr("id", "sliderOnDisplay").attr("index", pos));
+       	        	 	$('#sliderHighlight li').css('left', '');
+       	        	 	$('.sliderSelectedControl').removeClass("sliderSelectedControl");
+       	        	 	$('#item'+pos).addClass("sliderSelectedControl");	
         	        });
         	    };
         	    
@@ -53,7 +56,7 @@
         	        moveRight();
         	    });
         	    
-        	    $('#navdots li label').click(function(){
+        	    $('#sliderControl ul li').click(function(){
         	       var index = $(this).index();
         	       moveToPosition(index);
         	    })

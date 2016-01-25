@@ -23,16 +23,17 @@
 			  overflow: hidden;
 			  margin: 20px auto 0 auto;
 			  border-radius: 4px;
+			  background:transparent;
 			}
 			
-			#slider ul {
+			#sliderHighlight{
 			  position: relative;
 			  margin: 0;
 			  padding: 0;
 			  list-style: none;
 			}
 			
-			#slider ul li {
+			#sliderHighlight li {
 			  position: relative;
 			  display: block;
 			  float: left;
@@ -40,7 +41,7 @@
 			  padding: 0;
 			  width: 800px;
 			  height: 500px;
-			  background: #DDD;
+			  background: transparent;
 			}
 						 
 			 .slider img{
@@ -66,14 +67,31 @@
 				display:inline;
 				width:100px;
 				float:left;
+				padding: 0.3em;
 			}
 			
 			.sliderControl img{
 				max-height:50px;
+				margin-left: auto;
+    			margin-right: auto;
+    			display:block;
 			}
 			
 			.sliderControl .caption{
-				display:block;
+				display:none;
+			}
+			
+			.shortCaption{
+				display : bloc;
+			}
+			
+			#sliderOnDisplay .shortCaption{
+				display : none;
+			}
+			
+			li.sliderSelectedControl{
+    			border: 1px solid black;
+    			list-style-position:inside;
 			}
 			
 			.control_prev, .control_next {
@@ -107,22 +125,6 @@
 			  right: 0;
 			  opacity: 0.5;
 			  border-radius: 2px 0 0 2px;
-			}
-			
-			.nav-dots .nav-dot {
-				top: -5px;
-				width: 11px;
-				height: 11px;
-				margin: 0 4px;
-				position: relative;
-				border-radius: 100%;
-				display: inline-block;
-				background-color: rgba(0, 0, 0, 0.6);
-			}
-			
-			.nav-dots .nav-dot:hover {
-				cursor: pointer;
-				background-color: rgba(0, 0, 0, 0.8);
 			}
 						
         </style>
@@ -177,36 +179,32 @@
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
 								<div id="sliderDiv">
-									<div id="slider" class="slider">
-									  <ul>
-									    <li>  <img src="${baseUrl}/img/vignettes/Chtop.png" />
-									    	<p class="caption"> CHTOP has been shown to recruit the histone-methylating methylosome to genomic regions containing 5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of vertebrae, abnormal joint morphology and edema </p></li>
-									    <li><img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-									    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. </p> </li>
-									    <li><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-									    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy.</p></li>
-									     <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	</li>
-									    <li><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-									    	<p class="caption"> This is interesting because see here and here and here and here </p> </li>
-									     </ul>  
-									  <div> 
-										  <span class="control_next half left">></span>
-										  <span class="control_prev half right"><</span>
-									  </div>
+									<div id="slider">
+										<div id="sliderHighlight" class="slider"> </div>
+										<div> 
+											<span class="control_next half left">></span>
+											<span class="control_prev half right"><</span>
+										</div>
 									</div>
-									<div class="clear"> </div>
-									
-									<ul id="navdots">
-									<li class="nav-dots">
-								      <label  class="nav-dot" ></label>
-								      <label  class="nav-dot" ></label>
-								      <label  class="nav-dot" ></label>
-								      <label  class="nav-dot" ></label>
-								      <label  class="nav-dot" ></label>
-								      <label  class="nav-dot" ></label>
-								    </li>
-								    </ul>
-									<div class="clear"> </div>
+									<div class="clear"> </div>									
+									<div id="sliderControl" class="sliderControl">
+										<ul>
+										    <li id="item0">  <img src="${baseUrl}/img/vignettes/Chtop.png" />
+										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of vertebrae, abnormal joint morphology and edema </p>
+										    	<p class="shortCaption"> Chtop</p></li>
+										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
+										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. </p> 
+										    	<p class="shortCaption">Rab23</p></li>
+										    <li id="item2"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
+										    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy.</p>
+										    	<p class="shortCaption"> Glycogenin 1</p></li>
+										    <li id="item3"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
+										    	<p class="shortCaption"> Gene symbol</p> </li>
+										    <li id="item4"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
+										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
+										    	<p class="shortCaption"> Gene symbol</p></li>
+										  </ul> 
+									</div>
 	                           	</div>
                             </div>
 
