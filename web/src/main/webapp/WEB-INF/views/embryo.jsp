@@ -214,10 +214,14 @@
 
                             <h2 class="title"> 3D Imaging </h2>
                             <div class="inner">
+                            	<img alt="IEV" src="${baseUrl}/img/IEV.png">
+                            	<p> The embryonic and perinatal lethal pipeline comprises several 3D imaging modalities to quantify aberrant morphology that could not be determined by gross inspection. Images acquired by micro-CT and OPT are available via our Interactive Embryo Viewer (IEV). </p>
                             	<div>
-                            		<c:forEach  var="gene" items="${genesWithEmbryoViewer}">
-                            			<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${gene.mgiAccessionId}" style="margin: 10px">${gene.markerSymbol}</a>
-                            		</c:forEach>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:2147810" style="margin: 10px">Tmem132a</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:1916804" style="margin: 10px">Klhdc2</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:1195985" style="margin: 10px">Cbx4</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:102806" style="margin: 10px">Acvr2a</a>
+                            		<a href=""> See all </a>
                             	</div>                              	
                             </div>
 
