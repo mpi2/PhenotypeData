@@ -430,36 +430,6 @@ public class FileExportController {
 
 	}
 	
-	
-	@RequestMapping(value = "/export/viability", method = RequestMethod.GET)
-	public void exportTableAsExcelTsv(
-			@RequestParam(value = "fileType", required = false) String fileType,
-			@RequestParam(value = "fileName", required = false) String fileName,
-			@RequestParam(value = "resource", required = false) List<String> resources,
-			@RequestParam(value = "category", required = false) String category, // All if none provided
-			HttpSession session,
-			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
-
-		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-
-		
-		Workbook wb = null;
-//		List<String> dataRows = os.getCategories(parameter, genes, biologicalSampleGroup, strains, center, sex);
-//
-//        QueryResponse res = os.getViabilityData(resources, null);
-//        String[] header = {"Gene", "Viability Category"};
-//        allTable.add(header);
-//        
-//        
-//        
-//        for ( SolrDocument doc : response.getResults()){
-//        	doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString()
-//        }
-//		writeOutputFile(response, dataRows, fileType, fileName, wb);
-
-	}
-	
-	
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
 			String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity,
