@@ -43,6 +43,7 @@
         	        	console.log(pos);	
        	        	 	$('#sliderHighlight li').replaceWith($('#item'+pos).clone().attr("id", "sliderOnDisplay").attr("index", pos));
        	        	 	$('#sliderHighlight li').css('left', '');
+       	        	 	$('#sliderHighlight li').prepend("<h2 class='sliderTitle'>" + $('#item'+pos+' p.sliderTitle').text() + "</h2>");
        	        	 	$('.sliderSelectedControl').removeClass("sliderSelectedControl");
        	        	 	$('#item'+pos).addClass("sliderSelectedControl");	
         	        });
