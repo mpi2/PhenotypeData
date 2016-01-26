@@ -17,8 +17,7 @@
           }
           td {
             border: none;
-          }
-          td {border: 1px solid white;
+            text-align: center;
             width: 33%;
           }
 
@@ -32,33 +31,34 @@
 	</jsp:attribute>
 
   <jsp:body>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-    <h1>IMPC data portal documentation</h1>
-    <!--<h4>Explore how to retrieve mouse phenotype data</h4>-->
 
-  <table style="width:100%">
-    <tr>
-      <td><i class="fa fa-search fa-4x"></i></td>
-      <td><i class="fa fa-map-o fa-4x"></i></td>
-      <td><i class="fa fa-info fa-4x"></i></td>
-    </tr>
-    <tr>
-      <td class="descTxt"><a href='${baseUrl}/documentation/doc-search'>Search</a></td>
-      <td class="descTxt"><a href='${baseUrl}/documentation/doc-explore'>Explore</a></td>
-      <td class="descTxt">FAQ</td>
-    </tr>
-    <tr>
-      <td><i class="fa fa-line-chart fa-4x"></i></td>
-      <td><i class="fa fa-sitemap fa-4x"></i></td>
-      <td><i class="fa fa-download fa-4x"></i></td>
-    </tr>
-    <tr>
-      <td class="descTxt">Methods</td>
-      <td class="descTxt">Related Resources</td>
-      <td class="descTxt">Downloads, Programmatic Access, Internal Submission
-      </td>
-    </tr>
-  </table>
+  <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+    <h1>IMPC data portal documentation</h1>
+
+    <table style="width:100%">
+      <tr>
+        <td><i class="fa fa-search fa-4x"></i></td>
+        <td><i class="fa fa-map-o fa-4x"></i></td>
+        <td><i class="fa fa-info fa-4x"></i></td>
+      </tr>
+      <tr>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-search'>Search</a></td>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-explore'>Explore</a></td>
+        <td class="descTxt">FAQ</td>
+      </tr>
+      <tr>
+        <td><i class="fa fa-line-chart fa-4x"></i></td>
+        <td><i class="fa fa-sitemap fa-4x"></i></td>
+        <td><i class="fa fa-download fa-4x"></i></td>
+      </tr>
+      <tr>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-method'>Methods</a></td>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-related-resources'>Related Resources</a></td>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-access-submission'>Data Access & Submission</a></td>
+        </td>
+      </tr>
+    </table>
 
 
   </jsp:body>
