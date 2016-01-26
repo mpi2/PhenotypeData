@@ -4,19 +4,18 @@
 <t:genericpage>
 
   <jsp:attribute name="title">IMPC Search</jsp:attribute>
-  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">search doc</a></jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">Search data</a></jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
 		<link href="${baseUrl}/css/searchPage.cssssss" rel="stylesheet" type="text/css" />
         <style>
           table {
-            margin-top: 80px;
+            margin-top: 120px;
           }
           td {
             border: none;
-          }
-          td {border: 1px solid white;
+            text-align: center;
             width: 33%;
           }
           .fleft {float: left;}

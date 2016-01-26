@@ -4,7 +4,7 @@
 <t:genericpage>
 
   <jsp:attribute name="title">IMPC Search</jsp:attribute>
-  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">search doc</a> &raquo; <a href="${baseUrl}/documentation/doc-search-images">search doc Images</a></jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">Search data</a> &raquo; <a href="${baseUrl}/documentation/doc-search-images">Search Images</a></jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
