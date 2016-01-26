@@ -162,25 +162,19 @@
 								<div id="viabilityChart" class="half right">
 				            		<table> 
 				            		<thead>				            		
-				            			<tr> <th class="headerSort"> Category </th> <th> # Genes </th> <th> Download</th>  </tr>
+				            			<tr> <th class="headerSort"> Category </th> <th> # Genes </th> </tr>
 				            		</thead>
 				            		<tbody>
 				            		<c:forEach var="key" items="${viabilityTable.keySet()}">
 					            		<tr>
 					            			<td><h4 class="capitalize">${key}</h4></td>
-					            			<td><h4>${viabilityTable.get(key)}</h4></td> 
-					            			<td>
-					            				<c:choose>
-									            	<c:when test='${key.equalsIgnoreCase("All")}'>
-									            		<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"></i></a>
-									            	</c:when>
-									            	<c:otherwise>
-														<a href="" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"></i></a>
-									            	</c:otherwise>
-									           </c:choose>
-					            			</td>					            					
+					            			<td><h4>${viabilityTable.get(key)}</h4></td>			            					
 					            		</tr>
 									</c:forEach>
+									<tr> 
+										<td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"> Download</i></a></td>
+										<td></td>	
+									</tr>
 				            		</tbody></table>
 								</div>
 								<div class="clear"> </div>								
