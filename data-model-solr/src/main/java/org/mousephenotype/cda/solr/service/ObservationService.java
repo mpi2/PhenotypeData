@@ -45,6 +45,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
@@ -366,13 +367,17 @@ public class ObservationService extends BasicService implements WebStatus {
     }
     
 
-    public QueryResponse getViabilityData(List<String> resources)
+    public QueryResponse getViabilityData(List<String> resources, List<String> category)
     throws SolrServerException {
 
         SolrQuery query = new SolrQuery();
         if (resources != null) {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
+        if (resources != null) {
+            query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(category, " OR " + ObservationDTO.CATEGORY + ":"));
+        }
+
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.COLONY_ID);
@@ -384,10 +389,10 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query);
     }
 
-	public HashMap<String, Long> getViabilityCategories(List<String> resources) throws SolrServerException {
+	public TreeMap<String, Long> getViabilityCategories(List<String> resources) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
-		HashMap<String, Long> res = new HashMap<>();
+		TreeMap<String, Long> res = new TreeMap<>(getComparatorForViabilityChart());
 		
 		if (resources != null) {
 			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
@@ -402,13 +407,36 @@ public class ObservationService extends BasicService implements WebStatus {
 		logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
 
 		try {
-			res = getFacets(solr.query(query)).get(ObservationDTO.CATEGORY);
+			res.putAll(getFacets(solr.query(query)).get(ObservationDTO.CATEGORY));
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
 
 		return res;
 	}
+	
+	private static Comparator<String> getComparatorForViabilityChart()	{   
+		Comparator<String> comp = new Comparator<String>(){
+		    @Override
+		    public int compare(String param1, String param2)
+		    {
+		    	if (param1.contains("- Viable") && !param2.contains("- Viable")){
+					return -1;
+				}
+				if (param2.contains("- Viable") && !param1.contains("- Viable")){
+					return 1;
+				}
+				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
+					return 1;
+				}
+				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
+					return 1;
+				}
+				return param1.compareTo(param2);
+		    }
+		};
+		return comp;
+	}  
     
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
     throws SolrServerException, InterruptedException {
