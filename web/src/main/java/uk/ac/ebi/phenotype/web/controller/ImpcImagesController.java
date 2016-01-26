@@ -77,6 +77,33 @@ public class ImpcImagesController {
 
 		return "laczImages";
 	}
+	
+	@RequestMapping("/impcImages/embryolaczimages/{acc}/{topLevelEmap}")
+	public String embryoLaczImages(@PathVariable String acc, @PathVariable String topLevelEmap, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
+
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
+
+		System.out.println("calling embryolaczImages web page with specific term="+topLevelEmap);
+		addGeneSymbolToPage(acc, model);
+		boolean overview=false;
+		boolean embryoOnly=true;
+		expressionService.getLacImageDataForGene(acc, topLevelEmap,overview, embryoOnly, model);
+
+		return "laczImages";
+	}
+
+	@RequestMapping("/impcImages/embryolaczimages/{acc}")
+	public String embryoLaczImages(@PathVariable String acc, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
+		System.out.println("calling embryolaczImages web page");
+		addGeneSymbolToPage(acc, model);
+		boolean overview=false;
+		boolean embryoOnly=true;
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+
+		return "laczImages";
+	}
 
 	private void addGeneSymbolToPage(String acc, Model model)
 			throws SolrServerException {

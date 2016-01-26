@@ -39,6 +39,7 @@ import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
@@ -56,6 +57,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import hidden.org.codehaus.plexus.interpolation.os.Os;
 import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
@@ -85,28 +88,29 @@ public class FileExportController {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-//	@Autowired
-//	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
-
 	@Autowired
-	private SolrIndex solrIndex;
-
+	private ObservationService os;
 	@Autowired
 	private GeneService geneService;
 	
-
 	@Autowired
 	private ImageService imageService;
 
+	@Autowired
+	private MpService mpService;
+	
+	@Autowired
+	private ExperimentService experimentService;
+
+	@Autowired
+	private SolrIndex solrIndex;
+	
 	@Autowired
     @Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO ppDAO;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
-
-	@Autowired
-	private ExperimentService experimentService;
 
 	@Autowired
 	OrganisationDAO organisationDao;
@@ -116,9 +120,6 @@ public class FileExportController {
 
 	@Autowired
 	AlleleDAO alleleDAO;
-
-	@Autowired
-	private MpService mpService;
 
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
@@ -140,9 +141,6 @@ public class FileExportController {
 	@Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
-
-	@Autowired
-	private DataTableController dataTableController;
 
 	@Autowired
 	private SearchController searchController;
@@ -431,6 +429,7 @@ public class FileExportController {
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
 
 	}
+	
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
 			String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity,

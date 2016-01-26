@@ -301,6 +301,7 @@ public class GenesController {
 			getExpressionImages(acc, model);
 			getImpcImages(acc, model);
 			getImpcExpressionImages(acc, model);
+			getImpcEmbryoExpressionImages(acc, model);
 
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
@@ -695,14 +696,29 @@ public class GenesController {
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException, SQLException {
 		boolean overview=true;
-		boolean expressionOverview=true;
-		expressionService.getLacImageDataForGene(acc, null, overview, expressionOverview, model);
+		boolean embryoOnly=false;
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model);
+	}
+	
+	/**
+	 * Get the first 5 wholemount expression images if available
+	 *
+	 * @param acc
+	 *            the gene to get the images for
+	 * @param model
+	 *            the model to add the images to
+	 * @throws SolrServerException
+	 * @throws SQLException
+	 */
+	private void getImpcEmbryoExpressionImages(String acc, Model model)
+	throws SolrServerException, SQLException {
+		//good test gene:Nxn with selected top level emap terms
+		boolean overview=true;
+		boolean embryoOnly=true;
+		//get embryo images
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		
-		SolrDocumentList embryoExpressionDocs=expressionService.getEmbryoLacImageDataForGene(acc);
-		long numberEmbryoExpressionImages=embryoExpressionDocs.getNumFound();
-		model.addAttribute("numberEmbryoExpressionImages", numberEmbryoExpressionImages);
-		model.addAttribute("embryoExpressionDocs", embryoExpressionDocs);
 	}
 
 	/**
