@@ -57,12 +57,7 @@
 			 	padding-left:10%;
 			 	padding-right:10%;
 			 }
-			 
-			.sliderControl ul{
-				overflow-x:auto;
-				display: block;
-			}
-			
+			 			
 			.sliderControl ul li {
 				display:inline;
 				width:100px;
@@ -93,6 +88,17 @@
 			#sliderOnDisplay p.sliderTitle{
 				display : none;
 			}
+			
+			#sliderControl{
+				width: 100%;
+    			height: 120px;
+   				overflow-x: scroll;
+   				margin: 0.7em;
+			}
+			
+			#sliderControl ul{
+				display:inline-block;
+			}	
 			
 			li.sliderSelectedControl{
     			border: 1px solid black;
@@ -206,6 +212,17 @@
 										    <li id="item3"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
 										    	<p class="sliderTitle"> Gene symbol</p> </li>
 										    <li id="item4"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
+										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
+										    	<p class="sliderTitle"> Gene symbol</p></li>
+										    <li id="item5"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
+										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
+										    	<p class="sliderTitle">Rab23</p></li>
+										    <li id="item6"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
+										    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    	<p class="sliderTitle"> Glycogenin 1</p></li>
+										    <li id="item7"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
+										    	<p class="sliderTitle"> Gene symbol</p> </li>
+										    <li id="item8"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
 										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
 										    	<p class="sliderTitle"> Gene symbol</p></li>
 										  </ul> 
