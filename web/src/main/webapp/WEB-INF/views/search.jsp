@@ -366,7 +366,14 @@
 					// ----------- update "tab" url ---------------------
 
 					var currKw = $.fn.fetchUrlParams('kw');
+					// update url for all other datatypes (tabs)
 					if ( thisId != coreName ) {
+						console.log("tab: " + thisId + " --- query: " + query);
+
+						if ( query.indexOf(":") != -1 ){
+							query = query.replace(":", "\\%3A");
+						}
+
 						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 					}
 
@@ -459,14 +466,17 @@
 						// update pagination control
 						addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
 
-						// add Download
-						addDownloadTool();
+						// do these only when there is result found
+						if ( $('div#dTable_pagination li.active a').size() > 0 ) {
+							// add Download
+							addDownloadTool();
 
-						// highlight synonyms
-						highlighSynonym();
+							// highlight synonyms
+							highlighSynonym();
 
-						// register interest js
-						addRegisterInterestJs();
+							// register interest js
+							addRegisterInterestJs();
+						}
 					}
 				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
@@ -475,6 +485,16 @@
 				// ----------- when a "tab" is clicked ----------------
 				$("ul.tabLabel > li a").click(function(){
 					//$('#resultMsg').text("Fetching data ....");
+					// update "tab" link url
+
+					/*var thisId = $(this).parent().attr('id').replace("T","");
+					alert("click tab: " + thisId)
+					if ( $.fn.fetchUrlParams('fq') != undefined ){
+						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));
+					}
+					else {
+						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
+					}*/
 				});
 
 
