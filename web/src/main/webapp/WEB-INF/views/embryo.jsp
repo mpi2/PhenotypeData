@@ -185,7 +185,20 @@
 								</div>
 								<div class="clear"> </div>								
 	                           
-                                                        	
+	                           	<p>We estimate that approximately one third of genes are essential for the development and life of mammalian organisms. 
+	                           	As part of IMPC, each gene knockout is assessed for its viability during weaning and below is a complete table of all 
+	                           	currently known lethal (essential) genes that are known thus far for IMPC. For those lethal lines they will continue through 
+	                           	the adult pipeline as heterozygous knockouts and this data can be explored on the portal  and the homozygous embryos will be 
+	                           	phenotyped in the embryonic and perinatal lethal pipeline. We have included several interesting vignettes that highlight the 
+	                           	utility of this pipeline in terms of gross morphology, embryonic lacz expression, and high resolution 3D imaging. Each of these 
+	                           	types of examination are briefly explored further within this landing page with examples.</p>
+								<p>We also have extensive documentation available on each aspect of the portal and a tutorial on how to access the data for 
+									 independent researchers looking to make the best use of this encyclopedic resource. IMPC is a large-scale resource involving 
+									 many researchers and phenotypes and as such we have developed IMPReSS that captures and stores how each procedure has been 
+									 standardised and carried out at each IMPC center. This will eventually form an invaluable resource for developmental biologists 
+									 and translation rare disease research and we have one such example where a knockout has been taken on for further research and 
+									 funded through the <a href="http://grants.nih.gov/grants/guide/pa-files/PAR-13-231.html">NIH PAR-13-231</a> funding mechanism.</p>
+	                           
                             </div>
                         </div>
 
