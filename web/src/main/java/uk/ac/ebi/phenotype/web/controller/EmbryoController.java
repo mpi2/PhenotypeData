@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,13 +45,15 @@ public class EmbryoController {
 		AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
 		List<String> resources = new ArrayList<>();
 		resources.add("IMPC");
-		HashMap<String, Long> viabilityMap = os.getViabilityCategories(resources);
+		TreeMap<String, Long> viabilityMap = os.getViabilityCategories(resources);
 		LinkedHashMap<String, Long> viabilityTable = consolidateViabilityTable(viabilityMap);
 		List<GeneDTO> genesWithEmbryoViewer = gs.getGenesWithEmbryoViewer();
 		
 		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "", "viabilityChart"));
 		model.addAttribute("viabilityTable", viabilityTable);
 		model.addAttribute("genesWithEmbryoViewer", genesWithEmbryoViewer);
+		
+		System.out.println("VIA map " + viabilityMap);
 		
 		return "embryo";
 	}
@@ -62,7 +65,7 @@ public class EmbryoController {
 	 * @param map <viability category, number of genes in category>
 	 * @return map <simplified category, number of genes in categ>
 	 */
-	LinkedHashMap<String, Long> consolidateViabilityTable(HashMap<String, Long> map){
+	LinkedHashMap<String, Long> consolidateViabilityTable(TreeMap<String, Long> map){
 		
 		LinkedHashMap<String, Long> res = new LinkedHashMap<>();
 		Long all = new Long(0);
