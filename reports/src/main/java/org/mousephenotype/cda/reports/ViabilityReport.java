@@ -77,13 +77,14 @@ public class ViabilityReport extends AbstractReport {
 
         try {
             QueryResponse response = observationService.getViabilityData(resources, null);
-            String[] header = {"Gene", "Colony", "Category"};
+            String[] header = {"Gene symbol", "Gene id", "Colony", "Zygosity", "Category"};
             allTable.add(header);
             for ( SolrDocument doc : response.getResults()){
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
                 HashSet genes = new HashSet<>();
                 String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
-                        doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category};
+                		(doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) != null) ? doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString() : "",
+                        doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category.split(" - ")[0], category.split(" - ")[1]};
                 allTable.add(row);
                 if (countsByCategory.containsKey(category)){
                     countsByCategory.put(category, countsByCategory.get(category) + 1);
