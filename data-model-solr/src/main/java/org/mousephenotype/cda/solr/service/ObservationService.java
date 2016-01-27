@@ -387,7 +387,6 @@ public class ObservationService extends BasicService implements WebStatus {
 
         logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
 
-        System.out.println("---- getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
         return solr.query(query);
     }
 
