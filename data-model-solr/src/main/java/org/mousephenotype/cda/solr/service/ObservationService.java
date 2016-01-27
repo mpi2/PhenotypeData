@@ -374,18 +374,20 @@ public class ObservationService extends BasicService implements WebStatus {
         if (resources != null) {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
-        if (resources != null) {
+        if (category != null && category.size() > 0) {
             query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(category, " OR " + ObservationDTO.CATEGORY + ":"));
         }
 
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
         query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
         query.addField(ObservationDTO.COLONY_ID);
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
 
         logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
 
+        System.out.println("---- getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
         return solr.query(query);
     }
 
