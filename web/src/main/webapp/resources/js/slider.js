@@ -10,12 +10,16 @@
         		var slideWidth = $('#slider ul li').width();
         		var slideHeight = $('#slider ul li').height();
         		var sliderUlWidth = slideCount * slideWidth;
+        		var sliderControlWidth = $('#sliderControl ul li').length * ($('#sliderControl ul li').width() + 10);
         		
         		$('#slider').css({ width: slideWidth, height: slideHeight });
         		$('#slider ul').css({ width: sliderUlWidth, marginLeft: - slideWidth });
         		$('#sliderControl ul li:first-child').clone().appendTo($('#sliderHighlight'));
         		moveToPosition(0);
         		
+        		
+        		$("#sliderControl ul").css({width: sliderControlWidth}); // Set width of gallery scroll
+
         	    function moveLeft() {
          	       var index = $("#sliderOnDisplay").attr("index");
          	       if (index > 0){
@@ -40,9 +44,10 @@
         	        $('#sliderHighlight').animate({
         	            left: - slideWidth
         	        }, 0, function () {
-        	        	console.log(pos);	
+	
        	        	 	$('#sliderHighlight li').replaceWith($('#item'+pos).clone().attr("id", "sliderOnDisplay").attr("index", pos));
        	        	 	$('#sliderHighlight li').css('left', '');
+       	        	 	$('#sliderHighlight li').prepend("<h2 class='sliderTitle'>" + $('#item'+pos+' p.sliderTitle').text() + "</h2>");
        	        	 	$('.sliderSelectedControl').removeClass("sliderSelectedControl");
        	        	 	$('#item'+pos).addClass("sliderSelectedControl");	
         	        });

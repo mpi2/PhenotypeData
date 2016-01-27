@@ -4,7 +4,7 @@
 <t:genericpage>
 
   <jsp:attribute name="title">IMPC Search</jsp:attribute>
-  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">search doc</a> &raquo; <a href="${baseUrl}/documentation/doc-search-genes">search doc Genes</a></jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">Search data</a> &raquo; <a href="${baseUrl}/documentation/doc-search-genes">Search Genes</a></jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
@@ -58,7 +58,7 @@
             max-width:100%;
             max-height:100%;
           }
-
+          div#note {color: darkorange;}
         </style>
 
 	</jsp:attribute>
@@ -81,7 +81,7 @@
         <%@ include file="search-generic-features.jsp" %>
       </div>
       <div id="tabs-2">
-
+        <div id="note">For more information about the page layout and the basic search functionalities please consult the Generic Search Features tab.</div><br>
         <div>First, click on the "Genes" datatype tab. It will show all the genes that IMPC knows about if no filters are ticked on the left panel.<br>
           You could enter a gene symbol/ID/name or human orthologue into the main input box and/or click on a filter on the left panel to narrow down your result to relevant gene(s).
           <p>The screenshot below shows searching the gene symbol "mtf1":<br>

@@ -346,7 +346,9 @@ public class AnalyticsChartProvider {
 
 	public String getSlicedPieChart(Map<String, Long> slicedOut, Map<String, Long> notSliced, String title, String containerId){
 
-			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
+			List<String> colors=java.util.Arrays.asList( "'rgba(9, 120, 161,1)'", "'rgba(255, 201, 67, 1)'", "'rgba(239, 123, 11, 1)'","'rgba(119, 119, 119, 1)'", 
+					 "'rgba(36, 139, 75, 1)'", "'rgba(238, 238, 180, 1)'", "'rgba(191, 75, 50, 1)'", "'rgba(191, 151, 50, 1)'", "'rgba(239, 123, 11, 1)'" ,
+					"'rgba(247, 157, 70, 1)'", "'rgba(247, 181, 117, 1)'",  "'rgba(191, 75, 50, 1)'", "'rgba(151, 51, 51, 1)'");
 			JSONArray data = new JSONArray();
 			try {
 				for ( Entry<String, Long> entry : slicedOut.entrySet()){
