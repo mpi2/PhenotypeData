@@ -46,7 +46,7 @@
 						 
 			 .slider img{
 			 	max-width:100%;
-			 	max-height:80%;
+			 	max-height:70%;
 			 	margin-left: auto;
     			margin-right: auto;
     			display: block;
@@ -54,8 +54,9 @@
 			 
 			 .slider p{
 			 	z-index: 1000;
-			 	padding-left:10%;
-			 	padding-right:10%;
+			 	padding-left:8%;
+			 	padding-right:8%;
+			 	height: 20%;
 			 }
 			 			
 			.sliderControl ul li {
@@ -122,23 +123,21 @@
 			  text-decoration: none;
 			  font-weight: 600;
 			  font-size: 18px;
-			  opacity: 0.8;
+			  opacity: 0.2;
 			  cursor: pointer;
 			}
 			
-			.control_prev:hover, div.control_next:hover {
-			  opacity: 1;
+			.control_prev:hover, .control_next:hover {
+			  opacity: 0.8;
 			  -webkit-transition: all 0.2s ease;
 			}
 			
 			.control_prev {
 			  border-radius: 0 2px 2px 0;
-			  opacity: 0.5;
 			}
 			
 			.control_next {
 			  right: 0;
-			  opacity: 0.5;
 			  border-radius: 2px 0 0 2px;
 			}
 						
@@ -172,26 +171,17 @@
 					            		</tr>
 									</c:forEach>
 									<tr> 
-										<td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"> Download</i></a></td>
+										<td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;" download> <i class="fa fa-download" alt="Download"> Download</i></a></td>
 										<td></td>	
 									</tr>
 				            		</tbody></table>
 								</div>
 								<div class="clear"> </div>								
 	                           
-	                           	<p>We estimate that approximately one third of genes are essential for the development and life of mammalian organisms. 
-	                           	As part of IMPC, each gene knockout is assessed for its viability during weaning and below is a complete table of all 
-	                           	currently known lethal (essential) genes that are known thus far for IMPC. For those lethal lines they will continue through 
-	                           	the adult pipeline as heterozygous knockouts and this data can be explored on the portal  and the homozygous embryos will be 
-	                           	phenotyped in the embryonic and perinatal lethal pipeline. We have included several interesting vignettes that highlight the 
-	                           	utility of this pipeline in terms of gross morphology, embryonic lacz expression, and high resolution 3D imaging. Each of these 
-	                           	types of examination are briefly explored further within this landing page with examples.</p>
-								<p>We also have extensive documentation available on each aspect of the portal and a tutorial on how to access the data for 
-									 independent researchers looking to make the best use of this encyclopedic resource. IMPC is a large-scale resource involving 
-									 many researchers and phenotypes and as such we have developed IMPReSS that captures and stores how each procedure has been 
-									 standardised and carried out at each IMPC center. This will eventually form an invaluable resource for developmental biologists 
-									 and translation rare disease research and we have one such example where a knockout has been taken on for further research and 
-									 funded through the <a href="http://grants.nih.gov/grants/guide/pa-files/PAR-13-231.html">NIH PAR-13-231</a> funding mechanism.</p>
+	                           	<p>Each IMPC gene knockout strain is assessed for viability. A strain is declared lethal if no homozygote nulls are detected at 
+	                           	weaning age and subviable if null homozygote pups are < 12.5% of litter number. Non-viable homozygous embryos are phenotyped in the 
+	                           	<a href="#pipeline">embryonic and perinatal lethal pipeline</a> and heterozygotes, if viable, are phenotyped in the 
+	                           	IMPC adult phenotyping pipeline. Figures and downloads are automatically updated with each data release.</p>
 	                           
                             </div>
                         </div>
@@ -202,18 +192,21 @@
                             <div class="inner">
 								<div id="sliderDiv">
 									<div id="slider">
-										<div id="sliderHighlight" class="slider"> </div>
+										<div id="sliderHighlight" class="slider" imgUrl="${drupalBaseUrl}/vignettes"> </div>
 										<div> 
 											<span class="control_next half left">></span>
 											<span class="control_prev half right"><</span>
 										</div>
 									</div>
 									<div class="clear"> </div>									
-									<div id="sliderControl" class="sliderControl">
+									<div id="sliderControl" class="sliderControl" >
 										<ul>
 										    <li id="item0">  <img src="${baseUrl}/img/vignettes/Chtop.png" />
-										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of vertebrae, abnormal joint morphology and edema. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
-										    	<p class="sliderTitle"> Chtop</p></li>
+										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
+										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
+										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
+										    		vertebrae, abnormal joint morphology and edema. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
 										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
 										    	<p class="sliderTitle">Rab23</p></li>
@@ -239,6 +232,10 @@
 										  </ul> 
 									</div>
 	                           	</div>
+	                           	<br/>
+	                           	<p> These vignettes highlight the utility of embryo phenotyping pipeline and demonstrate how gross morphology, embryonic 
+	                           	lacz expression, and high resolution 3D imaging provide insights into developmental biology. Clicking on an image will provide 
+	                           	more information. </p>
                             </div>
 
                         </div>
@@ -290,7 +287,7 @@
 
                         </div>
                         
-                         <div class="section">
+                         <div class="section" id="pipeline">
 							<h2 class="title ">IMPC Embryonic Pipeline</h2>
                             <div class="inner">
 	                        	<div><img src="${baseUrl}/img/embryo_impress.png"/></div>
