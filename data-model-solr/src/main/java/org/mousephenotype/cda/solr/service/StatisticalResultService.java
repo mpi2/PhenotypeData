@@ -1423,6 +1423,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.addField(StatisticalResultDTO.ALLELE_SYMBOL)
 				.addField(StatisticalResultDTO.COLONY_ID)
 				.addField(StatisticalResultDTO.MARKER_SYMBOL)
+				.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
 				.addField(StatisticalResultDTO.ZYGOSITY)
 				.addField(StatisticalResultDTO.PHENOTYPING_CENTER)
 				.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
