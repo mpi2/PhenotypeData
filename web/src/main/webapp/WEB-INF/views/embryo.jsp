@@ -46,7 +46,7 @@
 						 
 			 .slider img{
 			 	max-width:100%;
-			 	max-height:80%;
+			 	max-height:70%;
 			 	margin-left: auto;
     			margin-right: auto;
     			display: block;
@@ -54,8 +54,9 @@
 			 
 			 .slider p{
 			 	z-index: 1000;
-			 	padding-left:10%;
-			 	padding-right:10%;
+			 	padding-left:8%;
+			 	padding-right:8%;
+			 	height: 20%;
 			 }
 			 			
 			.sliderControl ul li {
@@ -122,23 +123,21 @@
 			  text-decoration: none;
 			  font-weight: 600;
 			  font-size: 18px;
-			  opacity: 0.8;
+			  opacity: 0.2;
 			  cursor: pointer;
 			}
 			
-			.control_prev:hover, div.control_next:hover {
-			  opacity: 1;
+			.control_prev:hover, .control_next:hover {
+			  opacity: 0.8;
 			  -webkit-transition: all 0.2s ease;
 			}
 			
 			.control_prev {
 			  border-radius: 0 2px 2px 0;
-			  opacity: 0.5;
 			}
 			
 			.control_next {
 			  right: 0;
-			  opacity: 0.5;
 			  border-radius: 2px 0 0 2px;
 			}
 						
@@ -172,7 +171,7 @@
 					            		</tr>
 									</c:forEach>
 									<tr> 
-										<td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;"> <i class="fa fa-download" alt="Download"> Download</i></a></td>
+										<td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/viabilityReport.csv" style="text-decoration:none;" download> <i class="fa fa-download" alt="Download"> Download</i></a></td>
 										<td></td>	
 									</tr>
 				            		</tbody></table>
@@ -213,7 +212,7 @@
 										<ul>
 										    <li id="item0">  <img src="${baseUrl}/img/vignettes/Chtop.png" />
 										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of vertebrae, abnormal joint morphology and edema. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
-										    	<p class="sliderTitle"> Chtop</p></li>
+										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
 										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
 										    	<p class="sliderTitle">Rab23</p></li>
