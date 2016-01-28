@@ -698,7 +698,7 @@ public class GenesController {
 		boolean overview=true;
 		boolean embryoOnly=false;
 		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
-		expressionService.getExpressionDataForGene(acc, model);
+		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	
 	/**
@@ -718,6 +718,7 @@ public class GenesController {
 		boolean embryoOnly=true;
 		//get embryo images
 		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 		
 	}
 

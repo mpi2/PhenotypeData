@@ -51,6 +51,21 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	List<String> categories = new ArrayList<>();
 	List<String> mpIds = new ArrayList<>();
 	
+	private String emapId;
+	public String getEmapId() {
+		return emapId;
+	}
+	public void setEmapId(String emapId) {
+		this.emapId = emapId;
+	}
+	public String getEmapName() {
+		return emapName;
+	}
+	public void setEmapName(String emapName) {
+		this.emapName = emapName;
+	}
+	private String emapName;
+	
 	
 	public boolean isAnnotate() {
 		return annotate;
@@ -194,6 +209,7 @@ public class ParameterDTO  extends ImpressBaseDTO{
 				+ ", observationType=" + observationType + ", procedureStableIds=" + procedureStableIds
 				+ ", categories=" + categories + ", mpIds=" + mpIds + "]";
 	}
+	
 	
 	
 	
