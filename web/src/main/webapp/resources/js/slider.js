@@ -16,6 +16,7 @@
         		$('#slider ul').css({ width: sliderUlWidth, marginLeft: - slideWidth });
         		$('#sliderControl ul li:first-child').clone().appendTo($('#sliderHighlight'));
         		moveToPosition(0);
+        		$('.slider img').wrap('<a href="' + $('#sliderHighlight').attr('imgUrl') + '"> </a>');
         		
         		
         		$("#sliderControl ul").css({width: sliderControlWidth}); // Set width of gallery scroll

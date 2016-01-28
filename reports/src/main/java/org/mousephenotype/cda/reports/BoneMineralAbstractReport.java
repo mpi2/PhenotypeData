@@ -56,7 +56,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
 
      protected String[] header = {
-            "Gene", "Allele", "Colony", "Phenotyping Center", "First date", "Last date",
+            "Gene", "Gene Accession Id", "Allele", "Colony", "Phenotyping Center", "First date", "Last date",
             "Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male",
             "Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male",
             "Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male",
@@ -103,7 +103,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                 IpGTTStats stats;
                 stats = new IpGTTStats(group);
 
-                String[] row = { stats.geneSymbol, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
+                String[] row = { stats.geneSymbol, stats.geneAccessionId, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
                         "" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
                         "" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
                         "" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
@@ -129,6 +129,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
     protected class IpGTTStats {
 
         String geneSymbol;
+        String geneAccessionId;
         String alleleSymbol;
         String colony;
         String firstDate;
@@ -147,6 +148,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             phenotypingCenter = doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString();
             alleleSymbol = doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString();
             geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
+            geneAccessionId = doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString();
             firstDate = doc.getFieldValue(ObservationDTO.DATE_OF_EXPERIMENT).toString();
             lastDate = docList.get(docList.size()-1).getFieldValue(ObservationDTO.DATE_OF_EXPERIMENT).toString();
             datapoints = new HashMap<>();
