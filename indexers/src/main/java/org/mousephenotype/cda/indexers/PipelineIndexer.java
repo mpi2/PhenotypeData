@@ -543,7 +543,7 @@ protected void addAbnormalEmapOntology(){
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id = pploa.annotation_id "
 				+ " INNER JOIN ontology_term ot ON ot.acc = ppoa.ontology_acc "
-				+ " WHERE ppoa.ontology_db_id=14 LIMIT 10000";
+				+ " WHERE ppoa.ontology_db_id=14";
 		//14 db id is emap
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
 			
