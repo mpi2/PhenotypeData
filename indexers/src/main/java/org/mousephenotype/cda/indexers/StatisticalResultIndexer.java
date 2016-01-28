@@ -531,9 +531,13 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		StatisticalResultDTO doc = parseLineResultCommonFields(r);
 
-		String category = r.getString("category");
-		if (!r.wasNull() && category.equals("Insufficient numbers to make a call")) {
-			doc.setStatus("Failed - " + category);
+		try {
+			String category = r.getString("category");
+			if (!r.wasNull() && category.equals("Insufficient numbers to make a call")) {
+				doc.setStatus("Failed - " + category);
+			}
+		} catch (java.sql.SQLException e) {
+			// do nothing. Result set did not have "category" in it
 		}
 
 		String sex = r.getString("sex");
