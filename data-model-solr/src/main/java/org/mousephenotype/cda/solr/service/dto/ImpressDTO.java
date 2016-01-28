@@ -74,6 +74,9 @@ public class ImpressDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
+	
+	public static final String EMAP_ID = "emap_id";
+	public static final String EMAP_TERM = "emap_term";
 
 	@Field(INCREASED_MP_ID)
 	String increasedMpId;
@@ -211,6 +214,32 @@ public class ImpressDTO {
 	
 	@Field(MA_TERM)
 	private String maTerm;
+	
+	@Field(EMAP_ID)
+	private String emapId;
+
+	public String getEmapId() {
+		return emapId;
+	}
+
+
+	public void setEmapId(String emapId) {
+		this.emapId = emapId;
+	}
+
+
+	public String getEmapTerm() {
+		return emapTerm;
+	}
+
+
+	public void setEmapTerm(String emapTerm) {
+		this.emapTerm = emapTerm;
+	}
+
+	@Field(EMAP_TERM)
+	private String emapTerm;
+	
 
 
 	

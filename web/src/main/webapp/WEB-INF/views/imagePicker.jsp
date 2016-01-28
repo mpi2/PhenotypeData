@@ -61,7 +61,7 @@
                                 	<option data-img-src="${thumbnailUrl}" value="${img.omero_id}" data-img-label="
    										<c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
    										<c:if test="${not empty img.parameter_name}">${img.parameter_name}<br/></c:if>
-   										<c:if test="${not empty img.sex}">${img.sex}<br/></c:if>
+   										<c:if test="${not empty img.sex and img.sex ne 'no_data'}">${img.sex}<br/></c:if>
    										<c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if>
    										 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                  <c:if test="${not empty img.parameter_association_name}">
