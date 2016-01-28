@@ -106,7 +106,8 @@ public class PipelineIndexer extends AbstractIndexer {
 		paramIdToParameter = populateParamIdToParameterMap(runStatus);
 		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
 		pipelines = populatePipelineList();
-		addAbnormalMaOntologyMap();
+		addAbnormalMaOntology();
+		addAbnormalEmapOntology();
 		mpIdToMp = populateMpIdToMp();
 	}
 
@@ -205,6 +206,12 @@ public class PipelineIndexer extends AbstractIndexer {
 						
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
+						}
+						if(param.getEmapId()!=null){
+							doc.setEmapId(param.getEmapId());
+							if(param.getEmapName()!=null){
+								doc.setEmapTerm(param.getEmapName());
+							}
 						}
 						pipelineCore.addBean(doc);
 						documentCount++;
@@ -513,7 +520,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	
-	protected void addAbnormalMaOntologyMap(){
+	protected void addAbnormalMaOntology(){
 		
 		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
@@ -528,6 +535,29 @@ public class PipelineIndexer extends AbstractIndexer {
 				String parameterId = resultSet.getString("stable_id");
 				paramIdToParameter.get(parameterId).setMaId(resultSet.getString("ontology_acc"));
 				paramIdToParameter.get(parameterId).setMaName(resultSet.getString("name"));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+protected void addAbnormalEmapOntology(){
+		
+		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
+				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
+				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id = pploa.annotation_id "
+				+ " INNER JOIN ontology_term ot ON ot.acc = ppoa.ontology_acc "
+				+ " WHERE ppoa.ontology_db_id=14";
+		//14 db id is emap
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
+			
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+				String parameterId = resultSet.getString("stable_id");
+				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
+				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
 			}
 
 		} catch (Exception e) {

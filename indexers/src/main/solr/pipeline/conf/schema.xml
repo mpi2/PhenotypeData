@@ -193,6 +193,9 @@
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+	<field name="emap_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+	<field name="emap_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
+
 	<field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
     <field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
     <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
