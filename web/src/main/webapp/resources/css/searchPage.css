@@ -419,7 +419,7 @@ input.facetFilterSubmit {
 .block .head {
 	font-size: 18px !important;
 }
-div.head {
+div#facet > div.head {
 	color: #0978A1 !important;
 	background-color: white !important;
 	border-bottom: 1px solid #EDEDED;
