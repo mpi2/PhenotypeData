@@ -135,10 +135,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			statResultCore.deleteByQuery("*:*");
 
-//			count += processUnidimensionalResults();
-//			count += processCategoricalResults();
-//			count += processViabilityResults();
-//			count += processFertilityResults();
+			count += processUnidimensionalResults();
+			count += processCategoricalResults();
+			count += processViabilityResults();
+			count += processFertilityResults();
 			count += processEmbryoViabilityResults();
 
 			logger.info(" Added {} statistical result documents", count);
@@ -544,15 +544,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		Double line_p_value = r.getDouble("line_p_value");
 		if (!r.wasNull() && doc.getMpTermId()!=null) {
 			doc.setpValue(line_p_value);
-//		} else {
-//			doc.setpValue(1.0);
 		}
 
 		Double line_effect_size = r.getDouble("line_effect_size");
 		if (!r.wasNull() && doc.getMpTermId()!=null) {
 			doc.setEffectSize(line_effect_size);
-//		} else {
-//			doc.setEffectSize(0.0);
 		}
 
 
