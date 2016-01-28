@@ -111,7 +111,7 @@ public class ImpcPValuesReport extends AbstractReport {
         log.trace(" Parameter: " + org.apache.commons.lang3.StringUtils.join(sortedParameters, "\n Parameter: "));
 
         List<String> header = new ArrayList<>();
-        header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene", "Gene Accession Id", "Center"));
+        header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", "Center"));
         header.addAll(sortedParameters);
 
         csvWriter.writeNext(header);

@@ -414,6 +414,7 @@ public class ImageService implements WebStatus{
                 + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
         query.setRows(1000000);
         query.addField(ImageDTO.GENE_SYMBOL);
+		query.addField(ImageDTO.GENE_ACCESSION_ID);
         query.addField(ImageDTO.ALLELE_SYMBOL);
         query.addField(ImageDTO.COLONY_ID);
         query.addField(ImageDTO.BIOLOGICAL_SAMPLE_ID);
@@ -435,13 +436,14 @@ public class ImageService implements WebStatus{
             QueryResponse solrResult = solr.query(query);
             ArrayList<String> allParameters = new ArrayList<>();
             List<String> header = new ArrayList<>();
-            header.add(ImageDTO.ALLELE_SYMBOL);
-            header.add(ImageDTO.ALLELE_SYMBOL);
-            header.add(ImageDTO.COLONY_ID);
-            header.add(ImageDTO.BIOLOGICAL_SAMPLE_ID);
-            header.add(ImageDTO.ZYGOSITY);
-            header.add(ImageDTO.SEX);
-            header.add(ImageDTO.PHENOTYPING_CENTER);
+            header.add("Gene Symbol");
+			header.add("MGI Gene Id");
+            header.add("Allele Symbol");
+            header.add("Colony Id");
+            header.add("Biological Sample Id");
+            header.add("Zygosity");
+            header.add("Sex");
+            header.add("Phenotyping Centre");
 
             System.out.println(solr.getBaseURL() + "/select?" + query);
 

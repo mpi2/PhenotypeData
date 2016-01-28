@@ -122,7 +122,7 @@ public class FertilityReport extends AbstractReport {
             bothGenes.get("Fertile").retainAll(maleGenes.get("Fertile"));
             bothGenes.get("Infertile").retainAll(maleGenes.get("Infertile"));
 
-            result.add(Arrays.asList("Sex", "IMPC/3i Line count", "IMPC/3i Gene count", "IMPC/3i Gene Symbols", "IMPC/3i Gene Accession Ids").toArray(new String[4]));
+            result.add(Arrays.asList("Sex", "IMPC/3i Line Count", "IMPC/3i Gene Count", "IMPC/3i Gene Symbols", "IMPC/3i MGI Gene Ids").toArray(new String[4]));
             result.add(Arrays.asList("Both infertile", Integer.toString(bothColonies.get("Infertile").size()), Integer.toString(bothGenes.get("Infertile").size()), StringUtils.join(bothGenes.get("Infertile"), ";")).toArray(new String[4]));
             result.add(Arrays.asList("Both fertile", Integer.toString(bothColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
             result.add(Arrays.asList("Males infertile", Integer.toString(maleColonies.get("Infertile").size()), Integer.toString(maleGenes.get("Infertile").size()), StringUtils.join(maleGenes.get("Infertile"), ";")).toArray(new String[4]));
