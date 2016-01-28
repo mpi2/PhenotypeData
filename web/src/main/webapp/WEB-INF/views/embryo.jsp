@@ -278,7 +278,7 @@
 								<div class="half ">
 									<h2>Embryo Gross Morphology</h2>
                             		<img class="twothird"src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200"/>
-                            		<p class="onethird ">&nbsp;&nbsp;<a href="${drupalBaseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
+                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${drupalBaseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
                             		<div class="clear"></div> 
                             		<p class="minpadding">  Gross morphology of embryos from lethal and subviable strains highlights which biological systems are impacted when the 
                             		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.
