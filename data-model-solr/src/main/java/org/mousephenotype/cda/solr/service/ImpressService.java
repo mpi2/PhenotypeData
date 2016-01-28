@@ -450,7 +450,7 @@ public class ImpressService implements WebStatus {
 			pipelineDtos = response.getBeans(ImpressDTO.class);
 			for(ImpressDTO pipe:pipelineDtos){
 				if(!idToAbnormalEmapId.containsKey(pipe.getParameterStableId())){
-					idToAbnormalEmapId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getMaTermId(),pipe.getMaName()));
+					idToAbnormalEmapId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getEmapId(),pipe.getEmapTerm()));
 				}
 			}
 		} catch (SolrServerException e) {
@@ -491,16 +491,16 @@ public class ImpressService implements WebStatus {
 	public class OntologyBean{
 
 		public OntologyBean(String id, String name){
-			this.maId=id;
+			this.id=id;
 			this.name=name;
 		}
 
-		String maId;
-		public String getMaId() {
-			return maId;
+		String id;
+		public String getId() {
+			return id;
 		}
-		public void setMaId(String maId) {
-			this.maId = maId;
+		public void setId(String maId) {
+			this.id = maId;
 		}
 		String name;
 		public String getName() {

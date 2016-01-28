@@ -148,7 +148,7 @@ public class ExpressionService extends BasicService {
 			solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
 		}
 		if (embryo) {
-			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
+			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ images Section\" OR " + ImageDTO.PARAMETER_NAME
 					+ ":\"LacZ images wholemount\"");
 		} else {
 			solrQuery.addFilterQuery(ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\" OR " + ImageDTO.PARAMETER_NAME
@@ -619,7 +619,7 @@ public class ExpressionService extends BasicService {
 
 		for (String anatomy : expressionAnatomyToDocs.keySet()) {
 
-			ExpressionRowBean expressionRow = getAnatomyRow(anatomy, expressionAnatomyToDocs, false);
+			ExpressionRowBean expressionRow = getAnatomyRow(anatomy, expressionAnatomyToDocs, embryo);
 			int hetSpecimens = 0;
 			for (String key : expressionRow.getSpecimen().keySet()) {
 
@@ -630,14 +630,14 @@ public class ExpressionService extends BasicService {
 			expressionRow.setNumberOfHetSpecimens(hetSpecimens);
 			expressionAnatomyToRow.put(anatomy, expressionRow);
 
-			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs, false);
+			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs, embryo);
 
 			if (wtRow.getSpecimenExpressed().keySet().size() > 0) {
 				wtRow.setWildTypeExpression(true);
 			}
 			wtAnatomyToRow.put(anatomy, wtRow);
 
-			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy, mutantImagesAnatomyToDocs, false);
+			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy, mutantImagesAnatomyToDocs, embryo);
 			mutantImagesRow.setNumberOfHetSpecimens(hetSpecimens);
 			mutantImagesAnatomyToRow.put(anatomy, mutantImagesRow);
 
@@ -678,8 +678,8 @@ public class ExpressionService extends BasicService {
 						
 
 						if (ontologyBean != null) {
-
-							row.setAbnormalMaId(ontologyBean.getMaId());
+							System.out.println(ontologyBean.getId()+" "+ontologyBean.getName());
+							row.setAbnormalMaId(ontologyBean.getId());
 							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
 							System.out.println("no ma id for anatomy term=" + anatomy);
@@ -708,6 +708,7 @@ public class ExpressionService extends BasicService {
 
 		}
 		row.anatomy = anatomy;
+		System.out.println(row);
 		return row;
 	}
 
