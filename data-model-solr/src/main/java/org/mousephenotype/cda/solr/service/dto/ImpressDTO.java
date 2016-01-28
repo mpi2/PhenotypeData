@@ -218,17 +218,28 @@ public class ImpressDTO {
 	@Field(EMAP_ID)
 	private String emapId;
 
+	public String getEmapId() {
+		return emapId;
+	}
+
+
+	public void setEmapId(String emapId) {
+		this.emapId = emapId;
+	}
+
+
+	public String getEmapTerm() {
+		return emapTerm;
+	}
+
+
+	public void setEmapTerm(String emapTerm) {
+		this.emapTerm = emapTerm;
+	}
+
 	@Field(EMAP_TERM)
 	private String emapTerm;
 	
-	public static String getEmapId() {
-		return EMAP_ID;
-	}
-
-
-	public static String getEmapTerm() {
-		return EMAP_TERM;
-	}
 
 
 	

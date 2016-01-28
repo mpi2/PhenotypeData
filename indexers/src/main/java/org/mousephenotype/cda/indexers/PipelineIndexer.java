@@ -207,6 +207,12 @@ public class PipelineIndexer extends AbstractIndexer {
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
+						if(param.getEmapId()!=null){
+							doc.setEmapId(param.getEmapId());
+							if(param.getEmapName()!=null){
+								doc.setEmapTerm(param.getEmapName());
+							}
+						}
 						pipelineCore.addBean(doc);
 						documentCount++;
 					}
@@ -550,6 +556,7 @@ protected void addAbnormalEmapOntology(){
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
+				System.out.println("setting emap "+resultSet.getString("ontology_acc"));
 				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
 				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
 			}
