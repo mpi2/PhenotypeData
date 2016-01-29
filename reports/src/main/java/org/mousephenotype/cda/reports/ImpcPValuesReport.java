@@ -133,7 +133,8 @@ public class ImpcPValuesReport extends AbstractReport {
 
             for (String param : sortedParameters) {
                 if (matrixValues.get(rowKey).containsKey(param)) {
-                    row.add(matrixValues.get(rowKey).get(param).toString());
+                    String value = (matrixValues.get(rowKey).get(param) == null ? "" : matrixValues.get(rowKey).get(param).toString());
+                    row.add(value);
                 } else {
                     row.add("");
                 }
