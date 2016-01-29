@@ -390,10 +390,11 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query);
     }
 
-	public TreeMap<String, Long> getViabilityCategories(List<String> resources) throws SolrServerException {
+	public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
-		TreeMap<String, Long> res = new TreeMap<>(getComparatorForViabilityChart());
+		HashMap<String, Set<String>> res = new HashMap<>();
+		String pivot = ObservationDTO.CATEGORY + "," + ObservationDTO.GENE_SYMBOL;
 		
 		if (resources != null) {
 			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
@@ -403,12 +404,17 @@ public class ObservationService extends BasicService implements WebStatus {
 		query.setRows(0);
 		query.setFacet(true);
 		query.setFacetMinCount(1);
-		query.addFacetField(ObservationDTO.CATEGORY);
-
+		query.setFacetLimit(-1);
+		query.set("facet.pivot", pivot);
+		
 		logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
 
 		try {
-			res.putAll(getFacets(solr.query(query)).get(ObservationDTO.CATEGORY));
+			Map<String, List<String>> facets = getFacetPivotResults(solr.query(query), pivot);
+			for (String category : facets.keySet()){
+				res.put(category, new HashSet(facets.get(category).subList(0, facets.get(category).size())));
+			}
+			
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
@@ -416,28 +422,6 @@ public class ObservationService extends BasicService implements WebStatus {
 		return res;
 	}
 	
-	private static Comparator<String> getComparatorForViabilityChart()	{   
-		Comparator<String> comp = new Comparator<String>(){
-		    @Override
-		    public int compare(String param1, String param2)
-		    {
-		    	if (param1.contains("- Viable") && !param2.contains("- Viable")){
-					return -1;
-				}
-				if (param2.contains("- Viable") && !param1.contains("- Viable")){
-					return 1;
-				}
-				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
-					return 1;
-				}
-				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
-					return 1;
-				}
-				return param1.compareTo(param2);
-		    }
-		};
-		return comp;
-	}  
     
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
     throws SolrServerException, InterruptedException {
@@ -1505,7 +1489,7 @@ public class ObservationService extends BasicService implements WebStatus {
             query += ")";
 
             SolrQuery q = new SolrQuery().setQuery(query).addField(ObservationDTO.GENE_ACCESSION_ID)
-                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
+                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
             q.set("group.field", ObservationDTO.GENE_ACCESSION_ID);
             q.set("group", true);
             if (sex != null) {
