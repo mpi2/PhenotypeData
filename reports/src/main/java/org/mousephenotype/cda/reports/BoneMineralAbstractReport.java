@@ -56,7 +56,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
 
      protected String[] header = {
-            "Gene", "Gene Accession Id", "Allele", "Colony", "Phenotyping Center", "First date", "Last date",
+            "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Colony Id", "Phenotyping Center", "First Date", "Last Date",
             "Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male",
             "Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male",
             "Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male",

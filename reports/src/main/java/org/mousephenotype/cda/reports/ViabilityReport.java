@@ -77,7 +77,7 @@ public class ViabilityReport extends AbstractReport {
 
         try {
             QueryResponse response = observationService.getViabilityData(resources, null);
-            String[] header = {"Gene symbol", "Gene id", "Colony", "Zygosity", "Category"};
+            String[] header = {"Gene Symbol", "MGI Gene Id", "Colony Id", "Zygosity", "Category"};
             allTable.add(header);
             for ( SolrDocument doc : response.getResults()){
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();

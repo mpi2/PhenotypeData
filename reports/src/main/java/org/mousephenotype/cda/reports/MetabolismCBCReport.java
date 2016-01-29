@@ -49,8 +49,8 @@ public class MetabolismCBCReport extends AbstractReport {
     ObservationService observationService;
 
     private String[] header = new String[] {
-             "Mouse id", "Sample Type", "Gene", "Allele", "Zygosity"
-            ,"Sex", "Colony id", "Phenotyping center", "Metadata group"
+             "Mouse Id", "Sample Type", "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Zygosity"
+            ,"Sex", "Colony Id", "Phenotyping Center", "Metadata Group"
 
             ,"Total cholesterol IMPC_CBC_015_001"
             ,"HDL-cholesterol IMPC_CBC_016_001"
@@ -167,6 +167,7 @@ public class MetabolismCBCReport extends AbstractReport {
         retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
         retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
+        retVal.add(mouseInfoDTOs.get(0).getGeneAccession());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
         retVal.add(mouseInfoDTOs.get(0).getZygosity());
         retVal.add(mouseInfoDTOs.get(0).getSex());
