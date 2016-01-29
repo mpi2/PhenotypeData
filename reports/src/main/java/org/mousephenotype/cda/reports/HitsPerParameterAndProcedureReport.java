@@ -73,12 +73,12 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
         List<List<String[]>> result = new ArrayList<>();
         try {
             List<String[]> parameters = new ArrayList<>();
-            String[] headerParams  ={"Parameter Id", "Parameter Name", "# significant hits"};
+            String[] headerParams  ={"Parameter Id", "Parameter Name", "# Significant Hits"};
             parameters.add(headerParams);
             parameters.addAll(genotypePhenotypeService.getHitsDistributionByParameter(resources));
 
             List<String[]> procedures = new ArrayList<>();
-            String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# significant hits"};
+            String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# Significant Hits"};
             procedures.add(headerProcedures);
             procedures.addAll(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
 
