@@ -20,8 +20,10 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,9 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
+    @Autowired
+    GeneService geneService;
+
     public PhenotypeOverviewPerGeneReport() {
         super();
     }
@@ -72,7 +77,9 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
         long start = System.currentTimeMillis();
 
         List<String[]> result = new ArrayList<>();
-        String[] headerParams  ={"Marker symbol", "# phenotype hits", "phenotype hits"};
+        // According to Terry, there is a 1 to 1 relationship between Gene Symbol and MGI Gene Id, so we can just use a map, keyed by gene name, to accumulate the MGI Gene Ids.
+        Map<String, String> geneSymbolToId = new HashMap<>();
+        String[] headerParams  ={"Gene Symbol", "MGI Gene Id", "# Phenotype Hits", "Phenotype Hits"};
         result.add(headerParams);
 
         try {
@@ -89,22 +96,36 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                 }
 
                 if( ! geneToPhenotypes.containsKey(gp.getMarkerSymbol())) {
-                    geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<String>());
+                    geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<>());
                 }
 
                 geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
+                geneSymbolToId.put(gp.getMarkerSymbol(), gp.getMarkerAccessionId());
             }
+
+
 
             Set<String> allGenes = new HashSet<>(observationService.getGenesWithMoreProcedures(1, resources));
             allGenes.removeAll(geneToPhenotypes.keySet());
 
             for (String geneSymbol : geneToPhenotypes.keySet()) {
-                String[] row = {geneSymbol, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol), ": ")};
+                String mgiGeneId = (geneSymbolToId.containsKey(geneSymbol) ? geneSymbolToId.get(geneSymbol) : "");
+                String[] row = {geneSymbol, mgiGeneId, Integer.toString(geneToPhenotypes.get(geneSymbol).size()), StringUtils.join(geneToPhenotypes.get(geneSymbol), "::")};
                 result.add(row);
             }
 
+            String mgiGeneId = "";
             for (String geneSymbol : allGenes) {
-                String[] row = {geneSymbol, "0", ""};
+                if (geneSymbolToId.containsKey(geneSymbol)) {
+                    mgiGeneId = geneSymbolToId.get(geneSymbol);
+                } else {
+                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(geneSymbol);
+                    if (geneDTO != null) {
+                        mgiGeneId = geneDTO.getMgiAccessionId();
+                    }
+                }
+
+                String[] row = {geneSymbol, mgiGeneId, "0", ""};
                 result.add(row);
             }
             csvWriter.writeAll(result);

@@ -93,7 +93,7 @@ public class ZygosityReport extends AbstractReport {
         Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
         Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
 
-        String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Genes"};
+        String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Gene Symbol (MGI Gene Id)"};
         result.add(headerParams);
 
         try {
@@ -141,10 +141,22 @@ public class ZygosityReport extends AbstractReport {
             }
 
             for (Pair<String, ZygosityType> k : mps.keySet()) {
-                final String symbol = k.getLeft();
+                final String mpSymbol = k.getLeft();
                 final String zygosity = k.getRight().getName();
 
-                String[] row = {symbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mps.get(k), ": ")};
+
+                Set<String> mpsSet = new HashSet<>();
+                for (String gene : mps.get(k)) {
+                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(gene);
+
+                    if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
+                        mpsSet.add(gene + "(" + geneDTO.getMgiAccessionId() + ")");
+                    } else {
+                        mpsSet.add(gene);
+                    }
+                }
+
+                String[] row = {mpSymbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mpsSet, "::")};
                 result.add(row);
             }
 
@@ -173,7 +185,7 @@ public class ZygosityReport extends AbstractReport {
                 viabilityData.get(g).add(obs.getCategory());
             }
 
-            String[] resetHeaderParams = {"Marker symbol", "Center", "Viability", "Hom", "Het", "Hemi", "Link to Gene page"};
+            String[] resetHeaderParams = {"Gene Symbol", "MGI Gene Id", "Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
             result.add(resetHeaderParams);
 
             Set<String> geneSymbols = new HashSet<>();
@@ -219,9 +231,13 @@ public class ZygosityReport extends AbstractReport {
                     String geneLink = "";
                     if (gene != null) {
                         geneLink = drupalBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
+                        if (geneLink.startsWith("//")) {
+                            geneLink = "http:" + geneLink;
+                        }
                     }
 
-                    String[] row = {geneSymbol, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink};
+                    String mgiGeneId = ((gene != null) && (gene.getMgiAccessionId() != null) ? gene.getMgiAccessionId() : "");
+                    String[] row = {geneSymbol, mgiGeneId, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink};
                     if (include)
                         result.add(row);
                 }
