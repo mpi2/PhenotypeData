@@ -903,7 +903,7 @@
                                                                 href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a>
                                                             <c:if
                                                                     test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span
-                                                                    title="IMPReSS Term differs from MA term">(${mapEntry.key})</span>
+                                                                    title="IMPReSS Term differs from EMAP term">(${mapEntry.key})</span>
                                                             </c:if></td>
                                                         <td><span
                                                                 title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>
@@ -912,8 +912,8 @@
                                                                 <c:if test="${embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:${yesColor}"</c:if>>
                                      			<span
                                                         title="Homozygote Images are
-                                     			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available"><c:if
-                                                        test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">Yes</c:if>
+                                     			<c:if test="${!embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available"><c:if
+                                                        test="${embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">Yes</c:if>
 																<c:if
                                                                         test="${!embryoMutantImagesAnatomyToRow[mapEntry.key].homImages}">No</c:if></span>
                                                         </td>
@@ -924,7 +924,7 @@
                                      				<span
                                                             title="WT Expressed: ${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen)} wild type specimens"
                                                             class="${expressionIcon}"
-                                                            style="color:${yesColor}"></span>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen)})
+                                                            style="color:${yesColor}"></span>(${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen)})
                                                                 </c:when>
                                                                 <c:when
                                                                         test="${embryoWtAnatomyToRow[mapEntry.key].notExpressed}">
@@ -984,7 +984,7 @@
                                                             <c:if
                                                                     test="${embryoMutantImagesAnatomyToRow[mapEntry.key].imagesAvailable}">
                                                                 <a
-                                                                        href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Adult LacZ" AND ma_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.markerSymbol}")'><i
+                                                                        href='${baseUrl}/impcImages/images?q=*:*&fq=(procedure_name:"Embryo LacZ" AND emap_id:"${mapEntry.value.abnormalMaId}" AND marker_symbol:"${gene.markerSymbol}")'><i
                                                                         title="Images available (click on this icon to view images)"
                                                                         class="fa fa-image"
                                                                         alt="Images">(${embryoMutantImagesAnatomyToRow[mapEntry.key].numberOfImages})</i>
