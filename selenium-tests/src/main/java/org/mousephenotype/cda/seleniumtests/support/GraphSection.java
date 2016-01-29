@@ -172,7 +172,7 @@ public abstract class GraphSection {
     private void load() throws TestException {
 
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='chart']")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[starts-with(@class, 'continuousTable')]")));
 
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {
