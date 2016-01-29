@@ -872,6 +872,9 @@ public class AlleleIndexer extends AbstractIndexer {
             query.setSort(DiseaseBean.DISEASE_ID, SolrQuery.ORDER.asc);
 
             QueryResponse response = phenodigmCore.query(query);
+            if (response == null) {
+                throw new SolrServerException("Response from phendigm core is null. Chcek phenodigm core is up with query: " + query);
+            }
             List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
             for (DiseaseBean disease : diseases) {
                 if ( ! diseaseLookup.containsKey(disease.getMgiAccessionId())) {

@@ -79,19 +79,19 @@ public class FertilityReport extends AbstractReport {
             Map<String, Set<String>> femaleGenes = new HashMap<>();
             Map<String, Set<String>> bothGenes = new HashMap<>();
 
-            maleColonies.put("Fertile", new HashSet<String>());
-            maleColonies.put("Infertile", new HashSet<String>());
-            femaleColonies.put("Fertile", new HashSet<String>());
-            femaleColonies.put("Infertile", new HashSet<String>());
-            bothColonies.put("Fertile", new HashSet<String>());
-            bothColonies.put("Infertile", new HashSet<String>());
+            maleColonies.put("Fertile", new HashSet<>());
+            maleColonies.put("Infertile", new HashSet<>());
+            femaleColonies.put("Fertile", new HashSet<>());
+            femaleColonies.put("Infertile", new HashSet<>());
+            bothColonies.put("Fertile", new HashSet<>());
+            bothColonies.put("Infertile", new HashSet<>());
 
-            maleGenes.put("Fertile", new HashSet<String>());
-            maleGenes.put("Infertile", new HashSet<String>());
-            femaleGenes.put("Fertile", new HashSet<String>());
-            femaleGenes.put("Infertile", new HashSet<String>());
-            bothGenes.put("Fertile", new HashSet<String>());
-            bothGenes.put("Infertile", new HashSet<String>());
+            maleGenes.put("Fertile", new HashSet<>());
+            maleGenes.put("Infertile", new HashSet<>());
+            femaleGenes.put("Fertile", new HashSet<>());
+            femaleGenes.put("Infertile", new HashSet<>());
+            bothGenes.put("Fertile", new HashSet<>());
+            bothGenes.put("Infertile", new HashSet<>());
 
 
             List<ObservationDTO> observationResults = observationService.getObservationsByParameterStableId(MALE_FERTILITY_PARAMETER);
@@ -99,7 +99,7 @@ public class FertilityReport extends AbstractReport {
                 if (resources.contains(observationResult.getDataSourceName())) {
                     String key = observationResult.getCategory();
                     maleColonies.get(key).add(observationResult.getColonyId());
-                    maleGenes.get(key).add(observationResult.getGeneSymbol());
+                    maleGenes.get(key).add(observationResult.getGeneSymbol() + " (" + observationResult.getGeneAccession() + ")");
                 }
             }
 
@@ -108,7 +108,7 @@ public class FertilityReport extends AbstractReport {
                 if (resources.contains(observationResult.getDataSourceName())) {
                     String key = observationResult.getCategory();
                     femaleColonies.get(key).add(observationResult.getColonyId());
-                    femaleGenes.get(key).add(observationResult.getGeneSymbol());
+                    femaleGenes.get(key).add(observationResult.getGeneSymbol() + " (" + observationResult.getGeneAccession() + ")");
                 }
             }
 
@@ -122,7 +122,7 @@ public class FertilityReport extends AbstractReport {
             bothGenes.get("Fertile").retainAll(maleGenes.get("Fertile"));
             bothGenes.get("Infertile").retainAll(maleGenes.get("Infertile"));
 
-            result.add(Arrays.asList("Sex", "IMPC/3i Line count", "IMPC/3i Gene count", "IMPC/3i Gene Symbols").toArray(new String[4]));
+            result.add(Arrays.asList("Sex", "IMPC/3i Line count", "IMPC/3i Gene count", "IMPC/3i Gene Symbols", "IMPC/3i Gene Accession Ids").toArray(new String[4]));
             result.add(Arrays.asList("Both infertile", Integer.toString(bothColonies.get("Infertile").size()), Integer.toString(bothGenes.get("Infertile").size()), StringUtils.join(bothGenes.get("Infertile"), ";")).toArray(new String[4]));
             result.add(Arrays.asList("Both fertile", Integer.toString(bothColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
             result.add(Arrays.asList("Males infertile", Integer.toString(maleColonies.get("Infertile").size()), Integer.toString(maleGenes.get("Infertile").size()), StringUtils.join(maleGenes.get("Infertile"), ";")).toArray(new String[4]));
