@@ -468,6 +468,8 @@ public class ImageService implements WebStatus{
                     if (row.size() == 0) {
                         row.add(doc.getFieldValues(ImageDTO.GENE_SYMBOL)
                                 .iterator().next().toString());
+                        row.add(doc.getFieldValues(ImageDTO.GENE_ACCESSION_ID)
+                                .iterator().next().toString());
                         urlToImagePicker += doc
                                 .getFieldValue(ImageDTO.GENE_ACCESSION_ID)
                                 + "/";
