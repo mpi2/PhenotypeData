@@ -77,72 +77,43 @@ public class ViabilityReport extends AbstractReport {
         List<String[]> allTable = new ArrayList<>();
         List<String[]> countsTable = new ArrayList<>();
         List<String[]> genesTable = new ArrayList<>();
-        HashMap<String, Integer> countsByCategory = new HashMap<>();
-        HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
 
         try {
+        	
             QueryResponse response = observationService.getViabilityData(resources, null);
             String[] header = {"Gene Symbol", "MGI Gene Id", "Colony Id", "Zygosity", "Category"};
             allTable.add(header);
             for ( SolrDocument doc : response.getResults()){
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
-                HashSet genes = new HashSet<>();
                 String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
                 		(doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) != null) ? doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString() : "",
                         doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category.split(" - ")[0], category.split(" - ")[1]};
                 allTable.add(row);
-                if (countsByCategory.containsKey(category)){
-                    countsByCategory.put(category, countsByCategory.get(category) + 1);
-                }else {
-                    countsByCategory.put(category, 1);
-                }
-                if (genesByVia.containsKey(category)){
-                    genes = genesByVia.get(category);
-                }
-
-                if (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) {
-                    genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
-                } else {
-                    System.out.println("  ERROR: Could not get solr document field gene_symbol for document: " + doc);
-                }
-                genesByVia.put(category, genes);
             }
-
-            for (String cat: countsByCategory.keySet()){
-                String[] row = {cat, countsByCategory.get(cat).toString()};
+            
+            Map<String, Set<String>> viabilityRes = observationService.getViabilityCategories(resources);
+    		
+    		for (String cat: viabilityRes.keySet()){
+                String[] row = {cat, ""+viabilityRes.get(cat).size()};
                 countsTable.add(row);
             }
 
-            String[] genesHeader = {"Category", "# Genes", "Gene Symbols (MGI Gene Ids)"};
+            
+            String[] genesHeader = {"Category", "# genes", "Genes"};
             genesTable.add(genesHeader);
-            for (String cat : genesByVia.keySet()){
-                List<String> genesIdsList = new ArrayList<>();
-                for (String gene : genesByVia.get(cat)) {
-                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(gene);
-                    if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
-                        genesIdsList.add(gene + " (" + geneDTO.getMgiAccessionId() + ")");
-                    } else {
-                        genesIdsList.add(gene);
-                    }
-                }
-                String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesIdsList, "::")};
+            
+            for (String cat : viabilityRes.keySet()){
+                String[] row = {cat, "" + viabilityRes.get(cat).size(), StringUtils.join(viabilityRes.get(cat), ", ")};
                 genesTable.add(row);
             }
 
-            HashSet<String> conflicts = new HashSet<>();
-            for (String cat : genesByVia.keySet()){
-                for (String otherCat : genesByVia.keySet()) {
-                    if ( ! otherCat.equalsIgnoreCase(cat)) {
-                        Set<String> conflictingGenes = new HashSet(genesByVia.get(otherCat));
-                        conflictingGenes.retainAll(genesByVia.get(cat));
-                        for (String conflictingGene : conflictingGenes) {
-                            GeneDTO geneDTO = geneService.getGeneByGeneSymbol(conflictingGene);
-                            if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
-                                conflicts.add(conflictingGene + " (" + geneDTO.getMgiAccessionId() + ")");
-                            } else {
-                                conflicts.add(conflictingGene);
-                            }
-                        }
+            Set<String> conflicts = new HashSet<>();
+            for (String cat : viabilityRes.keySet()){
+                for (String otherCat : viabilityRes.keySet()){
+                    if (!otherCat.equalsIgnoreCase(cat)){
+                        Set<String> conflictingGenes = new HashSet(viabilityRes.get(otherCat));
+                        conflictingGenes.retainAll(viabilityRes.get(cat));
+                        conflicts.addAll(conflictingGenes);
                     }
                 }
             }
@@ -171,4 +142,7 @@ public class ViabilityReport extends AbstractReport {
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
+    
+    
+    
 }
