@@ -22,7 +22,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,9 @@ public class ViabilityReport extends AbstractReport {
 
     @Autowired
     ObservationService observationService;
+
+    @Autowired
+    GeneService geneService;
 
     public static final String[] EMPTY_ROW = new String[]{""};
 
@@ -108,20 +113,36 @@ public class ViabilityReport extends AbstractReport {
                 countsTable.add(row);
             }
 
-            String[] genesHeader = {"Category", "# genes", "Genes"};
+            String[] genesHeader = {"Category", "# Genes", "Gene Symbols (MGI Gene Ids)"};
             genesTable.add(genesHeader);
             for (String cat : genesByVia.keySet()){
-                String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesByVia.get(cat), ", ")};
+                List<String> genesIdsList = new ArrayList<>();
+                for (String gene : genesByVia.get(cat)) {
+                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(gene);
+                    if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
+                        genesIdsList.add(gene + " (" + geneDTO.getMgiAccessionId() + ")");
+                    } else {
+                        genesIdsList.add(gene);
+                    }
+                }
+                String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesIdsList, "::")};
                 genesTable.add(row);
             }
 
             HashSet<String> conflicts = new HashSet<>();
             for (String cat : genesByVia.keySet()){
-                for (String otherCat : genesByVia.keySet()){
-                    if (!otherCat.equalsIgnoreCase(cat)){
+                for (String otherCat : genesByVia.keySet()) {
+                    if ( ! otherCat.equalsIgnoreCase(cat)) {
                         Set<String> conflictingGenes = new HashSet(genesByVia.get(otherCat));
                         conflictingGenes.retainAll(genesByVia.get(cat));
-                        conflicts.addAll(conflictingGenes);
+                        for (String conflictingGene : conflictingGenes) {
+                            GeneDTO geneDTO = geneService.getGeneByGeneSymbol(conflictingGene);
+                            if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
+                                conflicts.add(conflictingGene + " (" + geneDTO.getMgiAccessionId() + ")");
+                            } else {
+                                conflicts.add(conflictingGene);
+                            }
+                        }
                     }
                 }
             }
