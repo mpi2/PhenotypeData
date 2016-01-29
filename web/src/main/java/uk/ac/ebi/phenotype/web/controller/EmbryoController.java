@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,11 +52,9 @@ public class EmbryoController {
 		Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources);
 		Map<String, Long> viabilityMap = getViabilityCategories(viabilityRes);
 		List<EmbryoTableRow> viabilityTable = consolidateZygosities(viabilityRes);
-		List<GeneDTO> genesWithEmbryoViewer = gs.getGenesWithEmbryoViewer();
 		
 		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "", "viabilityChart"));
 		model.addAttribute("viabilityTable", viabilityTable);
-		model.addAttribute("genesWithEmbryoViewer", genesWithEmbryoViewer);
 		
 		System.out.println("VIA map " + viabilityMap);
 		
@@ -148,6 +145,7 @@ public class EmbryoController {
 		};
 		return comp;
 	}
+	
 	/**
 	 * @author ilinca
 	 * @since 2016/01/28
