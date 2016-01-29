@@ -218,30 +218,30 @@ public class SexualDimorphismDAOImpl extends HibernateDAOImpl implements SexualD
 	List<String> getSexualDimorphismHeader() {
 
 		List<String> header = new ArrayList<>();
-		header.add("gene_symbol");
-		header.add("gene_acc");
-		header.add("allele_symbol");
-		header.add("allele_acc");
-		header.add("experimental_zygosity");
-		header.add("colony_id");
-		header.add("parameter");
-		header.add("dependent_variable");
-		header.add("female_mutants");
-		header.add("female_controls");
-		header.add("male_mutants");
-		header.add("male_controls");
-		header.add("classification");
-		header.add("workflow");
-		header.add("globalPValue");
-		header.add("standardEffectSize");
-		header.add("effect_percentage_difference");
-		header.add("male_genotype_pvalue");
-		header.add("male_genotype_estimate");
-		header.add("male_genotype_stderr");
-		header.add("female_genotype_pvalue");
-		header.add("female_genotype_estimate");
-		header.add("female_genotype_stderr");
-		header.add("graph");
+		header.add("Gene Symbol");
+		header.add("MGI Gene Id");
+		header.add("Allele Symbol");
+		header.add("MGI Allele Id");
+		header.add("Experimental Zygosity");
+		header.add("Colony Id");
+		header.add("Parameter");
+		header.add("Dependent Variable");
+		header.add("Female Mutants");
+		header.add("Female Controls");
+		header.add("Male Mutants");
+		header.add("Male Controls");
+		header.add("Classification");
+		header.add("Workflow");
+		header.add("Global P Value");
+		header.add("Standard Effect Size");
+		header.add("Effect Percentage Difference");
+		header.add("Male Genotype P Value");
+		header.add("Male Genotype Estimate");
+		header.add("Male Genotype Stderr");
+		header.add("Female Genotype P Value");
+		header.add("Female Genotype Estimate");
+		header.add("Female Genotype Stderr");
+		header.add("Graph URL");
 		return header;
 	}
 

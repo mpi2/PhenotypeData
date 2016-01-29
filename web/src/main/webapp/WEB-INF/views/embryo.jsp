@@ -168,10 +168,15 @@
 				            			<tr> <th class="headerSort"> Category </th> <th> # Genes </th> </tr>
 				            		</thead>
 				            		<tbody>
-				            		<c:forEach var="key" items="${viabilityTable.keySet()}">
+				            		<c:forEach var="row" items="${viabilityTable}">
 					            		<tr>
-					            			<td><h4 class="capitalize">${key}</h4></td>
-					            			<td><h4>${viabilityTable.get(key)}</h4></td>			            					
+					            			<td><h4 class="capitalize">${row.category}</h4></td>
+					            			<c:if test="${row.mpId != null}">    				
+					            				<td><h4><a href="${baseUrl}/phenotypes/${row.mpId}">${row.count}</a></h4></td>
+					            			</c:if>
+					            			<c:if test="${row.mpId == null}">    				
+					            				<td><h4>${row.count}</h4></td>
+					            			</c:if>	        	
 					            		</tr>
 									</c:forEach>
 									<tr> 
@@ -196,7 +201,7 @@
                             <div class="inner">
 								<div id="sliderDiv">
 									<div id="slider">
-										<div id="sliderHighlight" class="slider" imgUrl="${drupalBaseUrl}/vignettes"> </div>
+										<div id="sliderHighlight" class="slider" imgUrl="//dev.mousephenotype.org/vignettes"> </div>
 										<div> 
 											<span class="control_next half left">></span>
 											<span class="control_prev half right"><</span>
@@ -251,10 +256,14 @@
                             	<img alt="IEV" src="${baseUrl}/img/IEV.png">
                             	<p> The embryonic and perinatal lethal pipeline comprises several 3D imaging modalities to quantify aberrant morphology that could not be determined by gross inspection. Images acquired by micro-CT and OPT are available via our Interactive Embryo Viewer (IEV). </p>
                             	<div>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:2147810" style="margin: 10px">Tmem132a</a>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:1916804" style="margin: 10px">Klhdc2</a>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:1195985" style="margin: 10px">Cbx4</a>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=MGI:102806" style="margin: 10px">Acvr2a</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:2147810&pid=203&h=undefined&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=146521&wx=54&wy=66&wz=68&wl=0&wu=254&mn=129313&mx=52&my=68&mz=108&ml=0&mu=205" style="margin: 10px">
+                            		Tmem132a</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1916804&mod=203&h=624&wt=klf7-tm1b-ic/16.5b_5553715&mut=klhdc2-tm1b-ic/21.1f_5578050&s=on&c=off&a=off&wx=64&wy=117&wz=178&mx=44&my=107&mz=154&wl=0&wu=255&ml=0&mu=255&o=vertical&zoom=0" style="margin: 10px">
+                            		Klhdc2</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1195985&mod=203&h=561&wt=Population%20average&mut=AAPN_K1026-1-e15.5&s=off&c=off&a=on&wx=94&wy=64&wz=177&mx=94&my=70&mz=137&wl=0&wu=255&ml=0&mu=254&o=vertical&zoom=0&wto=jacobian&muto=none" style="margin: 10px">
+                            		Cbx4</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:102806&pid=203&h=569&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=ABIF_K1339-10-e15.5&wx=79&wy=107&wz=141&wl=0&wu=255&mn=ABIF_K1267-19-e15.5&mx=79&my=107&mz=142&ml=0&mu=255" style="margin: 10px">
+                            		Acvr2a</a>
                             		<a href="${baseUrl}/search/gene?kw=*&fq=(embryo_data_available:%22true%22)"> See all </a>
                             	</div>                              	
                             </div>
@@ -268,7 +277,7 @@
                             	<div class="half">
                             		<h2>Embryo LacZ</h2>
                             		<img src="${baseUrl}/img/Tmem100_het.jpeg" height="200" class="twothird"/>
-                            		<a class="onethird" href="${drupalBaseUrl}/imagePicker/MGI:1915138/IMPC_ELZ_063_001">Tmem100</a>
+                            		<a class="onethird" href="${baseUrl}/imagePicker/MGI:1915138/IMPC_ELZ_063_001">Tmem100</a>
                             		<div class="clear"></div> 
                             		<p class="minpadding"> The majority of IMPC knockout strains replace a critical protein coding exon with a LacZ gene expression 
                             		reporter element. Heterozygote E12.5 embryos from IMPC strains are treated to determine in situ expression of the targeted gene.
@@ -278,7 +287,7 @@
 								<div class="half ">
 									<h2>Embryo Gross Morphology</h2>
                             		<img class="twothird"src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200"/>
-                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${drupalBaseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
+                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
                             		<div class="clear"></div> 
                             		<p class="minpadding">  Gross morphology of embryos from lethal and subviable strains highlights which biological systems are impacted when the 
                             		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.

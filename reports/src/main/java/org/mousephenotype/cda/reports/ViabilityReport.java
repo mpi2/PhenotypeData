@@ -22,7 +22,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,9 @@ public class ViabilityReport extends AbstractReport {
 
     @Autowired
     ObservationService observationService;
+
+    @Autowired
+    GeneService geneService;
 
     public static final String[] EMPTY_ROW = new String[]{""};
 
@@ -72,55 +77,42 @@ public class ViabilityReport extends AbstractReport {
         List<String[]> allTable = new ArrayList<>();
         List<String[]> countsTable = new ArrayList<>();
         List<String[]> genesTable = new ArrayList<>();
-        HashMap<String, Integer> countsByCategory = new HashMap<>();
-        HashMap<String, HashSet<String>> genesByVia = new HashMap<>();
 
         try {
+        	
             QueryResponse response = observationService.getViabilityData(resources, null);
-            String[] header = {"Gene symbol", "Gene id", "Colony", "Zygosity", "Category"};
+            String[] header = {"Gene Symbol", "MGI Gene Id", "Colony Id", "Zygosity", "Category"};
             allTable.add(header);
             for ( SolrDocument doc : response.getResults()){
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
-                HashSet genes = new HashSet<>();
                 String[] row = {(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "",
                 		(doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) != null) ? doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString() : "",
                         doc.getFieldValue(ObservationDTO.COLONY_ID).toString(), category.split(" - ")[0], category.split(" - ")[1]};
                 allTable.add(row);
-                if (countsByCategory.containsKey(category)){
-                    countsByCategory.put(category, countsByCategory.get(category) + 1);
-                }else {
-                    countsByCategory.put(category, 1);
-                }
-                if (genesByVia.containsKey(category)){
-                    genes = genesByVia.get(category);
-                }
-
-                if (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null) {
-                    genes.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
-                } else {
-                    System.out.println("  ERROR: Could not get solr document field gene_symbol for document: " + doc);
-                }
-                genesByVia.put(category, genes);
             }
-
-            for (String cat: countsByCategory.keySet()){
-                String[] row = {cat, countsByCategory.get(cat).toString()};
+            
+            Map<String, Set<String>> viabilityRes = observationService.getViabilityCategories(resources);
+    		
+    		for (String cat: viabilityRes.keySet()){
+                String[] row = {cat, ""+viabilityRes.get(cat).size()};
                 countsTable.add(row);
             }
 
+            
             String[] genesHeader = {"Category", "# genes", "Genes"};
             genesTable.add(genesHeader);
-            for (String cat : genesByVia.keySet()){
-                String[] row = {cat, "" + genesByVia.get(cat).size(), StringUtils.join(genesByVia.get(cat), ", ")};
+            
+            for (String cat : viabilityRes.keySet()){
+                String[] row = {cat, "" + viabilityRes.get(cat).size(), StringUtils.join(viabilityRes.get(cat), ", ")};
                 genesTable.add(row);
             }
 
-            HashSet<String> conflicts = new HashSet<>();
-            for (String cat : genesByVia.keySet()){
-                for (String otherCat : genesByVia.keySet()){
+            Set<String> conflicts = new HashSet<>();
+            for (String cat : viabilityRes.keySet()){
+                for (String otherCat : viabilityRes.keySet()){
                     if (!otherCat.equalsIgnoreCase(cat)){
-                        Set<String> conflictingGenes = new HashSet(genesByVia.get(otherCat));
-                        conflictingGenes.retainAll(genesByVia.get(cat));
+                        Set<String> conflictingGenes = new HashSet(viabilityRes.get(otherCat));
+                        conflictingGenes.retainAll(viabilityRes.get(cat));
                         conflicts.addAll(conflictingGenes);
                     }
                 }
@@ -150,4 +142,7 @@ public class ViabilityReport extends AbstractReport {
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
+    
+    
+    
 }
