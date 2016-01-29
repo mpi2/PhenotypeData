@@ -22,7 +22,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,9 @@ public class ViabilityReport extends AbstractReport {
 
     @Autowired
     ObservationService observationService;
+
+    @Autowired
+    GeneService geneService;
 
     public static final String[] EMPTY_ROW = new String[]{""};
 
@@ -74,6 +79,7 @@ public class ViabilityReport extends AbstractReport {
         List<String[]> genesTable = new ArrayList<>();
 
         try {
+        	
             QueryResponse response = observationService.getViabilityData(resources, null);
             String[] header = {"Gene Symbol", "MGI Gene Id", "Colony Id", "Zygosity", "Category"};
             allTable.add(header);
@@ -91,9 +97,11 @@ public class ViabilityReport extends AbstractReport {
                 String[] row = {cat, ""+viabilityRes.get(cat).size()};
                 countsTable.add(row);
             }
+
             
             String[] genesHeader = {"Category", "# genes", "Genes"};
             genesTable.add(genesHeader);
+            
             for (String cat : viabilityRes.keySet()){
                 String[] row = {cat, "" + viabilityRes.get(cat).size(), StringUtils.join(viabilityRes.get(cat), ", ")};
                 genesTable.add(row);
