@@ -168,10 +168,15 @@
 				            			<tr> <th class="headerSort"> Category </th> <th> # Genes </th> </tr>
 				            		</thead>
 				            		<tbody>
-				            		<c:forEach var="key" items="${viabilityTable.keySet()}">
+				            		<c:forEach var="row" items="${viabilityTable}">
 					            		<tr>
-					            			<td><h4 class="capitalize">${key}</h4></td>
-					            			<td><h4>${viabilityTable.get(key)}</h4></td>			            					
+					            			<td><h4 class="capitalize">${row.category}</h4></td>
+					            			<c:if test="${row.mpId != null}">    				
+					            				<td><h4><a href="${baseUrl}/phenotypes/${row.mpId}">${row.count}</a></h4></td>
+					            			</c:if>
+					            			<c:if test="${row.mpId == null}">    				
+					            				<td><h4>${row.count}</h4></td>
+					            			</c:if>	        	
 					            		</tr>
 									</c:forEach>
 									<tr> 
