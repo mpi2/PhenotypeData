@@ -1304,7 +1304,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
 		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" +
-			StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+			StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
@@ -1329,7 +1329,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
-		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
@@ -1549,7 +1549,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
        SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + 
     		   StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + 
     		   StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + 
-    		   StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + 
+    		   StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + 
     		   GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
        q.set("facet.field", "" + StatisticalResultDTO.PARAMETER_STABLE_ID);
        q.set("facet", true);
