@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -148,6 +147,7 @@ public class EmbryoController {
 		};
 		return comp;
 	}
+	
 	/**
 	 * @author ilinca
 	 * @since 2016/01/28
