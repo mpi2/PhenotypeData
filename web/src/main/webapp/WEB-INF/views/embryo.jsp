@@ -201,7 +201,7 @@
                             <div class="inner">
 								<div id="sliderDiv">
 									<div id="slider">
-										<div id="sliderHighlight" class="slider" imgUrl="${drupalBaseUrl}/vignettes"> </div>
+										<div id="sliderHighlight" class="slider" imgUrl="//dev.mousephenotype.org/vignettes"> </div>
 										<div> 
 											<span class="control_next half left">></span>
 											<span class="control_prev half right"><</span>

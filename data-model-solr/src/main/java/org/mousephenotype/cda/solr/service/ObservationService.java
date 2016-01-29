@@ -15,9 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -45,7 +63,6 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
@@ -59,13 +76,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 
 @Service
@@ -1949,4 +1962,142 @@ public class ObservationService extends BasicService implements WebStatus {
 	public String getServiceName(){
 		return "Obesrvation Service (experiment core)";
 	}
+	
+	
+
+	/**
+	 * @author ilinca
+	 * @since 2016/01/21
+	 * @param map <viability category, number of genes in category>
+	 * @return 
+	 */
+	public List<EmbryoTableRow> consolidateZygosities(Map<String, Set<String>> map){
+		
+		Map<String, Set<String>> res = new LinkedHashMap<>();
+		List<EmbryoTableRow> result = new ArrayList<>();
+		
+		// Consolidate by zygosities so that we show "subviable" in the table, not "hom-subviable" and "het-subviable"
+		for (String key: map.keySet()){
+			
+			String tableKey = "subviable";
+			if (key.toLowerCase().contains(tableKey)){
+				if (res.containsKey(tableKey)){
+					res.get(tableKey).addAll(map.get(key));
+				} else {
+					res.put(tableKey, new HashSet<String>(map.get(key)));					
+				}
+			} else {
+				tableKey = "viable";
+				if (key.toLowerCase().contains(tableKey) && !key.contains("subviable")){
+					if (res.containsKey(tableKey)){
+						res.get(tableKey).addAll(map.get(key));
+					} else {
+						res.put(tableKey, new HashSet<String>(map.get(key)));					
+					}
+				} else {
+						tableKey = "lethal";
+					if (key.toLowerCase().contains(tableKey)){
+						if (res.containsKey(tableKey)){
+							res.get(tableKey).addAll(map.get(key));
+						} else {
+							res.put(tableKey, new HashSet<String>(map.get(key)));					
+						}
+					}
+				}
+			}
+		}
+		
+		// Fill list of EmbryoTableRows so that it's easiest to access from jsp.
+		for (String key: res.keySet()){
+			EmbryoTableRow row = new EmbryoTableRow();
+			row.setCategory(key);
+			row.setCount( new Long(res.get(key).size()));
+			if (key.equalsIgnoreCase("Lethal")){
+				row.setMpId("MP:0011100");
+			} else  if (key.equalsIgnoreCase("Subviable")){
+				row.setMpId("MP:0011110");
+			} else {
+				row.setMpId(null);
+			}
+			result.add(row);
+			System.out.println("Added:: " + row);
+		}
+		return result;
+		
+	}
+	
+	public static Comparator<String> getComparatorForViabilityChart()	{   
+		Comparator<String> comp = new Comparator<String>(){
+		    @Override
+		    public int compare(String param1, String param2)
+		    {
+		    	if (param1.contains("- Viable") && !param2.contains("- Viable")){
+					return -1;
+				}
+				if (param2.contains("- Viable") && !param1.contains("- Viable")){
+					return 1;
+				}
+				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
+					return 1;
+				}
+				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
+					return 1;
+				}
+				return param1.compareTo(param2);
+		    }
+		};
+		return comp;
+	}
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/01/28
+	 * @param facets
+	 * @return 
+	 * @throws SolrServerException
+	 */
+	public Map<String, Long> getViabilityCategories(Map<String, Set<String>>facets){
+
+		Map<String, Long> res = new TreeMap<>(getComparatorForViabilityChart());
+		for (String category : facets.keySet()){
+			Long geneCount = new Long(facets.get(category).size());
+			res.put(category, geneCount);
+		}
+
+		return res;
+	}
+
+	public class EmbryoTableRow{
+		
+		String category;
+		String mpId;
+		Long count;
+		
+		public String getCategory() {
+			return category;
+		}
+		public void setCategory(String category) {
+			this.category = category;
+		}
+		public String getMpId() {
+			return mpId;
+		}
+		public void setMpId(String mpId) {
+			this.mpId = mpId;
+		}
+		public Long getCount() {
+			return count;
+		}
+		public void setCount(Long geneNo) {
+			this.count = geneNo;
+		}
+		@Override
+		public String toString() {
+			return "EmbryoTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
+		}
+		
+		
+	}
+	
+	
 }
