@@ -111,7 +111,7 @@ public class ImpcPValuesReport extends AbstractReport {
         log.trace(" Parameter: " + org.apache.commons.lang3.StringUtils.join(sortedParameters, "\n Parameter: "));
 
         List<String> header = new ArrayList<>();
-        header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene", "Gene Accession Id", "Center"));
+        header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", "Center"));
         header.addAll(sortedParameters);
 
         csvWriter.writeNext(header);
@@ -133,7 +133,8 @@ public class ImpcPValuesReport extends AbstractReport {
 
             for (String param : sortedParameters) {
                 if (matrixValues.get(rowKey).containsKey(param)) {
-                    row.add(matrixValues.get(rowKey).get(param).toString());
+                    String value = (matrixValues.get(rowKey).get(param) == null ? "" : matrixValues.get(rowKey).get(param).toString());
+                    row.add(value);
                 } else {
                     row.add("");
                 }

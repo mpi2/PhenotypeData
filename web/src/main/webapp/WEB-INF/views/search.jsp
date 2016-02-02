@@ -728,7 +728,7 @@
 					//var total  = json.iTotalRecords;
 					var total = ${jsonStr}.iTotalRecords;
 
-					var numX = parseInt(start+1);
+					var numX = total > 0 ? parseInt(start+1) : 0;
 					var numY = parseInt(start+length) > total ? total : parseInt(start+length);
 					var defaultRows = 10;
 					var currPageNum = (start/length)+1;
