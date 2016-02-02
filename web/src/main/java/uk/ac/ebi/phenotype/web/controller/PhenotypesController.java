@@ -443,7 +443,7 @@ public class PhenotypesController {
         int nominator = 0;
 
         List<String> parameters = new ArrayList<>(mpService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
-        nominator = gpService.getGenesBy(phenotype_id, null, true).size();
+        nominator = gpService.getGenesBy(phenotype_id, null, false).size();
         total = srService.getTestedGenes(parameters, null).size();
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
@@ -456,7 +456,7 @@ public class PhenotypesController {
         List<String> genesBothPhenotype;
 
         if (display) {
-            for (Group g : gpService.getGenesBy(phenotype_id, "female", true)) {
+            for (Group g : gpService.getGenesBy(phenotype_id, "female", false)) {
                 genesFemalePhenotype.add((String) g.getGroupValue());
             }
             nominator = genesFemalePhenotype.size();
@@ -465,7 +465,7 @@ public class PhenotypesController {
             pgs.setFemaleGenesAssociated(nominator);
             pgs.setFemaleGenesTested(total);
 
-            for (Group g : gpService.getGenesBy(phenotype_id, "male", true)) {
+            for (Group g : gpService.getGenesBy(phenotype_id, "male", false)) {
                 genesMalePhenotype.add(g.getGroupValue());
             }
             nominator = genesMalePhenotype.size();

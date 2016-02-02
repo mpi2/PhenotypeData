@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.reports.support.ReportsManagerParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,7 +311,7 @@ public class ReportsManager implements CommandLineRunner {
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");
                 log.info("Created report '" + reportType + "' in " + fqFilename + ".");
 
-            } catch (ReportException e) {
+            } catch (Exception e) {
 
                 log.error("FAILED to create report '" + reportType + " in " + parser.getTargetDirectory() + ". Reason: " + e.getLocalizedMessage());
                 e.printStackTrace();

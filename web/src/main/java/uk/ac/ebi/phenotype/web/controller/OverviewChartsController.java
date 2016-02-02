@@ -112,15 +112,15 @@ public class OverviewChartsController {
 
 			if (centerToFilter == null) { // first time we load the page.
 				// We need to know centers for the controls, otherwise we show all controls
-				Set <String> tempCenters = os.getCenters(p, genes, OverviewChartsConstants.OVERVIEW_STRAINS, "experimental");
+				Set <String> tempCenters = os.getCenters(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental");
 				centerToFilter = tempCenters.toArray(new String[0]);
 			}
 
 			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){
-				CategoricalSet controlSet = os.getCategories(p, null , "control", OverviewChartsConstants.OVERVIEW_STRAINS, centerToFilter, sex);
+				CategoricalSet controlSet = os.getCategories(p, null , "control", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				controlSet.setName("Control");
 				System.out.println("CONTROL SET " + controlSet);
-				CategoricalSet mutantSet = os.getCategories(p, null, "experimental", OverviewChartsConstants.OVERVIEW_STRAINS, centerToFilter, sex);
+				CategoricalSet mutantSet = os.getCategories(p, null, "experimental", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				mutantSet.setName("Mutant");
 				System.out.println("MUTANT SET " + mutantSet);
 				List<ChartData> chart = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName);
@@ -131,22 +131,22 @@ public class OverviewChartsController {
 
 			else if ( impressUtilities.checkType(p).equals(ObservationType.time_series) ){
 				Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>();
-				data.put("Control", os.getTimeSeriesControlData(parameter, OverviewChartsConstants.OVERVIEW_STRAINS, centerToFilter, sex));
-				data.putAll(os.getTimeSeriesMutantData(parameter, genes, OverviewChartsConstants.OVERVIEW_STRAINS, centerToFilter, sex));
+				data.put("Control", os.getTimeSeriesControlData(parameter, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
+				data.putAll(os.getTimeSeriesMutantData(parameter, genes, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
 				ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
 				chart.setId(parameter);
 				chartRes = chart;
 			}
 
 			else if ( impressUtilities.checkType(p).equals(ObservationType.unidimensional) ){
-				StackedBarsData data = srs.getUnidimensionalData(p, genes, OverviewChartsConstants.OVERVIEW_STRAINS, "experimental", centerToFilter, sex);
+				StackedBarsData data = srs.getUnidimensionalData(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}
 
 			if (chartRes != null && center == null && sex == null){ // we don't do a filtering
 				// we want to offer all filter values, not to eliminate males if we filtered on males
 				// plus we don't want to do another SolR call each time to get the same data
-				Set<String> centerFitlers =	os.getCenters(p, genes, OverviewChartsConstants.OVERVIEW_STRAINS, "experimental");
+				Set<String> centerFitlers =	os.getCenters(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental");
 				model.addAttribute("centerFilters", centerFitlers);
 			}
 		}

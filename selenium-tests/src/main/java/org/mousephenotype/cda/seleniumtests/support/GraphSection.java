@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * <li>heading (Required. E.g. components such as Background, Phenotyping
  *     Center, Pipeline, etc. Not all components are required)</li>
  * <li>summary (Optional. e.g. categorical graph sections have a table with id
- *     'catTable'. Unidimensional graph sections have a table with id
+ *     'catTable'. Unidimensional graph sections have a table with class
  *     'continuousTable')</li>
  * </ul>
  */
@@ -172,14 +172,14 @@ public abstract class GraphSection {
     private void load() throws TestException {
 
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='chart']")));
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[starts-with(@class, 'continuousTable')]")));
 
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {
                 this.catTable = new GraphCatTable(elements.get(0));
             }
 
-            elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'continuousTable')]"));
+            elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'continuousTable')]"));
             if ( ! elements.isEmpty()) {
                 this.continuousTable = new GraphContinuousTable(elements.get(0));
             }
@@ -192,7 +192,7 @@ public abstract class GraphSection {
                 moreStatisticsLink = new MoreStatisticsLink(chartElement);
             }
 
-            elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'globalTest')]"));
+            elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'globalTest')]"));
             if ( ! elements.isEmpty()) {
                 this.globalTestTable = new GraphGlobalTestTable(graphUrl, elements.get(0));
             }
