@@ -101,7 +101,6 @@ public class EmapIndexer2 extends AbstractIndexer {
     // prepare alleleMap
     Map<String, List<AlleleDTO>> alleleMap;
 
-
     Map<String, String> emap2MgiId = new HashMap<>();
 
     Map<String, List<OmeroAssociation>> emap2Omero = new HashMap<>();
@@ -142,6 +141,8 @@ public class EmapIndexer2 extends AbstractIndexer {
                 emap.setEmapId(emapTermId);
                 emap.setEmapIdUrl("http://purl.obolibrary.org/obo/" + emapTermId.replace(":","_"));
                 //emap.setEmapTerm("need to set");
+
+                // Genes annotated to an EMAP
                 if ( emap2MgiId.containsKey(emapTermId) ) {
                     String mgiGeneId = emap2MgiId.get(emapTermId);
 
@@ -363,17 +364,20 @@ public class EmapIndexer2 extends AbstractIndexer {
 
     private void getOntologyTermIds(Integer ontologyDbId, Connection conn) throws SQLException{
 
-        // get all EMPAS from IMPC
+        // get all EMAPS from IMPC
         PreparedStatement statement = conn.prepareStatement(
                 "SELECT DISTINCT(ontology_acc) FROM phenotype_parameter_ontology_annotation ppoa WHERE ppoa.ontology_db_id=" + ontologyDbId);
         ResultSet res = statement.executeQuery();
 
+
         while (res.next()) {
             emapTerms.add(res.getString("ontology_acc"));
         }
-        // get all EMAPS from Sanger images
 
-        PreparedStatement statement2 = conn.prepareStatement("SELECT DISTINCT (upper(TERM_ID)) as ontology_acc FROM ANN_ANNOTATION WHERE TERM_ID LIKE \"EMAP:%\"");
+        // get all EMAPS from Sanger images
+        PreparedStatement statement2 = conn.prepareStatement(
+                "SELECT DISTINCT (upper(TERM_ID)) as ontology_acc " +
+                "FROM IMA_IMAGE_TAG iit INNER JOIN ANN_ANNOTATION aa ON aa.FOREIGN_KEY_ID=iit.ID AND TERM_NAME LIKE 'TS20%' AND TERM_ID LIKE \"EMAP:%\"");
         ResultSet res2 = statement2.executeQuery();
 
         while (res2.next()) {
