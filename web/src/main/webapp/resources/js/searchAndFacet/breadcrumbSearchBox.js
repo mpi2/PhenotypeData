@@ -2,8 +2,7 @@ $(document).ready(function () {
 
 	var exampleSearch =
 	 '<h3 id="samplesrch">Example Searches</h3>'
-		+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
-		+ '	<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>'
+		+ '<p>Sample queries for several fields are shown. Click the desired query to execute one of the samples.'
 		+ '</p>'
 		+ '<h5>Gene query examples</h5>'
 		+ '<p>'
