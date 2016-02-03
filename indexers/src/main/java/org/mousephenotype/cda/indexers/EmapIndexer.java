@@ -40,6 +40,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
+import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
 
 /**
  * @author ckchen based on mike relac's MaIndexer
@@ -104,6 +105,16 @@ public class EmapIndexer extends AbstractIndexer {
     //Map<String, List<String>> ontologySubsets;
     //Map<String, List<String>> goIds;
 
+
+    Map<String, List<AlleleDTO>> alleleMap;
+
+    Map<String, String> emap2MgiId = new HashMap<>();
+
+    Map<String, List<OmeroAssociation>> emap2Omero = new HashMap<>();
+
+    Map<String, List<Integer>> emap2SangerImageId = new HashMap<>();
+
+
     // Alleles
     Map<String, List<AlleleDTO>> alleles;
 
@@ -127,12 +138,13 @@ public class EmapIndexer extends AbstractIndexer {
     }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, IOException, SolrServerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
         initializeDatabaseConnections();
+        emapCore.deleteByQuery("*:*");
 
     	try {
             initialiseSupportingBeans();
@@ -145,13 +157,13 @@ public class EmapIndexer extends AbstractIndexer {
             for (OntologyTermBean bean : beans) {
                 EmapDTO emap = new EmapDTO();
 
-                String emapId = bean.getId();
+                String emapTermId = bean.getId();
                 // Set scalars.
                 emap.setDataType("emap");
-                emap.setEmapId(emapId);
+                emap.setEmapId(emapTermId);
                 emap.setEmapTerm(bean.getName());
                 
-                emap.setEmapNodeId(termNodeIds.get(emapId));
+                emap.setEmapNodeId(termNodeIds.get(emapTermId));
                 buildNodes(emap);
                 
                 // Set collections.
@@ -168,8 +180,67 @@ public class EmapIndexer extends AbstractIndexer {
                 emap.setSelectedTopLevelEmapTerm(sourceList.getTopLevels().getNames());
                 emap.setSelectedTopLevelEmapTermSynonym(sourceList.getTopLevels().getSynonyms());
 
-                // Image association fields here when we have data
-                
+                // Genes annotated to an EMAP
+                if ( emap2MgiId.containsKey(emapTermId) ) {
+                    String mgiGeneId = emap2MgiId.get(emapTermId);
+
+                    // Genes annotated to an EMAP
+                    emap.setMarkerAccessionId(mgiGeneId);
+
+                    List<AlleleDTO> alleleDTOs = alleleMap.get(mgiGeneId);
+                    List<String> markerSymbols = new ArrayList<>();
+                    List<String> markerNames = new ArrayList<>();
+                    List<String> markerTypes = new ArrayList<>();
+                    List<String> markerSynonyms = new ArrayList<>();
+
+                    for( AlleleDTO allele : alleleDTOs ) {
+
+                        markerSymbols.add(allele.getMarkerSymbol());
+                        markerNames.add(allele.getMarkerName());
+                        markerTypes.add(allele.getMarkerType());
+                        if ( allele.getMarkerSynonym() != null ) {
+                            markerSynonyms.addAll(allele.getMarkerSynonym());
+                        }
+                    }
+
+                    emap.setMarkerType(markerTypes);
+                    emap.setMarkerSymbol(markerSymbols);
+                    emap.setMarkerName(markerNames);
+                    emap.setMarkerSynonym(markerSynonyms);
+
+                }
+
+                // IMPC images annotated to an EMAP
+                if ( emap2Omero.containsKey(emapTermId)){
+
+                    List<Integer> omeroIds = new ArrayList<>();
+                    List<String> parameterAssocValues = new ArrayList<>();
+                    Set<String> parameterStableIds = new HashSet<>();
+
+                    for ( OmeroAssociation oa : emap2Omero.get(emapTermId) ) {
+                        omeroIds.add(oa.getOmeroId());
+                        parameterAssocValues.add(oa.getParameterAssocValue());
+                        parameterStableIds.add(oa.getParameterStableId());
+                    }
+                    emap.setOmeroIds(omeroIds);
+                    emap.setParameterAssocValue(parameterAssocValues);
+                    emap.setParameterStableId(new ArrayList<String>(parameterStableIds));
+                }
+
+
+                // Sanger images annotated to an EMAP
+                if ( emap2SangerImageId.containsKey(emapTermId) ){
+
+                    List<Integer> sangerImgIds = new ArrayList<>();
+
+                    for ( Integer sangerImgId : emap2SangerImageId.get(emapTermId) ){
+                        sangerImgIds.add(sangerImgId);
+                    }
+
+                    emap.setSangerImageIds(sangerImgIds);
+                }
+
+
 
                 count ++;
                 emapBatch.add(emap);
@@ -238,7 +309,20 @@ public class EmapIndexer extends AbstractIndexer {
             emapTermSynonyms = getEmapTermSynonyms();
 
             // Alleles
-            alleles = IndexerMap.getGeneToAlleles(alleleCore);
+            //alleles = IndexerMap.getGeneToAlleles(alleleCore);
+            alleleMap = getGeneToAlleles(alleleCore);
+
+
+            // get emap to MGI gene ID mapping from phenotype_call_summary table
+            populateEmapGeneMap(komp2DbConnection);
+
+            // EMAP to omero_id mapping
+            populateEmapOmeroIdMap(komp2DbConnection);
+
+            // EMAP to Sanger image id mapping
+            populateEmapSangerImageIdMap(komp2DbConnection);
+
+
 
             // Phenotype call summaries (1)
             //phenotypes1 = getPhenotypeCallSummary1();
@@ -253,7 +337,91 @@ public class EmapIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
     }
+    private void populateEmapSangerImageIdMap(Connection conn) throws SQLException {
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT ID, TERM_ID FROM ANN_ANNOTATION");
+        ResultSet res = statement.executeQuery();
 
+        while (res.next()) {
+            String emapId = res.getString("TERM_ID");
+
+            if ( ! emap2SangerImageId.containsKey(emapId) ) {
+                emap2SangerImageId.put(emapId, new ArrayList<Integer>());
+            }
+
+            emap2SangerImageId.get(emapId).add(res.getInt("ID"));
+        }
+    }
+
+    private void populateEmapGeneMap(Connection conn) throws SQLException {
+
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT DISTINCT gf_acc, mp_acc FROM phenotype_call_summary WHERE mp_acc LIKE 'emap:%'");
+        ResultSet res = statement.executeQuery();
+
+        while (res.next()) {
+            emap2MgiId.put(res.getString("mp_acc"), res.getString("gf_acc"));
+        }
+    }
+
+    private void populateEmapOmeroIdMap(Connection conn) throws SQLException {
+
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT iro.omero_id, pa.parameter_association_value, pp.stable_id, ppoa.ontology_acc " +
+                        "FROM image_record_observation iro " +
+                        "INNER JOIN parameter_association pa on iro.id=pa.observation_id " +
+                        "INNER JOIN phenotype_parameter pp on pa.parameter_id=pp.stable_id " +
+                        "INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id " +
+                        "INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id " +
+                        "WHERE ppoa.ontology_db_id=14");
+        ResultSet res = statement.executeQuery();
+
+        while (res.next()) {
+            String emapId = res.getString("ontology_acc");
+            OmeroAssociation oa = new OmeroAssociation(res.getInt("omero_id"), res.getString("parameter_association_value"), res.getString("stable_id"));
+            if ( ! emap2Omero.containsKey(emapId) ) {
+                emap2Omero.put(emapId, new ArrayList<OmeroAssociation>());
+            }
+
+            emap2Omero.get(emapId).add(oa);
+        }
+
+    }
+
+
+    class OmeroAssociation {
+        Integer omero_id;
+        String parameter_assoc_value;
+        String parameter_stable_id;
+
+        public OmeroAssociation(Integer omero_id, String parameter_assoc_value, String parameter_stable_id) {
+            this.omero_id = omero_id;
+            this.parameter_assoc_value = parameter_assoc_value;
+            this.parameter_stable_id = parameter_stable_id;
+        }
+
+        public Integer getOmeroId() {
+            return omero_id;
+        }
+        public void setOmeroId(Integer omero_id) {
+            this.omero_id = omero_id;
+        }
+
+        public String getParameterAssocValue() {
+            return parameter_assoc_value;
+        }
+        public void setParameterAssocValue(String parameter_assoc_value) {
+            this.parameter_assoc_value = parameter_assoc_value;
+        }
+
+        public String getParameterStableId() {
+            return parameter_stable_id;
+        }
+        public void setParameterStableId(String parameter_stable_id) {
+            this.parameter_stable_id = parameter_stable_id;
+        }
+
+    }
     
     private Map<String, List<Integer>> getNodeIds() throws SQLException {
         Map<String, List<Integer>> beans = new HashMap<>();
@@ -572,7 +740,7 @@ public class EmapIndexer extends AbstractIndexer {
     // PROTECTED METHODS
 
 
-    public static void main(String[] args) throws IndexerException, SQLException {
+    public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
 
         RunStatus runStatus = new RunStatus();
         EmapIndexer main = new EmapIndexer();
