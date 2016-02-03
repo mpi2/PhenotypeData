@@ -56,8 +56,9 @@ public class EmbryoController {
 		model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long> (), viabilityMap, "", "viabilityChart"));
 		model.addAttribute("viabilityTable", viabilityTable);
 		
-		System.out.println("VIA map " + viabilityMap);
 		
+		System.out.println("VIA map " + viabilityMap);
+		System.out.println("viabilityTable="+viabilityTable);
 		return "embryo";
 	}
 
