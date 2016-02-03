@@ -195,8 +195,72 @@
                             </div>
                         </div>
 
-        				<div class="section">
+        				
 
+						<div class="section">
+						<h2>IMPC Embryo Phenotyping</h2>
+                            <div class="inner">
+                            	Each IMPC gene knockout strain is assessed for viability by examination of litters produced from mating heterozygous animals. A strain is declared lethal if no homozygous nulls pups are detected at weaning age. A strain is declared subviable if homozygous null pups constitute less than 12.5% of the litter. For lethal strains, embryos are phenotyped in the embryonic and perinatal lethal pipeline. For embryonic lethal and subviable strains, heterozygotes are phenotyped in the IMPC adult phenotyping pipeline.
+                           </div>
+                       	</div>
+                       	
+                       	 <div class="section">
+
+                            <h2 class="title"> 2D Imaging </h2>
+                            <div class="inner">
+                            	<div class="half">
+                            		<h2>Embryo LacZ</h2>
+                            		<img src="${baseUrl}/img/Tmem100_het.jpeg" height="200" class="twothird"/>
+                            		<a class="onethird" href="${baseUrl}/imagePicker/MGI:1915138/IMPC_ELZ_063_001">Tmem100</a>
+                            		<div class="clear"></div> 
+                            		<p class="minpadding"> The majority of IMPC knockout strains replace a critical protein coding exon with a LacZ gene expression 
+                            		reporter element. Heterozygote E12.5 embryos from IMPC strains are treated to determine in situ expression of the targeted gene.
+                            		</p>
+                            		<p class="minpadding">See all genes with <a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Embryo%20LacZ")'>embryo LacZ images</a>.</p>
+                            	</div>
+								<div class="half ">
+									<h2>Embryo Gross Morphology</h2>
+                            		<img class="twothird"src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200"/>
+                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
+                            		<div class="clear"></div> 
+                            		<p class="minpadding">  Gross morphology of embryos from lethal and subviable strains highlights which biological systems are impacted when the 
+                            		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.
+                            		</p>
+                            		<p class="minpadding"> See embryo gross morphology images for 		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E9.5")'>E9.5</a>,	
+	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E12.5")'>E12.5</a>,		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E14.5-E15.5")'>E14.5-E15.5</a>,		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E18.5")'>E18.5</a>.
+                            		</p>						
+								</div>								
+								<div class="clear"></div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="section">
+
+                            <h2 class="title"> 3D Imaging </h2>
+                            <div class="inner">
+                            	<img alt="IEV" src="${baseUrl}/img/IEV.png">
+                            	<p> The embryonic and perinatal lethal pipeline comprises several 3D imaging modalities to quantify aberrant morphology that could not be determined by gross inspection. Images acquired by micro-CT and OPT are available via our Interactive Embryo Viewer (IEV). </p>
+                            	<div>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:2147810&pid=203&h=undefined&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=146521&wx=54&wy=66&wz=68&wl=0&wu=254&mn=129313&mx=52&my=68&mz=108&ml=0&mu=205" style="margin: 10px">
+                            		Tmem132a</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1916804&mod=203&h=624&wt=klf7-tm1b-ic/16.5b_5553715&mut=klhdc2-tm1b-ic/21.1f_5578050&s=on&c=off&a=off&wx=64&wy=117&wz=178&mx=44&my=107&mz=154&wl=0&wu=255&ml=0&mu=255&o=vertical&zoom=0" style="margin: 10px">
+                            		Klhdc2</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1195985&mod=203&h=561&wt=Population%20average&mut=AAPN_K1026-1-e15.5&s=off&c=off&a=on&wx=94&wy=64&wz=177&mx=94&my=70&mz=137&wl=0&wu=255&ml=0&mu=254&o=vertical&zoom=0&wto=jacobian&muto=none" style="margin: 10px">
+                            		Cbx4</a>
+                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:102806&pid=203&h=569&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=ABIF_K1339-10-e15.5&wx=79&wy=107&wz=141&wl=0&wu=255&mn=ABIF_K1267-19-e15.5&mx=79&my=107&mz=142&ml=0&mu=255" style="margin: 10px">
+                            		Acvr2a</a>
+                            		<a href="${baseUrl}/search/gene?kw=*&fq=(embryo_data_available:%22true%22)"> See all </a>
+                            	</div>                              	
+                            </div>
+
+                        </div>
+                        
+                            	
+                        <div class="section">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
 								<div id="sliderDiv">
@@ -214,7 +278,7 @@
 										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
-										    		vertebrae, abnormal joint morphology and edema. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    		vertebrae, abnormal joint morphology and edema. <a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a></p>
 										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
 										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
@@ -249,60 +313,9 @@
 
                         </div>
 
-                        <div class="section">
-
-                            <h2 class="title"> 3D Imaging </h2>
-                            <div class="inner">
-                            	<img alt="IEV" src="${baseUrl}/img/IEV.png">
-                            	<p> The embryonic and perinatal lethal pipeline comprises several 3D imaging modalities to quantify aberrant morphology that could not be determined by gross inspection. Images acquired by micro-CT and OPT are available via our Interactive Embryo Viewer (IEV). </p>
-                            	<div>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:2147810&pid=203&h=undefined&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=146521&wx=54&wy=66&wz=68&wl=0&wu=254&mn=129313&mx=52&my=68&mz=108&ml=0&mu=205" style="margin: 10px">
-                            		Tmem132a</a>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1916804&mod=203&h=624&wt=klf7-tm1b-ic/16.5b_5553715&mut=klhdc2-tm1b-ic/21.1f_5578050&s=on&c=off&a=off&wx=64&wy=117&wz=178&mx=44&my=107&mz=154&wl=0&wu=255&ml=0&mu=255&o=vertical&zoom=0" style="margin: 10px">
-                            		Klhdc2</a>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1195985&mod=203&h=561&wt=Population%20average&mut=AAPN_K1026-1-e15.5&s=off&c=off&a=on&wx=94&wy=64&wz=177&mx=94&my=70&mz=137&wl=0&wu=255&ml=0&mu=254&o=vertical&zoom=0&wto=jacobian&muto=none" style="margin: 10px">
-                            		Cbx4</a>
-                            		<a class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:102806&pid=203&h=569&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=ABIF_K1339-10-e15.5&wx=79&wy=107&wz=141&wl=0&wu=255&mn=ABIF_K1267-19-e15.5&mx=79&my=107&mz=142&ml=0&mu=255" style="margin: 10px">
-                            		Acvr2a</a>
-                            		<a href="${baseUrl}/search/gene?kw=*&fq=(embryo_data_available:%22true%22)"> See all </a>
-                            	</div>                              	
-                            </div>
-
-                        </div>
                         
-                         <div class="section">
-
-                            <h2 class="title"> 2D Imaging </h2>
-                            <div class="inner">
-                            	<div class="half">
-                            		<h2>Embryo LacZ</h2>
-                            		<img src="${baseUrl}/img/Tmem100_het.jpeg" height="200" class="twothird"/>
-                            		<a class="onethird" href="${baseUrl}/imagePicker/MGI:1915138/IMPC_ELZ_063_001">Tmem100</a>
-                            		<div class="clear"></div> 
-                            		<p class="minpadding"> The majority of IMPC knockout strains replace a critical protein coding exon with a LacZ gene expression 
-                            		reporter element. Heterozygote E12.5 embryos from IMPC strains are treated to determine in situ expression of the targeted gene.
-                            		</p>
-                            		<p class="minpadding">See all genes with <a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Embryo%20LacZ")'>embryo LacZ images</a>.</p>
-                            	</div>
-								<div class="half ">
-									<h2>Embryo Gross Morphology</h2>
-                            		<img class="twothird"src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200"/>
-                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
-                            		<div class="clear"></div> 
-                            		<p class="minpadding">  Gross morphology of embryos from lethal and subviable strains highlights which biological systems are impacted when the 
-                            		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.
-                            		</p>
-                            		<p class="minpadding"> See embryo gross morphology images for 		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E9.5")'>E9.5</a>,	
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E12.5")'>E12.5</a>,		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E14.5-E15.5")'>E14.5-E15.5</a>,		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E18.5")'>E18.5</a>.
-                            		</p>						
-								</div>								
-								<div class="clear"></div>
-                            </div>
-
-                        </div>
+                        
+                        
                         
                          <div class="section" id="pipeline">
 							<h2 class="title ">IMPC Embryonic Pipeline</h2>
@@ -312,10 +325,12 @@
 
                         </div>
                         
-                      </div>
+                      
                     <!--end of node wrapper should be after all secions  -->
                 </div>
             </div>
+        </div>
+        
         </div>
 
 
