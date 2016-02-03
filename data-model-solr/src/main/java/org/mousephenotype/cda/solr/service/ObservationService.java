@@ -311,6 +311,9 @@ public class ObservationService extends BasicService implements WebStatus {
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
         query.setRows(Integer.MAX_VALUE);
+
+        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+
         return solr.query(query).getBeans(ObservationDTO.class);
     }
     
@@ -403,6 +406,7 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query);
     }
 
+    @Deprecated
 	public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
@@ -420,7 +424,7 @@ public class ObservationService extends BasicService implements WebStatus {
 		query.setFacetLimit(-1);
 		query.set("facet.pivot", pivot);
 		
-		logger.info("getViabilityData Url: " + solr.getBaseURL() + "/select?" + query);
+		logger.info("getViabilityCategories Url: " + solr.getBaseURL() + "/select?" + query);
 
 		try {
 			Map<String, List<String>> facets = getFacetPivotResults(solr.query(query), pivot);
@@ -434,8 +438,73 @@ public class ObservationService extends BasicService implements WebStatus {
 
 		return res;
 	}
-	
-    
+
+    /**
+     * Returns a map of categories, faceted by the given pivot, indexed by category, comprising # Genes and Gene Symbols
+     *
+     * @param resources
+     * @param parameterStableIds  A list of parameter_stable_id values (e.g. IMPC_VIA_001_001)
+     * @param pivot A comma-separated string of solr fields to pivot the facet by (e.g. category,gene_symbol)
+     * @return a map of categories, faceted by the given pivot, indexed by category, comprising # Genes and Gene Symbols
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getCategories(List<String> resources, List<String> parameterStableIds, String pivot) throws SolrServerException {
+
+   		SolrQuery query = new SolrQuery();
+   		TreeMap<String, Set<String>> result = new TreeMap<>();
+
+   		if ((resources != null) && ( ! resources.isEmpty())) {
+   			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"	+ StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+   		}
+        if ((parameterStableIds != null) && ( ! parameterStableIds.isEmpty())) {
+            query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + StringUtils.join(parameterStableIds, " OR " + ObservationDTO.PARAMETER_STABLE_ID + ":"));
+        }
+   		query.setRows(0);
+   		query.setFacet(true);
+   		query.setFacetMinCount(1);
+   		query.setFacetLimit(-1);
+   		query.set("facet.pivot", pivot);
+
+   		logger.info("getCategories Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return getFacetPivotResults(solr.query(query), false);
+   	}
+
+    /**
+     * Returns a <code>QueryResponse</code> of data found using the given resources, parameter stable ids, and category
+     *         comprising geneSymbol, geneAccessionId, colonyId, and category.
+     * @param resources
+     * @param parameterStableIds A list of parameter stable ids that is "or'd" together to produce the result (e.g. IMPC_VIA_001_001)
+     * @param categories A list of categories that is "or'd" together to produce the result (e.g. Viable, Lethal, Male, Fertile)
+     * @return a <code>QueryResponse</code> of data found using the given resources, parameter stable ids, and category,
+     *         comprising geneSymbol, geneAccessionId, colonyId, and category.
+     * @throws SolrServerException
+     */
+    public QueryResponse getData(List<String> resources, List<String> parameterStableIds, List<String> categories) throws SolrServerException {
+        SolrQuery query = new SolrQuery();
+        if ((resources != null) && ( ! resources.isEmpty())) {
+            query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }
+        if ((categories != null) && ( ! categories.isEmpty())) {
+            query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(categories, " OR " + ObservationDTO.CATEGORY + ":"));
+        }
+        if ((parameterStableIds != null) && ( ! parameterStableIds.isEmpty())) {
+            query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + StringUtils.join(parameterStableIds, " OR " + ObservationDTO.PARAMETER_STABLE_ID + ":"));
+        }
+
+        query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
+        query.addField(ObservationDTO.COLONY_ID);
+        query.addField(ObservationDTO.CATEGORY);
+        query.addField(ObservationDTO.SEX);
+        query.addField(ObservationDTO.ZYGOSITY);
+        query.setRows(1000000);
+
+        logger.info("getData Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return solr.query(query);
+    }
+
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
     throws SolrServerException, InterruptedException {
 
@@ -2056,7 +2125,7 @@ public class ObservationService extends BasicService implements WebStatus {
 	 * @return 
 	 * @throws SolrServerException
 	 */
-	public Map<String, Long> getViabilityCategories(Map<String, Set<String>>facets){
+	public Map<String, Long> getViabilityCategories(Map<String, Set<String>>facets) {
 
 		Map<String, Long> res = new TreeMap<>(getComparatorForViabilityChart());
 		for (String category : facets.keySet()){
@@ -2095,9 +2164,5 @@ public class ObservationService extends BasicService implements WebStatus {
 		public String toString() {
 			return "EmbryoTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
 		}
-		
-		
 	}
-	
-	
 }

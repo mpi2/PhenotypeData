@@ -19,6 +19,8 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -59,7 +61,7 @@ public class FertilityReport extends AbstractReport {
     public void run(String[] args) throws ReportException {
 
         List<String> errors = parser.validate(parser.parse(args));
-        if ( ! errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             logger.error("FertilityReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
@@ -70,67 +72,96 @@ public class FertilityReport extends AbstractReport {
         List<String[]> result = new ArrayList<>();
 
         try {
-            List<ObservationDTO> results;
-            Map<String, Set<String>> maleColonies = new HashMap<>();
-            Map<String, Set<String>> femaleColonies = new HashMap<>();
-            Map<String, Set<String>> bothColonies = new HashMap<>();
+            QueryResponse response = observationService.getData(resources, Arrays.asList( new String[] { FEMALE_FERTILITY_PARAMETER, MALE_FERTILITY_PARAMETER } ), null);
+            List<Map<String, String>> fertilityResourceList = observationService.getCategories(resources, Arrays.asList(new String[] { FEMALE_FERTILITY_PARAMETER, MALE_FERTILITY_PARAMETER }), "sex,category,gene_symbol");
 
-            Map<String, Set<String>> maleGenes = new HashMap<>();
-            Map<String, Set<String>> femaleGenes = new HashMap<>();
-            Map<String, Set<String>> bothGenes = new HashMap<>();
+            // Gather collections for summary.
+            Set<String> bothFertile;
+            Set<String> bothInfertile;
+            Set<String> conflictingFemales;
+            Set<String> conflictingMales;
+            Set<String> femalesFertile = new TreeSet<>();
+            Set<String> femalesInfertile = new TreeSet<>();
+            Set<String> malesFertile = new TreeSet<>();
+            Set<String> malesInfertile = new TreeSet<>();
+            for (Map<String, String> fertilityResourceMap : fertilityResourceList) {
+                String geneSymbol = "";
+                String sex = "";
+                String category = "";
+                for (Map.Entry<String, String> entry : fertilityResourceMap.entrySet()) {
+                    switch (entry.getKey()) {
+                        case "gene_symbol": geneSymbol = entry.getValue();                break;
+                        case "sex":         sex = entry.getValue().toLowerCase();         break;
+                        case "category":    category = entry.getValue().toLowerCase();    break;
+                        default: throw new ReportException("Unexpected facet '" + entry.getKey() + "'");
+                    }
+                }
 
-            maleColonies.put("Fertile", new HashSet<>());
-            maleColonies.put("Infertile", new HashSet<>());
-            femaleColonies.put("Fertile", new HashSet<>());
-            femaleColonies.put("Infertile", new HashSet<>());
-            bothColonies.put("Fertile", new HashSet<>());
-            bothColonies.put("Infertile", new HashSet<>());
-
-            maleGenes.put("Fertile", new HashSet<>());
-            maleGenes.put("Infertile", new HashSet<>());
-            femaleGenes.put("Fertile", new HashSet<>());
-            femaleGenes.put("Infertile", new HashSet<>());
-            bothGenes.put("Fertile", new HashSet<>());
-            bothGenes.put("Infertile", new HashSet<>());
-
-
-            List<ObservationDTO> observationResults = observationService.getObservationsByParameterStableId(MALE_FERTILITY_PARAMETER);
-            for (ObservationDTO observationResult : observationResults) {
-                if (resources.contains(observationResult.getDataSourceName())) {
-                    String key = observationResult.getCategory();
-                    maleColonies.get(key).add(observationResult.getColonyId());
-                    maleGenes.get(key).add(observationResult.getGeneSymbol() + " (" + observationResult.getGeneAccession() + ")");
+                if (sex.equals("female") ) {
+                    if (category.equals("fertile")) {
+                        femalesFertile.add(geneSymbol);
+                    } else if (category.equals("infertile")){
+                        femalesInfertile.add(geneSymbol);
+                    } else {
+                        throw new ReportException("Invalid category' " + category + "'");
+                    }
+                } else if (sex.equals("male")) {
+                    if (category.equals("fertile")) {
+                        malesFertile.add(geneSymbol);
+                    } else if (category.equals("infertile")){
+                        malesInfertile.add(geneSymbol);
+                    } else {
+                        throw new ReportException("Invalid category' " + category + "'");
+                    }
+                } else {
+                    throw new ReportException("Invalid sex' " + sex + "'");
                 }
             }
+            bothFertile = new TreeSet<>(femalesFertile);
+            bothFertile.retainAll(malesFertile);
+            bothInfertile = new TreeSet<>(femalesInfertile);
+            bothInfertile.retainAll(malesInfertile);
+            conflictingFemales = new TreeSet<>(femalesFertile);
+            conflictingFemales.retainAll(femalesInfertile);
+            conflictingMales = new TreeSet<>(malesFertile);
+            conflictingMales.retainAll(malesInfertile);
 
-            observationResults = observationService.getObservationsByParameterStableId(FEMALE_FERTILITY_PARAMETER);
-            for (ObservationDTO observationResult : observationResults) {
-                if (resources.contains(observationResult.getDataSourceName())) {
-                    String key = observationResult.getCategory();
-                    femaleColonies.get(key).add(observationResult.getColonyId());
-                    femaleGenes.get(key).add(observationResult.getGeneSymbol() + " (" + observationResult.getGeneAccession() + ")");
+            // Write summary section.
+            csvWriter.writeRow(Arrays.asList(new String[] { "Phenotype", "# Genes", "Gene Symbols"  }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Both fertile", Integer.toString(bothFertile.size()), StringUtils.join(bothFertile, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Both infertile", Integer.toString(bothInfertile.size()), StringUtils.join(bothInfertile, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Females fertile", Integer.toString(femalesFertile.size()), StringUtils.join(femalesFertile, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Females infertile", Integer.toString(femalesInfertile.size()), StringUtils.join(femalesInfertile, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Males fertile", Integer.toString(malesFertile.size()), StringUtils.join(malesFertile, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Males infertile", Integer.toString(malesInfertile.size()), StringUtils.join(malesInfertile, ", ") }));
+
+            csvWriter.writeNext(EMPTY_ROW);
+
+             // Write conflicting section.
+            csvWriter.writeRow(Arrays.asList(new String[] { "Conflicting females", Integer.toString(conflictingFemales.size()), StringUtils.join(conflictingFemales, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "Conflicting males", Integer.toString(conflictingMales.size()), StringUtils.join(conflictingMales, ", ") }));
+            csvWriter.writeRow(Arrays.asList(new String[] { "NOTE: Symbols in the conflicting list represent genes that are included in more than one fertility category." } ));
+
+            csvWriter.writeNext(EMPTY_ROW);
+
+            // Write detail section.
+            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "MGI Gene Id", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));//            allTable.add(header);
+            for ( SolrDocument doc : response.getResults()) {
+                String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
+                String geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
+                List<String> row = new ArrayList<>();
+                row.add(doc.getFieldValue(ObservationDTO.GENE_SYMBOL) != null ? doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString() : "");
+                row.add(doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) != null ? doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString() : "");
+                row.add(doc.getFieldValue(ObservationDTO.COLONY_ID).toString());
+                row.add(doc.getFieldValue(ObservationDTO.SEX).toString());
+                row.add(doc.getFieldValue(ObservationDTO.ZYGOSITY).toString());
+                row.add(category);
+                if ((conflictingFemales.contains(geneSymbol)) || (conflictingMales.contains(geneSymbol))) {
+                    row.add("Conflicting Data");
                 }
+
+                csvWriter.writeRow(row);
             }
-
-            bothColonies.put("Fertile", new HashSet<>(femaleColonies.get("Fertile")));
-            bothColonies.put("Infertile", new HashSet<>(femaleColonies.get("Infertile")));
-            bothGenes.put("Infertile", new HashSet<>(femaleGenes.get("Infertile")));
-            bothGenes.put("Infertile", new HashSet<>(femaleGenes.get("Infertile")));
-
-            bothColonies.get("Fertile").retainAll(maleColonies.get("Fertile"));
-            bothColonies.get("Infertile").retainAll(maleColonies.get("Infertile"));
-            bothGenes.get("Fertile").retainAll(maleGenes.get("Fertile"));
-            bothGenes.get("Infertile").retainAll(maleGenes.get("Infertile"));
-
-            result.add(Arrays.asList("Sex", "IMPC/3i Line Count", "IMPC/3i Gene Count", "IMPC/3i Gene Symbols", "IMPC/3i MGI Gene Ids").toArray(new String[4]));
-            result.add(Arrays.asList("Both infertile", Integer.toString(bothColonies.get("Infertile").size()), Integer.toString(bothGenes.get("Infertile").size()), StringUtils.join(bothGenes.get("Infertile"), "::")).toArray(new String[4]));
-            result.add(Arrays.asList("Both fertile", Integer.toString(bothColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
-            result.add(Arrays.asList("Males infertile", Integer.toString(maleColonies.get("Infertile").size()), Integer.toString(maleGenes.get("Infertile").size()), StringUtils.join(maleGenes.get("Infertile"), "::")).toArray(new String[4]));
-            result.add(Arrays.asList("Males fertile", Integer.toString(maleColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
-            result.add(Arrays.asList("Females infertile", Integer.toString(femaleColonies.get("Infertile").size()), Integer.toString(femaleGenes.get("Infertile").size()), StringUtils.join(femaleGenes.get("Infertile"), "::")).toArray(new String[4]));
-            result.add(Arrays.asList("Females fertile", Integer.toString(femaleColonies.get("Fertile").size()), Integer.toString(bothGenes.get("Fertile").size()), "").toArray(new String[4]));
-
-            csvWriter.writeAll(result);
 
         } catch (SolrServerException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
