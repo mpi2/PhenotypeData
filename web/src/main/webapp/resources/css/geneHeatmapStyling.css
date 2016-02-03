@@ -15,16 +15,17 @@ th {
     vertical-align: bottom;
 }
 
-th span {
+th span.vertical{
   margin-bottom: 0px;
   padding: 0.0em;
   writing-mode: tb-rl;
   filter: flipv fliph;
-  -webkit-transform:rotate(-90deg);
-  -moz-transform:rotate(-90deg);
+  /* -webkit-transform:rotate(-90deg);
+  -moz-transform:rotate(-90deg); */
   white-space:nowrap; 
   display:block;
   padding: 0.0em 0.0em 0.0em 0.0em;
   word-wrap: break-word;
-  font-size:70%; 
+  font-size:70%;
+  /* background-color: red;  */
 }

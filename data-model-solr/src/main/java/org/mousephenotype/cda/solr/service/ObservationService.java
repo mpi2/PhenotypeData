@@ -2079,11 +2079,12 @@ public class ObservationService extends BasicService implements WebStatus {
 		// Fill list of EmbryoTableRows so that it's easiest to access from jsp.
 		for (String key: res.keySet()){
 			EmbryoTableRow row = new EmbryoTableRow();
+			System.out.println("row key="+key);
 			row.setCategory(key);
 			row.setCount( new Long(res.get(key).size()));
-			if (key.equalsIgnoreCase("Lethal")){
+			if (key.equalsIgnoreCase("lethal")){
 				row.setMpId("MP:0011100");
-			} else  if (key.equalsIgnoreCase("Subviable")){
+			} else  if (key.equalsIgnoreCase("subviable")){
 				row.setMpId("MP:0011110");
 			} else {
 				row.setMpId(null);

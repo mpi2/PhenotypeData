@@ -283,14 +283,17 @@
 				var params = window.location.search; // includes leading "?"
 
 				var query, queryOri, coreName, solrFilters;
+
+				query = "*"; // default
+
 				var solrFqs = [];
 				var showImgViewStr = "showImgView=false";  // default
 
 				//---------------------- parse URL ----------------------------
-				if ( /search\/\w+\?.+$/.exec(location.href) ){
+				if ( /search\/?\w*\/?.*$/.exec(location.href) ){
 					// with filter(s)
 
-					var regex = /search\/(\w+)\?(.+)$/;
+					var regex = /search\/?(\w*)\/?(.*)$/;
 					var matches = location.href.match(regex);
 
 					var filters = [];
@@ -299,9 +302,14 @@
 					var hasFq = false;
 					coreName = matches[1];
 
+					if ( coreName == ""){
+						coreName = "gene";
+					}
+
 					// activate this 'tab'
 					//alert('div#' + coreName +'Tab')
 					$('div#' + coreName +'Tab').show();
+
 
 					var paramStr = matches[2];
 					var kw = paramStr.split("&");
@@ -366,7 +374,13 @@
 					// ----------- update "tab" url ---------------------
 
 					var currKw = $.fn.fetchUrlParams('kw');
+
+					if ( currKw == undefined ){
+						query = "*";
+					}
 					// update url for all other datatypes (tabs)
+
+					console.log("coreName: " + coreName);
 					if ( thisId != coreName ) {
 						console.log("tab: " + thisId + " --- query: " + query);
 
@@ -728,7 +742,7 @@
 					//var total  = json.iTotalRecords;
 					var total = ${jsonStr}.iTotalRecords;
 
-					var numX = parseInt(start+1);
+					var numX = total > 0 ? parseInt(start+1) : 0;
 					var numY = parseInt(start+length) > total ? total : parseInt(start+length);
 					var defaultRows = 10;
 					var currPageNum = (start/length)+1;

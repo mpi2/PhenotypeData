@@ -216,3 +216,7 @@ button.exportButton{
 li img.thumbnailStyle{
 	max-width: 200px; max-height: 200px;width:auto; height:auto;
 }
+
+td h4 a{
+color:#0978a1
+}

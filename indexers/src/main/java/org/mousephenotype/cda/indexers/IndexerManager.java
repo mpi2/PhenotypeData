@@ -21,6 +21,7 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -35,6 +36,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -269,7 +271,7 @@ public class IndexerManager {
         transactionManager.getTransaction(transactionAttribute);
     }
 
-    public void run() throws IndexerException {
+    public void run() throws IndexerException, IOException, SolrServerException {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
         logger.debug("IndexerManager: nodeps = " + nodeps);
@@ -631,14 +633,14 @@ public class IndexerManager {
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) throws IndexerException, IOException, SolrServerException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
 
-    public static int mainReturnsStatus(String[] args) {
+    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException {
         try {
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);
