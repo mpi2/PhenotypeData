@@ -90,7 +90,7 @@ public class MetabolismDEXAReport extends AbstractReport {
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_DXA_*", lBiologicalSampleId);
-                    csvWriter.writeNext(createReportRow(mouseInfoDTOs));
+                    csvWriter.writeRow(createReportRow(mouseInfoDTOs));
                     if (++count % 1000 == 0)
                         logger.info(new Date().toString() + ": " + count + " records written.");
                 }
