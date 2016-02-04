@@ -175,10 +175,10 @@ public abstract class GraphSection {
             String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
             wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
 
-            // Unidimensional scatter graphs sometimes aren't yet loaded when we get to this point. If this is one, wait for it to load.
+            // Unidimensional box graphs sometimes aren't yet loaded when we get to this point. If this is one, wait for it to load.
             ChartType chartType = getChartType(chartElement);
-            if (chartType == ChartType.UNIDIMENSIONAL_SCATTER_PLOT) {
-                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("./table[starts-with(@class, 'continuousTable')]")));
+            if (chartType == ChartType.UNIDIMENSIONAL_BOX_PLOT) {
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[contains(@class, 'continuousTable')]")));
             }
 
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
