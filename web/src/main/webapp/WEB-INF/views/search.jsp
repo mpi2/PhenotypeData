@@ -284,7 +284,7 @@
 
 				var query, queryOri, coreName, solrFilters;
 
-				query = "*"; // default
+				query = queryOri = "*"; // default
 
 				var solrFqs = [];
 				var showImgViewStr = "showImgView=false";  // default
@@ -356,7 +356,6 @@
 						solrFilters = filters.join(" AND ");
 					}
 
-
 					query = query.replace("\\%3A", ":");
 					$('input#s').val(decodeURI(query));
 				}
@@ -380,9 +379,8 @@
 					}
 					// update url for all other datatypes (tabs)
 
-					console.log("coreName: " + coreName);
 					if ( thisId != coreName ) {
-						console.log("tab: " + thisId + " --- query: " + query);
+						//console.log("tab: " + thisId + " --- query: " + query);
 
 						if ( query.indexOf(":") != -1 ){
 							query = query.replace(":", "\\%3A");
@@ -398,6 +396,7 @@
 
 						// update "tab" link url
 						if ( $.fn.fetchUrlParams('fq') != undefined ){
+
 							$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));
 						}
 						else {
@@ -494,22 +493,6 @@
 					}
 				});
 				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
-
-
-				// ----------- when a "tab" is clicked ----------------
-				$("ul.tabLabel > li a").click(function(){
-					//$('#resultMsg').text("Fetching data ....");
-					// update "tab" link url
-
-					/*var thisId = $(this).parent().attr('id').replace("T","");
-					alert("click tab: " + thisId)
-					if ( $.fn.fetchUrlParams('fq') != undefined ){
-						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query + '&fq=' + $.fn.fetchUrlParams('fq'));
-					}
-					else {
-						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
-					}*/
-				});
 
 
 				// submit query when facet filter is ticked
