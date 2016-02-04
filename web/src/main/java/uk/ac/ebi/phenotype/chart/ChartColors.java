@@ -44,7 +44,7 @@ public class ChartColors {
 	//rgb(191, 75, 50)
 	//rgb(166, 30, 1)
 
-	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "191, 75, 50", "166, 30, 1", "255, 201, 67");
+	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "255, 201, 67");
 
 
 	public static final Double alphaOpaque = 1.0;
