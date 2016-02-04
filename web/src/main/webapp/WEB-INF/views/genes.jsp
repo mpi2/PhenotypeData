@@ -635,10 +635,9 @@
 
 						<div class="clear"></div>
 						<br/> <br/>
-                        <c:if test="${not empty impcExpressionImageFacets}">
                             <!-- Expression in Anatomogram -->
                             <c:if test="${!isLive}">
-
+							<c:if test="${not empty anatomogram}">
         					<div class="section">
                                 <h2 class="title" id="expression-anatomogram">Expression in Anatomogram<span
                                         class="documentation"><a href='' id='expressionAnatomogramPanel'
@@ -665,19 +664,41 @@
                                 <!-- end of inner div -->
                             </div>
                             </c:if>
-                            <!-- end of section -->
+                            </c:if>
+                            <!-- end of anatomogram section -->
 
                             <!-- Expression (IMPC) -->
-                            <div class="section">
+<c:if test="${not empty impcExpressionImageFacets or not empty impcExpressionFacetToDocs or not empty impcEmbryoExpressionImageFacets or not empty impcEmbryoExpressionFacetToDocs}">
+                        
+	<div class="section">
 
-                                <h2 class="title" id="impc-expression">Expression<span
-                                        class="documentation"><a href='' id='impcExpressionPanel'
+		<h2 class="title" id="impc-expression">Expression<span
+         class="documentation"><a href='' id='impcExpressionPanel'
                                                                  class="fa fa-question-circle pull-right"></a></span>
-                                </h2>
+        </h2>
 
-                                <div class="inner" style="display: block;">
+        <div class="inner" style="display: block;">
 
-                                    <c:set var="expressionIcon" scope="page" value="fa fa-check"/>
+                                   <!-- section for expression data here -->
+               <div id="tabs">
+                     <ul class='tabs'>
+                     <c:if test="${not empty impcExpressionImageFacets}">
+                          <li><a href="#tabs-1">Adult Expression Images View</a></li>
+                     </c:if>
+                     <c:if test="${not empty impcExpressionFacetToDocs }">
+                        <li><a href="#tabs-2">Expression Data Overview</a></li>
+                     </c:if>
+                     <c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
+                        <li><a href="#tabs-3">Embryo Expression Images Overview</a></li>
+                     </c:if>
+                     <c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
+                        <li><a href="#tabs-4">Embryo Expression Data Overview</a></li>
+                     </c:if>
+                     </ul>
+                     <c:if test="${ not empty impcExpressionFacetToDocs}"><!-- if size greater than 1 we have more data than just unassigned which we will -->
+					<div id="tabs-2" style="height: 500px; overflow: auto;">
+					<br/>
+ 									<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
                                     <c:set var="noTissueIcon" scope="page" value="fa fa-circle-o"/>
                                     <c:set var="noExpressionIcon" scope="page" value="fa fa-times"/>
                                     <c:set var="ambiguousIcon" scope="page" value="fa fa-circle"/>
@@ -694,21 +715,6 @@
                                           style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 
 									<br/> <br/>
-
-                                    <!-- section for expression data here -->
-                                    <div id="tabs">
-                                        <ul class='tabs'>
-                                            <li><a href="#tabs-2">Adult Expression Images View</a></li>
-                                            <li><a href="#tabs-1">Expression Data Overview</a></li>
-                                            <c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
-                                            	<li><a href="#tabs-3">Embryo Expression Images Overview</a></li>
-                                            	<li><a href="#tabs-4">Embryo Expression Data Overview</a></li>
-                                            </c:if>
-                                        </ul>
-
-
-                                        <div id="tabs-1" style="height: 500px; overflow: auto;">
-
 
                                             <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                             -->
@@ -836,10 +842,12 @@
                                             </table>
 
                                         </div>
+                                        </c:if>
+                                        
 
                                         <!-- section for expression data here -->
-
-                                        <div id="tabs-2">
+										<c:if test="${not empty impcExpressionImageFacets}">
+                                        <div id="tabs-1">
 
                                             <!-- <h2 class="title" id="section-impc_expression">Expression Data<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                              -->
@@ -866,11 +874,28 @@
                                             <!--  end of tabs-2 -->
 
                                         </div>
+                                        </c:if>
 
-
+									<c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
 									<div id="tabs-4" style="height: 500px; overflow: auto;">
+											<br/>
+		 									<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
+		                                    <c:set var="noTissueIcon" scope="page" value="fa fa-circle-o"/>
+		                                    <c:set var="noExpressionIcon" scope="page" value="fa fa-times"/>
+		                                    <c:set var="ambiguousIcon" scope="page" value="fa fa-circle"/>
+		                                    <c:set var="yesColor" scope="page" value="#0978a1"/>
+		                                    <c:set var="noColor" scope="page" value="gray"/>
+		
+		                                    <span title="Expression" class="${expressionIcon}"
+		                                          style="color:${yesColor}">&nbsp;Expression</span>&nbsp;&nbsp;
+		                                    <span title="No Expression" class="${noExpressionIcon}"
+		                                          style="color: gray">&nbsp;No Expression</span>&nbsp;&nbsp;
+		                                    <span title="No Tissue Available" class="${noTissueIcon}"
+		                                          style="color: gray">&nbsp;No Tissue Available</span>&nbsp;&nbsp;
+		                                    <span title="Ambiguous" class="${ambiguousIcon}"
+		                                          style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 
-
+									<br/> <br/>
                                             <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                             -->
 
@@ -997,12 +1022,13 @@
                                             </table>
 
                                         </div>
+                                        </c:if>
 
                                        <!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
          		<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
          								<c:if test="${not empty impcEmbryoExpressionImageFacets}">
          								<div id="tabs-3">
-
+Tab-3
 
 
                                              	<div class="accordion-body"
@@ -1029,13 +1055,12 @@
 
                                         </div>
                                         </c:if>
+			</div><!-- end of tabs -->
+        </div><!-- end of innner -->
 
-                                        <!-- end of tabs -->
-                                    </div>
-
-                                </div>
-                            </div>
-                        </c:if>
+     </div><!-- end of impc expression section (excluding anatomogram) -->
+     </c:if>
+                       
                         <!-- end of expression section if -->
                         <!-- end of inner ide is wrong when displayed in browser these divs are needed-->
 

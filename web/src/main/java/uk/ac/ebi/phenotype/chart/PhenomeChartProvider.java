@@ -486,15 +486,16 @@ public class PhenomeChartProvider {
 
 			// Set phenotype order to show (x-axis)
 			for (PhenotypeCallSummaryDTO call : calls) {
+				if (call.getTopLevelPhenotypeTerms()!=null) {
+					String topLevelName = call.getTopLevelPhenotypeTerms().get(0).getName();
+					if (!phenotypeGroups.containsKey(topLevelName)) {
+						phenotypeGroups.put(topLevelName, new ArrayList<String>());
 
-				String topLevelName = call.getTopLevelPhenotypeTerms().get(0).getName();
-				if (!phenotypeGroups.containsKey(topLevelName)) {
-					phenotypeGroups.put(topLevelName, new ArrayList<String>());
+					}
 
-				}
-
-				if (!phenotypeGroups.get(topLevelName).contains(call.getPhenotypeTerm().getName())) {
-					phenotypeGroups.get(topLevelName).add(call.getPhenotypeTerm().getName());
+					if (!phenotypeGroups.get(topLevelName).contains(call.getPhenotypeTerm().getName())) {
+						phenotypeGroups.get(topLevelName).add(call.getPhenotypeTerm().getName());
+					}
 				}
 			}
 
@@ -567,10 +568,10 @@ public class PhenomeChartProvider {
 
 	/**
 	 *
-	 * @param alleleAccession
+	 * @param geneAccession
 	 * @param statisticalResults
 	 * @param minimalPvalue
-	 * @param pipeline
+	 * @param parametersByProcedure
 	 * @return
 	 * @throws IOException
 	 * @throws URISyntaxException
@@ -617,7 +618,7 @@ public class PhenomeChartProvider {
 						StatisticalResultDTO statsResult = statisticalResults.get(parameterStableId).get(0);
 
 						// smallest p-value sis the first (solr docs are sorted)
-						if (statsResult.getStatus().equalsIgnoreCase("SUCCESS") && resultIndex == 0) {
+						if (statsResult.getStatus().equalsIgnoreCase("SUCCESS") && resultIndex == 0 && statsResult.getpValue()!=null) {
 
 							// create the point first
 							JSONObject dataPoint = new JSONObject();

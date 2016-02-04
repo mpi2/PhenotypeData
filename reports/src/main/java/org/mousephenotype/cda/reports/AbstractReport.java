@@ -52,6 +52,8 @@ public abstract class AbstractReport {
     public static final String DATA_ERROR = "DATA ERROR";
     public static final String NO_INFO_AVAILABLE = "No information available";
 
+    public static final String[] EMPTY_ROW = new String[] { "" };
+
     public abstract String getDefaultFilename();
 
     public enum ReportFormat {
