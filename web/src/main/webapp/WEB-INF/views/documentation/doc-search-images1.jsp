@@ -1,17 +1,86 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: ckc
-  Date: 20/01/2016
-  Time: 16:23
-  To change this template use File | Settings | File Templates.
---%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<html>
-<head>
-  <style></style>
-</head>
-<body>
-<%@ include file="doc-search-generic-features-note.jsp" %><br>
+<t:genericpage>
+
+  <jsp:attribute name="title">IMPC Search</jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">Search data</a> &raquo; <a href="${baseUrl}/documentation/doc-search-images">Search Images</a></jsp:attribute>
+  <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
+
+	<jsp:attribute name="header">
+		<link href="${baseUrl}/css/searchPage.cssssss" rel="stylesheet" type="text/css" />
+        <style>
+
+          div#tabs {
+            border-top: none;
+          }
+
+          div#tabs > ul {
+            border: none;
+            border-bottom: 1px solid #666;
+            padding-bottom: 3px;
+            margin-bottom: 0px;
+            background: none;
+            list-style-type: none;
+          }
+
+          div#tabs > ul li {
+            float: left;
+          }
+
+          div#tabs-1, div#tabs-2 {
+            border: 1px solid gray;
+            border-top: none;
+            padding: 45px;
+          }
+
+
+          div#tabs > ul li a {
+            margin: 0 0px -3px 20px;
+            border: 1px solid #666;
+            border-bottom: none;
+            font-size: 16px;
+            text-decoration: none;
+            padding: 3px 5px 3px 5px;
+            border-radius: 4px;
+            color: gray;
+          }
+
+          #tabs .ui-tabs-active {
+
+          }
+          #tabs .ui-tabs-active > a {
+            border-bottom: 1px solid white;
+            color: black;
+          }
+          img {
+            /* images will be automatically adjusted to fit container */
+            max-width:100%;
+            max-height:100%;
+          }
+
+        </style>
+
+	</jsp:attribute>
+
+	<jsp:attribute name="addToFooter">
+		<div class="region region-pinned"></div>
+	</jsp:attribute>
+
+  <jsp:body>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <h1>IMPC data portal documentation</h1>
+
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">Generic Search Features</a></li>
+        <li><a href="#tabs-2">Specific Images Search</a></li>
+      </ul>
+
+      <div id="tabs-1">
+        <%@ include file="doc-search-generic-features.jsp" %>
+      </div>
+      <div id="tabs-2">
 
         Currently, there are two major types of images. The "IMPC images" (the IMPC Images datatype) and the legacy ones (the Images datatype).<br>
         The Images datatype is legacy data from previous Europhenome/Eumodic phenotyping projects.<br><br>
@@ -55,5 +124,17 @@
           </tr>
         </table>
 
-</body>
-</html>
+
+      </div>
+    </div>
+
+
+    <script>
+      $(function() {
+        $( "#tabs" ).tabs({ active: 1 });
+      });
+    </script>
+
+  </jsp:body>
+
+</t:genericpage>

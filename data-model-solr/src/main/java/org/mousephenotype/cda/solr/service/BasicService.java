@@ -122,28 +122,27 @@ public class BasicService {
         return results;
     }
        
-//    
-//    protected Map<String, List<String>> getFacetPivotResults2Levels(QueryResponse response, String pivotName) {
-//    	
-//    	Map<String, List<String>> results = new HashMap<String, List<String>>();
-//        NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
-//
-//        if (facetPivot != null && facetPivot.size() > 0) {
-//        	
-//                List<PivotField> pivotResult = facetPivot.get(pivotName);
-//
-//                for (int j = 0; j < pivotResult.size(); j++) {
-//                    PivotField pivotLevel = pivotResult.get(j);
-//                    List<String> lmap = getLeveledFacetPivotValue(pivotLevel, null, keepCount);
-//                    results.addAll(lmap);
-//                }
-//            }
-//        }
-//
-//        return results;
-//    }
-//       
-//    
+    /**
+     * Get results for 2 level pivot faceting only!
+     * @param response
+     * @param pivot 
+     * @return Returns values for one facetPivot at a time. <pivot_value, <facet1, facet2 ... >>
+     */
+    protected Map<String, List<String>> getFacetPivotResults(QueryResponse response, String pivot) {
+    	
+    	Map<String, List<String>>res = new HashMap<String, List<String>>();
+        List<PivotField> facetPivot = response.getFacetPivot().get(pivot);
+
+        for( PivotField p : facetPivot){
+			List<String> secondLevelFacets = new ArrayList<>();
+			for (PivotField pf : p.getPivot()){
+				secondLevelFacets.add(pf.getValue().toString());
+			}
+			res.put(p.getValue().toString(), new ArrayList<String>(secondLevelFacets));
+		}
+
+        return res;
+    }
     
     /**
      * Java structure for simple facets in Solr. 
@@ -163,7 +162,8 @@ public class BasicService {
     	return res;
     }
     
-
+    
+    
 	/**
 	 * @author tudose
 	 * @since 2015/08/03

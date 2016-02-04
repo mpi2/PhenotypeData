@@ -80,7 +80,7 @@ public class HitsPerLineReport extends AbstractReport {
         List<List<String[]>> result = new ArrayList<>();
         try {
             List<String[]> zygosityTable = new ArrayList<>();
-            String[] headerParams  ={"# hits", "# colonies with this many HOM hits", "# colonies with this many HET hits", "# colonies with this many calls"};
+            String[] headerParams  ={"# Hits", "# Colonies With This Many HOM Hits", "# Colonies With This Many HET Hits", "# Colonies With This Many Calls"};
             zygosityTable.add(headerParams);
 
             Map<String, Long> homsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
