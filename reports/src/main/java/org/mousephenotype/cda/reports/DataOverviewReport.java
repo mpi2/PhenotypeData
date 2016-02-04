@@ -163,7 +163,7 @@ public class DataOverviewReport extends AbstractReport {
             Map<String, List<String>> mpTermByGeneMapAll = genotypePhenotypeService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
             Map<String, List<String>> mpTermByGeneMapComplete = genotypePhenotypeService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
 
-            String[] headerMp = {"MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
+            String[] headerMp = {"MP term", "# Associated Genes With >= 1 Procedure Done", "% Associated Genes of All Genes With >= 1 Procedure Done", "# Associated Genes With >= 13 Procedures Done", "% Associated Genes of All Genes With >= 13 Procedures Done"};
             mpTable.add(headerMp);
             for(String mpTerm : mpTermByGeneMapAll.keySet()) {
                 String[] row = {

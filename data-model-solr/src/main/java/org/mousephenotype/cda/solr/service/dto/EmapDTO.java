@@ -26,6 +26,7 @@ import java.util.List;
 public class EmapDTO {
 
 	public static final String EMAP_ID = "emap_id";
+	public static final String EMAP_ID_URL = "emap_id_url";
 	public static final String EMAP_TERM = "emap_term";
 	public static final String EMAP_DEFINITION = "emap_definition";
 	public static final String EMAP_TERM_SYNONYM = "emap_term_synonym";
@@ -55,7 +56,7 @@ public class EmapDTO {
 	public static final String SELECTED_TOP_LEVEL_EMAP_DEFINITION = "selected_top_level_emap_definition";
 	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = "selected_top_level_emap_term_synonym";
 	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_ID = "selected_top_level_emap_term_id";
-	
+
 	public static final String HP_ID = "hp_id";
 	public static final String HP_TERM = "hp_term";
 	public static final String DATA_TYPE = "dataType";
@@ -154,10 +155,16 @@ public class EmapDTO {
 	public static final String PARAMETER_NAME = "parameter_name";
 	public static final String PARAMETER_STABLE_ID = "parameter_stable_id";
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
+	public static final String PARAMETER_ASSOC_VALUE = "parameter_assoc_value";
 
+	public static final String OMERO_ID = "omero_id";
+	public static final String SANGER_IMAGE_ID = "sanger_image_id";
 
 	@Field(EMAP_ID)
 	private String emapId;
+
+	@Field(EMAP_ID_URL)
+	private String emapIdUrl;
 
 	@Field(EMAP_TERM)
 	private String emapTerm;
@@ -528,6 +535,15 @@ public class EmapDTO {
 	@Field(PARAMETER_STABLE_KEY)
 	private List<String> parameterStableKey;
 
+	@Field(PARAMETER_ASSOC_VALUE)
+	private List<String> parameterAssocValue;
+
+	@Field(OMERO_ID)
+	private List<Integer> omeroIds;
+
+	@Field(SANGER_IMAGE_ID)
+	private List<Integer> sangerImageIds;
+
 
 	public String getEmapId() {
 
@@ -539,6 +555,15 @@ public class EmapDTO {
 
 		this.emapId = emapId;
 	}
+
+	public String getEmapIdUrl() {
+		return emapIdUrl;
+	}
+
+	public void setEmapIdUrl(String emapIdUrl) {
+		this.emapIdUrl = emapIdUrl;
+	}
+
 
 
 	public String getEmapTerm() {
@@ -1976,142 +2001,172 @@ public class EmapDTO {
 		this.parameterStableKey = parameterStableKey;
 	}
 
+	public List<String> getParameterAssocValue() {
+
+		return parameterAssocValue;
+	}
+
+
+	public void setParameterAssocValue(List<String> parameterAssocValue) {
+
+		this.parameterAssocValue = parameterAssocValue;
+	}
+
+	public List<Integer> getOmeroIds() {
+
+		return omeroIds;
+	}
+
+
+	public void setOmeroIds(List<Integer> omeroIds) {
+
+		this.omeroIds = omeroIds;
+	}
+
+	public List<Integer> getSangerImageIds() {
+
+		return sangerImageIds;
+	}
+
+
+	public void setSangerImageIds(List<Integer> sangerImageIds) {
+
+		this.sangerImageIds = sangerImageIds;
+	}
+
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((accession == null) ? 0 : accession.hashCode());
-		result = prime * result + ((alleleId == null) ? 0 : alleleId.hashCode());
-		result = prime * result + ((alleleName == null) ? 0 : alleleName.hashCode());
-		result = prime * result + ((alleleSymbol == null) ? 0 : alleleSymbol.hashCode());
-		result = prime * result
-				+ ((annotatedHigherLevelMaTermId == null) ? 0 : annotatedHigherLevelMaTermId.hashCode());
-		result = prime * result
-				+ ((annotatedHigherLevelMaTermName == null) ? 0 : annotatedHigherLevelMaTermName.hashCode());
-		result = prime * result
-				+ ((annotatedHigherLevelMpTermId == null) ? 0 : annotatedHigherLevelMpTermId.hashCode());
-		result = prime * result
-				+ ((annotatedHigherLevelMpTermName == null) ? 0 : annotatedHigherLevelMpTermName.hashCode());
-		result = prime * result + ((annotatedOrInferredHigherLevelMaTermId == null) ? 0
-				: annotatedOrInferredHigherLevelMaTermId.hashCode());
-		result = prime * result + ((annotatedOrInferredHigherLevelMaTermName == null) ? 0
-				: annotatedOrInferredHigherLevelMaTermName.hashCode());
-		result = prime * result + ((annotationTermId == null) ? 0 : annotationTermId.hashCode());
-		result = prime * result + ((annotationTermName == null) ? 0 : annotationTermName.hashCode());
-		result = prime * result + ((childEmapDefinition == null) ? 0 : childEmapDefinition.hashCode());
-		result = prime * result + ((childEmapId == null) ? 0 : childEmapId.hashCode());
-		result = prime * result + ((childEmapTerm == null) ? 0 : childEmapTerm.hashCode());
-		result = prime * result + ((childEmapTermSynonym == null) ? 0 : childEmapTermSynonym.hashCode());
-		result = prime * result + ((childMaId == null) ? 0 : childMaId.hashCode());
-		result = prime * result + ((childMaTerm == null) ? 0 : childMaTerm.hashCode());
-		result = prime * result + ((childMaTermSynonym == null) ? 0 : childMaTermSynonym.hashCode());
-		result = prime * result + ((dataType == null) ? 0 : dataType.hashCode());
-		result = prime * result + ((diseaseAlts == null) ? 0 : diseaseAlts.hashCode());
-		result = prime * result + ((diseaseClasses == null) ? 0 : diseaseClasses.hashCode());
-		result = prime * result + ((diseaseId == null) ? 0 : diseaseId.hashCode());
-		result = prime * result + ((diseaseSource == null) ? 0 : diseaseSource.hashCode());
-		result = prime * result + ((diseaseTerm == null) ? 0 : diseaseTerm.hashCode());
-		result = prime * result + ((emapDefinition == null) ? 0 : emapDefinition.hashCode());
-		result = prime * result + ((emapId == null) ? 0 : emapId.hashCode());
-		result = prime * result + ((emapNodeId == null) ? 0 : emapNodeId.hashCode());
-		result = prime * result + ((emapTerm == null) ? 0 : emapTerm.hashCode());
-		result = prime * result + ((emapTermSynonym == null) ? 0 : emapTermSynonym.hashCode());
-		result = prime * result + ((expName == null) ? 0 : expName.hashCode());
-		result = prime * result + ((expNameExp == null) ? 0 : expNameExp.hashCode());
-		result = prime * result + ((geneName == null) ? 0 : geneName.hashCode());
-		result = prime * result + ((geneSynonyms == null) ? 0 : geneSynonyms.hashCode());
-		result = prime * result + ((goId == null) ? 0 : goId.hashCode());
-		result = prime * result + ((hpId == null) ? 0 : hpId.hashCode());
-		result = prime * result + ((hpTerm == null) ? 0 : hpTerm.hashCode());
-		result = prime * result + ((humanCurated == null) ? 0 : humanCurated.hashCode());
-		result = prime * result + ((humanGeneSymbol == null) ? 0 : humanGeneSymbol.hashCode());
-		result = prime * result + ((imitsPhenotypeComplete == null) ? 0 : imitsPhenotypeComplete.hashCode());
-		result = prime * result + ((imitsPhenotypeStarted == null) ? 0 : imitsPhenotypeStarted.hashCode());
-		result = prime * result + ((imitsPhenotypeStatus == null) ? 0 : imitsPhenotypeStatus.hashCode());
-		result = prime * result + ((impcNovelPredictedInLocus == null) ? 0 : impcNovelPredictedInLocus.hashCode());
-		result = prime * result + ((impcPredicted == null) ? 0 : impcPredicted.hashCode());
-		result = prime * result + ((impcPredictedKnownGene == null) ? 0 : impcPredictedKnownGene.hashCode());
-		result = prime * result + ((inferredChildMaId == null) ? 0 : inferredChildMaId.hashCode());
-		result = prime * result + ((inferredChildMaTerm == null) ? 0 : inferredChildMaTerm.hashCode());
-		result = prime * result + ((inferredChildMaTermSynonym == null) ? 0 : inferredChildMaTermSynonym.hashCode());
-		result = prime * result + ((inferredMaId == null) ? 0 : inferredMaId.hashCode());
-		result = prime * result + ((inferredMaTerm == null) ? 0 : inferredMaTerm.hashCode());
-		result = prime * result + ((inferredMaTermId == null) ? 0 : inferredMaTermId.hashCode());
-		result = prime * result + ((inferredMaTermName == null) ? 0 : inferredMaTermName.hashCode());
-		result = prime * result + ((inferredMaTermSynonym == null) ? 0 : inferredMaTermSynonym.hashCode());
-		result = prime * result
-				+ ((inferredSelectedTopLevelMaId == null) ? 0 : inferredSelectedTopLevelMaId.hashCode());
-		result = prime * result
-				+ ((inferredSelectedTopLevelMaTerm == null) ? 0 : inferredSelectedTopLevelMaTerm.hashCode());
-		result = prime * result + ((inferredSelectedTopLevelMaTermSynonym == null) ? 0
-				: inferredSelectedTopLevelMaTermSynonym.hashCode());
-		result = prime * result + ((intermediateEmapDefinition == null) ? 0 : intermediateEmapDefinition.hashCode());
-		result = prime * result + ((intermediateEmapId == null) ? 0 : intermediateEmapId.hashCode());
-		result = prime * result + ((intermediateEmapTerm == null) ? 0 : intermediateEmapTerm.hashCode());
-		result = prime * result + ((intermediateEmapTermSynonym == null) ? 0 : intermediateEmapTermSynonym.hashCode());
-		result = prime * result + ((largeThumbnailFilePath == null) ? 0 : largeThumbnailFilePath.hashCode());
-		result = prime * result + ((latestPhenotypeStatus == null) ? 0 : latestPhenotypeStatus.hashCode());
-		result = prime * result + ((latestPhenotypingCentre == null) ? 0 : latestPhenotypingCentre.hashCode());
-		result = prime * result + ((latestProductionCentre == null) ? 0 : latestProductionCentre.hashCode());
-		result = prime * result + ((legacyPhenotypeStatus == null) ? 0 : legacyPhenotypeStatus.hashCode());
-		result = prime * result + ((maId == null) ? 0 : maId.hashCode());
-		result = prime * result + ((maTerm == null) ? 0 : maTerm.hashCode());
-		result = prime * result + ((maTermId == null) ? 0 : maTermId.hashCode());
-		result = prime * result + ((maTermName == null) ? 0 : maTermName.hashCode());
-		result = prime * result + ((maTermSynonym == null) ? 0 : maTermSynonym.hashCode());
-		result = prime * result + ((markerAccessionId == null) ? 0 : markerAccessionId.hashCode());
-		result = prime * result + ((markerName == null) ? 0 : markerName.hashCode());
-		result = prime * result + ((markerSymbol == null) ? 0 : markerSymbol.hashCode());
-		result = prime * result + ((markerSynonym == null) ? 0 : markerSynonym.hashCode());
-		result = prime * result + ((markerType == null) ? 0 : markerType.hashCode());
-		result = prime * result + ((mgiAccessionId == null) ? 0 : mgiAccessionId.hashCode());
-		result = prime * result + ((mgiNovelPredictedInLocus == null) ? 0 : mgiNovelPredictedInLocus.hashCode());
-		result = prime * result + ((mgiPredicted == null) ? 0 : mgiPredicted.hashCode());
-		result = prime * result + ((mgiPredictedKnownGene == null) ? 0 : mgiPredictedKnownGene.hashCode());
-		result = prime * result + ((mouseCurated == null) ? 0 : mouseCurated.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((ontologySubset == null) ? 0 : ontologySubset.hashCode());
-		result = prime * result + ((pValue == null) ? 0 : pValue.hashCode());
-		result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
-		result = prime * result + ((parameterStableId == null) ? 0 : parameterStableId.hashCode());
-		result = prime * result + ((parameterStableKey == null) ? 0 : parameterStableKey.hashCode());
-		result = prime * result + ((parentEmapDefinition == null) ? 0 : parentEmapDefinition.hashCode());
-		result = prime * result + ((parentEmapId == null) ? 0 : parentEmapId.hashCode());
-		result = prime * result + ((parentEmapTerm == null) ? 0 : parentEmapTerm.hashCode());
-		result = prime * result + ((parentEmapTermSynonym == null) ? 0 : parentEmapTermSynonym.hashCode());
-		result = prime * result + ((pipelineName == null) ? 0 : pipelineName.hashCode());
-		result = prime * result + ((pipelineStableId == null) ? 0 : pipelineStableId.hashCode());
-		result = prime * result + ((pipelineStableKey == null) ? 0 : pipelineStableKey.hashCode());
-		result = prime * result + ((preqcGeneId == null) ? 0 : preqcGeneId.hashCode());
-		result = prime * result + ((procedureName == null) ? 0 : procedureName.hashCode());
-		result = prime * result + ((procedureStableId == null) ? 0 : procedureStableId.hashCode());
-		result = prime * result + ((procedureStableKey == null) ? 0 : procedureStableKey.hashCode());
-		result = prime * result + ((sangerSymbol == null) ? 0 : sangerSymbol.hashCode());
-		result = prime * result + ((selectedTopLevelMaId == null) ? 0 : selectedTopLevelMaId.hashCode());
-		result = prime * result + ((selectedTopLevelMaTerm == null) ? 0 : selectedTopLevelMaTerm.hashCode());
-		result = prime * result
-				+ ((selectedTopLevelMaTermSynonym == null) ? 0 : selectedTopLevelMaTermSynonym.hashCode());
-		result = prime * result + ((siblingEmapDefinition == null) ? 0 : siblingEmapDefinition.hashCode());
-		result = prime * result + ((siblingEmapId == null) ? 0 : siblingEmapId.hashCode());
-		result = prime * result + ((siblingEmapTerm == null) ? 0 : siblingEmapTerm.hashCode());
-		result = prime * result + ((smallThumbnailFilePath == null) ? 0 : smallThumbnailFilePath.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result + ((strainId == null) ? 0 : strainId.hashCode());
-		result = prime * result + ((strainName == null) ? 0 : strainName.hashCode());
-		result = prime * result + ((subtype == null) ? 0 : subtype.hashCode());
-		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
-		result = prime * result + ((symbolGene == null) ? 0 : symbolGene.hashCode());
-		result = prime * result + ((topLevel == null) ? 0 : topLevel.hashCode());
-		result = prime * result + ((topLevelEmapDefinition == null) ? 0 : topLevelEmapDefinition.hashCode());
-		result = prime * result + ((topLevelEmapId == null) ? 0 : topLevelEmapId.hashCode());
-		result = prime * result + ((topLevelEmapTerm == null) ? 0 : topLevelEmapTerm.hashCode());
-		result = prime * result + ((topLevelEmapTermId == null) ? 0 : topLevelEmapTermId.hashCode());
-		result = prime * result + ((topLevelEmapTermSynonym == null) ? 0 : topLevelEmapTermSynonym.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		int result = emapId != null ? emapId.hashCode() : 0;
+		result = 31 * result + (emapIdUrl != null ? emapIdUrl.hashCode() : 0);
+		result = 31 * result + (emapTerm != null ? emapTerm.hashCode() : 0);
+		result = 31 * result + (emapDefinition != null ? emapDefinition.hashCode() : 0);
+		result = 31 * result + (emapTermSynonym != null ? emapTermSynonym.hashCode() : 0);
+		result = 31 * result + (emapNodeId != null ? emapNodeId.hashCode() : 0);
+		result = 31 * result + (childEmapId != null ? childEmapId.hashCode() : 0);
+		result = 31 * result + (childEmapTerm != null ? childEmapTerm.hashCode() : 0);
+		result = 31 * result + (childEmapDefinition != null ? childEmapDefinition.hashCode() : 0);
+		result = 31 * result + (childEmapTermSynonym != null ? childEmapTermSynonym.hashCode() : 0);
+		result = 31 * result + (childEmapIdTerm != null ? childEmapIdTerm.hashCode() : 0);
+		result = 31 * result + (parentEmapId != null ? parentEmapId.hashCode() : 0);
+		result = 31 * result + (parentEmapTerm != null ? parentEmapTerm.hashCode() : 0);
+		result = 31 * result + (parentEmapDefinition != null ? parentEmapDefinition.hashCode() : 0);
+		result = 31 * result + (parentEmapTermSynonym != null ? parentEmapTermSynonym.hashCode() : 0);
+		result = 31 * result + (intermediateEmapId != null ? intermediateEmapId.hashCode() : 0);
+		result = 31 * result + (intermediateEmapTerm != null ? intermediateEmapTerm.hashCode() : 0);
+		result = 31 * result + (intermediateEmapDefinition != null ? intermediateEmapDefinition.hashCode() : 0);
+		result = 31 * result + (intermediateEmapTermSynonym != null ? intermediateEmapTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelEmapId != null ? topLevelEmapId.hashCode() : 0);
+		result = 31 * result + (topLevelEmapTerm != null ? topLevelEmapTerm.hashCode() : 0);
+		result = 31 * result + (topLevelEmapDefinition != null ? topLevelEmapDefinition.hashCode() : 0);
+		result = 31 * result + (topLevelEmapTermSynonym != null ? topLevelEmapTermSynonym.hashCode() : 0);
+		result = 31 * result + (topLevelEmapTermId != null ? topLevelEmapTermId.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelEmapId != null ? selectedTopLevelEmapId.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelEmapTerm != null ? selectedTopLevelEmapTerm.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelEmapDefinition != null ? selectedTopLevelEmapDefinition.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelEmapTermSynonym != null ? selectedTopLevelEmapTermSynonym.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelEmapTermId != null ? selectedTopLevelEmapTermId.hashCode() : 0);
+		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
+		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
+		result = 31 * result + (dataType != null ? dataType.hashCode() : 0);
+		result = 31 * result + (ontologySubset != null ? ontologySubset.hashCode() : 0);
+		result = 31 * result + (maId != null ? maId.hashCode() : 0);
+		result = 31 * result + (maTerm != null ? maTerm.hashCode() : 0);
+		result = 31 * result + (maTermSynonym != null ? maTermSynonym.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaId != null ? selectedTopLevelMaId.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaTerm != null ? selectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (selectedTopLevelMaTermSynonym != null ? selectedTopLevelMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (childMaId != null ? childMaId.hashCode() : 0);
+		result = 31 * result + (childMaTerm != null ? childMaTerm.hashCode() : 0);
+		result = 31 * result + (childMaTermSynonym != null ? childMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredMaId != null ? inferredMaId.hashCode() : 0);
+		result = 31 * result + (inferredMaTerm != null ? inferredMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredMaTermSynonym != null ? inferredMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaId != null ? inferredSelectedTopLevelMaId.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredSelectedTopLevelMaTermSynonym != null ? inferredSelectedTopLevelMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (inferredChildMaId != null ? inferredChildMaId.hashCode() : 0);
+		result = 31 * result + (inferredChildMaTerm != null ? inferredChildMaTerm.hashCode() : 0);
+		result = 31 * result + (inferredChildMaTermSynonym != null ? inferredChildMaTermSynonym.hashCode() : 0);
+		result = 31 * result + (goId != null ? goId.hashCode() : 0);
+		result = 31 * result + (siblingEmapId != null ? siblingEmapId.hashCode() : 0);
+		result = 31 * result + (siblingEmapTerm != null ? siblingEmapTerm.hashCode() : 0);
+		result = 31 * result + (siblingEmapDefinition != null ? siblingEmapDefinition.hashCode() : 0);
+		result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
+		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
+		result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+		result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
+		result = 31 * result + (preqcGeneId != null ? preqcGeneId.hashCode() : 0);
+		result = 31 * result + (markerName != null ? markerName.hashCode() : 0);
+		result = 31 * result + (markerSynonym != null ? markerSynonym.hashCode() : 0);
+		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
+		result = 31 * result + (humanGeneSymbol != null ? humanGeneSymbol.hashCode() : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
+		result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (latestProductionCentre != null ? latestProductionCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypingCentre != null ? latestPhenotypingCentre.hashCode() : 0);
+		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (legacyPhenotypeStatus != null ? legacyPhenotypeStatus.hashCode() : 0);
+		result = 31 * result + (type != null ? type.hashCode() : 0);
+		result = 31 * result + (diseaseId != null ? diseaseId.hashCode() : 0);
+		result = 31 * result + (diseaseSource != null ? diseaseSource.hashCode() : 0);
+		result = 31 * result + (diseaseTerm != null ? diseaseTerm.hashCode() : 0);
+		result = 31 * result + (diseaseAlts != null ? diseaseAlts.hashCode() : 0);
+		result = 31 * result + (diseaseClasses != null ? diseaseClasses.hashCode() : 0);
+		result = 31 * result + (humanCurated != null ? humanCurated.hashCode() : 0);
+		result = 31 * result + (mouseCurated != null ? mouseCurated.hashCode() : 0);
+		result = 31 * result + (mgiPredicted != null ? mgiPredicted.hashCode() : 0);
+		result = 31 * result + (impcPredicted != null ? impcPredicted.hashCode() : 0);
+		result = 31 * result + (mgiPredictedKnownGene != null ? mgiPredictedKnownGene.hashCode() : 0);
+		result = 31 * result + (impcPredictedKnownGene != null ? impcPredictedKnownGene.hashCode() : 0);
+		result = 31 * result + (mgiNovelPredictedInLocus != null ? mgiNovelPredictedInLocus.hashCode() : 0);
+		result = 31 * result + (impcNovelPredictedInLocus != null ? impcNovelPredictedInLocus.hashCode() : 0);
+		result = 31 * result + (annotationTermId != null ? annotationTermId.hashCode() : 0);
+		result = 31 * result + (annotationTermName != null ? annotationTermName.hashCode() : 0);
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		result = 31 * result + (accession != null ? accession.hashCode() : 0);
+		result = 31 * result + (expName != null ? expName.hashCode() : 0);
+		result = 31 * result + (largeThumbnailFilePath != null ? largeThumbnailFilePath.hashCode() : 0);
+		result = 31 * result + (smallThumbnailFilePath != null ? smallThumbnailFilePath.hashCode() : 0);
+		result = 31 * result + (inferredMaTermId != null ? inferredMaTermId.hashCode() : 0);
+		result = 31 * result + (inferredMaTermName != null ? inferredMaTermName.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMaTermId != null ? annotatedHigherLevelMaTermId.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMaTermName != null ? annotatedHigherLevelMaTermName.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMpTermId != null ? annotatedHigherLevelMpTermId.hashCode() : 0);
+		result = 31 * result + (annotatedHigherLevelMpTermName != null ? annotatedHigherLevelMpTermName.hashCode() : 0);
+		result = 31 * result + (annotatedOrInferredHigherLevelMaTermName != null ? annotatedOrInferredHigherLevelMaTermName.hashCode() : 0);
+		result = 31 * result + (annotatedOrInferredHigherLevelMaTermId != null ? annotatedOrInferredHigherLevelMaTermId.hashCode() : 0);
+		result = 31 * result + (symbol != null ? symbol.hashCode() : 0);
+		result = 31 * result + (sangerSymbol != null ? sangerSymbol.hashCode() : 0);
+		result = 31 * result + (geneName != null ? geneName.hashCode() : 0);
+		result = 31 * result + (subtype != null ? subtype.hashCode() : 0);
+		result = 31 * result + (geneSynonyms != null ? geneSynonyms.hashCode() : 0);
+		result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
+		result = 31 * result + (maTermId != null ? maTermId.hashCode() : 0);
+		result = 31 * result + (maTermName != null ? maTermName.hashCode() : 0);
+		result = 31 * result + (expNameExp != null ? expNameExp.hashCode() : 0);
+		result = 31 * result + (symbolGene != null ? symbolGene.hashCode() : 0);
+		result = 31 * result + (topLevel != null ? topLevel.hashCode() : 0);
+		result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
+		result = 31 * result + (alleleId != null ? alleleId.hashCode() : 0);
+		result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
+		result = 31 * result + (strainId != null ? strainId.hashCode() : 0);
+		result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+		result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
+		result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
+		result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
+		result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
+		result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
+		result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
+		result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
+		result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
+		result = 31 * result + (parameterAssocValue != null ? parameterAssocValue.hashCode() : 0);
+		result = 31 * result + (omeroIds != null ? omeroIds.hashCode() : 0);
+		result = 31 * result + (sangerImageIds != null ? sangerImageIds.hashCode() : 0);
 		return result;
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {
