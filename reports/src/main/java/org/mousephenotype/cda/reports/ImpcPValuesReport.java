@@ -114,7 +114,7 @@ public class ImpcPValuesReport extends AbstractReport {
         header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", "Center"));
         header.addAll(sortedParameters);
 
-        csvWriter.writeNext(header);
+        csvWriter.writeRow(header);
 
         i=0;
         for (RowKey rowKey : matrixValues.keySet()) {
@@ -140,7 +140,7 @@ public class ImpcPValuesReport extends AbstractReport {
                 }
             }
 
-            csvWriter.writeNext(row);
+            csvWriter.writeRow(row);
         }
 
         try {

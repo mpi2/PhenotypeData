@@ -50,7 +50,7 @@ public class MpCSVWriter extends CSVWriter {
         super(writer, separator, quotechar, lineEnd);
     }
 
-    public void writeNext(List<String> nextLine) {
+    public void writeRow(List<String> nextLine) {
         writeNext(nextLine.toArray(new String[0]));
     }
 
@@ -58,6 +58,12 @@ public class MpCSVWriter extends CSVWriter {
         for (List<String[]> row : allLines) {
             writeAll(row);
             writeNext(new String[0]);
+        }
+    }
+
+    public void writeRows(List<List<String>> data) {
+        for (List<String> row : data) {
+            writeRow(row);
         }
     }
 
