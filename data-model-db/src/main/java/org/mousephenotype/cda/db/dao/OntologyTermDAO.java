@@ -45,4 +45,5 @@ public interface OntologyTermDAO extends HibernateDAO, WebStatus{
 
 	public int batchInsertion(Collection<OntologyTerm> ontologyTerms);
 
+	OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId);
 }
