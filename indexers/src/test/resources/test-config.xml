@@ -4,15 +4,13 @@
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:task="http://www.springframework.org/schema/task"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		http://www.springframework.org/schema/tx
 		http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
 		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.1.xsd
 		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context-4.1.xsd
-                http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.1.xsd">
+		http://www.springframework.org/schema/context/spring-context-4.1.xsd">
 
     <bean id="executorService" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
@@ -27,7 +25,7 @@
         <property name="locations">
             <list>
                 <value>classpath:testConfig.properties</value>
-                <value>file:${user.home}/configfiles/testDatasourcesConfig.properties</value>
+                <value>file:${user.home}/configfiles/${profile}/test.properties</value>
             </list>
         </property>
     </bean>
@@ -43,85 +41,15 @@
         <constructor-arg index="0" value="${phenodigmSolrUrl}" />
     </bean>
 
-    <!--this is the phenodigm DAO implementation we are looking for... -->
-    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
-
-    <bean id="observationService" class="uk.ac.ebi.phenotype.service.ObservationService">
-        <constructor-arg  value="${solrUrl}/experiment" />
-    </bean>
-
-    <bean id="phenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
-    </bean>
-
-    <bean id="preQcPhenotypeCenterService" class="uk.ac.ebi.phenotype.service.PhenotypeCenterService">
-        <constructor-arg value="${internalSolrUrl}/preqc" />
-    </bean>
-
-    <bean id="impressService" class="uk.ac.ebi.phenotype.service.ImpressService">
-        <constructor-arg value="${internalSolrUrl}/pipeline" />
-    </bean>
-
     <bean id="releaseDAO" class="org.mousephenotype.cda.db.dao.AnalyticsDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="experimentService" class="uk.ac.ebi.phenotype.service.ExperimentService">
-    </bean>
-
-    <bean id="imageService" class="uk.ac.ebi.phenotype.service.ImageService">
-        <constructor-arg value="${internalSolrUrl}/impc_images" />
-    </bean>
-
-    <bean id="expressionService" class="uk.ac.ebi.phenotype.service.ExpressionService">
-        <constructor-arg value="${internalSolrUrl}/experiment" />
-        <constructor-arg value="${internalSolrUrl}/impc_images" />
-    </bean>
-
-    <bean id="alleleService" class="uk.ac.ebi.phenotype.service.AlleleService">
-        <constructor-arg value="${internalSolrUrl}/allele" />
-    </bean>
-
-    <bean id="unidimensionalStatisticsDAO" class="org.mousephenotype.cda.db.dao.UnidimensionalStatisticsDAOImpl">
-        <constructor-arg ref="sessionFactory" />
-    </bean>
 
     <bean id="statisticalResultDAO" class="org.mousephenotype.cda.db.dao.StatisticalResultDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <bean id="geneService" class="uk.ac.ebi.phenotype.service.GeneService">
-        <constructor-arg  value="${solrUrl}/gene" />
-    </bean>
-    <bean id="preqcService" class="uk.ac.ebi.phenotype.service.PreQcService">
-        <constructor-arg value="${internalSolrUrl}/preqc" />
-        <constructor-arg ref="phenotypePipelineDAO" />
-    </bean>
-
-    <bean id="postqcService" class="uk.ac.ebi.phenotype.service.PostQcService">
-        <constructor-arg value="${internalSolrUrl}/genotype-phenotype" />
-        <constructor-arg ref="phenotypePipelineDAO" />
-    </bean>
-
-    <bean id="statisticalResultService" class="uk.ac.ebi.phenotype.service.StatisticalResultService">
-        <constructor-arg  value="${solrUrl}/statistical-result" />
-	<constructor-arg ref="phenotypePipelineDAO" />
-    </bean>
-
-    <bean id="mpService" class="uk.ac.ebi.phenotype.service.MpService">
-        <constructor-arg  value="${solrUrl}/mp" />
-    </bean>
-
-    <bean id="diseaseService" class="uk.ac.ebi.phenotype.service.DiseaseService">
-        <constructor-arg value="${internalSolrUrl}/disease" />
-    </bean>
-
-    <bean id="sexualDimorphismDAO" class="org.mousephenotype.cda.db.dao.SexualDimorphismDAOImpl" >
-        <constructor-arg ref="sessionFactory" />
-    </bean>
-
-    <context:component-scan base-package="uk.ac.ebi" />
-    <context:component-scan base-package="org.mousephenotype.www" />
 
     <context:annotation-config/>
 
@@ -132,22 +60,7 @@
         <constructor-arg ref="sessionFactory" />
     </bean>
 
-    <!--  <bean id="secondaryProjectService" class="org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl">
-                   <constructor-arg ref="sessionFactory" />
-       </bean>
-    -->
 
-    <bean id="idg" class="SecondaryProjectService">
-        <constructor-arg ref="sessionFactory" />
-        <!-- <constructor-arg ref="geneService" />
-        <constructor-arg ref="genomicFeatureDAO" />
-        <constructor-arg ref="genotypePhenotypeService"/>
-        <constructor-arg ref="phenotypePipelineDAO"/> -->
-
-    </bean>
-
-    <bean id="threeI" class="uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl">
-    </bean>
     <bean id="observationDAO" class="org.mousephenotype.cda.db.dao.ObservationDAOImpl">
         <constructor-arg ref="sessionFactory" />
     </bean>
@@ -194,9 +107,9 @@
 
     <bean id="referenceDAO" class="org.mousephenotype.cda.db.dao.ReferenceDAO" />
 
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="komp2DataSource"/>
-        <property name="packagesToScan" value="uk.ac.ebi.phenotype"/>
+        <property name="packagesToScan" value="org.mousephenotype.cda.db.pojo"/>
         <property name="hibernateProperties">
             <props>
                 <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
@@ -208,7 +121,7 @@
     </bean>
 
     <!-- Drives transactions using Hibernate APIs when requested -->
-    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory" />
     </bean>
 
@@ -232,62 +145,6 @@
         </property>
     </bean>
 
-    <util:properties id="testIterationsHash" location="classpath:testIterations.properties" />
-
-    <bean id="testUtils" class="org.mousephenotype.www.testing.model.TestUtils" />
-
-    <bean id="seleniumUrl" class="java.lang.String">
-        <constructor-arg value="${seleniumUrl}"/>
-    </bean>
-    <bean id="baseUrl" class="java.lang.String">
-        <constructor-arg value="${baseUrl}"/>
-    </bean>
-    <bean id="solrUrl" class="java.lang.String">
-        <constructor-arg value="${solrUrl}"/>
-    </bean>
-
-    <bean id="desiredCapabilities" class="org.openqa.selenium.remote.DesiredCapabilities" />
-
-    <!-- Since the target methods for these xxxDesiredCapabilities (e.g. chrome(), safari(), etc)
-         are static, we need to use the more complex MethodInvokingFactoryBean to invoke them.
-    -->
-    <bean id="chromeDesiredCapabilities" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetClass">
-            <value>org.openqa.selenium.remote.DesiredCapabilities</value>
-        </property>
-        <property name="targetMethod">
-            <value>chrome</value>
-        </property>
-    </bean>
-    <bean id="safariDesiredCapabilities" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetClass">
-            <value>org.openqa.selenium.remote.DesiredCapabilities</value>
-        </property>
-        <property name="targetMethod">
-            <value>safari</value>
-        </property>
-    </bean>
-    <bean id="iexploreDesiredCapabilities" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetClass">
-            <value>org.openqa.selenium.remote.DesiredCapabilities</value>
-        </property>
-        <property name="targetMethod">
-            <value>internetExplorer</value>
-        </property>
-    </bean>
-    <bean id="firefoxDesiredCapabilities" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="targetClass">
-            <value>org.openqa.selenium.remote.DesiredCapabilities</value>
-        </property>
-        <property name="targetMethod">
-            <value>firefox</value>
-        </property>
-    </bean>
-
-    <bean id="driver" class="org.openqa.selenium.remote.RemoteWebDriver" scope="prototype">
-        <constructor-arg ref="seleniumUrl" />
-        <constructor-arg ref="${desiredCapabilities}" />
-    </bean>
 
     <!-- Creates a MySQL Datasource -->
     <bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -312,7 +169,7 @@
         <property name="password" value="${admintoolspassword}" />
     </bean>
 
-    <bean id="observationIndexer" class="uk.ac.ebi.phenotype.solr.indexer.ObservationIndexer" />
+    <bean id="observationIndexer" class="org.mousephenotype.cda.indexers.ObservationIndexer" />
 
     <!-- used for concurrently loading the experiment core -->
     <bean id="observationIndexing" class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
