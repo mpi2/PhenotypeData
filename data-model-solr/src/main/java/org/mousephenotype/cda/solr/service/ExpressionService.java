@@ -15,17 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
-import javax.annotation.PostConstruct;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -35,22 +26,18 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.params.ModifiableSolrParams;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ImpressService.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import javax.annotation.PostConstruct;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Pulled in 2015/07/09 by @author tudose
@@ -95,7 +82,7 @@ public class ExpressionService extends BasicService {
 		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
 
 	}
-	
+
 	@PostConstruct
 	private void initialiseAbnormalEmapMap() {
 		abnormalEmapFromImpress = impressService.getParameterStableIdToAbnormalEmapMap();
@@ -197,7 +184,7 @@ public class ExpressionService extends BasicService {
 			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
 		}
-		
+
 		// solrQuery.setFacetMinCount(1);
 		// solrQuery.setFacet(true);
 		solrQuery.setFields(fields);
@@ -256,8 +243,8 @@ public class ExpressionService extends BasicService {
 	 *            If imagesOverview true then restrict response to only certain
 	 *            fields as we are only displaying annotations for a dataset not
 	 *            a specific thumbnail
-	 * @param expressionOverview
-	 *            If true we want some expression data/stats added to the model
+	 * @param imagesOverview
+	 *            If true we want some images data/stats added to the model
 	 *            for display in the tabbed pane on the gene page.
 	 * @param model
 	 *            Spring MVC model
@@ -328,14 +315,14 @@ public class ExpressionService extends BasicService {
 			// work out list of uberon/efo ids with/without expressions
 			if (doc.containsKey(ImageDTO.MA_ID)) {
 				// System.out.println(doc.toString());
-				List<String> maIds = Arrays.asList(doc.getFieldValues(termIdField).toArray());
+				List<String> maIds = Arrays.asList(doc.getFieldValues(termIdField).toArray(new String[0]));
 				// List<String> maTerms =
 				// Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
 
 				for (int i = 0; i < maIds.size(); i++) {
 					// String ma_term_name = maTerms.get(i).toString();
 					if (doc.containsKey("parameter_association_value")) {
-						List<String> pav = Arrays.asList(doc.getFieldValues("parameter_association_value").toArray());
+						List<String> pav = Arrays.asList(doc.getFieldValues("parameter_association_value").toArray(new String[0]));
 						if (pav.get(i).equals("expression")) {
 							for (String id : mappedIds) {
 								if (doc.containsKey(id)) {
@@ -673,7 +660,7 @@ public class ExpressionService extends BasicService {
 						}else{
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
 						}
-						
+
 
 						if (ontologyBean != null) {
 							row.setAbnormalMaId(ontologyBean.getId());
@@ -713,7 +700,6 @@ public class ExpressionService extends BasicService {
 	 * Are there hom images in this set (needed for the expression table on gene
 	 * page
 	 *
-	 * @param anatomy
 	 * @param row
 	 * @param doc
 	 * @return
