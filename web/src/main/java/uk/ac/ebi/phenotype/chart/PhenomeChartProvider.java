@@ -486,15 +486,16 @@ public class PhenomeChartProvider {
 
 			// Set phenotype order to show (x-axis)
 			for (PhenotypeCallSummaryDTO call : calls) {
+				if (call.getTopLevelPhenotypeTerms()!=null) {
+					String topLevelName = call.getTopLevelPhenotypeTerms().get(0).getName();
+					if (!phenotypeGroups.containsKey(topLevelName)) {
+						phenotypeGroups.put(topLevelName, new ArrayList<String>());
 
-				String topLevelName = call.getTopLevelPhenotypeTerms().get(0).getName();
-				if (!phenotypeGroups.containsKey(topLevelName)) {
-					phenotypeGroups.put(topLevelName, new ArrayList<String>());
+					}
 
-				}
-
-				if (!phenotypeGroups.get(topLevelName).contains(call.getPhenotypeTerm().getName())) {
-					phenotypeGroups.get(topLevelName).add(call.getPhenotypeTerm().getName());
+					if (!phenotypeGroups.get(topLevelName).contains(call.getPhenotypeTerm().getName())) {
+						phenotypeGroups.get(topLevelName).add(call.getPhenotypeTerm().getName());
+					}
 				}
 			}
 

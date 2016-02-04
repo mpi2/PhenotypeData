@@ -550,5 +550,14 @@ public class ChartsController {
         }
         return paramIds;
     }
+    
+    @RequestMapping("/colors")
+    public String colors(Model model) {
+    	System.out.println("calling colors page");
+    	model.addAttribute("maleColors", ChartColors.maleRgb);
+    	model.addAttribute("femaleColors", ChartColors.femaleRgb);
+    	model.addAttribute("highDifferenceColors",ChartColors.highDifferenceColors);
+        return "colors";
+    }
 
 }

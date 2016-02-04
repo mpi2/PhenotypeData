@@ -66,7 +66,7 @@ public class ExpressionService extends BasicService {
 
 	Map<String, ImpressService.OntologyBean> abnormalMaFromImpress = null;
 
-	Map<String, ImpressService.OntologyBean> abnormalEmapFromImpress=null;
+	Map<String, ImpressService.OntologyBean> abnormalEmapFromImpress = null;
 
 	public ExpressionService() {
 	}
@@ -172,13 +172,12 @@ public class ExpressionService extends BasicService {
 			// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=biological_sample_group:control&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)&rows=100000
 			solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
 		}
-		if(embryo){
+		if (embryo) {
 			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
 			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
 			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
 			solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-		}
-		else{
+		} else {
 			solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
 			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
 			solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
@@ -393,38 +392,39 @@ public class ExpressionService extends BasicService {
 		System.out.println("expression: " + expList);
 		System.out.println("noExpression: " + noExpList);
 		System.out.println("allPaths: " + allPaths);
-
 		List<Count> topLevelMaTerms = new ArrayList<>();
-		topLevelMaTerms.addAll(fields.get(0).getValues());
-
-		Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
-				expFacetToDocs.get(noTopTermId).size());
-		topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
-
 		List<Count> filteredTopLevelMaTerms = new ArrayList<>();
-		if (topMaNameFilter != null) {
-			for (Count topLevel : topLevelMaTerms) {
-				if (topLevel.getName().equals(topMaNameFilter)) {
-					filteredTopLevelMaTerms.add(topLevel);
-				}
+		if (fields.get(0).getValues().size() > 0) {
+
+			topLevelMaTerms.addAll(fields.get(0).getValues());
+			if(expFacetToDocs.get(noTopTermId).size()>0){//only add this facet for no top levels found if there are any
+			Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
+					expFacetToDocs.get(noTopTermId).size());
+			topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
 			}
-		} else {
-			filteredTopLevelMaTerms = topLevelMaTerms;
+
+			if (topMaNameFilter != null) {
+				for (Count topLevel : topLevelMaTerms) {
+					if (topLevel.getName().equals(topMaNameFilter)) {
+						filteredTopLevelMaTerms.add(topLevel);
+					}
+				}
+			} else {
+				filteredTopLevelMaTerms = topLevelMaTerms;
+			}
+
+			ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
+			ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
+
+			if (embryoOnly) {
+				model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelMaTerms);
+				model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
+			} else {
+				model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
+				model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
+				model.addAttribute("anatomogram", anatomogram);
+			}
 		}
-
-		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
-		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
-
-		if (embryoOnly) {
-			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelMaTerms);
-			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
-			// model.addAttribute("anatomogram", anatomogram);
-		} else {
-			model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
-			model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
-			model.addAttribute("anatomogram", anatomogram);
-		}
-
 	}
 
 	// public void getEmbryoLacImageDataForGene(String acc, String
@@ -641,7 +641,8 @@ public class ExpressionService extends BasicService {
 
 	}
 
-	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs, boolean embryo) {
+	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
+			boolean embryo) {
 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
@@ -654,13 +655,12 @@ public class ExpressionService extends BasicService {
 					if (doc.containsKey(ImageDTO.PARAMETER_STABLE_ID) && row.getParameterStableId() == null) {
 						String parameterStableId = (String) doc.get(ImageDTO.PARAMETER_STABLE_ID);
 						row.setParameterStableId(parameterStableId);
-						OntologyBean ontologyBean=null;
-						if(embryo){
+						OntologyBean ontologyBean = null;
+						if (embryo) {
 							ontologyBean = abnormalEmapFromImpress.get(parameterStableId);
-						}else{
+						} else {
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
 						}
-
 
 						if (ontologyBean != null) {
 							row.setAbnormalMaId(ontologyBean.getId());
@@ -692,7 +692,7 @@ public class ExpressionService extends BasicService {
 
 		}
 		row.anatomy = anatomy;
-		//System.out.println(row);
+		// System.out.println(row);
 		return row;
 	}
 

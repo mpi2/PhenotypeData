@@ -241,6 +241,7 @@ public class GenesController {
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+			System.out.println("mpGroupsNotSignificant="+mpGroupsNotSignificant);
 
 			for (String str : mpGroupsSignificant.keySet()){
 				if (mpGroupsNotSignificant.keySet().contains(str)){

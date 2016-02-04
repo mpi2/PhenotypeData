@@ -49,8 +49,8 @@ public class MetabolismIPGTTReport extends AbstractReport {
     ObservationService observationService;
 
     private String[] header = new String[] {
-             "Mouse id", "Sample Type", "Gene", "Allele", "Zygosity"
-            ,"Sex", "Colony id", "Phenotyping center", "Metadata group"
+             "Mouse Id", "Sample Type", "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Zygosity"
+            ,"Sex", "Colony Id", "Phenotyping Center", "Metadata Group"
 
             ,"Body Weight IMPC_IPG_001_001"
 
@@ -96,7 +96,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_IPG_*", lBiologicalSampleId);
-                    csvWriter.writeNext(createReportRow(mouseInfoDTOs));
+                    csvWriter.writeRow(createReportRow(mouseInfoDTOs));
                     if (++count % 1000 == 0)
                         logger.info(new Date().toString() + ": " + count + " records written.");
                 }
@@ -223,6 +223,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
         retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
         retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
+        retVal.add(mouseInfoDTOs.get(0).getGeneAccession());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
         retVal.add(mouseInfoDTOs.get(0).getZygosity());
         retVal.add(mouseInfoDTOs.get(0).getSex());

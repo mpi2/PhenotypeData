@@ -2,8 +2,7 @@ $(document).ready(function () {
 
 	var exampleSearch =
 	 '<h3 id="samplesrch">Example Searches</h3>'
-		+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
-		+ '	<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>'
+		+ '<p>Sample queries for several fields are shown. Click the desired query to execute one of the samples.'
 		+ '</p>'
 		+ '<h5>Gene query examples</h5>'
 		+ '<p>'
@@ -126,7 +125,8 @@ $(document).ready(function () {
 					matchedFacet = false; // reset
 					var docs = data.response.docs;
 					//console.log(docs);
-					var aKV = [];
+
+					var aKVtmp = {};
 					for ( var i=0; i<docs.length; i++ ){
 						var facet;
 						for ( var key in docs[i] ){
@@ -137,6 +137,9 @@ $(document).ready(function () {
 
 							if ( key == 'docType' ){
 								facet = docs[i][key].toString();
+								if ( ! aKVtmp.hasOwnProperty(facet) ) {
+									aKVtmp[facet] = [];
+								}
 							}
 							else {
 
@@ -162,7 +165,7 @@ $(document).ready(function () {
 									termHl += " &raquo; <span class='hp2mp'>" + docs[i]['hpmp_id'].toString() + ' - ' + docs[i]['hpmp_term'].toString() + "</span>";
 								}
 
-								aKV.push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
+								aKVtmp[facet].push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 
 								if (i == 0){
 									// take the first found in
@@ -173,7 +176,15 @@ $(document).ready(function () {
 							}
 						}
 					}
-					response( aKV );
+					var dataTypeVal = [];
+					var aKVtmpSorted = $.fn.sortJson(aKVtmp);
+					for ( var k in aKVtmpSorted ){
+							for ( var v in aKVtmpSorted[k] ) {
+							dataTypeVal.push(aKVtmpSorted[k][v]);
+						}
+					}
+
+					response( dataTypeVal );
 				}
 			});
 		},
