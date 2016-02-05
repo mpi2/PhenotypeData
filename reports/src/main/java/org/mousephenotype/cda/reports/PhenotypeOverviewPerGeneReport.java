@@ -99,11 +99,19 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                     geneToPhenotypes.put(gp.getMarkerSymbol(), new HashSet<>());
                 }
 
-                geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
+                // Term can be EMAP, MPATH, MP, etc.
+                if ((gp.getEmapTermName() != null) && ( ! gp.getEmapTermName().isEmpty())) {
+                    geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getEmapTermName() + "/" + gp.getParameterName());
+                } else if ((gp.getMpathTermName() != null) && ( ! gp.getMpathTermName().isEmpty())) {
+                    geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpathTermName() + "/" + gp.getParameterName());
+                } else if ((gp.getMpTermName() != null) && ( ! gp.getMpTermName().isEmpty())) {
+                    geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
+                } else {
+                    throw new ReportException("PhenotypeOverviewPerGeneReport: Can't find a non-null/empty term");
+                }
+
                 geneSymbolToId.put(gp.getMarkerSymbol(), gp.getMarkerAccessionId());
             }
-
-
 
             Set<String> allGenes = new HashSet<>(observationService.getGenesWithMoreProcedures(1, resources));
             allGenes.removeAll(geneToPhenotypes.keySet());
