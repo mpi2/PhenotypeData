@@ -227,12 +227,13 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-
+        	System.out.println("got connection");
             p.setFetchSize(Integer.MIN_VALUE);
 
             ResultSet r = p.executeQuery();
+            
             while (r.next()) {
-
+            	System.out.println("new GenotypePhenotypeDTO");
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
                 doc.setId(r.getInt("id"));
@@ -382,7 +383,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
                 documentCount++;
                 mgiSolrServer.addBean(doc, 30000);
-
+                System.out.println("count ="+count);
                 count ++;
             }
 
