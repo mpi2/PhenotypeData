@@ -29,7 +29,6 @@ import org.hibernate.Transaction;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -139,12 +138,20 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		return c;
 	}
 
+	@Override
+	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId) {
+		return (OntologyTerm)this.getCurrentSession().createQuery("from OntologyTerm as o where o.name= ? and o.id.databaseId = ?")
+			.setString(0, name)
+			.setInteger(1, databaseId)
+			.uniqueResult();
+	}
+
 
 	@Override
 	public long getWebStatus() throws Exception {
 		int rows = 0;
 		String statusQuery="SELECT count(*) FROM ontodb_komp2.ma_node2term";
-		
+
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
@@ -156,9 +163,9 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 
 			while (resultSet.next()) {
 
-				
+
 			rows=resultSet.getInt(1);
-						
+
 			}
 			statement.close();
 
@@ -167,8 +174,8 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 
 		}
 
-		 
-		 
+
+
 		 return rows;
 	}
 

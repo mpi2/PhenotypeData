@@ -17,19 +17,24 @@
         <!-- lookup parent from repository -->
     </parent>
 
-    <!--<parent>-->
-        <!--<groupId>io.spring.platform</groupId>-->
-        <!--<artifactId>platform-bom</artifactId>-->
-        <!--<version>1.1.2.RELEASE</version>-->
-        <!--<relativePath/>-->
-    <!--</parent>-->
-
     <name>dependencies</name>
     <description>
         Dependency management for the PhenotypeData
     </description>
 
     <url>http://www.mousephenotype.org/</url>
+
+    <repositories>
+        <repository>
+            <id>mouse-informatics</id>
+            <name>Mouse Informatics internal repository</name>
+            <layout>default</layout>
+            <url>http://ves-ebi-d9.ebi.ac.uk:8080/nexus/content/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <properties>
         <phenotypedata.version>0.0.1</phenotypedata.version>
