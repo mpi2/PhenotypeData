@@ -172,7 +172,14 @@ public abstract class GraphSection {
     private void load() throws TestException {
 
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[starts-with(@class, 'continuousTable')]")));
+            String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
+
+            // Unidimensional box graphs sometimes aren't yet loaded when we get to this point. If this is one, wait for it to load.
+            ChartType chartType = getChartType(chartElement);
+            if (chartType == ChartType.UNIDIMENSIONAL_BOX_PLOT) {
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[contains(@class, 'continuousTable')]")));
+            }
 
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {

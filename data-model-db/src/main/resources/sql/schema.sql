@@ -1118,11 +1118,13 @@ CREATE TABLE phenotype_call_summary (
 	allele_acc                VARCHAR(20),
 	allele_db_id              INT(10),
 	colony_id                 VARCHAR(200) NULL,
-	sex                       ENUM('female', 'hermaphrodite', 'male', 'not_applicable', 'no_data'),
+	sex                       ENUM('female', 'hermaphrodite', 'male', 'both', 'not_applicable', 'no_data'),
 	zygosity                  ENUM('homozygote', 'heterozygote', 'hemizygote', 'not_applicable'),
 	parameter_id              INT(10) UNSIGNED NOT NULL,
 	procedure_id              INT(10) UNSIGNED NOT NULL,
 	pipeline_id               INT(10) UNSIGNED NOT NULL,
+
+
 
 	mp_acc                    VARCHAR(20) NOT NULL,
 	mp_db_id                  INT(10) NOT NULL,
