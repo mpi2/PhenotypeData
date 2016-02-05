@@ -4,7 +4,7 @@ ul.ui-autocomplete {
 	border: 1px solid #0978A1;
 	padding: 10px 15px;
 	z-index: 999;
-	
+
 }
 ul.ui-autocomplete li a {
 	display: block;
@@ -15,7 +15,7 @@ ul.ui-autocomplete li {
 	font-size: 14px !important;
 }
 ul.ui-autocomplete li a:hover {
-	background-color: #D4D4D4 !important;	
+	background-color: #D4D4D4 !important;
 	border-radius: 4px;
 }
 span#rmFilters {
@@ -42,19 +42,19 @@ p.documentation a {
 }
 div#facetSrchMsg {
 	margin-top: 10px;
-	width: 75%;	
+	width: 75%;
 }
 
 /* facet - general */
 .fblock                                 { position: relative; }
 .region-sidebar-first .fblock .head     { background: #0978a1; color: #fff; }
 .region-sidebar-first .fblock .content  { background: none; }
-.flist li                               { cursor: pointer; }                         
+.flist li                               { cursor: pointer; }
 .fcount                                 { font-size: 11px; float: right; }
 
 /* facet - main categories */
 .fmcat > .flabel                        { color: #0978A1; font-size: 1.4em; font-weight: 300; }
-.fmcat > .flabel.grayout				{ color: #cccccc; }	
+.fmcat > .flabel.grayout				{ color: #cccccc; }
 .fmcat                                  { margin: 1em 0; }
 .fmcat:before                           { font-family: 'FontAwesome'; content: "\f0da"; color: #0978A1; margin-right: 0.5em; }
 .fmcat.open:before                      { content: "\f0d7"; }
@@ -65,7 +65,7 @@ div#facetSrchMsg {
 .fmcat.open .fcatsection                { display: block; }
 
 /* facet - categorie headlines */
-.fcatsection > .flabel                  { font-weight: 600; }
+.fcatsection > .flabel                  { font-weight: 600;}
 .fcatsection:before                     { font-family: 'FontAwesome'; content: "\f0da"; margin-right: 0.5em; }
 .fcatsection.open:before                { content: "\f0d7"; }
 .fcatsection                            { margin-top: 0.7em; }
@@ -86,18 +86,18 @@ li.fcat                                 { margin: 0; font-size: 0.9em; line-heig
 
 /* highlight checked facet label */
 .highlight {
-	color: #D17023;
-} 
+	background-color: #F2F2F2;
+}
 
 
 /* active facet filter */
-ul#facetFilter > li                     { display: none; }       
+ul#facetFilter > li                     { display: none; }
 ul#facetFilter li.has-sub               { display: block; }
 ul#facetFilter li.has-sub span.fcap {
 	display: none;
 	font-size: 11px;
 }
-ul#facetFilter li.has-sub + .has-sub    { margin-top: 0em; } 
+ul#facetFilter li.has-sub + .has-sub    { margin-top: 0em; }
 #resetFilter                            { opacity: 0.5; text-align: right; font-size: 11px; cursor: pointer; margin-top: 5px;}
 #resetFilter:before                     { font-family: 'FontAwesome'; content: "\f00d"; margin-right: 0.3em; text-decoration: none; }
 #resetFilter:hover                      { opacity: 1; }
@@ -106,16 +106,16 @@ ul#facetFilter li.has-sub + .has-sub    { margin-top: 0em; }
 }
 .ftag a {
 	display: block;
-	font-size: 11px; 
-	line-height: 1.1em; 
-	padding: 1px 0.3em; 
-	text-decoration: none; 
-	color: #fff; 
-	background: #0978A1; 
-	border-radius: 3px; 
-	-webkit-border-radius: 3px; 
-	-moz-border-radius: 3px; 
-	-ms-border-radius: 3px;	 
+	font-size: 11px;
+	line-height: 1.1em;
+	padding: 1px 0.3em;
+	text-decoration: none;
+	color: #fff;
+	background: #0978A1;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-ms-border-radius: 3px;
 }
 .ftag a:before                          { font-family: 'FontAwesome'; content: "\f00d"; margin-right: 0.3em; }
 .ftag a:hover                           { background: #ddd; color: #666; }
@@ -133,19 +133,20 @@ div.dataTables_info {
 	display: block;
 	margin-bottom: 10px;
 }
-div#resultMsg {
-	margin: 10px 5px;
-}
+
 div#leftSideBar {
 	padding-top: 5px;
-} 
+}
 div.briefDocCap {
 	padding: 1px;
 	background-color: gray;
 	text-align: center;
-	margin-bottom:5px;	
+	margin-bottom:5px;
 	color: white;
 	font-weight: bold;
+}
+div#mpi2-search {
+	margin-top: 80px;
 }
 div#mpi2-search .dataTable td a {
 	margin-right: 5px !important;
@@ -157,7 +158,7 @@ span.imgAnnots {
 	display: block;
 }
 span.annotType {
-	font-weight: bold;	
+	font-weight: bold;
 }
 table#diseaseGrid th:nth-child(1) {
 	width: 200px !important;
@@ -171,38 +172,42 @@ table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 /* table tool */
 div#tableTool {
 	font-size: 14px;
-	position: relative;
-	top: -140px;
-	right: 0;	
+	position: absolute;
+	top: 90px;
+	right: 0px;
+	margin-right: 25px;
 }
 div#saveTable {
 	position: relative;
 	top: 100px;
 	float: right;
-	margin-right: 10px;
-	cursor: pointer;	
-	padding: 1px 5px;
-	z-index: 99;	
+	cursor: pointer;
+	z-index: 99;
 	width: auto;
 }
+
+div#toolBox a.gridDump {
+	font-size: 12px;
+}
+
 div#saveTable span {
 	color: #0978A1;
 }
 div#saveTable img {
-	vertical-align: middle !important;	
+	vertical-align: middle !important;
 }
 div#toolBox {
 	position: absolute;
 	top: -8px;
-	right: 10px;	
+	right: 10px;
 	height: 80px;
-	width: 220px;	
+	width: 220px;
 	display: none;
 	padding: 15px;
 	background-color: #F4F4F4;
 	-webkit-border-radius: 5px;
-  	-moz-border-radius: 5px;
-  	border-radius: 5px; 
+	-moz-border-radius: 5px;
+	border-radius: 5px;
 }
 div#toolBox span {
 	display: block;
@@ -221,6 +226,76 @@ div#exportSpinner {
 
 /* end of table tool */
 
+div#tabs {
+	margin-top: 30px;
+	width: 70%;
+	float: right;
+}
+
+ul.tabLabel{
+	margin-left: 18px;
+	margin-bottom: 50px;
+	height: 53px;
+	border-bottom: 1px solid rgb(3,77,105);
+}
+
+ul.tabLabel li {
+	float: left;
+	margin: 0 0 0 10px;
+	padding: 5px 10px 0px 10px;
+	visibility: hidden;
+	border: 1px solid gray;
+	border-bottom: none;
+	border-radius: 5px 5px 0 0;
+	height: 48px;
+}
+
+ul.tabLabel li a {
+	padding: 0;
+	color: gray;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 18px;
+}
+
+ul.tabLabel li:hover, ul.tabLabel li:hover a, li.currDataType {
+	background-color: rgb(144,195,212); /* light blue */
+	color: white;
+	text-decoration: none;
+}
+li.currDataType {
+	background-color: rgb(3, 77, 105); /* dark blue */
+}
+li.currDataType a  {
+	color: white !important;
+}
+div#resultMsg {
+	clear: both;
+	margin-bottom: 20px;
+	padding: 10px 0;
+}
+
+div#dTable_pagination, div#dTable_info {
+	display: inline;
+}
+div#dTable_pagination {
+	float: right;
+}
+.hideme {
+	display: none;
+}
+
+div.flist {
+	margin-top: 45px !important;
+}
+.tabfc {
+	font-weight: normal;
+	font-size: 13px !important;
+	padding: 0;
+	margin: 2px 0 0 0;
+	width: 100%;
+	text-align: center;
+}
 
 /* imgView/annotView switcher */
 div#imgView {
@@ -233,22 +308,22 @@ span#imgViewSubTitle {
 }
 span#imgViewSwitcher {
 	font-size: 0.8em;
-	color: gray;
+	color: grey;
 	float: right;
-
 	cursor: pointer;
 }
+
 /* end of imgView/annotView switcher */
 
 /* Disease search results */
-span.status.done { 
+span.status.done {
 	padding: 0.1em 0.4em;
 	cursor: default !important;
 }
 
 /* Table Headings */
 th span.main                        { white-space:nowrap; }
-th span.sub                         { font-size: 0.8em; display: block;} 
+th span.sub                         { font-size: 0.8em; display: block;}
 /* end of Disease search results */
 
 div.dataTable {
@@ -263,11 +338,11 @@ span.ellipse {
 div.mpCol div.title a, div.maCol div.title a {
 	font-weight: normal !important;
 	font-size: 16px !important;
-	text-decoration: underline !important;
-}	
+	text-decoration: none !important;
+}
 span#dnld {
-        font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif !important;
-        color: #0978A1;
+	font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif !important;
+	color: gray !important;
 }
 span.dtype {
 	color: gray;
@@ -284,7 +359,7 @@ div.subinfo ul li, span.imgAnnots ul li {
 	padding-left: 10px;
 	background-image: url('../img/gray_bullet.jpg');
 	background-repeat: no-repeat;
-    background-position: 0px 50%; 
+	background-position: 0px 50%;
 }
 span.label {
 	color: gray;
@@ -301,13 +376,13 @@ span.viability, span.fertility {
 
 /* deals with facet count being concatenated when window is resized */
 li.fcat > span.flabel {
-    max-width: 180px;
-    display: inline-block;
-    word-wrap:break-word !important;
+	max-width: 180px;
+	display: inline-block;
+	word-wrap:break-word !important;
 }
 li.fcat > input {
 	vertical-align: top;
-}	
+}
 li.fcat:hover {
 	background-color: #F2F2F2;
 }
@@ -315,13 +390,13 @@ li.fcat:hover {
 div#goBlock table {
 	border: none !important;
 	border-collapse: collapse;
-	text-align: left; 
+	text-align: left;
 }
 div#goBlock table td {
-  	border: 1px solid lightgray;
-  	padding: 0 5px;
-  	align: center !important;
-  	
+	border: 1px solid lightgray;
+	padding: 0 5px;
+	align: center !important;
+
 }
 a#batchquery {
 	float: right;
@@ -334,11 +409,11 @@ a#batchquery {
 #sicon {
 	margin-top: 41px;
 }
-#bigsearchbox { 
+#bigsearchbox {
 	background: #0978a1; padding: 3px; padding-left: 2px; width: 650px; margin-top: 5px; margin-right: 50px;
 	height: 29px; line-height: 0px; float: right;
 }
-#bigsearchbox input { 
+#bigsearchbox input {
 	/*padding-left: 0; text-indent: 10px;*/ width: 610px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 10px;
 }
 input.resetFilters {
@@ -361,4 +436,37 @@ input.facetFilterSubmit {
 	border: none;
 	box-shadow: none;
 	cursor: pointer;
+}
+.block .head {
+	font-size: 18px !important;
+}
+div#facet {
+	clear: both;
+	top: 10px;
+}
+
+div#facet > div.head {
+	color: gray !important;
+	background-color: white !important;
+	border-bottom: 1px solid #EDEDED;
+}
+
+div.flist ul li.fmcat > .flabel {
+	font-size: 18px !important;
+	color: gray;
+	font-weight: bold;
+}
+ul li.fcatsection span.flabel, ul li.fcat span.flabel {
+	font-size: 14px !important;
+	font-weight: normal !important;
+}
+
+div#resultPanel  {
+	width: 68%;
+	float: right;
+	position: relative;
+	top: 10px;
+	color: gray;
+	border-bottom: 1px solid #EDEDED;
+	padding: 0 0 10px 5px;
 }

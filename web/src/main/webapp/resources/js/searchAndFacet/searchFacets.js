@@ -320,7 +320,7 @@
 			$('li#gene li.fcat input').click(function(){
 
 				// highlight the item in facet
-				updateHighlight($(this));
+				updateCheckedFilter($(this));
 			});
 		}
 	}
@@ -384,7 +384,7 @@
 		$('li#mp li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 	}
@@ -529,7 +529,7 @@
 			$('li#disease li.fcat input').click(function(){
 
 				// highlight the item in facet
-				updateHighlight($(this));
+				updateCheckedFilter($(this));
 			});
 
 		}
@@ -572,7 +572,7 @@
 		$('li#ma li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 	}
@@ -652,7 +652,7 @@
 		$('li#impc_images li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 	}
@@ -725,20 +725,19 @@
 		$('li#images li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 
 	}
 
 
-
-	function updateHighlight(thisObj){
-		if ( !thisObj.siblings('span.flabel').hasClass('highlight')) {
-			thisObj.siblings('span.flabel').addClass('highlight');
+	function updateCheckedFilter(thisObj){
+		if ( !thisObj.siblings('span.flabel').hasClass('filterCheck')) {
+			thisObj.siblings('span.flabel').addClass('filterCheck');
 		}
 		else {
-			thisObj.siblings('span.flabel').removeClass('highlight');
+			thisObj.siblings('span.flabel').removeClass('filterCheck');
 		}
 	}
 
