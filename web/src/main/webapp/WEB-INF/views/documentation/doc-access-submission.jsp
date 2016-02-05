@@ -68,7 +68,7 @@
     <h1>IMPC data portal documentation</h1>
     <div><i class="fleft fa fa-download fa-4x"></i><div class="fleft">Data Access, Submission</div></div>
   <ul id="method">
-    <li><a href="${baseUrl}/documentation/">Download</a></li>
+    <li><a href="${baseUrl}/documentation/">Download From IMPC</a></li>
     <li><a href="${baseUrl}/documentation/doc-access-submission-api-help">Programmatic Access</a></li>
     <li><a href="${baseUrl}/documentation/">Internal Submission</a></li>
   </ul>
