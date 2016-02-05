@@ -59,6 +59,7 @@ public class IndexerManager {
     //      These are built only for a new data release.
     public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    public static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
     public static final String STATSTICAL_RESULT_CORE = "statistical-result";
 
     //      These are built daily.
@@ -111,6 +112,7 @@ public class IndexerManager {
         , STATSTICAL_RESULT_CORE
 
           // These are built daily.
+        , MGI_PHENOTYPE_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
@@ -126,7 +128,8 @@ public class IndexerManager {
 
     public static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-          PREQC_CORE
+    	MGI_PHENOTYPE_CORE
+        ,  PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
