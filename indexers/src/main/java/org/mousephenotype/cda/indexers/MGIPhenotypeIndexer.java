@@ -34,16 +34,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Populate the MGI-Phenotype core - currently only for internal EBI consumption
  */
 public class MGIPhenotypeIndexer extends AbstractIndexer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private static Connection connection;
 
     @Autowired
     @Qualifier("komp2DataSource")
@@ -60,8 +56,6 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
-    Map<String, DevelopmentalStage> liveStageMap = new HashMap<>();
-
 	public MGIPhenotypeIndexer() {
     }
 
@@ -74,13 +68,6 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
     public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
 
         super.initialise(args, runStatus);
-	    try {
-
-		    connection = komp2DataSource.getConnection();
-
-	    } catch (SQLException e) {
-		    throw new IndexerException(e);
-	    }
 
         printConfiguration();
     }
@@ -96,6 +83,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus run() throws IndexerException {
+
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -118,11 +106,13 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
     // Returns document count.
     public int populateMgiPhenotypeSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
-        int count = 0;
+	    Connection connection = komp2DataSource.getConnection();
+
+	    int count = 0;
 
         mgiSolrServer.deleteByQuery("*:*");
 
-        String query="SELECT CONCAT_WS(\"-\", bm.id, gf.acc, bmp.phenotype_acc) as id, bm.zygosity, org.short_name AS project_name, " +
+        String query="SELECT DISTINCT CONCAT_WS(\"-\", bm.id, gf.acc, bmp.phenotype_acc) as id, bm.zygosity, org.short_name AS project_name, " +
 	        "org.name as project_fullname, gf.acc AS marker_accession_id, gf.symbol as marker_symbol, " +
 	        "  bma.allele_acc AS allele_accession_id, al.name AS allele_name, al.symbol AS allele_symbol, " +
 	        "CONCAT_WS(\"-\", bm.id, gf.acc, bmp.phenotype_acc) external_id, bmp.phenotype_acc AS ontology_term_id, ot.name AS ontology_term_name " +
@@ -233,29 +223,4 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
         return count;
     }
 
-	class DevelopmentalStage {
-		String accession;
-		String name;
-
-		public DevelopmentalStage(String accession, String name) {
-			this.accession = accession;
-			this.name = name;
-		}
-
-		public String getAccession() {
-			return accession;
-		}
-
-		public void setAccession(String accession) {
-			this.accession = accession;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-	}
 }
