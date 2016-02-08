@@ -213,12 +213,12 @@
                             </p>
                             <table>
                             <tr><th>Procedure</th><th>Number</th></tr>
-                            <tr><td>E9.5 Gross morphology</td><td></td></tr>
-                            <tr><td>E9.5 OPT screening</td><td></td></tr>
-                            <tr><td>E14.5-E15.5 Gross morphology</td><td></td></tr>
-                            <tr><td>E14.5-E15.5 microCT screening</td><td></td></tr>
-                            <tr><td>E18.5 Gross morphology-</td><td></td></tr>
-                            <tr><td>E18.5 microCT screening up to N</td><td></td></tr>
+                            <tr><td>E9.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
+                            <tr><td>E9.5 OPT screening</td><td>up to N</td></tr>
+                            <tr><td>E14.5-E15.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
+                            <tr><td>E14.5-E15.5 microCT screening</td><td>up to N</td></tr>
+                            <tr><td>E18.5 Gross morphology-</td><td>up to 8 homs, 2 wt</td></tr>
+                            <tr><td>E18.5 microCT</td><td>screening up to N</td></tr>
                             </table>
                             <p>
                             In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with two current awardees.
@@ -287,7 +287,7 @@
 
                         </div>
                         
-                            	
+                            	<c:set var="vignettesLink" value='<a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
                         <div class="section">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
@@ -303,32 +303,32 @@
 									<div id="sliderControl" class="sliderControl" >
 										<ul>
 										    <li id="item0">  <img src="${baseUrl}/img/vignettes/Chtop.png" />
-										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
+										    	<p class="embryo-caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
 										    		vertebrae, abnormal joint morphology and edema. <a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a></p>
 										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
+										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
 										    	<p class="sliderTitle">Rab23</p></li>
 										    <li id="item2"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-										    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    	<p class="embryo-caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. ${vignettesLink}</p>
 										    	<p class="sliderTitle"> Glycogenin 1</p></li>
 										    <li id="item3"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
 										    	<p class="sliderTitle"> Gene symbol</p> </li>
 										    <li id="item4"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
+										    	<p class="embryo-caption"> This is interesting because see here and here and here and here </p> 
 										    	<p class="sliderTitle"> Gene symbol</p></li>
 										    <li id="item5"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
+										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
 										    	<p class="sliderTitle">Rab23</p></li>
 										    <li id="item6"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-										    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    	<p class="embryo-caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. ${vignettesLink}</p>
 										    	<p class="sliderTitle"> Glycogenin 1</p></li>
 										    <li id="item7"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
 										    	<p class="sliderTitle"> Gene symbol</p> </li>
 										    <li id="item8"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
+										    	<p class="embryo-caption"> This is interesting because see here and here and here and here </p> 
 										    	<p class="sliderTitle"> Gene symbol</p></li>
 										  </ul> 
 									</div>
