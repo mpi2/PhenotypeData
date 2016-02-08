@@ -603,7 +603,7 @@ public class DataTableController {
             //System.out.println("DOC: "+ doc.toString());
             String marker_symbol = doc.getString("marker_symbol");
             String gId = doc.getString("mgi_accession_id");
-            String glink = "<a href='" + hostName + baseUrl + "/" + gId + "'>" + marker_symbol + "</a>";
+            String glink = "<a href='" + hostName + baseUrl + "/genes/" + gId + "'>" + marker_symbol + "</a>";
 
             String phenoStatus = doc.getString("latest_phenotype_status");
 
