@@ -354,6 +354,8 @@
 	<bean id="observationIndexer" class="org.mousephenotype.cda.indexers.ObservationIndexer" />
 	<bean id="genotypePhenotypeIndexer"
 		class="org.mousephenotype.cda.indexers.GenotypePhenotypeIndexer" />
+	<bean id="mgiPhenotypeIndexer"
+		class="org.mousephenotype.cda.indexers.MGIPhenotypeIndexer" />
 	<bean id="mpOntologyService" class="org.mousephenotype.cda.db.dao.MpOntologyDAO" />
 	<bean id="maOntologyDAO" class="org.mousephenotype.cda.db.dao.MaOntologyDAO" />
 	<bean id="emapOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapOntologyDAO" />
