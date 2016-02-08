@@ -227,11 +227,12 @@
 
                         <div class='searchcontent'>
     											<div id='bigsearchbox' class='block'>
+                                                    <span id="searchHint">Search</span>
     												<div class='content'>
     													<p><i id='sicon' class='fa fa-search'></i></p>
     													<div class='ui-widget'>
     													<input id='s'>
-    														<a><i class='fa fa-info searchExample'></i></a>
+    														<a><i class='fa fa-question-circle fa-2x searchExample'></i></a>
     													</div>
     												</div>
     											</div>

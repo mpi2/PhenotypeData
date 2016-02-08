@@ -29,19 +29,16 @@
 			</ul>
 		</div>
 		<!--<div><div id="resultMsg"></div><div id="tableTool"></div></div>-->
-		<div id="tableTool"></div>
-		<div id="resultPanel"><div class="head">Result</div></div>
 
 		<div id="geneTab" class="hideme">
 			<div class="region region-sidebar-first">
+				<div id="filterHint">Filter <span class='documentation title textright'>
+					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					</span>
+				</div>
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter your search</div>
+
 					<div class='content'>
-
-						<p class='documentation title textright'>
-							<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-						</p>
-
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
@@ -61,7 +58,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-
+						<div id="tableTool"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -72,7 +69,7 @@
 		<div id="mpTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter your search</div>
+					<div class="head">Filter</div>
 					<div class='content'>
 
 						<p class='documentation title textright'>
@@ -109,7 +106,7 @@
 		<div id="diseaseTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter your search</div>
+					<div class="head">Filter</div>
 					<div class='content'>
 
 						<p class='documentation title textright'>
@@ -146,7 +143,7 @@
 		<div id="maTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter your search</div>
+					<div class="head">Filter</div>
 					<div class='content'>
 
 						<p class='documentation title textright'>
@@ -183,7 +180,7 @@
 		<div id="impc_imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter your search</div>
+					<div class="head">Filter</div>
 					<div class='content'>
 
 						<p class='documentation title textright'>
@@ -221,7 +218,7 @@
 		<div id="imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter your search</div>
+					<div class="head">Filter</div>
 					<div class='content'>
 
 						<p class='documentation title textright'>

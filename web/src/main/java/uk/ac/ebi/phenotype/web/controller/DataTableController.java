@@ -677,7 +677,12 @@ public class DataTableController {
             
 
 			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
-			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+
+			// made this as null by default: don't want to show this for now
+			//Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+			Integer legacyPhenotypeStatus = null;
+
+
 			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
             String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, geneLink, toExport, legacyOnly);
             rowData.add(phenotypeStatusHTMLRepresentation);
@@ -1486,7 +1491,7 @@ public class DataTableController {
 
             // disease source
             String src = doc.getString("disease_source");
-            rowData.add(src);
+            rowData.add("<a href='" + baseUrl + diseaseId + "'>" + src + "</a>");
 
             // curated data: human/mouse
             String human = "<span class='status done curatedHuman'>human</span>";
