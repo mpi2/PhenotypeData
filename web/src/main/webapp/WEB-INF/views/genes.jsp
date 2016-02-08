@@ -310,10 +310,10 @@
                                 </c:if>
                                 <p class="with-label">
                                     <span class="label">Links</span>
-                                    <a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Gene&nbsp;View</a>&nbsp;&nbsp;
-                                    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;
-                                    <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Compara&nbsp;View</a>
-                                     &nbsp;<a href="../genomeBrowser/${acc}" target="new"> Gene Browser</a><span id="enu"></span>        
+                                    <a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Ensembl Gene</a>&nbsp;&nbsp;
+                                <!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
+                                    <a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Ensembl Compara</a>
+                                     &nbsp;<a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a><span id="enu"></span>
                                 </p>
                                 <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
 									<p class="with-label">

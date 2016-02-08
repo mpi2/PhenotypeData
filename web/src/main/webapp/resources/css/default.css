@@ -189,7 +189,7 @@ input.auto              { width: auto; }
 /* Buttons */
 .af-button-large,
 input[type="submit"],
-.btn                    { display: inline-block; white-space:nowrap; word-wrap: normal; border: none; color: #fff; text-decoration: none; background: #777; color: #fff; padding: .3em .6em; cursor: pointer; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.3s ease-in-out; -o-transition: all 0.3s ease-in-out; transition: all 0.3s ease-in-out; }
+.btn                    { display: inline-block; white-space:nowrap; word-wrap: normal; border: none; color: #fff; text-decoration: none; background: #0978A1; color: #fff; padding: .3em .6em; cursor: pointer; -webkit-transition: all 0.3s ease-in-out; -moz-transition: all 0.3s ease-in-out; -o-transition: all 0.3s ease-in-out; transition: all 0.3s ease-in-out; }
 .af-button-large:hover,
 input[type="submit"]:hover,
 .btn:hover              { text-decoration: none; color: #fff; background-color: #0978a1; }
@@ -272,13 +272,13 @@ div#block-menu-block-1  {
 i.searchExample {
 	float: right;
 	text-decoration: none;
-	border-radius: 3px;
-    border: 1px solid white;
-    margin: 3px 5px 0 1px;
-    padding: 5px 2px 0px 3px;
-    width: 10px;
-    height: 15px; 
-    color: white;
+	/*border-radius: 3px;
+    border: 1px solid white;*/
+    margin: 0px 0px 0 0px;
+    padding: 2px 24px 0px 0px;
+    width: 0px;
+    height: 0px;
+    color: #ccc !important;
     text-align: center;
 }
 a#batchquery {
@@ -297,7 +297,7 @@ i.batchQuery {
 
 div#footerline #bigsearchbox {display: none;}
 
-#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 380px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 10px;}
+#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ width: 340px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 50px;}
 #bigsearchbox i#sicon { position: absolute; top: -6px;}
 
 

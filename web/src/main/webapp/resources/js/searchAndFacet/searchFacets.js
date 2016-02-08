@@ -97,15 +97,16 @@
 					var fieldName = phenoFieldList[j];
 					if (fieldName == 'Phenotype Attempt Registered' ||
 						fieldName == 'Phenotyping Started' ||
-						fieldName == 'Phenotyping Complete' ||
-						fieldName == 'Legacy' ){
+						fieldName == 'Phenotyping Complete' ){
+
+						//fieldName == 'Legacy' ){
 
 						pheno_count[aImitsPhenos[fieldName]] = phenoFieldList[j+1];
 					}
 				}
 			}
 
-			pheno_count['Legacy'] = json.facet_fields['legacy_phenotype_status'][1];
+			//pheno_count['Legacy'] = json.facet_fields['legacy_phenotype_status'][1];
 
 			var phenoUlContainer = $("<ul></ul>");
 
@@ -113,10 +114,12 @@
 				'Approved':{'fq':phenoStatusFacetField,'val':'Phenotyping Complete'},
 				'Started':{'fq':phenoStatusFacetField,'val':'Phenotyping Started'},
 				'Attempt Registered':{'fq':phenoStatusFacetField, 'val':'Phenotype Attempt Registered'},
-				'Legacy':{'fq':'legacy_phenotype_status', 'val':'1'}
+				//'Legacy':{'fq':'legacy_phenotype_status', 'val':'1'}
 			};
 
-			var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered', 'Legacy'];
+			//var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered', 'Legacy'];
+			var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered'];
+			
 			for ( var i=0; i<aPhenos.length; i++ ){
 				var phenotypingStatusFq = phenotypingStatuses[aPhenos[i]].fq;
 				var phenotypingStatusVal = phenotypingStatuses[aPhenos[i]].val;

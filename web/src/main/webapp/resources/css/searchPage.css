@@ -37,7 +37,7 @@ div.ffilter {
 	display: none; /*default, appears only when filter is added */
 	margin-bottom: 5px;
 }
-p.documentation a {
+span.documentation a {
 	float: right;
 }
 div#facetSrchMsg {
@@ -56,7 +56,7 @@ div#facetSrchMsg {
 .fmcat > .flabel                        { color: #0978A1; font-size: 1.4em; font-weight: 300; }
 .fmcat > .flabel.grayout				{ color: #cccccc; }
 .fmcat                                  { margin: 1em 0; }
-.fmcat:before                           { font-family: 'FontAwesome'; content: "\f0da"; color: #0978A1; margin-right: 0.5em; }
+.fmcat:before                           { font-family: 'FontAwesome'; content: "\f0da"; color: black; margin-right: 0.5em; }
 .fmcat.open:before                      { content: "\f0d7"; }
 .fmcat.open + .fmcat                    { margin-top: 2.5em; }
 .fmcat .fcat,
@@ -137,7 +137,7 @@ div.dataTables_info {
 div#leftSideBar {
 	padding-top: 5px;
 }
-div.briefDocCap {
+.briefDocCap {
 	padding: 1px;
 	background-color: gray;
 	text-align: center;
@@ -146,7 +146,7 @@ div.briefDocCap {
 	font-weight: bold;
 }
 div#mpi2-search {
-	margin-top: 80px;
+	margin-top: 30px;
 }
 div#mpi2-search .dataTable td a {
 	margin-right: 5px !important;
@@ -173,9 +173,9 @@ table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 div#tableTool {
 	font-size: 14px;
 	position: absolute;
-	top: 90px;
+	bottom: 0px;
 	right: 0px;
-	margin-right: 25px;
+	margin-right: 0px;
 }
 div#saveTable {
 	position: relative;
@@ -236,7 +236,7 @@ ul.tabLabel{
 	margin-left: 18px;
 	margin-bottom: 50px;
 	height: 53px;
-	border-bottom: 1px solid rgb(3,77,105);
+	border-bottom: 1px solid grey;
 }
 
 ul.tabLabel li {
@@ -264,7 +264,7 @@ ul.tabLabel li:hover, ul.tabLabel li:hover a, li.currDataType {
 	text-decoration: none;
 }
 li.currDataType {
-	background-color: rgb(3, 77, 105); /* dark blue */
+	background-color: #0978A1;
 }
 li.currDataType a  {
 	color: white !important;
@@ -286,7 +286,7 @@ div#dTable_pagination {
 }
 
 div.flist {
-	margin-top: 45px !important;
+	margin-top: 20px !important;
 }
 .tabfc {
 	font-weight: normal;
@@ -414,7 +414,7 @@ a#batchquery {
 	height: 29px; line-height: 0px; float: right;
 }
 #bigsearchbox input {
-	/*padding-left: 0; text-indent: 10px;*/ width: 610px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 10px;
+	/*padding-left: 0; text-indent: 10px;*/ width: 570px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 50px;
 }
 input.resetFilters {
 	width: 100%;
@@ -440,15 +440,10 @@ input.facetFilterSubmit {
 .block .head {
 	font-size: 18px !important;
 }
+
 div#facet {
 	clear: both;
-	top: 10px;
-}
-
-div#facet > div.head {
-	color: gray !important;
-	background-color: white !important;
-	border-bottom: 1px solid #EDEDED;
+	top: 125px;
 }
 
 div.flist ul li.fmcat > .flabel {
@@ -461,12 +456,23 @@ ul li.fcatsection span.flabel, ul li.fcat span.flabel {
 	font-weight: normal !important;
 }
 
-div#resultPanel  {
-	width: 68%;
-	float: right;
+div.flist ul > li.fmcat > .flabel, li.fcatsection > .flabel {
+	color: black;
+}
+
+div#filterHint {
 	position: relative;
-	top: 10px;
-	color: gray;
-	border-bottom: 1px solid #EDEDED;
-	padding: 0 0 10px 5px;
+	top: 125px;
+	vertical-align: middle;
+	padding: 8px;
+}
+a#facetPanel {
+	position: relative;
+	top: -5px;
+}
+span#searchHint {
+	position: relative;
+	top: 15px;
+	left: 25px;
+
 }
