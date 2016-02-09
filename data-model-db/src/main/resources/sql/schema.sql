@@ -472,7 +472,8 @@ CREATE TABLE biological_model_allele (
 	allele_db_id              INT(10) NOT NULL,
 
 	KEY biological_model_idx (biological_model_id),
-	KEY allele_idx (allele_acc, allele_db_id)
+	KEY allele_idx (allele_acc, allele_db_id),
+  UNIQUE KEY unique_biomodels_idx (biological_model_id, allele_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -483,7 +484,8 @@ CREATE TABLE biological_model_strain (
 	strain_db_id              INT(10) NOT NULL,
 
 	KEY biological_model_idx (biological_model_id),
-	KEY strain_idx (strain_acc, strain_db_id)
+	KEY strain_idx (strain_acc, strain_db_id),
+  UNIQUE KEY unique_biomodels_idx (biological_model_id, strain_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -498,7 +500,8 @@ CREATE TABLE biological_model_phenotype (
 	phenotype_db_id           INT(10) NOT NULL,
 
 	KEY biological_model_idx (biological_model_id),
-	KEY phenotype_idx (phenotype_acc, phenotype_db_id)
+	KEY phenotype_idx (phenotype_acc, phenotype_db_id),
+  UNIQUE KEY unique_biomodels_idx (biological_model_id, phenotype_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
@@ -509,7 +512,8 @@ CREATE TABLE biological_model_genomic_feature (
 	gf_db_id                  INT(10) NOT NULL,
 
 	KEY biological_model_idx (biological_model_id),
-	KEY genomic_feature_idx (gf_acc, gf_db_id)
+	KEY genomic_feature_idx (gf_acc, gf_db_id),
+  UNIQUE KEY unique_biomodels_idx (biological_model_id, gf_acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

@@ -876,7 +876,7 @@ public class GeneService extends BasicService implements WebStatus{
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":\"" + symbol + "\"")
 			.setRows(1)
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME);
 
 		QueryResponse rsp = solr.query(solrQuery);
 		if (rsp.getResults().getNumFound() > 0) {
