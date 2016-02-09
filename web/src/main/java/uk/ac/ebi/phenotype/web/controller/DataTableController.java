@@ -1448,7 +1448,7 @@ public class DataTableController {
 						fq = facetField + ":\"" + names[0] + "\"";
 					}
 
-					thisFqStr = fqStr == null ? "fq=" + fq : "fq=" + fqStr + " AND " + fq;
+					thisFqStr = "fq=" + (fqStr == null ? fq : fqStr + " AND " + fq);
 
 					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 
@@ -1486,7 +1486,7 @@ public class DataTableController {
             //System.out.println(" === JSON DOC IN DISEASE === : " + doc.toString());
             String diseaseId = doc.getString("disease_id");
             String diseaseTerm = doc.getString("disease_term");
-            String diseaseLink = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
+            String diseaseLink = "<a href='omim.org/entry/" + diseaseId + "'>" + diseaseTerm + "</a>";
             rowData.add(diseaseLink);
 
             // disease source
