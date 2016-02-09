@@ -64,6 +64,9 @@ public class ReportsManager implements CommandLineRunner {
     private HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
 
     @Autowired
+    private ImpcGafReport impcGafReport;
+
+    @Autowired
     private ImpcPValuesReport impcPValuesReport;
 
     @Autowired
@@ -114,6 +117,7 @@ public class ReportsManager implements CommandLineRunner {
         FERTILITY("fertility", "Fertility report"),
         HITS_PER_LINE("hitsPerLine", "Hits per line report"),
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
+        IMPC_GAF("impcGaf", "IMPC GAF report"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
@@ -270,6 +274,11 @@ public class ReportsManager implements CommandLineRunner {
                     case METABOLISM_IPGTT:
                         metabolismIPGTTReport.run(args);
                         file = metabolismIPGTTReport.targetFile;
+                        break;
+
+                    case IMPC_GAF:
+                        impcGafReport.run(args);
+                        file = impcGafReport.targetFile;
                         break;
 
                     case IMPC_P_VALUES:
