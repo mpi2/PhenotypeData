@@ -68,14 +68,13 @@
 
 		<div id="mpTab" class="hideme">
 			<div class="region region-sidebar-first">
+				<div id="filterHint">Filter <span class='documentation title textright'>
+					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					</span>
+				</div>
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter</div>
+
 					<div class='content'>
-
-						<p class='documentation title textright'>
-							<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-						</p>
-
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
@@ -95,7 +94,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-
+						<div id="tableTool"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -105,14 +104,13 @@
 
 		<div id="diseaseTab" class="hideme">
 			<div class="region region-sidebar-first">
+				<div id="filterHint">Filter <span class='documentation title textright'>
+					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					</span>
+				</div>
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter</div>
+
 					<div class='content'>
-
-						<p class='documentation title textright'>
-							<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-						</p>
-
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
@@ -132,7 +130,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-
+						<div id="tableTool"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -142,14 +140,13 @@
 
 		<div id="maTab" class="hideme">
 			<div class="region region-sidebar-first">
+				<div id="filterHint">Filter <span class='documentation title textright'>
+					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					</span>
+				</div>
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter</div>
+
 					<div class='content'>
-
-						<p class='documentation title textright'>
-							<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-						</p>
-
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
@@ -169,7 +166,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-
+						<div id="tableTool"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -179,14 +176,13 @@
 
 		<div id="impc_imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
+				<div id="filterHint">Filter <span class='documentation title textright'>
+					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					</span>
+				</div>
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter</div>
+
 					<div class='content'>
-
-						<p class='documentation title textright'>
-							<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-						</p>
-
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
@@ -206,7 +202,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-
+						<div id="tableTool"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -217,14 +213,13 @@
 
 		<div id="imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
+				<div id="filterHint">Filter <span class='documentation title textright'>
+					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					</span>
+				</div>
 				<div id='facet' class='fblock block'>
-					<div class="head">Filter</div>
+
 					<div class='content'>
-
-						<p class='documentation title textright'>
-							<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-						</p>
-
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
@@ -244,7 +239,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-
+						<div id="tableTool"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -311,8 +306,8 @@
 					//alert('div#' + coreName +'Tab')
 					$('div#' + coreName +'Tab').show();
 
-
 					var paramStr = matches[2].replace(/^\?/,'');
+					//alert("paramStr: "+paramStr)
 					var kw = paramStr.split("&");
 					for ( var i=0; i<kw.length; i++ ){
 						var pairs = kw[i].split("=");

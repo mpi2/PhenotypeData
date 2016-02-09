@@ -1,9 +1,8 @@
 $(document).ready(function () {
 
 	var exampleSearch =
-	 '<h3 id="samplesrch" class="briefDocCap">Example Searches</h3>'
-		+ '<p>Sample queries for several fields are shown. Click the desired query to execute any of the samples.'
-		+ '	<b>Note that queries are focused on Relationships, leaving modifier terms to be applied as filters.</b>'
+		'<h3 id="samplesrch" id="briefDocCap">Example Searches</h3>'
+		+ '<p>Sample queries for several fields are shown. Click the desired query to execute one of the samples.'
 		+ '</p>'
 		+ '<h5>Gene query examples</h5>'
 		+ '<p>'
@@ -35,7 +34,7 @@ $(document).ready(function () {
 		+ '- can look for phenotypes that contain abnormal phenotype or abnormal physiology.<br>'
 		+ 'Supported queries are a mixture of word with *, eg. abn* immune phy*.'
 		+ '</p>';
-		    
+
 	//$('a#searchExample').mouseover(function(){
 	$('i.searchExample').mouseover(function(){
 		// override default behavior from default.js - Nicolas
@@ -54,46 +53,46 @@ $(document).ready(function () {
 			tip: {corner: 'top center'}
 		},
 		position: {my: 'left top',
-				   adjust: {x: -480, y: 0}
+			adjust: {x: -480, y: 0}
 		},
 		show: {
 			event: 'click' //override the default mouseover
 		}
 	});
-	    	
+
 	/* $("i.batchQuery").qtip({
-		content: "Click to go to batch query page",
+	 content: "Click to go to batch query page",
+	 style: {
+	 classes: 'qtipimpc',
+	 tip: {corner: 'top center'}
+	 },
+	 position: {my: 'left top',
+	 adjust: {x: -125 , y: 0}
+	 }
+	 }); */
+
+	$("span.direct").qtip({
+		content: "Matches GWAS traits - Phenotypes for this knockout strain are highly similar to human GWAS traits "
+		+ "associated with SNPs located in, or proximal to, orthologous genes. Mappings done by manual curation." ,
 		style: {
 			classes: 'qtipimpc',
 			tip: {corner: 'top center'}
 		},
 		position: {my: 'left top',
-				   adjust: {x: -125 , y: 0}
+			adjust: {x: -280, y: 0}
 		}
-	}); */
-
-	 $("span.direct").qtip({
-		 content: "Matches GWAS traits - Phenotypes for this knockout strain are highly similar to human GWAS traits "
-		 + "associated with SNPs located in, or proximal to, orthologous genes. Mappings done by manual curation." ,
-			style: {
-				classes: 'qtipimpc',
-				tip: {corner: 'top center'}
-			},
-			position: {my: 'left top',
-					   adjust: {x: -280, y: 0}
-			}
 	});
 
 	$("span.indirect").qtip({
 		content: "Similar to GWAS traits - Phenotypes for this knockout strain have some overlap to human GWAS traits "
 		+ "associated with SNPs  located in, or proximal to, orthologous genes. Mappings done by manual curation.",
 		style: {
-				classes: 'qtipimpc',
-				tip: {corner: 'top center'}
-			},
-			position: {my: 'left top',
-					   adjust: {x: -280, y: 0}
-			}
+			classes: 'qtipimpc',
+			tip: {corner: 'top center'}
+		},
+		position: {my: 'left top',
+			adjust: {x: -280, y: 0}
+		}
 	});
 
 	var matchedFacet = false;
@@ -125,18 +124,22 @@ $(document).ready(function () {
 
 					matchedFacet = false; // reset
 					var docs = data.response.docs;
-					// console.log(docs);
-					var aKV = [];
+					//console.log(docs);
+
+					var aKVtmp = {};
 					for ( var i=0; i<docs.length; i++ ){
 						var facet;
 						for ( var key in docs[i] ){
-							// console.log('key: '+key);
+							//console.log('key: '+key);
 							if ( facet == 'hp' && (key == 'hpmp_id' || key == 'hpmp_term') ){
 								continue;
 							}
 
 							if ( key == 'docType' ){
 								facet = docs[i][key].toString();
+								if ( ! aKVtmp.hasOwnProperty(facet) ) {
+									aKVtmp[facet] = [];
+								}
 							}
 							else {
 
@@ -162,7 +165,7 @@ $(document).ready(function () {
 									termHl += " &raquo; <span class='hp2mp'>" + docs[i]['hpmp_id'].toString() + ' - ' + docs[i]['hpmp_term'].toString() + "</span>";
 								}
 
-								aKV.push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
+								aKVtmp[facet].push("<span class='" + facet + " sugList'>" + "<span class='dtype'>"+ facet + ' : </span>' + termHl + "</span>");
 
 								if (i == 0){
 									// take the first found in
@@ -173,43 +176,53 @@ $(document).ready(function () {
 							}
 						}
 					}
-					response( aKV );
+					var dataTypeVal = [];
+					var aKVtmpSorted = $.fn.sortJson(aKVtmp);
+					for ( var k in aKVtmpSorted ){
+						for ( var v in aKVtmpSorted[k] ) {
+							dataTypeVal.push(aKVtmpSorted[k][v]);
+						}
+					}
+
+					response( dataTypeVal );
 				}
 			});
 		},
 		focus: function (event, ui) {
-			this.value = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
-			event.preventDefault(); // Prevent the default focus
-									// behavior.
+			var thisInput = $(ui.item.label).text().replace(/<\/?span>|^\w* : /g,'');
+			this.value = '"' + thisInput.trim() + '"';  // double quote value when mouseover or KB UP.DOWN a dropdown list
+
+			event.preventDefault(); // Prevent the default focus behavior.
 		},
 		minLength: 3,
 		select: function( event, ui ) {
 			// select by mouse / KB
-				//console.log(this.value + ' vs ' + ui.item.label);
+			//console.log(this.value + ' vs ' + ui.item.label);
 
-				// var oriText = $(ui.item.label).text();
+			// var oriText = $(ui.item.label).text();
 
-				var facet = $(ui.item.label).attr('class').replace(' sugList', '') == 'hp' ? 'mp' : $(ui.item.label).attr('class').replace(' sugList', '');
+			var facet = $(ui.item.label).attr('class').replace(' sugList', '') == 'hp' ? 'mp' : $(ui.item.label).attr('class').replace(' sugList', '');
 
-				var q;
-				//var matched = this.value.match(/.+ » (MP:\d+) - .+/);
+			var q;
+			//var matched = this.value.match(/.+ » (MP:\d+) - .+/);
 
-				var matched = decodeURIComponent(this.value).match(/.+(MP:\d+) - .+/);
-				//var matched = this.value.match(/.+(MP:\d+) - .+/);
-				if ( matched ){
-					q = matched[1];
-				}
-				else {
-					q = this.value;
-				}
-				q = encodeURIComponent(q).replace("%3A", "\\%3A");
+			var matched = decodeURIComponent(this.value).match(/.+(MP:\d+) - .+/);
+			//var matched = this.value.match(/.+(MP:\d+) - .+/);
+			if ( matched ){
+				q = matched[1];
+			}
+			else {
+				q = this.value;
+			}
+			q = encodeURIComponent(q).replace("%3A", "\\%3A");
 
-				var fqStr = facet2Fq[facet];
+			var fqStr = facet2Fq[facet];
 
-				document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=" + q + "&fq=" + fqStr;
-
-				// prevents escaped html tag displayed in input box
-				event.preventDefault(); return false;
+			// we are choosing value from drop-down list so need to double quote the value for SOLR query
+			//document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=\"" + q + "\"&fq=" + fqStr;
+			document.location.href = baseUrl + '/search/' + facet  + '?' + "kw=" + q + "&fq=" + fqStr;
+			// prevents escaped html tag displayed in input box
+			event.preventDefault(); return false;
 
 		},
 		open: function(event, ui) {
@@ -226,191 +239,155 @@ $(document).ready(function () {
 	}).data("ui-autocomplete")._renderItem = function( ul, item) {
 		// prevents HTML tags being escaped
 
-			return $( "<li></li>" )
-			  .data( "item.autocomplete", item )
-			  .append( $( "<a></a>" ).html( item.label ) )
-			  .appendTo( ul );
-		};
-	});
+		return $( "<li></li>" )
+			.data( "item.autocomplete", item )
+			.append( $( "<a></a>" ).html( item.label ) )
+			.appendTo( ul );
+	};
+});
 
-	// search via ENTER
-	$('input#s').keyup(function (e) {
-		if (e.keyCode == 13) { // user hits enter
-			$(".ui-menu-item").hide();
-			//$('ul#ul-id-1').remove();
+// search via ENTER
+$('input#s').keyup(function (e) {
+	if (e.keyCode == 13) { // user hits enter
+		$(".ui-menu-item").hide();
+		//$('ul#ul-id-1').remove();
 
-			//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
-			var input = $('input#s').val().trim();
+		//alert('enter: '+ MPI2.searchAndFacetConfig.matchedFacet)
+		var input = $('input#s').val().trim();
 
-			//alert(input + ' ' + solrUrl)
-			input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
+		//alert(input + ' ' + solrUrl)
+		input = /^\*\**?\*??$/.test(input) ? '' : input;  // lazy matching
 
-			var re = new RegExp("^'(.*)'$");
-			input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
+		var re = new RegExp("^'(.*)'$");
+		input = input.replace(re, "\"$1\""); // only use double quotes for phrase query
 
-			// NOTE: solr special characters to escape
-			// + - && || ! ( ) { } [ ] ^ " ~ * ? : \
+		// NOTE: solr special characters to escape
+		// + - && || ! ( ) { } [ ] ^ " ~ * ? : \
 
-			input = encodeURIComponent(input);
+		input = encodeURIComponent(input);
 
-			input = input.replace("%5B", "\\[");
-			input = input.replace("%5D", "\\]");
-			input = input.replace("%7B", "\\{");
-			input = input.replace("%7D", "\\}");
-			input = input.replace("%7C", "\\|");
-			input = input.replace("%5C", "\\\\");
-			input = input.replace("%3C", "\\<");
-			input = input.replace("%3E", "\\>");
-			input = input.replace("."  , "\\.");
-			input = input.replace("("  , "\\(");
-			input = input.replace(")"  , "\\)");
-			input = input.replace("%2F", "\\/");
-			input = input.replace("%60", "\\`");
-			input = input.replace("~"  , "\\~");
-			input = input.replace("%"  , "\\%");
-			input = input.replace("!"  , "\\!");
-			input = input.replace("%21", "\\!");
-			input = input.replace("-", "\\-");
+		input = input.replace("%5B", "\\[");
+		input = input.replace("%5D", "\\]");
+		input = input.replace("%7B", "\\{");
+		input = input.replace("%7D", "\\}");
+		input = input.replace("%7C", "\\|");
+		input = input.replace("%5C", "\\\\");
+		input = input.replace("%3C", "\\<");
+		input = input.replace("%3E", "\\>");
+		input = input.replace("."  , "\\.");
+		input = input.replace("("  , "\\(");
+		input = input.replace(")"  , "\\)");
+		input = input.replace("%2F", "\\/");
+		input = input.replace("%60", "\\`");
+		input = input.replace("~"  , "\\~");
+		input = input.replace("%"  , "\\%");
+		input = input.replace("!"  , "\\!");
+		input = input.replace("%21", "\\!");
+		input = input.replace("-", "\\-");
 
-			if ( /^\\%22.+%22$/.test(input) ){
-				input = input.replace(/\\/g, ''); //remove starting \ before double quotes
-			}
+		if ( /^\\%22.+%22$/.test(input) ){
+			input = input.replace(/\\/g, ''); //remove starting \ before double quotes
+		}
 
-			// no need to escape space - looks cleaner to the users
-			// and it is not essential to escape space
-			input = input.replace(/\\?%20/g, ' ');
+		// no need to escape space - looks cleaner to the users
+		// and it is not essential to escape space
+		input = input.replace(/\\?%20/g, ' ');
 
-			var facet = MPI2.searchAndFacetConfig.matchedFacet;
+		// check for current datatype (tab) and use this as default core
+		// instead of figuring this out for the user
+		var facet = null;
 
-			//console.log('matched facet: '+ facet)
-			if (input == ''){
-				document.location.href = baseUrl + '/search/gene?kw=*'; // default
-			}
-			else if (! facet){
-
-				//alert('2: ' + input)
-				// user hits enter before autosuggest pops up
-				// ie, facet info is unknown
-
-				if (input.match(/HP\\\%3A\d+/i)){
-
-					// work out the mapped mp_id and fire off the query
-					_convertHp2MpAndSearch(input);
+		if ( $('ul.tabLabel').size() > 0 ) {
+			// is on search page
+			$('ul.tabLabel li').each(function () {
+				if ($(this).hasClass('currDataType')) {
+					facet = $(this).attr('id').replace("T", "");
 				}
-				else if ( input.match(/MP%3A\d+ - (.+)/i) ){
-					// hover over hp mp mapping but not selecting
-					// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
-					var matched = input.match(/MP%3A\d+ - (.+)/i);
-					var mpTerm = '"' + matched[1] + '"';
-					var fqStr = $.fn.getCurrentFq('mp');
+			});
 
-					document.location.href = baseUrl + '/search/mp?kw=' + mpTerm + '&fq=' + fqStr;
+
+			if (input == ''){
+				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
+			}
+			else if (input.match(/HP\\\%3A\d+/i)){
+
+				// work out the mapped mp_id and fire off the query
+				_convertHp2MpAndSearch(input, facet);
+			}
+			else if ( input.match(/MP%3A\d+ - (.+)/i) ){
+				// hover over hp mp mapping but not selecting
+				// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
+				var matched = input.match(/MP%3A\d+ - (.+)/i);
+				var mpTerm = '"' + matched[1] + '"';
+				var fqStr = $.fn.getCurrentFq('mp');
+
+				document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpTerm + '&fq=' + fqStr;
+			}
+			else {
+
+				var fqStr = $.fn.fetchUrlParams("fq");
+				if ( fqStr != undefined ) {
+					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
 				}
 				else {
-					//if ( $('ul#facetFilter li.ftag').size() == 0 ){
-					//	// if there is no existing facet filter, reload with q
-					//	document.location.href = baseUrl + '/search?q=' + input;
-					//}
-					//else {
-					//	// facet will be figured out by code
-					//	var fqStr = $.fn.getCurrentFq(facet);
-						//document.location.href = baseUrl + '/search?q=' + input + '#fq=' + fqStr;
-					//}
-
-					// user types something in the search input box and hits ENTER (ie, does not select from the autosuggest dropdown list)
-					// we need to show result of the dataType as in the URL path (eg. search/input_here/gene where gene is the dataType)
-					/*$.ajax({
-							url: baseUrl + '/fetchDefaultCore',
-							data: {'q': input},
-							type: 'get',
-							async: false,
-							success: function (facet) {
-								console.log("default core: "+ facet);
-								var fqStr = $.fn.getCurrentFq(facet) == "*:*" ? "" : "?" + $.fn.getCurrentFq(facet);
-								document.location.href = baseUrl + '/search/'+ input + '/' + facet + fqStr;
-							}
-					});*/
-
-					//var path2core = {
-					//	"genes" : "gene",
-					//	"phenotypes" : "mp",
-					//	"anatomy" : "ma",
-					//	"disease" : "disease",
-					//	"impcImages" : "impc_images",
-					//	"imagesb" : "imapges"
-					//};
-
-//					var paths = window.location.pathname.split("/");
-//
-//					var facet = paths[paths.length-2]; // convert from path to solr corename
-//alert(facet)
-//					var fqStr = $.fn.fetchUrlParams("fq");
-//
-//					if ( fqStr != undefined ) {
-//						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
-//					}
-//					else {
-//						document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
-//					}
-
-					// user typed something and hit ENTER: need to figure out default core to load on search page
-					$.ajax({
-						url: baseUrl + "/fetchDefaultCore?q=" + input,
-						type: 'get',
-						success: function( defaultCore ) {
-
-							var fqStr = $.fn.fetchUrlParams("fq");
-							if ( fqStr != undefined ) {
-								document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input + '&fq=' + fqStr;
-							}
-							else {
-								document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
-							}
-						}
-					});
+					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input;
 				}
 			}
+
+		}
+		else {
+
+			// is on non-search page
+			// user typed something and hit ENTER: need to figure out default core to load on search page
+			$.ajax({
+				url: baseUrl + "/fetchDefaultCore?q=" + input,
+				type: 'get',
+				success: function( defaultCore ) {
+					document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
+				}
+			});
+		}
+	}
+});
+
+function _convertHp2MpAndSearch(input, facet){
+	input = input.toUpperCase();
+	$.ajax({
+		url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
+		dataType: "jsonp",
+		jsonp: 'json.wrf',
+		type: 'post',
+		async: false,
+		success: function( json ) {
+			var mpid = json.response.docs[0].hpmp_id;
+			document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
 		}
 	});
-		
-	function _convertHp2MpAndSearch(input){
-		input = input.toUpperCase();
-		$.ajax({
-			url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
-			dataType: "jsonp",
-			jsonp: 'json.wrf',
-			type: 'post',
-			async: false,
-			success: function( json ) {
-					var mpid = json.response.docs[0].hpmp_id;
-					document.location.href = baseUrl + '/search/mp?kw=' + mpid + '&fq=top_level_mp_term:*';
-			}
-		});
-	}
+}
 
-	function _convertInputForSearch(input){
-		$.ajax({
-			url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
-			dataType: "jsonp",
-			jsonp: 'json.wrf',
-			type: 'post',
-			async: false,
-			success: function( json ) {
-				var doc = json.response.docs[0];
-				var facet, q;
+function _convertInputForSearch(input){
+	$.ajax({
+		url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
+		dataType: "jsonp",
+		jsonp: 'json.wrf',
+		type: 'post',
+		async: false,
+		success: function( json ) {
+			var doc = json.response.docs[0];
+			var facet, q;
 
-				for( var field in doc ) {
-					if ( field != 'docType' ){
-						q = doc[field];
-					}
-					else {
-						facet = doc[field];
-					}
+			for( var field in doc ) {
+				if ( field != 'docType' ){
+					q = doc[field];
 				}
-
-				document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
+				else {
+					facet = doc[field];
+				}
 			}
-		});
-	}
+
+			document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
+		}
+	});
+}
  	
  	
