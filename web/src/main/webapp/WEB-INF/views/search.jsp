@@ -312,7 +312,7 @@
 					$('div#' + coreName +'Tab').show();
 
 
-					var paramStr = matches[2];
+					var paramStr = matches[2].replace(/^\?/,'');
 					var kw = paramStr.split("&");
 					for ( var i=0; i<kw.length; i++ ){
 						var pairs = kw[i].split("=");
