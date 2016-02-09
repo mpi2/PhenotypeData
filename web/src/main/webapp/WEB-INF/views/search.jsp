@@ -358,7 +358,7 @@
 					}
 
 					query = query.replace("\\%3A", ":");
-					alert("query: " + query);
+
 					$('input#s').val(decodeURI(query));
 				}
 
