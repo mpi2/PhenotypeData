@@ -58,6 +58,7 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
@@ -236,13 +237,18 @@ public class GenesController {
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		
 		try {
 
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-			System.out.println("mpGroupsNotSignificant="+mpGroupsNotSignificant);
-
+			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size()>0){
+				//if mortality aging is not significant we need to test if it's been tested or not
+				mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP_0010768");	
+			}
+			
 			for (String str : mpGroupsSignificant.keySet()){
 				if (mpGroupsNotSignificant.keySet().contains(str)){
 					mpGroupsNotSignificant.remove(str);
@@ -296,7 +302,6 @@ public class GenesController {
 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
-		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
