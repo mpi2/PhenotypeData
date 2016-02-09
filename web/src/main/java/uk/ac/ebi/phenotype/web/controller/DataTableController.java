@@ -1448,7 +1448,7 @@ public class DataTableController {
 						fq = facetField + ":\"" + names[0] + "\"";
 					}
 
-					thisFqStr = fqStr == null ? "fq=" + fq : fqStr + " AND " + fq;
+					thisFqStr = fqStr == null ? "fq=" + fq : "fq=" + fqStr + " AND " + fq;
 
 					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 
