@@ -187,10 +187,10 @@
 								</div>
 								<div class="clear"> </div>								
 	                           
-	                           	<p>Each IMPC gene knockout strain is assessed for viability. A strain is declared lethal if no homozygote nulls are detected at 
-	                           	weaning age and subviable if null homozygote pups are < 12.5% of litter number. Non-viable homozygous embryos are phenotyped in the 
-	                           	<a href="#pipeline">embryonic and perinatal lethal pipeline</a> and heterozygotes, if viable, are phenotyped in the 
-	                           	IMPC adult phenotyping pipeline. Figures and downloads are automatically updated with each data release.</p>
+	                           <p>Each IMPC gene knockout strain is assessed for viability by examination of litters produced from mating heterozygous animals. A strain is declared lethal if no homozygous nulls pups are detected at weaning age. A strain is declared subviable if homozygous null pups constitute less than 12.5% of the litter. For lethal strains, embryos are phenotyped in the embryonic and perinatal lethal pipeline. For embryonic lethal and subviable strains, heterozygotes are phenotyped in the IMPC adult phenotyping pipeline.
+                         </p>
+	                           
+	                           
 	                           
                             </div>
                         </div>
@@ -198,10 +198,38 @@
         				
 
 						<div class="section">
-						<h2>IMPC Embryo Phenotyping</h2>
+						<h2>IMPC Embryo Phenotyping- Goals and Procedures</h2>
                             <div class="inner">
-                            	Each IMPC gene knockout strain is assessed for viability by examination of litters produced from mating heterozygous animals. A strain is declared lethal if no homozygous nulls pups are detected at weaning age. A strain is declared subviable if homozygous null pups constitute less than 12.5% of the litter. For lethal strains, embryos are phenotyped in the embryonic and perinatal lethal pipeline. For embryonic lethal and subviable strains, heterozygotes are phenotyped in the IMPC adult phenotyping pipeline.
-                           </div>
+                            
+                            <p>With up to one third of knockout strains being embryonic lethal, a systematic unbaised phenotyping pipeline was established to perform morphologic and imaging evaluation of mutant embryos to define the primary perturbations that cause their death. From this important insights are gained into gene function.
+                            </p>
+                            <p>
+                            IMPC centers funded by the NIH Common fund mechanism are delivering the following
+							For all Strains:
+							<ul>
+ 							<li>Viability</li>
+ 							<li>Heterozygote E12.5 Embryonic LacZ staining ( 2 mutant animals, wt reference images)</li>
+							</ul>
+                            </p>
+                            <table>
+                            <tr><th>Procedure</th><th>Number</th></tr>
+                            <tr><td>E9.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
+                            <tr><td>E9.5 OPT screening</td><td>up to N</td></tr>
+                            <tr><td>E14.5-E15.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
+                            <tr><td>E14.5-E15.5 microCT screening</td><td>up to N</td></tr>
+                            <tr><td>E18.5 Gross morphology-</td><td>up to 8 homs, 2 wt</td></tr>
+                            <tr><td>E18.5 microCT</td><td>screening up to N</td></tr>
+                            </table>
+                            <p>
+                            In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with two current awardees.
+                            </p>
+                            <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">William Trevor, University of Colorado School of Medicine</a>
+                            </p>
+                            <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst link</a>
+                            </p>
+                            
+                            
+                            	  </div>
                        	</div>
                        	
                        	 <div class="section">
@@ -259,7 +287,7 @@
 
                         </div>
                         
-                            	
+                            	<c:set var="vignettesLink" value='<a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
                         <div class="section">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
@@ -275,32 +303,32 @@
 									<div id="sliderControl" class="sliderControl" >
 										<ul>
 										    <li id="item0">  <img src="${baseUrl}/img/vignettes/Chtop.png" />
-										    	<p class="caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
+										    	<p class="embryo-caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
 										    		vertebrae, abnormal joint morphology and edema. <a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a></p>
 										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
+										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
 										    	<p class="sliderTitle">Rab23</p></li>
 										    <li id="item2"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-										    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    	<p class="embryo-caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. ${vignettesLink}</p>
 										    	<p class="sliderTitle"> Glycogenin 1</p></li>
 										    <li id="item3"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
 										    	<p class="sliderTitle"> Gene symbol</p> </li>
 										    <li id="item4"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
+										    	<p class="embryo-caption"> This is interesting because see here and here and here and here </p> 
 										    	<p class="sliderTitle"> Gene symbol</p></li>
 										    <li id="item5"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-										    	<p class="caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p> 
+										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
 										    	<p class="sliderTitle">Rab23</p></li>
 										    <li id="item6"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-										    	<p class="caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. <a href="${drupalBaseUrl}/vignettes">Read more >></a></p>
+										    	<p class="embryo-caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. ${vignettesLink}</p>
 										    	<p class="sliderTitle"> Glycogenin 1</p></li>
 										    <li id="item7"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
 										    	<p class="sliderTitle"> Gene symbol</p> </li>
 										    <li id="item8"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-										    	<p class="caption"> This is interesting because see here and here and here and here </p> 
+										    	<p class="embryo-caption"> This is interesting because see here and here and here and here </p> 
 										    	<p class="sliderTitle"> Gene symbol</p></li>
 										  </ul> 
 									</div>
