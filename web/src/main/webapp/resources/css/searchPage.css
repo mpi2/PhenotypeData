@@ -442,7 +442,7 @@ input.facetFilterSubmit {
 }
 
 div#facet {
-	clear: both;
+	/*clear: both;*/
 	top: 125px;
 }
 
@@ -475,4 +475,7 @@ span#searchHint {
 	top: 15px;
 	left: 25px;
 
+}
+div.hideme > .region-content {
+	float: right !important;
 }
