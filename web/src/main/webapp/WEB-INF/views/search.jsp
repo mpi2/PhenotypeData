@@ -33,7 +33,7 @@
 		<div id="geneTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</span>
 				</div>
 				<div id='facet' class='fblock block'>
@@ -69,7 +69,7 @@
 		<div id="mpTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</span>
 				</div>
 				<div id='facet' class='fblock block'>
@@ -105,7 +105,7 @@
 		<div id="diseaseTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</span>
 				</div>
 				<div id='facet' class='fblock block'>
@@ -141,7 +141,7 @@
 		<div id="maTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</span>
 				</div>
 				<div id='facet' class='fblock block'>
@@ -177,7 +177,7 @@
 		<div id="impc_imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</span>
 				</div>
 				<div id='facet' class='fblock block'>
@@ -214,7 +214,7 @@
 		<div id="imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
 				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle fa-2x" aria-describedby="qtip-26"></a>
+					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 					</span>
 				</div>
 				<div id='facet' class='fblock block'>

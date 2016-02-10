@@ -465,15 +465,19 @@ div#filterHint {
 	top: 125px;
 	vertical-align: middle;
 	padding: 8px;
+	font-size: 16px !important;
+	color: #EF7B0B;
 }
 a#facetPanel {
 	position: relative;
-	top: -5px;
+	top: 3px;
 }
 span#searchHint {
 	position: relative;
 	top: 15px;
 	left: 25px;
+	font-size: 15px;
+	color: #EF7B0B;
 
 }
 div.hideme > .region-content {
