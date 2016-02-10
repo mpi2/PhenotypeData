@@ -1143,7 +1143,7 @@ public class DataTableController {
 
 			return j.toString();
         } else {
-
+			System.out.println("*******JSON: " + json.toString());
             // annotation view: images group by annotationTerm per row
             String fqStr = fqOri;
 
