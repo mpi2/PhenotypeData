@@ -279,7 +279,7 @@ public class ExpressionService extends BasicService {
 									// level terms
 		String termIdField = "";
 		if (embryoOnly) { // use EMAP terms and top level terms
-			noTopTermId = "Unassigned Top Level EMAP";
+			noTopTermId = "TS20 embryo or Unassigned";//currently if unassigned they either have embryo TS20 as there EMAP id but our system doesn't find any selected_top_level emap or nothing is assigned but we know they are embryo so assing this id to unassigned
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
 			termIdField = ImageDTO.EMAP_ID;
 			if (imagesOverview) {
@@ -329,6 +329,8 @@ public class ExpressionService extends BasicService {
 
 		mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
+		
+		JSONObject anatomogram = new JSONObject();
 		// System.out.println("======================image response is: " +
 		// imagesResponse);
 		for (SolrDocument doc : imagesResponse) {
@@ -390,6 +392,9 @@ public class ExpressionService extends BasicService {
 						}
 					}
 				}
+				anatomogram.put("expression", expList);
+				anatomogram.put("noExpression", noExpList);
+				anatomogram.put("allPaths", allPaths);
 			} // end of if !embryo
 
 			// noTopLevelCount.setCount(c);
@@ -411,11 +416,6 @@ public class ExpressionService extends BasicService {
 				}
 			}
 		}
-
-		JSONObject anatomogram = new JSONObject();
-		anatomogram.put("expression", expList);
-		anatomogram.put("noExpression", noExpList);
-		anatomogram.put("allPaths", allPaths);
 
 		System.out.println("expression: " + expList);
 		System.out.println("noExpression: " + noExpList);
@@ -456,6 +456,7 @@ public class ExpressionService extends BasicService {
 				model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
 				model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
 				model.addAttribute("anatomogram", anatomogram);
+				System.out.println("anatomogram="+anatomogram);
 			}
 		//}
 	}
