@@ -183,7 +183,7 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-		//System.out.println("PARAMS*****: " + solrParamStr);
+		System.out.println("PARAMS*****: " + solrParamStr);
 		return solrParamStr;
 	}
 

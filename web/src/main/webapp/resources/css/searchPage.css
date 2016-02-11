@@ -194,16 +194,17 @@ div#saveTable img {
 }
 div#toolBox {
 	position: absolute;
-	top: -8px;
-	right: 10px;	
-	height: 80px;
+	top: -65px;
+	right: 0px;
+	height: auto;
 	width: 220px;	
 	display: none;
 	padding: 15px;
 	background-color: #F4F4F4;
 	-webkit-border-radius: 5px;
   	-moz-border-radius: 5px;
-  	border-radius: 5px; 
+  	border-radius: 5px;
+	border: 1px solid gray;
 }
 div#toolBox span {
 	display: block;
