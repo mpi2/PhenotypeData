@@ -650,9 +650,9 @@
 						if (total > cutoff){
 							var r = confirm("It will take longer to download a bigger dataset. Please do not interrupt while downloading.\n\nProceed?");
 							if (r !== true) {
-								// do query in batch on server side
 								return false;
 							}
+							// when true the href fireds and do query in batch on server side
 						}
 					})
 
