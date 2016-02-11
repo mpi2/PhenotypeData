@@ -648,7 +648,7 @@
 					var cutoff = 10000;
 					$("a#tsvA, a#xlsA").click(function(){
 						if (total > cutoff){
-							var r = confirm("It will take longer to download a bigger dataset. Please confirm to proceed.");
+							var r = confirm("It will take longer to download a bigger dataset. Please do not interrupt while downloading.\n\nProceed?");
 							if (r !== true) {
 								// do query in batch on server side
 								return false;
