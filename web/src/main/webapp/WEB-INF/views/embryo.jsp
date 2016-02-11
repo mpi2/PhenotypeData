@@ -205,19 +205,21 @@
                             </p>
                             <p>
                             IMPC centers funded by the NIH Common fund mechanism are delivering the following
-							For all Strains:
+							for <b>All Strains</b>:
 							<ul>
  							<li>Viability</li>
- 							<li>Heterozygote E12.5 Embryonic LacZ staining ( 2 mutant animals, wt reference images)</li>
+ 							<li>
+ 							Heterozygote E12.5 Embryonic LacZ staining ( 2 mutant animals, wt reference images)</li>
 							</ul>
+							<p>For <b>All Embryonic Lethal Strains</b>, gross morphology is assessed at E12.5 to determine if defects occur earlier or later in development. A comprehensive imaging platform is then used to assess dysmorphology at the <b>most</b> appropriate stage:
                             </p>
                             <table>
                             <tr><th>Procedure</th><th>Number</th></tr>
-                            <tr><td>E9.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
+                            <tr><td>E9.5 Gross morphology</td><td>up to 8 homs, 2 wt</td></tr>
                             <tr><td>E9.5 OPT screening</td><td>up to N</td></tr>
-                            <tr><td>E14.5-E15.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
+                            <tr><td>E14.5-E15.5 Gross morphology</td><td>up to 8 homs, 2 wt</td></tr>
                             <tr><td>E14.5-E15.5 microCT screening</td><td>up to N</td></tr>
-                            <tr><td>E18.5 Gross morphology-</td><td>up to 8 homs, 2 wt</td></tr>
+                            <tr><td>E18.5 Gross morphology</td><td>up to 8 homs, 2 wt</td></tr>
                             <tr><td>E18.5 microCT</td><td>screening up to N</td></tr>
                             </table>
                             <p>
@@ -225,7 +227,7 @@
                             </p>
                             <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">William Trevor, University of Colorado School of Medicine</a>
                             </p>
-                            <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst link</a>
+                            <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst</a>
                             </p>
                             
                             
@@ -287,7 +289,7 @@
 
                         </div>
                         
-                            	<c:set var="vignettesLink" value='<a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
+             <c:set var="vignettesLink" value='<a class="btn" style="float: right" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
                         <div class="section">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
@@ -306,7 +308,7 @@
 										    	<p class="embryo-caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
-										    		vertebrae, abnormal joint morphology and edema. <a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a></p>
+										    		vertebrae, abnormal joint morphology and edema.  ${vignettesLink}</p>
 										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
 										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
