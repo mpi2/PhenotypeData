@@ -59,7 +59,7 @@ allele = allele.replaceAll("##", "</sup>");
          		<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
          </c:otherwise>
       </c:choose>
-                                                
+                                                <c:if test="${not empty img.gene_symbol}"><a href="${baseUrl}/genes/${img.gene_accession_id}">${img.gene_symbol}</a><br/></c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
                                                 <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
                                                 <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
