@@ -32,8 +32,7 @@
                         <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                         </c:if>
-                        <c:if
-                                test="${not empty impcExpressionImageFacets}">
+                       	<c:if test="${not empty impcExpressionImageFacets or not empty expressionAnatomyToRow or not empty impcEmbryoExpressionImageFacets or not empty embryoExpressionAnatomyToRow}" >
                             <li><a href="#impc-expression">Expression</a></li>
                         </c:if>
                         <c:if test="${not empty impcImageFacets}">
@@ -668,7 +667,7 @@
                             <!-- end of anatomogram section -->
 
                             <!-- Expression (IMPC) -->
-<c:if test="${not empty impcExpressionImageFacets or not empty impcExpressionFacetToDocs or not empty impcEmbryoExpressionImageFacets or not empty impcEmbryoExpressionFacetToDocs}">
+<c:if test="${not empty impcExpressionImageFacets or not empty expressionAnatomyToRow or not empty impcEmbryoExpressionImageFacets or not empty embryoExpressionAnatomyToRow}">
                         
 	<div class="section">
 
