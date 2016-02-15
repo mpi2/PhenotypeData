@@ -575,12 +575,12 @@ a.status.qc, span.status.qc        { background:gray !important; }
 
 /* Accordion */
 .accordion-group + .accordion-group { border-top: #ddd 1px solid; }
-.accordion-heading      { text-transform: capitalize; font-size: 1.3em; padding: 0.5em; cursor: pointer; color: #0978a1; }
+.accordion-heading      { text-transform: capitalize; font-size: 1.3em; padding: 0.5em; cursor: pointer;}
 .accordion-heading:before { font-family: "FontAwesome"; content: "\f0da"; }
 .accordion-group.open .accordion-heading:before { content: "\f0d7"; }
 .accordion-group.open .accordion-heading { color: #666; text-decoration: none; }
 .accordion-group.open .accordion-heading.withColorWhenOpen { margin-bottom: 0.5em; background: #f4f4f4; }
-.accordion-heading:hover { color: #0978a1; text-decoration: underline; }
+.accordion-heading:hover { /*color: #0978a1; text-decoration: underline; */}
 .accordion-body         { padding: 0 0 1em 0; display: none; }
 /* .accordion-body .grid { display: block !important; } */
 .accordion-body ul      { padding: 0; }
@@ -756,4 +756,12 @@ div.dataTables_info, div.dataTables_paginate {
     min-height: 150px;
     height: auto;
     /* background-color: #999; */
+}
+
+.sectHint {
+    position: relative;
+    top: -20px;
+}
+div.diseaseHint {
+    font-size: 18px;
 }

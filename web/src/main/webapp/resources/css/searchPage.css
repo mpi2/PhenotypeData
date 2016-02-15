@@ -443,7 +443,7 @@ input.facetFilterSubmit {
 
 div#facet {
 	/*clear: both;*/
-	top: 125px;
+	top: 120px;
 }
 
 div.flist ul li.fmcat > .flabel {
@@ -462,7 +462,7 @@ div.flist ul > li.fmcat > .flabel, li.fcatsection > .flabel {
 
 div#filterHint {
 	position: relative;
-	top: 125px;
+	top: 118px;
 	vertical-align: middle;
 	padding: 8px;
 	font-size: 16px !important;
@@ -479,4 +479,7 @@ span#searchHint {
 }
 div.hideme > .region-content {
 	float: right !important;
+}
+span.expdata {
+	text-align: center;
 }
