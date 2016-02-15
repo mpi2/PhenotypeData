@@ -395,8 +395,8 @@
                                                    style="margin: 10px">Embryo Viewer</a>
                                             </div>
                                         </c:if>
-
-                                        <p> Phenotype Summary based on automated MP annotations supported by experiments
+                                        <h7 class="sectHint">Phenotype Summary</h7>
+                                        <p>Based on automated MP annotations supported by experiments
                                             on knockout mouse models. </p>
 
                                         <c:forEach var="zyg"
@@ -1081,58 +1081,61 @@
                         </c:if>
 
                         <!--Disease Sections-->
-                        <c:if
-                            test="${not empty orthologousDiseaseAssociations}">
-                            <!-- Disease Models associated by gene orthology -->
-                            <div class="section"
-                                 id="orthologous-diseases">
-                                <h2 class="title"
-                                    id="section-disease-models">Disease Models
-                                    <small
-                                        class="sub">associated by gene orthology
-                                    </small>
-                                    <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                                        <span class="documentation">
-                                            <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
-                                               <i class="fa fa-question-circle pull-right"></i>
-                                            </a>
-                                        </span>
-                                </h2>
-                                <div class="inner">
-                                    <table
-                                            id="orthologous_diseases_table"
-                                            class="table tableSorter disease">
-                                        <jsp:include
-                                                page="genes_orthologous_diseases_table_frag.jsp"></jsp:include>
-                                    </table>
-                                </div>
-                            </div>
-                        </c:if>
-
-                        <c:if
-                            test="${not empty phenotypicDiseaseAssociations}">
-                            <!-- Potential Disease Models predicted by phenotypic similarity -->
-                            <div class="section"
-                                 id="predicted-diseases">
-                                <h2 class="title"
-                                    id="section-potential-disease-models">Potential Disease Models
-                                    <small
-                                            class="sub">predicted by phenotypic similarity
-                                    </small>
-                                    <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                        <div class="section" id="diseasesOrthSim">
+                            <c:if
+                                    test="${not empty orthologousDiseaseAssociations}">
+                                <!-- Disease Models associated by gene orthology -->
+                                <div class="section"
+                                     id="orthologous-diseases">
+                                    <h2 class="title"
+                                        id="section-disease-models">Disease Models
+                                        <div class="diseaseHint">by gene orthology</div>
+                                        <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
                                             <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
                                                 <i class="fa fa-question-circle pull-right"></i>
                                             </a>
                                         </span>
-                                </h2>
-                                <div class="inner">
-                                    <table id="predicted_diseases_table" class="table tableSorter disease">
-                                        <jsp:include page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
-                                    </table>
+                                    </h2>
+                                    <div class="inner">
+                                        <table
+                                                id="orthologous_diseases_table"
+                                                class="table tableSorter disease">
+                                            <jsp:include
+                                                    page="genes_orthologous_diseases_table_frag.jsp"></jsp:include>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                        </c:if>
+                            </c:if>
+
+                            <c:if
+                                    test="${not empty phenotypicDiseaseAssociations}">
+                                <!-- Potential Disease Models predicted by phenotypic similarity -->
+                                <div class="section"
+                                     id="predicted-diseases">
+                                    <h2 class="title" id="section-potential-disease-models">
+                                        <div class="diseaseHint">by phenotypic similarity</div>
+                                        <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+                                        <span class="documentation">
+                                            <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+                                                <i class="fa fa-question-circle pull-right"></i>
+                                            </a>
+                                        </span>
+                                    </h2>
+                                    <div class="inner">
+                                        <table id="predicted_diseases_table" class="table tableSorter disease">
+                                            <jsp:include page="genes_predicted_diseases_table_frag.jsp"></jsp:include>
+                                        </table>
+                                    </div>
+                                </div>
+                            </c:if>
+
+                        </div>
+
+
+
+
+
 
                         <!-- Order Mouse and ES Cells -->
                         <div class="section" id="order2">

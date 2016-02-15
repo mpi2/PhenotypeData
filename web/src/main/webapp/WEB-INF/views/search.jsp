@@ -415,7 +415,7 @@
 						// images cores related
 						if ( coreName.indexOf('images') != -1 ) {
 
-							$('div.region-content').css({"position": "relative", "top": "-25px"});
+							$('div.region-content').css({"position": "relative", "top": "-37px"});
 
 							var foundMsg, switcher, viewMsg;
 							if (showImgViewStr == "showImgView=false" ){
@@ -640,6 +640,9 @@
 				else if ( coreName.indexOf('mp') != -1 ) {
 					$('table th:nth-child(3)').css('width', '10%');
 				}
+				else if ( coreName.indexOf('ma') != -1 ) {
+					$('table th:nth-child(2), table td:nth-child(2)').css('text-align', 'center');
+				}
 			}
 
 			function activateImgViewSwitcher(){
@@ -710,6 +713,8 @@
 				var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, tableId);
 
 				parentContainer.append(dTable);
+
+
 			}
 
 			function addPaginationControl(parentContainer, infoDivId, paginationDivId, json){
