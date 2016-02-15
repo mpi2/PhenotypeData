@@ -181,10 +181,10 @@ public class QueryBrokerController {
 
 			// gene2 is a pseudo core to get only protein coding genes count for
 			// Genes main facet count on default search page
-			String solrCore = core.equals("gene2") ? "gene" : core;
+			//String solrCore = core.equals("gene2") ? "gene" : core;
 
 			String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
-			String url = internalSolrUrl + "/" + solrCore + "/select?" + param;
+			String url = internalSolrUrl + "/" + core + "/select?" + param;
 
 			String key = core+param;
 			Object o = cache.get(key);
