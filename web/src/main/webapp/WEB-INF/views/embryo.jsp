@@ -36,8 +36,7 @@
 			#sliderHighlight li {
 			  position: relative;
 			  display: block;
-			  float: left;
-			  margin: 0;
+			  margin: auto;
 			  padding: 0;
 			  width: 800px;
 			  height: 500px;
@@ -97,7 +96,7 @@
 			#sliderOnDisplay p.sliderTitle{
 				display : none;
 			}
-			
+						
 			#sliderControl{
 				width: 100%;
     			height: 120px;
@@ -369,3 +368,4 @@
       </jsp:body>
 
 </t:genericpage>
+
