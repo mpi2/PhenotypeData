@@ -127,10 +127,10 @@
                             		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.
                             		</p>
                             		<p class="minpadding"> See embryo gross morphology images for 		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E9.5")'>E9.5</a>,	
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E12.5")'>E12.5</a>,		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E14.5-E15.5")'>E14.5-E15.5</a>,		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E18.5")'>E18.5</a>.
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E9.5")'>E9.5</a>,	
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E12.5")'>E12.5</a>,		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E14.5-E15.5")'>E14.5-E15.5</a>,		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E18.5")'>E18.5</a>.
                             		</p>						
 								</div>								
 								<div class="clear"></div>
