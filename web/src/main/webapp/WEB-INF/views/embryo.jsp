@@ -73,7 +73,7 @@
     			display:block;
 			}
 			
-			.sliderControl .caption{
+			.sliderControl .embryo-caption{
 				display:none;
 			}
 			
