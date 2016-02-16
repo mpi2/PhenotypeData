@@ -75,22 +75,22 @@
                             </p>
                             <p>
                             IMPC centers funded by the NIH Common fund mechanism are delivering the following
-							for <b>All Strains</b>:
+							for <b>All Lines</b>:
 							<ul>
  							<li>Viability</li>
  							<li>
  							Heterozygote E12.5 Embryonic LacZ staining ( 2 mutant animals, wt reference images)</li>
 							</ul>
-							<p>For <b>All Embryonic Lethal Strains</b>, gross morphology is assessed at E12.5 to determine if defects occur earlier or later in development. A comprehensive imaging platform is then used to assess dysmorphology at the <b>most</b> appropriate stage:
+							<p>For <b>All Embryonic Lethal Lines</b>, gross morphology is assessed at E12.5 to determine if defects occur earlier or later in development. A comprehensive imaging platform is then used to assess dysmorphology at the <b>most</b> appropriate stage:
                             </p>
                             <table>
-                            <tr><th>Procedure</th><th>Number</th></tr>
-                            <tr><td>E9.5 Gross morphology</td><td>up to 8 homs, 2 wt</td></tr>
-                            <tr><td>E9.5 OPT screening</td><td>up to N</td></tr>
-                            <tr><td>E14.5-E15.5 Gross morphology</td><td>up to 8 homs, 2 wt</td></tr>
-                            <tr><td>E14.5-E15.5 microCT screening</td><td>up to N</td></tr>
-                            <tr><td>E18.5 Gross morphology</td><td>up to 8 homs, 2 wt</td></tr>
-                            <tr><td>E18.5 microCT</td><td>screening up to N</td></tr>
+                            <tr><th>Procedure</th><th>Number</th><th>Note</tr>
+                            <tr><td>E9.5 Gross morphology</td><td>at least 2 homs,2 wt</td><td>images optional</td></tr>
+                            <tr><td>E9.5 OPT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
+                            <tr><td>E14.5-E15.5 Gross morphology</td><td>at least 2 homs, 2 wt</td><td>images optional</td></tr>
+                            <tr><td>E14.5-E15.5 microCT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
+                            <tr><td>E18.5 Gross morphology</td><td>at least 2 homs</td><td>images optional</td></tr>
+                            <tr><td>E18.5 microCT</td><td>at least 2 homs, 2 wt</td><td>reconstructions available</td></tr>
                             </table>
                             <p>
                             In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with two current awardees.
