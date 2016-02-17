@@ -48,8 +48,8 @@
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/hitsPerLineReport.csv">hitsPerLineReport.csv</a></td>
 												<td>Hits per line</td>
 											</tr>
-											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/hitsPerParameterAndProcedureReport.csv">hitsPerParameterAndProcedureReport.csv</a></td>
-												<td>Hits per parameter and procedure</td>
+											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/impcGafReport.csv">impcGafReport.csv</a></td>
+												<td>IMPC GAF 2.0</td>
 											</tr>
 											<tr><td><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest/reports/impcPValuesReport.csv">impcPValuesReport.csv</a></td>
 												<td>IMPC P-Values</td>
