@@ -530,8 +530,11 @@ public class DataTableController {
         if (jParams.containsKey("showImgView")) {
             showImgView = jParams.getBoolean("showImgView");
         }
-        JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
-        String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
+
+		System.out.println("GOT SOLRPARAMS: " + solrParamStr);
+		JSONObject json = solrIndex.getQueryJson(query, solrCoreName, solrParamStr, mode, iDisplayStart, iDisplayLength, showImgView);
+		System.out.println("*****JSON: " + json.toString());
+		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 
         return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
     }
@@ -1429,7 +1432,9 @@ public class DataTableController {
 					String imgCount = facets.get(i + 1).toString();
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";
 
-					imgUrl = imgUrl.replaceAll("&q=.+&", "&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
+
+					imgUrl = imgUrl.replaceAll("&q=.+&", "&defType=edismax&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
+
 					String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
 
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
@@ -1446,7 +1451,7 @@ public class DataTableController {
 						fq = facetField + ":\"" + names[0] + "\"";
 					}
 
-					thisFqStr = fqStr == null ? "fq=" + fq : fqStr + " AND " + fq;
+					thisFqStr = fqStr == null ? "fq=" + fq : "fq="+ fqStr + " AND " + fq;
 
 					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 

@@ -254,7 +254,7 @@ public class FileExportController {
 		@RequestParam(value = "kw", required = true) String query,
 		@RequestParam(value = "fq", required = false) String fqStr,
 		@RequestParam(value = "dataType", required = true) String dataType,
-		//@RequestParam(value = "params", required = false) String solrFilters,
+		@RequestParam(value = "mode", required = false) String mode,
 		@RequestParam(value = "fileType", required = true) String fileType,
 		@RequestParam(value = "fileName", required = true) String fileName,
 		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
@@ -268,15 +268,40 @@ public class FileExportController {
 
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
 
-//		JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
-//				length, showImgView);
-
-		JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-
 		List<String> dataRows = new ArrayList<>();
-		dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
-				solrFilters, request, legacyOnly, fqStr);
 
+		if ( mode.equals("all") ){
+
+			// do query in batch and put together
+
+			int rows = 1000;
+			int cycles = (int) Math.ceil(iDisplayLength/1000.0); // do 1000 per cycle
+			for ( int i=0; i<cycles; i++){
+				iDisplayStart = i*rows;
+				if ( cycles-1 == i ){
+					rows = iDisplayLength - (i*rows);
+				}
+
+				JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+
+				List<String> dr = new ArrayList<>();
+				dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
+						solrFilters, request, legacyOnly, fqStr);
+
+				if ( i > 0 ){
+					//remove header
+					dr.remove(0);
+				}
+
+				dataRows.addAll(dr);
+			}
+		}
+		else {
+			JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+			dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
+					solrFilters, request, legacyOnly, fqStr);
+
+		}
 		Workbook wb = null;
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
 

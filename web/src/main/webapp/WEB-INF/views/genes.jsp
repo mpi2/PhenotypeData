@@ -32,8 +32,7 @@
                         <c:if test="${not empty expressionFacets}">
                             <li><a href="#section-expression">Expression</a></li>
                         </c:if>
-                        <c:if
-                                test="${not empty impcExpressionImageFacets}">
+                       	<c:if test="${not empty impcExpressionImageFacets or not empty expressionAnatomyToRow or not empty impcEmbryoExpressionImageFacets or not empty embryoExpressionAnatomyToRow}" >
                             <li><a href="#impc-expression">Expression</a></li>
                         </c:if>
                         <c:if test="${not empty impcImageFacets}">
@@ -668,7 +667,7 @@
                             <!-- end of anatomogram section -->
 
                             <!-- Expression (IMPC) -->
-<c:if test="${not empty impcExpressionImageFacets or not empty impcExpressionFacetToDocs or not empty impcEmbryoExpressionImageFacets or not empty impcEmbryoExpressionFacetToDocs}">
+<c:if test="${not empty impcExpressionImageFacets or not empty expressionAnatomyToRow or not empty impcEmbryoExpressionImageFacets or not empty embryoExpressionAnatomyToRow}">
                         
 	<div class="section">
 
@@ -685,17 +684,17 @@
                      <c:if test="${not empty impcExpressionImageFacets}">
                           <li><a href="#tabs-1">Adult Expression Images View</a></li>
                      </c:if>
-                     <c:if test="${not empty impcExpressionFacetToDocs }">
+                     <c:if test="${not empty expressionAnatomyToRow }">
                         <li><a href="#tabs-2">Expression Data Overview</a></li>
                      </c:if>
-                     <c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
+                     <c:if test="${not empty impcEmbryoExpressionImageFacets}">
                         <li><a href="#tabs-3">Embryo Expression Images Overview</a></li>
                      </c:if>
-                     <c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
+                     <c:if test="${not empty embryoExpressionAnatomyToRow}">
                         <li><a href="#tabs-4">Embryo Expression Data Overview</a></li>
                      </c:if>
                      </ul>
-                     <c:if test="${ not empty impcExpressionFacetToDocs}"><!-- if size greater than 1 we have more data than just unassigned which we will -->
+                     <c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->
 					<div id="tabs-2" style="height: 500px; overflow: auto;">
 					<br/>
  									<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
@@ -876,7 +875,7 @@
                                         </div>
                                         </c:if>
 
-									<c:if test="${not empty impcEmbryoExpressionFacetToDocs}">
+									<c:if test="${not empty embryoExpressionAnatomyToRow}">
 									<div id="tabs-4" style="height: 500px; overflow: auto;">
 											<br/>
 		 									<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
@@ -1028,7 +1027,7 @@
          		<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
          								<c:if test="${not empty impcEmbryoExpressionImageFacets}">
          								<div id="tabs-3">
-Tab-3
+
 
 
                                              	<div class="accordion-body"

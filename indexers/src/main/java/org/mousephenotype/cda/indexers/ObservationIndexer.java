@@ -311,6 +311,16 @@ public class ObservationIndexer extends AbstractIndexer {
 			        o.setDevelopmentStageAcc(b.developmentalStageAcc);
 			        o.setDevelopmentStageName(b.developmentalStageName);
 
+			        if (b.productionCenterName!=null){
+				        o.setProductionCenter(b.productionCenterName);
+			        }
+			        if (b.productionCenterId!=null){
+				        o.setProductionCenterId(b.productionCenterId);
+			        }
+			        if (b.litterId!=null){
+				        o.setLitterId(b.litterId);
+			        }
+
 		        }
 
 		        o.setObservationType(r.getString("observation_type"));
@@ -443,7 +453,17 @@ public class ObservationIndexer extends AbstractIndexer {
 	 */
 	public void populateBiologicalDataMap() throws SQLException {
 
-        String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
+		String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='biological_sample' AND TABLE_SCHEMA=(SELECT database())";
+		Set<String> featureFlags = new HashSet<>();
+		try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
+			ResultSet r = p.executeQuery();
+			while (r.next()) {
+				featureFlags.add(r.getString("column_name"));
+			}
+		}
+
+
+		String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
                 + "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
                 + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
                 + "bms.biological_model_id, "
@@ -451,53 +471,70 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "(select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bms.biological_model_id) as allele_accession, "
                 + "(select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bms.biological_model_id)  as allele_symbol, "
                 + "(select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bms.biological_model_id) as acc, "
-                + "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol "
-                + "FROM biological_sample bs "
+                + "(select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bms.biological_model_id)  as symbol ";
+
+			if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
+				query += ", bs.production_center_id, prod_org.name as production_center_name, bs.litter_id ";
+			}
+
+            query += "FROM biological_sample bs "
                 + "INNER JOIN organisation org ON bs.organisation_id=org.id "
                 + "INNER JOIN live_sample ls ON bs.id=ls.id "
                 + "INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id "
                 + "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id "
                 + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
                 + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
-                + "INNER JOIN  ontology_term ot ON ot.acc=ls.developmental_stage_acc";
+                + "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc";
 
-	    try (PreparedStatement p = connection.prepareStatement(query)) {
+		if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
+			query += "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
+		}
 
-		    ResultSet resultSet = p.executeQuery();
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 
-		    while (resultSet.next()) {
-			    BiologicalDataBean b = new BiologicalDataBean();
+			ResultSet resultSet = p.executeQuery();
 
-			    b.alleleAccession = resultSet.getString("allele_accession");
-			    b.alleleSymbol = resultSet.getString("allele_symbol");
-			    b.biologicalModelId = resultSet.getInt("biological_model_id");
-			    b.biologicalSampleId = resultSet.getInt("biological_sample_id");
-			    b.colonyId = resultSet.getString("colony_id");
+			while (resultSet.next()) {
+				BiologicalDataBean b = new BiologicalDataBean();
 
-			    try {
-				    b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
-			    } catch (NullPointerException e) {
-				    b.dateOfBirth = null;
-				    logger.debug("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
-			    }
+				b.alleleAccession = resultSet.getString("allele_accession");
+				b.alleleSymbol = resultSet.getString("allele_symbol");
+				b.biologicalModelId = resultSet.getInt("biological_model_id");
+				b.biologicalSampleId = resultSet.getInt("biological_sample_id");
+				b.colonyId = resultSet.getString("colony_id");
 
-			    b.externalSampleId = resultSet.getString("external_sample_id");
-			    b.geneAcc = resultSet.getString("acc");
-			    b.geneSymbol = resultSet.getString("symbol");
-			    b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
-			    b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-			    b.sampleGroup = resultSet.getString("sample_group");
-			    b.sex = resultSet.getString("sex");
-			    b.strainAcc = resultSet.getString("strain_acc");
-			    b.strainName = resultSet.getString("strain_name");
-			    b.geneticBackground = resultSet.getString("genetic_background");
-			    b.zygosity = resultSet.getString("zygosity");
-			    b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
-			    b.developmentalStageName = resultSet.getString("developmental_stage_name");
+				try {
+					b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+				} catch (NullPointerException e) {
+					b.dateOfBirth = null;
+					logger.debug("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
+				}
 
-			    biologicalData.put(resultSet.getString("biological_sample_id"), b);
-		    }
-	    }
+				b.externalSampleId = resultSet.getString("external_sample_id");
+				b.geneAcc = resultSet.getString("acc");
+				b.geneSymbol = resultSet.getString("symbol");
+				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
+				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
+				b.sampleGroup = resultSet.getString("sample_group");
+				b.sex = resultSet.getString("sex");
+				b.strainAcc = resultSet.getString("strain_acc");
+				b.strainName = resultSet.getString("strain_name");
+				b.geneticBackground = resultSet.getString("genetic_background");
+				b.zygosity = resultSet.getString("zygosity");
+				b.developmentalStageAcc = resultSet.getString("developmental_stage_acc");
+				b.developmentalStageName = resultSet.getString("developmental_stage_name");
+
+
+				if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
+					b.productionCenterId = resultSet.getInt("production_center_id");
+					b.productionCenterName = resultSet.getString("production_center_name");
+					b.litterId = resultSet.getString("litter_id");
+
+				}
+
+				biologicalData.put(resultSet.getString("biological_sample_id"), b);
+			}
+		}
     }
 
 	/**
@@ -906,6 +943,9 @@ public class ObservationIndexer extends AbstractIndexer {
 		public String zygosity;
 		public String developmentalStageAcc;
 		public String developmentalStageName;
+		public String productionCenterName;
+		public Integer productionCenterId;
+		public String litterId;
 
 	}
 

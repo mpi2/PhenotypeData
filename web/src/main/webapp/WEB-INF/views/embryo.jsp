@@ -16,137 +16,7 @@
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/slider.js?v=${version}'></script> 
-        
-        <style type="text/css">
-        	#slider {
-			  position: relative;
-			  overflow: hidden;
-			  margin: 20px auto 0 auto;
-			  border-radius: 4px;
-			  background:transparent;
-			}
-			
-			#sliderHighlight{
-			  position: relative;
-			  margin: 0;
-			  padding: 0;
-			  list-style: none;
-			}
-			
-			#sliderHighlight li {
-			  position: relative;
-			  display: block;
-			  float: left;
-			  margin: 0;
-			  padding: 0;
-			  width: 800px;
-			  height: 500px;
-			  background: transparent;
-			}
-						 
-			 .slider img{
-			 	max-width:100%;
-			 	max-height:70%;
-			 	margin-left: auto;
-    			margin-right: auto;
-    			display: block;
-			 }
-			 
-			 .slider p{
-			 	z-index: 1000;
-			 	padding-left:8%;
-			 	padding-right:8%;
-			 	height: 20%;
-			 }
-			 			
-			.sliderControl ul li {
-				display:inline;
-				width:100px;
-				float:left;
-				padding: 0.3em;
-			}
-			
-			.sliderControl img{
-				max-height:50px;
-				margin-left: auto;
-    			margin-right: auto;
-    			display:block;
-			}
-			
-			.sliderControl .caption{
-				display:none;
-			}
-			
-			.sliderTitle{
-				display : bloc;
-			}
-			
-			.minmargin p{
-				padding:0.5em;
-			}
-			
-			.minpadding {
-				padding:0.5em;
-			}
-			
-			h2.sliderTitle{
-				text-align:center;
-				display : bloc;
-			}
-			
-			#sliderOnDisplay p.sliderTitle{
-				display : none;
-			}
-			
-			#sliderControl{
-				width: 100%;
-    			height: 120px;
-   				overflow-x: scroll;
-   				margin: 0.7em;
-			}
-			
-			#sliderControl ul{
-				display:inline-block;
-			}	
-			
-			li.sliderSelectedControl{
-    			border: 1px solid black;
-    			list-style-position:inside;
-			}
-			
-			.control_prev, .control_next {
-			  position: absolute;
-			  top: 40%;
-			  z-index: 999;
-			  display: block;
-			  padding: 4% 3%;
-			  width: auto;
-			  height: auto;
-			  background: #2a2a2a;
-			  color: #fff;
-			  text-decoration: none;
-			  font-weight: 600;
-			  font-size: 18px;
-			  opacity: 0.2;
-			  cursor: pointer;
-			}
-			
-			.control_prev:hover, .control_next:hover {
-			  opacity: 0.8;
-			  -webkit-transition: all 0.2s ease;
-			}
-			
-			.control_prev {
-			  border-radius: 0 2px 2px 0;
-			}
-			
-			.control_next {
-			  right: 0;
-			  border-radius: 2px 0 0 2px;
-			}
-						
-        </style>
-        
+        <link rel="stylesheet" href='${baseUrl}/css/slider.css?v=${version}'/>        
     </jsp:attribute>
 
     <jsp:body>
@@ -198,34 +68,36 @@
         				
 
 						<div class="section">
-						<h2>IMPC Embryo Phenotyping- Goals and Procedures</h2>
+						<h2>IMPC Embryo Phenotyping - Goals and Procedures</h2>
                             <div class="inner">
                             
                             <p>With up to one third of knockout strains being embryonic lethal, a systematic unbaised phenotyping pipeline was established to perform morphologic and imaging evaluation of mutant embryos to define the primary perturbations that cause their death. From this important insights are gained into gene function.
                             </p>
                             <p>
                             IMPC centers funded by the NIH Common fund mechanism are delivering the following
-							For all Strains:
+							for <b>All Lines</b>:
 							<ul>
  							<li>Viability</li>
- 							<li>Heterozygote E12.5 Embryonic LacZ staining ( 2 mutant animals, wt reference images)</li>
+ 							<li>
+ 							Heterozygote E12.5 Embryonic LacZ staining ( 2 mutant animals, wt reference images)</li>
 							</ul>
+							<p>For <b>All Embryonic Lethal Lines</b>, gross morphology is assessed at E12.5 to determine if defects occur earlier or later in development. A comprehensive imaging platform is then used to assess dysmorphology at the <b>most</b> appropriate stage:
                             </p>
                             <table>
-                            <tr><th>Procedure</th><th>Number</th></tr>
-                            <tr><td>E9.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
-                            <tr><td>E9.5 OPT screening</td><td>up to N</td></tr>
-                            <tr><td>E14.5-E15.5 Gross morphology</td>up to 8 homs, 2 wt<td></td></tr>
-                            <tr><td>E14.5-E15.5 microCT screening</td><td>up to N</td></tr>
-                            <tr><td>E18.5 Gross morphology-</td><td>up to 8 homs, 2 wt</td></tr>
-                            <tr><td>E18.5 microCT</td><td>screening up to N</td></tr>
+                            <tr><th>Procedure</th><th>Number</th><th>Note</tr>
+                            <tr><td>E9.5 Gross morphology</td><td>at least 2 homs,2 wt</td><td>images optional</td></tr>
+                            <tr><td>E9.5 OPT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
+                            <tr><td>E14.5-E15.5 Gross morphology</td><td>at least 2 homs, 2 wt</td><td>images optional</td></tr>
+                            <tr><td>E14.5-E15.5 microCT screening</td><td>at least 2 homs</td><td>reconstructions available</td></tr>
+                            <tr><td>E18.5 Gross morphology</td><td>at least 2 homs</td><td>images optional</td></tr>
+                            <tr><td>E18.5 microCT</td><td>at least 2 homs, 2 wt</td><td>reconstructions available</td></tr>
                             </table>
                             <p>
                             In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with two current awardees.
                             </p>
-                            <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">William Trevor, University of Colorado School of Medicine</a>
+                            <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">Trevor William, University of Colorado School of Medicine</a>
                             </p>
-                            <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst link</a>
+                            <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst</a>
                             </p>
                             
                             
@@ -255,10 +127,10 @@
                             		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.
                             		</p>
                             		<p class="minpadding"> See embryo gross morphology images for 		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E9.5")'>E9.5</a>,	
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E12.5")'>E12.5</a>,		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E14.5-E15.5")'>E14.5-E15.5</a>,		
-	                            		<a href='${baseUrl}/search/impc_images?kw=*#fq&fq=(procedure_name:"Gross Morphology Embryo E18.5")'>E18.5</a>.
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E9.5")'>E9.5</a>,	
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E12.5")'>E12.5</a>,		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E14.5-E15.5")'>E14.5-E15.5</a>,		
+	                            		<a href='${baseUrl}/search/impc_images?kw=*&fq=(procedure_name:"Gross Morphology Embryo E18.5")'>E18.5</a>.
                             		</p>						
 								</div>								
 								<div class="clear"></div>
@@ -287,7 +159,7 @@
 
                         </div>
                         
-                            	<c:set var="vignettesLink" value='<a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
+             <c:set var="vignettesLink" value='<a class="btn" style="float: right" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
                         <div class="section">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
@@ -306,7 +178,7 @@
 										    	<p class="embryo-caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
-										    		vertebrae, abnormal joint morphology and edema. <a class="btn" href="${drupalBaseUrl}/vignettes">Full Analysis</a></p>
+										    		vertebrae, abnormal joint morphology and edema.  ${vignettesLink}</p>
 										    	<p class="sliderTitle"> Chtop -/-</p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
 										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
@@ -367,3 +239,4 @@
       </jsp:body>
 
 </t:genericpage>
+
