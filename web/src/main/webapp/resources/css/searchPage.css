@@ -447,6 +447,7 @@ input.facetFilterSubmit {
 div#facet {
 	/*clear: both;*/
 	top: 120px;
+	margin-bottom: 50px;
 
 }
 
