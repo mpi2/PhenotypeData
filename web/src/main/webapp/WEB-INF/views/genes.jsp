@@ -116,8 +116,10 @@
 		            $("#exptabs").tabs({ active: 0 });
 		            $("#diseasetabs").tabs({ active: 0 });
 
+                    $('div#anatomo1').hide(); // by default
+
 		            $('.wtExp').hide();
-		            $('button#toggleWt').click(function(){
+		            $('div#toggleWt').click(function(){
 			            if ($('.wtExp').is(':visible')) {
 				            $('.wtExp').hide();
 				            $(this).text("Show Wildtype Expression");
@@ -128,10 +130,30 @@
 			            }
 		            });
 
+                    $('div#expDataView').click(function(){
+                        if ($('#anatomo1').is(':visible')) {
+                            $('#anatomo1').hide();
+                            $('#anatomo2').show();
+                            $(this).text("Show adult expression data in table");
+                        }
+                        else {
+                            $('#anatomo1').show();
+                            $('#anatomo2').hide();
+                            $(this).text("Hide adult expression data in table");
+                        }
+                    });
+
+                    $('li.showAdultImage').click(function(){
+                        $("#exptabs").tabs({ active: 1 });
+                    });
+
 	            });
             </script>
             <style>
-	            button#toggleWt {
+                li.showAdultImage {
+                    cursor: pointer;
+                }
+                div#expDataView, div#toggleWt {
 		            font-size: 12px;
 		            color: grey;
 		            background-color: white;
@@ -140,6 +162,10 @@
 		            padding: 3px 5px;
 		            cursor: pointer;
 	            }
+                div#expDataView {
+                    float: right;
+                    margin-bottom: 20px;
+                }
 	            #svgHolder div div {
 		            z-index: 100;
 	            }
@@ -703,9 +729,9 @@
 										<ul class='tabs'>
 											<li><a href="#tabs-1">Adult Expression Overview</a></li>
 
-											<c:if test="${not empty expressionAnatomyToRow }">
-												<li><a href="#tabs-2">Adult Expression Data Overview</a></li>
-											</c:if>
+											<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
+												<%--<li><a href="#tabs-2">Adult Expression Data Overview</a></li>--%>
+											<%--</c:if>--%>
 
 											<c:if test="${not empty impcExpressionImageFacets}">
 												<li><a href="#tabs-3">Adult lacZ+ Expression Images</a></li>
@@ -728,11 +754,11 @@
 											</c:if>
 										</div>
 
-										<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->
-											<div id="tabs-2">
-												<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>
-											</div>
-										</c:if>
+										<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
+											<%--<div id="tabs-2">--%>
+												<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
+											<%--</div>--%>
+										<%--</c:if>--%>
 
 										<!-- section for expression data here -->
 										<c:if test="${not empty impcExpressionImageFacets}">

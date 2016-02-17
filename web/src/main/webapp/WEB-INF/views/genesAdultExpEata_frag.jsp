@@ -30,7 +30,7 @@
                                           style="color: gray">&nbsp;Ambiguous</span>&nbsp;&nbsp;
 
 <br/> <br/>
-<button type="button" id="toggleWt">Show Wildtype Expression</button>
+<div id="toggleWt">Show Wildtype Expression</div>
 
 <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
 -->
