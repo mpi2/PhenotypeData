@@ -317,6 +317,17 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query).getBeans(ObservationDTO.class);
     }
     
+    public List<ObservationDTO> getObservationsByParameterStableIdAndGene(String parameterStableId, String mgiAccession) throws SolrServerException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+        query.setRows(Integer.MAX_VALUE);
+        query.addFilterQuery("gene_accession_id:\""+mgiAccession+"\"");
+
+        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return solr.query(query).getBeans(ObservationDTO.class);
+    }
+    
     
     /**
      * @author tudose
@@ -359,12 +370,12 @@ public class ObservationService extends BasicService implements WebStatus {
     }
     
     
-    public Set<String> getViabilityForGene(String markerSymbol) 
+    public Set<String> getViabilityForGene(String acc) 
     throws SolrServerException{
     	
     	SolrQuery query = new SolrQuery();
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
-        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerSymbol +"\"");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc +"\"");
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.GENE_ACCESSION_ID);
         query.addField(ObservationDTO.CATEGORY);
