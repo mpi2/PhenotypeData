@@ -250,6 +250,7 @@ public class GenesController {
 			}
 			
 			for (String str : mpGroupsSignificant.keySet()){
+				// str: top level term name
 				if (mpGroupsNotSignificant.keySet().contains(str)){
 					mpGroupsNotSignificant.remove(str);
 				}
@@ -839,7 +840,7 @@ public class GenesController {
 			model.addAttribute("debug", "true");
 		}
 
-		return "genesAllele2";
+		return "genesAllele2_frag";
 	}
 
     @Autowired
