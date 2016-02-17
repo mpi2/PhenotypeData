@@ -243,7 +243,7 @@
 			<c:if test="${hasData}">
 				<div class="section">
 
-			    <h2 class="title" id="gene-variants">Gene variants with ${phenotype.getMpTerm()}
+			    <h2 class="title" id="gene-variants"><a name="hasGeneVariants">Gene variants with ${phenotype.getMpTerm()}</a>
 			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span>
 			    </h2>
 
