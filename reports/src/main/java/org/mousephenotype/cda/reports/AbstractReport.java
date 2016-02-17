@@ -41,7 +41,9 @@ public abstract class AbstractReport {
     protected PropertiesConfiguration applicationProperties;
     protected CommonUtils commonUtils = new CommonUtils();
     protected MpCSVWriter csvWriter;
+    protected final ReportFormat defaultReportFormat = ReportFormat.csv;
     protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected ReportFormat reportFormat;
     protected File targetFile;
     protected String targetFilename;
 
@@ -73,11 +75,29 @@ public abstract class AbstractReport {
     }
 
     public AbstractReport() {
+        this.reportFormat = defaultReportFormat;
+    }
 
+    /**
+     * Constructor allows specification of the default report format. This will be overridden by --reportFormat
+     * specification on the command line.
+     *
+     * @param defaultReportFormat
+     */
+    public AbstractReport(ReportFormat defaultReportFormat) {
+        this.reportFormat = defaultReportFormat;
     }
 
     public PropertiesConfiguration getApplicationProperties() {
         return applicationProperties;
+    }
+
+    public ReportFormat getReportFormat() {
+        return reportFormat;
+    }
+
+    public void setReportFormat(ReportFormat reportFormat) {
+        this.reportFormat = reportFormat;
     }
 
     public File getTargetFile() {
@@ -104,16 +124,19 @@ public abstract class AbstractReport {
             System.exit(0);
         }
 
+        if (parser.getReportFormat() != null) {
+            this.reportFormat = parser.getReportFormat();
+        }
         this.targetFilename =
                   parser.getPrefix()
                 + (parser.getTargetFilename() != null ? parser.getTargetFilename() : getDefaultFilename())
                 + "."
-                + parser.getReportFormat();
+                + reportFormat;
 
         this.targetFile = new File(Paths.get(parser.getTargetDirectory(), targetFilename).toAbsolutePath().toString());
         try {
             FileWriter fileWriter = new FileWriter(targetFile.getAbsoluteFile());
-            this.csvWriter = new MpCSVWriter(fileWriter, parser.getReportFormat().getSeparator());
+            this.csvWriter = new MpCSVWriter(fileWriter, reportFormat.getSeparator());
         } catch (IOException e) {
             throw new ReportException("Exception opening FileWriter: " + e.getLocalizedMessage());
         }
@@ -149,7 +172,7 @@ public abstract class AbstractReport {
     protected void logInputParameters() {
         log.info("Target filename:  " + targetFile.getAbsolutePath());
         log.info("Target directory: " + parser.getTargetDirectory());
-        log.info("Report format:    " + parser.getReportFormat());
+        log.info("Report format:    " + reportFormat);
         log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
     }
 }
