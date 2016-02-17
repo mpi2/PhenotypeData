@@ -24,37 +24,27 @@
 			            <li><a href="#top">Gene</a></li>
 			            <li><a href="#section-associations">Phenotype Associations</a></li>
 			            <!--  always a section for this even if says no phenotypes found - do not putting in check here -->
-			            <c:if test="${phenotypeStarted}">
+			            <!--<c:if test="${phenotypeStarted}">-->
 				            <li><a href="#heatmap">Heatmap</a></li>
-			            </c:if>
+			            <!--</c:if>-->
 
-			            <c:if test="${not empty solrFacets}">
+			            <!--<c:if test="${not empty solrFacets}">-->
 				            <li><a href="#section-images">Associated Images</a></li>
-			            </c:if>
+			            <!--</c:if>-->
 
-			            <c:if test="${not empty expressionFacets}">
-				            <li><a href="#section-expression">Expression</a></li>
-			            </c:if>
+				        <li><a href="#section-expression">Expression</a></li>
 
-			            <c:if test="${not empty impcExpressionImageFacets}">
-				            <li><a href="#impc-expression">Expression</a></li>
-			            </c:if>
-
-			            <c:if test="${not empty impcImageFacets}">
+			            <!--<c:if test="${not empty impcImageFacets}">-->
 				            <li><a href="#section-impc-images">Impc Images</a></li>
-			            </c:if>
+			            <!--</c:if>-->
 
-			            <c:if test="${not empty orthologousDiseaseAssociations}">
-				            <li><a href="#section-disease-models">Disease Models</a></li>
-			            </c:if>
+			            <!--<c:if test="${not empty orthologousDiseaseAssociations}">-->
+				            <li><a href="#diseasesOrthSim">Disease Models</a></li>
+			            <!--</c:if>-->
 
-			            <c:if test="${not empty phenotypicDiseaseAssociations}">
-				            <li><a href="#section-potential-disease-models">Potential Disease Models</a></li>
-			            </c:if>
-
-			            <c:if test="${!countIKMCAllelesError}">
+			            <!--<c:if test="${!countIKMCAllelesError}">-->
 				            <li><a href="#order2">Order Mouse and ES Cells</a></li>
-			            </c:if>
+			            <!--</c:if>-->
 		            </ul>
 
 		            <div class="clear"></div>
@@ -691,14 +681,19 @@
 						<div class="clear"></div>
 						<br/> <br/>
 						<!-- Expression -->
-						<c:if test="${not empty impcExpressionImageFacets or not empty expressionAnatomyToRow or not empty impcEmbryoExpressionImageFacets or not empty embryoExpressionAnatomyToRow}">
 
-							<div class="section">
+						<div class="section">
 
-								<h2 class="title" id="impc-expression">Expression<span
-										class="documentation"><a href='' id='impcExpressionPanel'
-								                                 class="fa fa-question-circle pull-right"></a></span>
-								</h2>
+							<h2 class="title" id="section-expression">Expression<span
+									class="documentation"><a href='' id='impcExpressionPanel'
+							                                 class="fa fa-question-circle pull-right"></a></span>
+							</h2>
+
+							<c:if test="${empty impcExpressionImageFacets and empty expressionAnatomyToRow and empty impcEmbryoExpressionImageFacets and empty embryoExpressionAnatomyToRow}">
+							<div class="inner" style="display: block;">Expression data not available</div>
+
+							</c:if>
+							<c:if test="${not empty impcExpressionImageFacets or not empty expressionAnatomyToRow or not empty impcEmbryoExpressionImageFacets or not empty embryoExpressionAnatomyToRow}">
 
 								<div class="inner" style="display: block;">
 
@@ -762,9 +757,9 @@
 									</div><!-- end of tabs -->
 									<br style="clear: both">
 								</div><!-- end of innner -->
+							</c:if>
+						</div><!-- end of impc expression section-->
 
-							</div><!-- end of impc expression section-->
-						</c:if>
 
 
 						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
