@@ -293,7 +293,6 @@ public class ChartsController {
         experiment = experimentService.getSpecificExperimentDTO(parameter.getId(), pipelineId, accession[0], genderList, zyList, phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
 
         if (experiment != null) {
-
             if (pipeline == null) {
                 // if we don't already have the pipeline from the url params get it via the experiment returned
                 pipeline = pipelineDAO.getPhenotypePipelineByStableId(experiment.getPipelineStableId());
@@ -550,6 +549,15 @@ public class ChartsController {
             paramIds = Arrays.asList(parameterIds);
         }
         return paramIds;
+    }
+    
+    @RequestMapping("/colors")
+    public String colors(Model model) {
+    	System.out.println("calling colors page");
+    	model.addAttribute("maleColors", ChartColors.maleRgb);
+    	model.addAttribute("femaleColors", ChartColors.femaleRgb);
+    	model.addAttribute("highDifferenceColors",ChartColors.highDifferenceColors);
+        return "colors";
     }
 
 }

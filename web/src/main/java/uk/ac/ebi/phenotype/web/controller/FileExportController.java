@@ -39,6 +39,7 @@ import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
@@ -56,6 +57,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import hidden.org.codehaus.plexus.interpolation.os.Os;
 import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
@@ -86,27 +89,28 @@ public class FileExportController {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
-	public PhenotypeCallSummaryDAO phenotypeCallSummaryDAO;
-
-	@Autowired
-	private SolrIndex solrIndex;
-
+	private ObservationService os;
 	@Autowired
 	private GeneService geneService;
 	
-
 	@Autowired
 	private ImageService imageService;
 
+	@Autowired
+	private MpService mpService;
+	
+	@Autowired
+	private ExperimentService experimentService;
+
+	@Autowired
+	private SolrIndex solrIndex;
+	
 	@Autowired
     @Qualifier("phenotypePipelineDAOImpl")
 	private PhenotypePipelineDAO ppDAO;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
-
-	@Autowired
-	private ExperimentService experimentService;
 
 	@Autowired
 	OrganisationDAO organisationDao;
@@ -116,9 +120,6 @@ public class FileExportController {
 
 	@Autowired
 	AlleleDAO alleleDAO;
-
-	@Autowired
-	private MpService mpService;
 
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
@@ -140,9 +141,6 @@ public class FileExportController {
 	@Autowired
 	private PhenoDigmWebDao phenoDigmDao;
 	private final double rawScoreCutoff = 1.97;
-
-	@Autowired
-	private DataTableController dataTableController;
 
 	@Autowired
 	private SearchController searchController;
@@ -256,7 +254,7 @@ public class FileExportController {
 		@RequestParam(value = "kw", required = true) String query,
 		@RequestParam(value = "fq", required = false) String fqStr,
 		@RequestParam(value = "dataType", required = true) String dataType,
-		//@RequestParam(value = "params", required = false) String solrFilters,
+		@RequestParam(value = "mode", required = false) String mode,
 		@RequestParam(value = "fileType", required = true) String fileType,
 		@RequestParam(value = "fileName", required = true) String fileName,
 		@RequestParam(value = "showImgView", required = false, defaultValue = "false") Boolean showImgView,
@@ -270,16 +268,41 @@ public class FileExportController {
 
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
 
-//		JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
-//				length, showImgView);
-
-		JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-		//System.out.println(json.toString());
-
 		List<String> dataRows = new ArrayList<>();
-		dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
-				solrFilters, request, legacyOnly, fqStr);
 
+
+		if ( mode.equals("all") ){
+
+			// do query in batch and put together
+
+			int rows = 1000;
+			int cycles = (int) Math.ceil(iDisplayLength/1000.0); // do 1000 per cycle
+			for ( int i=0; i<cycles; i++){
+				iDisplayStart = i*rows;
+				if ( cycles-1 == i ){
+					rows = iDisplayLength - (i*rows);
+				}
+
+				JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+
+				List<String> dr = new ArrayList<>();
+				dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
+						solrFilters, request, legacyOnly, fqStr);
+
+				if ( i > 0 ){
+					//remove header
+					dr.remove(0);
+				}
+
+				dataRows.addAll(dr);
+			}
+		}
+		else {
+			JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+			dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
+					solrFilters, request, legacyOnly, fqStr);
+
+		}
 		Workbook wb = null;
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
 
@@ -432,6 +455,7 @@ public class FileExportController {
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
 
 	}
+	
 
 	public List<String> composeExperimentDataExportRows(String[] parameterStableId, String[] geneAccession,
 			String allele[], String gender, ArrayList<Integer> phenotypingCenterIds, List<String> zygosity,
@@ -848,16 +872,18 @@ public class FileExportController {
 
 				int imgCount = (int) pathAndImgCount.get(1);
 
-				StringBuilder sb = new StringBuilder();
-				sb.append("");
-				sb.append(imgCount);
-				data.add(sb.toString());
+				if ( imgCount > 0 ) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("");
+					sb.append(imgCount);
+					data.add(sb.toString());
 
-				String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
-				//System.out.println("IMG LINK: " + imgSubSetLink );
-				data.add(imgSubSetLink);
+					String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
+					//System.out.println("IMG LINK: " + imgSubSetLink );
+					data.add(imgSubSetLink);
 
-				rowData.add(StringUtils.join(data, "\t"));
+					rowData.add(StringUtils.join(data, "\t"));
+				}
 			}
 		}
 
@@ -918,9 +944,10 @@ public class FileExportController {
 				List<String> ids = new ArrayList<String>();
 
 				for (SimpleOntoTerm term : hpTerms) {
-					ids.add(term.getTermId());
-
-					terms.add(term.getTermName().equals("") ? NO_INFO_MSG : term.getTermName());
+					if ( !term.getTermName().equals("")) {
+						ids.add(term.getTermId());
+						terms.add(term.getTermName());
+					}
 				}
 
 				data.add(StringUtils.join(terms, "|"));
@@ -1630,7 +1657,7 @@ public class FileExportController {
 
 		Set<String> foundIds = new HashSet<>();
 
-		System.out.println("Number of responses: " + solrResponses.size());
+		//System.out.println("Number of responses: " + solrResponses.size());
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -1639,7 +1666,7 @@ public class FileExportController {
 		}
 
 		int totalDocs = results.size();
-		System.out.println("TOTAL DOCS FOUND: " + totalDocs);
+		//System.out.println("TOTAL DOCS FOUND: " + totalDocs);
 
 		String hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -1688,12 +1715,8 @@ public class FileExportController {
 		List<String> rowData = new ArrayList();
 		rowData.add(StringUtils.join(colList, "\t"));
 
-		System.out.println("grid fields: " + colList);
-
 		for (int i = 0; i < results.size(); i++) {
 			SolrDocument doc = results.get(i);
-
-			System.out.println("Working on document " + i + " of " + totalDocs);
 
 			Map<String, Collection<Object>> docMap = doc.getFieldValuesMap(); // Note
 																				// getFieldValueMap()
@@ -1770,7 +1793,6 @@ public class FileExportController {
 					// System.out.println("idlink id: " + accStr);
 
 					if (!oriDataTypeNAme.equals("ensembl") && !oriDataTypeNAme.equals("marker_symbol")) {
-						System.out.println("idlink check: " + accStr);
 						foundIds.add("\"" + accStr + "\"");
 					}
 
@@ -1896,9 +1918,7 @@ public class FileExportController {
 
 		// find the ids that are not found and displays them to users
 		ArrayList nonFoundIds = (java.util.ArrayList) CollectionUtils.disjunction(queryIds, new ArrayList(foundIds));
-		// System.out.println("Query ids: "+ queryIds);
-		// System.out.println("Found ids: "+ new ArrayList(foundIds));
-		System.out.println("non found ids: " + nonFoundIds.size());
+
 
 		for (int i = 0; i < nonFoundIds.size(); i++) {
 			List<String> data = new ArrayList<String>();
@@ -1919,8 +1939,6 @@ public class FileExportController {
 		String outfile = fileName + "." + fileType;
 
 		try {
-
-			System.out.println("File to export: " + outfile);
 
 			if (fileType.equals("tsv")) {
 

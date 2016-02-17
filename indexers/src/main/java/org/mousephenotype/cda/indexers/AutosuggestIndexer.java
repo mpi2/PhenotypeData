@@ -30,23 +30,22 @@ import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
 
 public class AutosuggestIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("autosuggestIndexing")
@@ -93,6 +92,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> mpIdSet = new HashSet();
     Set<String> mpTermSet = new HashSet();
     Set<String> mpTermSynonymSet = new HashSet();
+    Set<String> mpAltIdSet = new HashSet();
     
     // disease
     Set<String> diseaseIdSet = new HashSet();
@@ -103,6 +103,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> maIdSet = new HashSet();
     Set<String> maTermSet = new HashSet();
     Set<String> maTermSynonymSet = new HashSet();
+    Set<String> maAltIdSet = new HashSet();
     
     // hp
     Set<String> hpIdSet = new HashSet();
@@ -129,16 +130,8 @@ public class AutosuggestIndexer extends AbstractIndexer {
     String mapKey;
 
     @Override
-    public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(autosuggestCore);
-        
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual autosuggest document count is " + numFound + "."));
-        
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " autosuggest documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " autosuggest documents.");
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(autosuggestCore);
     }
 
     private void initializeSolrCores() {
@@ -155,7 +148,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
+            logger.info(" Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
 
             this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
 
@@ -167,7 +160,10 @@ public class AutosuggestIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public RunStatus run() throws IndexerException {
+        RunStatus runStatus = new RunStatus();
+        long start = System.currentTimeMillis();
+
         try {
             initializeSolrCores();
 
@@ -182,13 +178,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
             // Final commit
             autosuggestCore.commit();
-            
-            // FIXME
-//            logger.info("Added {} beans", results.size());
 
-        } catch (SolrServerException | IOException e) {
+        } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
+
+        logger.info(" Added total beans in {}", commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
 
@@ -284,7 +281,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateMpAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> mpFields = Arrays.asList(
-                MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
+                MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.ALT_MP_ID, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
                 MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
         
@@ -324,6 +321,22 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 if (mpTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTermSynonym(s);
+                                    asyn.setDocType("mp");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MpDTO.ALT_MP_ID:
+                        logger.debug("Working on ALT MP ID -1");
+                        if ( mp.getAltMpIds() != null) {
+
+                            for (String s : mp.getAltMpIds()) {
+                                mapKey = s;
+                                logger.debug("GOT ALT MP ID: " + mapKey);
+                                if (mpAltIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAltMpID(s);
                                     asyn.setDocType("mp");
                                     beans.add(asyn);
                                 }
@@ -518,7 +531,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     private void populateMaAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> maFields = Arrays.asList(
-                MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
+                MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.ALT_MA_ID, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
                 MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
                 MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
             
@@ -558,6 +571,20 @@ public class AutosuggestIndexer extends AbstractIndexer {
                                 if (maTermSynonymSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMaTermSynonym(s);
+                                    asyn.setDocType("ma");
+                                    beans.add(asyn);
+                                }
+                            }
+                        }
+                        break;
+                    case MaDTO.ALT_MA_ID:
+                        if ( ma.getAltMaIds() != null ) {
+                            for (String s : ma.getAltMaIds()) {
+                                mapKey = s;
+
+                                if (maAltIdSet.add(mapKey)) {
+                                    AutosuggestBean asyn = new AutosuggestBean();
+                                    asyn.setAltMaID(s);
                                     asyn.setDocType("ma");
                                     beans.add(asyn);
                                 }
@@ -834,20 +861,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
+        RunStatus runStatus = new RunStatus();
         AutosuggestIndexer main = new AutosuggestIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
-
-        logger.info("Process finished.  Exiting.");
-
     }
-
-
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
-    }
-
 }
-

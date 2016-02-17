@@ -21,9 +21,10 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -35,6 +36,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -50,14 +52,14 @@ import static org.mousephenotype.cda.indexers.AbstractIndexer.CONTEXT_ARG;
  * @author mrelac
  */
 public class IndexerManager {
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IndexerManager.class);
     protected CommonUtils commonUtils = new CommonUtils();
-    private static final Logger logger = LoggerFactory.getLogger(IndexerManager.class);
 
     // core names.
     //      These are built only for a new data release.
     public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    public static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
     public static final String STATSTICAL_RESULT_CORE = "statistical-result";
 
     //      These are built daily.
@@ -74,15 +76,17 @@ public class IndexerManager {
 
     // main return values.
     public static final int STATUS_OK                  = 0;
-    public static final int STATUS_NO_DEPS             = 1;
-    public static final int STATUS_NO_ARGUMENT         = 2;
-    public static final int STATUS_UNRECOGNIZED_OPTION = 3;
-    public static final int STATUS_INVALID_CORE_NAME   = 4;
-    public static final int STATUS_VALIDATION_ERROR    = 5;
+    public static final int STATUS_WARN                = 1;
+    public static final int STATUS_NO_DEPS             = 2;
+    public static final int STATUS_NO_ARGUMENT         = 3;
+    public static final int STATUS_UNRECOGNIZED_OPTION = 4;
+    public static final int STATUS_INVALID_CORE_NAME   = 5;
+    public static final int STATUS_VALIDATION_ERROR    = 6;
 
     public static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
             case STATUS_OK:                     return "STATUS_OK";
+            case STATUS_WARN:                   return "STATUS_WARN";
             case STATUS_NO_DEPS:                return "STATUS_NO_DEPS";
             case STATUS_NO_ARGUMENT:            return "STATUS_NO_ARGUMENT";
             case STATUS_UNRECOGNIZED_OPTION:    return "STATUS_UNRECOGNIZED_OPTION";
@@ -108,6 +112,7 @@ public class IndexerManager {
         , STATSTICAL_RESULT_CORE
 
           // These are built daily.
+        , MGI_PHENOTYPE_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
@@ -123,7 +128,8 @@ public class IndexerManager {
 
     public static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-          PREQC_CORE
+    	MGI_PHENOTYPE_CORE
+        ,  PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
@@ -139,7 +145,7 @@ public class IndexerManager {
     public static final int RETRY_SLEEP_IN_MS = 60000;                          // If any core fails, sleep this long before reattempting to build the core.
     public static final String STAGING_SUFFIX = "_staging";                     // This snippet is appended to core names meant to be staging core names.
 
-    private enum RunStatus { OK, FAIL };
+    ;
 
     @Autowired
     ObservationIndexer observationIndexer;
@@ -147,6 +153,10 @@ public class IndexerManager {
     @Autowired
     GenotypePhenotypeIndexer genotypePhenotypeIndexer;
 
+    @Autowired
+    MGIPhenotypeIndexer mgiPhenotypeIndexer;
+
+    
     @Autowired
     StatisticalResultIndexer statisticalResultIndexer;
 
@@ -199,6 +209,16 @@ public class IndexerManager {
         }
     }
 
+    private enum RunResult {
+        OK,
+        WARNING,
+        FAIL;
+
+        private String getName(){
+       		return this.toString();
+       	}
+    }
+
     protected ApplicationContext applicationContext;
 
 
@@ -217,10 +237,6 @@ public class IndexerManager {
         return daily;
     }
 
-    public static Logger getLogger() {
-        return logger;
-    }
-
     public Boolean getNodeps() {
         return nodeps;
     }
@@ -230,7 +246,7 @@ public class IndexerManager {
 
 
     public void initialise(String[] args) throws IndexerException {
-        logger.info("IndexerManager called with args = " + StringUtils.join(args, ", "));
+        logger.debug("IndexerManager called with args = " + StringUtils.join(args, ", "));
 
         try {
             OptionSet options = parseCommandLine(args);
@@ -244,7 +260,7 @@ public class IndexerManager {
                 throw new IndexerException("Failed to parse command-line options.");
             }
 
-            // Print the jvm memory configuration.
+            // Print the starting jvm memory configuration.
             printJvmMemoryConfiguration();
         } catch (Exception e) {
             if (e.getLocalizedMessage() != null) {
@@ -262,49 +278,58 @@ public class IndexerManager {
         transactionManager.getTransaction(transactionAttribute);
     }
 
-    public void run() throws IndexerException {
+    public void run() throws IndexerException, IOException, SolrServerException {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
-        logger.info("Starting IndexerManager. nodeps = " + nodeps + ". Building the following cores (in order):");
-        logger.info("\t" + StringUtils.join(cores));
+        logger.debug("IndexerManager: nodeps = " + nodeps);
+        System.out.println("Building these cores in this order:	" + StringUtils.join(cores));
 
         for (IndexerItem indexerItem : indexerItems) {
-            long start = new Date().getTime();
-            indexerItem.indexer.initialise(indexerArgs);
-            // If the core build fails, retry up to RETRY_COUNT times before failing the IndexerManager build.
-            for (int i = 0; i <= RETRY_COUNT; i++) {
-                try {
+            long start = System.currentTimeMillis();
+            RunStatus runStatus = new RunStatus();
+            RunResult runResult = RunResult.OK;
 
-                    buildStagingArea();
-
-                    System.out.println("Starting core " + indexerItem.name + " build at      " + dateFormatter.format(new Date()));
-                    indexerItem.indexer.run();
-                    System.out.println("Starting core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()));
-                    indexerItem.indexer.validateBuild();
-                    System.out.println("Finished core " + indexerItem.name + " validation at " + dateFormatter.format(new Date()) + "\n");
-                    break;
-                } catch (IndexerException ie) {
-                    if (i < RETRY_COUNT) {
-                        logger.warn("IndexerException: core build attempt[" + i + "] failed. Retrying.");
-                        logErrors(ie);
-                        sleep(RETRY_SLEEP_IN_MS);
-                    } else {
-                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
-                        throw ie;
+            logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
+            try {
+                indexerItem.indexer.initialise(indexerArgs, runStatus);
+                runStatus = indexerItem.indexer.run();
+                if (runStatus.hasErrors()) {
+                    for (String errorMessage : runStatus.getErrorMessages()) {
+                        runStatus.addError(errorMessage);
+                        runResult = RunResult.FAIL;
                     }
-                } catch (Exception e) {
-                    if (i < RETRY_COUNT) {
-                        logger.warn("Exception: core build attempt[" + i + "] failed. Retrying.");
-                        logErrors(new IndexerException(e));
-                        sleep(RETRY_SLEEP_IN_MS);
+                } else {
+                    if (runStatus.hasWarnings()) {
+                        for (String warningMessage : runStatus.getWarningMessages()) {
+                            logger.warn(warningMessage);
+                            runResult = RunResult.WARNING;
+                        }
+                    }
+
+                    runStatus = indexerItem.indexer.validateBuild();
+                    if (runStatus.hasErrors()) {
+                        for (String errorMessage : runStatus.getErrorMessages()) {
+                            runStatus.addError(errorMessage);
+                            runResult = RunResult.FAIL;
+                        }
                     } else {
-                        System.out.println(executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.FAIL, start, new Date().getTime())).toString());
-                        throw new IndexerException(e);
+                        if (runStatus.hasWarnings()) {
+                            for (String warningMessage : runStatus.getWarningMessages()) {
+                                logger.warn(warningMessage);
+                                runResult = RunResult.WARNING;
+                            }
+                        }
                     }
                 }
+
+            } catch (IndexerException ie) {
+                runStatus.addError(ie.getLocalizedMessage());
+                logExceptions(ie);
+                runResult = RunResult.FAIL;
             }
 
-            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, RunStatus.OK, start, new Date().getTime()));
+            logger.info("[END]   {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
+            executionStatsList.add(new ExecutionStatsRow(indexerItem.name, runResult, start, new Date().getTime()));
             printJvmMemoryConfiguration();
         }
 
@@ -318,16 +343,15 @@ public class IndexerManager {
         File file = new File(context);
         if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system file {} ...", context);
             appContext = new FileSystemXmlApplicationContext("file:" + context);
         } else {
             // Try context as a class path resource
-//            logger.info(TestUtils.getClasspath());
-            logger.info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }
 
-        getLogger().info("Context loaded");
+        if (appContext == null) {
+            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
+        }
 
         return appContext;
     }
@@ -383,6 +407,7 @@ public class IndexerManager {
             switch (core) {
                 case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
                 case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
+                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));    break;
                 case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
 
                 case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
@@ -611,48 +636,26 @@ public class IndexerManager {
             throw new IndexerException(t);
         }
         indexerArgs = new String[] { "--context=" + (String)options.valueOf(CONTEXT_ARG) };
-        logger.info("indexer config file: '" + indexerArgs[0] + "'");
+        logger.debug("indexer config file: '" + indexerArgs[0] + "'");
 
         return options;
     }
 
-    private void buildStagingArea() {
-//////        // Insure staging cores are deleted.
-//////        for (String core : cores) {
-//////            String stagingCoreFilename = buildIndexesSolrUrl + File.separator + core + STAGING_SUFFIX;
-//////            File file = new File(stagingCoreFilename);
-//////
-//////            boolean b = file.canRead();
-//////            System.out.println();
-//////
-//////
-//////
-//////            System.exit(999);
-//////        }
-
-        // Build and initialise staging core directories.
-
-        // Fetch schemas from git.
-
-        // Create the cores.
-    }
-
-
-    public static void main(String[] args) throws IndexerException {
+    public static void main(String[] args) throws IndexerException, IOException, SolrServerException {
         int retVal = mainReturnsStatus(args);
         if (retVal != STATUS_OK) {
             throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
         }
     }
 
-    public static int mainReturnsStatus(String[] args) {
+    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException {
         try {
             IndexerManager manager = new IndexerManager();
             manager.initialise(args);
             manager.run();
-            logger.info("IndexerManager process finished successfully.  Exiting.");
+
         } catch (IndexerException ie) {
-            logErrors(ie);
+            logExceptions(ie);
             if (ie.getCause() instanceof NoDepsException) {
                 return STATUS_NO_DEPS;
             } else if (ie.getCause() instanceof MissingRequiredArgumentException) {
@@ -673,11 +676,10 @@ public class IndexerManager {
         return STATUS_OK;
     }
 
-    private static void logErrors(IndexerException ie) {
+    private static void logExceptions(IndexerException ie) {
         // Print out the exceptions.
         if (ie.getLocalizedMessage() != null) {
-            logger.error(ie.getLocalizedMessage());
-            logger.error("Exception is: ", ie);
+            System.out.println("EXCEPTION: IndexerManager: " + ie.getLocalizedMessage());
         }
         int i = 0;
         Throwable t = ie.getCause();
@@ -688,8 +690,7 @@ public class IndexerManager {
             } else {
                 errMsg.append("<null>");
             }
-            logger.error(errMsg.toString());
-            logger.error("Exception is: ", ie);
+            System.out.println("ERROR: IndexerManager: " + errMsg.toString());
             i++;
             t = t.getCause();
         }
@@ -702,10 +703,10 @@ public class IndexerManager {
         final int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
         DecimalFormat formatter = new DecimalFormat("#,###");
-        logger.info("Used memory : " + (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
-        logger.info("Free memory : " + formatter.format(runtime.freeMemory()));
-        logger.info("Total memory: " + formatter.format(runtime.totalMemory()));
-        logger.info("Max memory  : " + formatter.format(runtime.maxMemory()));
+        logger.info("Used memory:  {}", (formatter.format(runtime.totalMemory() - runtime.freeMemory() / mb)));
+        logger.info("Free memory : {}", formatter.format(runtime.freeMemory()));
+        logger.info("Total memory: {}", formatter.format(runtime.totalMemory()));
+        logger.info("Max memory:   {}\n", formatter.format(runtime.maxMemory()));
     }
 
     /**
@@ -715,17 +716,17 @@ public class IndexerManager {
      */
     private class ExecutionStatsRow {
         private String coreName;
-        private RunStatus status;
+        private RunResult runResult;
         private Long startTimeInMs;
         private Long endTimeInMs;
 
         public ExecutionStatsRow() {
-            this("<undefined>", RunStatus.FAIL, 0, 0);
+            this("<undefined>", RunResult.FAIL, 0, 0);
         }
 
-        public ExecutionStatsRow(String coreName, RunStatus status, long startTimeInMs, long endTimeInMs) {
+        public ExecutionStatsRow(String coreName, RunResult runResult, long startTimeInMs, long endTimeInMs) {
             this.coreName = coreName;
-            this.status = status;
+            this.runResult = runResult;
             this.startTimeInMs = startTimeInMs;
             this.endTimeInMs = endTimeInMs;
         }
@@ -738,7 +739,7 @@ public class IndexerManager {
             long millis = endTimeInMs - startTimeInMs;
             String elapsed = commonUtils.msToHms(millis);
             formatter.format("%20s started %s. Finished (%s) %s. Elapsed time: %s",
-                             coreName, dateFormatter.format(startTimeInMs), status.name(),
+                             coreName, dateFormatter.format(startTimeInMs), runResult.name(),
                              dateFormatter.format(endTimeInMs), elapsed);
 
             return sb.toString();
@@ -827,12 +828,5 @@ public class IndexerManager {
         public void setErrorMessage(String errorMessage) {
             this.errorMessage = errorMessage;
         }
-    }
-
-    private void sleep(Integer threadWaitInMs) {
-        if ((threadWaitInMs != null) && (threadWaitInMs > 0))
-            try { Thread.sleep(threadWaitInMs); } catch (Exception e) {
-            	e.printStackTrace();
-            }
     }
 }

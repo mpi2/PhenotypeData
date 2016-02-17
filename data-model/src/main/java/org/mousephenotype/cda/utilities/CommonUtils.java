@@ -16,6 +16,11 @@
 
 package org.mousephenotype.cda.utilities;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +34,26 @@ import java.util.concurrent.TimeUnit;
 public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;
+
+
+    /**
+     * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
+     * file is separated by a newline.
+     *
+     * @return the classpath, prefaced by the string 'Classpath:\n'. Each
+     * file is separated by a newline.
+     */
+    public String toStringClasspath() {
+        StringBuilder sb = new StringBuilder("Classpath:\n");
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader) cl).getURLs();
+
+        for (URL url : urls) {
+            sb.append(url.getFile()).append("\n");
+        }
+
+        return sb.toString();
+    }
 
     public Map<String,Integer> getGoCodeRank() {
 
@@ -110,6 +135,28 @@ public class CommonUtils {
     public void sleep(Integer threadWaitInMs) {
         if ((threadWaitInMs != null) && (threadWaitInMs > 0))
             try { Thread.sleep(threadWaitInMs); } catch (Exception e) { }
+    }
+
+    /**
+     * Given a <code>SimpleDateFormat</code> instance that may be null or may describe a date input format string, this
+     * method attempts to convert the value to a <code>Date</code>. If successful,
+     * the <code>Date</code> instance is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     * @param formatter a <code>SimpleDateFormat</code> instance describing the input string date format
+     * @param value the <code>String</code> representation, matching <code>formatter></code> to try to convert
+     * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
+     */
+    public Date tryParseDate(SimpleDateFormat formatter, String value) {
+        if (formatter == null)
+            return null;
+
+        Date retVal = null;
+        try {
+            retVal = formatter.parse(value.trim());
+        }
+        catch (ParseException pe ) { }
+
+        return retVal;
     }
 
     /**

@@ -15,42 +15,32 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
-import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.*;
 
 
 
 public class PipelineIndexer extends AbstractIndexer {
+    private CommonUtils commonUtils = new CommonUtils();
 
-	private static final Logger logger = LoggerFactory.getLogger(PipelineIndexer.class);
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Connection komp2DbConnection;
 
 	@Autowired
@@ -65,13 +55,12 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
 
-	@Autowired
-	ObservationService os;
 	
 	private Map<String, ParameterDTO> paramIdToParameter;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
 	private Map<String, PipelineDTO> pipelines;
 	private Map<String, MpDTO> mpIdToMp;
+	private Map<String, ObservationType> parameterToObservationTypeMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
 	
@@ -83,75 +72,55 @@ public class PipelineIndexer extends AbstractIndexer {
 	public static void main(String[] args) 
 	throws IndexerException {
 
+        RunStatus runStatus = new RunStatus();
 		PipelineIndexer indexer = new PipelineIndexer();
-		indexer.initialise(args);
+		indexer.initialise(args, runStatus);
 		indexer.run();
 		indexer.validateBuild();
-
-		logger.info("PipelineIndexer finished.  Exiting.");
 	}
 	
 
 	@Override
-	public void validateBuild() 
-	throws IndexerException {
-		
-		Long numFound = getDocumentCount(pipelineCore);
-
-		if (numFound <= MINIMUM_DOCUMENT_COUNT){
-			throw new IndexerException(new ValidationException(
-					"Actual pipeline document count is " + numFound + "."));
-		}
-		if (numFound != documentCount){
-			logger.warn("Added " + documentCount
-					+ " pipeline documents but SOLR reports " + numFound
-					+ " documents.");
-		}
-		else{
-			logger.info("validateBuild(): Indexed " + documentCount
-					+ " pipeline documents.");
-		}
+	public RunStatus validateBuild()	throws IndexerException {
+		return super.validateBuild(pipelineCore);
 	}
-	
 
 	@Override
-	public void initialise(String[] args) 
+	public void initialise(String[] args, RunStatus runStatus)
 	throws IndexerException {
 
-		super.initialise(args);
+		super.initialise(args, runStatus);
 
 		try {
 			this.komp2DbConnection = komp2DataSource.getConnection();
 		} catch (SQLException sqle) {
-			logger.error("Caught SQL Exception initialising database connections: {}", sqle.getMessage());
+			runStatus.addError(" Caught SQL Exception initialising database connections: " + sqle.getMessage());
 			throw new IndexerException(sqle);
 		}
 	}
-	
-	
 
-	private void initialiseSupportingBeans()
+	private void initialiseSupportingBeans(RunStatus runStatus)
 	throws IndexerException {
 
-		paramIdToParameter = populateParamIdToParameterMap();
-		procedureIdToProcedure = populateProcedureIdToProcedureMap();
+		parameterToObservationTypeMap = getObservationTypeMap(runStatus);
+		paramIdToParameter = populateParamIdToParameterMap(runStatus);
+		procedureIdToProcedure = populateProcedureIdToProcedureMap(runStatus);
 		pipelines = populatePipelineList();
-		addAbnormalMaOntologyMap();
+		addAbnormalMaOntology();
+		addAbnormalEmapOntology();
 		mpIdToMp = populateMpIdToMp();
 	}
-	
 
 	@Override
-	public void run() 
+	public RunStatus run()
 	throws IndexerException {
-
-		long startTime = System.currentTimeMillis();
+        documentCount = 0;
+        Set<String> noTermSet = new HashSet<>();
+        RunStatus runStatus = new RunStatus();
+		long start = System.currentTimeMillis();
 
 		try {
-
-			logger.info("Starting Pipeline Indexer...");
-
-			initialiseSupportingBeans();
+			initialiseSupportingBeans(runStatus);
 			pipelineCore.deleteByQuery("*:*");
 			pipelineCore.commit();
 
@@ -208,6 +177,11 @@ public class PipelineIndexer extends AbstractIndexer {
 							for (String mpId : param.getMpIds()){
 								doc.addMpId(mpId);
 								MpDTO mp = mpIdToMp.get(mpId);
+								if (mp == null) {
+									noTermSet.add(pipeline.getName() + ":" + procedure.getName() + ":" + mpId);
+									continue;
+								}
+
 								doc.addMpTerm(mp.getMpTerm());
 								if (mp.getIntermediateMpId() != null && mp.getIntermediateMpId().size() > 0){
 									doc.addIntermediateMpId(mp.getIntermediateMpId());
@@ -233,18 +207,24 @@ public class PipelineIndexer extends AbstractIndexer {
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
+						if(param.getEmapId()!=null){
+							doc.setEmapId(param.getEmapId());
+							if(param.getEmapName()!=null){
+								doc.setEmapTerm(param.getEmapName());
+							}
+						}
 						pipelineCore.addBean(doc);
 						documentCount++;
-						
-						if(documentCount % 10000 == 0){
-							logger.info("Commit to Solr. Document count = " + documentCount);
-							pipelineCore.commit();
-						}
 					}
 				}
-
 			}
-			logger.info("Commit to Solr. Document count = " + documentCount);
+
+			List<String> noTermList = new ArrayList<>(noTermSet);
+			Collections.sort(noTermList);
+			for (String mpId : noTermList) {
+                runStatus.addWarning( "No mp term for " + mpId);
+			}
+
 			pipelineCore.commit();
 
 		} catch (IOException | SolrServerException e) {
@@ -254,21 +234,24 @@ public class PipelineIndexer extends AbstractIndexer {
 			npe.printStackTrace();
 		}
 
-		long endTime = System.currentTimeMillis();
-		logger.info("Pipeline indexer completed in " + ( (endTime - startTime) / 1000));
+        if (runStatus.hasWarnings()) {
+            runStatus.addWarning("No mp term COUNT: " + noTermSet.size());
+        }
 
-	}
-	
-	
-	@Override
-	protected Logger getLogger() {
-		return logger;
+        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
 	}
 
-	
-	protected Map<String, ParameterDTO> populateParamIdToParameterMap() {
+    /**
+     * Populate ParamDbIdToParameter
+     *
+     * @param runStatus instance to which warnings and errors are added
+     *
+     * @return ParamDbIdToParameter map
+     */
+	protected Map<String, ParameterDTO> populateParamIdToParameterMap(RunStatus runStatus) {
 
-		logger.info("populating PCS pipeline info");
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "SELECT * FROM phenotype_parameter";
 		
@@ -292,13 +275,16 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.setIncrement(resultSet.getBoolean("increment"));
 				param.setOptions(resultSet.getBoolean("options"));
 				param.setMedia(resultSet.getBoolean("media"));
-				param.setObservationType(assignType(param));
+				param.setObservationType(assignType(param, runStatus));
 				if (param.getObservationType() == null){
-					logger.warn("Obs type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
+                    runStatus.addWarning(" Observation type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
 				}
 				localParamDbIdToParameter.put(id, param);
 			}
-			logger.info("[Check] should be 5704+ phenotype parameter and has "	+ localParamDbIdToParameter.size() + " entries");
+
+            if (localParamDbIdToParameter.size() < 5704) {
+                runStatus.addWarning(" localParamDbIdToParameter # records = " + localParamDbIdToParameter.size() + ". Expected at least 5704 records.");
+            }
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -419,11 +405,11 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 	
 	
-	protected Map<String, Set<String>> populateProcedureToParameterMap() {
+	protected Map<String, Set<String>> populateProcedureToParameterMap(RunStatus runStatus) {
 
-		logger.info("Populating procIdToParams");
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
-		
+
+        final int MIN_ROW_COUNT = 200;     // This is the minumum number of unique procedures produced by this query on 14-Jan-2016, rounded down (GROUP BY procedure_id)
 		String queryString = "SELECT procedure_id, parameter_id, pp.stable_id as parameter_stable_id, pproc.stable_id as procedure_stable_id "
 				+ " FROM phenotype_procedure_parameter ppp "
 				+ " INNER JOIN phenotype_parameter pp ON pp.id=ppp.parameter_id "
@@ -448,16 +434,18 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info("[Check] procIdToParams should be 5704+  size=" + procIdToParams.size());
+
+        if (procIdToParams.size() < MIN_ROW_COUNT) {
+            runStatus.addWarning(" procIdToParams # records = " + procIdToParams.size() + ". Expected at least " + MIN_ROW_COUNT + " records.");
+        }
+
 		return procIdToParams;
 	}
 
 	
-	protected Map<String, ProcedureDTO> populateProcedureIdToProcedureMap() {
+	protected Map<String, ProcedureDTO> populateProcedureIdToProcedureMap(RunStatus runStatus) {
 
-		logger.info("Populating procedureIdToProcedureMap");
-		
-		Map<String, Set<String>> procIdToParams = populateProcedureToParameterMap();
+		Map<String, Set<String>> procIdToParams = populateProcedureToParameterMap(runStatus);
 		
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
 		String queryString = "SELECT id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id "
@@ -485,8 +473,10 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		logger.info("[Check] should be 190+ procedureIdToProcedureMap size=" + procedureIdToProcedureMap.size());
+
+        if (procedureIdToProcedureMap.size() < 190) {
+            runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
+        }
 		
 		return procedureIdToProcedureMap;
 	}
@@ -494,8 +484,6 @@ public class PipelineIndexer extends AbstractIndexer {
 
 	protected Map<String, PipelineDTO> populatePipelineList() {
 
-		logger.info("Populating procIdToPipelineMap");
-		
 		Map<String, PipelineDTO> procIdToPipelineMap = new HashMap<>();
 		String queryString = "SELECT pproc.stable_id as procedure_stable_id, ppipe.name as pipe_name, ppipe.id as pipe_id, ppipe.stable_id as pipe_stable_id, "
 				+ " ppipe.stable_key AS pipe_stable_key, concat(ppipe.name, '___', pproc.name, '___', pproc.stable_id) AS pipe_proc_sid "
@@ -532,7 +520,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	}
 
 	
-	protected void addAbnormalMaOntologyMap(){
+	protected void addAbnormalMaOntology(){
 		
 		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
@@ -547,6 +535,29 @@ public class PipelineIndexer extends AbstractIndexer {
 				String parameterId = resultSet.getString("stable_id");
 				paramIdToParameter.get(parameterId).setMaId(resultSet.getString("ontology_acc"));
 				paramIdToParameter.get(parameterId).setMaName(resultSet.getString("name"));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+protected void addAbnormalEmapOntology(){
+		
+		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
+				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
+				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id = pploa.annotation_id "
+				+ " INNER JOIN ontology_term ot ON ot.acc = ppoa.ontology_acc "
+				+ " WHERE ppoa.ontology_db_id=14";
+		//14 db id is emap
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
+			
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+				String parameterId = resultSet.getString("stable_id");
+				paramIdToParameter.get(parameterId).setEmapId(resultSet.getString("ontology_acc"));
+				paramIdToParameter.get(parameterId).setEmapName(resultSet.getString("name"));
 			}
 
 		} catch (Exception e) {
@@ -572,16 +583,16 @@ public class PipelineIndexer extends AbstractIndexer {
 	/**@since 2015
 	 * @author tudose
 	 * @param parameter
-	 * @param value
+     * @param runStatus a valid <code>RunStatus</code> instance
 	 * @return
 	 * @throws SolrServerException 
 	 */
 	// Method copied from org.mousephenotype.cda.db.impress.Utilities.
 	// Adjusted to avoid use of Parameter dao obj.
 	// Method should only be used at indexing time. After that query pipeline core to find type.
-	protected ObservationType assignType(ParameterDTO parameter) 
+	protected ObservationType assignType(ParameterDTO parameter, RunStatus runStatus)
 	throws SolrServerException {
-		
+
 		Map<String, String> MAPPING = new HashMap<>();
 		MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
 		MAPPING.put("M-G-P_022_001_001", "FLOAT");
@@ -590,7 +601,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		ObservationType observationType = null;
 		String datatype = parameter.getDataType();
-		
+
 		if (MAPPING.containsKey(parameter.getStableId())) {
 			datatype = MAPPING.get(parameter.getStableId());
 		}
@@ -637,14 +648,17 @@ public class PipelineIndexer extends AbstractIndexer {
 
 				} else if (datatype.equals("") && !parameter.isOptions() && !parameter.getName().contains("images")) {
 
-					/* Look up in observation core. If we have a value the observation type will be correct. 
+					/* Look up in observation core. If we have a value the observation type will be correct.
 					 * If not use the approximation below (categorical will always be missed).
 					 * See declaration of checkType(param, value) in impress utils.
-					 */					
-					ObservationType obs = os.getObservationTypeForParameterStableId(parameter.getStableId());
+					 */
+					// Do not use the Service here because it has likely not been loaded yet (or is pointing to the wrong context
+					// ObservationType obs = os.getObservationTypeForParameterStableId(parameter.getStableId());
+//					logger.info("Getting type from observations for parameter {}: Got {}", parameter.getStableId(), parameterToObservationTypeMap.get(parameter.getStableId()));
+					ObservationType obs = parameterToObservationTypeMap.get(parameter.getStableId());
 					if (obs != null){
 						observationType = obs;
-					} else {			
+					} else {
 						if (parameter.isIncrement()) {
 							observationType = ObservationType.time_series;
 						} else {
@@ -653,15 +667,39 @@ public class PipelineIndexer extends AbstractIndexer {
 					}
 
 				} else {
-					logger.warn("UNKNOWN data type : " + datatype  + " " + parameter.getStableId());
+					runStatus.addWarning(" Unknown data type : " + datatype  + " " + parameter.getStableId());
 				}
 			}
 		}
 
 		return observationType;
 	}
-	
+
+	private Map<String,ObservationType> getObservationTypeMap(RunStatus runStatus){
+		Map<String,ObservationType> map = new HashMap<>();
+		String query= "select distinct parameter_stable_id, observation_type from observation";
+
+		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+				String parameterId = resultSet.getString("parameter_stable_id");
+				String obsType=resultSet.getString("observation_type");
+
+				ObservationType obType;
+				try {
+					obType = ObservationType.valueOf(obsType);
+					map.put(parameterId, obType);
+				} catch (IllegalArgumentException e) {
+					runStatus.addWarning(" No ObservationType found for parameter: " + parameterId);
+					e.printStackTrace();
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return map;
+	}
 }
-
-
-

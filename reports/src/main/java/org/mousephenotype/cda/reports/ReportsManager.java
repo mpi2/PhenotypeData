@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.reports.support.ReportsManagerParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +62,9 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
+
+    @Autowired
+    private ImpcGafReport impcGafReport;
 
     @Autowired
     private ImpcPValuesReport impcPValuesReport;
@@ -115,6 +117,7 @@ public class ReportsManager implements CommandLineRunner {
         FERTILITY("fertility", "Fertility report"),
         HITS_PER_LINE("hitsPerLine", "Hits per line report"),
         HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
+        IMPC_GAF("impcGaf", "IMPC GAF report"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
@@ -273,6 +276,11 @@ public class ReportsManager implements CommandLineRunner {
                         file = metabolismIPGTTReport.targetFile;
                         break;
 
+                    case IMPC_GAF:
+                        impcGafReport.run(args);
+                        file = impcGafReport.targetFile;
+                        break;
+
                     case IMPC_P_VALUES:
                         impcPValuesReport.run(args);
                         file = impcPValuesReport.targetFile;
@@ -312,7 +320,7 @@ public class ReportsManager implements CommandLineRunner {
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");
                 log.info("Created report '" + reportType + "' in " + fqFilename + ".");
 
-            } catch (ReportException e) {
+            } catch (Exception e) {
 
                 log.error("FAILED to create report '" + reportType + " in " + parser.getTargetDirectory() + ". Reason: " + e.getLocalizedMessage());
                 e.printStackTrace();

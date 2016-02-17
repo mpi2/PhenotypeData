@@ -15,8 +15,26 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
@@ -25,17 +43,28 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.JDBCConnectionException;
+import org.mousephenotype.cda.db.dao.GwasDAO;
+import org.mousephenotype.cda.db.dao.GwasDTO;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.ExpressionService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.utilities.DataReaderTsv;
+import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +80,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
@@ -64,15 +96,6 @@ import uk.ac.sanger.phenodigm2.model.Gene;
 import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
 import uk.ac.sanger.phenodigm2.web.AssociationSummary;
 import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.*;
 
 @Controller
 public class GenesController {
@@ -88,6 +111,9 @@ public class GenesController {
 
 	@Autowired
 	private PhenotypeCallSummarySolr phenoDAO;
+
+	@Autowired
+	private GwasDAO gwasDao;
 
 	@Autowired
 	ObservationService observationService;
@@ -110,16 +136,16 @@ public class GenesController {
 	@Autowired
 	private PreQcService preqcService;
 
-
 	@Autowired
 	private PostQcService postqcService;
-
 
 	@Autowired
 	private UniprotService uniprotService;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+	
+	HttpProxy proxy = new HttpProxy();
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -211,12 +237,18 @@ public class GenesController {
 		String prodStatusIcons = "Neither production nor phenotyping status available ";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		
 		try {
 
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-
+			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size()>0){
+				//if mortality aging is not significant we need to test if it's been tested or not
+				mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");	
+			}
+			
 			for (String str : mpGroupsSignificant.keySet()){
 				// str: top level term name
 				if (mpGroupsNotSignificant.keySet().contains(str)){
@@ -253,14 +285,14 @@ public class GenesController {
 
 		// GWAS Gene to IMPC gene mapping
 		// commented out for now as we are going to use biosolr stuff to do this
-		/*
+
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getMarkerSymbol().toUpperCase());
 
 		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){
 			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 		}
-		*/
+
 
 		// code for assessing if the person is logged in and if so have they
 		// registered interest in this gene or not?
@@ -271,12 +303,12 @@ public class GenesController {
 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
-		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
 			getImpcImages(acc, model);
 			getImpcExpressionImages(acc, model);
+			getImpcEmbryoExpressionImages(acc, model);
 
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
@@ -365,13 +397,14 @@ public class GenesController {
 	 * @throws Exception
 	 * @since 2015/10/02
 	 */
-	@RequestMapping("/geneSummary/{acc}")
-	public String geneSummary(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	@RequestMapping("/genes/summary")
+	public String geneSummary(@RequestParam(value = "acc", required = true) String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws Exception {
 
 
 		GeneDTO gene = geneService.getGeneById(acc);
 
+		System.out.println("Gene is null? " + (gene == null) + " for " + acc);
 		UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
 
 		HashMap<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
@@ -395,9 +428,11 @@ public class GenesController {
 			model.addAttribute("pfamJson", pfamJson);
 		}
 		
+		Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
+		
 		// Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
 		processDisease(acc, model);
-
+		model.addAttribute("stringDbTable", stringDBTable);		
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
 		model.addAttribute("viabilityCalls", viabilityCalls);
@@ -425,7 +460,42 @@ public class GenesController {
 		return "pfamDomain";
 	}
 	
-
+	
+	
+	private Map<String, Double> readStringDbTable(String geneSymbol) throws MalformedURLException, IOException, URISyntaxException{
+		
+		Map<String, Double> map = new java.util.HashMap<>();
+		
+		try{
+			String stringDbUrl = "http://string-db.org/api/tsv-no-header/resolve?identifier=" + geneSymbol + "&format=only-ids&species=10090";
+			String id = proxy.getContent(new URL(stringDbUrl), true);
+			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
+			
+			// Parse interactor gene symbol and score
+			// Example return format : 
+			// string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
+			// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
+			
+			DataReaderTsv tsvReader = new DataReaderTsv(new URL(stringDbUrl));
+			String[][] data = tsvReader.getData();
+			
+			for (int i=0; i < data.length; i++ ){
+				if (data[i][2].equalsIgnoreCase(geneSymbol)) {// direct interaction
+					map.put(data[i][3], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|")[0]));
+				}
+				else if (data[i][3].equalsIgnoreCase(geneSymbol)) {// direct interaction presented in reverse order
+					map.put(data[i][2], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|")[0]));
+				}
+			}
+			
+		} catch (Exception e){
+			log.error("STRING db could not be accessed.");
+			e.printStackTrace();
+		}
+		
+		return map;		
+	}
+	
 	private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
 
 		Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
@@ -633,14 +703,30 @@ public class GenesController {
 	private void getImpcExpressionImages(String acc, Model model)
 	throws SolrServerException, SQLException {
 		boolean overview=true;
-		boolean expressionOverview=true;
-		expressionService.getLacImageDataForGene(acc, null, overview, expressionOverview, model);
-		expressionService.getExpressionDataForGene(acc, model);
+		boolean embryoOnly=false;
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
+	}
+	
+	/**
+	 * Get the first 5 wholemount expression images if available
+	 *
+	 * @param acc
+	 *            the gene to get the images for
+	 * @param model
+	 *            the model to add the images to
+	 * @throws SolrServerException
+	 * @throws SQLException
+	 */
+	private void getImpcEmbryoExpressionImages(String acc, Model model)
+	throws SolrServerException, SQLException {
+		//good test gene:Nxn with selected top level emap terms
+		boolean overview=true;
+		boolean embryoOnly=true;
+		//get embryo images
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 		
-		SolrDocumentList embryoExpressionDocs=expressionService.getEmbryoLacImageDataForGene(acc);
-		long numberEmbryoExpressionImages=embryoExpressionDocs.getNumFound();
-		model.addAttribute("numberEmbryoExpressionImages", numberEmbryoExpressionImages);
-		model.addAttribute("embryoExpressionDocs", embryoExpressionDocs);
 	}
 
 	/**

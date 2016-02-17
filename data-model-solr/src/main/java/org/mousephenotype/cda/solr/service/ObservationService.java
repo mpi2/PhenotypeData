@@ -15,9 +15,27 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -51,23 +69,20 @@ import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 
 
 @Service
-public class ObservationService extends BasicService {
+public class ObservationService extends BasicService implements WebStatus {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -296,6 +311,20 @@ public class ObservationService extends BasicService {
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
         query.setRows(Integer.MAX_VALUE);
+
+        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return solr.query(query).getBeans(ObservationDTO.class);
+    }
+    
+    public List<ObservationDTO> getObservationsByParameterStableIdAndGene(String parameterStableId, String mgiAccession) throws SolrServerException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+        query.setRows(Integer.MAX_VALUE);
+        query.addFilterQuery("gene_accession_id:\""+mgiAccession+"\"");
+
+        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+
         return solr.query(query).getBeans(ObservationDTO.class);
     }
     
@@ -341,12 +370,12 @@ public class ObservationService extends BasicService {
     }
     
     
-    public Set<String> getViabilityForGene(String markerSymbol) 
+    public Set<String> getViabilityForGene(String acc) 
     throws SolrServerException{
     	
     	SolrQuery query = new SolrQuery();
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
-        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerSymbol +"\"");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc +"\"");
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.GENE_ACCESSION_ID);
         query.addField(ObservationDTO.CATEGORY);
@@ -365,15 +394,20 @@ public class ObservationService extends BasicService {
     }
     
 
-    public QueryResponse getViabilityData(List<String> resources)
+    public QueryResponse getViabilityData(List<String> resources, List<String> category)
     throws SolrServerException {
 
         SolrQuery query = new SolrQuery();
         if (resources != null) {
             query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
+        if (category != null && category.size() > 0) {
+            query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(category, " OR " + ObservationDTO.CATEGORY + ":"));
+        }
+
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
         query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
         query.addField(ObservationDTO.COLONY_ID);
         query.addField(ObservationDTO.CATEGORY);
         query.setRows(100000);
@@ -383,7 +417,105 @@ public class ObservationService extends BasicService {
         return solr.query(query);
     }
 
-    
+    @Deprecated
+	public HashMap<String, Set<String>> getViabilityCategories(List<String> resources) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+		HashMap<String, Set<String>> res = new HashMap<>();
+		String pivot = ObservationDTO.CATEGORY + "," + ObservationDTO.GENE_SYMBOL;
+		
+		if (resources != null) {
+			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
+					+ StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+		}
+		query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+		query.setRows(0);
+		query.setFacet(true);
+		query.setFacetMinCount(1);
+		query.setFacetLimit(-1);
+		query.set("facet.pivot", pivot);
+		
+		logger.info("getViabilityCategories Url: " + solr.getBaseURL() + "/select?" + query);
+
+		try {
+			Map<String, List<String>> facets = getFacetPivotResults(solr.query(query), pivot);
+			for (String category : facets.keySet()){
+				res.put(category, new HashSet(facets.get(category).subList(0, facets.get(category).size())));
+			}
+			
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+
+		return res;
+	}
+
+    /**
+     * Returns a map of categories, faceted by the given pivot, indexed by category, comprising # Genes and Gene Symbols
+     *
+     * @param resources
+     * @param parameterStableIds  A list of parameter_stable_id values (e.g. IMPC_VIA_001_001)
+     * @param pivot A comma-separated string of solr fields to pivot the facet by (e.g. category,gene_symbol)
+     * @return a map of categories, faceted by the given pivot, indexed by category, comprising # Genes and Gene Symbols
+     * @throws SolrServerException
+     */
+    public List<Map<String, String>> getCategories(List<String> resources, List<String> parameterStableIds, String pivot) throws SolrServerException {
+
+   		SolrQuery query = new SolrQuery();
+   		TreeMap<String, Set<String>> result = new TreeMap<>();
+
+   		if ((resources != null) && ( ! resources.isEmpty())) {
+   			query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"	+ StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+   		}
+        if ((parameterStableIds != null) && ( ! parameterStableIds.isEmpty())) {
+            query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + StringUtils.join(parameterStableIds, " OR " + ObservationDTO.PARAMETER_STABLE_ID + ":"));
+        }
+   		query.setRows(0);
+   		query.setFacet(true);
+   		query.setFacetMinCount(1);
+   		query.setFacetLimit(-1);
+   		query.set("facet.pivot", pivot);
+
+   		logger.info("getCategories Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return getFacetPivotResults(solr.query(query), false);
+   	}
+
+    /**
+     * Returns a <code>QueryResponse</code> of data found using the given resources, parameter stable ids, and category
+     *         comprising geneSymbol, geneAccessionId, colonyId, and category.
+     * @param resources
+     * @param parameterStableIds A list of parameter stable ids that is "or'd" together to produce the result (e.g. IMPC_VIA_001_001)
+     * @param categories A list of categories that is "or'd" together to produce the result (e.g. Viable, Lethal, Male, Fertile)
+     * @return a <code>QueryResponse</code> of data found using the given resources, parameter stable ids, and category,
+     *         comprising geneSymbol, geneAccessionId, colonyId, and category.
+     * @throws SolrServerException
+     */
+    public QueryResponse getData(List<String> resources, List<String> parameterStableIds, List<String> categories) throws SolrServerException {
+        SolrQuery query = new SolrQuery();
+        if ((resources != null) && ( ! resources.isEmpty())) {
+            query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }
+        if ((categories != null) && ( ! categories.isEmpty())) {
+            query.setFilterQueries(ObservationDTO.CATEGORY + ":" + StringUtils.join(categories, " OR " + ObservationDTO.CATEGORY + ":"));
+        }
+        if ((parameterStableIds != null) && ( ! parameterStableIds.isEmpty())) {
+            query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + StringUtils.join(parameterStableIds, " OR " + ObservationDTO.PARAMETER_STABLE_ID + ":"));
+        }
+
+        query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.GENE_ACCESSION_ID);
+        query.addField(ObservationDTO.COLONY_ID);
+        query.addField(ObservationDTO.CATEGORY);
+        query.addField(ObservationDTO.SEX);
+        query.addField(ObservationDTO.ZYGOSITY);
+        query.setRows(1000000);
+
+        logger.info("getData Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return solr.query(query);
+    }
+
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity)
     throws SolrServerException, InterruptedException {
 
@@ -1450,7 +1582,7 @@ public class ObservationService extends BasicService {
             query += ")";
 
             SolrQuery q = new SolrQuery().setQuery(query).addField(ObservationDTO.GENE_ACCESSION_ID)
-                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
+                    .setFilterQueries(ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"").setRows(-1);
             q.set("group.field", ObservationDTO.GENE_ACCESSION_ID);
             q.set("group", true);
             if (sex != null) {
@@ -1891,4 +2023,158 @@ public class ObservationService extends BasicService {
 
 		return pipelines;
     }
+    
+    @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+
+
+
+	@Override
+	public String getServiceName(){
+		return "Obesrvation Service (experiment core)";
+	}
+	
+	
+
+	/**
+	 * @author ilinca
+	 * @since 2016/01/21
+	 * @param map <viability category, number of genes in category>
+	 * @return 
+	 */
+	public List<EmbryoTableRow> consolidateZygosities(Map<String, Set<String>> map){
+		
+		Map<String, Set<String>> res = new LinkedHashMap<>();
+		List<EmbryoTableRow> result = new ArrayList<>();
+		
+		// Consolidate by zygosities so that we show "subviable" in the table, not "hom-subviable" and "het-subviable"
+		for (String key: map.keySet()){
+			
+			String tableKey = "subviable";
+			if (key.toLowerCase().contains(tableKey)){
+				if (res.containsKey(tableKey)){
+					res.get(tableKey).addAll(map.get(key));
+				} else {
+					res.put(tableKey, new HashSet<String>(map.get(key)));					
+				}
+			} else {
+				tableKey = "viable";
+				if (key.toLowerCase().contains(tableKey) && !key.contains("subviable")){
+					if (res.containsKey(tableKey)){
+						res.get(tableKey).addAll(map.get(key));
+					} else {
+						res.put(tableKey, new HashSet<String>(map.get(key)));					
+					}
+				} else {
+						tableKey = "lethal";
+					if (key.toLowerCase().contains(tableKey)){
+						if (res.containsKey(tableKey)){
+							res.get(tableKey).addAll(map.get(key));
+						} else {
+							res.put(tableKey, new HashSet<String>(map.get(key)));					
+						}
+					}
+				}
+			}
+		}
+		
+		// Fill list of EmbryoTableRows so that it's easiest to access from jsp.
+		for (String key: res.keySet()){
+			EmbryoTableRow row = new EmbryoTableRow();
+			System.out.println("row key="+key);
+			row.setCategory(key);
+			row.setCount( new Long(res.get(key).size()));
+			if (key.equalsIgnoreCase("lethal")){
+				row.setMpId("MP:0011100");
+			} else  if (key.equalsIgnoreCase("subviable")){
+				row.setMpId("MP:0011110");
+			} else {
+				row.setMpId(null);
+			}
+			result.add(row);
+			System.out.println("Added:: " + row);
+		}
+		return result;
+		
+	}
+	
+	public static Comparator<String> getComparatorForViabilityChart()	{   
+		Comparator<String> comp = new Comparator<String>(){
+		    @Override
+		    public int compare(String param1, String param2)
+		    {
+		    	if (param1.contains("- Viable") && !param2.contains("- Viable")){
+					return -1;
+				}
+				if (param2.contains("- Viable") && !param1.contains("- Viable")){
+					return 1;
+				}
+				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
+					return 1;
+				}
+				if (param2.contains("- Lethal") && !param1.contains("- Lethal")){
+					return 1;
+				}
+				return param1.compareTo(param2);
+		    }
+		};
+		return comp;
+	}
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/01/28
+	 * @param facets
+	 * @return 
+	 * @throws SolrServerException
+	 */
+	public Map<String, Long> getViabilityCategories(Map<String, Set<String>>facets) {
+
+		Map<String, Long> res = new TreeMap<>(getComparatorForViabilityChart());
+		for (String category : facets.keySet()){
+			Long geneCount = new Long(facets.get(category).size());
+			res.put(category, geneCount);
+		}
+
+		return res;
+	}
+
+	public class EmbryoTableRow{
+		
+		String category;
+		String mpId;
+		Long count;
+		
+		public String getCategory() {
+			return category;
+		}
+		public void setCategory(String category) {
+			this.category = category;
+		}
+		public String getMpId() {
+			return mpId;
+		}
+		public void setMpId(String mpId) {
+			this.mpId = mpId;
+		}
+		public Long getCount() {
+			return count;
+		}
+		public void setCount(Long geneNo) {
+			this.count = geneNo;
+		}
+		@Override
+		public String toString() {
+			return "EmbryoTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
+		}
+	}
 }

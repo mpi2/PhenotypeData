@@ -15,12 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
+import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -34,14 +29,15 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONObject;
+import java.util.*;
 
 @Service
-public class MpService extends BasicService{
+public class MpService extends BasicService implements WebStatus{
 
 
 	@Autowired
@@ -66,7 +62,7 @@ public class MpService extends BasicService{
 	public MpDTO getPhenotype(String id) throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+			.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
 			.setRows(1);
 
 		QueryResponse rsp = solr.query(solrQuery);
@@ -78,7 +74,7 @@ public class MpService extends BasicService{
 
 		return null;
 	}
-	
+
 
     /**
      * Return all phenotypes from the mp core.
@@ -153,16 +149,18 @@ public class MpService extends BasicService{
     	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
     	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
 
-    	Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
-
+    	//Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
+		Map<String, SimpleOntoTerm> computationalHPTerms = new HashMap<>();
     	for ( int i=0; i< hpIds.size(); i++  ){
     		SimpleOntoTerm term = new SimpleOntoTerm();
     		term.setTermId(hpIds.get(i));
     		term.setTermName(hpTerms.get(i));
-    		computationalHPTerms.add(term);
+
+			computationalHPTerms.put(hpIds.get(i), term);
 		}
 
-    	return computationalHPTerms;
+		return new HashSet<SimpleOntoTerm>(computationalHPTerms.values());
+
     }
 
 	/**
@@ -184,5 +182,21 @@ public class MpService extends BasicService{
 			e.printStackTrace();
 		}
 		return res;
+	}
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "MP Service";
 	}
 }

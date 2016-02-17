@@ -48,7 +48,7 @@
                 $( "input#gwasInput" ).val("");
                 
                 // default load
-                fetch_gwas("impc_mgi_gene_symbol : Nos1ap"); 
+                fetch_gwas("impc_mgi_gene_symbol : *");
                 
                 // IMPC GWAS mapping data autosuggest
                 // generic search input autocomplete javascript
@@ -180,6 +180,11 @@
                 		// user hits enter w/o choosing from dropdown list
                 		field = 'keyword';
                 		value = parts[0];
+
+						if ( value == "*" || value == "" ){
+							field = "mgi_gene_symbol";
+							value = "*";
+						}
 					}
 					else {
 						var re = new RegExp(' ', 'g');	
@@ -188,6 +193,7 @@
 	                	
 	                	field = field.replace('impc_', '');
 					}
+
                 	//alert(field + ' --- ' + value)
 					
                 	var cols = ['Marker symbol', 'IMPC MP term', 'GWAS disease trait', ''];
@@ -198,9 +204,10 @@
 	       	      	var dTable = $('table#gwas').dataTable({
 	       	            "bSort": true,
 	       	            "bProcessing": true,
-	       	            "bServerSide": true,
+	       	            "bServerSide": false,
 	       	            //"sDom": "<lr><'#caption'>tip",
-	       	         	"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
+	       	         	//"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
+						"sDom": "<<'#exportSpinner'>l<'#tableTool'>r><'#caption'>tip",
 	       	            "sPaginationType": "bootstrap",
 	       	         	"oLanguage": {
 	       	          		"sLengthMenu": 'Show <select>'+
@@ -208,8 +215,12 @@
 		       	            '<option value="30">30</option>'+
 		       	            '<option value="50">50</option>'+
 		       	            '</select> genes',
-		       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ genes"
+		       	         	"sInfo": "Showing _START_ to _END_ of _TOTAL_ mapped genes"
 	       	        	},
+						"order": [[ 0, "asc" ]],
+						"aoColumnDefs": [
+							{ "bSortable": false, "aTargets": [ 3 ] }
+						],
 	       	            "fnDrawCallback": function(oSettings) {  // when dataTable is loaded
 	       	            	
 	       	            	// dumper tool here
@@ -313,8 +324,8 @@
                         <div class="section">
                             <div class="inner">
                                 <div class="clear"></div>
-								<span class='ginput'></span>Search by gene, SNP id, GWAS trait, and IMPC phenotype:<br><input type='text' value='' id ='gwasInput' class='gwaslookup'><a><i class='fa fa-info gwasSearchExample'></i></a>
-							
+								<!--<span class='ginput'></span>Search by gene, SNP id, GWAS trait, and IMPC phenotype:<br><input type='text' value='' id ='gwasInput' class='gwaslookup'><a><i class='fa fa-info gwasSearchExample'></i></a>-->
+								<span class='ginput'></span>Search by gene, SNP id, GWAS trait, and IMPC phenotype:<br><input type='text' value='' id ='gwasInput' class='gwaslookup'>
                                 <!-- container to display dataTable -->									
                                 <div id="overviewTable"></div>
                             </div>

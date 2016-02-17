@@ -33,10 +33,21 @@ import java.util.Map;
  */
 public class ChartColors {
 
-    public static final List<String> highDifferenceColors=java.util.Arrays.asList("239, 123, 11" ,  "9, 120, 161", "119, 119, 119",  "238, 238, 180","36, 139, 75", "191, 75, 50", "255, 201, 67", "191, 151, 50", "239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "151, 51, 51");
+    public static final List<String> highDifferenceColors=java.util.Arrays.asList("239, 123, 11" ,  "9, 120, 161", "119, 119, 119",  "238, 238, 180","36, 139, 75", "191, 75, 50", "255, 201, 67", "191, 151, 50",
+			"239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "151, 51, 51", "144, 195, 212");
 	//HEX #EF7B0B
 	//rgb(239, 123, 11)
-	public static final List<String>maleRgb=java.util.Arrays.asList("9, 120, 161" ,  "61, 167, 208", "100, 178, 208",  "3, 77, 105","36, 139, 75", "1, 121, 46", "51, 51, 51", "191, 151, 50");
+
+	// NOTE: maleRgb and femaleRgb MUST be of the same length or an IndexOutOfBoundsException will occur.
+	public static final List<String>maleRgb=java.util.Arrays.asList(
+			  "9, 120, 161"
+			, "61, 167, 208"
+			, "100, 178, 208"
+			, "3, 77, 105"
+			, "36, 139, 75"
+			, "1, 121, 46"
+			, "51, 51, 51"
+			, "191, 151, 50");
 
 	//rgb(239, 123, 11)
 	//rgb(247, 157, 70)
@@ -44,7 +55,15 @@ public class ChartColors {
 	//rgb(191, 75, 50)
 	//rgb(166, 30, 1)
 
-	public static final List<String>femaleRgb=java.util.Arrays.asList("239, 123, 11" ,  "247, 157, 70", "247, 181, 117",  "191, 75, 50", "166, 30, 1", "191, 75, 50", "166, 30, 1", "255, 201, 67");
+	public static final List<String>femaleRgb=java.util.Arrays.asList(
+			  "239, 123, 11"
+			, "247, 157, 70"
+			, "247, 181, 117"
+			, "191, 75, 50"
+			, "166, 30, 1"
+			, "255, 201, 67"
+			, "144, 195, 212"
+			, "119, 119, 119");
 
 
 	public static final Double alphaOpaque = 1.0;

@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -92,7 +93,7 @@ public class SearchImageImageView extends SearchFacetTable {
      * @return validation status
      */
     @Override
-    public PageStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
+    public RunStatus validateDownload(String[][] downloadDataArray, DownloadType downloadType) {
         final Integer[] pageColumns = {
               COL_INDEX_ANNOTATION_TERM
             , COL_INDEX_ANNOTATION_ID
@@ -118,10 +119,9 @@ public class SearchImageImageView extends SearchFacetTable {
 
         // XLS download links are expected to be encoded.
         if (downloadType == DownloadType.XLS) {
-            logger.info("Encoding page data for XLS image link comparison.");
+            logger.debug("Encoding page data for XLS image link comparison.");
             pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), COL_INDEX_IMAGE_LINK), pageData.getTarget());
         } else {
-            logger.info("Decoding page data for TSV image link comparison.");
             pageData = new GridMap(urlUtils.urlDecodeColumn(pageData.getData(), COL_INDEX_IMAGE_LINK), pageData.getTarget());
         }
 
@@ -507,8 +507,8 @@ public class SearchImageImageView extends SearchFacetTable {
 // dumpElement("imgAnnotsElement", imgAnnotsElement);
                 parseImageAnnots(imgAnnotsElement);
             }
-            
-            imageLink = trElement.findElements(By.cssSelector("td")).get(1).findElement(By.cssSelector("a")).getAttribute("href");                      // Decode the link.
+
+            imageLink = trElement.findElement(By.cssSelector("td a img")).getAttribute("src");
             imageLink = testUtils.setProtocol(imageLink, TestUtils.HTTP_PROTOCOL.http); // remap protocol to http to facilitate match.
         }
     

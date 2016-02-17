@@ -31,6 +31,7 @@ import uk.ac.ebi.phenotype.util.SearchConfig;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.*;
 
 
@@ -47,13 +48,9 @@ public class SearchController {
 	 */
 	@RequestMapping("/index.html")
 	public String rootForward() {
-		return "redirect:/search/gene?kw=*";
+		return "redirect:/search";
 	}
 
-	@RequestMapping("/search")
-	public String rootForward2() {
-		return "redirect:/search/gene?kw=*";
-	}
 
 	private String internalSolrUrl;
 
@@ -74,10 +71,20 @@ public class SearchController {
 	 *
 	 */
 
+	@RequestMapping("/search")
+	public String searchResult2(
+			HttpServletRequest request,
+			Model model) throws IOException, URISyntaxException {
+
+		System.out.println("path: /search");
+
+		return processSearch("gene", "*", null, null, null, false, request, model);
+	}
+
 	@RequestMapping("/search/{dataType}")
 	public String searchResult(
-			@PathVariable String dataType,
-			@RequestParam(value = "kw", required = true) String query,
+			@PathVariable ()String dataType,
+			@RequestParam(value = "kw", required = false, defaultValue = "*") String query,
 			@RequestParam(value = "fq", required = false) String fqStr,
 			@RequestParam(value = "iDisplayStart", required = false) Integer iDisplayStart,
 			@RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
@@ -85,7 +92,12 @@ public class SearchController {
 			HttpServletRequest request,
 			Model model) throws IOException, URISyntaxException {
 
+		System.out.println("path: /search/datatype");
 
+		return processSearch(dataType, query, fqStr, iDisplayStart, iDisplayLength, showImgView, request, model);
+	}
+
+	private String processSearch(String dataType, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, HttpServletRequest request, Model model) throws IOException, URISyntaxException {
 		iDisplayStart =  iDisplayStart == null ? 0 : iDisplayStart;
 		request.setAttribute("iDisplayStart", iDisplayStart);
 		iDisplayLength = iDisplayLength == null ? 10 : iDisplayLength;
@@ -99,7 +111,7 @@ public class SearchController {
 		JSONObject jr = fetchAllFacetCounts(dataType, query, fqStr, request, model);
 		model.addAttribute("facetCount", jr);
 
-		model.addAttribute("searchQuery", query);
+		model.addAttribute("searchQuery", query.replaceAll("\\\\",""));
 		model.addAttribute("dataType", dataType); // lowercase: core name
 		model.addAttribute("dataTypeParams", paramString);
 		JSONObject json = fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
@@ -107,6 +119,7 @@ public class SearchController {
 		model.addAttribute("jsonStr", convert2DataTableJson(request, json, query, fqStr, iDisplayStart, iDisplayLength, showImgView, dataType));
 		return "search";
 	}
+
 
 	public String convert2DataTableJson(HttpServletRequest request, JSONObject json, String query, String fqStr, Integer iDisplayStart, Integer iDisplayLength, Boolean showImgView, String dataType) throws IOException, URISyntaxException {
 
@@ -170,7 +183,7 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-
+		System.out.println("PARAMS*****: " + solrParamStr);
 		return solrParamStr;
 	}
 

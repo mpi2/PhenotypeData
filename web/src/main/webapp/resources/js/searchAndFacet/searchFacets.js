@@ -333,7 +333,8 @@
 
 		var facetField = "top_level_mp_term";
 		var aTopLevelCount = json.facet_fields[facetField];
-		var mpUlContainer = $("<ul></ul>");
+		//var mpUlContainer = $("<ul></ul>");
+		var mpUlContainer = $("li#mp ul");
 		var liContainer_viable = null;
 		var liContainer_fertile = null;
 
@@ -544,7 +545,8 @@
 
 		var facetField = "selected_top_level_ma_term"
 		var aTopLevelCount = json.facet_fields[facetField];
-		var maUlContainer = $("<ul></ul>");
+		var maUlContainer = $("li#ma ul");
+
 
 		$('li#ma > span.fcount').text(json.iTotalRecords);
 
@@ -582,7 +584,6 @@
 	}
 
 	function displayImpc_imagesFacet(json) {
-
 
 		$('li#impc_images > span.fcount').text(json.imgCount);
 

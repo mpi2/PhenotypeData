@@ -33,13 +33,19 @@
 </head>
 <body>
 
-
 <div class="region region-content">
 	<div class="block">
     	<div class="content">
         	<div class="node">
-                           
-        	<form action="../../image_compara/image_compara.html" method="get">
+            <c:choose>
+            	<c:when test="${mediaType=='pdf'}">
+            		<form action="../../image_compara/pdf_compara.html" method="get">
+            	</c:when>
+            	<c:otherwise>
+            		<form action="../../image_compara/image_compara.html" method="get">
+            	</c:otherwise>
+            </c:choose>               
+        	
         	<input type="submit" value="Click to display selected images">
         	 <h1 class="title" id="control">Controls</h1>
 				<div class="section">
@@ -48,8 +54,15 @@
   							<c:if test="${not empty controls}">
                             	<c:forEach var="img" items="${controls}">
                                 <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
-                                	<option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}" data-img-label="
-   										<c:if test="${not empty img.sex}">${img.sex}</c:if>
+                                <c:set var="thumbnailUrl" value="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"/>
+         		<c:if test="${mediaType=='pdf'}">
+         		<c:set var="thumbnailUrl" value="${pdfThumbnailUrl}/200"/>
+         		</c:if>
+                                	<option data-img-src="${thumbnailUrl}" value="${img.omero_id}" data-img-label="
+   										<c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
+   										<c:if test="${not empty img.parameter_name}">${img.parameter_name}<br/></c:if>
+   										<c:if test="${not empty img.sex and img.sex ne 'no_data'}">${img.sex}<br/></c:if>
+   										<c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if>
    										 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                  <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach items="${img.parameter_association_name}" varStatus="status">
@@ -74,10 +87,22 @@
   						<select name="expImgId" multiple size="2" class="show-html">		
   						<c:if test="${not empty experimental}">
                             <c:forEach var="img" items="${experimental}">
-                                <option data-img-src="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200" value="${img.omero_id}" data-img-label="
+                            
+                           <%--  <a href="${img.download_url}" >
+         		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a> --%>
+         		<c:set var="thumbnailUrl" value="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"/>
+         		<c:if test="${mediaType=='pdf'}">
+         		<c:set var="thumbnailUrl" value="${pdfThumbnailUrl}/200"/>
+         		</c:if>
+         		                                <option 
+                                data-img-src="${thumbnailUrl}" 
+                                value="${img.omero_id}" data-img-label="
+                                    <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
+                                    <c:if test="${not empty img.parameter_name}">${img.parameter_name}<br/></c:if>
                                     <c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
    									<c:if test="${not empty img.sex}">${img.sex}<br/></c:if>
    									 <c:if test="${not empty count}">${count} Images<br/></c:if>
+   									 <c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if>
                                                <%--  <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach var="pAssName" items="${img.parameter_association_name}" varStatus="status">${pAssName}<br/></c:forEach>
                                                 </c:if>

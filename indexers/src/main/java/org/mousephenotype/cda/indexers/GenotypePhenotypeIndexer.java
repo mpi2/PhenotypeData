@@ -22,13 +22,13 @@ import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,6 +45,8 @@ import java.util.*;
  * Populate the Genotype-Phenotype core
  */
 public class GenotypePhenotypeIndexer extends AbstractIndexer {
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public final static Set<String> source3iProcedurePrefixes = new HashSet<>(Arrays.asList(
         "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
@@ -55,7 +57,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 		"IMPC_ELZ", "IMPC_EOL", "IMPC_EMO", "IMPC_MAA", "IMPC_EMA"
 	));
 
-	private static final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
     private static Connection connection;
 
     @Autowired
@@ -82,32 +83,22 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(gpSolrServer);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual genotype-phenotype document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " genotype-phenotype documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " genotype-phenotype documents.");
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(gpSolrServer);
     }
 
     @Override
-    public void initialise(String[] args) throws IndexerException {
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
 
-        super.initialise(args);
+        super.initialise(args, runStatus);
 
         try {
 
             connection = komp2DataSource.getConnection();
 
-            logger.info("Populating impress maps");
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
-            logger.info("Done Populating impress maps");
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -117,35 +108,36 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
+
+        RunStatus runStatus = new RunStatus();
         GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
     }
 
     @Override
-    protected Logger getLogger() {
-        return logger;
+    public RunStatus run() throws IndexerException {
+        int count = 0;
+        RunStatus runStatus = new RunStatus();
+        long start = System.currentTimeMillis();
+
+        try {
+            // prepare a live stage lookup
+            doLiveStageLookup(runStatus);
+
+            count = populateGenotypePhenotypeSolrCore(runStatus);
+
+        } catch (SQLException | IOException | SolrServerException ex) {
+            throw new IndexerException(ex);
+        }
+
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
-    @Override
-    public void run() throws IndexerException, SQLException, IOException, SolrServerException {
-
-        Long start = System.currentTimeMillis();
-
-        // prepare a live stage lookup
-        logger.info("Populating live stage lookup map");
-        doLiveStageLookup();
-
-        logger.info("Populating genotype-phenotype solr core");
-        populateGenotypePhenotypeSolrCore();
-
-        logger.info("Populating genotype-phenotype solr core - done [took: {}s]", (System.currentTimeMillis() - start) / 1000.0);
-    }
-
-    public void doLiveStageLookup() throws SQLException {
+    public void doLiveStageLookup(RunStatus runStatus) throws SQLException {
 
         String tmpQuery = "CREATE TEMPORARY TABLE observations2 AS "
             + "(SELECT DISTINCT o.biological_sample_id, e.pipeline_stable_id, e.procedure_stable_id "
@@ -164,7 +156,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             p1.executeUpdate();
 
             Long tmpTableTime = System.currentTimeMillis();
-            logger.info("Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
+//            logger.info(" Creating temporary observations2 table took [took: {}s]", (System.currentTimeMillis() - tmpTableStartTime) / 1000.0);
 
             PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 
@@ -187,13 +179,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 }
             }
         } catch (Exception e) {
-            logger.error("Error populating live stage lookup map: {}", e.getMessage());
+            runStatus.addError(" Error populating live stage lookup map: " + e.getMessage());
         }
-
-        logger.info("Done populating live stage map");
     }
 
-    public void populateGenotypePhenotypeSolrCore() throws SQLException, IOException, SolrServerException {
+    // Returns document count.
+    public int populateGenotypePhenotypeSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
         int count = 0;
 
@@ -324,6 +315,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
                     OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
+
+                    // Alternative MP Term ID - not working yet
+//                    if ( beanlist.getAltTermIds() != null && beanlist.getAltTermIds().size() > 0 ) {
+//                        System.out.println("ALT MP ID: " + doc.getAltMpTermId());
+//                        doc.setAltMpTermId(beanlist.getAltTermIds());
+//                    }
+
                     doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
                     doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
                     doc.setTopLevelMpTermSynonym(beanlist.getTopLevels().getSynonyms());
@@ -356,7 +354,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpathTermName(r.getString("ontology_term_name"));
                 }
                 else {
-                    logger.error("Found unknown ontology term: " + r.getString("ontology_term_id"));
+                    runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
                 // set life stage by looking up a combination key of
@@ -383,21 +381,16 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 gpSolrServer.addBean(doc, 30000);
 
                 count ++;
-
-                if (count % 1000 == 0) {
-                    logger.info(" added {} beans", count);
-                }
-
-
             }
 
             // Final commit to save the rest of the docs
-            logger.info(" added {} beans", count);
             gpSolrServer.commit();
 
         } catch (Exception e) {
-            logger.error("Big error {}", e.getMessage(), e);
+            runStatus.addError(" Big error " + e.getMessage());
         }
+
+        return count;
     }
 
 	class DevelopmentalStage {

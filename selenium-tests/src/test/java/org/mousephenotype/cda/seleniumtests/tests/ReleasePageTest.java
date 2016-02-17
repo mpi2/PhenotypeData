@@ -26,7 +26,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
 
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.openqa.selenium.By;
@@ -41,8 +41,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -117,8 +115,7 @@ public class ReleasePageTest {
     public void testJSONVersion() {
         String testName = "testJSONVersion";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
@@ -126,11 +123,13 @@ public class ReleasePageTest {
         driver.get(target);
 
         String bodyText = driver.findElement(By.xpath("//body")).getText();
-        if (!bodyText.contains("data_release_version")) {
+        if ( ! bodyText.contains("data_release_version")) {
             status.addError("ERROR: Expected json data_release_version tag. URL: " + target);
         }
 
-        int successCount = (status.hasErrors() ? 0 : 1);
-        testUtils.printEpilogue(testName, start, status, successCount, 1, 1);
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 }

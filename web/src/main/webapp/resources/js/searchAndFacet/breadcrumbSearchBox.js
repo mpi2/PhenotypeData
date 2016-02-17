@@ -1,7 +1,9 @@
 $(document).ready(function () {
 
 	var exampleSearch =
+
 		'<h3 id="samplesrch" id="briefDocCap">Example Searches</h3>'
+
 		+ '<p>Sample queries for several fields are shown. Click the desired query to execute one of the samples.'
 		+ '</p>'
 		+ '<h5>Gene query examples</h5>'
@@ -179,7 +181,9 @@ $(document).ready(function () {
 					var dataTypeVal = [];
 					var aKVtmpSorted = $.fn.sortJson(aKVtmp);
 					for ( var k in aKVtmpSorted ){
+
 						for ( var v in aKVtmpSorted[k] ) {
+
 							dataTypeVal.push(aKVtmpSorted[k][v]);
 						}
 					}
@@ -274,18 +278,18 @@ $('input#s').keyup(function (e) {
 		input = input.replace("%5C", "\\\\");
 		input = input.replace("%3C", "\\<");
 		input = input.replace("%3E", "\\>");
-		input = input.replace("."  , "\\.");
-		input = input.replace("("  , "\\(");
-		input = input.replace(")"  , "\\)");
+		input = input.replace(".", "\\.");
+		input = input.replace("(", "\\(");
+		input = input.replace(")", "\\)");
 		input = input.replace("%2F", "\\/");
 		input = input.replace("%60", "\\`");
-		input = input.replace("~"  , "\\~");
-		input = input.replace("%"  , "\\%");
-		input = input.replace("!"  , "\\!");
+		input = input.replace("~", "\\~");
+		input = input.replace("%", "\\%");
+		input = input.replace("!", "\\!");
 		input = input.replace("%21", "\\!");
 		input = input.replace("-", "\\-");
 
-		if ( /^\\%22.+%22$/.test(input) ){
+		if (/^\\%22.+%22$/.test(input)) {
 			input = input.replace(/\\/g, ''); //remove starting \ before double quotes
 		}
 
@@ -297,7 +301,7 @@ $('input#s').keyup(function (e) {
 		// instead of figuring this out for the user
 		var facet = null;
 
-		if ( $('ul.tabLabel').size() > 0 ) {
+		if ($('ul.tabLabel').size() > 0) {
 			// is on search page
 			$('ul.tabLabel li').each(function () {
 				if ($(this).hasClass('currDataType')) {
@@ -305,16 +309,15 @@ $('input#s').keyup(function (e) {
 				}
 			});
 
-
-			if (input == ''){
+			if (input == '') {
 				document.location.href = baseUrl + '/search/' + facet + '?kw=*'; // default
 			}
-			else if (input.match(/HP\\\%3A\d+/i)){
+			else if (input.match(/HP\\\%3A\d+/i)) {
 
 				// work out the mapped mp_id and fire off the query
 				_convertHp2MpAndSearch(input, facet);
 			}
-			else if ( input.match(/MP%3A\d+ - (.+)/i) ){
+			else if (input.match(/MP%3A\d+ - (.+)/i)) {
 				// hover over hp mp mapping but not selecting
 				// eg. Cholesteatoma %C2%BB MP%3A0002102 - abnormal ear morpholog
 				var matched = input.match(/MP%3A\d+ - (.+)/i);
@@ -326,7 +329,7 @@ $('input#s').keyup(function (e) {
 			else {
 
 				var fqStr = $.fn.fetchUrlParams("fq");
-				if ( fqStr != undefined ) {
+				if (fqStr != undefined) {
 					document.location.href = baseUrl + '/search/' + facet + '?kw=' + input + '&fq=' + fqStr;
 				}
 				else {
@@ -342,52 +345,54 @@ $('input#s').keyup(function (e) {
 			$.ajax({
 				url: baseUrl + "/fetchDefaultCore?q=" + input,
 				type: 'get',
-				success: function( defaultCore ) {
+				success: function (defaultCore) {
 					document.location.href = baseUrl + '/search/' + defaultCore + '?kw=' + input;
 				}
 			});
 		}
 	}
 });
-
-function _convertHp2MpAndSearch(input, facet){
-	input = input.toUpperCase();
-	$.ajax({
-		url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
-		dataType: "jsonp",
-		jsonp: 'json.wrf',
-		type: 'post',
-		async: false,
-		success: function( json ) {
-			var mpid = json.response.docs[0].hpmp_id;
-			document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
-		}
-	});
-}
-
-function _convertInputForSearch(input){
-	$.ajax({
-		url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
-		dataType: "jsonp",
-		jsonp: 'json.wrf',
-		type: 'post',
-		async: false,
-		success: function( json ) {
-			var doc = json.response.docs[0];
-			var facet, q;
-
-			for( var field in doc ) {
-				if ( field != 'docType' ){
-					q = doc[field];
-				}
-				else {
-					facet = doc[field];
-				}
+		
+	function _convertHp2MpAndSearch(input, facet){
+		input = input.toUpperCase();
+		$.ajax({
+			url: solrUrl + "/autosuggest/select?wt=json&fl=hpmp_id&rows=1&q=hp_id:\""+input+"\"",
+			dataType: "jsonp",
+			jsonp: 'json.wrf',
+			type: 'post',
+			async: false,
+			success: function( json ) {
+					var mpid = json.response.docs[0].hpmp_id;
+					document.location.href = baseUrl + '/search/' + facet + '?kw=' + mpid + '&fq=top_level_mp_term:*';
 			}
+		});
+	}
 
-			document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
-		}
-	});
-}
- 	
+
+
+	function _convertInputForSearch(input){
+		$.ajax({
+			url: solrUrl + "/autosuggest/select?wt=json&rows=1&qf=auto_suggest&defType=edismax&q=\""+input+"\"",
+			dataType: "jsonp",
+			jsonp: 'json.wrf',
+			type: 'post',
+			async: false,
+			success: function( json ) {
+				var doc = json.response.docs[0];
+				var facet, q;
+
+				for( var field in doc ) {
+					if ( field != 'docType' ){
+						q = doc[field];
+					}
+					else {
+						facet = doc[field];
+					}
+				}
+
+				document.location.href = baseUrl + '/search/' + facet + '?kw=' + q;
+			}
+		});
+	}
+
  	

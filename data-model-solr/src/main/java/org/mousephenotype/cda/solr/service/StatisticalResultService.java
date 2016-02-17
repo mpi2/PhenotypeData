@@ -45,6 +45,7 @@ import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
+import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ import java.util.concurrent.ExecutionException;
  */
 
 @Service
-public class StatisticalResultService extends AbstractGenotypePhenotypeService {
+public class StatisticalResultService extends AbstractGenotypePhenotypeService implements WebStatus {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -1021,6 +1022,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         	r.setMpTermId(result.getMpTermId());
         }
         if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
+        if(result.getStatus()!=null)r.setStatus(result.getStatus());
 
         return r;
     }
@@ -1056,7 +1058,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
         if(result.getSex()!= null) r.setExperimentalSex(SexType.valueOf(result.getSex()));
         if(result.getMpTermId()!= null) r.setMpTermId(result.getMpTermId());
         if(result.getMpTermName()!= null) r.setMpTermName(result.getMpTermName());
-
+        if(result.getStatus()!=null)r.setStatus(result.getStatus());
         return r;
     }
 
@@ -1302,7 +1304,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery(ObservationDTO.SEX + ":" + sex.name());
 		q.setFilterQueries( StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" +
-			StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+			StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
@@ -1327,7 +1329,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 
 		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
-		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
+		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
 		q.set("facet.pivot", pivotFacet);
 		q.setFacet(true);
 		q.setRows(1);
@@ -1421,6 +1423,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
 				.addField(StatisticalResultDTO.ALLELE_SYMBOL)
 				.addField(StatisticalResultDTO.COLONY_ID)
 				.addField(StatisticalResultDTO.MARKER_SYMBOL)
+				.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
 				.addField(StatisticalResultDTO.ZYGOSITY)
 				.addField(StatisticalResultDTO.PHENOTYPING_CENTER)
 				.addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
@@ -1546,7 +1549,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
        SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + 
     		   StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + 
     		   StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\") AND (" + 
-    		   StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.OVERVIEW_STRAINS, "\" OR " + 
+    		   StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + 
     		   GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")").setRows(0);
        q.set("facet.field", "" + StatisticalResultDTO.PARAMETER_STABLE_ID);
        q.set("facet", true);
@@ -1561,5 +1564,21 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService {
        
        return res;
    }
+
+   @Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "statistical result service";
+	}
     
 }

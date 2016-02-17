@@ -159,12 +159,14 @@ public class MaOntologyDAO extends OntologyDAO {
                 + ", GROUP_CONCAT(n2t.node_id) AS nodes\n"
                 + ", ti.name                   AS termName \n"
                 + ", ti.definition             AS termDefinition\n"
-                + "FROM ma_node2term n2t\n"
+                + ", GROUP_CONCAT(DISTINCT alt.alt_id) AS alt_ids\n"
+        + "FROM ma_node2term n2t\n"
                 + "LEFT OUTER JOIN ma_term_infos ti ON ti.term_id = n2t.term_id\n"
+                + "LEFT OUTER JOIN ma_alt_ids alt ON ti.term_id = alt.term_id\n"
                 + "WHERE n2t.term_id != 'MA:0000001'\n"
                 + "GROUP BY n2t.term_id\n"
                 + "ORDER BY n2t.term_id, n2t.node_id\n";
-        
+
         populateAllTerms(query);
     }
     

@@ -158,8 +158,10 @@ public class EmapOntologyDAO extends OntologyDAO {
                 + ", GROUP_CONCAT(n2t.node_id) AS nodes\n"
                 + ", ti.name                   AS termName \n"
                 + ", ti.definition             AS termDefinition\n"
+                + ", GROUP_CONCAT(DISTINCT alt.alt_id) AS alt_ids\n"
                 + "FROM emap_node2term n2t\n"
                 + "LEFT OUTER JOIN emap_term_infos ti ON ti.term_id = n2t.term_id\n"
+                + "LEFT OUTER JOIN emap_alt_ids alt ON ti.term_id = alt.term_id\n"
                 + "WHERE n2t.term_id != 'EMAP:0'\n"
                 + "GROUP BY n2t.term_id\n"
                 + "ORDER BY n2t.term_id, n2t.node_id\n";
@@ -183,11 +185,13 @@ public class EmapOntologyDAO extends OntologyDAO {
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
+
                 Integer nodeId = resultSet.getInt("node_id");
                 String fullpath = resultSet.getString("fullpath");
                 fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
-                
-                backtraceMap.put(nodeId, fullpath);
+
+               backtraceMap.put(nodeId, fullpath);
+
             }
             
             ps.close();
@@ -248,7 +252,11 @@ public class EmapOntologyDAO extends OntologyDAO {
                 List<Integer> fullpathNodeList = new ArrayList();
                 for (String sNode : fullpath) {
                     int node = Integer.parseInt(sNode);
+
                     if (node > 0) {
+                    // node 1 is TS20 Mouse (treat this as root of TS20 ontology)
+                    //if (node > 1) {
+
                         fullpathNodeList.add(node);
                     }
                 }

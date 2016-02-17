@@ -30,6 +30,8 @@ public class MpDTO {
 	public static final String MP_DEFINITION = "mp_definition";
 	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
 	public static final String MP_NODE_ID = "mp_node_id";
+	public static final String ALT_MP_ID = "alt_mp_id";
+
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
 	public static final String CHILD_MP_DEFINITION = "child_mp_definition";
@@ -161,6 +163,9 @@ public class MpDTO {
 
 	@Field(MP_NODE_ID)
 	private List<Integer> mpNodeId;
+
+	@Field(ALT_MP_ID)
+	private List<String> altMpId;
 
 	@Field(CHILD_MP_ID)
 	private List<String> childMpId;
@@ -562,6 +567,18 @@ public class MpDTO {
 	public void setMpNodeId(List<Integer> mpNodeId) {
 
 		this.mpNodeId = mpNodeId;
+	}
+
+
+	public List<String> getAltMpIds() {
+
+		return altMpId;
+	}
+
+
+	public void setAltMpIds(List<String> altMpId) {
+
+		this.altMpId = altMpId;
 	}
 
 

@@ -143,7 +143,17 @@ public abstract class OntologyDAO {
     public List<OntologyTermBean> getAllTerms() {
         return new ArrayList(allTermsMap.values());
     }
-    
+
+    public List<String> getAltTermIds(String mpId) {
+        OntologyTermBean ontologyTermBean = allTermsMap.get(mpId);
+        //System.out.println("BEAN: " + ontologyTermBean.toString());
+        if ( ontologyTermBean.getAltIds() != null ) {
+            return ontologyTermBean.getAltIds();
+        }
+        return null;
+    }
+
+
     /**
      * Dumps out the <code>OntologyTermBean</code> map, prepending the <code>
      * what</code> string for map identification.
@@ -243,9 +253,9 @@ public abstract class OntologyDAO {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
                 if (( ! ancestorGraphId.isEmpty()) && (ancestorGraphId.size() >= level)) {
                     String topTermId = ancestorGraphId.get(level - 1);
-                    if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
+                    //if ( ! id.equals(topTermId)) {                              // Don't include self in top-level list.
                         beans.add(allTermsMap.get(topTermId));
-                    }
+                    //}
                 }
             }
         }
@@ -443,9 +453,10 @@ public abstract class OntologyDAO {
      */
     protected final void populateAllTerms(String query) throws SQLException {
         Map<String, OntologyTermBean> map = new HashMap();
-        
-         
+
+
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
+
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
                 String mapKey = resultSet.getString("termId");
@@ -454,8 +465,17 @@ public abstract class OntologyDAO {
                 bean.setName(resultSet.getString("termName"));
                 bean.setDefinition(resultSet.getString("termDefinition") == null
                             ? "" : resultSet.getString("termDefinition"));
+
+                // alternative ID
+                String alt_ids = resultSet.getString("alt_ids");
+
+                if (! resultSet.wasNull() ) {
+                    bean.setAltIds(Arrays.asList(alt_ids.split(",")));
+                }
+
                 map.put(mapKey, bean);            
                 id2nodesMap.put(mapKey, Arrays.asList(resultSet.getString("nodes").split(",")));
+
             }
             
             ps.close();

@@ -17,33 +17,34 @@
 package org.mousephenotype.cda.seleniumtests.tests;
 
  import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
-import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
-import org.mousephenotype.cda.seleniumtests.support.TestUtils;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.utilities.CommonUtils;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+ import org.junit.*;
+ import org.junit.runner.RunWith;
+ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+ import org.mousephenotype.cda.utilities.RunStatus;
+ import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
+ import org.mousephenotype.cda.seleniumtests.support.TestUtils;
+ import org.mousephenotype.cda.solr.service.MpService;
+ import org.mousephenotype.cda.solr.service.PostQcService;
+ import org.mousephenotype.cda.utilities.CommonUtils;
+ import org.openqa.selenium.*;
+ import org.openqa.selenium.support.ui.ExpectedConditions;
+ import org.openqa.selenium.support.ui.WebDriverWait;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Qualifier;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.boot.test.SpringApplicationConfiguration;
+ import org.springframework.core.env.Environment;
+ import org.springframework.test.context.TestPropertySource;
+ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+ import javax.validation.constraints.NotNull;
+ import java.text.DateFormat;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Date;
+ import java.util.List;
 
  /**
   *
@@ -134,7 +135,7 @@ public class PhenotypePageTest {
     @Test
 //@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
@@ -218,7 +219,8 @@ public class PhenotypePageTest {
     public void testPageForEveryMPTermId() throws SolrServerException {
         String testName = "testPageForEveryMPTermId";
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-
+        phenotypeIds.set(0, "MP:0002085");                  // This term causes the test to throw an exception with no info to debug it.
+phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
         phenotypeIdsTestEngine(testName, phenotypeIds);
     }
 
@@ -268,7 +270,7 @@ public class PhenotypePageTest {
 //@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testInvalidMpTermId";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
@@ -318,7 +320,7 @@ public class PhenotypePageTest {
 //@Ignore
     @Test
     public void testDefinitionAndSynonymCount() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testDefinitionAndSynonymCount";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
@@ -383,7 +385,7 @@ public class PhenotypePageTest {
 
 
     private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
         List<String> errorList = new ArrayList();
@@ -412,7 +414,7 @@ public class PhenotypePageTest {
                 if (phenotypePage.hasPhenotypesTable()) {
                     phenotypePage.selectPhenotypesLength(100);
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
-                    PageStatus localStatus = phenotypePage.validate();
+                    RunStatus localStatus = phenotypePage.validate();
                     if (localStatus.hasErrors()) {
                         status.add(localStatus);
                         errorCount++;

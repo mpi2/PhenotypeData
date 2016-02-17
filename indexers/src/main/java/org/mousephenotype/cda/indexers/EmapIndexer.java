@@ -21,11 +21,11 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermEmapBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,14 +40,15 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
+import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
 
 /**
  * @author ckchen based on mike relac's MaIndexer
  *
  */
 public class EmapIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(EmapIndexer.class);
+    CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("alleleReadOnlyIndexing")
@@ -104,6 +105,16 @@ public class EmapIndexer extends AbstractIndexer {
     //Map<String, List<String>> ontologySubsets;
     //Map<String, List<String>> goIds;
 
+
+    Map<String, List<AlleleDTO>> alleleMap;
+
+    Map<String, String> emap2MgiId = new HashMap<>();
+
+    Map<String, List<OmeroAssociation>> emap2Omero = new HashMap<>();
+
+    Map<String, List<Integer>> emap2SangerImageId = new HashMap<>();
+
+
     // Alleles
     Map<String, List<AlleleDTO>> alleles;
 
@@ -122,49 +133,37 @@ public class EmapIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(emapCore);
-        System.out.println("num found: " + numFound);
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual emap document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " emap documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " emap documents.");
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(emapCore);
     }
 
     @Override
-    public void run() throws IndexerException, SQLException {
+    public RunStatus run() throws IndexerException, IOException, SolrServerException {
+        int count = 0;
+        RunStatus runStatus = new RunStatus();
+        long start = System.currentTimeMillis();
 
-    	//initializeSolrCores();
         initializeDatabaseConnections();
+        emapCore.deleteByQuery("*:*");
 
     	try {
-    		logger.info("Starting EMAP Indexer...");
-
             initialiseSupportingBeans();
 
             List<EmapDTO> emapBatch = new ArrayList(BATCH_SIZE);
-            int count = 0;
 
-            logger.info("Starting indexing loop");
-
-            
-            
             // Add all emap terms to the index.
             List<OntologyTermBean> beans = emapOntologyService.getAllTerms();
            
             for (OntologyTermBean bean : beans) {
                 EmapDTO emap = new EmapDTO();
 
-                String emapId = bean.getId();
+                String emapTermId = bean.getId();
                 // Set scalars.
                 emap.setDataType("emap");
-                emap.setEmapId(emapId);
+                emap.setEmapId(emapTermId);
                 emap.setEmapTerm(bean.getName());
                 
-                emap.setEmapNodeId(termNodeIds.get(emapId));
+                emap.setEmapNodeId(termNodeIds.get(emapTermId));
                 buildNodes(emap);
                 
                 // Set collections.
@@ -181,8 +180,67 @@ public class EmapIndexer extends AbstractIndexer {
                 emap.setSelectedTopLevelEmapTerm(sourceList.getTopLevels().getNames());
                 emap.setSelectedTopLevelEmapTermSynonym(sourceList.getTopLevels().getSynonyms());
 
-                // Image association fields here when we have data
-                
+                // Genes annotated to an EMAP
+                if ( emap2MgiId.containsKey(emapTermId) ) {
+                    String mgiGeneId = emap2MgiId.get(emapTermId);
+
+                    // Genes annotated to an EMAP
+                    emap.setMarkerAccessionId(mgiGeneId);
+
+                    List<AlleleDTO> alleleDTOs = alleleMap.get(mgiGeneId);
+                    List<String> markerSymbols = new ArrayList<>();
+                    List<String> markerNames = new ArrayList<>();
+                    List<String> markerTypes = new ArrayList<>();
+                    List<String> markerSynonyms = new ArrayList<>();
+
+                    for( AlleleDTO allele : alleleDTOs ) {
+
+                        markerSymbols.add(allele.getMarkerSymbol());
+                        markerNames.add(allele.getMarkerName());
+                        markerTypes.add(allele.getMarkerType());
+                        if ( allele.getMarkerSynonym() != null ) {
+                            markerSynonyms.addAll(allele.getMarkerSynonym());
+                        }
+                    }
+
+                    emap.setMarkerType(markerTypes);
+                    emap.setMarkerSymbol(markerSymbols);
+                    emap.setMarkerName(markerNames);
+                    emap.setMarkerSynonym(markerSynonyms);
+
+                }
+
+                // IMPC images annotated to an EMAP
+                if ( emap2Omero.containsKey(emapTermId)){
+
+                    List<Integer> omeroIds = new ArrayList<>();
+                    List<String> parameterAssocValues = new ArrayList<>();
+                    Set<String> parameterStableIds = new HashSet<>();
+
+                    for ( OmeroAssociation oa : emap2Omero.get(emapTermId) ) {
+                        omeroIds.add(oa.getOmeroId());
+                        parameterAssocValues.add(oa.getParameterAssocValue());
+                        parameterStableIds.add(oa.getParameterStableId());
+                    }
+                    emap.setOmeroIds(omeroIds);
+                    emap.setParameterAssocValue(parameterAssocValues);
+                    emap.setParameterStableId(new ArrayList<String>(parameterStableIds));
+                }
+
+
+                // Sanger images annotated to an EMAP
+                if ( emap2SangerImageId.containsKey(emapTermId) ){
+
+                    List<Integer> sangerImgIds = new ArrayList<>();
+
+                    for ( Integer sangerImgId : emap2SangerImageId.get(emapTermId) ){
+                        sangerImgIds.add(sangerImgId);
+                    }
+
+                    emap.setSangerImageIds(sangerImgIds);
+                }
+
+
 
                 count ++;
                 emapBatch.add(emap);
@@ -203,131 +261,15 @@ public class EmapIndexer extends AbstractIndexer {
 
             // Send a final commit
             emapCore.commit();
-            logger.info("Indexed {} beans in total", count);
+
         } catch (SolrServerException| IOException e) {
             throw new IndexerException(e);
         }
 
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
-        logger.info("EMAP Indexer complete!");
+        return runStatus;
     }
-
-    /*
-    
-    @Override
-    /*public void run() throws IndexerException {
-        logger.info("Starting EMAP Indexer...");
-
-        initializeSolrCores();
-
-        initializeDatabaseConnections();
-
-        initialiseSupportingBeans();
-
-        int count = 0;
-
-        logger.info("Starting indexing loop");
-      
-        
-        
-        try {
-
-            // Delete the documents in the core if there are any.
-            emapCore.deleteByQuery("*:*");
-            emapCore.commit();
-
-            // Loop through the emap_term_infos
-            String q = "select 'emap' as dataType, ti.term_id, ti.name, ti.definition from emap_term_infos ti where ti.term_id !='EMAP:0' and ti.term_id !='EMAP:25785' order by ti.term_id";
-            
-            PreparedStatement ps = ontoDbConnection.prepareStatement(q);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String termId = rs.getString("term_id");
-               
-                EmapDTO emap = new EmapDTO();
-                emap.setDataType(rs.getString("dataType"));
-                emap.setEmapId(termId);
-                emap.setEmapTerm(rs.getString("name"));
-                emap.setEmapDefinition(rs.getString("definition"));
-                
-                System.out.println(termId + " node id: "+ termNodeIds.get(termId) );
-                emap.setEmapNodeId(termNodeIds.get(termId));
-                buildNodes(emap);
-                //emap.setOntologySubset(ontologySubsets.get(termId));
-                emap.setEmapTermSynonym(emapTermSynonyms.get(termId));
-
-                
-                
-                
-                //emap.setGoId(goIds.get(termId));
-                //addMaRelationships(emap, termId);
-                //addPhenotype1(emap);
-                 
-                // this sets the number of postqc phenotyping calls of this MP
-                //emap.setPhenoCalls(sumPhenotypingCalls(termId)); 
-               
-                //addPhenotype2(emap);
-                
-                logger.debug("{}: Built MP DTO {}", count, termId);
-                count ++;
-
-                documentCount++;
-                emapCore.addBean(emap, 60000);
-               
-            }
-            
-            // Send a final commit
-            emapCore.commit();
-
-        } catch (SQLException | SolrServerException | IOException e) {
-            throw new IndexerException(e);
-        }
-        
-        logger.info("Indexed {} beans", count);
-
-        logger.info("EMAP Indexer complete!");
-    }
-*/
-    /*
-    private int sumPhenotypingCalls(String emapId) throws SolrServerException {
-    
-    	List<SolrServer> ss = new ArrayList<>();
-    	ss.add(preqcCore);
-    	ss.add(genotypePhenotypeCore);
-    	
-    	int calls = 0;
-    	for ( int i=0; i<ss.size(); i++ ){
-    		
-    		SolrServer solrSvr = ss.get(i);
-    
-	    	SolrQuery query = new SolrQuery();
-			query.setQuery("emap_term_id:\"" + mpId + "\" OR intermediate_emap_term_id:\"" + mpId + "\" OR top_level_emap_term_id:\"" + mpId + "\"");
-			query.setRows(0);
-			
-			QueryResponse response = solrSvr.query(query);
-			calls += response.getResults().getNumFound();
-		
-		}
-    	
-        return calls;
-    }
-    */
-//    private void populateGene2MpCalls() throws SQLException {
-//    	
-//    	String qry = "select emap_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by emap_acc";
-//    	
-//    	PreparedStatement ps = komp2DbConnection.prepareStatement(qry);
-//    	ResultSet rs = ps.executeQuery();
-//    	
-//    	while (rs.next()) {
-//    		String mpAcc = rs.getString("emap_acc");
-//    		int calls = rs.getInt("calls");
-//    	
-//    		mpCalls.put(mpAcc, calls);
-//    	}
-//    	
-//    	logger.info("Finished creating a mapping of MP to postqc phenotyping calls");
-//    }
 
     /**
      * Initialize the database connections required
@@ -345,42 +287,6 @@ public class EmapIndexer extends AbstractIndexer {
         }
 
     }
-
-
-    /**
-     * Initialize the phenodigm core -- using a proxy if configured.
-     * <p/>
-     * A proxy is specified by supplying two JVM variables
-     * - externalProxyHost the host (not including the protocol)
-     * - externalProxyPort the integer port number
-     */
-    /*
-    private void initializeSolrCores() {
-
-        final String PHENODIGM_URL = config.get("phenodigm.solrserver");
-
-        // Use system proxy if set for external solr servers
-        if (System.getProperty("externalProxyHost") != null && System.getProperty("externalProxyPort") != null) {
-
-            String PROXY_HOST = System.getProperty("externalProxyHost");
-            Integer PROXY_PORT = Integer.parseInt(System.getProperty("externalProxyPort"));
-
-            HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT);
-            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
-            CloseableHttpClient client = HttpClients.custom().setRoutePlanner(routePlanner).build();
-
-            logger.info("Using Proxy Settings: " + PROXY_HOST + " on port: " + PROXY_PORT);
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL, client);
-
-        } else {
-
-            this.phenodigmCore = new HttpSolrServer(PHENODIGM_URL);
-
-        }
-    }
-    */
-
 
     private void initialiseSupportingBeans() throws IndexerException {
         try {
@@ -403,7 +309,20 @@ public class EmapIndexer extends AbstractIndexer {
             emapTermSynonyms = getEmapTermSynonyms();
 
             // Alleles
-            alleles = IndexerMap.getGeneToAlleles(alleleCore);
+            //alleles = IndexerMap.getGeneToAlleles(alleleCore);
+            alleleMap = getGeneToAlleles(alleleCore);
+
+
+            // get emap to MGI gene ID mapping from phenotype_call_summary table
+            populateEmapGeneMap(komp2DbConnection);
+
+            // EMAP to omero_id mapping
+            populateEmapOmeroIdMap(komp2DbConnection);
+
+            // EMAP to Sanger image id mapping
+            populateEmapSangerImageIdMap(komp2DbConnection);
+
+
 
             // Phenotype call summaries (1)
             //phenotypes1 = getPhenotypeCallSummary1();
@@ -418,7 +337,91 @@ public class EmapIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
     }
+    private void populateEmapSangerImageIdMap(Connection conn) throws SQLException {
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT ID, TERM_ID FROM ANN_ANNOTATION");
+        ResultSet res = statement.executeQuery();
 
+        while (res.next()) {
+            String emapId = res.getString("TERM_ID");
+
+            if ( ! emap2SangerImageId.containsKey(emapId) ) {
+                emap2SangerImageId.put(emapId, new ArrayList<Integer>());
+            }
+
+            emap2SangerImageId.get(emapId).add(res.getInt("ID"));
+        }
+    }
+
+    private void populateEmapGeneMap(Connection conn) throws SQLException {
+
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT DISTINCT gf_acc, mp_acc FROM phenotype_call_summary WHERE mp_acc LIKE 'emap:%'");
+        ResultSet res = statement.executeQuery();
+
+        while (res.next()) {
+            emap2MgiId.put(res.getString("mp_acc"), res.getString("gf_acc"));
+        }
+    }
+
+    private void populateEmapOmeroIdMap(Connection conn) throws SQLException {
+
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT iro.omero_id, pa.parameter_association_value, pp.stable_id, ppoa.ontology_acc " +
+                        "FROM image_record_observation iro " +
+                        "INNER JOIN parameter_association pa on iro.id=pa.observation_id " +
+                        "INNER JOIN phenotype_parameter pp on pa.parameter_id=pp.stable_id " +
+                        "INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id " +
+                        "INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id " +
+                        "WHERE ppoa.ontology_db_id=14");
+        ResultSet res = statement.executeQuery();
+
+        while (res.next()) {
+            String emapId = res.getString("ontology_acc");
+            OmeroAssociation oa = new OmeroAssociation(res.getInt("omero_id"), res.getString("parameter_association_value"), res.getString("stable_id"));
+            if ( ! emap2Omero.containsKey(emapId) ) {
+                emap2Omero.put(emapId, new ArrayList<OmeroAssociation>());
+            }
+
+            emap2Omero.get(emapId).add(oa);
+        }
+
+    }
+
+
+    class OmeroAssociation {
+        Integer omero_id;
+        String parameter_assoc_value;
+        String parameter_stable_id;
+
+        public OmeroAssociation(Integer omero_id, String parameter_assoc_value, String parameter_stable_id) {
+            this.omero_id = omero_id;
+            this.parameter_assoc_value = parameter_assoc_value;
+            this.parameter_stable_id = parameter_stable_id;
+        }
+
+        public Integer getOmeroId() {
+            return omero_id;
+        }
+        public void setOmeroId(Integer omero_id) {
+            this.omero_id = omero_id;
+        }
+
+        public String getParameterAssocValue() {
+            return parameter_assoc_value;
+        }
+        public void setParameterAssocValue(String parameter_assoc_value) {
+            this.parameter_assoc_value = parameter_assoc_value;
+        }
+
+        public String getParameterStableId() {
+            return parameter_stable_id;
+        }
+        public void setParameterStableId(String parameter_stable_id) {
+            this.parameter_stable_id = parameter_stable_id;
+        }
+
+    }
     
     private Map<String, List<Integer>> getNodeIds() throws SQLException {
         Map<String, List<Integer>> beans = new HashMap<>();
@@ -436,7 +439,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(tId).add(nId);
             count ++;
         }
-        logger.debug("Loaded {} node Ids", count);
+        logger.debug(" Added {} node Ids", count);
 
         return beans;
     }
@@ -464,7 +467,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} top level terms", count);
+        logger.debug(" Added {} top level terms", count);
 
         return beans;
     }
@@ -493,7 +496,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(childId).add(nodeId);
             count ++;
         }
-        logger.info("Loaded {} intermediate node Ids", count);
+        logger.debug(" Added {} intermediate node Ids", count);
 
         return beans;
     }
@@ -521,7 +524,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(childId);
             count ++;
         }
-        logger.debug("Loaded {} child node Ids", count);
+        logger.debug(" Added {} child node Ids", count);
 
         return beans;
     }
@@ -548,7 +551,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(bean);
             count ++;
         }
-        logger.debug("Loaded {} intermediate level terms", count);
+        logger.debug(" Added {} intermediate level terms", count);
 
         return beans;
     }
@@ -570,7 +573,7 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(nId).add(parentId);
             count ++;
         }
-        logger.debug("Loaded {} parent node Ids", count);
+        logger.debug(" Added {} parent node Ids", count);
 
         return beans;
     }
@@ -591,181 +594,11 @@ public class EmapIndexer extends AbstractIndexer {
             beans.get(tId).add(syn);
             count ++;
         }
-        logger.debug("Loaded {} EMAP term synonyms", count);
+        logger.debug(" Added {} EMAP term synonyms", count);
 
         return beans;
     }
 
-    /*
-    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1() throws SQLException {
-        Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
-
-        String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where p_value <= 0.0001 and gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            PhenotypeCallSummaryBean bean = new PhenotypeCallSummaryBean();
-
-            String mpAcc = rs.getString("mp_acc");
-
-            bean.setGfAcc(rs.getString("gf_acc"));
-            bean.setMpAcc(mpAcc);
-            bean.setMpMgi(rs.getString("mp_mgi"));
-            bean.setParameterId(rs.getString("parameter_id"));
-            bean.setProcedureId(rs.getString("procedure_id"));
-            bean.setPipelineId(rs.getString("pipeline_id"));
-            bean.setAlleleAcc(rs.getString("allele_acc"));
-            bean.setStrainAcc(rs.getString("strain_acc"));
-
-            if ( ! beans.containsKey(mpAcc)) {
-                beans.put(mpAcc, new ArrayList<PhenotypeCallSummaryBean>());
-            }
-            beans.get(mpAcc).add(bean);
-            count ++;
-        }
-        logger.debug("Loaded {} phenotype call summaries (1)", count);
-
-        return beans;
-    }
-*/
-    /*
-    private Map<String, List<String>> getImpcPipe() throws SQLException {
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 22";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("emap_mgi");
-            String impc = rs.getString("impc");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(impc);
-            count ++;
-        }
-        logger.debug("Loaded {} IMPC", count);
-
-        return beans;
-    }
-
-    private Map<String, List<String>> getLegacyPipe() throws SQLException {
-        Map<String, List<String>> beans = new HashMap<>();
-
-        String q = "select distinct external_db_id as 'legacy', concat (emap_acc,'_', gf_acc) as emap_mgi from phenotype_call_summary where p_value < 0.0001 and external_db_id = 12";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            String tId = rs.getString("emap_mgi");
-            String legacy = rs.getString("legacy");
-            if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
-            }
-            beans.get(tId).add(legacy);
-            count ++;
-        }
-        logger.debug("Loaded {} legacy", count);
-
-        return beans;
-    }
-
-    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary2() throws SQLException {
-        Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
-
-        String q = "select distinct gf_acc, emap_acc, parameter_id, procedure_id, pipeline_id, concat(parameter_id,'_',procedure_id,'_',pipeline_id) as ididid, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            PhenotypeCallSummaryBean bean = new PhenotypeCallSummaryBean();
-
-            String mpAcc = rs.getString("emap_acc");
-
-            bean.setGfAcc(rs.getString("gf_acc"));
-            bean.setMpAcc(mpAcc);
-            bean.setParamProcPipelineId(rs.getString("ididid"));
-            bean.setParameterId(rs.getString("parameter_id"));
-            bean.setProcedureId(rs.getString("procedure_id"));
-            bean.setPipelineId(rs.getString("pipeline_id"));
-            bean.setAlleleAcc(rs.getString("allele_acc"));
-            bean.setStrainAcc(rs.getString("strain_acc"));
-
-            if ( ! beans.containsKey(mpAcc)) {
-                beans.put(mpAcc, new ArrayList<PhenotypeCallSummaryBean>());
-            }
-            beans.get(mpAcc).add(bean);
-            count ++;
-        }
-        logger.debug("Loaded {} phenotype call summaries (2)", count);
-
-        return beans;
-    }
-
-    private Map<String, List<MPStrainBean>> getStrains() throws SQLException {
-        Map<String, List<MPStrainBean>> beans = new HashMap<>();
-
-        String q = "select distinct name, acc from strain where db_id=3";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            MPStrainBean bean = new MPStrainBean();
-
-            String acc = rs.getString("acc");
-
-            bean.setAcc(acc);
-            bean.setName(rs.getString("name"));
-
-            if ( ! beans.containsKey(acc)) {
-                beans.put(acc, new ArrayList<MPStrainBean>());
-            }
-            beans.get(acc).add(bean);
-            count ++;
-        }
-        logger.debug("Loaded {} strain beans", count);
-
-        return beans;
-    }
-
-    private Map<String, List<ParamProcedurePipelineBean>> getPPPBeans() throws SQLException {
-        Map<String, List<ParamProcedurePipelineBean>> beans = new HashMap<>();
-
-        String q = "select concat(pp.id,'_',pproc.id,'_',ppipe.id) as ididid, pp.name as parameter_name, pp.stable_key as parameter_stable_key, pp.stable_id as parameter_stable_id, pproc.name as procedure_name, pproc.stable_key as procedure_stable_key, pproc.stable_id as procedure_stable_id, ppipe.name as pipeline_name, ppipe.stable_key as pipeline_key, ppipe.stable_id as pipeline_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
-        while (rs.next()) {
-            ParamProcedurePipelineBean bean = new ParamProcedurePipelineBean();
-
-            String id = rs.getString("ididid");
-
-            bean.setParameterName(rs.getString("parameter_name"));
-            bean.setParameterStableId(rs.getString("parameter_stable_id"));
-            bean.setParameterStableKey(rs.getString("parameter_stable_key"));
-            bean.setProcedureName(rs.getString("procedure_name"));
-            bean.setProcedureStableId(rs.getString("procedure_stable_id"));
-            bean.setProcedureStableKey(rs.getString("procedure_stable_key"));
-            bean.setPipelineName(rs.getString("pipeline_name"));
-            bean.setPipelineStableId(rs.getString("pipeline_stable_id"));
-            bean.setPipelineStableKey(rs.getString("pipeline_key"));
-
-            if ( ! beans.containsKey(id)) {
-                beans.put(id, new ArrayList<ParamProcedurePipelineBean>());
-            }
-            beans.get(id).add(bean);
-            count ++;
-        }
-        logger.debug("Loaded {} PPP beans", count);
-
-        return beans;
-    }
-
-   
-*/
-    
     private void buildNodes(EmapDTO emap) {
         List<Integer> nodeIds = termNodeIds.get(emap.getEmapId());
 
@@ -903,242 +736,16 @@ public class EmapIndexer extends AbstractIndexer {
         emap.getParentEmapTermSynonym().addAll(parentSynonyms);
     }
 
-    
-//    private void addPhenotype1(EmapDTO emap) {
-//        if (phenotypes1.containsKey(emap.getEmapId())) {
-//            checkMgiDetails(emap);
-//
-//            for (PhenotypeCallSummaryBean pheno1 : phenotypes1.get(emap.getEmapId())) {
-//                emap.getMgiAccessionId().add(pheno1.getGfAcc());
-//                if (impcBeans.containsKey(pheno1.getMpMgi())) {
-//                     From JS mapping script - row.get('impc')
-//                    emap.getLatestPhenotypeStatus().add("Phenotyping Complete");
-//                }
-//                if (legacyBeans.containsKey(pheno1.getMpMgi())) {
-//                     From JS mapping script - row.get('legacy')
-//                    mp.setLegacyPhenotypeStatus(1);
-//                }
-//                addPreQc(mp, pheno1.getGfAcc());
-//                addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
-//            }
-//        }
-//    }
-/*
-    private void checkMgiDetails(EmapDTO emap) {
-        if (emap.getMgiAccessionId() == null) {
-        	emap.setMgiAccessionId(new ArrayList<String>());
-        	emap.setLatestPhenotypeStatus(new ArrayList<String>());
-        }
-    }
 
-*/
-    /*
-    private void addAllele(EmapDTO emap, List<AlleleDTO> alleles, boolean includeStatus) {
-        if (alleles != null) {
-            initialiseAlleleFields(emap);
-
-            for (AlleleDTO allele : alleles) {
-                // Copy the fields from the allele to the MP
-                // NO TYPE FIELD IN ALLELE DATA!!! emap.getType().add(???)
-                if (allele.getDiseaseSource() != null) {
-                    emap.getDiseaseSource().addAll(allele.getDiseaseSource());
-                    emap.setDiseaseSource(new ArrayList<>(new HashSet<>(emap.getDiseaseSource())));
-                }
-                if (allele.getDiseaseId() != null) {
-                    emap.getDiseaseId().addAll(allele.getDiseaseId());
-                    emap.setDiseaseId(new ArrayList<>(new HashSet<>(emap.getDiseaseId())));
-                }
-                if (allele.getDiseaseTerm() != null) {
-                    emap.getDiseaseTerm().addAll(allele.getDiseaseTerm());
-                    emap.setDiseaseTerm(new ArrayList<>(new HashSet<>(emap.getDiseaseTerm())));
-                }
-                if (allele.getDiseaseAlts() != null) {
-                    emap.getDiseaseAlts().addAll(allele.getDiseaseAlts());
-                    emap.setDiseaseAlts(new ArrayList<>(new HashSet<>(emap.getDiseaseAlts())));
-                }
-                if (allele.getDiseaseClasses() != null) {
-                    emap.getDiseaseClasses().addAll(allele.getDiseaseClasses());
-                    emap.setDiseaseClasses(new ArrayList<>(new HashSet<>(emap.getDiseaseClasses())));
-                }
-                if (allele.getHumanCurated() != null) {
-                    emap.getHumanCurated().addAll(allele.getHumanCurated());
-                    emap.setHumanCurated(new ArrayList<>(new HashSet<>(emap.getHumanCurated())));
-                }
-                if (allele.getMouseCurated() != null) {
-                    emap.getMouseCurated().addAll(allele.getMouseCurated());
-                    emap.setMouseCurated(new ArrayList<>(new HashSet<>(emap.getMouseCurated())));
-                }
-                if (allele.getMgiPredicted() != null) {
-                    emap.getMgiPredicted().addAll(allele.getMgiPredicted());
-                    emap.setMgiPredicted(new ArrayList<>(new HashSet<>(emap.getMgiPredicted())));
-                }
-                if (allele.getImpcPredicted() != null) {
-                    emap.getImpcPredicted().addAll(allele.getImpcPredicted());
-                    emap.setImpcPredicted(new ArrayList<>(new HashSet<>(emap.getImpcPredicted())));
-                }
-                if (allele.getMgiPredictedKnownGene() != null) {
-                    emap.getMgiPredictedKnownGene().addAll(allele.getMgiPredictedKnownGene());
-                    emap.setMgiPredictedKnownGene(new ArrayList<>(new HashSet<>(emap.getMgiPredictedKnownGene())));
-                }
-                if (allele.getImpcPredictedKnownGene() != null) {
-                    emap.getImpcPredictedKnownGene().addAll(allele.getImpcPredictedKnownGene());
-                    emap.setImpcPredictedKnownGene(new ArrayList<>(new HashSet<>(emap.getImpcPredictedKnownGene())));
-                }
-                if (allele.getMgiNovelPredictedInLocus() != null) {
-                    emap.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
-                    emap.setMgiNovelPredictedInLocus(new ArrayList<>(new HashSet<>(emap.getMgiNovelPredictedInLocus())));
-                }
-                if (allele.getImpcNovelPredictedInLocus() != null) {
-                    emap.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
-                    emap.setImpcNovelPredictedInLocus(new ArrayList<>(new HashSet<>(emap.getImpcNovelPredictedInLocus())));
-                }
-                if (allele.getMarkerSymbol() != null) {
-                    emap.getMarkerSymbol().add(allele.getMarkerSymbol());
-                }
-                if (allele.getMarkerName() != null) {
-                    emap.getMarkerName().add(allele.getMarkerName());
-                }
-                if (allele.getMarkerSynonym() != null) {
-                    emap.getMarkerSynonym().addAll(allele.getMarkerSynonym());
-                }
-                if (allele.getMarkerType() != null) {
-                    emap.getMarkerType().add(allele.getMarkerType());
-                }
-                if (allele.getHumanGeneSymbol() != null) {
-                    emap.getHumanGeneSymbol().addAll(allele.getHumanGeneSymbol());
-                }
-                // NO STATUS FIELD IN ALLELE DATA!!! emap.getStatus().add(allele.getStatus());
-                if (allele.getImitsPhenotypeStarted() != null) {
-                    emap.getImitsPhenotypeStarted().add(allele.getImitsPhenotypeStarted());
-                }
-                if (allele.getImitsPhenotypeComplete() != null) {
-                    emap.getImitsPhenotypeComplete().add(allele.getImitsPhenotypeComplete());
-                }
-                if (allele.getImitsPhenotypeStatus() != null) {
-                    emap.getImitsPhenotypeStatus().add(allele.getImitsPhenotypeStatus());
-                }
-                if (allele.getLatestProductionCentre() != null) {
-                    emap.getLatestProductionCentre().addAll(allele.getLatestProductionCentre());
-                }
-                if (allele.getLatestPhenotypingCentre() != null) {
-                    emap.getLatestPhenotypingCentre().addAll(allele.getLatestPhenotypingCentre());
-                }
-                if (allele.getAlleleName() != null) {
-                    emap.getAlleleName().addAll(allele.getAlleleName());
-                }
-
-                if (includeStatus && allele.getMgiAccessionId() != null) {
-                    emap.getLatestPhenotypeStatus().add("Phenotyping Started");
-                }
-            }
-        }
-    }
-
-    private void initialiseAlleleFields(EmapDTO emap) {
-        if (emap.getType() == null) {
-            emap.setType(new ArrayList<String>());
-            emap.setDiseaseSource(new ArrayList<String>());
-            emap.setDiseaseId(new ArrayList<String>());
-            emap.setDiseaseTerm(new ArrayList<String>());
-            emap.setDiseaseAlts(new ArrayList<String>());
-            emap.setDiseaseClasses(new ArrayList<String>());
-            emap.setHumanCurated(new ArrayList<Boolean>());
-            emap.setMouseCurated(new ArrayList<Boolean>());
-            emap.setMgiPredicted(new ArrayList<Boolean>());
-            emap.setImpcPredicted(new ArrayList<Boolean>());
-            emap.setMgiPredictedKnownGene(new ArrayList<Boolean>());
-            emap.setImpcPredictedKnownGene(new ArrayList<Boolean>());
-            emap.setMgiNovelPredictedInLocus(new ArrayList<Boolean>());
-            emap.setImpcNovelPredictedInLocus(new ArrayList<Boolean>());
-            // MGI accession ID should already be set
-            emap.setMarkerSymbol(new ArrayList<String>());
-            emap.setMarkerName(new ArrayList<String>());
-            emap.setMarkerSynonym(new ArrayList<String>());
-            emap.setMarkerType(new ArrayList<String>());
-            emap.setHumanGeneSymbol(new ArrayList<String>());
-            emap.setStatus(new ArrayList<String>());
-            emap.setImitsPhenotypeStarted(new ArrayList<String>());
-            emap.setImitsPhenotypeComplete(new ArrayList<String>());
-            emap.setImitsPhenotypeStatus(new ArrayList<String>());
-            emap.setLatestProductionCentre(new ArrayList<String>());
-            emap.setLatestPhenotypingCentre(new ArrayList<String>());
-            emap.setAlleleName(new ArrayList<String>());
-            emap.setPreqcGeneId(new ArrayList<String>());
-        }
-    }
-*/
-//    private void addPhenotype2(MpDTO mp) {
-//        if (phenotypes2.containsKey(emap.getMpId())) {
-//            checkMgiDetails(mp);
-//
-//            for (PhenotypeCallSummaryBean pheno2 : phenotypes2.get(mp.getMpId())) {
-//                addStrains(mp, pheno2.getStrainAcc());
-//                addParamProcPipeline(mp, pheno2.getParamProcPipelineId());
-//            }
-//        }
-//    }
-
-    /*
-    private void addStrains(MpDTO mp, String strainAcc) {
-        if (strains.containsKey(strainAcc)) {
-            if (mp.getStrainId() == null) {
-                // Initialise the strain lists
-                mp.setStrainId(new ArrayList<String>());
-                mp.setStrainName(new ArrayList<String>());
-            }
-
-            for (MPStrainBean strain : strains.get(strainAcc)) {
-                mp.getStrainId().add(strain.getAcc());
-                mp.getStrainName().add(strain.getName());
-            }
-        }
-    }
-
-    private void addParamProcPipeline(MpDTO mp, String pppId) {
-        if (pppBeans.containsKey(pppId)) {
-            if (mp.getParameterName() == null) {
-                // Initialise the PPP lists
-                mp.setParameterName(new ArrayList<String>());
-                mp.setParameterStableId(new ArrayList<String>());
-                mp.setParameterStableKey(new ArrayList<String>());
-                mp.setProcedureName(new ArrayList<String>());
-                mp.setProcedureStableId(new ArrayList<String>());
-                mp.setProcedureStableKey(new ArrayList<String>());
-                mp.setPipelineName(new ArrayList<String>());
-                mp.setPipelineStableId(new ArrayList<String>());
-                mp.setPipelineStableKey(new ArrayList<String>());
-            }
-
-            for (ParamProcedurePipelineBean pppBean : pppBeans.get(pppId)) {
-                mp.getParameterName().add(pppBean.getParameterName());
-                mp.getParameterStableId().add(pppBean.getParameterStableId());
-                mp.getParameterStableKey().add(pppBean.getParameterStableKey());
-                mp.getProcedureName().add(pppBean.getProcedureName());
-                mp.getProcedureStableId().add(pppBean.getProcedureStableId());
-                mp.getProcedureStableKey().add(pppBean.getProcedureStableKey());
-                mp.getPipelineName().add(pppBean.getPipelineName());
-                mp.getPipelineStableId().add(pppBean.getPipelineStableId());
-                mp.getPipelineStableKey().add(pppBean.getPipelineStableKey());
-            }
-        }
-    }
-*/
     // PROTECTED METHODS
-    @Override
-    protected Logger getLogger() {
-        return logger;
-    }
 
-    public static void main(String[] args) throws IndexerException, SQLException {
 
+    public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
+
+        RunStatus runStatus = new RunStatus();
         EmapIndexer main = new EmapIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
-
     }
-
 }
-

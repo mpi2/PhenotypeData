@@ -17,13 +17,12 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.exceptions.ValidationException;
 import org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,20 +30,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
 public class PreqcIndexer extends AbstractIndexer {
-
-    private static final Logger logger = LoggerFactory.getLogger(PreqcIndexer.class);
+    private CommonUtils commonUtils = new CommonUtils();
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("preqcIndexing")
@@ -94,23 +90,15 @@ public class PreqcIndexer extends AbstractIndexer {
 
 
 	@Override
-    public void validateBuild() throws IndexerException {
-        Long numFound = getDocumentCount(preqcCore);
-
-        if (numFound <= MINIMUM_DOCUMENT_COUNT)
-            throw new IndexerException(new ValidationException("Actual preqc document count is " + numFound + "."));
-
-        if (numFound != documentCount)
-            logger.warn("WARNING: Added " + documentCount + " preqc documents but SOLR reports " + numFound + " documents.");
-        else
-            logger.info("validateBuild(): Indexed " + documentCount + " preqc documents.");
+    public RunStatus validateBuild() throws IndexerException {
+        return super.validateBuild(preqcCore);
     }
 
     @Override
-    public void run() throws IndexerException {
+    public RunStatus run() throws IndexerException {
+        int count = 1;
+        RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
-
-        logger.info(" start time: " + (System.currentTimeMillis() - start));
 
         zygosityMapping.put("Heterozygous", "heterozygote");
         zygosityMapping.put("Homozygous", "homozygote");
@@ -125,27 +113,12 @@ public class PreqcIndexer extends AbstractIndexer {
 	        String preqcXmlFilename = config.get("preqcXmlFilename");
 
             doGeneSymbol2IdMapping();
-            logger.info(" Finished doGeneSymbol2IdMapping: " + (System.currentTimeMillis() - start));
-
             doAlleleSymbol2NameIdMapping();
-            logger.info(" Finished doAlleleSymbol2NameIdMapping: " + (System.currentTimeMillis() - start));
-
             doStrainId2NameMapping();
-            logger.info(" Finished doStrainId2NameMapping: " + (System.currentTimeMillis() - start));
-
             doImpressSid2NameMapping();
-            logger.info(" Finished doImpressSid2NameMapping: " + (System.currentTimeMillis() - start));
-
             doOntologyMapping();
-            logger.info(" Finished doOntologyMapping: " + (System.currentTimeMillis() - start));
-
             populatePostQcData();
-            logger.info(" Finished populatePostQcData: " + (System.currentTimeMillis() - start));
-
             populateResourceMap();
-            logger.info(" Finished populateResourceMap: " + (System.currentTimeMillis() - start));
-
-
             preqcCore.deleteByQuery("*:*");
 
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new FileInputStream(preqcXmlFilename));
@@ -153,10 +126,6 @@ public class PreqcIndexer extends AbstractIndexer {
             Element rootElement = document.getDocumentElement();
             NodeList nodes = rootElement.getElementsByTagName("uk.ac.ebi.phenotype.pojo.PhenotypeCallSummary");
 
-            logger.info("length: " + nodes.getLength());
-            logger.info("  read document time: " + (System.currentTimeMillis() - start));
-
-            int counter = 1;
             for (int i = 0; i < nodes.getLength();  ++ i) {
                 Element e = (Element) nodes.item(i);
 
@@ -267,8 +236,6 @@ public class PreqcIndexer extends AbstractIndexer {
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
                 String procedurePrefix = StringUtils.join(Arrays.asList(parameter.split("_")).subList(0, 2), "_");
                 if (GenotypePhenotypeIndexer.source3iProcedurePrefixes.contains(procedurePrefix)) {
-//                    o.setResourceName("3i");
-//                    o.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
                     o.setResourceName(StatisticalResultIndexer.RESOURCE_3I.toUpperCase());
                     o.setResourceFullname(resourceMap.get(StatisticalResultIndexer.RESOURCE_3I.toUpperCase()));
 
@@ -302,7 +269,7 @@ public class PreqcIndexer extends AbstractIndexer {
                 o.setEffect_size(effectSize);
 
                 if ( ! zygosityMapping.containsKey(zygosity)) {
-                    logger.warn("Zygosity {} not found for record id {}", zygosity, id);
+                    runStatus.addWarning(" Zygosity " + zygosity + " not found for record id " + id);
                     continue;
                 }
                 o.setZygosity(zygosityMapping.get(zygosity));
@@ -350,26 +317,26 @@ public class PreqcIndexer extends AbstractIndexer {
                 if (sex.equals("Both")) {
 
                     // use incremental id instead of id field from Harwell
-                    o.setId(counter ++);
+                    o.setId(count ++);
                     o.setSex(SexType.female.getName());
                     documentCount++;
                     preqcCore.addBean(o);
 
-                    o.setId(counter ++);
+                    o.setId(count ++);
                     o.setSex(SexType.male.getName());
                     documentCount++;
                     preqcCore.addBean(o);
 
                 } else {
 
-                    o.setId(counter ++);
+                    o.setId(count ++);
 
                     try {
 
                         SexType.valueOf(sex.toLowerCase());
 
                     } catch (IllegalArgumentException se) {
-                        logger.error("Got unexpected sex value '{}' from PreQC file. Not loading", se);
+                        runStatus.addError(" Got unexpected sex value '" + se + "' from PreQC file. Not loading");
                         continue;
                     }
 
@@ -377,29 +344,26 @@ public class PreqcIndexer extends AbstractIndexer {
                     documentCount++;
                     preqcCore.addBean(o);
                 }
-
-                if (counter % 1000 == 0) {
-                    logger.info("Added {} preqc documents to index", counter);
-                }
-
             }
 
             preqcCore.commit();
 
-        } catch (ParserConfigurationException | SAXException | SQLException | SolrServerException | IOException e) {
+        } catch (Exception e) {
             throw new IndexerException(e);
         }
 
-        logger.info("time: " + (System.currentTimeMillis() - start));
-
         if (missingPhenotypeTerm.size() > 0) {
-            logger.info("Phenotype terms are missing for %s record(s):\n %s", missingPhenotypeTerm.size(), StringUtils.join(missingPhenotypeTerm, ", "));
+            runStatus.addWarning(" Phenotype terms are missing for " + missingPhenotypeTerm.size() + " record(s):\n " + StringUtils.join(missingPhenotypeTerm, ", "));
         }
 
         if (bad.size() > 0) {
-            logger.warn("found {} unique mps not in ontodb", bad.size());
-            logger.warn("MP terms not found: {} ", StringUtils.join(bad, ","));
+            runStatus.addWarning(" Found " + bad.size() + " unique mps not in ontodb");
+            runStatus.addWarning(" MP terms not found: " + StringUtils.join(bad, ","));
         }
+
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
+        return runStatus;
     }
 
     public String createFakeIdFromSymbol(String alleleSymbol) {
@@ -823,25 +787,15 @@ public class PreqcIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args) throws IndexerException {
-        super.initialise(args);
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+        super.initialise(args, runStatus);
     }
 
     public static void main(String[] args) throws IndexerException {
-
+        RunStatus runStatus = new RunStatus();
         PreqcIndexer main = new PreqcIndexer();
-        main.initialise(args);
+        main.initialise(args, runStatus);
         main.run();
         main.validateBuild();
-
-        logger.info("Process finished.  Exiting.");
-
     }
-
-    @Override
-    protected Logger getLogger() {
-
-        return logger;
-    }
-
 }

@@ -30,13 +30,14 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 
 @Service("preqcService")
-public class PreQcService extends AbstractGenotypePhenotypeService {
+public class PreQcService extends AbstractGenotypePhenotypeService implements WebStatus {
 
     @Autowired
     @Qualifier("preQcCore")
@@ -102,4 +103,20 @@ public class PreQcService extends AbstractGenotypePhenotypeService {
 
         return retVal;
     }
+
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	
+	public String getServiceName(){
+		return "preQc";
+	}
 }

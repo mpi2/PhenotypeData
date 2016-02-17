@@ -26,18 +26,24 @@ package org.mousephenotype.cda.db.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 
 @Repository
 @Transactional
-public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO {
+public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTermDAO{
 
 	public OntologyTermDAOImpl() {
 	}
@@ -130,6 +136,53 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		tx.commit();
 		session.close();
 		return c;
+	}
+
+	@Override
+	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId) {
+		return (OntologyTerm)this.getCurrentSession().createQuery("from OntologyTerm as o where o.name= ? and o.id.databaseId = ?")
+			.setString(0, name)
+			.setInteger(1, databaseId)
+			.uniqueResult();
+	}
+
+
+	@Override
+	public long getWebStatus() throws Exception {
+		int rows = 0;
+		String statusQuery="SELECT count(*) FROM ontodb_komp2.ma_node2term";
+
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
+
+		try (Connection connection = getConnection()) {
+
+			statement = connection.prepareStatement(statusQuery);
+			resultSet = statement.executeQuery();
+
+			while (resultSet.next()) {
+
+
+			rows=resultSet.getInt(1);
+
+			}
+			statement.close();
+
+		}catch (SQLException e) {
+			e.printStackTrace();
+
+		}
+
+
+
+		 return rows;
+	}
+
+
+	@Override
+	public String getServiceName() {
+		return "Ontology Dao";
 	}
 
 }

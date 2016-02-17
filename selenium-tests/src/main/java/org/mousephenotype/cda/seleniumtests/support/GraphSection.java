@@ -19,6 +19,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -39,7 +40,7 @@ import java.util.regex.Pattern;
  * <li>heading (Required. E.g. components such as Background, Phenotyping
  *     Center, Pipeline, etc. Not all components are required)</li>
  * <li>summary (Optional. e.g. categorical graph sections have a table with id
- *     'catTable'. Unidimensional graph sections have a table with id
+ *     'catTable'. Unidimensional graph sections have a table with class
  *     'continuousTable')</li>
  * </ul>
  */
@@ -81,8 +82,8 @@ public abstract class GraphSection {
         load();
     }
 
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
 
         // Verify title contains 'Allele'.
         if ( ! getHeading().title.startsWith("Allele -")) {
@@ -171,16 +172,30 @@ public abstract class GraphSection {
     private void load() throws TestException {
 
         try {
-            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@class='section']/div[@class='inner']//div[@class='highcharts-container']")));
+            String chartXpath = "//div[@class='section']/div[@class='inner']/div[@class='chart']";
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(chartXpath)));
+
+            // Unidimensional box graphs sometimes aren't yet loaded when we get to this point. If this is one, wait for it to load.
+            ChartType chartType = getChartType(chartElement);
+            if (chartType == ChartType.UNIDIMENSIONAL_BOX_PLOT) {
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[contains(@class, 'continuousTable')]")));
+            }
 
             List<WebElement> elements = chartElement.findElements(By.xpath(".//table[starts-with(@id, 'catTable')]"));
             if ( ! elements.isEmpty()) {
                 this.catTable = new GraphCatTable(elements.get(0));
             }
 
-            elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'continuousTable')]"));
-            if ( ! elements.isEmpty()) {
-                this.continuousTable = new GraphContinuousTable(elements.get(0));
+            for (int i = 0; i < 5; i++) {
+                elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'continuousTable')]"));
+                if ( ! elements.isEmpty()) {
+                    this.continuousTable = new GraphContinuousTable(elements.get(0));
+                    break;
+                } else {
+                    if ((elements.isEmpty()) && (chartType == ChartType.UNIDIMENSIONAL_BOX_PLOT)) {
+                        commonUtils.sleep(5000);
+                    }
+                }
             }
 
             // Scrape this graph's data off the page.
@@ -191,7 +206,7 @@ public abstract class GraphSection {
                 moreStatisticsLink = new MoreStatisticsLink(chartElement);
             }
 
-            elements = chartElement.findElements(By.xpath("./table[starts-with(@id, 'globalTest')]"));
+            elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'globalTest')]"));
             if ( ! elements.isEmpty()) {
                 this.globalTestTable = new GraphGlobalTestTable(graphUrl, elements.get(0));
             }
@@ -220,8 +235,8 @@ public abstract class GraphSection {
             this.chartElement = chartElement;
         }
 
-        public PageStatus validate() {
-            PageStatus status = new PageStatus();
+        public RunStatus validate() {
+            RunStatus status = new RunStatus();
             List<WebElement> moreStatisticsList = chartElement.findElements(By.xpath(moreStatisticsIXpath));
             if (moreStatisticsList.isEmpty()) {
                 status.addError("ERROR: Expected 'More statistics' link but wasn't found. URL: " + graphUrl);
@@ -247,7 +262,7 @@ public abstract class GraphSection {
                     if (style.contains("display: none;"))
                         break;
                     else
-                        commonUtils.sleep(50);
+                        commonUtils.sleep(500);
                 }
                 if ( ! style.contains("display: none;"))
                     status.addError("ERROR: Expected 'More statistics' drop-down to be collapsed.");
