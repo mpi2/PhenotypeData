@@ -1162,7 +1162,7 @@ public class DataTableController {
 
 			return j.toString();
         } else {
-			System.out.println("*******JSON: " + json.toString());
+
             // annotation view: images group by annotationTerm per row
             String fqStr = fqOri;
 
@@ -1450,7 +1450,7 @@ public class DataTableController {
 					String imgCount = facets.get(i + 1).toString();
 					String unit = Integer.parseInt(imgCount) > 1 ? "images" : "image";
 
-					imgUrl = imgUrl.replaceAll("&q=.+&", "&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
+					imgUrl = imgUrl.replaceAll("&q=.+&", "&defType=edismax&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
 					String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
 
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
