@@ -62,7 +62,6 @@ public class PhenotypeSummaryType {
 	}
 	
 	public String getGroup(){// grouping of mp top level terms done by Terry
-		
 		if (this.name == null){
 			return "NA";
 		} else {

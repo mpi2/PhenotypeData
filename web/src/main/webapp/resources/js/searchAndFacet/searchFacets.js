@@ -246,10 +246,11 @@
 				var flabel = $('<span></span>').attr({'class':'flabel'}).text(type);
 				var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
 
-				if ( type == 'protein coding gene' ){
-					var displayCount = json.useProteinCodingGeneCount == true ? count : numFound;
-					$('li#gene > span.fcount').text(displayCount);
-				}
+				//if ( type == 'protein coding gene' ){
+				//	var displayCount = json.useProteinCodingGeneCount == true ? count : numFound;
+				//	$('li#gene > span.fcount').text(displayCount);
+				//}
+				$('li#gene > span.fcount').text(numFound);
 
 				if ( type != 'unclassified gene' && type != 'unclassified non-coding RNA gene' ){
 					liContainer.append(chkbox, flabel, fcount);
