@@ -19,6 +19,9 @@ package org.mousephenotype.cda.seleniumtests.support;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.DataReaderTsv;
+import org.mousephenotype.cda.utilities.DataReaderXls;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -74,15 +77,12 @@ public class GraphPage {
         load();
     }
 
-    public PageStatus validate() throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate() throws TestException {
+        RunStatus status = new RunStatus();
 
         for (GraphSection graphSection : graphSections) {
             status.add(graphSection.validate());
         }
-
-        if (! status.hasErrors())
-            status.successCount++;  // Don't increment per section; increment per page.
 
         return status;
     }
@@ -196,9 +196,9 @@ public class GraphPage {
      * @return two key/value pairs: one keyed "tsv" and one keyed "xls". Each
      * value contains a list of download data by section, where a section is
      * identified as starting with a column heading.
-     * @throws TestException
+     * @throws Exception 
      */
-    public List<DownloadSection> loadAllDownloadData() throws TestException {
+    public List<DownloadSection> loadAllDownloadData() throws Exception {
         List<DownloadSection> retVal = new ArrayList();
 
         // Extract the TSV data.

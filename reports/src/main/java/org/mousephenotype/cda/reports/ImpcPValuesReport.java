@@ -111,10 +111,10 @@ public class ImpcPValuesReport extends AbstractReport {
         log.trace(" Parameter: " + org.apache.commons.lang3.StringUtils.join(sortedParameters, "\n Parameter: "));
 
         List<String> header = new ArrayList<>();
-        header.addAll(Arrays.asList("Genotype", "ColonyId", "Gene", "Center"));
+        header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", "Center"));
         header.addAll(sortedParameters);
 
-        csvWriter.writeNext(header);
+        csvWriter.writeRow(header);
 
         i=0;
         for (RowKey rowKey : matrixValues.keySet()) {
@@ -127,18 +127,20 @@ public class ImpcPValuesReport extends AbstractReport {
             List<String> row = new ArrayList<>();
             row.add(rowKey.genotype);
             row.add(rowKey.colonyId);
-            row.add(rowKey.markerSymbol);
+            row.add(rowKey.geneSymbol);
+            row.add(rowKey.mgiAccessionId);
             row.add(rowKey.center);
 
             for (String param : sortedParameters) {
                 if (matrixValues.get(rowKey).containsKey(param)) {
-                    row.add(matrixValues.get(rowKey).get(param).toString());
+                    String value = (matrixValues.get(rowKey).get(param) == null ? "" : matrixValues.get(rowKey).get(param).toString());
+                    row.add(value);
                 } else {
                     row.add("");
                 }
             }
 
-            csvWriter.writeNext(row);
+            csvWriter.writeRow(row);
         }
 
         try {
@@ -153,13 +155,15 @@ public class ImpcPValuesReport extends AbstractReport {
     private class RowKey {
         String genotype;
         String colonyId;
-        String markerSymbol;
+        String geneSymbol;
+        String mgiAccessionId;
         String center;
 
         public RowKey(StatisticalResultDTO result) {
             this.genotype = result.getAlleleSymbol() + "-" + result.getZygosity();
             this.colonyId = result.getColonyId();
-            this.markerSymbol = result.getMarkerSymbol();
+            this.geneSymbol = result.getMarkerSymbol();
+            this.mgiAccessionId = result.getMarkerAccessionId();
             this.center = result.getPhenotypingCenter();
         }
 
@@ -168,7 +172,8 @@ public class ImpcPValuesReport extends AbstractReport {
             return "RowKey{" +
                     "genotype='" + genotype + '\'' +
                     ", colonyId='" + colonyId + '\'' +
-                    ", markerSymbol='" + markerSymbol + '\'' +
+                    ", geneSymbol='" + geneSymbol + '\'' +
+                    ", mgiAccessionId='" + mgiAccessionId + '\'' +
                     ", center='" + center + '\'' +
                     '}';
         }
@@ -182,7 +187,7 @@ public class ImpcPValuesReport extends AbstractReport {
 
             if (genotype != null ? !genotype.equals(rowKey.genotype) : rowKey.genotype != null) return false;
             if (colonyId != null ? !colonyId.equals(rowKey.colonyId) : rowKey.colonyId != null) return false;
-            if (markerSymbol != null ? !markerSymbol.equals(rowKey.markerSymbol) : rowKey.markerSymbol != null)
+            if (geneSymbol != null ? !geneSymbol.equals(rowKey.geneSymbol) : rowKey.geneSymbol != null)
                 return false;
             return !(center != null ? !center.equals(rowKey.center) : rowKey.center != null);
 
@@ -192,7 +197,8 @@ public class ImpcPValuesReport extends AbstractReport {
         public int hashCode() {
             int result = genotype != null ? genotype.hashCode() : 0;
             result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
-            result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
+            result = 31 * result + (geneSymbol != null ? geneSymbol.hashCode() : 0);
+            result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
             result = 31 * result + (center != null ? center.hashCode() : 0);
             return result;
         }

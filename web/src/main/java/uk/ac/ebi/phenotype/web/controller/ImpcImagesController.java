@@ -77,6 +77,33 @@ public class ImpcImagesController {
 
 		return "laczImages";
 	}
+	
+	@RequestMapping("/impcImages/embryolaczimages/{acc}/{topLevelEmap}")
+	public String embryoLaczImages(@PathVariable String acc, @PathVariable String topLevelEmap, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
+
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
+
+		System.out.println("calling embryolaczImages web page with specific term="+topLevelEmap);
+		addGeneSymbolToPage(acc, model);
+		boolean overview=false;
+		boolean embryoOnly=true;
+		expressionService.getLacImageDataForGene(acc, topLevelEmap,overview, embryoOnly, model);
+
+		return "laczImages";
+	}
+
+	@RequestMapping("/impcImages/embryolaczimages/{acc}")
+	public String embryoLaczImages(@PathVariable String acc, Model model)
+			throws SolrServerException, IOException, URISyntaxException {
+		System.out.println("calling embryolaczImages web page");
+		addGeneSymbolToPage(acc, model);
+		boolean overview=false;
+		boolean embryoOnly=true;
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+
+		return "laczImages";
+	}
 
 	private void addGeneSymbolToPage(String acc, Model model)
 			throws SolrServerException {
@@ -87,13 +114,14 @@ public class ImpcImagesController {
 
 	@RequestMapping("/imagePicker/{acc}/{parameter_stable_id}")
 	public String imagePicker(@PathVariable String acc,
-			@PathVariable String parameter_stable_id, Model model)
+			@PathVariable String parameter_stable_id, Model model, HttpServletRequest request)
 			throws SolrServerException {
 
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
 		System.out.println("calling image picker");
-
+				String mediaType=request.getParameter("mediaType");
+				 if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
@@ -118,7 +146,8 @@ public class ImpcImagesController {
 			SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 			controls.addAll(controlsTemp);
 		}
-
+		
+		model.addAttribute("mediaType", mediaType);
 		System.out.println("experimental size=" + experimental.size());
 		model.addAttribute("experimental", experimental);
 		System.out.println("controls size=" + controls.size());
@@ -280,6 +309,8 @@ public class ImpcImagesController {
 				titleString = qStr;
 				titleString = titleString.replace(
 						"observation_type:image_record AND", " ");
+				titleString = titleString.replace(
+						" AND observation_type:image_record", " ");
 
 				// also check what is in fq
 				if (request.getParameterValues("fq") != null) {
@@ -299,6 +330,8 @@ public class ImpcImagesController {
 					titleString = titleString.replace("(", " ");
 					titleString = titleString.replace(")", " ");
 					titleString = titleString.replace("_", " ");
+					titleString = titleString.replace("*", " ");
+					titleString = titleString.replace(":", " ");
 				}
 			}
 		}

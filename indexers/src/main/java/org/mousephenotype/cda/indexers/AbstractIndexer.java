@@ -18,12 +18,12 @@ package org.mousephenotype.cda.indexers;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.slf4j.Logger;
+import org.mousephenotype.cda.utilities.RunStatus;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -34,13 +34,13 @@ import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
-
 
 /**
  * @author Matt Pearce
  */
 public abstract class AbstractIndexer {
+
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     static final String CONTEXT_ARG = "context";
 
@@ -54,11 +54,9 @@ public abstract class AbstractIndexer {
     // It is used for later validation by querying the core after the build.
     protected int documentCount = 0;
 
-    protected abstract Logger getLogger();
+    public abstract RunStatus run() throws IndexerException, IOException, SolrServerException;
 
-    public abstract void run() throws IndexerException, SQLException, IOException, SolrServerException;
-
-    public abstract void validateBuild() throws IndexerException;
+    public abstract RunStatus validateBuild() throws IndexerException;
 
     public long getDocumentCount(SolrServer solrServer) throws IndexerException {
         Long numFound = 0L;
@@ -68,12 +66,12 @@ public abstract class AbstractIndexer {
         } catch (SolrServerException sse) {
             throw new IndexerException(sse);
         }
-        System.out.println("number found="+numFound);
+        logger.debug("number found = " + numFound);
         return numFound;
     }
     
-    public void initialise(String[] args) throws IndexerException {
-        getLogger().info("args = " + StringUtils.join(args));
+    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+//        getLogger().info("args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
             applicationContext = loadApplicationContext((String) options.valuesOf(CONTEXT_ARG).get(0));
@@ -112,21 +110,21 @@ public abstract class AbstractIndexer {
     }
 
     protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext appContext;
+        ApplicationContext appContext = null;
 
         // Try context as a file resource.
         File file = new File(context);
         if (file.exists()) {
             // Try context as a file resource
-            getLogger().info("Trying to load context from file system file {} ...", context);
             appContext = new FileSystemXmlApplicationContext("file:" + context);
         } else {
             // Try context as a class path resource
-            getLogger().info("Trying to load context from classpath file: {}... ", context);
             appContext = new ClassPathXmlApplicationContext(context);
         }
-            
-        getLogger().info("Context loaded");
+
+        if (appContext == null) {
+            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
+        }
         
         return appContext;
     }
@@ -148,6 +146,28 @@ public abstract class AbstractIndexer {
      */
     protected void printConfiguration() {
 
+    }
+
+    /**
+     * Common core validator
+     *
+     * @param solrServer the solr server to be validated
+     * @return <code>RunStatus</code> indicating success, failure, or warning.
+     * @throws IndexerException
+     */
+    protected RunStatus validateBuild(SolrServer solrServer) throws IndexerException {
+        Long actualSolrDocumentCount = getDocumentCount(solrServer);
+        RunStatus runStatus = new RunStatus();
+
+        if (actualSolrDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
+            runStatus.addError("Expected at least " + MINIMUM_DOCUMENT_COUNT + " documents. Actual count: " + actualSolrDocumentCount + ".");
+        }
+
+        if (actualSolrDocumentCount != documentCount) {
+            runStatus.addWarning("SOLR reports " + actualSolrDocumentCount + ". Actual count: " + documentCount);
+        }
+
+        return runStatus;
     }
 
 }

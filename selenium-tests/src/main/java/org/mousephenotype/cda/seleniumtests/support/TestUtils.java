@@ -26,13 +26,12 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -708,13 +707,13 @@ public class TestUtils {
      *
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
-     * @param status the <code>PageStatus</code> instance
+     * @param status the <code>RunStatus</code> instance
      * @param successRecords the number of success records processed
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
     @Deprecated
-    public void printEpilogue(String testName, Date start, PageStatus status, int successRecords, int totalRecords, int totalPossible) {
+    public void printEpilogue(String testName, Date start, RunStatus status, int successRecords, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
@@ -744,11 +743,11 @@ public class TestUtils {
      *
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
-     * @param status the <code>PageStatus</code> instance
+     * @param status the <code>RunStatus</code> instance
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
-    public void printEpilogue(String testName, Date start, PageStatus status, int totalRecords, int totalPossible) {
+    public void printEpilogue(String testName, Date start, RunStatus status, int totalRecords, int totalPossible) {
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
         Date stop;
@@ -948,7 +947,7 @@ public class TestUtils {
     }
 
     /**
-     * Sorts <code>delimitedString</code> alphabetically, first splitting the
+     * Sorts <code>delimitedString</code> alphabetically, case-insensitive, first splitting the
      * string into separate segments, delimited by <code>delimiter</code>.
      *
      * @param delimitedString the delimited string to sort
@@ -962,7 +961,7 @@ public class TestUtils {
 
         String[] partsArray = delimitedString.split(Pattern.quote(delimiter));
         List<String> partsList = Arrays.asList(partsArray);
-        Collections.sort(partsList);
+        Collections.sort(partsList, String.CASE_INSENSITIVE_ORDER);
 
         String retVal = "";
         for (String part : partsList) {
@@ -978,7 +977,9 @@ public class TestUtils {
     }
 
     /**
-     * Sorts the delimited cells in the specified columns of each row in <code>delimitedArray</code> alphabetically
+     * Sorts the delimited cells in the specified columns of each row in <code>delimitedArray</code> alphabetically,
+     * case-insensitive.
+     *
      * For example, given:
      *      [0]           [1]           [2]
      *      "abc"         "f|e|d"       "ghi"
@@ -1013,25 +1014,6 @@ public class TestUtils {
         }
 
         return retVal;
-    }
-
-    /**
-     * Returns the classpath, prefaced by the string 'Classpath:\n'. Each
-     * file is separated by a newline.
-     *
-     * @return the classpath, prefaced by the string 'Classpath:\n'. Each
-     * file is separated by a newline.
-     */
-    public static String getClasspath() {
-        StringBuilder sb = new StringBuilder("Classpath:\n");
-        ClassLoader cl = ClassLoader.getSystemClassLoader();
-        URL[] urls = ((URLClassLoader) cl).getURLs();
-
-        for (URL url : urls) {
-            sb.append(url.getFile()).append("\n");
-        }
-
-        return sb.toString();
     }
 
     /**

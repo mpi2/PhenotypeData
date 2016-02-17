@@ -1,5 +1,9 @@
 /* Additional styling written at EBI */
 
+.capitalize {
+    text-transform: capitalize;
+}
+
 .credit {
 	font-size:12px;
 }
@@ -12,7 +16,7 @@
 	max-height:3.5em;
 }
 .inline-block{
-	display:inline-block;"
+	display:inline-block;
 }
 
 div.paddingLeftMedium{
@@ -208,3 +212,13 @@ button.exportButton{
 }
 
 .onethirdForPie               { float: left; width: 33%; }
+
+li img.thumbnailStyle{
+	max-width: 200px; max-height: 200px;width:auto; height:auto;
+}
+
+td h4 a{
+color:#0978a1
+}
+
+.embryo-caption		{ text-align: justify;  font-size: 0.8em;}

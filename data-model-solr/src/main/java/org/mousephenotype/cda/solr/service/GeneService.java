@@ -28,6 +28,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class GeneService extends BasicService{
+public class GeneService extends BasicService implements WebStatus{
 
 	@Autowired
 	@Qualifier("geneCore")
@@ -200,6 +201,19 @@ public class GeneService extends BasicService{
 		return allGenes;
 	}
 
+	public List<GeneDTO> getGenesWithEmbryoViewer () 
+	throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(GeneDTO.EMBRYO_DATA_AVAILABLE + ":true");
+		solrQuery.setRows(1000000);
+		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);
+		
+		return (List<GeneDTO>) solr.query(solrQuery).getBeans(GeneDTO.class);
+		
+	}
+	
+	
 	
 	// returns ready formatted icons
 	public Map<String, String> getProductionStatus(String geneId, String hostUrl)
@@ -862,7 +876,7 @@ public class GeneService extends BasicService{
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":\"" + symbol + "\"")
 			.setRows(1)
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
+			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME);
 
 		QueryResponse rsp = solr.query(solrQuery);
 		if (rsp.getResults().getNumFound() > 0) {
@@ -893,7 +907,6 @@ public class GeneService extends BasicService{
 		try {
 			// add facet for latest_project_status 
 			solrQuery.addFacetField(GeneDTO.LATEST_ES_CELL_STATUS);
-
 			solrResponse = solr.query(solrQuery);
 			// put all values in the hash
 			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_ES_CELL_STATUS).getValues()){
@@ -942,5 +955,22 @@ public class GeneService extends BasicService{
 		return geneToHumanOrthologMap;
 	}
 
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	
+	@Override
+	public String getServiceName(){
+		return "Gene Service";
+	}
 	
 }

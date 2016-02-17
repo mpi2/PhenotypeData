@@ -18,6 +18,7 @@ package org.mousephenotype.cda.seleniumtests.support;
 
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -40,8 +41,8 @@ public class GraphValidatorPreqc {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    public PageStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
-        PageStatus status = new PageStatus();
+    public RunStatus validate(WebDriver driver, GenePage genePage, GraphTestDTO geneGraph) throws TestException {
+        RunStatus status = new RunStatus();
         String message;
 
         List<String> urls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), GenePage.GraphUrlType.PREQC);

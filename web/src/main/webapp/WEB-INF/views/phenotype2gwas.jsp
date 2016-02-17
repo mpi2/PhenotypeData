@@ -4,7 +4,7 @@
 
 <t:genericpage>
     <jsp:attribute name="title">IMPC Phenotype to GWAS Disease Trait Mapping</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/phenotype2gwas">&nbsp;IMPC Phenotype to GWAS Disease Trait Mapping</a></jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/gwaslookup">&nbsp;IMPC Phenotype to GWAS Disease Trait Mapping Viewer</a></jsp:attribute>
     <jsp:attribute name="header">
         
 

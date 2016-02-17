@@ -16,16 +16,16 @@
 
 package org.mousephenotype.cda.indexers.utils;
 
+import org.mousephenotype.cda.indexers.beans.OrganisationBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.mousephenotype.cda.indexers.beans.OrganisationBean;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
 /**
  *
@@ -52,6 +52,33 @@ public class OntologyUtils {
         }
 
         return impressMap;
+    }
+
+    /**
+     * Given an alt_mp_id, returns the matching mp_id, if found; null otherwise.
+     *
+     * @param connection A valid ontodb_komp2 database connection instance
+     * @param altMpId alt_mp_Id
+     *
+     * @return Given an alt_mp_id, returns the matching mp_id, if found; null otherwise.
+     *
+     * @throws SQLException
+     */
+    public static String getMpId(Connection connection, String altMpId) throws SQLException {
+        String retVal = null;
+
+        String query = "SELECT distinct term_id FROM ontodb_komp2.mp_alt_ids where alt_id = ?";
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+            p.setString(1, altMpId);
+
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+                retVal = resultSet.getString("term_id");
+            }
+        }
+
+        return retVal;
     }
 
     /**

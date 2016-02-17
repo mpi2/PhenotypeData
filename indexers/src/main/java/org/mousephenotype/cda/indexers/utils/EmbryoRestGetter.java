@@ -1,16 +1,16 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.mousephenotype.cda.solr.generic.util.HttpProxy;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.mousephenotype.cda.utilities.HttpProxy;
+import org.springframework.stereotype.Service;
 
 /**
  * Class for getting the embryo data from the phenoDCC on embryo data available
@@ -62,12 +62,10 @@ public class EmbryoRestGetter {
 			EmbryoStrain embryoStrain = null;
 			
 			JSONObject json=new JSONObject(content);
-			System.out.println("json="+json.toString());
-			//String []names=JSONObject.getNames(json);
+//			System.out.println("json="+json.toString());
 			JSONArray coloniesArray=json.getJSONArray("colonies");
 			for(int i=0;i<coloniesArray.length(); i++){
 				JSONObject jsonObject = coloniesArray.getJSONObject(i);
-					System.out.println("start of object");
 					embryoStrain = new EmbryoStrain();
 					embryoStrain.setColonyId(jsonObject.getString("colony_id"));
 					embryoStrain.setMgi(jsonObject.getString("mgi"));

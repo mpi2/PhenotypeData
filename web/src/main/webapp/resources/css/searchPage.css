@@ -173,9 +173,9 @@ table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 div#tableTool {
 	font-size: 14px;
 	position: absolute;
-	bottom: 0px;
-	right: 0px;
-	margin-right: 0px;
+	bottom: 0;
+	right: 0;
+	margin-right: 0;
 }
 div#saveTable {
 	position: relative;
@@ -198,9 +198,9 @@ div#saveTable img {
 }
 div#toolBox {
 	position: absolute;
-	top: -8px;
-	right: 10px;
-	height: 80px;
+	top: -65px;
+	right: 0px;
+	height: auto;
 	width: 220px;
 	display: none;
 	padding: 15px;
@@ -208,6 +208,7 @@ div#toolBox {
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
+	border: 1px solid gray;
 }
 div#toolBox span {
 	display: block;
@@ -268,6 +269,7 @@ li.currDataType {
 }
 li.currDataType a  {
 	color: white !important;
+
 }
 div#resultMsg {
 	clear: both;
@@ -286,6 +288,7 @@ div#dTable_pagination {
 }
 
 div.flist {
+
 	margin-top: 20px !important;
 }
 .tabfc {
@@ -444,6 +447,7 @@ input.facetFilterSubmit {
 div#facet {
 	/*clear: both;*/
 	top: 120px;
+
 }
 
 div.flist ul li.fmcat > .flabel {

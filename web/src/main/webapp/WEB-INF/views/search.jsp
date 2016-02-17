@@ -48,6 +48,7 @@
 									<ul></ul>
 								</li>
 							</ul>
+
 						</div>
 					</div>
 				</div>
@@ -308,7 +309,9 @@
 
 					var paramStr = matches[2].replace(/^\?/,'');
 					//alert("paramStr: "+paramStr)
+
 					var kw = paramStr.split("&");
+
 					for ( var i=0; i<kw.length; i++ ){
 						var pairs = kw[i].split("=");
 						var k = pairs[0];
@@ -353,6 +356,7 @@
 					}
 
 					query = query.replace("\\%3A", ":");
+
 					$('input#s').val(decodeURI(query));
 				}
 
@@ -400,7 +404,9 @@
 						}
 
 						//$(this).addClass('currDataType').click();
+
 						$(this).parent().addClass('currDataType');//.click();
+
 						$.fn.displayFacets(coreName, ${jsonStr});
 
 						// check(highlight) filter(s) based on URL fq str
@@ -475,10 +481,12 @@
 					// update pagination control
 					addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
 
+
 					// do these only when there is result found
 					if ( $('div#dTable_pagination li.active a').size() > 0 ) {
 						// add Download
 						addDownloadTool();
+
 
 						// highlight synonyms
 						highlighSynonym();
@@ -487,13 +495,13 @@
 						addRegisterInterestJs();
 					}
 				}
+
 			});
 			// ----------- highlights current "tab" and populates facet filters and dataTable -----------
 
 
 			// submit query when facet filter is ticked
 			fetchResultByFilters();
-
 
 			//------------------------- FUNCTIONS ------------------------
 
@@ -594,29 +602,63 @@
 			function addDownloadTool(){
 				var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
 
+
 				var vals = $('div#dTable_pagination li.active a').attr('href').split("?");
 				var params = vals[1];
+
 				var dataType = "dataType=" + coreName;
 				var fileTypeTsv = "fileType=tsv";
 				var fileTypeXls = "fileType=xls";
 				var fileName = "fileName=" + coreName + "_table_dump";
 
-				var paramList = [dataType, params, fileName];
-				var paramStr = paramList.join("&");
+				// only results from current page
+				var paramList1 = [dataType, params, fileName];
+				var paramStr1 = paramList1.join("&");
+				paramStr1 += "&mode=page";
+
+				// all results in table
+				var total = ${jsonStr}.iTotalRecords;
+				var regex1 = /iDisplayStart=\d+/;
+				var matches1 = params.match(regex1);
+				var regex2 = /iDisplayLength=\d+/;
+				var matches2 = params.match(regex2);
+				var iStart = matches1[0];
+				var iEnd = matches2[0];
+				var paramStr2 = paramStr1.replace(iEnd, "iDisplayLength=" + total).replace(iStart, "iDisplayStart=0");
+				paramStr2 += "&mode=all";
 
 
-				var urltsv = "${baseUrl}/export2?" + paramStr + "&" + fileTypeTsv;
-				var urlxls = "${baseUrl}/export2?" + paramStr + "&" + fileTypeXls;
+				var urltsvC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeTsv;
+				var urlxlsC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeXls;
+
+				var urltsvA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeTsv;
+				var urlxlsA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeXls;
 
 				var toolBox = '<div id="toolBox" style="display: block;">'
 						+ '<div class="dataName">Current paginated entries in table</div>'
 						+ '<p>Export as: &nbsp;'
-						+ '<a id="tsv" class="fa fa-download gridDump" href="' + urltsv + '">TSV</a>&nbsp;or&nbsp;'
-						+ '<a id="xls" class="fa fa-download gridDump" href="' + urlxls + '">XLS</a></p><p>'
+						+ '<a id="tsvC" class="fa fa-download gridDump" href="' + urltsvC + '">TSV</a>&nbsp;or&nbsp;'
+						+ '<a id="xlsC" class="fa fa-download gridDump" href="' + urlxlsC + '">XLS</a></p><p>'
+						+ '<div class="dataName">All entries in table</div>'
+						+ '<p>Export as: &nbsp;'
+						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;or&nbsp;'
+						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></p><p>'
 						+ 'For larger dataset, use <a href=${baseUrl}/batchQuery>Batch query</a>';
 
 				//$('div.dataTables_processing').siblings('div#tableTool').append(
 				$('div#tableTool').append(saveTool, toolBox);
+
+				var cutoff = 10000;
+				$("a#tsvA, a#xlsA").click(function(){
+					if (total > cutoff){
+						var r = confirm("It will take longer to download a bigger dataset. Please do not interrupt while downloading.\n\nProceed?");
+						if (r !== true) {
+							return false;
+						}
+						// when true the href fireds and do query in batch on server side
+					}
+				})
+
 
 				$('div#toolBox').hide();
 				$('span#dnld').click(function(){
@@ -714,7 +756,6 @@
 
 				parentContainer.append(dTable);
 
-
 			}
 
 			function addPaginationControl(parentContainer, infoDivId, paginationDivId, json){
@@ -730,6 +771,7 @@
 				var defaultRows = 10;
 				var currPageNum = (start/length)+1;
 
+
 				parentContainer.find('div#' + infoDivId).html("Showing " + numX + " to " + numY + " of " + total + " entries");
 
 				var filters = solrFilters != undefined ? " filtered by " + solrFilters : "";
@@ -739,16 +781,17 @@
 				var pages = Math.ceil(total / length);
 				var defaultPaginationLength = pages > 6 ? 5 : pages;
 				var lis = [];
-				var href = undefined;
+				var href = location.href;
 
 				// work out correct url to append start and length for pagination
-				if ( location.href.indexOf("&iDisplayStart") != -1 ){
+				if ( /search\/?$/.exec(location.href) ) {
+					href = "search/gene?kw=*";
+				}
+				else if ( location.href.indexOf("&iDisplayStart") != -1 ){
 					var pos = location.href.indexOf("&iDisplayStart");
 					href = location.href.substr(0, pos);
 				}
-				else {
-					href = location.href;
-				}
+
 
 				var dLen = "&iDisplayLength=10";
 

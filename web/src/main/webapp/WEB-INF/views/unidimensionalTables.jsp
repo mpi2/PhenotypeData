@@ -5,13 +5,21 @@
 
     <c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
         <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
-
-
+<c:if test="${data.result.status ne 'Success'}">
+ 	<div class="alert">
+           <strong>Statistics ${data.result.status}</strong>
+    </div>
+</c:if>
         <%-- Display result of a mixed model calculation --%>
 
         <c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
+    
+   
+    
             <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
-                <table id="globalTest">
+            
+             
+                <table class="globalTest">
                     <thead>
                         <tr>
                             <th width="25%"><strong>P Value</strong></th>
@@ -22,7 +30,7 @@
                         <tr class="toggle_table_covariate_details">
                             <td class="globalTestValue"><strong> <t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></strong></td>
                             <td><strong> ${data.result.significanceClassification.text}</strong><!-- <br/><small>Click for more information <i class="fa" id="toggle_indicator"></i></small> -->
-                                <table id="table_covariate_details">
+                                <table class="table_covariate_details">
                                     <c:choose>
                                         <c:when
                                             test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
@@ -92,7 +100,7 @@
         <%-- Display result of a wilcoxon calculation --%>
 
         <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod=='Wilcoxon rank sum test with continuity correction'}">
-            <table id="globalTest">
+            <table class="globalTest">
                 <thead>
                 <tr>
                     <th>Sex</th>
@@ -122,7 +130,7 @@
 
 
         <%-- always print the summary statistics table --%>
-        <table id="continuousTable">
+        <table class="continuousTable">
             <thead>
             <tr>
                 <th>Control/Hom/Het</th>

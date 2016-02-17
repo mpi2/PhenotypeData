@@ -35,6 +35,7 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.PipelineDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +50,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class ImpressService {
+public class ImpressService implements WebStatus {
 
 	@Value("${drupalBaseUrl}")
 	public String DRUPAL_BASE_URL;
@@ -435,6 +436,30 @@ public class ImpressService {
 		return idToAbnormalMaId;
 	}
 	
+	public Map<String,OntologyBean> getParameterStableIdToAbnormalEmapMap(){
+		
+		Map<String,OntologyBean> idToAbnormalEmapId=new HashMap<>();
+		List<ImpressDTO> pipelineDtos=null;
+		SolrQuery query = new SolrQuery()
+			.setQuery(ImpressDTO.EMAP_ID + ":*" )
+			.setFields(ImpressDTO.EMAP_ID, ImpressDTO.EMAP_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
+		QueryResponse response=null;
+		
+		try {
+			response = solr.query(query);
+			pipelineDtos = response.getBeans(ImpressDTO.class);
+			for(ImpressDTO pipe:pipelineDtos){
+				if(!idToAbnormalEmapId.containsKey(pipe.getParameterStableId())){
+					idToAbnormalEmapId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getEmapId(),pipe.getEmapTerm()));
+				}
+			}
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+	
+		return idToAbnormalEmapId;
+	}
+	
 	
 	/**
 	 * @author tudose
@@ -465,17 +490,21 @@ public class ImpressService {
 
 	public class OntologyBean{
 
+		@Override
+		public String toString() {
+			return "OntologyBean [id=" + id + ", name=" + name + "]";
+		}
 		public OntologyBean(String id, String name){
-			this.maId=id;
+			this.id=id;
 			this.name=name;
 		}
 
-		String maId;
-		public String getMaId() {
-			return maId;
+		String id;
+		public String getId() {
+			return id;
 		}
-		public void setMaId(String maId) {
-			this.maId = maId;
+		public void setId(String maId) {
+			this.id = maId;
 		}
 		String name;
 		public String getName() {
@@ -485,4 +514,21 @@ public class ImpressService {
 			this.name = maName;
 		}
 	}
+	
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "ImpressService (pipeline core)";
+	}
+	
 }

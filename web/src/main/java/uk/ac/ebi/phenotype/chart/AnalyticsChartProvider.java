@@ -344,12 +344,14 @@ public class AnalyticsChartProvider {
 		return chart;
 	}
 
-	public String getSlicedPieChart(Map<String, Integer> slicedOut, Map<String, Integer> notSliced, String title, String containerId){
+	public String getSlicedPieChart(Map<String, Long> slicedOut, Map<String, Long> notSliced, String title, String containerId){
 
-			List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
+			List<String> colors=java.util.Arrays.asList( "'rgba(9, 120, 161,1)'", "'rgba(255, 201, 67, 1)'", "'rgba(239, 123, 11, 1)'","'rgba(119, 119, 119, 1)'", 
+					 "'rgba(36, 139, 75, 1)'", "'rgba(238, 238, 180, 1)'", "'rgba(191, 75, 50, 1)'", "'rgba(191, 151, 50, 1)'", "'rgba(239, 123, 11, 1)'" ,
+					"'rgba(247, 157, 70, 1)'", "'rgba(247, 181, 117, 1)'",  "'rgba(191, 75, 50, 1)'", "'rgba(151, 51, 51, 1)'");
 			JSONArray data = new JSONArray();
 			try {
-				for ( Entry<String, Integer> entry : slicedOut.entrySet()){
+				for ( Entry<String, Long> entry : slicedOut.entrySet()){
 					JSONObject obj = new JSONObject();
 					obj.put("name", entry.getKey());
 					obj.put("y", entry.getValue());
@@ -357,7 +359,7 @@ public class AnalyticsChartProvider {
 					obj.put("selected", true);
 					data.put(obj);
 				}
-				for ( Entry<String, Integer> entry : notSliced.entrySet()){
+				for ( Entry<String, Long> entry : notSliced.entrySet()){
 					JSONObject obj = new JSONObject();
 					obj.put("name", entry.getKey());
 					obj.put("y", entry.getValue());
@@ -369,16 +371,19 @@ public class AnalyticsChartProvider {
 						 + " colors:" + colors + ", "
 						 + " title: {  text: '" + title + "' }, "
 						 + " credits: { enabled: false }, "
-						 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
+				//		 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
+						 + " tooltip: {  pointFormat: '<b>{point.percentage:.1f}%</b>'},"
 						 + " plotOptions: { "
 						 	+ "pie: { "
 						 		+ "size: 200, "
-						 		+"showInLegend: true, "
+						 		+ "showInLegend: true, "
 						 		+ "allowPointSelect: true, "
 						 		+ "cursor: 'pointer', "
-						 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
+					//	 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
+						 		+ "dataLabels: { enabled: true, format: '{point.percentage:.1f} %', "
 						 		+ "style: { color: '#666', width:'60px' }  }  },"
-						 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} }"
+//						 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.1f}%'} }"
+						 	+ "series: {  dataLabels: {  enabled: true, format: '{point.percentage:.1f}%'} }"
 						 + " },"
 					+ " series: [{  type: 'pie',   name: '',  "
 						+ "data: " + data + "  }]"

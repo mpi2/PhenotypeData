@@ -31,7 +31,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.seleniumtests.support.PageStatus;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -131,7 +131,7 @@ public class PhenotypePageStatistics {
      */
     @Test
     public void testCollectTableAndImageStatistics() throws SolrServerException {
-        PageStatus status = new PageStatus();
+        RunStatus status = new RunStatus();
         String testName = "testCollectTableAndImageStatistics";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());

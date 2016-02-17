@@ -3,9 +3,9 @@
 
     <!-- FRAMEWORK -->
     <logger name="ch.qos.logback"                                               level="WARN" />
-    <logger name="org.apache.tomcat.jdbc.pool"                                  level="${log.level:-INFO}" />
-    <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                 level="${log.level:-INFO}" />
-    <logger name="org.hibernate"                                                level="${log.level:-INFO}" />
+    <logger name="org.apache.tomcat.jdbc.pool"                                  level="${log.level:-WARN}" />
+    <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                 level="${log.level:-ERROR}" />
+    <logger name="org.hibernate"                                                level="${log.level:-WARN}" />
     <logger name="org.springframework"                                          level="WARN" />
 
 
@@ -13,7 +13,7 @@
     <logger name="org.mousephenotype"                                           level="INFO"/>
    	<logger name="org.mousephenotype.cda.solr"                                  level="WARN" />
    	<logger name="org.mousephenotype.cda.seleniumtests"                         level="INFO" />
-
+    <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
 
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 

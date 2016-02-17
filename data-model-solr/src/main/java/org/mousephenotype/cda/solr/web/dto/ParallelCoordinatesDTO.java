@@ -16,17 +16,10 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.mousephenotype.cda.db.pojo.Parameter;
+import net.sf.json.JSONObject;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-import net.sf.json.JSONObject;
+import java.util.*;
 
 /**
  * @since 2015/07
@@ -38,53 +31,53 @@ public class ParallelCoordinatesDTO {
 	public static final String DEFAULT = "default value";
 	public static final String GROUP_WT = "WT";
 	public static final String GROUP_MUTANT = "Mutant";
-	
+
 	String group;
 	String geneSymbol;
 	String geneAccession;
 	HashMap<String, MeanBean> means;
 	List<ParameterDTO> allColumns;
- 	
-	
+
+
 	public ParallelCoordinatesDTO(String geneSymbol, String geneAccession, String group, List<ParameterDTO> allColumns){
-		
+
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
 		this.group = group;
 		means = new HashMap<>();
 		this.allColumns = allColumns;
-		
+
 		for (ParameterDTO parameter: allColumns){
 			if (getSortValue(parameter.getStableId()) % 100 != 0){
 				means.put(parameter.getName(), new MeanBean( null, parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
-			} 
+			}
 		}
 	}
-	
-	
+
+
 	public void addMean( String unit, String parameterStableId, String parameterName, Integer parameterStableKey, Double mean){
-		
+
 		if (getSortValue(parameterStableId) % 100 != 0){
 			means.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
-		} 
-		
+		}
+
 	}
-	
-	
+
+
 	public String toString(boolean onlyComplete){
-		
+
 		String res = "";
-		
-		if (onlyComplete && isComplete() || !onlyComplete){			
-			res += "\"name\": \"" + geneSymbol + "(" + geneAccession + ")\",";		
+
+		if (onlyComplete && isComplete() || !onlyComplete){
+			res += "\"name\": \"" + geneSymbol + "(" + geneAccession + ")\",";
 			res += "\"group\": \"" + group + "\",";
-			int i = 0; 			
-			
+			int i = 0;
+
 			if (this.means.values().size() > 0){
 
                 List <MeanBean> values = new ArrayList<MeanBean>(this.means.values());
-				Collections.sort(values, this.means.values().iterator().next().getComparatorByTerry());				
-				
+				Collections.sort(values, this.means.values().iterator().next().getComparatorByTerry());
+
 				for (MeanBean mean : values){
 					res += "\"" + mean.parameterName + "\": ";
 					res += mean.mean;
@@ -97,10 +90,10 @@ public class ParallelCoordinatesDTO {
 		}
 		return res;
 	}
-	
-	
+
+
 	public boolean isComplete(){
-		
+
 		boolean complete = true;
 		for (MeanBean row: means.values()){
 			if (row.mean == null){
@@ -110,10 +103,10 @@ public class ParallelCoordinatesDTO {
 			}
 		}
 		return complete;
-	}	
-	
+	}
+
 	public JSONObject getJson(){
-		
+
 		JSONObject obj = new JSONObject();
 		obj.accumulate("name", this.geneSymbol);
 		obj.accumulate("group", "default gene group");
@@ -122,19 +115,19 @@ public class ParallelCoordinatesDTO {
 		}
 		return obj;
 	}
-	
+
 	public HashMap<String, MeanBean> getMeans(){
 		return means;
 	}
-	
+
 	public class MeanBean{
-		
+
 		String unit;
 		String parameterStableId;
 		String parameterName;
 		Integer parameterStableKey;
 		Double mean;
-		
+
 		public MeanBean(String unit, String parameterStableId,
 		String parameterName, Integer parameterStableKey, Double mean){
 			this.unit = unit;
@@ -145,7 +138,7 @@ public class ParallelCoordinatesDTO {
 		}
 		public Double getMean(){
 			return mean;
-		}		
+		}
 		public String getUnit() {
 			return unit;
 		}
@@ -173,30 +166,30 @@ public class ParallelCoordinatesDTO {
 		public void setMean(Double mean) {
 			this.mean = mean;
 		}
-		
+
 		/**
 		 * @author tudose
 		 * @return
 		 */
 		public Comparator<MeanBean> getComparatorByParameterName()
-		{   
+		{
 			Comparator<MeanBean> comp = new Comparator<MeanBean>(){
 		    @Override
 		    public int compare(MeanBean s1, MeanBean s2)
 		    {
 		        return s1.parameterName.compareTo(s2.parameterName);
-		    }        
+		    }
 			};
 			return comp;
-		}  
-		
+		}
+
 		/**
 		 * @author tudose
 		 * @since 2015/08/04
 		 * @return
 		 */
 		public Comparator<MeanBean> getComparatorByTerry()
-		{   
+		{
 			Comparator<MeanBean> comp = new Comparator<MeanBean>(){
 			    @Override
 			    public int compare(MeanBean a, MeanBean b)
@@ -204,13 +197,13 @@ public class ParallelCoordinatesDTO {
 			    	Integer valA = getSortValue(a.getParameterStableId());
 			    	Integer valB = getSortValue(b.getParameterStableId());
 	 		        return valA.compareTo(valB);
-			    }        
+			    }
 			};
 			return comp;
-		}  	
-		
+		}
+
 	}
-	
+
 	private Integer getHash(String str){
 		Integer hash=7;
 		for (int i=0; i < str.length(); i++) {
@@ -218,7 +211,7 @@ public class ParallelCoordinatesDTO {
 		}
 		return hash;
 	}
-	
+
 	/**
 	 * @author ilinca
 	 * @since 2015/10/29
@@ -227,20 +220,20 @@ public class ParallelCoordinatesDTO {
 	 */
 	private int getSortValue(String parameterStableId){
 		if (sortMap.containsKey(parameterStableId)){
-			return sortMap.get(parameterStableId); 
+			return sortMap.get(parameterStableId);
 		} else {
 			System.out.println("WARNING: Parameter unsorted " + parameterStableId);
-			int hash = 100000 + getHash(parameterStableId); 
+			int hash = 100000 + getHash(parameterStableId);
 			if (hash % 100 == 0){
 				hash += 1;
-			} 
+			}
 			sortMap.put(parameterStableId, hash);
 			return hash;
 		}
 	}
-	
-	/* Sorting done by Terry, based on how parameters make most biological sense. 
-	 * See e-mail from 2015/08/03. 
+
+	/* Sorting done by Terry, based on how parameters make most biological sense.
+	 * See e-mail from 2015/08/03.
 	 * 0 means no display. Since I added the procedure prefix 0 from his list translates to x%100 = 0.
 	 * Anything >0 is the sorting order.
 	 */
@@ -613,9 +606,9 @@ public class ParallelCoordinatesDTO {
 			sortMap.put("JAX_ERG_042_001",3710); //Rod b-wave implicit time-left,10,3700
 			sortMap.put("JAX_ERG_041_001",3711); //Rod b-wave implicit time-right,11,3700
 		}
-	
+
 	/**
-	 * List of procedures not to be displayed as options for the parallel coordinates. 
+	 * List of procedures not to be displayed as options for the parallel coordinates.
 	 * List came from Terry, see email 2015/08/03.
 	 */
 	public static final List<String> procedureNoDisplay;
@@ -625,5 +618,5 @@ public class ParallelCoordinatesDTO {
 			procedureNoDisplay.add("IMPC_FER_001");
 			procedureNoDisplay.add("ICS_HOT_001");
 	}
-	
+
 }

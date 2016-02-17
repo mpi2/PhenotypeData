@@ -76,7 +76,7 @@ public class GwasDAO {
     	Connection connection = admintoolsDataSource.getConnection();
     	// need to set max length for group_concat() otherwise some values would get chopped off !!
     	String query = "SELECT * FROM impc2gwas WHERE pheno_mapping_category != 'no mapping' AND " + sql;
-    	System.out.println("gwas mapping detail rows query: " + query);
+    	//System.out.println("gwas mapping detail rows query: " + query);
 
          List<GwasDTO> results = new ArrayList<>();
 
@@ -136,7 +136,9 @@ public class GwasDAO {
         		+ "GROUP_CONCAT(distinct mp_term_name) AS mp_term_name, "
         		+ "GROUP_CONCAT(distinct gwas_disease_trait) AS gwas_disease_trait "
         		+ "FROM impc2gwas ";
+
         String groupBy = " GROUP BY gwas_disease_trait, mp_term_name";
+        String andClause = " AND pheno_mapping_category != 'no mapping' AND mgi_gene_symbol != ''";
 
     	if ( field.equals("keyword") ){
         	whereClause =
@@ -155,43 +157,45 @@ public class GwasDAO {
                 + "  OR mp_term_name            LIKE ?\n"
                 + "  OR impc_mouse_gender       LIKE ?\n"
                 + "  OR gwas_snp_id             LIKE ?\n)"
-                + "  AND pheno_mapping_category != 'no mapping'";
+                + andClause;
 
-        	query = selectClause + whereClause + groupBy;
+        	query = selectClause + whereClause + andClause + groupBy;
+        }
+        else if ( value.equals("*") ) {
+            query = selectClause + " WHERE " + field + " LIKE '%' " + andClause + groupBy;
         }
         else if ( ! value.isEmpty() ) {
-        	query = selectClause + " WHERE " + field + " = ? AND pheno_mapping_category != 'no mapping'" + groupBy;
+        	query = selectClause + " WHERE " + field + " = ? " + andClause + groupBy;
         }
         else {
-        	query = selectClause + " WHERE pheno_mapping_category != 'no mapping'" + groupBy;
+            query = selectClause + " WHERE " + andClause + groupBy;
         }
 
-        System.out.println("gwas mapping query: " + query);
+        log.debug("gwas mapping query: " + query);
 
         List<GwasDTO> results = new ArrayList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
         	if ( field.equals("keyword") ){
         		value = "%" + value + "%";
-        		ps.setString(1, value);
-        		ps.setString(2, value);
-        		ps.setString(3, value);
-        		ps.setString(4, value);
-        		ps.setString(5, value);
-        		ps.setString(6, value);
-        		ps.setString(7, value);
-        		ps.setFloat(8, Float.valueOf("-1"));  // simply set to something that does not exist, we don't need this field
-        		ps.setString(9, value);
-        		ps.setString(10, value);
-        		ps.setString(11, value);
-        		ps.setString(12, value);
-        		ps.setString(13, value);
-        		ps.setString(14, value);
-        		ps.setString(15, value);
-        		ps.setString(16, value);
-        		ps.setString(17, value);
+                //System.out.println("VALUE: " + value);
+                ps.setString(1, value); // mgi_gene_id
+        		ps.setString(2, value); // mgi_gene_symbol
+        		ps.setString(3, value); // mgi_allele_id
+        		ps.setString(4, value); // mgi_allele_name
+        		ps.setString(5, value); // pheno_mapping_category
+        		ps.setString(6, value); // gwas_disease_trait
+        		ps.setFloat(7, Float.valueOf("-1")); // gwas_p_value, simply set to something that does not exist, we don't need this field
+        		ps.setString(8, value);  // gwas_reported_gene
+        		ps.setString(9, value); // gwas_mapped_gene
+        		ps.setString(10, value); // gwas_upstream_gene
+        		ps.setString(11, value); // gwas_downstream_gene
+        		ps.setString(12, value); // mp_term_id
+        		ps.setString(13, value); // mp_term_name
+        		ps.setString(14, value); // impc_mouse_gender
+        		ps.setString(15, value); // gwas_snp_id
         	}
-        	else if ( ! value.isEmpty()) {
+        	else if ( ! value.isEmpty() && ! value.equals("*") ) {
                 // Replace parameter holder ? with the value.
             	ps.setString(1, value);
             }
@@ -202,7 +206,11 @@ public class GwasDAO {
                 GwasDTO gwasMappingRow = new GwasDTO();
 
                 gwasMappingRow.setMgiGeneId(resultSet.getString("mgi_gene_id"));
-                gwasMappingRow.setMgiGeneSymbol(resultSet.getString("mgi_gene_symbol"));
+
+                String mgi_gene_symbol = resultSet.getString("mgi_gene_symbol").toLowerCase();
+                mgi_gene_symbol = Character.toUpperCase(mgi_gene_symbol.charAt(0)) + mgi_gene_symbol.substring(1);
+                gwasMappingRow.setMgiGeneSymbol(mgi_gene_symbol);
+
                 gwasMappingRow.setDiseaseTrait(resultSet.getString("gwas_disease_trait"));
                 gwasMappingRow.setMpTermName(resultSet.getString("mp_term_name"));
 
@@ -254,6 +262,7 @@ public class GwasDAO {
 
         String whereClause = null;
         String query = null;
+        String andClause = "pheno_mapping_category != 'no mapping' AND mgi_gene_symbol != ''";
 
         // only want gwas mapping that are either direct or indirect
         // the ones without mappings are from GWAS catalog and
@@ -275,18 +284,18 @@ public class GwasDAO {
                 + "  OR mp_term_name            LIKE ?\n"
                 + "  OR impc_mouse_gender       LIKE ?\n"
                 + "  OR gwas_snp_id             LIKE ?\n)"
-                + "  AND pheno_mapping_category != 'no mapping'";
+                + andClause;
 
-        	query = "SELECT * FROM impc2gwas" + whereClause;
+        	query = "SELECT * FROM impc2gwas" + whereClause + " AND " + andClause;
         }
         else if ( ! value.isEmpty() ) {
-        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ? AND pheno_mapping_category != 'no mapping'";
+        	query = "SELECT * FROM impc2gwas WHERE " + field + " = ? " + " AND " + andClause;
         }
         else {
-        	query = "SELECT * FROM impc2gwas WHERE pheno_mapping_category != 'no mapping'";
+        	query = "SELECT * FROM impc2gwas WHERE " + andClause;
         }
 
-        //System.out.println("gwas mapping query: " + query);
+        log.debug("gwas mapping query: " + query);
 
         List<GwasDTO> results = new ArrayList<>();
 

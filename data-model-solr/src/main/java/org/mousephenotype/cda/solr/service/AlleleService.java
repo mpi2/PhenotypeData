@@ -23,6 +23,7 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
+import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class AlleleService {
+public class AlleleService implements WebStatus{
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleService.class);
 
@@ -197,6 +198,22 @@ public class AlleleService {
 
 			return 0;
 		}
+	}
+
+	@Override
+	public long getWebStatus() throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery("*:*").setRows(0);
+
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		return response.getResults().getNumFound();
+	}
+	@Override
+	public String getServiceName(){
+		return "Allele Service";
 	}
 
 

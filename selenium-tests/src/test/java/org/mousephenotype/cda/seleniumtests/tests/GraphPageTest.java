@@ -34,6 +34,7 @@ import org.mousephenotype.cda.seleniumtests.support.*;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.openqa.selenium.WebDriver;
@@ -48,8 +49,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +61,6 @@ import static org.junit.Assert.assertTrue;
  *
  * Selenium test for graph page query coverage ensuring each page works as expected.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 @SpringApplicationConfiguration(classes = TestConfig.class)
@@ -150,85 +148,96 @@ public class GraphPageTest {
 
 
     private void graphEngine(String testName, List<String> graphUrls) throws TestException {
+        RunStatus masterStatus = new RunStatus();
+        String message = "";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus statuses = new PageStatus();
 
         int targetCount = graphUrls.size();
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, graphUrls.size());
 
         int i = 1;
         for (String graphUrl : graphUrls) {
+            RunStatus status = new RunStatus();
 
             // Skip gene pages without graphs.
             if (graphUrls.isEmpty())
                 continue;
 
             try {
-                System.out.println("[" + (i - 1) + "]: Testing graph " + graphUrl);
                 GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
-                statuses.add(graphPage.validate());
+                status.add(graphPage.validate());
 
             } catch (TestException e) {
-                statuses.addError(e.getLocalizedMessage());
+                status.addError(e.getLocalizedMessage());
             }
+
+            if ( ! status.hasErrors())
+                status.successCount++;
+
+            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + (i - 1) + "] " + graphUrl;
+            System.out.println(statusString + message);
+
+            masterStatus.add(status);
 
             if (i++ >= targetCount) {
                 break;
             }
         }
 
-        testUtils.printEpilogue(testName, start, statuses, targetCount, graphUrls.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, graphUrls.size());
         System.out.println();
     }
 
     private void testEngine(String testName, List<GraphTestDTO> geneGraphs, GenePage.GraphUrlType graphUrlType) throws TestException {
-        String target;
+        RunStatus masterStatus = new RunStatus();
+        String message = "";
         Date start = new Date();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        PageStatus statuses = new PageStatus();
-        int successCount = 0;
+        String genePageTarget;
+        String graphPageTarget = "";
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
 
         int i = 1;
         for (GraphTestDTO geneGraph : geneGraphs) {
-            target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-            System.out.println("[" + (i - 1) + "]: GENE PAGE URL:  " + target);
-//target = "http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/genes/MGI:2684058";
-            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
+            RunStatus status = new RunStatus();
 
-            List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
-//graphUrls.clear();graphUrls.add("http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/charts?accession=MGI:2684058&allele_accession_id=EUROALL:22&zygosity=homozygote&parameter_stable_id=ESLIM_009_001_704&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS");
-
-            // Skip gene pages without graphs.
-            if ((graphUrls.isEmpty()) || ( ! genePage.hasGraphs()))
-                continue;
-            genePage.selectGenesLength(100);
+            genePageTarget = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            message = "";
 
             try {
-                System.out.println("[" + (i - 1) + "]: GRAPH PAGE URL: " + graphUrls.get(0));
-                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrls.get(0), baseUrl);
-                PageStatus status = graphPage.validate();
-                if ( ! status.hasErrors()) {
-                    successCount++;
-                } else {
-                    logger.warn("FAILED GENE PAGE URL: " + target);
-                    logger.warn("FAILED GRAPH PAGE URL: " + graphUrls.get(0));
-                }
-                statuses.add(status);
+                GenePage genePage = new GenePage(driver, wait, genePageTarget, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
+
+                List<String> graphUrls = genePage.getGraphUrls(geneGraph.getProcedureName(), geneGraph.getParameterName(), graphUrlType);
+
+                // Skip gene pages without graphs.
+                if ((graphUrls.isEmpty()) || (!genePage.hasGraphs()))
+                    continue;
+
+                genePage.selectGenesLength(100);
+
+                graphPageTarget = graphUrls.get(0);
+                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphPageTarget, baseUrl);
+                status.add(graphPage.validate());
 
             } catch (Exception e) {
-                statuses.addError(e.getLocalizedMessage());
+                status.addError(e.getLocalizedMessage());
             }
+
+            if ( ! status.hasErrors())
+                status.successCount++;
+
+            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + (i - 1) + "] " + graphPageTarget;
+            System.out.println(statusString + message);
+
+            masterStatus.add(status);
 
             if (i++ >= targetCount) {
                 break;
             }
         }
 
-        testUtils.printEpilogue(testName, start, statuses, successCount, targetCount, geneGraphs.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, geneGraphs.size());
         System.out.println();
     }
 
@@ -243,18 +252,18 @@ public class GraphPageTest {
         String testName = "testKnownGraphs";
 
         List<String> graphUrls = Arrays.asList(new String[]{
-                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                // ABR
-                , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // ABR
-                , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // ABR
-                , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // Time Series
-                , baseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Unidimensional
-                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // Categorical
-                , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // Categorical
-                , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // Unidimensional
-                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // Unidimensional
-                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"
-                , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"
-                , baseUrl + "/charts?accession=MGI:1930948&allele_accession_id=MGI:4432700&zygosity=heterozygote&parameter_stable_id=ESLIM_015_001_006&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"              // Uni with 4 graphs
+                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                // UNIDIMENSIONAL_ABR_PLOT
+                , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // UNIDIMENSIONAL_ABR_PLOT
+                , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // UNIDIMENSIONAL_ABR_PLOT
+                , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // TIME_SERIES_LINE
+                , baseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // CATEGORICAL_STACKED_COLUMN
+                , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // CATEGORICAL_STACKED_COLUMN
+                , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // CATEGORICAL_STACKED_COLUMN
+                , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:1930948&allele_accession_id=MGI:4432700&zygosity=heterozygote&parameter_stable_id=ESLIM_015_001_006&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"              // UNIDIMENSIONAL_BOX_PLOT with 4 graphs
         });
 
         graphEngine(testName, graphUrls);
@@ -267,8 +276,9 @@ public class GraphPageTest {
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
         assertTrue("Expected at least one gene graph.", geneGraphs.size() > 0);
         String target;
+        String message = "";
         Date start = new Date();
-        PageStatus statuses = new PageStatus();
+        RunStatus masterStatus = new RunStatus();
 
         int targetCount = testUtils.getTargetCount(env, testName, geneGraphs, 10);
         testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, geneGraphs.size());
@@ -276,17 +286,27 @@ public class GraphPageTest {
         for (int i = 0; i < targetCount; i++) {
             GraphTestDTO geneGraph = geneGraphs.get(i);
             target = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
-            System.out.println("[" + (i) + "]: GENE PAGE URL:  " + target);
-            GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
-            genePage.selectGenesLength(100);
-            GraphValidatorPreqc validator = new GraphValidatorPreqc();
-            PageStatus status = validator.validate(driver, genePage, geneGraph);
-            if ( ! status.hasErrors())
-                status.successCount++;
-            statuses.add(status);
+
+            try {
+                GenePage genePage = new GenePage(driver, wait, target, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
+                genePage.selectGenesLength(100);
+                GraphValidatorPreqc validator = new GraphValidatorPreqc();
+                RunStatus status = validator.validate(driver, genePage, geneGraph);
+                if (status.hasErrors()) {
+                    message = "FAILED [" + i + "]: URL: " + target;
+                } else {
+                    message = "PASSED [" + i + "]: " + target;
+                    status.successCount++;
+                }
+                masterStatus.add(status);
+            } catch (Exception e) {
+                message = "FAILED [" + i + "]: " + e.getLocalizedMessage() + "\nGENE PAGE URL:  " + target;
+            }
+
+            System.out.println(message);
         }
 
-        testUtils.printEpilogue(testName, start, statuses, targetCount, geneGraphs.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, geneGraphs.size());
         System.out.println();
     }
 
