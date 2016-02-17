@@ -12,7 +12,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 
-<div id="expDataView">Show adult expression data in table</div>
+<div id="expDataView">Show adult expression data</div>
 
 <div id="anatomo1">
     <jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>

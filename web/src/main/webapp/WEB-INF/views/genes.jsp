@@ -134,12 +134,12 @@
                         if ($('#anatomo1').is(':visible')) {
                             $('#anatomo1').hide();
                             $('#anatomo2').show();
-                            $(this).text("Show adult expression data in table");
+                            $(this).text("Show adult expression data");
                         }
                         else {
                             $('#anatomo1').show();
                             $('#anatomo2').hide();
-                            $(this).text("Hide adult expression data in table");
+                            $(this).text("Hide adult expression data");
                         }
                     });
 
@@ -201,7 +201,7 @@
 		            margin: 0 0px -3px 20px;
 		            border: 1px solid grey;
 		            border-bottom: none;
-		            font-size: 16px;
+		            font-size: 14px;
 		            text-decoration: none;
 		            padding: 3px 8px;
 		            border-radius: 4px;
@@ -727,7 +727,7 @@
 									<!-- section for expression data here -->
 									<div id="exptabs">
 										<ul class='tabs'>
-											<li><a href="#tabs-1">Adult Expression Overview</a></li>
+											<li><a href="#tabs-1">Adult Expression</a></li>
 
 											<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
 												<%--<li><a href="#tabs-2">Adult Expression Data Overview</a></li>--%>
@@ -738,7 +738,7 @@
 											</c:if>
 
 											<c:if test="${not empty embryoExpressionAnatomyToRow}">
-												<li><a href="#tabs-4">Embryo Expression Data Overview</a></li>
+												<li><a href="#tabs-4">Embryo Expression Data</a></li>
 											</c:if>
 
 											<c:if test="${not empty impcEmbryoExpressionImageFacets}">
