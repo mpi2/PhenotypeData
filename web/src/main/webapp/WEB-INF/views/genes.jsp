@@ -342,7 +342,7 @@
 
 								<p class="with-label">
 									<span class="label">MGI Id</span>
-									<a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
+									<a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
 								</p>
 
 								<c:if
@@ -354,10 +354,10 @@
 								</c:if>
 								<p class="with-label">
 									<span class="label">Links</span>
-									<a href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Ensembl
+									<a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Ensembl
 										Gene</a>&nbsp;&nbsp;
 									<!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
-									<a href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Ensembl
+									<a target="_blank" href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Ensembl
 										Compara</a>
 									&nbsp;<a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a><span
 										id="enu"></span>
@@ -374,14 +374,14 @@
                                        	<c:if test="${gwasPhenoMapping == 'no mapping' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
-                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
+                                   				<a target="_blank" href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
                                				</p>
                                			</c:if>	
                                			<c:if test="${gwasPhenoMapping == 'indirect' }">
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
                                    				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				<a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                    				
                                				</p>
                                			</c:if>
@@ -389,7 +389,7 @@
                                	 			<p class="with-label">
                                    				<span class="label">GWAS mapping</span>
                                    				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
+                                   				<a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
                                				</p>
                                			</c:if>
                                    		
@@ -899,7 +899,7 @@
 						<div class="section" id="diseasesOrthSim">
 							<h2 class="title" id="section-disease-models">Disease Models
 
-								<a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
+								<a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                         <span class="documentation">
                                             <a href='${baseUrl}/documentation/disease-help.html#details'
                                                class="mpPanel">
