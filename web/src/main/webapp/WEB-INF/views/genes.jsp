@@ -361,10 +361,9 @@
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 
-        									<div class="floatright"  style="clear: both">
+        									<div class="floatright marginup"  style="clear: both">
 												<p>
                                                 	<a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-												<br/> 
                                                 </p>
                                             </div>
 
@@ -372,11 +371,12 @@
 
                                         <c:if
                                                 test="${gene.embryoDataAvailable}">
-                                            <div class="floatright"
+                                            
+                                            <div class="floatright marginup"
                                                  style="clear: both">
-                                                <a class="btn"
-                                                   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}"
-                                                   style="margin: 10px">Embryo Viewer</a>
+                                                <p><a class="btn"
+                                                   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}" >Embryo Viewer</a> 
+                                                </p>
                                             </div>
                                         </c:if>
 
@@ -491,11 +491,10 @@
                                             </div>
                                             <br/>
                                             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-                                            <div class="floatright"
+                                            <div class="floatright marginup"
                                                  style="clear: both">
 												<p>
                                                 	<a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-												<br/> 
                                                 </p>
                                             </div>
                                             <div class="clear"></div>
@@ -503,11 +502,10 @@
 
                                         <c:if
                                                 test="${gene.embryoDataAvailable}">
-                                            <div class="floatright"
+                                            <div class="floatright marginup"
                                                  style="clear: both">
-                                                <a class="btn"
-                                                   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}"
-                                                   style="margin: 10px">Embryo Viewer</a>
+                                                <p><a class="btn"
+                                                   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a> </p>
                                             </div>
                                         </c:if>
                                     </c:when>
