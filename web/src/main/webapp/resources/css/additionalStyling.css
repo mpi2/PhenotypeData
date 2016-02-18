@@ -1,4 +1,7 @@
 /* Additional styling written at EBI */
+.marginup{
+	margin-top:0.5em;
+}
 
 .capitalize {
     text-transform: capitalize;
