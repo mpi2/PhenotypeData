@@ -31,6 +31,9 @@ public class ObservationDTOBase {
     public final static String PROJECT_NAME = "project_name";
     public final static String PHENOTYPING_CENTER = "phenotyping_center";
     public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
+	public final static String PRODUCTION_CENTER = "production_center";
+	public final static String PRODUCTION_CENTER_ID = "production_center_id";
+	public final static String LITTER_ID = "litter_id";
     public final static String GENE_ACCESSION_ID = "gene_accession_id";
     public final static String GENE_SYMBOL = "gene_symbol";
     public final static String ALLELE_ACCESSION_ID = "allele_accession_id";
@@ -154,7 +157,16 @@ public class ObservationDTOBase {
     @Field(PHENOTYPING_CENTER)
     protected String phenotypingCenter;
 
-    @Field(OBSERVATION_TYPE)
+	@Field(PRODUCTION_CENTER_ID)
+	protected Integer productionCenterId;
+
+	@Field(PRODUCTION_CENTER)
+	protected String productionCenter;
+
+	@Field(LITTER_ID)
+	protected String litterId;
+
+	@Field(OBSERVATION_TYPE)
     protected String observationType;
 
     @Field(COLONY_ID)
@@ -657,15 +669,35 @@ public class ObservationDTOBase {
         return phenotypingCenterId;
     }
 
-    /**
-     * @param phenotypingCenterId
-     *            the organisationId to set
-     */
-    public void setPhenotypingCenterId(Integer phenotypingCenterId) {
-        this.phenotypingCenterId = phenotypingCenterId;
-    }
+	public void setPhenotypingCenterId(Integer phenotypingCenterId) {
+		this.phenotypingCenterId = phenotypingCenterId;
+	}
 
-    /**
+	public Integer getProductionCenterId() {
+		return productionCenterId;
+	}
+
+	public void setProductionCenterId(Integer productionCenterId) {
+		this.productionCenterId = productionCenterId;
+	}
+
+	public String getProductionCenter() {
+		return productionCenter;
+	}
+
+	public void setProductionCenter(String productionCenter) {
+		this.productionCenter = productionCenter;
+	}
+
+	public String getLitterId() {
+		return litterId;
+	}
+
+	public void setLitterId(String litterId) {
+		this.litterId = litterId;
+	}
+
+	/**
      * @return the observationType
      */
     public String getObservationType() {

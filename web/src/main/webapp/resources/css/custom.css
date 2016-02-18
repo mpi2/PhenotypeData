@@ -5,7 +5,7 @@ Add custom css overrides here
 */
 
 
-// Scrollable divs for code example blocks.
+/* Scrollable divs for code example blocks.*/
 .highlight {
     background: #ffffff;
 }

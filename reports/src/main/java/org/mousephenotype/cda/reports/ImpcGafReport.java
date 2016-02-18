@@ -61,7 +61,7 @@ public class ImpcGafReport extends AbstractReport {
     AnalyticsDAO analyticsDAO;
 
     public ImpcGafReport() {
-        super();
+        super(ReportFormat.tsv);
     }
 
     @Override

@@ -184,6 +184,7 @@ public class QueryBrokerController {
 			//String solrCore = core.equals("gene2") ? "gene" : core;
 
 			String internalSolrUrl = request.getAttribute("internalSolrUrl").toString();
+			//String url = internalSolrUrl + "/" + solrCore + "/select?" + param;
 			String url = internalSolrUrl + "/" + core + "/select?" + param;
 
 			String key = core+param;
