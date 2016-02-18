@@ -43,7 +43,7 @@
 
 				var qVal = aVals[1];
 				var qField = aVals[0];
-				
+
 				// lookup the facet from queryField used in url
 				var fieldFacet = MPI2.searchAndFacetConfig.qfield2facet[qField];
 
@@ -272,7 +272,7 @@
 		 * $(this).parent('.fmcat').addClass('open'); } });
 		 */
 		$('div.flist >ul li#' + facet).click(function() {
-			
+
 			if ($(this).find('span.fcount').text() == 0) {
 				return false; // for facet having no matches, a click does
 								// nothing
@@ -292,7 +292,7 @@
 				.find('li.fcatsection')
 				.click(
 						function(e) {
-						
+
 							// when subfacet opens, tick checkbox facet filter
 							// if there is matching summary facet filter
 							// (created from url on page load)
@@ -305,7 +305,7 @@
 											var ffacet = aVals[0];
 											var kv = aVals[1] + '|' + aVals[2];
 
-											
+
 											// tick only filters in opening
 											// facet
 											if (ffacet == facet) {
@@ -369,7 +369,7 @@
 		delete MPI2.searchAndFacetConfig.commonSolrParams.rows;
 
 		caller.click(function() {
-			
+
 					if (caller.find('span.fcount').text() != 0) { // initial
 																	// state
 																	// (lives
@@ -489,7 +489,7 @@
 								// alert('mainFacetDoneReset');
 								MPI2.searchAndFacetConfig.update.rebuilt = true;
 								MPI2.searchAndFacetConfig.update.mainFacetDoneReset = false;
-								
+
 								$.fn.rebuildFilters(oUrlParams);
 							}
 						}
@@ -729,9 +729,9 @@
 					for (var i = 0; i < oFacets[fld].length; i = i + 2) {
 
 						var subFacetName = oFacets[fld][i];
-						
+
 						var facetCount = oFacets[fld][i + 1];
-						
+
 						var isGrayout = facetCount == 0 ? 'grayout' : '';
 
 						if (subFacetName != '') { // skip solr field which
@@ -741,12 +741,12 @@
 							if (className != 'phenotyping') {
 								$(selectorBase + ' li.' + className + ' span.flabel').each(function() {
 									var subFacetLabel = $(this).text();
-									
+
 									if (subFacetLabel == subFacetName || (className == 'embryo_data_available' && subFacetName == 'true') ) {
 										$(this).parent().removeClass('grayout').addClass(isGrayout);
 										$(this).siblings('span.fcount').text(facetCount);
 									}
-									
+
 								});
 							} else {
 
@@ -1277,8 +1277,8 @@
 								&& qField == 'legacy_phenotype_status') {
 							aFilters.push('(legacy_phenotype_status:' + qVal
 									+ ')');
-						} 
-						
+						}
+
 						else if (facet == 'pipeline') {
 							// console.log( qField + ':"' + qVal )
 							var aParts = qVal.split('___');
@@ -1371,7 +1371,7 @@
 				else if ( qValue == 'true' && qField == 'embryo_data_available' ){
 					filterTxt = qField;
 				}
-				
+
 				if (qField == 'latest_production_centre') {
 					filterTxt = 'mice produced at ' + qValue;
 				} else if (qField == 'latest_phenotyping_centre') {
@@ -1706,7 +1706,7 @@
 		 * <a href='http://www.google.com/chrome'>Google chrome</a>, <a
 		 * href='http://support.apple.com/downloads/#internet'>Apple safari</a>.<p>" +
 		 * "IMPC team.</div>";
-		 * 
+		 *
 		 * $('div.navbar').siblings('div.container').html(msg); return false; }
 		 */
 
@@ -2407,7 +2407,7 @@
 															 * oConf.imgViewSwitcherDisplay ==
 															 * 'Show Annotation
 															 * View'){
-															 * 
+															 *
 															 * oConf.imgViewSwitcherDisplay =
 															 * 'Show Image
 															 * View';

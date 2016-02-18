@@ -95,7 +95,7 @@
                             <p>
                             In addition, the NIH is supporting in-depth phenotyping of embryonic lethal lines with two current awardees.
                             </p>
-                            <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">William Trevor, University of Colorado School of Medicine</a>
+                            <p><a href="http://www.ucdenver.edu/academics/colleges/medicalschool/programs/Molbio/faculty/WilliamsT/Pages/WilliamsT.aspx">Trevor William, University of Colorado School of Medicine</a>
                             </p>
                             <p><a href="https://www.umass.edu/m2m/people/jesse-mager">Jesse Mager, University of Massachusetts Amherst</a>
                             </p>
