@@ -56,7 +56,7 @@
                                 <%-- <t:impcimgdisplay2 img="${doc}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2> --%>
                                 <c:set var="thumbnailUrl" value="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"/>
          		<c:if test="${mediaType=='pdf'}">
-         		<c:set var="thumbnailUrl" value="${pdfThumbnailUrl}/200"/>
+         		<c:set var="thumbnailUrl" value="../${pdfThumbnailUrl}"/>
          		</c:if>
                                 	<option data-img-src="${thumbnailUrl}" value="${img.omero_id}" data-img-label="
    										<c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
@@ -92,7 +92,7 @@
          		<img  src="${pdfThumbnailUrl}/200" style="max-height: 200px;"></a> --%>
          		<c:set var="thumbnailUrl" value="${impcMediaBaseUrl}/render_thumbnail/${img.omero_id}/200"/>
          		<c:if test="${mediaType=='pdf'}">
-         		<c:set var="thumbnailUrl" value="${pdfThumbnailUrl}/200"/>
+         		<c:set var="thumbnailUrl" value="../${pdfThumbnailUrl}"/>
          		</c:if>
          		                                <option 
                                 data-img-src="${thumbnailUrl}" 
