@@ -62,9 +62,9 @@
 						
 							</div>					
 						</div>
-						
+
 				<div class="section"> 
-					<h2 class="title">Genes with reporter expression table</h2>
+					<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
 						<div class="inner">
 							 <div class="container span12">
 									<div id="filterParams" >
