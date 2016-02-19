@@ -484,7 +484,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id "
                 + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
                 + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
-                + "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc";
+                + "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc ";
 
 		if (featureFlags.contains("production_center_id") && featureFlags.contains("litter_id")) {
 			query += "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
