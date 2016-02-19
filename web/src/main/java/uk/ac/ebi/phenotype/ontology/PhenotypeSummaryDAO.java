@@ -106,6 +106,7 @@ public class PhenotypeSummaryDAO  {
 		if (res != null && res.size() > 0 && res.get(0) != null){ 
 			for (SolrDocument doc: res){
 				if (isSignificant(doc)){
+					System.out.println("****** SEX *****: "+ StatisticalResultDTO.PHENOTYPE_SEX);
 					n += doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX) ? doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX).size() : 2;
 				} else {
 					break;

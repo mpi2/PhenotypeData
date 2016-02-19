@@ -367,7 +367,7 @@ public class ReportsManager implements CommandLineRunner {
     private void logInputParameters() {
         log.info("Reports:          " + StringUtils.join(parser.getReports(), ","));
         log.info("Target directory: " + parser.getTargetDirectory());
-        log.info("Report format:    " + parser.getReportFormat());
+        log.info("Report format:    " + (parser.getReportFormat() == null ? "<omitted>" : parser.getReportFormat()));
         log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
         log.info("Prefix:           " + (parser.getPrefix() == null ? "<omitted>" : parser.getPrefix()));
     }

@@ -97,15 +97,16 @@
 					var fieldName = phenoFieldList[j];
 					if (fieldName == 'Phenotype Attempt Registered' ||
 						fieldName == 'Phenotyping Started' ||
-						fieldName == 'Phenotyping Complete' ||
-						fieldName == 'Legacy' ){
+						fieldName == 'Phenotyping Complete' ){
+
+						//fieldName == 'Legacy' ){
 
 						pheno_count[aImitsPhenos[fieldName]] = phenoFieldList[j+1];
 					}
 				}
 			}
 
-			pheno_count['Legacy'] = json.facet_fields['legacy_phenotype_status'][1];
+			//pheno_count['Legacy'] = json.facet_fields['legacy_phenotype_status'][1];
 
 			var phenoUlContainer = $("<ul></ul>");
 
@@ -113,10 +114,12 @@
 				'Approved':{'fq':phenoStatusFacetField,'val':'Phenotyping Complete'},
 				'Started':{'fq':phenoStatusFacetField,'val':'Phenotyping Started'},
 				'Attempt Registered':{'fq':phenoStatusFacetField, 'val':'Phenotype Attempt Registered'},
-				'Legacy':{'fq':'legacy_phenotype_status', 'val':'1'}
+				//'Legacy':{'fq':'legacy_phenotype_status', 'val':'1'}
 			};
 
-			var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered', 'Legacy'];
+			//var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered', 'Legacy'];
+			var aPhenos = [phenoCompleteLabel, 'Started', 'Attempt Registered'];
+			
 			for ( var i=0; i<aPhenos.length; i++ ){
 				var phenotypingStatusFq = phenotypingStatuses[aPhenos[i]].fq;
 				var phenotypingStatusVal = phenotypingStatuses[aPhenos[i]].val;
@@ -321,7 +324,7 @@
 			$('li#gene li.fcat input').click(function(){
 
 				// highlight the item in facet
-				updateHighlight($(this));
+				updateCheckedFilter($(this));
 			});
 		}
 	}
@@ -386,7 +389,7 @@
 		$('li#mp li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 	}
@@ -531,7 +534,7 @@
 			$('li#disease li.fcat input').click(function(){
 
 				// highlight the item in facet
-				updateHighlight($(this));
+				updateCheckedFilter($(this));
 			});
 
 		}
@@ -575,7 +578,7 @@
 		$('li#ma li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 	}
@@ -615,7 +618,7 @@
 			var thisUlContainer = $("<ul></ul>");
 
 			for ( var i=0; i<aFacetFields[facetName].length; i+=2){
-				console.log("field name: " + aFacetFields[facetName][i]);
+				//console.log("field name: " + aFacetFields[facetName][i]);
 				//console.log(typeof aFacetFields[facetName][i]);
 				if (typeof aFacetFields[facetName][i] == 'string') {
 					var liContainer = $("<li></li>").attr({'class':'fcat ' + facetName});
@@ -654,7 +657,7 @@
 		$('li#impc_images li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 	}
@@ -727,20 +730,19 @@
 		$('li#images li.fcat input').click(function(){
 
 			// highlight the item in facet
-			updateHighlight($(this));
+			updateCheckedFilter($(this));
 		});
 
 
 	}
 
 
-
-	function updateHighlight(thisObj){
-		if ( !thisObj.siblings('span.flabel').hasClass('highlight')) {
-			thisObj.siblings('span.flabel').addClass('highlight');
+	function updateCheckedFilter(thisObj){
+		if ( !thisObj.siblings('span.flabel').hasClass('filterCheck')) {
+			thisObj.siblings('span.flabel').addClass('filterCheck');
 		}
 		else {
-			thisObj.siblings('span.flabel').removeClass('highlight');
+			thisObj.siblings('span.flabel').removeClass('filterCheck');
 		}
 	}
 
