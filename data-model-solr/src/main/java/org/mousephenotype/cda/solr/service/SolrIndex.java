@@ -428,7 +428,7 @@ public class SolrIndex {
             if (doc.containsKey("omero_id")) {
                 String fullSizePath =impcMediaBaseUrl+"render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                 String downloadUrl=doc.getString("download_url");
-                //System.out.println("download Url="+downloadUrl);
+                System.out.println("full size path="+downloadUrl);
                 String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
                 String smallThumbNailPath = thumbnailPath + "/200/";
                 String largeThumbNailPath = thumbnailPath + "/800/";
@@ -437,7 +437,7 @@ public class SolrIndex {
                 	img="<img style='width: 200px' src='" + pdfThumbnailUrl + "'/>";
                 	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
-                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath +"'>" + img + "</a>";
+                link = "<a class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
                 }
             } else {
                 link = IMG_NOT_FOUND;
