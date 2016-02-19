@@ -79,7 +79,7 @@ if(ids.length!=0){//only search for info related to ids if we have them.
 var thisSolrUrl = solrUrl + '/impc_images/select';
 var joinedIds=ids.join(" OR ");
 var paramStr = 'q=omero_id:(' +joinedIds + ')&wt=json&defType=edismax&qf=auto_suggest&rows=100000';
-if(mediaType==='pdf'){
+if(mediaType[0]==='pdf'){
 	paramStr+='&fq=full_resolution_file_path:*.pdf';
 }
 var docs;
@@ -103,14 +103,14 @@ var len=0;
 	        
 	        //initialise navigation to first image annotations
 	        doc=docs[0];
-	        displayDocAnnotations(doc, frame);
+	        displayDocAnnotations(doc, frame, mediaType);
 	        //console.log('mediaBaseUrl='+mediaBaseUrl);
 	        $('#next').click(function(){
 	        		//console.log('nextControl clicked');
 	        		var doc=docs[++i % len];
 //	        		frame.attr('src', url+doc.omero_id);
 //	        		$('#annotations').html(getAnnoataionsDisplayString(doc));
-	        		displayDocAnnotations(doc, frame);
+	        		displayDocAnnotations(doc, frame, mediaType);
 	        	});
 	
 	        $('#prev').click(function(){
@@ -122,7 +122,7 @@ var len=0;
 	        });
 	       // if(doc.gene_accession_id){
 	        backTo='../imagePicker/'+doc.gene_accession_id+'/'+doc.parameter_stable_id;
-	        if(mediaType==='pdf')backTo+='?mediaType=pdf';
+	        if(mediaType[0]==='pdf')backTo+='?mediaType=pdf';
 	        $("#back").addClass("btn").html("back to image picker");
 	        
 	       // }
@@ -149,9 +149,10 @@ var len=0;
 }
 	
 	
-function displayDocAnnotations(doc, frame){
-	if(mediaType==="pdf"){
-		console.log('mediaType is pdf='+mediaType+'|');
+function displayDocAnnotations(doc, frame, mediaType){
+	console.log('mediatype in displayDocAnnotations='+mediaType+'|');
+	if(mediaType[0]==='pdf'){
+		console.log('mediaType is pdf in display annotation='+mediaType+'|');
 		//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/8128
 		var protocol=window.parent.location.protocol;
 		var pdfUrl=doc.download_url.replace('//', protocol+'//');//replace with http or https depending on the protocol from js url.
@@ -193,7 +194,7 @@ function getAnnotationsDisplayString(doc){
 	}
 	
 	if(doc.download_url){
-		if(mediaType !== 'pdf'){
+		if(mediaType[0] !== 'pdf'){
 		label+="<a target='_blank' href='"+doc.jpeg_url+"'>"+"jpeg</a>"+annotationBreak;
 		}
 		label+="<a href='"+doc.download_url+"'>"+"download original</a>"+annotationBreak;
