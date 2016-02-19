@@ -42,7 +42,7 @@ public abstract class AbstractReportParser {
     protected String prefix;
     protected File propertiesFile;
     protected PropertiesConfiguration applicationProperties;
-    protected AbstractReport.ReportFormat reportFormat;
+    protected AbstractReport.ReportFormat reportFormat = null;
     protected String targetDirectory;
 
     protected Map<String, String> propertyMap = new HashMap<>();
@@ -113,8 +113,6 @@ public abstract class AbstractReportParser {
             } catch (IllegalArgumentException | NullPointerException e) {
                 retVal.add("Unknown report format type '" + propertyMap.get(REPORT_FORMAT_ARG) + "'.");
             }
-        } else {
-            this.reportFormat = DEFAULT_REPORT_FORMAT;
         }
 
         String propertiesFilename = (propertyMap.containsKey(PROPERTIES_FILE_ARG) ? propertyMap.get(PROPERTIES_FILE_ARG) : DEFAULT_PROPERTIES_FILE);

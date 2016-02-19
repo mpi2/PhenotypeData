@@ -18,10 +18,15 @@ if(window.location.href.indexOf('www.mousephenotype.org') > -1){
 	omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
 }
 
+if(window.location.href.indexOf('ves-oy-d8') > -1 || window.location.href.indexOf('ves-pg-d8') > -1){
+	solrUrl='//www.ebi.ac.uk/mi/impc/solr';
+	omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
+}
+
 var detailUrlExt='/img_detail/';
 var url=omero_gateway_root+detailUrlExt;//may need for this to be passed as a parameter for each request if not being set by jsp?
 var annotationBreak='<br/>';
-//console.log('solrUrl='+solrUrl);
+console.log('solrUrl='+solrUrl);
 //get all the ids from the parameter list and get solrDocs for each
 function getURLParameter(sParam, location)
 {
@@ -46,7 +51,7 @@ function getURLParameter(sParam, location)
 }
 
 var mediaType=getURLParameter('mediaType', window.location);
-//console.log('mediaType='+mediaType);
+console.log('mediaType='+mediaType+'|');
 //get whether we are the subframe for control or experimental from the arg passed to the page from the imageComparator frame src attribute
 var controlOrExp=getURLParameter('controlOrExp', window.location);
 //console.log('location='+window.location);
@@ -74,7 +79,7 @@ if(ids.length!=0){//only search for info related to ids if we have them.
 var thisSolrUrl = solrUrl + '/impc_images/select';
 var joinedIds=ids.join(" OR ");
 var paramStr = 'q=omero_id:(' +joinedIds + ')&wt=json&defType=edismax&qf=auto_suggest&rows=100000';
-if(mediaType=='pdf'){
+if(mediaType==='pdf'){
 	paramStr+='&fq=full_resolution_file_path:*.pdf';
 }
 var docs;
@@ -117,7 +122,7 @@ var len=0;
 	        });
 	       // if(doc.gene_accession_id){
 	        backTo='../imagePicker/'+doc.gene_accession_id+'/'+doc.parameter_stable_id;
-	        if(mediaType='pdf')backTo+='?mediaType=pdf';
+	        if(mediaType==='pdf')backTo+='?mediaType=pdf';
 	        $("#back").addClass("btn").html("back to image picker");
 	        
 	       // }
@@ -145,17 +150,22 @@ var len=0;
 	
 	
 function displayDocAnnotations(doc, frame){
-	if(mediaType=="pdf"){
+	if(mediaType==="pdf"){
+		console.log('mediaType is pdf='+mediaType+'|');
 		//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/8128
 		var protocol=window.parent.location.protocol;
 		var pdfUrl=doc.download_url.replace('//', protocol+'//');//replace with http or https depending on the protocol from js url.
 		//http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/8128
 		//console.log("pdfUrl="+pdfUrl);
 		//console.log(window.parent.location.protocol);
-		frame.attr('src',protocol+"//docs.google.com/gview?url="+pdfUrl+"&embedded=true");//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
+		var pdfDetailView=protocol+"//docs.google.com/gview?url="+pdfUrl+"&embedded=true";
+		console.log('pdfDetailView='+pdfDetailView)
+		frame.attr('src',pdfDetailView);//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
 		
 	}else{
-		frame.attr('src', doc.jpeg_url.replace('render_image', 'img_detail').replace('http://','//'));//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
+		var imgDetailView=doc.jpeg_url.replace('render_image', 'img_detail').replace('http://','//');
+		console.log('imgDetailView='+imgDetailView)
+		frame.attr('src', imgDetailView);//get the jpeg url and change it to a img_detail view but idea is we get the correct context from the solr we are pointing at. so no need to pass it as a parameter
 	}
 	//frame.attr('src','http://omeroweb.jax.org/omero/webgateway/img_detail/7541/?c=1%7C0:255$FF0000,2%7C0:255$00FF00,3%7C0:255$0000FF&m=c&p=normal&ia=0&q=0.9&zm=6.25&t=1&z=1&x=50824&y=19576');
 	$('#annotations').html(getAnnotationsDisplayString(doc));
@@ -183,7 +193,7 @@ function getAnnotationsDisplayString(doc){
 	}
 	
 	if(doc.download_url){
-		if(mediaType != 'pdf'){
+		if(mediaType !== 'pdf'){
 		label+="<a target='_blank' href='"+doc.jpeg_url+"'>"+"jpeg</a>"+annotationBreak;
 		}
 		label+="<a href='"+doc.download_url+"'>"+"download original</a>"+annotationBreak;

@@ -28,6 +28,6 @@ public class AutoSuggestService implements WebStatus {
 	}
 	
 	public String getServiceName(){
-		return "Autosugges service";
+		return "Autosuggest service";
 	}
 }
