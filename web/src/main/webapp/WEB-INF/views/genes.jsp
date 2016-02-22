@@ -423,23 +423,21 @@
 											<br/>
 											<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 
-											<div class="floatright"
+											<div class="floatright marginup"
 											     style="clear: both">
 												<p>
 													<a class="btn"
-													   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-													   style="margin: 10px">All Adult Data</a>
+													   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
 												</p>
 											</div>
 										</c:if>
 
 										<c:if
 												test="${gene.embryoDataAvailable}">
-											<div class="floatright"
+											<div class="floatright marginup"
 											     style="clear: both">
 												<a class="btn"
-												   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}"
-												   style="margin: 10px">Embryo Viewer</a>
+												   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
 											</div>
 										</c:if>
 										<h5 class="sectHint">Phenotype Summary</h5>
@@ -562,23 +560,21 @@
 											</div>
 											<br/>
 											<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-											<div class="floatright"
+											<div class="floatright marginup"
 											     style="clear: both">
 
 												<a class="btn"
-												   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'
-												   style="margin: 0px">All Adult Data</a>
+												   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
 
 											</div>
 										</c:if>
 
 										<c:if
 												test="${gene.embryoDataAvailable}">
-											<div class="floatright"
+											<div class="floatright marginup" 
 											     style="clear: both">
 												<a class="btn"
-												   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}"
-												   style="margin: 10px">Embryo Viewer</a>
+												   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
 											</div>
 										</c:if>
 									</c:when>

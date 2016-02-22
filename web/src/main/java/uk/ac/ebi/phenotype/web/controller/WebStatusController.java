@@ -195,7 +195,7 @@ public class WebStatusController {
 		if (ok) {
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {
-			response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		model.addAttribute("ok", ok);
 		return "webStatus";

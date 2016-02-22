@@ -220,7 +220,7 @@ public class GeneService extends BasicService implements WebStatus{
 	throws SolrServerException{
 
 		String geneUrl = hostUrl + "/genes/" + geneId;
-		SolrQuery query = new SolrQuery().setQuery("mgi_accession_id:\"" + geneId + "\"");
+		SolrQuery query = new SolrQuery().setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneId + "\"");
 		SolrDocument doc = solr.query(query).getResults().get(0);
 		return getStatusFromDoc(doc, geneUrl);
 
@@ -419,7 +419,7 @@ public class GeneService extends BasicService implements WebStatus{
 		
 		String miceStatus = "";
 	
-		Pattern alleleNamePattern = Pattern.compile("(tm.*)\\(.+\\).+");
+		Pattern alleleNamePattern = Pattern.compile("(t|em.*).+");
 
 		// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs)
 		if (mouseStatus != null) {
