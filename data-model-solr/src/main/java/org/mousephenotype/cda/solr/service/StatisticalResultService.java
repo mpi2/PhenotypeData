@@ -341,7 +341,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	for (ParameterDTO p: parameters){
     		
     		query = new SolrQuery();
-        	query.setQuery("*:*");
+        	query.setQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*"); // Decided to omit Wilcoxon because it does not adjust for batch or center effecnt and the value for genotyope effect does not have the same meaning as for the other values. 
         	query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" + p.getStableId() + "\"");
         	query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
         	query.set("group", true);
@@ -406,8 +406,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		}
 		
 	    for (ParameterDTO param : allParameterNames){
-	    	System.out.println(sum.get(param.getName()));
-	    	System.out.println(n.get(param.getName()));
 	    	Double mean = new Double(sum.get(param.getName())/n.get(param.getName()));
 	        currentBean.addValue(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), mean);
 	    }
