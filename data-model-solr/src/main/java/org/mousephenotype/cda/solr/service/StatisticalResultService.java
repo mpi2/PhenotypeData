@@ -44,6 +44,7 @@ import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
+import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO.MeanBean;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -307,10 +308,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 	
 
-	public HashMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
+	public TreeMap<String, ParallelCoordinatesDTO> getGenotypeEffectFor(List<String> procedueStableId, List<String> phenotypingCenters, Boolean requiredParamsOnly, String baseUrl)
 	throws SolrServerException{
 
-    	HashMap<String, ParallelCoordinatesDTO> row = new HashMap<>();
+    	TreeMap<String, ParallelCoordinatesDTO> row = new TreeMap<>();
 
     	SolrQuery query = new SolrQuery();
     	query.setQuery("*:*");
@@ -362,17 +363,19 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
     	row = addDefaultValues(row, parameters);
     	
+    	row = addMeanValues(row, parameters);
+    	
     	return row;
 	
 	}
 
 
-	private HashMap<String, ParallelCoordinatesDTO> addDefaultValues(HashMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
+	private TreeMap<String, ParallelCoordinatesDTO> addDefaultValues(TreeMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
 
-		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, null, allParameterNames);
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.DEFAULT, null, "Normal", allParameterNames);
 
 	    for (ParameterDTO param : allParameterNames){
-	        currentBean.addMean(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), new Double(0.0));
+	        currentBean.addValue(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), new Double(0.0));
 	    }
 
 	    beans.put(ParallelCoordinatesDTO.DEFAULT, currentBean);
@@ -381,8 +384,41 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	}
 
+	private TreeMap<String, ParallelCoordinatesDTO> addMeanValues(TreeMap<String, ParallelCoordinatesDTO> beans, List<ParameterDTO> allParameterNames) {
 
-    private HashMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, HashMap<String, ParallelCoordinatesDTO> beans, ParameterDTO p, List<ParameterDTO> allParameterNames, String baseUrl) {
+		ParallelCoordinatesDTO currentBean = new ParallelCoordinatesDTO(ParallelCoordinatesDTO.MEAN, null, "Mean", allParameterNames);
+
+		Map<String, Double> sum = new HashMap<>();
+		Map<String, Integer> n = new HashMap<>();
+		
+		for (ParameterDTO param : allParameterNames){
+	        sum.put(param.getName(), new Double(0.0));
+	        n.put(param.getName(), 0);
+	    }
+		
+		for (ParallelCoordinatesDTO pc : beans.values()){
+			for (MeanBean val : pc.getValues().values()){
+				if (val.getMean() != null){
+					sum.put(val.getParameterName(), (sum.get(val.getParameterName()) + val.getMean()));
+					n.put(val.getParameterName(), (n.get(val.getParameterName()) + 1));
+				}
+			}
+		}
+		
+	    for (ParameterDTO param : allParameterNames){
+	    	System.out.println(sum.get(param.getName()));
+	    	System.out.println(n.get(param.getName()));
+	    	Double mean = new Double(sum.get(param.getName())/n.get(param.getName()));
+	        currentBean.addValue(param.getUnit(), param.getStableId(), param.getName(), param.getStableKey(), mean);
+	    }
+
+	    beans.put(ParallelCoordinatesDTO.MEAN, currentBean);
+
+	    return beans;
+
+	}
+
+    private TreeMap<String, ParallelCoordinatesDTO> addMaxGenotypeEffect(QueryResponse response, TreeMap<String, ParallelCoordinatesDTO> beans, ParameterDTO p, List<ParameterDTO> allParameterNames, String baseUrl) {
 
     	 List<Group> solrGroups = response.getGroupResponse().getValues().get(0).getValues();
 
@@ -427,7 +463,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
                 
             	 String group = (gene == null) ? "WT " : "Mutant";
 	             ParallelCoordinatesDTO currentBean = beans.containsKey(gene + " " + group)? beans.get(gene + " " + group) : new ParallelCoordinatesDTO(gene,  geneAccession, group, allParameterNames);
-	             currentBean.addMean(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
+	             currentBean.addValue(p.getUnit(), p.getStableId(), p.getName(), null, dataByGroup.get(center));
 	             beans.put(gene + " " + group, currentBean);
              }
          }
