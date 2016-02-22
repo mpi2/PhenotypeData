@@ -15,14 +15,13 @@ public class HistopathServiceTest {
 	
 	
 	@Test
-	public void getObservationByProcedureNameAndGene(){
+	public void getTableDataTest(){
 		HttpSolrServer solr=new HttpSolrServer("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/");
 		ObservationService observationService= new ObservationService(solr);
-		HistopathService hisService=new HistopathService(observationService);
-		String procedureName="Histopathology";
+		HistopathService histopathService=new HistopathService(observationService);
 		String geneAccession="MGI:2449119";
 		try {
-			hisService.getTableData(geneAccession);
+			histopathService.getTableData(geneAccession);
 			
 			
 		} catch (SolrServerException e) {
