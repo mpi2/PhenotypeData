@@ -173,6 +173,15 @@
 			return false;
 		});
 
+		$('#shadows').click(function() {
+			if ($('body').hasClass("shadows")){
+				$('body').removeClass('shadows');
+			} else {
+				$('body').addClass('shadows');
+			}
+			return false;
+		});		
+		
 		$('#export_selected').click(function() {
 			var data = dimensions.get('filtered');
 			var keys = _.keys(data[0]);
