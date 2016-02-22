@@ -32,12 +32,12 @@
 
 		<div id="geneTab" class="hideme">
 			<div class="region region-sidebar-first">
-				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</span>
-				</div>
-				<div id='facet' class='fblock block'>
 
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
 					<div class='content'>
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
@@ -69,12 +69,12 @@
 
 		<div id="mpTab" class="hideme">
 			<div class="region region-sidebar-first">
-				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</span>
-				</div>
-				<div id='facet' class='fblock block'>
 
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
 					<div class='content'>
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
@@ -105,12 +105,12 @@
 
 		<div id="diseaseTab" class="hideme">
 			<div class="region region-sidebar-first">
-				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</span>
-				</div>
-				<div id='facet' class='fblock block'>
 
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
 					<div class='content'>
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
@@ -141,12 +141,12 @@
 
 		<div id="maTab" class="hideme">
 			<div class="region region-sidebar-first">
-				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</span>
-				</div>
-				<div id='facet' class='fblock block'>
 
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
 					<div class='content'>
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
@@ -177,12 +177,12 @@
 
 		<div id="impc_imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
-				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</span>
-				</div>
-				<div id='facet' class='fblock block'>
 
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
 					<div class='content'>
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
@@ -214,12 +214,12 @@
 
 		<div id="imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
-				<div id="filterHint">Filter <span class='documentation title textright'>
-					<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-					</span>
-				</div>
-				<div id='facet' class='fblock block'>
 
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
 					<div class='content'>
 						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
@@ -264,7 +264,11 @@
 					var id = $(this).attr('id').replace('T','');
 					//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only
 
-					$(this).find('a').append("<div class='tabfc'> ("+${facetCount}[id]+")</div>");
+					if (${facetCount}[id] == 0){
+						$(this).find('a').addClass('noData');
+
+					}
+					//$(this).find('a').append("<div class='tabfc'> ("+${facetCount}[id]+")</div>");
 					//$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");
 
 				});
@@ -628,22 +632,22 @@
 				paramStr2 += "&mode=all";
 
 
-				var urltsvC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeTsv;
-				var urlxlsC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeXls;
+				//var urltsvC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeTsv;
+				//var urlxlsC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeXls;
 
 				var urltsvA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeTsv;
 				var urlxlsA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeXls;
 
 				var toolBox = '<div id="toolBox" style="display: block;">'
-						+ '<div class="dataName">Current paginated entries in table</div>'
-						+ '<p>Export as: &nbsp;'
-						+ '<a id="tsvC" class="fa fa-download gridDump" href="' + urltsvC + '">TSV</a>&nbsp;or&nbsp;'
-						+ '<a id="xlsC" class="fa fa-download gridDump" href="' + urlxlsC + '">XLS</a></p><p>'
+//						+ '<div class="dataName">Current paginated entries in table</div>'
+//						+ '<p>Export as: &nbsp;'
+//						+ '<a id="tsvC" class="fa fa-download gridDump" href="' + urltsvC + '">TSV</a>&nbsp;or&nbsp;'
+//						+ '<a id="xlsC" class="fa fa-download gridDump" href="' + urlxlsC + '">XLS</a></p><p>'
 						+ '<div class="dataName">All entries in table</div>'
 						+ '<p>Export as: &nbsp;'
 						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;or&nbsp;'
 						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></p><p>'
-						+ 'For larger dataset, use <a href=${baseUrl}/batchQuery>Batch query</a>';
+						+ 'For more informatioin, consider <a href=${baseUrl}/batchQuery>Batch query</a>';
 
 				//$('div.dataTables_processing').siblings('div#tableTool').append(
 				$('div#tableTool').append(saveTool, toolBox);
