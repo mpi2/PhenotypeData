@@ -28,14 +28,15 @@ import java.util.*;
  */
 public class ParallelCoordinatesDTO {
 
-	public static final String DEFAULT = "default value";
+	public static final String DEFAULT = " Default value"; 
+	public static final String MEAN = " Mean value"; // Leave the space so that it gets sorted at the top
 	public static final String GROUP_WT = "WT";
 	public static final String GROUP_MUTANT = "Mutant";
 
 	String group;
 	String geneSymbol;
 	String geneAccession;
-	HashMap<String, MeanBean> means;
+	HashMap<String, MeanBean> values;
 	List<ParameterDTO> allColumns;
 
 
@@ -44,21 +45,21 @@ public class ParallelCoordinatesDTO {
 		this.geneAccession = geneAccession;
 		this.geneSymbol = geneSymbol;
 		this.group = group;
-		means = new HashMap<>();
+		values = new HashMap<>();
 		this.allColumns = allColumns;
 
 		for (ParameterDTO parameter: allColumns){
 			if (getSortValue(parameter.getStableId()) % 100 != 0){
-				means.put(parameter.getName(), new MeanBean( null, parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
+				values.put(parameter.getName(), new MeanBean( null, parameter.getStableId(), parameter.getName(), parameter.getStableKey(), null));
 			}
 		}
 	}
 
 
-	public void addMean( String unit, String parameterStableId, String parameterName, Integer parameterStableKey, Double mean){
+	public void addValue( String unit, String parameterStableId, String parameterName, Integer parameterStableKey, Double mean){
 
 		if (getSortValue(parameterStableId) % 100 != 0){
-			means.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
+			values.put(parameterName, new MeanBean( unit, parameterStableId, parameterName, parameterStableKey, mean));
 		}
 
 	}
@@ -73,16 +74,16 @@ public class ParallelCoordinatesDTO {
 			res += "\"group\": \"" + group + "\",";
 			int i = 0;
 
-			if (this.means.values().size() > 0){
+			if (this.values.values().size() > 0){
 
-                List <MeanBean> values = new ArrayList<MeanBean>(this.means.values());
-				Collections.sort(values, this.means.values().iterator().next().getComparatorByTerry());
+                List <MeanBean> values = new ArrayList<MeanBean>(this.values.values());
+				Collections.sort(values, this.values.values().iterator().next().getComparatorByTerry());
 
 				for (MeanBean mean : values){
 					res += "\"" + mean.parameterName + "\": ";
 					res += mean.mean;
 					i++;
-					if (i < this.means.size()){
+					if (i < this.values.size()){
 						res +=", ";
 					}
 				}
@@ -95,7 +96,7 @@ public class ParallelCoordinatesDTO {
 	public boolean isComplete(){
 
 		boolean complete = true;
-		for (MeanBean row: means.values()){
+		for (MeanBean row: values.values()){
 			if (row.mean == null){
 				complete = false;
 				System.out.println(this.geneSymbol + " not complete");
@@ -110,14 +111,14 @@ public class ParallelCoordinatesDTO {
 		JSONObject obj = new JSONObject();
 		obj.accumulate("name", this.geneSymbol);
 		obj.accumulate("group", "default gene group");
-		for (MeanBean mean: this.means.values()){
+		for (MeanBean mean: this.values.values()){
 			obj.accumulate(mean.parameterName, mean.mean);
 		}
 		return obj;
 	}
 
-	public HashMap<String, MeanBean> getMeans(){
-		return means;
+	public HashMap<String, MeanBean> getValues(){
+		return values;
 	}
 
 	public class MeanBean{
@@ -232,23 +233,27 @@ public class ParallelCoordinatesDTO {
 		}
 	}
 
-	/* Sorting done by Terry, based on how parameters make most biological sense.
+	
+	/**	
+	 * @author ilinca
+	 * Sorting done by Terry, based on how parameters make most biological sense.
 	 * See e-mail from 2015/08/03.
 	 * 0 means no display. Since I added the procedure prefix 0 from his list translates to x%100 = 0.
 	 * Anything >0 is the sorting order.
+	 * Nathalie also made some changes to it.
 	 */
 	private static Map<String, Integer> sortMap;
 	static {
 			sortMap = new HashMap<String, Integer>();
 			sortMap.put("IMPC_DXA_001_001",1002); //Body weight,2,1000
 			sortMap.put("IMPC_DXA_002_001",1003); //Fat mass,3,1000
-			sortMap.put("IMPC_DXA_003_001",1004); //Lean mass,4,1000
+			sortMap.put("IMPC_DXA_003_001",1005); //Lean mass,5,1000
 			sortMap.put("IMPC_DXA_004_001",1007); //Bone Mineral Density (excluding skull),7,1000
 			sortMap.put("IMPC_DXA_005_001",1008); //Bone Mineral Content (excluding skull),8,1000
 			sortMap.put("IMPC_DXA_006_001",1001); //Body length,1,1000
 			sortMap.put("IMPC_DXA_007_001",1009); //BMC/Body weight,9,1000
-			sortMap.put("IMPC_DXA_008_001",1005); //Lean/Body weight,5,1000
-			sortMap.put("IMPC_DXA_009_001",1006); //Fat/Body weight,6,1000
+			sortMap.put("IMPC_DXA_008_001",1006); //Lean/Body weight,6,1000
+			sortMap.put("IMPC_DXA_009_001",1004); //Fat/Body weight,4,1000
 			sortMap.put("IMPC_DXA_010_001",1010); //Bone Area (BMC/BMD),10,1000
 			sortMap.put("IMPC_HEM_004_001",1103); //Hematocrit,3,1100
 			sortMap.put("IMPC_HEM_005_001",1104); //Mean cell volume,4,1100
