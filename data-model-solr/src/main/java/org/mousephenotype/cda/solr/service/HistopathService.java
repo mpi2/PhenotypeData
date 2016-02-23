@@ -22,6 +22,10 @@ public class HistopathService {
 		super();
 		this.observationService = observationService;
 	}
+	
+	public HistopathService(){
+		
+	}
 
 	public List<ObservationDTO> getTableData(String geneAccession) throws SolrServerException {
 
