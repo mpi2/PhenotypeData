@@ -101,6 +101,11 @@ public class ObservationService extends BasicService implements WebStatus {
     public ObservationService(HttpSolrServer solr) {
 		this.solr=solr;
 	}
+    
+    
+    public ObservationService() {
+		
+	}
 
 
 	public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
