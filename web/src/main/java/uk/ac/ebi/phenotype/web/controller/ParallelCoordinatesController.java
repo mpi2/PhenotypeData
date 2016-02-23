@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 @Controller
@@ -85,21 +86,23 @@ public class ParallelCoordinatesController {
 			model.addAttribute("dataJs", getJsonForParallelCoordinates(null) + ";");	
 			
 		} else {
-			String mappedHostname = (String)request.getAttribute("mappedHostname");
-			mappedHostname += (String)request.getAttribute("baseUrl");
+			
+			String mappedHostname = (String)request.getAttribute("mappedHostname") + (String)request.getAttribute("baseUrl");
 			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname));
-			model.addAttribute("dataJs", data + ";");
-
 			String title = "";
+			
 			for (int i = 0;  i < procedureIds.size()-1; i++){
 				String p = procedureIds.get(i);
 				title += pp.getProcedureByMatchingStableId(p + "%").get(0).getName() + ", ";
 			}
 			title += pp.getProcedureByMatchingStableId(procedureIds.get(procedureIds.size()-1) + "%").get(0).getName();
-			
+
+			model.addAttribute("dataJs", data + ";");
 			model.addAttribute("procedure", title);
 			model.addAttribute("phenotypingCenter", StringUtils.join(phenotypingCenter, ", "));
+			
 		}
+		
 		System.out.println("Generating data for parallel coordinates took " + (System.currentTimeMillis() - time) + " ms.");
 
 		return "parallelFrag";
@@ -112,7 +115,7 @@ public class ParallelCoordinatesController {
 	 * @param rows
 	 * @return Parsed rows into the json format needed for the parallel coordinates
 	 */
-	protected String getJsonForParallelCoordinates(HashMap<String, ParallelCoordinatesDTO> rows){
+	protected String getJsonForParallelCoordinates(Map<String, ParallelCoordinatesDTO> rows){
 		
 		String data = "[";
 		String defaultMeans = "";
@@ -134,10 +137,13 @@ public class ParallelCoordinatesController {
 	    		else {
 	    			String currentRow = bean.toString(false);
 	    			defaultMeans += "{" + currentRow + "}\n";
+	    			data += "{" + currentRow + "}";
+		    		if (i < rows.values().size()){
+		    			data += ", ";
+		    		}
 	    		}
 	    	}
-	    	data += "]";
-
+	    	data +=  "]";
 	    	return "var foods = " + data.toString() + "; \n\n var defaults = " + defaultMeans +";" ;
 	    	
 		} else {

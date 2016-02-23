@@ -220,7 +220,7 @@ public class GeneService extends BasicService implements WebStatus{
 	throws SolrServerException{
 
 		String geneUrl = hostUrl + "/genes/" + geneId;
-		SolrQuery query = new SolrQuery().setQuery("mgi_accession_id:\"" + geneId + "\"");
+		SolrQuery query = new SolrQuery().setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneId + "\"");
 		SolrDocument doc = solr.query(query).getResults().get(0);
 		return getStatusFromDoc(doc, geneUrl);
 
@@ -417,30 +417,37 @@ public class GeneService extends BasicService implements WebStatus{
 	 */
 	private String getDetailedMouseProductionStatusButtons(List<String> alleleNames, List<String> mouseStatus, String url) {
 		
-		String miceStatus = "";
-	
-		Pattern alleleNamePattern = Pattern.compile("(tm.*)\\(.+\\).+");
+		String miceStatus = "";	
+		Pattern tmAlleleNamePattern = Pattern.compile("(tm.*)\\(.+\\).+");
+		Pattern emAlleleNamePattern = Pattern.compile("(em[0-9]+).+");
 
 		// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs)
+		// em1j .. (crispr alleles)
 		if (mouseStatus != null) {
 			
 			for (int i = 0; i < mouseStatus.size(); i++) {
 				
 				String mouseStatusStr = mouseStatus.get(i).toString();
 				String alleleName = alleleNames.get(i).toString();
-				Matcher matcher = alleleNamePattern.matcher(alleleName);
+				Matcher tMatcher = tmAlleleNamePattern.matcher(alleleName);
+				Matcher eMatcher = emAlleleNamePattern.matcher(alleleName);
+				
+				String alleleType = null;
+				if (tMatcher.find()) {
+					alleleType = tMatcher.group(1);
+				} else if (eMatcher.find()){
+					alleleType = eMatcher.group(1);
+				}
 				
 				if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 					
-					if (matcher.find()) {
-						String alleleType = matcher.group(1);
+					if (alleleType != null) {
 						miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + url + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
 					}
 					
 				} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
 					
-					if (matcher.find()) {
-						String alleleType = matcher.group(1);
+					if (alleleType != null) {
 						miceStatus += "<span class='status inprogress' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS + "'><span>Mice<br>" + alleleType + "</span></span>"; 
 					}
 				}

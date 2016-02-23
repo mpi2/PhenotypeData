@@ -234,7 +234,7 @@ public class GenesController {
 		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
 		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
 
-		String prodStatusIcons = "Neither production nor phenotyping status available ";
+		String prodStatusIcons = "Production status not available.";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
@@ -270,11 +270,11 @@ public class GenesController {
 			model.addAttribute("hasPreQcData", hasPreQc);
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons");
-			prodStatusIcons += (prod.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : prod.get("phenotypingIcons");
+			Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl );
+			prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
+			prodStatusIcons += (status.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : status.get("phenotypingIcons");
 
-			model.addAttribute("orderPossible", prod.get("orderPossible"));
+			model.addAttribute("orderPossible", status.get("orderPossible"));
 
 
 		} catch (SolrServerException e2) {

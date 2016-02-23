@@ -75,12 +75,13 @@
 		var columns = _(foods[0]).keys();
 		var axes = _(columns).without('name', 'accession', 'group');
 
-		var foodgroups = [ "WT", "Mutant"];
+		var foodgroups = [ "Mutant", "Mean"];
 		// "MRC Harwell", "TCP", "JAX", "WTSI", "BCM", "UC Davis", "ICS", "HMGU", "NING", "RBRC" ];
 
 		var colors = {
 		    "Mutant" : '#0978A1',
-			"WT" : '#EF7B0B'/*,
+		//	"WT" : '#EF7B0B',
+			"Mean" : '#EF7B0B'/*,
 			"MRC Harwell" : 'rgb(119, 119, 119)',
 			"TCP" : '#16532D',
 			"WTSI" : '#602619',
@@ -172,6 +173,15 @@
 			return false;
 		});
 
+		$('#shadows').click(function() {
+			if ($('body').hasClass("shadows")){
+				$('body').removeClass('shadows');
+			} else {
+				$('body').addClass('shadows');
+			}
+			return false;
+		});		
+		
 		$('#export_selected').click(function() {
 			var data = dimensions.get('filtered');
 			var keys = _.keys(data[0]);
