@@ -426,7 +426,7 @@ public class SolrIndex {
             String link = null;
 
             if (doc.containsKey("omero_id")) {
-                String fullSizePath =impcMediaBaseUrl+"render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+                String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                 String downloadUrl=doc.getString("download_url");
                 //System.out.println("full size path="+downloadUrl);
                 String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");

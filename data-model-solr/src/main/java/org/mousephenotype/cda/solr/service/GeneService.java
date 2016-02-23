@@ -468,9 +468,9 @@ public class GeneService extends BasicService implements WebStatus{
 
 
 		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
-		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) && GeneDTO.MOUSE_STATUS.equals("") ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
 
-		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
+		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) && GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 		
 		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);		
 		
@@ -502,9 +502,11 @@ public class GeneService extends BasicService implements WebStatus{
 			String esStatus = (doc.getFieldValue(GeneDTO.LATEST_ES_CELL_STATUS) != null) ? doc.getFieldValue(GeneDTO.LATEST_ES_CELL_STATUS).toString() : null ;
 			esCellStatusHTMLRepresentation = getEsCellStatus(esStatus, url, false);
 			
-			// Get the HTML representation of the phenotyping status	
+			// Get the HTML representation of the phenotyping status
 			String statusField = (doc.getFieldValue(GeneDTO.LATEST_PHENOTYPE_STATUS) != null) ? doc.getFieldValue(GeneDTO.LATEST_PHENOTYPE_STATUS).toString() : null ;
-			Integer legacyPhenotypeStatus = Integer.getInteger("" + doc.getFieldValue(GeneDTO.LEGACY_PHENOTYPE_STATUS));
+
+			Integer legacyPhenotypeStatus = (Integer) doc.getFieldValue(GeneDTO.LEGACY_PHENOTYPE_STATUS);
+
 			Integer hasQc = Integer.getInteger("" +doc.getFieldValue(GeneDTO.HAS_QC));     
 			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, url, false, false);
 			

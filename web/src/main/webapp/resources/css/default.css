@@ -525,7 +525,7 @@ a.status.inprogress,
 span.status.inprogress  { background: #EF7B0B !important; }
 a.status.done,
 span.status.done        { background: #0978A1 !important; }
-a.status.qc, span.status.qc        { background:gray !important; }
+a.status.qc, span.status.qc        { /*background:gray !important; */  background: #0978A1 !important; /* temporarily shown to be same as phenotype data available */ }
 
 /* Sprite Abnormalities */
 .abnormalities          { float: right; width: 200px; height: 160px; }

@@ -294,112 +294,13 @@
                             </span>
 						</h1>
 
+						<!-- general Gene info -->
 						<div class="section">
 							<div class="inner">
-								<!--  login interest button -->
-								<div class="floatright">
-									<c:choose>
-										<c:when
-												test="${registerButtonAnchor!=''}">
-											<p><a class="btn"
-											      href='${registerButtonAnchor}'><i
-													class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
-											</p>
-										</c:when>
-										<c:otherwise>
-											<p><a
-													class="btn interest" id='${registerButtonId}'><i
-													class="fa fa-sign-in"></i>${registerInterestButtonString}</a>
-											</p>
-										</c:otherwise>
-									</c:choose>
-									<c:if
-											test="${orderPossible}">
-										<p><a class="btn"
-										      href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a></p>
-									</c:if>
-
-								</div>
-
-								<c:if test="${gene.markerName != null}">
-									<p class="with-label no-margin">
-										<span class="label">Name</span>
-											${gene.markerName}
-									</p>
-								</c:if>
-
-								<c:if
-										test="${!(empty gene.markerSynonym)}">
-									<p class="with-label no-margin">
-										<span class="label">Synonyms</span>
-										<c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-											${synonym}
-											<c:if test="${!loop.last}">, </c:if>
-											<c:if test="${loop.last}"></c:if>
-										</c:forEach>
-									</p>
-								</c:if>
-
-								<p class="with-label">
-									<span class="label">MGI Id</span>
-									<a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
-								</p>
-
-								<c:if
-										test="${!(prodStatusIcons == '')}">
-									<p class="with-label">
-										<span class="label">Status</span>
-											${prodStatusIcons}
-									</p>
-								</c:if>
-								<p class="with-label">
-									<span class="label">Links</span>
-									<a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Ensembl
-										Gene</a>&nbsp;&nbsp;
-									<!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
-									<a target="_blank" href="http://www.ensembl.org/Mus_musculus/Location/Compara_Alignments/Image?align=677;db=core;g=${gene.mgiAccessionId}">Ensembl
-										Compara</a>
-									&nbsp;<a href="../genomeBrowser/${acc}" target="new"> IMPC Gene Browser</a><span
-										id="enu"></span>
-								</p>
-								<c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
-									<p class="with-label">
-										<span class="label">Viability</span>
-										<t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
-									</p>
-								</c:if>
-								<!-- hide GWAS stuff for now
-                                    <c:if test="${gwasPhenoMapping != null }">
-                                    	
-                                       	<c:if test="${gwasPhenoMapping == 'no mapping' }">
-                               	 			<p class="with-label">
-                                   				<span class="label">GWAS mapping</span>
-                                   				<a target="_blank" href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                               				</p>
-                               			</c:if>	
-                               			<c:if test="${gwasPhenoMapping == 'indirect' }">
-                               	 			<p class="with-label">
-                                   				<span class="label">GWAS mapping</span>
-                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
-                                   				
-                               				</p>
-                               			</c:if>
-                               			<c:if test="${gwasPhenoMapping == 'direct' }">
-                               	 			<p class="with-label">
-                                   				<span class="label">GWAS mapping</span>
-                                   				<a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
-                                   				<a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
-                               				</p>
-                               			</c:if>
-                                   		
-                               		</c:if>
- 									-->
-
+								<jsp:include page="genesGene_frag.jsp"/>
 							</div>
-
 						</div>
-						<!-- section end -->
+						<!-- end of general Gene info -->
 
 						<!--  Phenotype Associations -->
 						<div class="section">
@@ -412,265 +313,16 @@
 							</h2>
 
 							<div class="inner">
-								<c:choose>
-									<c:when test="${summaryNumber > 0}">
-
-										<jsp:include page="phenotype_icons_frag.jsp"/>
-
-
-										<c:if
-												test="${!(empty dataMapList)}">
-											<br/>
-											<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-
-											<div class="floatright marginup"
-											     style="clear: both">
-												<p>
-													<a class="btn"
-													   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-												</p>
-											</div>
-										</c:if>
-
-										<c:if
-												test="${gene.embryoDataAvailable}">
-											<div class="floatright marginup"
-											     style="clear: both">
-												<a class="btn"
-												   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
-											</div>
-										</c:if>
-										<h5 class="sectHint">Phenotype Summary</h5>
-										<p>Based on automated MP annotations supported by experiments
-											on knockout mouse models. </p>
-
-										<c:forEach var="zyg"
-										           items="${phenotypeSummaryObjects.keySet()}">
-											<p>In <b>${zyg} :</b>
-											</p>
-											<ul>
-												<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-													<li><p><b>Both sexes</b> have the following phenotypic abnormalities
-													</p>
-														<ul>
-															<c:forEach var="summaryObj"
-															           items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
-																<li>
-																	<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-																	Evidence from
-																	<c:forEach var="evidence"
-																	           items="${summaryObj.getDataSources()}"
-																	           varStatus="loop">
-																		${evidence}
-																		<c:if test="${!loop.last}">,&nbsp;
-																		</c:if>
-																	</c:forEach> &nbsp;&nbsp;&nbsp; (<a
-																		class="filterTrigger"
-																		id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-																</li>
-															</c:forEach>
-														</ul>
-													</li>
-												</c:if>
-
-												<c:if
-														test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-													<li><p> Following phenotypic abnormalities occured in <b>females</b>
-														only</p>
-														<ul>
-															<c:forEach
-																	var="summaryObj"
-																	items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
-																<li><a
-																		href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-																	Evidence from <c:forEach
-																			var="evidence"
-																			items="${summaryObj.getDataSources()}"
-																			varStatus="loop"> ${evidence} <c:if
-																			test="${!loop.last}">,&nbsp;</c:if>
-																	</c:forEach> &nbsp;&nbsp;&nbsp; (<a
-																			class="filterTrigger"
-																			id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-																</li>
-															</c:forEach>
-														</ul>
-													</li>
-												</c:if>
-
-												<c:if
-														test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-													<li><p> Following phenotypic abnormalities occured in <b>males</b>
-														only</p>
-														<ul>
-															<c:forEach
-																	var="summaryObj"
-																	items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
-																<li><a
-																		href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-																	Evidence from <c:forEach
-																			var="evidence"
-																			items="${summaryObj.getDataSources()}"
-																			varStatus="loop"> ${evidence} <c:if
-																			test="${!loop.last}">,&nbsp;</c:if>
-																	</c:forEach> &nbsp;&nbsp;&nbsp; (<a
-																			class="filterTrigger"
-																			id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-																</li>
-															</c:forEach>
-														</ul>
-													</li>
-												</c:if>
-											</ul>
-										</c:forEach>
-
-
-									</c:when>
-									<c:when test="${summaryNumber == 0}">
-
-										<c:if test="${empty dataMapList && empty phenotypes}">
-											<c:if test="${attemptRegistered}">
-												<div class="alert alert-info">
-													<h5>Registered for phenotyping</h5>
-
-													<p>Phenotyping is planned for a knockout strain of this gene but
-														data is not currently available.</p>
-												</div>
-											</c:if>
-
-											<c:if test="${!attemptRegistered}">
-												<div class="alert alert-info">
-													<h5>Phenotype data is undergoing quality control</h5>
-
-													<p>Any phenotype assocations appearing below are preliminary and may
-														change. Links are provided to the Pheno-DCC quality control
-														resource.</p>
-												</div>
-											</c:if>
-											<br/>
-										</c:if>
-										<c:if test="${!(empty dataMapList) && empty phenotypes}">
-											<div class="alert alert-info">
-												<h5>No Significant Phenotype Associations Found</h5>
-
-												<p>No significant phenotype associations were found with data that has
-													passed quality control (QC), but you can click
-													on the "All Adult Data" button to see all phenotype data that has
-													passed QC. Preliminary phenotype assocations
-													may appear with new pre-QC phenotype data.</p>
-											</div>
-											<br/>
-											<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-											<div class="floatright marginup"
-											     style="clear: both">
-
-												<a class="btn"
-												   href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-
-											</div>
-										</c:if>
-
-										<c:if
-												test="${gene.embryoDataAvailable}">
-											<div class="floatright marginup" 
-											     style="clear: both">
-												<a class="btn"
-												   href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
-											</div>
-										</c:if>
-									</c:when>
-									<c:when test="${hasPreQcData}">
-										<!-- Only pre QC data available, suppress post QC phenotype summary -->
-									</c:when>
-									<c:otherwise>
-										<div class="alert alert-info">There are currently no IMPC phenotype associations
-											for the gene ${gene.markerSymbol} </div>
-										<br/>
-									</c:otherwise>
-								</c:choose>
-
-								<c:if
-										test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
-									<!-- Associations table -->
-									<h5>Filter this table</h5>
-
-
-									<div class="row-fluid">
-										<div
-												class="container span12">
-											<br/>
-
-											<div class="row-fluid"
-											     id="phenotypesDiv">
-
-												<div
-														class="container span12">
-
-													<c:if
-															test="${not empty phenotypes}">
-														<form
-																class="tablefiltering no-style" id="target"
-																action="destination.html">
-															<c:forEach
-																	var="phenoFacet" items="${phenoFacets}"
-																	varStatus="phenoFacetStatus">
-																<select
-																		id="${phenoFacet.key}" class="impcdropdown"
-																		multiple="multiple"
-																		title="Filter on ${phenoFacet.key}">
-																	<c:forEach
-																			var="facet" items="${phenoFacet.value}">
-																		<option>${facet.key}</option>
-																	</c:forEach>
-																</select>
-															</c:forEach>
-															<div
-																	class="clear"></div>
-														</form>
-														<div
-																class="clear"></div>
-
-														<c:set
-																var="count" value="0" scope="page"/>
-														<c:forEach
-																var="phenotype" items="${phenotypes}"
-																varStatus="status">
-															<c:forEach
-																	var="sex" items="${phenotype.sexes}">
-																<c:set var="count" value="${count + 1}" scope="page"/>
-															</c:forEach>
-														</c:forEach>
-
-														<jsp:include
-																page="PhenoFrag.jsp"></jsp:include>
-														<br/>
-
-														<div
-																id="exportIconsDiv"></div>
-													</c:if>
-
-													<!-- if no data to show -->
-													<c:if
-															test="${empty phenotypes}">
-														<div
-																class="alert alert-info">Pre QC data has been submitted
-															for this gene. Once the QC process is finished phenotype
-															associations stats will be made available.
-														</div>
-													</c:if>
-
-												</div>
-											</div>
-										</div>
-									</div>
-
-								</c:if>
+								<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 							</div>
 
 						</div>
-						<!-- end of phenotype associations -->
+						<!-- end of Phenotype Associations -->
 
+
+						<!-- Pre-QC phenotype heatmap -->
 						<c:if test="${phenotypeStarted}">
-							<!-- Pre-QC phenotype heatmap -->
+
 							<div class="section">
 								<h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span
 										class="documentation"><a href='' id='preqcPanel'
@@ -690,7 +342,7 @@
 									     id="phenodcc-heatmap"></div>
 								</div>
 							</div>
-							<!-- section end -->
+							<!-- end of Pre-QC phenotype heatmap -->
 						</c:if>
 
 						<c:if test="${not empty imageErrors}">
@@ -702,8 +354,9 @@
 
 						<div class="clear"></div>
 						<br/> <br/>
-						<!-- Expression -->
 
+
+						<!-- IMPC Expression -->
 						<div class="section">
 
 							<h2 class="title" id="section-expression">Expression<span
@@ -780,11 +433,8 @@
 									<br style="clear: both">
 								</div><!-- end of innner -->
 							</c:if>
-						</div><!-- end of impc expression section-->
+						</div><!-- end of IMPC Expression -->
 
-
-
-						<!-- end of inner ide is wrong when displayed in browser these divs are needed-->
 
 						<!-- nicolas accordion for IMPC phenotype associated images here -->
 						<c:if test="${not empty impcImageFacets}">
@@ -840,7 +490,7 @@
 								</div>
 								<!--  end of inner -->
 							</div>
-							<!-- end of section -->
+							<!-- end of IMPC phenotype associated images -->
 						</c:if>
 
 						<c:if test="${not empty expressionFacets}">
@@ -937,25 +587,25 @@
 									</div>
 								</div>
 							</div><!-- end of inner -->
-						</div><!-- end of section -->
+						</div><!-- end of Disease -->
 
 
 						<!-- Order Mouse and ES Cells -->
 						<div class="section" id="order2">
 							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
-									class="documentation"><a href='' id='orderPanel'
-							                                 class="fa fa-question-circle pull-right"></a></span>
+									class="documentation"><a href='' id='orderPanel' class="fa fa-question-circle pull-right"></a></span>
 							</h2>
 
 							<div class="inner">
 								<div id="allele2"></div>
 							</div>
-						</div>
-					</div>
-					<!--end of node wrapper should be after all secions  -->
-				</div>
-			</div>
-		</div>
+						</div><!-- End of Order Mouse and ES Cells -->
+
+
+					</div>	<!--end of node wrapper: immediate container of all sections  -->
+				</div> <!-- end of content -->
+			</div> <!-- end of block -->
+		</div> <!-- end of region content -->
 
 		<script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
 		<script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
@@ -1041,7 +691,7 @@
 							profileRows,
 							// make color the same to disguise mouseover highlight
 							"blue",  // all tissues being tested
-							"blue",  // tissue color when mouseover
+							"red",  // tissue color when mouseover
 							eventEmitter);
 				}
 
