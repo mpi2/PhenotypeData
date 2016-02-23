@@ -550,9 +550,9 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
-			// Collapse rows on sex			
+			
+			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
@@ -561,7 +561,10 @@ public class GenesController {
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
-
+				// Display lowest p-value only
+				if (pr.getpValue() > pcs.getpValue()){
+					pr.setpValue(pcs.getpValue());
+				}
 			}
 
 			phenotypes.put(pr.hashCode(), pr);
