@@ -87,6 +87,7 @@ public class ObservationDTOBase {
 	public final static String DATE_OF_BIRTH = "date_of_birth";
 	public final static String DATE_OF_EXPERIMENT = "date_of_experiment";
 	public final static String WEIGHT_DATE = "weight_date";
+	public static final String TEXT_VALUE ="text_value";
 
 
 
@@ -262,6 +263,9 @@ public class ObservationDTOBase {
 
     @Field(DEVELOPMENTAL_STAGE_NAME)
    	protected String developmentalStageName;
+    
+    @Field(TEXT_VALUE)
+	private String textValue;
 
 
 
@@ -1122,5 +1126,11 @@ public class ObservationDTOBase {
 		this.developmentalStageName=developmentalStageName;
 
 	}
+	
+	public void setTextValue(String textValue) {
+		this.textValue=textValue;
+		
+	}
+
 
 }
