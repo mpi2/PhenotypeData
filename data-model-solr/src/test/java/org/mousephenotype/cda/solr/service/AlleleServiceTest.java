@@ -23,6 +23,7 @@ import java.util.Set;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestExecutionListeners( { DependencyInjectionTestExecutionListener.class })
+@ContextConfiguration(classes={TestConfigSolr.class})
 @PropertySource("classpath:application.properties")
 public class AlleleServiceTest extends TestCase {
 
