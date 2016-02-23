@@ -37,6 +37,11 @@ public class UniprotServiceTest {
 			
 			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" , dto);
 
+			System.out.println("dto.getFunction() " + dto.getFunction() );
+			System.out.println("getGoCell " + dto.getGoCell()  + " size : " +  + dto.getGoCell().size());
+			System.out.println("getGoMolecularFunction " + dto.getGoMolecularFunction() );
+			System.out.println("getGoProcess " + dto.getGoProcess() );
+			
 	        assert(dto.getFunction() != null);
 	        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 4);
 	        assert(dto.getGoMolecularFunction() != null && dto.getGoMolecularFunction().size() >= 1);
