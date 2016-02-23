@@ -225,8 +225,8 @@
         <field name="phenotyping_center_id"             type="int"    indexed="true" stored="true" multiValued="false" />
         <field name="phenotyping_center"                type="string" indexed="true" stored="true" multiValued="false" />
 
-
-        <field name="production_center_id" type="int" indexed="true" stored="true" multiValued="false"/>
+        <field name="production_center_id"              type="int"    indexed="true" stored="true" multiValued="false"/>
+        <field name="production_center"                 type="string" indexed="true" stored="true" multiValued="false"/>
 
         <field name="gene_accession_id"                 type="string" indexed="true" stored="true" multiValued="false" /> 
        
