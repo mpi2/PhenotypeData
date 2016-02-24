@@ -65,16 +65,13 @@ public class CoreTests {
         Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
 
         Set<String> gGenes = gService.getAllGenes();
-        Set<String> mgi3688249 = new HashSet<>();       // For bug MPII-1493
-        mgi3688249.add("MGI:3688249");
-
-  //      System.out.println("Before " + gpGenes.size() + "  " + gGenes.size() );
-
+        Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.      
+//        knownToMiss.add("MGI:3688249"); // For bug MPII-1493
+//        knownToMiss.add("MGI:1861674"); 
+        
         // Eliminate MGI:3688249 (bug MPII-1493)
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
-        res = CollectionUtils.subtract(res, mgi3688249);
-
-  //      System.out.println(" After substract: " + res.size());
+        res = CollectionUtils.subtract(res, knownToMiss);
 
         if (res.size() > 0) {
         	System.out.println("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
