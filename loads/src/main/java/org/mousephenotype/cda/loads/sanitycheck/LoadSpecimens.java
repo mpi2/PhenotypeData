@@ -18,9 +18,8 @@ package org.mousephenotype.cda.loads.sanitycheck;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.CentreSpecimen;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.CentreSpecimenSet;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
+import org.apache.maven.model.Parent;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.Logger;
@@ -40,6 +39,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -83,7 +83,7 @@ public class LoadSpecimens {
 
     private Connection connection;
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, LoadDccException {
 
         // Wire up spring support for this application
         LoadSpecimens main = new LoadSpecimens();
@@ -116,7 +116,7 @@ public class LoadSpecimens {
         dbrootname = (String) options.valuesOf("dbrootname").get(0);
 
         if (options.has("createtables")) {
-            String forceString = (String) options.valuesOf("createtables").get(0).toString().toLowerCase().trim();
+            String forceString = options.valuesOf("createtables").get(0).toString().toLowerCase().trim();
             if ((forceString.equals("true") || (forceString.equals("1")))) {
                 force = true;
             }
@@ -141,14 +141,14 @@ public class LoadSpecimens {
 
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
-        String dbName = "dccimport2_" + dbrootname.replaceAll("-", "_");
+        String dbName = "dccimport_" + dbrootname.replaceAll("-", "_");
         String dbUrl = komp2Url.replace("komp2", dbName);
 
         connection = DriverManager.getConnection(dbUrl, username, password);
         System.out.println("connection = " + connection);
     }
 
-    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException {
+    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, LoadDccException {
 
         List<CentreSpecimen> centers = XMLUtils.unmarshal(LoadSpecimens.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
 
@@ -157,45 +157,156 @@ public class LoadSpecimens {
             throw new XMLloadingException(filename + " failed to unserialize.");
         }
 
-        logger.info("Specimen files has {} specimen sets", centers.size());
+        logger.info("There are {} specimens in specimen file {}", centers.size(), filename);
 
         PreparedStatement ps;
         String query;
         for (CentreSpecimen center : centers) {
-            logger.info("Parsing centre {}", center.getCentreID());
-            connection.setAutoCommit(false);    // BEGIN TRANSACTION
+            logger.info("Parsing center {}", center.getCentreID());
 
-            // Insert into CENTRESPECIMEN
-            query = "INSERT INTO CENTRESPECIMEN ("
-                    + "HJID, CENTREID)"
-                    + " VALUES (?, ?)";
-            ps = connection.prepareStatement(query);
-            ps.setLong(1, center.getHjid());
-            ps.setString(2, center.getCentreID().value());
-            ps.execute();
+            for (Specimen specimen : center.getMouseOrEmbryo()) {
 
-//            for (Specimen specimen : center.getMouseOrEmbryo()) {
-//                query = "INSERT INTO SPECIMEN ("
-//                + "HJID, COLONYID, GENDER, ISBASELINE, LITTERID, PHENOTYPINGCENTRE, PIPELINE,"
-//                + " PRODUCTIONCENTRE, PROJECT, SPECIMENID, STRAINID, ZYGOSITY"
-//                + ") VALUES ("
-//                        + "? ? ? ? ? ? ? ? ? ? ? ? ? ?)";
-//                ps = connection.prepareStatement(query);
-//                ps.setLong(1, specimen.getHjid());
-//                ps.setString(2, specimen.getColonyID());
-//                ps.setString(3, specimen.getGender().value());
-//                ps.setInt(4, specimen.isIsBaseline() ? 1 : 0);
-//                ps.setString(5, specimen.getLitterId());
-//                ps.setString(6, specimen.getPhenotypingCentre().value());
-//                ps.setString(7, specimen.getPipeline());
-//                ps.setString(8, specimen.getProductionCentre().value());
-//                ps.setString(9, specimen.getProject());
-//                ps.setString(10, specimen.getSpecimenID());
-//                ps.setString(11, specimen.getStrainID());
-//                ps.setString(12, specimen.getZygosity().value());
-//            }
+                connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
-            connection.commit();
+                // center
+                Long centerPk, statuscodePk, specimenPk, center_specimenPk;
+                ResultSet rs;
+
+                query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
+                ps = connection.prepareStatement(query);
+                ps.setString(1, center.getCentreID().value());
+                ps.setString(2, specimen.getPipeline());
+                ps.setString(3, specimen.getProject());
+                ps.execute();
+                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                centerPk = rs.getLong("pk");
+
+                // statuscode
+                if (specimen.getStatusCode()!= null) {
+                    query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
+                    ps.setString(2, specimen.getStatusCode().getValue());
+                    ps.execute();
+                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                    statuscodePk = rs.getLong("pk");
+                } else {
+                    statuscodePk = null;
+                }
+
+                // specimen
+                query = "INSERT INTO specimen (" +
+                            "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project," +
+                            " specimenId, strainId, zygosity, statuscode_fk)" +
+                        " VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                ps = connection.prepareStatement(query);
+                if (specimen.getColonyID() == null) {
+                    ps.setNull(1, Types.VARCHAR);
+                } else {
+                    ps.setString(1, specimen.getColonyID());
+                }
+                ps.setString(2, specimen.getGender().value());
+                ps.setInt(3, specimen.isIsBaseline() ? 1 : 0);
+                ps.setString(4, specimen.getLitterId());
+                ps.setString(5, specimen.getPhenotypingCentre().value());
+                ps.setString(6, specimen.getPipeline());
+                if (specimen.getProductionCentre() == null) {
+                    ps.setNull(7, Types.VARCHAR);
+                } else {
+                    ps.setString(7, specimen.getProductionCentre().value());
+                }
+                ps.setString(8, specimen.getProject());
+                ps.setString(9, specimen.getSpecimenID());
+                if (specimen.getStrainID() == null) {
+                    ps.setNull(10, Types.VARCHAR);
+                } else {
+                    ps.setString(10, specimen.getStrainID());
+                }
+                ps.setString(11, specimen.getZygosity().value());
+                if (statuscodePk == null) {
+                    ps.setNull(12, Types.BIGINT);
+                } else {
+                    ps.setLong(12, statuscodePk);
+                }
+                ps.execute();
+                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                specimenPk = rs.getLong("pk");
+
+                // embryo or mouse
+                if (specimen instanceof Embryo) {
+                    Embryo embryo = (Embryo) specimen;
+                    query = "INSERT INTO Embryo (stage, stageUnit, specimen_fk) VALUES (?, ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setString(1, embryo.getStage());
+                    ps.setString(2, embryo.getStageUnit().value());
+                    ps.setLong(3, specimenPk);
+                } else  if (specimen instanceof Mouse) {
+                    Mouse mouse = (Mouse) specimen;
+                    query = "INSERT INTO Mouse (DOB, specimen_fk) VALUES (?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setDate(1, new java.sql.Date(mouse.getDOB().getTime().getTime()));
+                }
+
+                // genotype
+                for (Genotype genotype : specimen.getGenotype()) {
+                    query = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_fk) +" +
+                            " VALUES (?, ?, ?, ?, ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setString(1, genotype.getGeneSymbol());
+                    ps.setString(2, genotype.getMGIAlleleId());
+                    ps.setString(3, genotype.getMGIGeneId());
+                    if (genotype.getFatherZygosity() != null) {
+                        ps.setString(4, genotype.getFatherZygosity().value());
+                    } else {
+                        ps.setNull(4, Types.VARCHAR);
+                    }
+                    if (genotype.getMotherZygosity() != null) {
+                        ps.setString(5, genotype.getMotherZygosity().value());
+                    } else {
+                        ps.setNull(5, Types.VARCHAR);
+                    }
+
+                    ps.setLong(6, specimenPk);
+                    ps.execute();
+                }
+
+                // parentalStrain
+                for (ParentalStrain parentalStrain : specimen.getParentalStrain()) {
+                    query = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_fk) VALUES (?, ?, ?, ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setDouble(1, parentalStrain.getPercentage());
+                    ps.setString(2, parentalStrain.getMGIStrainID());
+                    ps.setString(3, parentalStrain.getGender().value());
+                    ps.setInt(4, parentalStrain.getLevel());
+                    ps.setLong(5, specimenPk);
+                    ps.execute();
+                }
+
+                // chromosomalAlteration
+                if ( ! specimen.getChromosomalAlteration().isEmpty()) {
+                    throw new LoadDccException("chromosomalAlteration is not yet supported. Records found!");
+                }
+
+                // center_specimen
+                query = "INSERT INTO center_specimen (center_fk, specimen_fk) VALUES ( ?, ?);";
+                ps = connection.prepareStatement(query);
+                ps.setLong(1, centerPk);
+                ps.setLong(2, specimenPk);
+                ps.execute();
+
+                // relatedSpecimen NOTE: 'specimen_mine_fk cannot be loaded until ALL of the specimen files have been loaded,
+                // as the related specimens are not guaranteed to be defined in the same specimen file (and, in fact, are not).
+                for (RelatedSpecimen relatedSpecimen : specimen.getRelatedSpecimen()) {
+                    query = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_fk) VALUES ( ?, ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setString(1, relatedSpecimen.getRelationship().value());
+                    ps.setString(2, relatedSpecimen.getSpecimenID());
+                    ps.setLong(3, specimenPk);
+                    ps.execute();
+                }
+
+                connection.commit();
+            }
         }
 
         connection.close();
