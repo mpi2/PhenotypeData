@@ -67,9 +67,8 @@ public class CoreTests {
         Set<String> gGenes = gService.getAllGenes();
         Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.      
 //        knownToMiss.add("MGI:3688249"); // For bug MPII-1493
-//        knownToMiss.add("MGI:1861674"); 
+//        knownToMiss.add("MGI:1861674"); // Don't need this any more as Peter put them in iMits and they should be in now. 
         
-        // Eliminate MGI:3688249 (bug MPII-1493)
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);
 
