@@ -479,7 +479,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 			obs = datetimeObservation;
 		} else if (observationType == ObservationType.text) {
 
-			 /* Unidimensional information */
+			 /* Text information */
 
 			logger.debug("Text :" + firstDimensionValue);
 			TextObservation textObservation = new TextObservation();

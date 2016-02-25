@@ -58,6 +58,7 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
@@ -233,17 +234,23 @@ public class GenesController {
 		HashMap<String, String> mpGroupsSignificant = new HashMap<> (); // <group, linktToAllData>
 		HashMap<String, String> mpGroupsNotSignificant = new HashMap<> ();
 
-		String prodStatusIcons = "Neither production nor phenotyping status available ";
+		String prodStatusIcons = "Production status not available.";
 		// Get list of tripels of pipeline, allele acc, phenotyping center
 		// to link to an experiment page will all data
+		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
+		
 		try {
 
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-			System.out.println("mpGroupsNotSignificant="+mpGroupsNotSignificant);
-
+			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size()>0){
+				//if mortality aging is not significant we need to test if it's been tested or not
+				mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");	
+			}
+			
 			for (String str : mpGroupsSignificant.keySet()){
+				// str: top level term name
 				if (mpGroupsNotSignificant.keySet().contains(str)){
 					mpGroupsNotSignificant.remove(str);
 				}
@@ -263,11 +270,11 @@ public class GenesController {
 			model.addAttribute("hasPreQcData", hasPreQc);
 
 			String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-			Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
-			prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : prod.get("productionIcons");
-			prodStatusIcons += (prod.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : prod.get("phenotypingIcons");
+			Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl );
+			prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
+			prodStatusIcons += (status.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : status.get("phenotypingIcons");
 
-			model.addAttribute("orderPossible", prod.get("orderPossible"));
+			model.addAttribute("orderPossible", status.get("orderPossible"));
 
 
 		} catch (SolrServerException e2) {
@@ -296,7 +303,6 @@ public class GenesController {
 		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
 		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
-		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
 		try {
 			getExperimentalImages(acc, model);
 			getExpressionImages(acc, model);
@@ -544,9 +550,9 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-
 			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
-			// Collapse rows on sex			
+			
+			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
@@ -555,7 +561,10 @@ public class GenesController {
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
-
+				// Display lowest p-value only
+				if (pr.getpValue() > pcs.getpValue()){
+					pr.setpValue(pcs.getpValue());
+				}
 			}
 
 			phenotypes.put(pr.hashCode(), pr);
@@ -834,7 +843,7 @@ public class GenesController {
 			model.addAttribute("debug", "true");
 		}
 
-		return "genesAllele2";
+		return "genesAllele2_frag";
 	}
 
     @Autowired

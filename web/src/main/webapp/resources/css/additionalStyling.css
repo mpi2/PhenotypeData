@@ -1,4 +1,7 @@
 /* Additional styling written at EBI */
+.marginup{
+	margin-top:0.5em;
+}
 
 .capitalize {
     text-transform: capitalize;
@@ -220,3 +223,5 @@ li img.thumbnailStyle{
 td h4 a{
 color:#0978a1
 }
+
+.embryo-caption		{ text-align: justify;  font-size: 0.8em;}

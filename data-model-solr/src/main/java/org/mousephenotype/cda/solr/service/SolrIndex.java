@@ -47,6 +47,14 @@ public class SolrIndex {
 	@NotNull
 	@Value("${internalSolrUrl}")
 	private String internalSolrUrl;
+	
+	@NotNull
+	@Value("${pdfThumbnailUrl}")
+	private String pdfThumbnailUrl;
+	
+	@NotNull
+	@Value("${impcMediaBaseUrl}")
+	private String impcMediaBaseUrl;
 
 	private List<String> phenoStatuses = new ArrayList<String>();
 
@@ -417,18 +425,19 @@ public class SolrIndex {
 
             String link = null;
 
-            if (doc.containsKey("jpeg_url")) {
-                String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
+            if (doc.containsKey("omero_id")) {
+                String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
                 String downloadUrl=doc.getString("download_url");
-                //System.out.println("download Url="+downloadUrl);
+                //System.out.println("full size path="+downloadUrl);
                 String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
                 String smallThumbNailPath = thumbnailPath + "/200/";
                 String largeThumbNailPath = thumbnailPath + "/800/";
                 String img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
+                	img="<img style='width: 200px' src='" + pdfThumbnailUrl + "'/>";
                 	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
-                link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath +"'>" + img + "</a>";
+                link = "<a class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
                 }
             } else {
                 link = IMG_NOT_FOUND;

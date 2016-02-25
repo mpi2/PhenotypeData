@@ -28,13 +28,6 @@
                                     <td>${alleleProduct["product"]}</td>
                                 </c:otherwise>
                             </c:choose>
-
-                                                                        
-                                    
-                            
-                                    
-                                    
-                                    
                                     
                             <td>${alleleProduct["allele_description"]}</td>
                             

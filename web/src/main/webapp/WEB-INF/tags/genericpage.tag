@@ -226,16 +226,16 @@
                         <a href="${drupalBaseUrl}">Home</a> &raquo; <a href="${baseUrl}/search">Search</a><jsp:invokefragment="breadcrumb" /><%-- breadcrumbs here --%>
 
                         <div class='searchcontent'>
-    											<div id='bigsearchbox' class='block'>
-    												<div class='content'>
-    													<p><i id='sicon' class='fa fa-search'></i></p>
-    													<div class='ui-widget'>
-    													<input id='s'>
-    														<a><i class='fa fa-info searchExample'></i></a>
-    													</div>
-    												</div>
-    											</div>
-    										</div>
+                            <div id='bigsearchbox' class='block'>
+                                <div class='content'>
+                                    <p><i id='sicon' class='fa fa-search'></i></p>
+                                    <div class='ui-widget'>
+                                        <input id='s' value="search">
+                                        <a><i class='fa fa-question-circle fa-2x searchExample'></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div id='batchQryLink'>
                         	<a id='batchquery' href='${baseUrl}/batchQuery'><i class='fa fa-th-list batchQuery'></i><span id='bqry'>Batch query</span></a>

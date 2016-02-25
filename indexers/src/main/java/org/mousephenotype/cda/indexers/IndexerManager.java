@@ -59,6 +59,7 @@ public class IndexerManager {
     //      These are built only for a new data release.
     public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
     public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    public static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
     public static final String STATSTICAL_RESULT_CORE = "statistical-result";
 
     //      These are built daily.
@@ -111,6 +112,7 @@ public class IndexerManager {
         , STATSTICAL_RESULT_CORE
 
           // These are built daily.
+        , MGI_PHENOTYPE_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
@@ -126,7 +128,8 @@ public class IndexerManager {
 
     public static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-          PREQC_CORE
+    	MGI_PHENOTYPE_CORE
+        ,  PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
@@ -150,6 +153,10 @@ public class IndexerManager {
     @Autowired
     GenotypePhenotypeIndexer genotypePhenotypeIndexer;
 
+    @Autowired
+    MGIPhenotypeIndexer mgiPhenotypeIndexer;
+
+    
     @Autowired
     StatisticalResultIndexer statisticalResultIndexer;
 
@@ -400,6 +407,7 @@ public class IndexerManager {
             switch (core) {
                 case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
                 case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
+                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));    break;
                 case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
 
                 case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
