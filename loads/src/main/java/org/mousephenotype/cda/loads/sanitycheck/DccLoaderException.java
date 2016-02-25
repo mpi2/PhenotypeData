@@ -19,25 +19,25 @@ package org.mousephenotype.cda.loads.sanitycheck;
 /**
  * Created by mrelac on 24/07/2015.
  */
-public class LoadDccException extends Exception {
+public class DccLoaderException extends Exception {
 
-    public LoadDccException() {
+    public DccLoaderException() {
         super();
     }
 
-    public LoadDccException(String message) {
+    public DccLoaderException(String message) {
         super(message);
     }
 
-    public LoadDccException(String message, Throwable cause) {
+    public DccLoaderException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public LoadDccException(Throwable cause) {
+    public DccLoaderException(Throwable cause) {
         super(cause);
     }
 
-    public LoadDccException(String message, Throwable cause, boolean enableSuppression, boolean writeableStackTrace) {
+    public DccLoaderException(String message, Throwable cause, boolean enableSuppression, boolean writeableStackTrace) {
         super(message, cause, enableSuppression, writeableStackTrace);
     }
 }
