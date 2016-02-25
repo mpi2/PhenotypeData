@@ -27,233 +27,227 @@
 				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">IMPC Images</a></li>
 				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
 			</ul>
+		</div>
+		<!--<div><div id="resultMsg"></div><div id="tableTool"></div></div>-->
 
-			<!--<div><div id="resultMsg"></div><div id="tableTool"></div></div>-->
-			<div><div id="tableTool"></div></div>
+		<div id="geneTab" class="hideme">
+			<div class="region region-sidebar-first">
 
-			<div id="geneTab" class="hideme">
-				<div class="region region-sidebar-first">
-					<div id='facet' class='fblock block'>
-						<div class="head">Filter your search</div>
-						<div class='content'>
-
-							<p class='documentation title textright'>
-								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-							</p>
-
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-							<div class="flist">
-								<ul>
-									<li class="fmcat" id="gene">
-										<span class="flabel">Genes</span>
-										<span class="fcount"></span>
-										<ul></ul>
-									</li>
-								</ul>
-							</div>
-						</div>
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
 					</div>
+					<div class='content'>
+						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="gene">
+									<span class="flabel">Genes</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
 
-				</div>
-
-				<div class="region region-content">
-					<div class="block block-system">
-						<div class='content'>
-							<div class="clear"></div>
-
-							<!-- container to display dataTable -->
-							<div class="HomepageTable" id="mpi2-search"></div>
 						</div>
 					</div>
 				</div>
+
 			</div>
 
-			<div id="mpTab" class="hideme">
-				<div class="region region-sidebar-first">
-					<div id='facet' class='fblock block'>
-						<div class="head">Filter your search</div>
-						<div class='content'>
-
-							<p class='documentation title textright'>
-								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-							</p>
-
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-							<div class="flist">
-								<ul>
-									<li class="fmcat" id="mp">
-										<span class="flabel">Phenotypes</span>
-										<span class="fcount"></span>
-										<ul></ul>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-				</div>
-
-				<div class="region region-content">
-					<div class="block block-system">
-						<div class='content'>
-							<div class="clear"></div>
-
-							<!-- container to display dataTable -->
-							<div class="HomepageTable" id="mpi2-search"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div id="diseaseTab" class="hideme">
-				<div class="region region-sidebar-first">
-					<div id='facet' class='fblock block'>
-						<div class="head">Filter your search</div>
-						<div class='content'>
-
-							<p class='documentation title textright'>
-								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-							</p>
-
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-							<div class="flist">
-								<ul>
-									<li class="fmcat" id="disease">
-										<span class="flabel">Diseases</span>
-										<span class="fcount"></span>
-										<ul></ul>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-				</div>
-
-				<div class="region region-content">
-					<div class="block block-system">
-						<div class='content'>
-							<div class="clear"></div>
-
-							<!-- container to display dataTable -->
-							<div class="HomepageTable" id="mpi2-search"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div id="maTab" class="hideme">
-				<div class="region region-sidebar-first">
-					<div id='facet' class='fblock block'>
-						<div class="head">Filter your search</div>
-						<div class='content'>
-
-							<p class='documentation title textright'>
-								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-							</p>
-
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-							<div class="flist">
-								<ul>
-									<li class="fmcat" id="ma">
-										<span class="flabel">Anatomy</span>
-										<span class="fcount"></span>
-										<ul></ul>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-				</div>
-
-				<div class="region region-content">
-					<div class="block block-system">
-						<div class='content'>
-							<div class="clear"></div>
-
-							<!-- container to display dataTable -->
-							<div class="HomepageTable" id="mpi2-search"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div id="impc_imagesTab" class="hideme">
-				<div class="region region-sidebar-first">
-					<div id='facet' class='fblock block'>
-						<div class="head">Filter your search</div>
-						<div class='content'>
-
-							<p class='documentation title textright'>
-								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-							</p>
-
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-							<div class="flist">
-								<ul>
-									<li class="fmcat" id="impc_images">
-										<span class="flabel">IMPC Images</span>
-										<span class="fcount"></span>
-										<ul></ul>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-				</div>
-
-				<div class="region region-content">
-					<div class="block block-system">
-						<div class='content'>
-							<div class="clear"></div>
-
-							<!-- container to display dataTable -->
-							<div class="HomepageTable" id="mpi2-search"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-
-			<div id="imagesTab" class="hideme">
-				<div class="region region-sidebar-first">
-					<div id='facet' class='fblock block'>
-						<div class="head">Filter your search</div>
-						<div class='content'>
-
-							<p class='documentation title textright'>
-								<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
-							</p>
-
-							<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
-							<div class="flist">
-								<ul>
-									<li class="fmcat" id="images">
-										<span class="flabel">Images</span>
-										<span class="fcount"></span>
-										<ul></ul>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-
-				</div>
-
-				<div class="region region-content">
-					<div class="block block-system">
-						<div class='content'>
-							<div class="clear"></div>
-
-							<!-- container to display dataTable -->
-							<div class="HomepageTable" id="mpi2-search"></div>
-						</div>
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div id="tableTool"></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
 				</div>
 			</div>
 		</div>
+
+		<div id="mpTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="mp">
+									<span class="flabel">Phenotypes</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div id="tableTool"></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable" id="mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="diseaseTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="disease">
+									<span class="flabel">Diseases</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div id="tableTool"></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable" id="mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="maTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="ma">
+									<span class="flabel">Anatomy</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div id="tableTool"></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable" id="mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="impc_imagesTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="impc_images">
+									<span class="flabel">IMPC Images</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div id="tableTool"></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable" id="mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="imagesTab" class="hideme">
+			<div class="region region-sidebar-first">
+
+				<div id='facet' class='fblock block'>
+					<div id="filterHint">Filter <span class='documentation title textright'>
+						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						</span>
+					</div>
+					<div class='content'>
+						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class="flist">
+							<ul>
+								<li class="fmcat" id="images">
+									<span class="flabel">Images</span>
+									<span class="fcount"></span>
+									<ul></ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="region region-content">
+				<div class="block block-system">
+					<div class='content'>
+						<div class="clear"></div>
+						<div id="tableTool"></div>
+						<!-- container to display dataTable -->
+						<div class="HomepageTable" id="mpi2-search"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<compress:html enabled="${param.enabled != 'false'}" compressJavaScript="true">
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
 			<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchFacets.js?v=${version}'></script>
@@ -269,7 +263,14 @@
 				$('ul.tabLabel li').each(function(){
 					var id = $(this).attr('id').replace('T','');
 					//if ( id == 'gene' ){id += '2'}  // count for protein coding gene only
-					$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");
+
+					if (${facetCount}[id] == 0){
+						$(this).find('a').addClass('noData');
+
+					}
+					//$(this).find('a').append("<div class='tabfc'> ("+${facetCount}[id]+")</div>");
+					//$(this).find('a').append("<span class='tabfc'> ("+${facetCount}[id]+")</span>");
+
 				});
 
 				// so that we don't see the "tabs" appear w/o facet counts
@@ -310,9 +311,11 @@
 					//alert('div#' + coreName +'Tab')
 					$('div#' + coreName +'Tab').show();
 
+					var paramStr = matches[2].replace(/^\?/,'');
+					//alert("paramStr: "+paramStr)
 
-					var paramStr = matches[2];
 					var kw = paramStr.split("&");
+
 					for ( var i=0; i<kw.length; i++ ){
 						var pairs = kw[i].split("=");
 						var k = pairs[0];
@@ -357,6 +360,7 @@
 					}
 
 					query = query.replace("\\%3A", ":");
+
 					$('input#s').val(decodeURI(query));
 				}
 
@@ -404,7 +408,9 @@
 						}
 
 						//$(this).addClass('currDataType').click();
-						$(this).addClass('currDataType');//.click();
+
+						$(this).parent().addClass('currDataType');//.click();
+
 						$.fn.displayFacets(coreName, ${jsonStr});
 
 						// check(highlight) filter(s) based on URL fq str
@@ -419,7 +425,7 @@
 						// images cores related
 						if ( coreName.indexOf('images') != -1 ) {
 
-							$('div.region-content').css({"position": "relative", "top": "-25px"});
+							$('div.region-content').css({"position": "relative", "top": "-37px"});
 
 							var foundMsg, switcher, viewMsg;
 							if (showImgViewStr == "showImgView=false" ){
@@ -471,333 +477,374 @@
 									"sPaginationType" : "bootstrap",
 									"aaData" : ${jsonStr}.aaData,  // array of objects
 								"iTotalRecords" : ${jsonStr}.iTotalRecords
-						});
+					});
 
-						// adjust col width
-						adjustColWidth();
+					// adjust col width
+					adjustColWidth();
 
-						// update pagination control
-						addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
+					// update pagination control
+					addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
 
-						// do these only when there is result found
-						if ( $('div#dTable_pagination li.active a').size() > 0 ) {
-							// add Download
-							addDownloadTool();
 
-							// highlight synonyms
-							highlighSynonym();
+					// do these only when there is result found
+					if ( $('div#dTable_pagination li.active a').size() > 0 ) {
+						// add Download
+						addDownloadTool();
 
-							// register interest js
-							addRegisterInterestJs();
+
+						// highlight synonyms
+						highlighSynonym();
+
+						// register interest js
+						addRegisterInterestJs();
+					}
+				}
+
+			});
+			// ----------- highlights current "tab" and populates facet filters and dataTable -----------
+
+
+			// submit query when facet filter is ticked
+			fetchResultByFilters();
+
+			//------------------------- FUNCTIONS ------------------------
+
+			function highlighSynonym(){
+
+				// mouseover synonyms in results dataTable
+				$('ul.synonym li, ul.hpTerms li, ul.ortholog li').mouseover(function() {
+					$(this).addClass("highlight");
+				}).mouseout(function() {
+					$(this).removeClass("highlight");
+				});
+			}
+			function addRegisterInterestJs(){
+
+				$('a.interest').click(function() {
+
+					var termId = $(this).attr('id');
+					var endpoint = null;
+
+					if (/^MP:/.exec(termId)) {
+						endpoint = "/togglempflagfromjs/";
+					} else if (/^MGI:/.exec(termId)) {
+						endpoint = "/toggleflagfromjs/";
+					}
+
+					var label = $(this).text();
+					var regBtn = $(this);
+
+					$.ajax({
+						url : endpoint + termId,
+						success : function(response) {
+							// console.log('success');
+
+							if (response === 'null') {
+								window.alert('Null error trying to register interest');
+							} else {
+								// 3 labels (before login is 'Interest')
+								// compare using the actual raw character for &nbsp;
+								if (label == String.fromCharCode(160) + 'Register interest') {
+									regBtn.text(String.fromCharCode(160) + 'Unregister interest');
+									regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
+											.parent().attr('oldtitle', 'Unregister interest').qtip({
+												style : {
+													classes : 'qtipimpc flat'
+												},
+												position : {
+													my : 'top center',
+													at : 'bottom center'
+												},
+												content : {
+													text : $(this).attr('oldtitle')
+												}
+											}); // refresh
+												// tooltip
+								} else if (label == String.fromCharCode(160) + 'Unregister interest') {
+									regBtn.text(String.fromCharCode(160) + 'Register interest');
+									regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
+											.parent().attr('oldtitle', 'Register interest').qtip({
+												style : {
+													classes : 'qtipimpc flat'
+												},
+												position : {
+													my : 'top center',
+													at : 'bottom center'
+												},
+												content : {
+													text : $(this).attr('oldtitle')
+												}
+											}); // refresh
+								}
+							}
+						},
+						error : function() {
+							window.alert('AJAX error trying to register interest');
 						}
+					});
+					return false;
+				});
+
+				// applied when result page first loads
+				$('div.registerforinterest, td .status').each(function() {
+					$(this).qtip({
+						style : {
+							classes : 'qtipimpc flat'
+						},
+						position : {
+							my : 'top center',
+							at : 'bottom center'
+						},
+						content : {
+							text : $(this).attr('oldtitle')
+						}
+					});
+				});
+			}
+
+
+			function addDownloadTool(){
+				var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
+
+
+				var vals = $('div#dTable_pagination li.active a').attr('href').split("?");
+				var params = vals[1];
+
+				var dataType = "dataType=" + coreName;
+				var fileTypeTsv = "fileType=tsv";
+				var fileTypeXls = "fileType=xls";
+				var fileName = "fileName=" + coreName + "_table_dump";
+
+				// only results from current page
+				var paramList1 = [dataType, params, fileName];
+				var paramStr1 = paramList1.join("&");
+				paramStr1 += "&mode=page";
+
+				// all results in table
+				var total = ${jsonStr}.iTotalRecords;
+				var regex1 = /iDisplayStart=\d+/;
+				var matches1 = params.match(regex1);
+				var regex2 = /iDisplayLength=\d+/;
+				var matches2 = params.match(regex2);
+				var iStart = matches1[0];
+				var iEnd = matches2[0];
+				var paramStr2 = paramStr1.replace(iEnd, "iDisplayLength=" + total).replace(iStart, "iDisplayStart=0");
+				paramStr2 += "&mode=all";
+
+
+				//var urltsvC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeTsv;
+				//var urlxlsC = "${baseUrl}/export2?" + paramStr1 + "&" + fileTypeXls;
+
+				var urltsvA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeTsv;
+				var urlxlsA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeXls;
+
+				var toolBox = '<div id="toolBox" style="display: block;">'
+//						+ '<div class="dataName">Current paginated entries in table</div>'
+//						+ '<p>Export as: &nbsp;'
+//						+ '<a id="tsvC" class="fa fa-download gridDump" href="' + urltsvC + '">TSV</a>&nbsp;or&nbsp;'
+//						+ '<a id="xlsC" class="fa fa-download gridDump" href="' + urlxlsC + '">XLS</a></p><p>'
+						+ '<div class="dataName">All entries in table</div>'
+						+ '<p>Export as: &nbsp;'
+						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;or&nbsp;'
+						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></p><p>'
+						+ 'For more informatioin, consider <a href=${baseUrl}/batchQuery>Batch query</a>';
+
+				//$('div.dataTables_processing').siblings('div#tableTool').append(
+				$('div#tableTool').append(saveTool, toolBox);
+
+				var cutoff = 10000;
+				$("a#tsvA, a#xlsA").click(function(){
+					if (total > cutoff){
+						var r = confirm("It will take longer to download a bigger dataset. Please do not interrupt while downloading.\n\nProceed?");
+						if (r !== true) {
+							return false;
+						}
+						// when true the href fireds and do query in batch on server side
+					}
+				})
+
+
+				$('div#toolBox').hide();
+				$('span#dnld').click(function(){
+					if ($('div#toolBox').is(":visible")) {
+						$('div#toolBox').hide();
+					}
+					else {
+						$('div#toolBox').show();
 					}
 				});
-				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
+			}
 
+			function adjustColWidth(){
 
-				// submit query when facet filter is ticked
-				fetchResultByFilters();
-
-
-				//------------------------- FUNCTIONS ------------------------
-
-				function highlighSynonym(){
-
-					// mouseover synonyms in results dataTable
-					$('ul.synonym li, ul.hpTerms li, ul.ortholog li').mouseover(function() {
-						$(this).addClass("highlight");
-					}).mouseout(function() {
-						$(this).removeClass("highlight");
-					});
+				if ( coreName == 'disease' || coreName == 'gene' ) {
+					$('table th:first-child').css('width', '45%');
 				}
-				function addRegisterInterestJs(){
-
-					$('a.interest').click(function() {
-
-						var termId = $(this).attr('id');
-						var endpoint = null;
-
-						if (/^MP:/.exec(termId)) {
-							endpoint = "/togglempflagfromjs/";
-						} else if (/^MGI:/.exec(termId)) {
-							endpoint = "/toggleflagfromjs/";
-						}
-
-						var label = $(this).text();
-						var regBtn = $(this);
-
-						$.ajax({
-							url : endpoint + termId,
-							success : function(response) {
-								// console.log('success');
-
-								if (response === 'null') {
-									window.alert('Null error trying to register interest');
-								} else {
-									// 3 labels (before login is 'Interest')
-									// compare using the actual raw character for &nbsp;
-									if (label == String.fromCharCode(160) + 'Register interest') {
-										regBtn.text(String.fromCharCode(160) + 'Unregister interest');
-										regBtn.siblings('i').removeClass('fa-sign-in').addClass('fa-sign-out')
-										.parent().attr('oldtitle', 'Unregister interest').qtip({
-											style : {
-												classes : 'qtipimpc flat'
-											},
-											position : {
-												my : 'top center',
-												at : 'bottom center'
-											},
-											content : {
-												text : $(this).attr('oldtitle')
-											}
-										}); // refresh
-											// tooltip
-									} else if (label == String.fromCharCode(160) + 'Unregister interest') {
-										regBtn.text(String.fromCharCode(160) + 'Register interest');
-										regBtn.siblings('i').removeClass('fa-sign-out').addClass('fa-sign-in')
-										.parent().attr('oldtitle', 'Register interest').qtip({
-											style : {
-												classes : 'qtipimpc flat'
-											},
-											position : {
-												my : 'top center',
-												at : 'bottom center'
-											},
-											content : {
-												text : $(this).attr('oldtitle')
-											}
-										}); // refresh
-									}
-								}
-							},
-							error : function() {
-								window.alert('AJAX error trying to register interest');
-							}
-						});
-						return false;
-					});
-
-					// applied when result page first loads
-					$('div.registerforinterest, td .status').each(function() {
-						$(this).qtip({
-							style : {
-								classes : 'qtipimpc flat'
-							},
-							position : {
-								my : 'top center',
-								at : 'bottom center'
-							},
-							content : {
-								text : $(this).attr('oldtitle')
-							}
-						});
-					});
+				else if ( coreName.indexOf('images') != -1 ) {
+					$('table th:first-child').css('width', '30%');
 				}
-
-
-				function addDownloadTool(){
-					var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
-
-					var vals = $('div#dTable_pagination li.active a').attr('href').split("?");
-					var params = vals[1];
-					var dataType = "dataType=" + coreName;
-					var fileTypeTsv = "fileType=tsv";
-					var fileTypeXls = "fileType=xls";
-					var fileName = "fileName=" + coreName + "_table_dump";
-
-					var paramList = [dataType, params, fileName];
-					var paramStr = paramList.join("&");
-
-
-					var urltsv = "${baseUrl}/export2?" + paramStr + "&" + fileTypeTsv;
-					var urlxls = "${baseUrl}/export2?" + paramStr + "&" + fileTypeXls;
-
-					var toolBox = '<div id="toolBox" style="display: block;">'
-							+ '<div class="dataName">Current paginated entries in table</div>'
-							+ '<p>Export as: &nbsp;'
-							+ '<a id="tsv" class="fa fa-download gridDump" href="' + urltsv + '">TSV</a>&nbsp;or&nbsp;'
-							+ '<a id="xls" class="fa fa-download gridDump" href="' + urlxls + '">XLS</a></p><p>'
-							+ 'For larger dataset, use <a href=${baseUrl}/batchQuery>Batch query</a>';
-
-					//$('div.dataTables_processing').siblings('div#tableTool').append(
-					$('div#tableTool').append(saveTool, toolBox);
-
-					$('div#toolBox').hide();
-					$('span#dnld').click(function(){
-						if ($('div#toolBox').is(":visible")) {
-							$('div#toolBox').hide();
-						}
-						else {
-							$('div#toolBox').show();
-						}
-					});
+				else if ( coreName.indexOf('mp') != -1 ) {
+					$('table th:nth-child(3)').css('width', '10%');
 				}
-
-				function adjustColWidth(){
-
-					if ( coreName == 'disease' || coreName == 'gene' ) {
-						$('table th:first-child').css('width', '45%');
-					}
-					else if ( coreName.indexOf('images') != -1 ) {
-						$('table th:first-child').css('width', '30%');
-					}
-					else if ( coreName.indexOf('mp') != -1 ) {
-						$('table th:nth-child(3)').css('width', '10%');
-					}
+				else if ( coreName.indexOf('ma') != -1 ) {
+					$('table th:nth-child(2), table td:nth-child(2)').css('text-align', 'center');
 				}
+			}
 
-				function activateImgViewSwitcher(){
-					$('div#imgView').click(function(){
-						var fqStr = $.fn.fetchUrlParams("fq") == undefined ? "" : "&fq=" + $.fn.fetchUrlParams("fq");
-						var mode = $(this).attr('rel');
+			function activateImgViewSwitcher(){
+				$('div#imgView').click(function(){
+					var fqStr = $.fn.fetchUrlParams("fq") == undefined ? "" : "&fq=" + $.fn.fetchUrlParams("fq");
+					var mode = $(this).attr('rel');
 
-						if ( mode == 'annotView' ){
-							document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr + "&showImgView=true";
-						}
-						else {
-							document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr + "&showImgView=false";
-						}
-					});
-				}
-
-
-				function fetchResultByFilters(){
-					$('li.fcat input').click(function () {
-
-						// parse checked filters and build a SOLR fq str
-						var fqs = [];
-						$('li.fcat span.highlight').each(function () {
-
-							var vals = $(this).prev().attr("rel").split("|");
-							var fq = vals[1];
-							var val = vals[2];
-							fqs.push("(" + fq + ":\"" + val + "\")");
-						});
-
-						var fqStr = fqs.length != 0 ? "&fq=" + fqs.join(" AND ") : "";
-
-						//document.location.href = baseUrl + '/search/' + query + '/' + coreName + fqStr;
-						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + queryOri + fqStr;
-					});
-				}
-
-				function highlightFilters(solrFqs){
-
-					for( var i=0; i<solrFqs.length; i++){
-
-						$('div.flist li.fcat input').each(function() {
-
-							if ($(this).attr("rel").indexOf(solrFqs[i]+"|") != -1) {
-								$(this).next().click();
-
-								// if there is a filter checked, open its container facet if not yet
-								var container = $(this).parent().parent().parent();
-								if ( ! container.hasClass('open') ){
-									container.click();
-								}
-							}
-						});
-					}
-				}
-
-				function prepare_dataTable(colListStr, tableId, parentContainer){
-
-					var colList = colListStr.split(',');
-
-					var th = '';
-					for ( var i=0; i<colList.length; i++){
-						th += "<th>" + colList[i] + "</th>";
-					}
-
-					var tableHeader = "<thead>" + th + "</thead>";
-					var tableCols = colList.length;
-
-					var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, tableId);
-
-					parentContainer.append(dTable);
-				}
-
-				function addPaginationControl(parentContainer, infoDivId, paginationDivId, json){
-					//console.log("total records: " + json.iTotalRecords);
-
-					var start  = json.iDisplayStart;
-					var length = json.iDisplayLength;
-					//var total  = json.iTotalRecords;
-					var total = ${jsonStr}.iTotalRecords;
-
-					var numX = total > 0 ? parseInt(start+1) : 0;
-					var numY = parseInt(start+length) > total ? total : parseInt(start+length);
-					var defaultRows = 10;
-					var currPageNum = (start/length)+1;
-
-					parentContainer.find('div#' + infoDivId).html("Showing " + numX + " to " + numY + " of " + total + " entries");
-
-					var filters = solrFilters != undefined ? " filtered by " + solrFilters : "";
-					//$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
-
-					// work out how many pages
-					var pages = Math.ceil(total / length);
-					var defaultPaginationLength = pages > 6 ? 5 : pages;
-					var lis = [];
-					var href = undefined;
-
-					// work out correct url to append start and length for pagination
-					if ( location.href.indexOf("&iDisplayStart") != -1 ){
-						var pos = location.href.indexOf("&iDisplayStart");
-						href = location.href.substr(0, pos);
+					if ( mode == 'annotView' ){
+						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr + "&showImgView=true";
 					}
 					else {
-						href = location.href;
+						document.location.href = baseUrl + '/search/' + coreName + "?kw=" + query + fqStr + "&showImgView=false";
 					}
+				});
+			}
 
-					var dLen = "&iDisplayLength=10";
 
-					var currHref = href + "&iDisplayStart=0" + dLen;
+			function fetchResultByFilters(){
+				$('li.fcat input').click(function () {
 
-					lis.push("<li><a href='" + currHref + "'>&larr; First</a>");
+					// parse checked filters and build a SOLR fq str
+					var fqs = [];
+					$('li.fcat span.filterCheck').each(function () {
+						var vals = $(this).prev().attr("rel").split("|");
+						var fq = vals[1];
+						var val = vals[2];
+						fqs.push("(" + fq + ":\"" + val + "\")");
+					});
 
-					var cycles, loopStart;
-					if ( currPageNum < 4 ){
-						// show pagination buttons starting from 1
-						loopStart = 0;
-						cycles = defaultPaginationLength;
-					}
-					else {
-						// show pagination buttons starting > 1 (higher numbers)
-						// always display 5 buttons (ie, if there is a total of 12 pages, click on either one of the 11/12 numbers
-						// will always show 8,9,10,11,12,
-						// but click on 9 will show 7,8,9.10,11..12
-						// and click on 10 will show 8,9,10,11,12
-						loopStart = currPageNum > pages-4 ? pages-5 : currPageNum - 3;
-						cycles = defaultPaginationLength  + loopStart;
-					}
+					var fqStr = fqs.length != 0 ? "&fq=" + fqs.join(" AND ") : "";
 
-					var fifthNum = undefined;
-					for (var i = loopStart; i < cycles; i++) {
-						currHref = href + "&iDisplayStart=" + parseInt(i * length) + dLen;
-						var sClass = i + 1 == currPageNum ? "active" : "";
-						if ( i < pages ) {
-							lis.push("<li class='" + sClass + "'><a href='" + currHref + "'>" + parseInt(i + 1) + "</a>");
+					//document.location.href = baseUrl + '/search/' + query + '/' + coreName + fqStr;
+					document.location.href = baseUrl + '/search/' + coreName + "?kw=" + queryOri + fqStr;
+				});
+			}
+
+			function highlightFilters(solrFqs){
+
+				for( var i=0; i<solrFqs.length; i++){
+
+					$('div.flist li.fcat input').each(function() {
+
+						if ($(this).attr("rel").indexOf(solrFqs[i]+"|") != -1) {
+							$(this).next().click();
+
+							// if there is a filter checked, open its container facet if not yet
+							var container = $(this).parent().parent().parent();
+							if ( ! container.hasClass('open') ){
+								container.click();
+							}
 						}
-						fifthNum = i+1;
+					});
+				}
+			}
+
+			function prepare_dataTable(colListStr, tableId, parentContainer){
+
+				var colList = colListStr.split(',');
+
+				var th = '';
+				for ( var i=0; i<colList.length; i++){
+					th += "<th>" + colList[i] + "</th>";
+				}
+
+				var tableHeader = "<thead>" + th + "</thead>";
+				var tableCols = colList.length;
+
+				var dTable = $.fn.fetchEmptyTable(tableHeader, tableCols, tableId);
+
+				parentContainer.append(dTable);
+
+			}
+
+			function addPaginationControl(parentContainer, infoDivId, paginationDivId, json){
+				//console.log("total records: " + json.iTotalRecords);
+
+				var start  = json.iDisplayStart;
+				var length = json.iDisplayLength;
+				//var total  = json.iTotalRecords;
+				var total = ${jsonStr}.iTotalRecords;
+
+				var numX = total > 0 ? parseInt(start+1) : 0;
+				var numY = parseInt(start+length) > total ? total : parseInt(start+length);
+				var defaultRows = 10;
+				var currPageNum = (start/length)+1;
+
+
+				parentContainer.find('div#' + infoDivId).html("Showing " + numX + " to " + numY + " of " + total + " entries");
+
+				var filters = solrFilters != undefined ? " filtered by " + solrFilters : "";
+				//$('#resultMsg').html(numX + " to " + numY + " of " + total + " entries found for <b>\"" + decodeURI(query) + "\"</b>" + filters);
+
+				// work out how many pages
+				var pages = Math.ceil(total / length);
+				var defaultPaginationLength = pages > 6 ? 5 : pages;
+				var lis = [];
+				var href = location.href;
+
+				// work out correct url to append start and length for pagination
+				if ( /search\/?$/.exec(location.href) ) {
+					href = "search/gene?kw=*";
+				}
+				else if ( location.href.indexOf("&iDisplayStart") != -1 ){
+					var pos = location.href.indexOf("&iDisplayStart");
+					href = location.href.substr(0, pos);
+				}
+
+
+				var dLen = "&iDisplayLength=10";
+
+				var currHref = href + "&iDisplayStart=0" + dLen;
+
+				lis.push("<li><a href='" + currHref + "'>&larr; First</a>");
+
+				var cycles, loopStart;
+				if ( currPageNum < 4 ){
+					// show pagination buttons starting from 1
+					loopStart = 0;
+					cycles = defaultPaginationLength;
+				}
+				else {
+					// show pagination buttons starting > 1 (higher numbers)
+					// always display 5 buttons (ie, if there is a total of 12 pages, click on either one of the 11/12 numbers
+					// will always show 8,9,10,11,12,
+					// but click on 9 will show 7,8,9.10,11..12
+					// and click on 10 will show 8,9,10,11,12
+					loopStart = currPageNum > pages-4 ? pages-5 : currPageNum - 3;
+					cycles = defaultPaginationLength  + loopStart;
+				}
+
+				var fifthNum = undefined;
+				for (var i = loopStart; i < cycles; i++) {
+					currHref = href + "&iDisplayStart=" + parseInt(i * length) + dLen;
+					var sClass = i + 1 == currPageNum ? "active" : "";
+					if ( i < pages ) {
+						lis.push("<li class='" + sClass + "'><a href='" + currHref + "'>" + parseInt(i + 1) + "</a>");
 					}
+					fifthNum = i+1;
+				}
 
-					if (pages > fifthNum ) {
-						var sClass = pages == currPageNum ? "active" : "";
-						currHref = href + "&iDisplayStart=" + parseInt((pages - 1) * length) + dLen;
-						lis.push("<li><span class='ellipse'>...</span></li>");
-						lis.push("<li class='" + sClass + "'><a href='" + currHref + "'>" + pages + "</a>");
-					}
-					else {
-
-					}
-
-					currHref = href + "&iDisplayStart=" + parseInt((pages-1)*length) + dLen;
-					lis.push("<li><a href='" + currHref + "'>Last &rarr;</a>");
-
-					parentContainer.find('div#' + paginationDivId).html("<ul>"+ lis.join("") + "</ul>").addClass("dataTables_paginate paging_bootstrap pagination");
+				if (pages > fifthNum ) {
+					var sClass = pages == currPageNum ? "active" : "";
+					currHref = href + "&iDisplayStart=" + parseInt((pages - 1) * length) + dLen;
+					lis.push("<li><span class='ellipse'>...</span></li>");
+					lis.push("<li class='" + sClass + "'><a href='" + currHref + "'>" + pages + "</a>");
+				}
+				else {
 
 				}
+
+				currHref = href + "&iDisplayStart=" + parseInt((pages-1)*length) + dLen;
+				lis.push("<li><a href='" + currHref + "'>Last &rarr;</a>");
+
+				parentContainer.find('div#' + paginationDivId).html("<ul>"+ lis.join("") + "</ul>").addClass("dataTables_paginate paging_bootstrap pagination");
+
+			}
 
 			});
 

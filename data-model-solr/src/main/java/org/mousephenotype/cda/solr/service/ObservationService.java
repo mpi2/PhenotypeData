@@ -94,7 +94,21 @@ public class ObservationService extends BasicService implements WebStatus {
 
     private CommonUtils commonUtils = new CommonUtils();
 
-    public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
+    /**
+     * set this constructor up for unit testing
+     * @param solr
+     */
+    public ObservationService(HttpSolrServer solr) {
+		this.solr=solr;
+	}
+    
+    
+    public ObservationService() {
+		
+	}
+
+
+	public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{
 
     	SolrQuery q = new SolrQuery();
@@ -317,6 +331,17 @@ public class ObservationService extends BasicService implements WebStatus {
         return solr.query(query).getBeans(ObservationDTO.class);
     }
     
+    public List<ObservationDTO> getObservationsByParameterStableIdAndGene(String parameterStableId, String mgiAccession) throws SolrServerException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+        query.setRows(Integer.MAX_VALUE);
+        query.addFilterQuery("gene_accession_id:\""+mgiAccession+"\"");
+
+        logger.info("getObservationsByParameterStableId Url: " + solr.getBaseURL() + "/select?" + query);
+
+        return solr.query(query).getBeans(ObservationDTO.class);
+    }
+    
     
     /**
      * @author tudose
@@ -359,12 +384,12 @@ public class ObservationService extends BasicService implements WebStatus {
     }
     
     
-    public Set<String> getViabilityForGene(String markerSymbol) 
+    public Set<String> getViabilityForGene(String acc) 
     throws SolrServerException{
     	
     	SolrQuery query = new SolrQuery();
         query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
-        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerSymbol +"\"");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc +"\"");
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.GENE_ACCESSION_ID);
         query.addField(ObservationDTO.CATEGORY);
@@ -2165,5 +2190,18 @@ public class ObservationService extends BasicService implements WebStatus {
 		public String toString() {
 			return "EmbryoTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
 		}
+	}
+
+
+	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession) throws SolrServerException {
+		SolrQuery q = new SolrQuery()
+                .setQuery("*:*")
+                .setRows(10000)
+                //.setFields(ObservationDTO.PROCEDURE_NAME, ObservationDTO.DATE_OF_EXPERIMENT)
+                .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":"+ procedureName)
+				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
+
+        return solr.query(q).getBeans(ObservationDTO.class);
+		
 	}
 }

@@ -186,9 +186,16 @@ public abstract class GraphSection {
                 this.catTable = new GraphCatTable(elements.get(0));
             }
 
-            elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'continuousTable')]"));
-            if ( ! elements.isEmpty()) {
-                this.continuousTable = new GraphContinuousTable(elements.get(0));
+            for (int i = 0; i < 5; i++) {
+                elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'continuousTable')]"));
+                if ( ! elements.isEmpty()) {
+                    this.continuousTable = new GraphContinuousTable(elements.get(0));
+                    break;
+                } else {
+                    if ((elements.isEmpty()) && (chartType == ChartType.UNIDIMENSIONAL_BOX_PLOT)) {
+                        commonUtils.sleep(5000);
+                    }
+                }
             }
 
             // Scrape this graph's data off the page.

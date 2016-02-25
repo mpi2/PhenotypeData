@@ -63,7 +63,11 @@ String pieChart="";
 				 		+ "cursor: 'pointer', "
 				 		+ "dataLabels: { distance: 1, enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
 				 		+ "style: { color: '#666', width:'60px' }  }  },"
-				 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} }"
+				 	+ "series: {  "
+				 	+ "dataLabels: { enabled: false },"
+				 	+ "showInLegend: true"
+				 //	+ "dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} "
+				 	+ "}"
 				 + " },"
 			+ " series: [{  type: 'pie',   name: '',  "
 				+ "data: [";

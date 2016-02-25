@@ -33,7 +33,7 @@ allele = allele.replaceAll("##", "</sup>");
         	<c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		<!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
          		 <a href="${href}?mediaType=pdf">
-         		<img  src="${pdfThumbnailUrl}/200" class="thumbnailStyle"></a>
+         		<img  src="${pdfThumbnailUrl}" class="thumbnailStyle"></a>
          	</c:if>
          	<c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }">
          		 <a href="${href}">
@@ -45,7 +45,7 @@ allele = allele.replaceAll("##", "</sup>");
          <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
          <!-- used pdf images on normal image scrolldown pages -->
          		<a href="${img.download_url}" >
-         		<img  src="${pdfThumbnailUrl}/200" class="thumbnailStyle"></a>
+         		<img  src="${pdfThumbnailUrl}" class="thumbnailStyle"></a>
          		<div class="caption" style="max-width: 200px; max-height: 200px;width:auto;height:auto">
          		 <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
                  <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>
@@ -59,7 +59,7 @@ allele = allele.replaceAll("##", "</sup>");
          		<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
          </c:otherwise>
       </c:choose>
-                                                
+                                                <c:if test="${not empty img.gene_symbol}"><a href="${baseUrl}/genes/${img.gene_accession_id}">${img.gene_symbol}</a><br/></c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
                                                 <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
                                                 <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
@@ -68,6 +68,21 @@ allele = allele.replaceAll("##", "</sup>");
                                                 	<c:forEach items="${img.parameter_association_name}" varStatus="status">
                                                 		<c:out value="${img.parameter_association_name[status.index]}"/>
                                                 		<c:out value="${img.parameter_association_value[status.index]}"/>
+                                                		<br/>
+                                                	</c:forEach>
+                                                </c:if>
+                                                <c:if test="${not empty img.ma_id}">
+                                                	<c:forEach items="${img.ma_id}" varStatus="status">
+                                                		<c:out value="${img.ma_id[status.index]}"/>
+                                                		<c:out value="${img.ma_term[status.index]}"/>
+                                                		<br/>
+                                                	</c:forEach>
+                                                </c:if>
+                                             
+                                                 <c:if test="${not empty img.emap_id}">
+                                                	<c:forEach items="${img.emap_id}" varStatus="status">
+                                                		<c:out value="${img.emap_id[status.index]}"/>
+                                                		<c:out value="${img.emap_term[status.index]}"/>
                                                 		<br/>
                                                 	</c:forEach>
                                                 </c:if>

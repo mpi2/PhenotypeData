@@ -406,6 +406,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     }
 
+    /**
+     * This hash ignores p-values and sex as it is used by the row collapsing code for the tables. 
+     * Do not add them back in. Ask Ilinca if you're not sure what to do about this method.
+     * 
+     */
     @Override
     public int hashCode() {
         int result = config != null ? config.hashCode() : 0;
@@ -423,7 +428,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         result = 31 * result + (dataSourceName != null ? dataSourceName.hashCode() : 0);
         result = 31 * result + (graphUrl != null ? graphUrl.hashCode() : 0);
         result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
-        result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
+ //       result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
         result = 31 * result + (isPreQc ? 1 : 0);
         result = 31 * result + (gid != null ? gid.hashCode() : 0);
         

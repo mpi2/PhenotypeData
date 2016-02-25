@@ -308,7 +308,7 @@ public class ImageDTO extends ObservationDTO {
 
 	public String getSymbolGene() {
 		if((this.getGeneSymbol()!=null)&&(this.getGeneAccession()!=null)){
-			this.symbolGene=this.getGeneSymbol()+"_"+this.getAlleleAccession();
+			this.symbolGene=this.getGeneSymbol()+"_"+this.getGeneAccession();
 			}
 		return this.symbolGene;
 	}
