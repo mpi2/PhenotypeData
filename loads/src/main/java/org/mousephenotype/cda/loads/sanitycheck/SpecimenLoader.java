@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.sanitycheck;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.maven.model.Parent;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
@@ -39,7 +38,6 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -50,14 +48,14 @@ import java.util.List;
  * whose parameters describe the source location and the target database.
  */
 @Component
-public class LoadSpecimens {
+public class SpecimenLoader {
     /**
      * Load specimen data that was encoded using the IMPC XML format
      */
 
     // Required by the Harwell DCC export utilities
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
-    private static final Logger logger = LoggerFactory.getLogger(LoadSpecimens.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpecimenLoader.class);
 
     @NotNull
     @Autowired
@@ -77,16 +75,16 @@ public class LoadSpecimens {
     private String context;
     private String filename;
     private String dbrootname;
-    private boolean force = false;
+    private boolean truncateTables = false;
 
     protected ApplicationContext applicationContext;
 
     private Connection connection;
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, LoadDccException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DccLoaderException {
 
         // Wire up spring support for this application
-        LoadSpecimens main = new LoadSpecimens();
+        SpecimenLoader main = new SpecimenLoader();
         main.initialize(args);
         main.run();
 
@@ -109,16 +107,16 @@ public class LoadSpecimens {
         // Typically mounted on /nfs/komp2/web/phenotype_data/impc.
         parser.accepts("dbrootname").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate whether or not to create the tables.
-        parser.accepts("createtables").withRequiredArg().ofType(String.class);
+        // parameter to indicate whether or not to truncate the tables first.
+        parser.accepts("truncatetables").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
         dbrootname = (String) options.valuesOf("dbrootname").get(0);
 
-        if (options.has("createtables")) {
-            String forceString = options.valuesOf("createtables").get(0).toString().toLowerCase().trim();
-            if ((forceString.equals("true") || (forceString.equals("1")))) {
-                force = true;
+        if (options.has("truncatetables")) {
+            String truncateTablesString = options.valuesOf("truncatetables").get(0).toString().toLowerCase().trim();
+            if ((truncateTablesString.equals("true") || (truncateTablesString.equals("1")))) {
+                truncateTables = true;
             }
         }
 
@@ -148,38 +146,63 @@ public class LoadSpecimens {
         System.out.println("connection = " + connection);
     }
 
-    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, LoadDccException {
+    private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
 
-        List<CentreSpecimen> centers = XMLUtils.unmarshal(LoadSpecimens.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
+        if (truncateTables) {
+            truncateTables();
+        }
 
-        if (centers.size() == 0) {
+        List<CentreSpecimen> centerSpecimens = XMLUtils.unmarshal(SpecimenLoader.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
+
+        if (centerSpecimens.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
             throw new XMLloadingException(filename + " failed to unserialize.");
         }
 
-        logger.info("There are {} specimens in specimen file {}", centers.size(), filename);
+        logger.info("There are {} center specimen sets in specimen file {}", centerSpecimens.size(), filename);
 
         PreparedStatement ps;
         String query;
-        for (CentreSpecimen center : centers) {
-            logger.info("Parsing center {}", center.getCentreID());
+        for (CentreSpecimen centerSpecimen : centerSpecimens) {
+            logger.info("Parsing center {}", centerSpecimen.getCentreID());
 
-            for (Specimen specimen : center.getMouseOrEmbryo()) {
+            boolean firstSpecimen = true;
+            String[] firstSpecimenCenterInfo = new String[3];
+            Long centerPk = 0L;
+            for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
 
                 connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
-                // center
-                Long centerPk, statuscodePk, specimenPk, center_specimenPk;
+                Long statuscodePk, specimenPk, center_specimenPk;
                 ResultSet rs;
 
-                query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
-                ps = connection.prepareStatement(query);
-                ps.setString(1, center.getCentreID().value());
-                ps.setString(2, specimen.getPipeline());
-                ps.setString(3, specimen.getProject());
-                ps.execute();
-                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                centerPk = rs.getLong("pk");
+                // center (first specimen only)
+                if (firstSpecimen) {
+                    query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setString(1, centerSpecimen.getCentreID().value());
+                    ps.setString(2, specimen.getPipeline());
+                    ps.setString(3, specimen.getProject());
+                    ps.execute();
+                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                    rs.next();
+                    centerPk = rs.getLong(1);
+                    firstSpecimenCenterInfo[0] = centerSpecimen.getCentreID().value();
+                    firstSpecimenCenterInfo[1] = specimen.getPipeline();
+                    firstSpecimenCenterInfo[2] = specimen.getProject();
+                    firstSpecimen = false;
+                } else {
+                    // Validate that this specimen's center info matches the first one.
+                    if ( ! centerSpecimen.getCentreID().value().equals(firstSpecimenCenterInfo[0])) {
+                        throw new DccLoaderException("center id mismatch. First center: " + firstSpecimenCenterInfo[0] + ". This center: '" + centerSpecimen.getCentreID().value() + "'.");
+                    }
+                    if ( ! specimen.getPipeline().equals(firstSpecimenCenterInfo[1])) {
+                        throw new DccLoaderException("pipeline mismatch. First pipeline: " + firstSpecimenCenterInfo[1] + ". This pipeline: '" + specimen.getPipeline() + "'.");
+                    }
+                    if ( ! specimen.getProject().equals(firstSpecimenCenterInfo[2])) {
+                        throw new DccLoaderException("project mismatch. First project: " + firstSpecimenCenterInfo[2] + ". This project: '" + specimen.getProject() + "'.");
+                    }
+                }
 
                 // statuscode
                 if (specimen.getStatusCode()!= null) {
@@ -189,7 +212,8 @@ public class LoadSpecimens {
                     ps.setString(2, specimen.getStatusCode().getValue());
                     ps.execute();
                     rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                    statuscodePk = rs.getLong("pk");
+                    rs.next();
+                    statuscodePk = rs.getLong(1);
                 } else {
                     statuscodePk = null;
                 }
@@ -230,22 +254,27 @@ public class LoadSpecimens {
                 }
                 ps.execute();
                 rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                specimenPk = rs.getLong("pk");
+                rs.next();
+                specimenPk = rs.getLong(1);
 
                 // embryo or mouse
                 if (specimen instanceof Embryo) {
                     Embryo embryo = (Embryo) specimen;
-                    query = "INSERT INTO Embryo (stage, stageUnit, specimen_fk) VALUES (?, ?, ?);";
+                    query = "INSERT INTO embryo (stage, stageUnit, specimen_fk) VALUES (?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, embryo.getStage());
                     ps.setString(2, embryo.getStageUnit().value());
                     ps.setLong(3, specimenPk);
                 } else  if (specimen instanceof Mouse) {
                     Mouse mouse = (Mouse) specimen;
-                    query = "INSERT INTO Mouse (DOB, specimen_fk) VALUES (?, ?);";
+                    query = "INSERT INTO mouse (DOB, specimen_fk) VALUES (?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setDate(1, new java.sql.Date(mouse.getDOB().getTime().getTime()));
+                    ps.setLong(2, specimenPk);
+                } else {
+                    throw new DccLoaderException("Unknown specimen type '" + specimen.getClass().getSimpleName());
                 }
+                ps.execute();
 
                 // genotype
                 for (Genotype genotype : specimen.getGenotype()) {
@@ -284,7 +313,7 @@ public class LoadSpecimens {
 
                 // chromosomalAlteration
                 if ( ! specimen.getChromosomalAlteration().isEmpty()) {
-                    throw new LoadDccException("chromosomalAlteration is not yet supported. Records found!");
+                    throw new DccLoaderException("chromosomalAlteration is not yet supported. Records found!");
                 }
 
                 // center_specimen
@@ -330,5 +359,38 @@ public class LoadSpecimens {
         }
 
         return appContext;
+    }
+
+    private void truncateTables() throws SQLException {
+        String query;
+        PreparedStatement ps;
+
+        String[] tables = new String[] {
+                  "center"
+                , "center_specimen"
+                , "embryo"
+                , "genotype"
+                , "mouse"
+                , "parentalStrain"
+                , "relatedSpecimen"
+                , "specimen"
+                , "statuscode"
+        };
+
+        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
+        ps.execute();
+        for (String tableName : tables) {
+            query = "TRUNCATE " + tableName + ";";
+
+            try {
+                ps = connection.prepareStatement(query);
+                ps.execute();
+            } catch (SQLException e) {
+                logger.error("Unable to truncate table " + tableName);
+                throw e;
+            }
+        }
+        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
+        ps.execute();
     }
 }
