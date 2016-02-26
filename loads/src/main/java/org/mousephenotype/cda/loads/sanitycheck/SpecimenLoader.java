@@ -133,8 +133,6 @@ public class SpecimenLoader {
         for (CentreSpecimen centerSpecimen : centerSpecimens) {
             logger.info("Parsing center {}", centerSpecimen.getCentreID());
 
-            boolean firstSpecimen = true;
-            String[] firstSpecimenCenterInfo = new String[3];
             Long centerPk = 0L;
             for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
 
@@ -143,8 +141,21 @@ public class SpecimenLoader {
                 Long statuscodePk, specimenPk, center_specimenPk;
                 ResultSet rs;
 
-                // center (first specimen only)
-                if (firstSpecimen) {
+                // center
+                query = "";
+                ps = connection.prepareStatement("SELECT * FROM center WHERE centerId = ?;");
+                ps.setString(1, centerSpecimen.getCentreID().value());
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    centerPk = rs.getLong("pk");
+                    // Validate that this specimen's center info matches the existing one in the database.
+                    if ( ! specimen.getPipeline().equals(rs.getString("pipeline"))) {
+                        throw new DccLoaderException("pipeline mismatch. Existing pipeline: " + specimen.getPipeline() + ". This pipeline: '" + rs.getString("pipeline") + "'.");
+                    }
+                    if ( ! specimen.getProject().equals(rs.getString("project"))) {
+                        throw new DccLoaderException("project mismatch. Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
+                    }
+                } else {
                     query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, centerSpecimen.getCentreID().value());
@@ -154,21 +165,6 @@ public class SpecimenLoader {
                     rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
                     rs.next();
                     centerPk = rs.getLong(1);
-                    firstSpecimenCenterInfo[0] = centerSpecimen.getCentreID().value();
-                    firstSpecimenCenterInfo[1] = specimen.getPipeline();
-                    firstSpecimenCenterInfo[2] = specimen.getProject();
-                    firstSpecimen = false;
-                } else {
-                    // Validate that this specimen's center info matches the first one.
-                    if ( ! centerSpecimen.getCentreID().value().equals(firstSpecimenCenterInfo[0])) {
-                        throw new DccLoaderException("center id mismatch. First center: " + firstSpecimenCenterInfo[0] + ". This center: '" + centerSpecimen.getCentreID().value() + "'.");
-                    }
-                    if ( ! specimen.getPipeline().equals(firstSpecimenCenterInfo[1])) {
-                        throw new DccLoaderException("pipeline mismatch. First pipeline: " + firstSpecimenCenterInfo[1] + ". This pipeline: '" + specimen.getPipeline() + "'.");
-                    }
-                    if ( ! specimen.getProject().equals(firstSpecimenCenterInfo[2])) {
-                        throw new DccLoaderException("project mismatch. First project: " + firstSpecimenCenterInfo[2] + ". This project: '" + specimen.getProject() + "'.");
-                    }
                 }
 
                 // statuscode
@@ -186,43 +182,96 @@ public class SpecimenLoader {
                 }
 
                 // specimen
-                query = "INSERT INTO specimen (" +
-                            "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project," +
-                            " specimenId, strainId, zygosity, statuscode_fk)" +
-                        " VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-                ps = connection.prepareStatement(query);
-                if (specimen.getColonyID() == null) {
-                    ps.setNull(1, Types.VARCHAR);
+                query = "";
+                ps = connection.prepareStatement("SELECT * FROM specimen WHERE specimenId = ?;");
+                ps.setString(1, specimen.getSpecimenID());
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    specimenPk = rs.getLong("pk");
+                    // Validate that this specimen's info matches the existing one in the database.
+                    if ( ! specimen.getGender().value().equals(rs.getString("gender"))) {
+                        throw new DccLoaderException("gender mismatch. Existing gender: " + specimen.getGender().value() + ". This gender: '" + rs.getString("gender") + "'.");
+                    }
+                    if ( ! specimen.isIsBaseline() == (rs.getInt("isBaseline") == 1)) {
+                        throw new DccLoaderException("isBaseline mismatch. Existing isBaseline: " + (specimen.isIsBaseline() ? 1 : 0) + ". This isBaseline: '" + rs.getInt("isBaseline") + "'.");
+                    }
+                    if ( ! specimen.getLitterId().equals(rs.getString("litterId"))) {
+                        throw new DccLoaderException("litterId mismatch. Existing gender: " + specimen.getLitterId() + ". This litterId: '" + rs.getString("litterId") + "'.");
+                    }
+                    if ( ! specimen.getPhenotypingCentre().value().equals(rs.getString("phenotypingCenter"))) {
+                        throw new DccLoaderException("phenotypingCenter mismatch. Existing phenotypingCenter: " + specimen.getPhenotypingCentre().value()
+                                + ". This phenotypingCenter: '" + rs.getString("phenotypingCenter") + "'.");
+                    }
+                    if ( ! specimen.getPipeline().equals(rs.getString("pipeline"))) {
+                        throw new DccLoaderException("pipeline mismatch. Existing pipeline: " + specimen.getPipeline()  + ". This pipeline: '" + rs.getString("pipeline") + "'.");
+                    }
+                    if (specimen.getProductionCentre() == null) {
+                        if (rs.getString("productionCenter") != null) {
+                            throw new DccLoaderException("productionCenter mismatch. Existing productionCenter is null. this productionCenter: '" + rs.getString("productionCenter)"));
+                        }
+                    } else {
+                        if ( ! specimen.getProductionCentre().value().equals(rs.getString("productionCenter"))) {
+                            throw new DccLoaderException("productionCenter mismatch. Existing productionCenter: " + specimen.getProductionCentre().value()
+                                    + ". This productionCenter: '" + rs.getString("productionCenter") + "'.");
+                        }
+                    }
+                    if ( ! specimen.getProject().equals(rs.getString("project"))) {
+                        throw new DccLoaderException("project mismatch. Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
+                    }
+                    if ( ! specimen.getStrainID().equals(rs.getString("strainId"))) {
+                        throw new DccLoaderException("strainId mismatch. Existing strainId: " + specimen.getStrainID() + ". This strainId: '" + rs.getString("strainId") + "'.");
+                    }
+                    if ( ! specimen.getZygosity().value().equals(rs.getString("zygosity"))) {
+                        throw new DccLoaderException("zygosity mismatch. Existing zygosity: " + specimen.getZygosity().value() + ". This zygosity: '" + rs.getString("zygosity") + "'.");
+                    }
                 } else {
-                    ps.setString(1, specimen.getColonyID());
+                    query = "INSERT INTO specimen (" +
+                                "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project," +
+                                " specimenId, strainId, zygosity, statuscode_fk)" +
+                            " VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    ps = connection.prepareStatement(query);
+                    if (specimen.getColonyID() == null) {
+                        ps.setNull(1, Types.VARCHAR);
+                    } else {
+                        ps.setString(1, specimen.getColonyID());
+                    }
+                    ps.setString(2, specimen.getGender().value());
+                    ps.setInt(3, specimen.isIsBaseline() ? 1 : 0);
+                    ps.setString(4, specimen.getLitterId());
+                    ps.setString(5, specimen.getPhenotypingCentre().value());
+                    ps.setString(6, specimen.getPipeline());
+                    if (specimen.getProductionCentre() == null) {
+                        ps.setNull(7, Types.VARCHAR);
+                    } else {
+                        ps.setString(7, specimen.getProductionCentre().value());
+                    }
+                    ps.setString(8, specimen.getProject());
+                    ps.setString(9, specimen.getSpecimenID());
+                    if (specimen.getStrainID() == null) {
+                        ps.setNull(10, Types.VARCHAR);
+                    } else {
+                        ps.setString(10, specimen.getStrainID());
+                    }
+                    ps.setString(11, specimen.getZygosity().value());
+                    if (statuscodePk == null) {
+                        ps.setNull(12, Types.BIGINT);
+                    } else {
+                        ps.setLong(12, statuscodePk);
+                    }
+                    ps.execute();
+                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                    rs.next();
+                    specimenPk = rs.getLong(1);
                 }
-                ps.setString(2, specimen.getGender().value());
-                ps.setInt(3, specimen.isIsBaseline() ? 1 : 0);
-                ps.setString(4, specimen.getLitterId());
-                ps.setString(5, specimen.getPhenotypingCentre().value());
-                ps.setString(6, specimen.getPipeline());
-                if (specimen.getProductionCentre() == null) {
-                    ps.setNull(7, Types.VARCHAR);
-                } else {
-                    ps.setString(7, specimen.getProductionCentre().value());
-                }
-                ps.setString(8, specimen.getProject());
-                ps.setString(9, specimen.getSpecimenID());
-                if (specimen.getStrainID() == null) {
-                    ps.setNull(10, Types.VARCHAR);
-                } else {
-                    ps.setString(10, specimen.getStrainID());
-                }
-                ps.setString(11, specimen.getZygosity().value());
-                if (statuscodePk == null) {
-                    ps.setNull(12, Types.BIGINT);
-                } else {
-                    ps.setLong(12, statuscodePk);
-                }
-                ps.execute();
-                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                rs.next();
-                specimenPk = rs.getLong(1);
+
+
+
+
+
+
+
+
+
 
                 // embryo or mouse
                 if (specimen instanceof Embryo) {
