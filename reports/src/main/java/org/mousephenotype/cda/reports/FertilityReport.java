@@ -69,8 +69,6 @@ public class FertilityReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result = new ArrayList<>();
-
         try {
             QueryResponse response = observationService.getData(resources, Arrays.asList( new String[] { FEMALE_FERTILITY_PARAMETER, MALE_FERTILITY_PARAMETER } ), null);
             List<Map<String, String>> fertilityResourceList = observationService.getCategories(resources, Arrays.asList(new String[] { FEMALE_FERTILITY_PARAMETER, MALE_FERTILITY_PARAMETER }), "sex,category,gene_symbol");
