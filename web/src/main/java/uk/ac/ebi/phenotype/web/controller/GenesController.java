@@ -58,7 +58,6 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
@@ -416,7 +415,7 @@ public class GenesController {
 			}
 		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
+		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypesForGene(acc);
 		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
 		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );

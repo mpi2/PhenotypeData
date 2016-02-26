@@ -340,7 +340,7 @@ public class GeneService extends BasicService implements WebStatus{
 			}	
 		}
 		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
+			log.error("Error getting ES cell");
 			log.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
@@ -367,6 +367,7 @@ public class GeneService extends BasicService implements WebStatus{
 		final List<String> exportMiceStatus = new ArrayList<String>();		
 		Map<String, String> statusMap = new HashMap<String, String>();
 				
+		System.out.println("THIS GETS CALLED " + mouseStatus);
 		try {		
 			if ( mouseStatus != null ){				
 				
@@ -393,6 +394,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 				if ( statusMap.containsKey("Mice Produced") ){
 
+					System.out.println("Contains MICE PRODUCED");
 					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
@@ -482,10 +484,11 @@ public class GeneService extends BasicService implements WebStatus{
 	public String getLatestProductionStatuses(JSONObject doc, boolean toExport, String geneLink){
 
 
-		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
-		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) && GeneDTO.MOUSE_STATUS.equals("") ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+		String esCellStatus = doc.containsKey(GeneDTO.LATEST_ES_CELL_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport) : "";
+		
+		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
 
-		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) && GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
+		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) && !GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 		
 		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);		
 		

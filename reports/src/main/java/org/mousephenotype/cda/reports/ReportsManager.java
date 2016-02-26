@@ -104,6 +104,10 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ZygosityReport zygosityReport;
+    
+    @Autowired
+    private ExpressionMpOverlapReport laczMpReport;
+    
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
@@ -129,6 +133,7 @@ public class ReportsManager implements CommandLineRunner {
         SEXUAL_DIMORPHISM_NO_BODY_WEIGHT("sexualDimorphismNoBodyWeight", "Sexual dimorphism no body weight report"),
         SEXUAL_DIMORPHISM_WITH_BODY_WEIGHT("sexualDimorphismWithBodyWeight", "Sexual dimorphism with body weight report"),
         VIABILITY("viability", "Viability report"),
+        LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap report"),
         ZYGOSITY("zygosity", "Zygosity report");
 
         String tag;
@@ -315,6 +320,10 @@ public class ReportsManager implements CommandLineRunner {
                         zygosityReport.run(args);
                         file = zygosityReport.targetFile;
                         break;
+                    case LACZMPOVERLAP:
+                    	laczMpReport.run(args);
+                    	file = laczMpReport.targetFile;
+                    	break;
                 }
 
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");
