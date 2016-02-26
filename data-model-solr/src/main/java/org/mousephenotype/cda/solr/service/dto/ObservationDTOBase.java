@@ -268,6 +268,15 @@ public class ObservationDTOBase {
 	private String textValue;
 
 
+    public void setTextValue(String textValue) {
+		this.textValue=textValue;
+		
+	}
+
+	public String getTextValue() {
+		return textValue;
+	}
+
 
 	public List<String> getParameterAssociationValue() {
 		return parameterAssociationValue;
@@ -1127,10 +1136,7 @@ public class ObservationDTOBase {
 
 	}
 	
-	public void setTextValue(String textValue) {
-		this.textValue=textValue;
-		
-	}
+	
 
 
 }
