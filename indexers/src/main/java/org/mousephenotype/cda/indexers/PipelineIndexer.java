@@ -55,7 +55,7 @@ public class PipelineIndexer extends AbstractIndexer {
 	@Qualifier("pipelineIndexing")
 	SolrServer pipelineCore;
 
-	
+
 	private Map<String, ParameterDTO> paramIdToParameter;
 	private Map<String, ProcedureDTO> procedureIdToProcedure;
 	private Map<String, PipelineDTO> pipelines;
@@ -63,13 +63,13 @@ public class PipelineIndexer extends AbstractIndexer {
 	private Map<String, ObservationType> parameterToObservationTypeMap;
 	protected static final int MINIMUM_DOCUMENT_COUNT = 10;
 
-	
+
 	public PipelineIndexer() {
 
 	}
-	
 
-	public static void main(String[] args) 
+
+	public static void main(String[] args)
 	throws IndexerException {
 
         RunStatus runStatus = new RunStatus();
@@ -78,7 +78,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		indexer.run();
 		indexer.validateBuild();
 	}
-	
+
 
 	@Override
 	public RunStatus validateBuild()	throws IndexerException {
@@ -125,33 +125,33 @@ public class PipelineIndexer extends AbstractIndexer {
 			pipelineCore.commit();
 
 			for (PipelineDTO pipeline : pipelines.values()) {
-				
+
 				for (ProcedureDTO procedure : pipeline.getProcedures()){
 
 					List<ParameterDTO> parameters = procedure.getParameters();
-	
+
 					for (ParameterDTO param : parameters) {
-						
+
 						ImpressDTO doc = new ImpressDTO();
 						doc.setParameterId(param.getId());
 						doc.setParameterName(param.getName());
 						doc.setParameterStableId(param.getStableId());
-						doc.setParameterStableKey(param.getStableKey());					
-	
+						doc.setParameterStableKey(param.getStableKey());
+
 						doc.setProcedureId(procedure.getId());
 						doc.setProcedureName(procedure.getName());
 						doc.setProcedureStableId(procedure.getStableId());
 						doc.setProcedureStableKey(procedure.getStableKey());
-	
+
 						doc.setPipelineId(pipeline.getId());
 						doc.setPipelineName(pipeline.getName());
 						doc.setPipelineStableId(pipeline.getStableId());
 						doc.setPipelineStableKey(pipeline.getStableKey());
-	
+
 						// ididid to be pipe proc param stable id combination that should be unique and is unique in solr
 						String ididid = pipeline.getStableId() + "_" + procedure.getStableId() + "_" + param.getStableId();
 						doc.setIdIdId(ididid);
-	
+
 						doc.setRequired(procedure.isRequired());
 						//doc.setDescription(procBean.description); -> maybe we don't need this. If we do, should differentiate from parameter description.
 						doc.setObservationType(param.getObservationType().name());
@@ -163,16 +163,17 @@ public class PipelineIndexer extends AbstractIndexer {
 						doc.setHasOptions(param.isOptions());
 						doc.setDerived(param.isDerived());
 						doc.setMedia(param.isMedia());
-						
+						doc.setAnnotate(param.isAnnotate());
+
 						if (param.getCategories().size() > 0){
 							doc.setCategories(param.getCategories());
-						}	
-						
+						}
+
 						if(param.getMaId() != null){
 							doc.setMaId(param.getMaId());
 							doc.setMaName(param.getMaName());
 						}
-	
+
 						if (param.getMpIds().size() > 0){
 							for (String mpId : param.getMpIds()){
 								doc.addMpId(mpId);
@@ -193,7 +194,7 @@ public class PipelineIndexer extends AbstractIndexer {
 								}
 							}
 						}
-						
+
 						if (param.getAbnormalMpId() != null){
 							doc.setAbnormalMpId(param.getAbnormalMpId());
 						}
@@ -203,7 +204,7 @@ public class PipelineIndexer extends AbstractIndexer {
 						if (param.getDecreasedMpId()!= null){
 							doc.setDecreasedMpId(param.getDecreasedMpId());
 						}
-						
+
 						if (doc.getProcedureId() == null){
 							System.out.println(doc.getIdidid() + "  " + doc);
 						}
@@ -254,7 +255,7 @@ public class PipelineIndexer extends AbstractIndexer {
 
 		Map<String, ParameterDTO> localParamDbIdToParameter = new HashMap<>();
 		String queryString = "SELECT * FROM phenotype_parameter";
-		
+
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
 			ResultSet resultSet = p.executeQuery();
 
@@ -289,7 +290,7 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		localParamDbIdToParameter = addCategories(localParamDbIdToParameter);
 		localParamDbIdToParameter = addMpTerms(localParamDbIdToParameter);
 		return localParamDbIdToParameter;
@@ -310,30 +311,30 @@ public class PipelineIndexer extends AbstractIndexer {
 				+ " INNER JOIN phenotype_parameter_lnk_option l ON l.parameter_id=p.id "
 				+ " INNER JOIN phenotype_parameter_option o ON o.id=l.option_id "
 				+ " ORDER BY stable_id ASC;";
-		
+
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 			ParameterDTO param = null;
-			
+
 			while (resultSet.next()) {
-				
+
 				String paramId = resultSet.getString("stable_id");
 				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
 					param = stableIdToParameter.get(paramId);
 				}
-				
+
 				param.addCategories(getCategory(resultSet));
 				localIdToParameter.put(param.getStableId(), param);
-				
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return localIdToParameter;
 	}
-	
+
 	/**
 	 * @since 2015/07/27
 	 * @author tudose
@@ -341,20 +342,20 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @return
 	 * @throws SQLException
 	 */
-	protected String getCategory (ResultSet resultSet) 
+	protected String getCategory (ResultSet resultSet)
 	throws SQLException{
-		
+
 		String name = resultSet.getString("cat_name");
 		String description = resultSet.getString("cat_description");
 		if (name.matches("[0-9]+")){
 			return description;
 		}
-		
+
 		return name;
-		
+
 	}
-	
-	
+
+
 	/**
 	 * @since 2015/07/27
 	 * @author tudose
@@ -362,27 +363,27 @@ public class PipelineIndexer extends AbstractIndexer {
 	 * @return
 	 */
 	protected Map<String, ParameterDTO> addMpTerms(Map<String, ParameterDTO> stableIdToParameter){
-		
+
 		String queryString = "SELECT stable_id, ontology_acc, event_type FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=pp.id "
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON l.annotation_id=ppoa.id "
 				+ " WHERE ontology_db_id=5 "
 				+ " ORDER BY stable_id ASC; ";
-		
+
 		Map<String, ParameterDTO> localIdToParameter = new HashMap<>(stableIdToParameter);
-		
+
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 			ParameterDTO param = null;
-			
+
 			while (resultSet.next()) {
-				
+
 				String paramId = resultSet.getString("stable_id");
 				if (param == null || !param.getStableId().equalsIgnoreCase(paramId)){
 					param = stableIdToParameter.get(paramId);
 				}
-				
+
 				String type = resultSet.getString("event_type");
 				if (type.equalsIgnoreCase("abnormal")){
 					param.setAbnormalMpId(resultSet.getString("ontology_acc"));
@@ -391,20 +392,20 @@ public class PipelineIndexer extends AbstractIndexer {
 				} else if (type.equalsIgnoreCase("decreased")){
 					param.setDecreasedMpId(resultSet.getString("ontology_acc"));
 				}
-				
+
 				param.addMpIds(resultSet.getString("ontology_acc"));
-				localIdToParameter.put(param.getStableId(), param);				
+				localIdToParameter.put(param.getStableId(), param);
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return localIdToParameter;
-	
+
 	}
-	
-	
+
+
 	protected Map<String, Set<String>> populateProcedureToParameterMap(RunStatus runStatus) {
 
 		Map<String, Set<String>> procIdToParams = new HashMap<>();
@@ -416,7 +417,7 @@ public class PipelineIndexer extends AbstractIndexer {
 				+ " INNER JOIN phenotype_procedure pproc ON pproc.id=ppp.procedure_id";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
@@ -442,17 +443,17 @@ public class PipelineIndexer extends AbstractIndexer {
 		return procIdToParams;
 	}
 
-	
+
 	protected Map<String, ProcedureDTO> populateProcedureIdToProcedureMap(RunStatus runStatus) {
 
 		Map<String, Set<String>> procIdToParams = populateProcedureToParameterMap(runStatus);
-		
+
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
 		String queryString = "SELECT id as pproc_id, stable_id, name, stable_key, is_mandatory, description, concat(name, '___', stable_id) as proc_name_id "
 				+ "FROM phenotype_procedure";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
@@ -477,7 +478,7 @@ public class PipelineIndexer extends AbstractIndexer {
         if (procedureIdToProcedureMap.size() < 190) {
             runStatus.addWarning(" procedureIdToProcedureMap # records = " + procedureIdToProcedureMap.size() + ". Expected at least 190 records.");
         }
-		
+
 		return procedureIdToProcedureMap;
 	}
 
@@ -492,14 +493,14 @@ public class PipelineIndexer extends AbstractIndexer {
 				+ " WHERE ppipe.db_id=6 ORDER BY ppipe.id ASC ";
 
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
-				
+
 				String pipelineStableId = resultSet.getString("pipe_stable_id");
 				PipelineDTO pipe = new PipelineDTO();
-				
+
 				if (procIdToPipelineMap.containsKey(pipelineStableId)){
 					pipe = procIdToPipelineMap.get(pipelineStableId);
 				}
@@ -516,20 +517,20 @@ public class PipelineIndexer extends AbstractIndexer {
 		}
 
 		return procIdToPipelineMap;
-		
+
 	}
 
-	
+
 	protected void addAbnormalMaOntology(){
-		
+
 		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id = pploa.annotation_id "
 				+ " INNER JOIN ontology_term ot ON ot.acc = ppoa.ontology_acc "
 				+ " WHERE ppoa.ontology_db_id=8 LIMIT 10000";
-		
+
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
@@ -540,11 +541,11 @@ public class PipelineIndexer extends AbstractIndexer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 protected void addAbnormalEmapOntology(){
-		
+
 		String sqlQuery="SELECT pp.id as id, ot.name as name, stable_id, ontology_acc FROM phenotype_parameter pp "
 				+ "	INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id = pploa.parameter_id "
 				+ " INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id = pploa.annotation_id "
@@ -552,7 +553,7 @@ protected void addAbnormalEmapOntology(){
 				+ " WHERE ppoa.ontology_db_id=14";
 		//14 db id is emap
 		try (PreparedStatement p = komp2DbConnection.prepareStatement(sqlQuery)) {
-			
+
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String parameterId = resultSet.getString("stable_id");
@@ -563,11 +564,11 @@ protected void addAbnormalEmapOntology(){
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 
-	protected Map<String, MpDTO> populateMpIdToMp() 
+	protected Map<String, MpDTO> populateMpIdToMp()
 	throws IndexerException {
 
 		Map<String, MpDTO> map = null;
@@ -585,7 +586,7 @@ protected void addAbnormalEmapOntology(){
 	 * @param parameter
      * @param runStatus a valid <code>RunStatus</code> instance
 	 * @return
-	 * @throws SolrServerException 
+	 * @throws SolrServerException
 	 */
 	// Method copied from org.mousephenotype.cda.db.impress.Utilities.
 	// Adjusted to avoid use of Parameter dao obj.
