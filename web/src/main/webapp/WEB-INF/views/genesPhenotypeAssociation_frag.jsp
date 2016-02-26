@@ -17,8 +17,7 @@
     <jsp:include page="phenotype_icons_frag.jsp"/>
 
 
-    <c:if
-            test="${!(empty dataMapList)}">
+    <c:if test="${!(empty dataMapList)}">
       <br/>
       <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
 
@@ -31,8 +30,7 @@
       </div>
     </c:if>
 
-    <c:if
-            test="${gene.embryoDataAvailable}">
+    <c:if test="${gene.embryoDataAvailable}">
       <div class="floatright marginup"
            style="clear: both">
         <a class="btn"
@@ -63,9 +61,9 @@
                     ${evidence}
                     <c:if test="${!loop.last}">,&nbsp;
                     </c:if>
-                  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
+                  </c:forEach> <%--&nbsp;&nbsp;&nbsp; (<a
                         class="filterTrigger"
-                        id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
+                        id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
                 </li>
               </c:forEach>
             </ul>
@@ -87,9 +85,9 @@
                           items="${summaryObj.getDataSources()}"
                           varStatus="loop"> ${evidence} <c:if
                           test="${!loop.last}">,&nbsp;</c:if>
-                  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
+                  </c:forEach> <%-- &nbsp;&nbsp;&nbsp; (<a
                           class="filterTrigger"
-                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
+                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
                 </li>
               </c:forEach>
             </ul>
@@ -111,9 +109,9 @@
                           items="${summaryObj.getDataSources()}"
                           varStatus="loop"> ${evidence} <c:if
                           test="${!loop.last}">,&nbsp;</c:if>
-                  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
+                  </c:forEach> <%-- &nbsp;&nbsp;&nbsp; (<a
                           class="filterTrigger"
-                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
+                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
                 </li>
               </c:forEach>
             </ul>
@@ -194,18 +192,14 @@
 
 
   <div class="row-fluid">
-    <div
-            class="container span12">
+    <div class="container span12">
       <br/>
 
-      <div class="row-fluid"
-           id="phenotypesDiv">
+      <div class="row-fluid" id="phenotypesDiv">
 
-        <div
-                class="container span12">
+        <div class="container span12">
 
-          <c:if
-                  test="${not empty phenotypes}">
+          <c:if test="${not empty phenotypes}">
             <form
                     class="tablefiltering no-style" id="target"
                     action="destination.html">
@@ -222,14 +216,11 @@
                   </c:forEach>
                 </select>
               </c:forEach>
-              <div
-                      class="clear"></div>
+              <div class="clear"></div>
             </form>
-            <div
-                    class="clear"></div>
+            <div class="clear"></div>
 
-            <c:set
-                    var="count" value="0" scope="page"/>
+            <c:set var="count" value="0" scope="page"/>
             <c:forEach
                     var="phenotype" items="${phenotypes}"
                     varStatus="status">
@@ -239,8 +230,7 @@
               </c:forEach>
             </c:forEach>
 
-            <jsp:include
-                    page="PhenoFrag.jsp"></jsp:include>
+            <jsp:include page="PhenoFrag.jsp"></jsp:include>
             <br/>
 
             <div

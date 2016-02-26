@@ -670,7 +670,8 @@
 		var aFacetFields = json.facet_fields; // eg. expName, symbol..
 
 		// appearance order of subfacets
-		var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
+		//var aSubFacetNames = ['top_level_mp_term','selected_top_level_ma_term','procedure_name','marker_type'];
+		var aSubFacetNames = ['selected_top_level_ma_term','procedure_name','marker_type'];
 
 		var displayLabel = {
 			/*annotated_or_inferred_higherLevelMaTermName: 'Anatomy',
@@ -678,7 +679,7 @@
 			 annotatedHigherLevelMpTermName: 'Phenotype',
 			 subtype: 'Gene'
 			 */
-			top_level_mp_term: 'Phenotype',
+			//top_level_mp_term: 'Phenotype',
 			procedure_name : 'Procedure',
 			selected_top_level_ma_term: 'Anatomy',
 			marker_type: 'Gene'

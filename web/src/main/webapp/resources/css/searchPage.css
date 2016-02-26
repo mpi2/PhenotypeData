@@ -236,19 +236,20 @@ div#tabs {
 ul.tabLabel{
 	margin-left: 18px;
 	margin-bottom: 50px;
-	height: 23px;
+	height: 27px;
 	border-bottom: 1px solid grey;
 }
 
 ul.tabLabel li {
 	float: left;
+	height: 25px;
 	margin: 0 0 0 10px;
-	padding: 0px 12px 0px 12px;
+	padding: 2px 12px 0px 12px;
 	visibility: hidden;
 	border: 1px solid gray;
 	border-bottom: none;
 	border-radius: 5px 5px 0 0;
-	height: auto;
+	vertical-align: middle;
 }
 ul.tabLabel li a.noData {
 	color: #C7C7C7;
@@ -289,10 +290,6 @@ div#dTable_pagination {
 	display: none;
 }
 
-div.flist {
-
-	margin-top: 20px !important;
-}
 .tabfc {
 	font-weight: normal;
 	font-size: 13px !important;
@@ -356,7 +353,8 @@ span.hp2mp {
 	color: #404040;
 }
 span.subMatch {
-	color: #0978A1;
+	color: gray;
+	background-color: yellow;
 }
 
 div.subinfo ul li, span.imgAnnots ul li {
@@ -406,20 +404,22 @@ div#goBlock table td {
 a#batchquery {
 	float: right;
 	margin-top: 10px;
-	margin-right: 20px;
+	margin-right: 120px;
 	text-decoration: none;
 	color: #0978A1;
 }
 
 #sicon {
-	margin-top: 41px;
+	padding-top: 8px;
 }
 #bigsearchbox {
-	background: none; padding: 3px; padding-left: 2px; width: 650px; margin-top: 5px; margin-right: 50px;
-	height: 29px; line-height: 0px; float: right;
+	position: relative;
+	width: 650px; margin-top: 5px; margin-right: 50px;
+	height: 30px; float: right; background: none;
 }
 #bigsearchbox input {
-	/*padding-left: 0; text-indent: 10px;*/ width: 610px; height: 15px !important; font-size: 16px; line-height: 20px; padding-left: 5px;
+	width: 610px; padding-top: 5px;
+	/*#bigsearchbox input     { border: 2px solid #0978a1; width: 380px; height: 20px !important; font-size: 14px; line-height: 0px; padding: 3px 0 6px 5px;}*/
 }
 input.resetFilters {
 	width: 100%;
@@ -447,11 +447,16 @@ input.facetFilterSubmit {
 }
 
 div#facet {
-	/*clear: both;*/
-	/*top: 124px;*/
 	top: 30px;
 	margin-bottom: 50px;
+}
+div#facet > .content {
+	/*padding-top: 0;*/
+}
 
+div.flist ul li.fmcat {
+	padding: 5px 0 0 0;
+	margin: 0;
 }
 
 div.flist ul li.fmcat > .flabel {
@@ -471,12 +476,12 @@ div.flist ul > li.fmcat > .flabel, li.fcatsection > .flabel {
 div#filterHint {
 	vertical-align: middle;
 	padding: 8px;
-	font-size: 16px !important;
+	font-size: 18px !important;
 }
 a#facetPanel {
 	position: relative;
 	top: 0px;
-	font-size: 20px;
+	font-size: 25px;
 }
 
 div.hideme > .region-content {

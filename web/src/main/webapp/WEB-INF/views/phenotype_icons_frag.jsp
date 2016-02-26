@@ -56,7 +56,7 @@
 		<c:forEach var="group" items="${significantTopLevelMpGroups.keySet()}">
 			<c:if test="${group != 'mammalian phenotype' }">
 				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
+					<div class="sprite_green sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${group}"></div>
 				</a>
 			</c:if>		
 		</c:forEach>
@@ -64,7 +64,7 @@
 		<c:forEach var="group" items="${notsignificantTopLevelMpGroups.keySet()}">
 			<c:if test="${group != 'mammalian phenotype' }">
 				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${group}"></div>
+					<div class="sprite_red sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${group}"></div>
 				</a>
 			</c:if>		
 		</c:forEach>
@@ -72,8 +72,8 @@
 	</div>
   	<div class="floatright"  style="clear: both">
   		<div class="abnormalities_key">
-			<span style="color: #e27010">Significant &nbsp; &nbsp; </span>
-            <span style="color: #0978a1">Tested &nbsp; &nbsp; </span>
+			<span style="color: green">Significant &nbsp; &nbsp; </span>
+            <span style="color: red">Not Significant &nbsp; &nbsp; </span>
             <span style="color: #c2c2c2">Not tested &nbsp; &nbsp; </span>
         </div>
 	</div>
