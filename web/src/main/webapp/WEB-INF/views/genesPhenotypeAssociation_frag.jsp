@@ -11,11 +11,12 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
+<!-- always show phenotype icons -->
+<jsp:include page="phenotype_icons_frag.jsp"/>
 <c:choose>
   <c:when test="${summaryNumber > 0}">
 
-    <jsp:include page="phenotype_icons_frag.jsp"/>
-
+    <%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
 
     <c:if test="${!(empty dataMapList)}">
       <br/>
@@ -120,8 +121,8 @@
       </ul>
     </c:forEach>
 
-
   </c:when>
+
   <c:when test="${summaryNumber == 0}">
 
     <c:if test="${empty dataMapList && empty phenotypes}">
@@ -157,13 +158,10 @@
       </div>
       <br/>
       <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-      <div class="floatright marginup"
-           style="clear: both">
-
-        <a class="btn"
-           href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-
+      <div class="floatright marginup" style="clear: both">
+        <a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
       </div>
+        <div class="clear"></div>
     </c:if>
 
     <c:if
