@@ -26,7 +26,7 @@
            style="clear: both">
         <p>
           <a class="btn"
-             href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+             href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>
         </p>
       </div>
     </c:if>
@@ -46,10 +46,9 @@
                items="${phenotypeSummaryObjects.keySet()}">
       <p>In <b>${zyg} :</b>
       </p>
-      <ul>
+      <ul class="phenoSum">
         <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-          <li><p><b>Both sexes</b> have the following phenotypic abnormalities
-          </p>
+          <li> <b>Both sexes</b> have the following phenotypic abnormalities
             <ul>
               <c:forEach var="summaryObj"
                          items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
@@ -71,10 +70,8 @@
           </li>
         </c:if>
 
-        <c:if
-                test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-          <li><p> Following phenotypic abnormalities occured in <b>females</b>
-            only</p>
+        <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
+          <li><b>females</b> only have the following phenotypic abnormalities only only
             <ul>
               <c:forEach
                       var="summaryObj"
@@ -95,10 +92,8 @@
           </li>
         </c:if>
 
-        <c:if
-                test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-          <li><p> Following phenotypic abnormalities occured in <b>males</b>
-            only</p>
+        <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
+          <li> <b>males</b> only have the following phenotypic abnormalities only
             <ul>
               <c:forEach
                       var="summaryObj"
@@ -186,7 +181,7 @@
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->
-  <h5>Filter this table</h5>
+  <h5>Filter significant phenotype</h5> (significant p value: <= 0.0001)
 
 
   <div class="row-fluid">
