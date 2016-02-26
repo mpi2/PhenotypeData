@@ -152,6 +152,10 @@
         <field name="child_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />			
         <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+        <field name="parent_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="parent_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="parent_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />			
+        
         <field name="top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />   
 
