@@ -276,6 +276,7 @@ public class PipelineIndexer extends AbstractIndexer {
 				param.setIncrement(resultSet.getBoolean("increment"));
 				param.setOptions(resultSet.getBoolean("options"));
 				param.setMedia(resultSet.getBoolean("media"));
+				param.setAnnotate(resultSet.getBoolean("annotate"));
 				param.setObservationType(assignType(param, runStatus));
 				if (param.getObservationType() == null){
                     runStatus.addWarning(" Observation type is NULL for :" + param.getStableId() + "  " + param.getObservationType());
