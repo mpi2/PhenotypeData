@@ -23,9 +23,19 @@ p.padleft               { padding-left: 1em; }
 a                       { color: #0978a1; text-decoration: none; cursor: pointer; }
 a:hover                 { color: #0978a1; text-decoration: underline; }
 
+/* Font Awesome */
 p > a.fa.fa-question-circle { color: #ccc; text-decoration: none; font-size: 2em; }
 h2 > a.fa.fa-question-circle { color: #ccc; text-decoration: none; }
-a.fa.fa-question-circle:hover { color: #666; text-decoration: none; } 
+a.fa.fa-question-circle:hover { /*color: #666;*/ text-decoration: none; }
+
+
+h2 .fa-question-circle,
+h1 .fa-question-circle  { font-size: 2rem; color: #0978A1;}
+h1 .fa-question-circle {color: white;}
+.fa-question-circle     { cursor: help !important; }
+.fa-muted             { color: #ddd; }
+a i                     { text-decoration: none !important; }
+h1.title i:hover        { color: #fff; }
 
 /* Headlines */
 h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,h1,h2,h3,h4,h5,h6 { color: #333; margin-bottom: 0.5em; line-height: 1em; text-decoration: none; font-weight: 300; letter-spacing: -0.01em; }
@@ -260,12 +270,12 @@ p.editlink              { margin-top: 8em; padding-top: 1em; border-top: #eee 1p
 .reposition .btn:hover  { background: #777; }
 /*#bigsearchbox           { background: #0978a1; padding: 0.5em; } /* for the search page */
 #bigsearchbox           {  padding: 3px; padding-left: 2px; width: 420px; margin-top: -28px; margin-right: 50px;
-							height: 29px; line-height: 0px; float: right; background: none;
+							height: 30px; float: right; background: none;
 }
 
 div#footerline #bigsearchbox {display: none;}
 
-#bigsearchbox input     { /*padding-left: 0; text-indent: 10px;*/ border: 2px solid #0978a1; width: 380px; height: 15px !important; font-size: 14px; line-height: 20px; padding-left: 5px;}
+#bigsearchbox input     { color: grey; border: 2px solid #0978a1; width: 380px; height: 20px !important; font-size: 16px; line-height: 0px; padding: 3px 0 6px 5px;}
 #bigsearchbox i#sicon { position: absolute; top: -6px;}
 
 nav#mn {width: 950px;}
@@ -280,17 +290,17 @@ i.searchExample {
 	/*border-radius: 3px;
     border: 1px solid white;*/
     margin: 0px 0px 0 0px;
-    padding: 7px 20px 0px 0px;
+    padding: 5px 20px 0px 0px;
     width: 0px;
     height: 0px;
     color: #0978a1 !important;
     text-align: center;
-    font-size: 20px;
+    font-size: 25px;
 }
 a#batchquery {
 	float: right;
 	margin-top: -20px;
-	margin-right: 20px;
+	margin-right: 120px;
 	text-decoration: none;
     color: rgb(9,120,161);
 }
@@ -396,7 +406,7 @@ tr:hover .subinfo       { visibility: visible; }
 
 /* Summaries for gone or phenotyp pages */
 div.with-label,
-p.with-label            { padding-left: 150px; }
+p.with-label            { padding: 0 0 8px 150px; }
 div.with-label span.label,
 p.with-label span.label { position: absolute; margin-left: -150px; }
 div.no-margin + p,
@@ -533,6 +543,8 @@ a.status.qc, span.status.qc        { /*background:gray !important; */  backgroun
 .lt-ie9 .abnormalities .abnormalities_legend .allicons { filter: alpha(opacity=40); }
 .abnormalities .sprite_blue  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }
 .abnormalities .sprite_orange  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-orange.png); }
+.abnormalities .sprite_green  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-green.png); }
+.abnormalities .sprite_red  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-red.png); }
 
 .abnormalities .sprite-1-1 { margin: 0px 0px 0px 0px; background-position: 0px 0px; }
 .abnormalities .sprite-1-2 { margin: 0px 0px 0px 40px; background-position: -40px 0px; }
@@ -661,14 +673,6 @@ h1.title + .section,
 .sliderbar,
 .block .content         { -webkit-border-radius: 0 0 4px 4px; -moz-border-radius: 0 0 4px 4px; -o-border-radius: 0 0 4px 4px; -ms-border-radius: 0 0 4px 4px; border-radius: 0 0 4px 4px;  }
 
-/* Font Awesome */
-h2 .fa-question-circle,
-h1 .fa-question-circle  { font-size: 2rem; color: #ccc; }
-.fa-question-circle     { cursor: help !important; }
-.fa-muted             { color: #ddd; }
-a i                     { text-decoration: none !important; }
-h1.title i:hover        { color: #fff; }
-
 /* qTip */
 i[title],
 .has-tooltip            { cursor: pointer; }
@@ -763,4 +767,15 @@ div.dataTables_info, div.dataTables_paginate {
 }
 div.diseaseHint {
     font-size: 18px;
+}
+
+form#target {
+    padding: 15px 10px;
+    margin: -5px 0 20px 0;
+}
+div.filtertype {
+    background-color: lightgrey;
+}
+div.dataTables_filter {
+    padding-left: 5px;
 }

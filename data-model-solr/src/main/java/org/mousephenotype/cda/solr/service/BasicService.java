@@ -194,7 +194,7 @@ public class BasicService {
 		if (collection != null){
 			for (Object obj : collection){
 				if (obj != null){
-					list.add(obj.toString());
+                    list.add(obj.toString());
 				}
 			}
 		}
