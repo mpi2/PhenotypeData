@@ -143,18 +143,13 @@ public class SpecimenLoader {
 
                 // center
                 query = "";
-                ps = connection.prepareStatement("SELECT * FROM center WHERE centerId = ?;");
+                ps = connection.prepareStatement("SELECT * FROM center WHERE centerId = ? AND pipeline = ? AND project = ?;");
                 ps.setString(1, centerSpecimen.getCentreID().value());
+                ps.setString(2, specimen.getPipeline());
+                ps.setString(3, specimen.getProject());
                 rs = ps.executeQuery();
                 if (rs.next()) {
                     centerPk = rs.getLong("pk");
-                    // Validate that this specimen's center info matches the existing one in the database.
-                    if ( ! specimen.getPipeline().equals(rs.getString("pipeline"))) {
-                        throw new DccLoaderException("pipeline mismatch. (pk " + centerPk + "). Existing pipeline: " + specimen.getPipeline() + ". This pipeline: '" + rs.getString("pipeline") + "'.");
-                    }
-                    if ( ! specimen.getProject().equals(rs.getString("project"))) {
-                        throw new DccLoaderException("project mismatch. (pk " + centerPk + "). Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
-                    }
                 } else {
                     query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
                     ps = connection.prepareStatement(query);
@@ -182,9 +177,18 @@ public class SpecimenLoader {
                 }
 
                 // specimen
-                query = "";
-                ps = connection.prepareStatement("SELECT * FROM specimen WHERE specimenId = ?;");
+                query =
+                          "SELECT *\n"
+                        + "FROM dccimport_2015_12_16.specimen s\n"
+                        + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
+                        + "JOIN center           c ON  c.pk          = cs.center_fk\n"
+                        + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
+
+                ps = connection.prepareStatement(query);
                 ps.setString(1, specimen.getSpecimenID());
+                ps.setString(2, centerSpecimen.getCentreID().value());
+                ps.setString(3, specimen.getPipeline());
+                ps.setString(4, specimen.getProject());
                 rs = ps.executeQuery();
                 if (rs.next()) {
                     specimenPk = rs.getLong("pk");

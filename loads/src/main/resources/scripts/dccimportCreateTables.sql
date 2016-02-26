@@ -9,8 +9,7 @@ CREATE TABLE `center` (
   `centerId` varchar(255) NOT NULL,
   `pipeline` varchar(255) NOT NULL,
   `project` varchar(255) NOT NULL,
-  PRIMARY KEY (`pk`),
-  UNIQUE KEY (centerId)
+  PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `embryo`;
@@ -79,8 +78,7 @@ CREATE TABLE `specimen` (
   KEY `colonyIdIndex` (`colonyId`),
   KEY `specimenIdIndex` (`specimenId`),
   KEY `strainIdIndex` (`strainId`),
-  KEY `statuscode_fk` (`statuscode_fk`),
-  UNIQUE KEY specimenId_uk (specimenId)
+  KEY `statuscode_fk` (`statuscode_fk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `chromosomalAlteration`;
