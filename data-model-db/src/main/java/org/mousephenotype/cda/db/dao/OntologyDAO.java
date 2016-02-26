@@ -304,11 +304,16 @@ public abstract class OntologyDAO {
      */
     public List<OntologyTermBean> getParents(String id) {
         Set<OntologyTermBean> beans = new LinkedHashSet();
+        System.out.println("Start with : " + id);
 
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
         if (ancestorGraphsId != null) {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
-                beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 1)));
+            	System.out.println("--- Ancestors " + ancestorGraphId);
+            	if (ancestorGraphId.size() >= 2){
+            		beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 2)));
+            		
+            	}
             }
         }
 
