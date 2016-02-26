@@ -604,7 +604,7 @@
 
 
 			function addDownloadTool(){
-				var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
+				var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Export</span></span>");// .corner("4px");
 
 
 				var vals = $('div#dTable_pagination li.active a').attr('href').split("?");

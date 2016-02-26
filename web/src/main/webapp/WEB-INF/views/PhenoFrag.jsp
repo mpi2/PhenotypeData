@@ -4,11 +4,22 @@
 
 
 <c:set var="count" value="0" scope="page"/>
+<c:set var="maleCount" value="0" scope="page"/>
+<c:set var="femaleCount" value="0" scope="page"/>
 <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
-    <c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/></c:forEach>
+    <c:forEach var="sex" items="${phenotype.sexes}">
+        <c:set var="count" value="${count + 1}" scope="page"/>
+        <c:if test='${sex.equalsIgnoreCase("male")}'>
+            <c:set var="maleCount" value="${maleCount + 1}" scope="page"/>
+        </c:if>
+        <c:if test='${sex.equalsIgnoreCase("female")}'>
+            <c:set var="femaleCount" value="${femaleCount + 1}" scope="page"/>
+        </c:if>
+    </c:forEach>
 </c:forEach>
 <p class="resultCount">
-    Total number of significant genotype-phenotype associations: ${count}
+    <%-- Total number of significant genotype-phenotype associations: ${count} --%>
+    Total number of significant genotype-phenotype associations: female(${femaleCount}) , male(${maleCount})
 </p>
 
 <script>
