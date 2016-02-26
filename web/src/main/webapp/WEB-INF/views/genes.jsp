@@ -435,12 +435,12 @@
 									</div>
 								</c:if>
 
-								<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets
-									or not empty expressionAnatomyToRow
-									or not empty impcEmbryoExpressionImageFacets
-									or not empty embryoExpressionAnatomyToRow)}">
-									<hr>
-								</c:if>
+								<%--<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets--%>
+									<%--or not empty expressionAnatomyToRow--%>
+									<%--or not empty impcEmbryoExpressionImageFacets--%>
+									<%--or not empty embryoExpressionAnatomyToRow)}">--%>
+									<%--<hr>--%>
+								<%--</c:if>--%>
 
 								<!-- Expression (legacy) -->
 								<c:if test="${not empty expressionFacets}">
