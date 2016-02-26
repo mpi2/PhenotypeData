@@ -308,7 +308,7 @@ public abstract class OntologyDAO {
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
         if (ancestorGraphsId != null) {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
-                beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 2)));
+                beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 1)));
             }
         }
 
