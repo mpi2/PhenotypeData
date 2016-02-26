@@ -150,10 +150,10 @@ public class SpecimenLoader {
                     centerPk = rs.getLong("pk");
                     // Validate that this specimen's center info matches the existing one in the database.
                     if ( ! specimen.getPipeline().equals(rs.getString("pipeline"))) {
-                        throw new DccLoaderException("pipeline mismatch. Existing pipeline: " + specimen.getPipeline() + ". This pipeline: '" + rs.getString("pipeline") + "'.");
+                        throw new DccLoaderException("pipeline mismatch. (pk " + centerPk + "). Existing pipeline: " + specimen.getPipeline() + ". This pipeline: '" + rs.getString("pipeline") + "'.");
                     }
                     if ( ! specimen.getProject().equals(rs.getString("project"))) {
-                        throw new DccLoaderException("project mismatch. Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
+                        throw new DccLoaderException("project mismatch. (pk " + centerPk + "). Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
                     }
                 } else {
                     query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
@@ -190,39 +190,39 @@ public class SpecimenLoader {
                     specimenPk = rs.getLong("pk");
                     // Validate that this specimen's info matches the existing one in the database.
                     if ( ! specimen.getGender().value().equals(rs.getString("gender"))) {
-                        throw new DccLoaderException("gender mismatch. Existing gender: " + specimen.getGender().value() + ". This gender: '" + rs.getString("gender") + "'.");
+                        throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: " + specimen.getGender().value() + ". This gender: '" + rs.getString("gender") + "'.");
                     }
                     if ( ! specimen.isIsBaseline() == (rs.getInt("isBaseline") == 1)) {
-                        throw new DccLoaderException("isBaseline mismatch. Existing isBaseline: " + (specimen.isIsBaseline() ? 1 : 0) + ". This isBaseline: '" + rs.getInt("isBaseline") + "'.");
+                        throw new DccLoaderException("isBaseline mismatch (pk " + specimenPk + "). Existing isBaseline: " + (specimen.isIsBaseline() ? 1 : 0) + ". This isBaseline: '" + rs.getInt("isBaseline") + "'.");
                     }
                     if ( ! specimen.getLitterId().equals(rs.getString("litterId"))) {
-                        throw new DccLoaderException("litterId mismatch. Existing gender: " + specimen.getLitterId() + ". This litterId: '" + rs.getString("litterId") + "'.");
+                        throw new DccLoaderException("litterId mismatch. (pk " + specimenPk + "). Existing gender: " + specimen.getLitterId() + ". This litterId: '" + rs.getString("litterId") + "'.");
                     }
                     if ( ! specimen.getPhenotypingCentre().value().equals(rs.getString("phenotypingCenter"))) {
-                        throw new DccLoaderException("phenotypingCenter mismatch. Existing phenotypingCenter: " + specimen.getPhenotypingCentre().value()
+                        throw new DccLoaderException("phenotypingCenter mismatch. (pk " + specimenPk + "). Existing phenotypingCenter: " + specimen.getPhenotypingCentre().value()
                                 + ". This phenotypingCenter: '" + rs.getString("phenotypingCenter") + "'.");
                     }
                     if ( ! specimen.getPipeline().equals(rs.getString("pipeline"))) {
-                        throw new DccLoaderException("pipeline mismatch. Existing pipeline: " + specimen.getPipeline()  + ". This pipeline: '" + rs.getString("pipeline") + "'.");
+                        throw new DccLoaderException("pipeline mismatch. (pk " + specimenPk + "). Existing pipeline: " + specimen.getPipeline()  + ". This pipeline: '" + rs.getString("pipeline") + "'.");
                     }
                     if (specimen.getProductionCentre() == null) {
                         if (rs.getString("productionCenter") != null) {
-                            throw new DccLoaderException("productionCenter mismatch. Existing productionCenter is null. this productionCenter: '" + rs.getString("productionCenter)"));
+                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter is null. this productionCenter: '" + rs.getString("productionCenter)"));
                         }
                     } else {
                         if ( ! specimen.getProductionCentre().value().equals(rs.getString("productionCenter"))) {
-                            throw new DccLoaderException("productionCenter mismatch. Existing productionCenter: " + specimen.getProductionCentre().value()
+                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter: " + specimen.getProductionCentre().value()
                                     + ". This productionCenter: '" + rs.getString("productionCenter") + "'.");
                         }
                     }
                     if ( ! specimen.getProject().equals(rs.getString("project"))) {
-                        throw new DccLoaderException("project mismatch. Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
+                        throw new DccLoaderException("project mismatch. (pk " + specimenPk + "). Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
                     }
                     if ( ! specimen.getStrainID().equals(rs.getString("strainId"))) {
-                        throw new DccLoaderException("strainId mismatch. Existing strainId: " + specimen.getStrainID() + ". This strainId: '" + rs.getString("strainId") + "'.");
+                        throw new DccLoaderException("strainId mismatch. (pk " + specimenPk + "). Existing strainId: " + specimen.getStrainID() + ". This strainId: '" + rs.getString("strainId") + "'.");
                     }
                     if ( ! specimen.getZygosity().value().equals(rs.getString("zygosity"))) {
-                        throw new DccLoaderException("zygosity mismatch. Existing zygosity: " + specimen.getZygosity().value() + ". This zygosity: '" + rs.getString("zygosity") + "'.");
+                        throw new DccLoaderException("zygosity mismatch. (pk " + specimenPk + "). Existing zygosity: " + specimen.getZygosity().value() + ". This zygosity: '" + rs.getString("zygosity") + "'.");
                     }
                 } else {
                     query = "INSERT INTO specimen (" +
