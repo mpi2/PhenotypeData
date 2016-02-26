@@ -135,6 +135,10 @@ public class MAIndexer extends AbstractIndexer {
                 ma.setChildMaTerm(sourceList.getChildren().getNames());
                 ma.setChildMaTermSynonym(sourceList.getChildren().getSynonyms());
 
+                ma.setParentMaId(sourceList.getParents().getIds());
+                ma.setParentMaTerm(sourceList.getParents().getNames());
+                ma.setParentMaTermSynonym(sourceList.getParents().getSynonyms());
+                
                 ma.setSelectedTopLevelMaId(sourceList.getTopLevels().getIds());
                 ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
                 ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());

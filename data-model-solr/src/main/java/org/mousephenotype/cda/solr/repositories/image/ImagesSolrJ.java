@@ -117,10 +117,10 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		return rsp.getResults();
 	}
 
-	private QueryResponse runFacetQuery(String query, String facetField, int start, int length, String filterQuery) throws SolrServerException {
+	private QueryResponse runFacetQuery(String query, String facetField, int start, int length, String filterQuery) 
+	throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();
-	//	System.out.println("facet solr query=" + query);
 		solrQuery.setQuery(query);
 		solrQuery.setStart(start);
 		solrQuery.setRows(length);
@@ -130,30 +130,38 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		if (filterQuery != "") {
 			solrQuery.addFilterQuery(filterQuery);
 		}
-	//	System.out.println("exp facet query="+solrQuery.toString());
+	
 		return server.query(solrQuery);
+
 	}
 
 	@Override
-	public QueryResponse getExperimentalFacetForGeneAccession(String geneId) throws SolrServerException {
+	public QueryResponse getExperimentalFacetForGeneAccession(String geneId) 
+	throws SolrServerException {
+	
 		String processedGeneId = processQuery(geneId);
 		QueryResponse solrResp = this.runFacetQuery(SangerImageDTO.MGI_ACCESSION_ID + ":" + processedGeneId, "expName", 0, 1, "");
-//		System.out.println("images solr expression response number docs="+solrResp.getResults().size());
+		
 		return solrResp;
+		
 	}
 
 	@Override
-	public QueryResponse getExpressionFacetForGeneAccession(String geneId) throws SolrServerException {
+	public QueryResponse getExpressionFacetForGeneAccession(String geneId) 
+	throws SolrServerException {
+		
 		String processedGeneId = processQuery(geneId);
-//		System.out.println("processedGeneId="+processedGeneId);
 		log.debug("eventually gene id will be here and we'll need an extra filter");
 		//changed facet field from annotated_or_inferred_higherLevelMaTermName to as old field not there anymore higherLevelMaTermName
 		QueryResponse solrResp = this.runFacetQuery("expName:"+"\"Wholemount Expression\"","selected_top_level_ma_term", 0,5, "accession:"+processedGeneId);
+	
 		return solrResp;
+		
 	}
 
 	//TODO cleanup this method
-	public QueryResponse getDocsForGeneWithFacetField(String geneId, String facetName, String facetValue, String filterQuery, int start, int length) throws SolrServerException{
+	public QueryResponse getDocsForGeneWithFacetField(String geneId, String facetName, String facetValue, String filterQuery, int start, int length) 
+	throws SolrServerException{
 
 		SolrQuery solrQuery = new SolrQuery();
 
@@ -223,6 +231,26 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 		return value;
 	}
+	
+	/**
+	 * @since 2016/02/25
+	 * @author ilinca
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public SolrDocumentList getImagesForLacZ()
+	throws SolrServerException{
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery("procedure_name:*LacZ*");
+		query.addFilterQuery("ma_id:*");
+		query.addField("ma_id");
+		query.addField("accession");
+		query.setRows(Integer.MAX_VALUE);
+		System.out.println("+++++" + server + "/select?" + query);
+		return server.query(query).getResults();
+	}
+	
 
 	/**
 	 * Get all SOLR documents for a mammalian phenotype ontology term

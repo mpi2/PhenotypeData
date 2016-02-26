@@ -14,15 +14,17 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
 public class Image {
 	
 	public static final String DOWNLOAD_URL = "download_url";
-        public static final String MA_ID = "ma_id";
-        public static final String MARKER_ACCESSION_ID="gene_accession_id";
-	@Indexed(DOWNLOAD_URL)
-        private String downloadUrl;
-        @Indexed(MA_ID)
-        private List<String> maId;
-        @Indexed(MARKER_ACCESSION_ID)
-        private String markerAccession;
-
+    public static final String MA_ID = "ma_id";
+    public static final String MARKER_ACCESSION_ID="gene_accession_id";
+    @Indexed(DOWNLOAD_URL)
+    private String downloadUrl;
+    @Indexed(MA_ID)
+    private List<String> maId;
+    @Indexed(MARKER_ACCESSION_ID)
+    private String markerAccession;
+	@Id @Indexed
+    private Integer id;
+	
     public String getMarkerAccession() {
         return markerAccession;
     }
@@ -48,8 +50,6 @@ public class Image {
         this.downloadUrl = downloadUrl;
     }
 	
-	@Id @Indexed
-        private Integer id;
 
     public Integer getId() {
         return id;

@@ -405,6 +405,27 @@ public class ImageService implements WebStatus{
 		return response;
 	}
 
+	/**
+	 * 
+	 * @return list of image DTOs with laczData. Selected fields only. 
+	 * @throws SolrServerException 
+	 */
+	public List<ImageDTO> getImagesForLacZ() 
+	throws SolrServerException{
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
+		query.setFilterQueries(ImageDTO.MA_ID + ":*");
+        query.setRows(1000000);
+        query.addField(ImageDTO.GENE_SYMBOL);
+		query.addField(ImageDTO.GENE_ACCESSION_ID);
+		query.addField(ImageDTO.MA_ID);
+		query.addField(ImageDTO.MA_TERM);
+		
+		return solr.query(query).getBeans(ImageDTO.class);
+	}
+	
+	
 	public List<String[]> getLaczExpressionSpreadsheet() {
         SolrQuery query = new SolrQuery();
         ArrayList<String[]> res = new ArrayList<>();
