@@ -59,11 +59,6 @@ public class SpecimenLoader {
 
     @NotNull
     @Autowired
-    @Qualifier("komp2url")
-    protected String komp2Url;
-
-    @NotNull
-    @Autowired
     @Qualifier("username")
     protected String username;
 
@@ -75,8 +70,6 @@ public class SpecimenLoader {
     private String filename;
     private String dbName;
 
-    protected ApplicationContext applicationContext;
-
     private Connection connection;
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DccLoaderException {
@@ -87,7 +80,6 @@ public class SpecimenLoader {
         main.run();
 
         logger.info("Process finished.  Exiting.");
-
     }
 
     private void initialize(String[] args)
@@ -104,25 +96,20 @@ public class SpecimenLoader {
         // parameter to indicate the name of the file to process
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate whether or not to truncate the tables first.
-        parser.accepts("truncatetables").withRequiredArg().ofType(String.class);
-
         OptionSet options = parser.parse(args);
 
         // Wire up spring support for this application
         ApplicationContext applicationContext;
         String context = (String) options.valuesOf("context").get(0);
         logger.info("Using application context file {}", context);
-        if (new File(context).exists()) {
-            applicationContext = new FileSystemXmlApplicationContext("file:" + context);
-        } else {
-            applicationContext = new ClassPathXmlApplicationContext(context);
-        }
         applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
         dbName = (String) options.valuesOf("dbname").get(0);
-        String dbUrl = komp2Url.replace("komp2", dbName);
+        String dbUrl = "jdbc:mysql://mysql-mi-dev:4356/"
+                + dbName
+                + "?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull";
+
         connection = DriverManager.getConnection(dbUrl, username, password);
         System.out.println("connection = " + connection);
 
@@ -341,36 +328,36 @@ public class SpecimenLoader {
         return appContext;
     }
 
-    private void truncateTables() throws SQLException {
-        String query;
-        PreparedStatement ps;
-
-        String[] tables = new String[] {
-                  "center"
-                , "center_specimen"
-                , "embryo"
-                , "genotype"
-                , "mouse"
-                , "parentalStrain"
-                , "relatedSpecimen"
-                , "specimen"
-                , "statuscode"
-        };
-
-        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
-        ps.execute();
-        for (String tableName : tables) {
-            query = "TRUNCATE " + tableName + ";";
-
-            try {
-                ps = connection.prepareStatement(query);
-                ps.execute();
-            } catch (SQLException e) {
-                logger.error("Unable to truncate table " + tableName);
-                throw e;
-            }
-        }
-        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
-        ps.execute();
-    }
+//    private void truncateTables() throws SQLException {
+//        String query;
+//        PreparedStatement ps;
+//
+//        String[] tables = new String[] {
+//                  "center"
+//                , "center_specimen"
+//                , "embryo"
+//                , "genotype"
+//                , "mouse"
+//                , "parentalStrain"
+//                , "relatedSpecimen"
+//                , "specimen"
+//                , "statuscode"
+//        };
+//
+//        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
+//        ps.execute();
+//        for (String tableName : tables) {
+//            query = "TRUNCATE " + tableName + ";";
+//
+//            try {
+//                ps = connection.prepareStatement(query);
+//                ps.execute();
+//            } catch (SQLException e) {
+//                logger.error("Unable to truncate table " + tableName);
+//                throw e;
+//            }
+//        }
+//        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
+//        ps.execute();
+//    }
 }
