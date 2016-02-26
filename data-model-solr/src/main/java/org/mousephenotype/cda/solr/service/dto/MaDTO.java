@@ -40,6 +40,11 @@ public class MaDTO {
     public static final String CHILD_MA_TERM_SYNONYM = "child_ma_term_synonym";
     public static final String CHILD_MA_ID_TERM = "child_ma_idTerm";
 
+
+    public static final String PARENT_MA_ID = "parent_ma_id";
+    public static final String PARENT_MA_TERM = "parent_ma_term";
+    public static final String PARENT_MA_TERM_SYNONYM = "parent_ma_term_synonym";
+
     public static final String TOP_LEVEL_MA_ID = "top_level_ma_id";
     public static final String TOP_LEVEL_MA_TERM = "top_level_ma_term";
 //    public static final String TOP_LEVEL_MA_TERM_SYNONYM = "top_level_ma_term_synonym";
@@ -203,6 +208,15 @@ public class MaDTO {
     @Field(ONTOLOGY_SUBSET)
     private List<String> ontologySubset;
 
+    @Field(PARENT_MA_ID)
+    private List<String> parentMaId;
+
+    @Field(PARENT_MA_TERM)
+    private List<String> parentMaTerm;
+
+    @Field(PARENT_MA_TERM_SYNONYM)
+    private List<String> parentMaTermSynonym;
+    
     @Field(CHILD_MA_ID)
     private List<String> childMaId;
 
@@ -537,13 +551,37 @@ public class MaDTO {
     private List<String> maQf;
         
         
-        // SETTERS AND GETTERS
+    // SETTERS AND GETTERS
 
     public String getDataType() {
         return dataType;
     }
 
-    public void setDataType(String dataType) {
+    public List<String> getParentMaId() {
+		return parentMaId;
+	}
+
+	public void setParentMaId(List<String> parentMaId) {
+		this.parentMaId = parentMaId;
+	}
+
+	public List<String> getParentMaTerm() {
+		return parentMaTerm;
+	}
+
+	public void setParentMaTerm(List<String> parentMaTerm) {
+		this.parentMaTerm = parentMaTerm;
+	}
+
+	public List<String> getParentMaTermSynonym() {
+		return parentMaTermSynonym;
+	}
+
+	public void setParentMaTermSynonym(List<String> parentMaTermSynonym) {
+		this.parentMaTermSynonym = parentMaTermSynonym;
+	}
+
+	public void setDataType(String dataType) {
         this.dataType = dataType;
     }
 
