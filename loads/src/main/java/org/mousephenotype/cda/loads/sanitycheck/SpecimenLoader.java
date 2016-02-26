@@ -57,17 +57,9 @@ public class SpecimenLoader {
     public static final String CONTEXT_PATH = "org.mousephenotype.dcc.exportlibrary.datastructure.core.common:org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure:org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.submission:org.mousephenotype.dcc.exportlibrary.datastructure.tracker.validation";
     private static final Logger logger = LoggerFactory.getLogger(SpecimenLoader.class);
 
-    @NotNull
-    @Autowired
-    @Qualifier("username")
-    protected String username;
-
-    @NotNull
-    @Autowired
-    @Qualifier("password")
-    protected String password;
-
     private String filename;
+    private String username = "";
+    private String password = "";
     private String dbName;
 
     private Connection connection;
@@ -96,6 +88,12 @@ public class SpecimenLoader {
         // parameter to indicate the name of the file to process
         parser.accepts("filename").withRequiredArg().ofType(String.class);
 
+        // parameter to indicate the database username
+        parser.accepts("username").withRequiredArg().ofType(String.class);
+
+        // parameter to indicate the database password
+        parser.accepts("password").withRequiredArg().ofType(String.class);
+
         OptionSet options = parser.parse(args);
 
         // Wire up spring support for this application
@@ -110,6 +108,8 @@ public class SpecimenLoader {
                 + dbName
                 + "?autoReconnect=true&amp;useUnicode=true&amp;connectionCollation=utf8_general_ci&amp;characterEncoding=utf8&amp;characterSetResults=utf8&amp;zeroDateTimeBehavior=convertToNull";
 
+        username = (String) options.valuesOf("username").get(0);
+        password = (String) options.valuesOf("password").get(0);
         connection = DriverManager.getConnection(dbUrl, username, password);
         System.out.println("connection = " + connection);
 
