@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,19 +56,25 @@ public class CoreTests {
     @Autowired
     private GeneService gService;
 
+
+    @Autowired
+    private ObservationService oService;
+    
     @Autowired
     private MpService mpService;
 
     @Test
-    public void testAllGPGenesInGeneCore() throws SolrServerException {
+    public void testAllGPGenesInGeneCore() 
+    throws SolrServerException {
     	System.out.println("Test if all genes in genotype-phenotype core are indexed in the gene core.");
 
         Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
 
         Set<String> gGenes = gService.getAllGenes();
         Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.      
-//        knownToMiss.add("MGI:3688249"); // For bug MPII-1493
-//        knownToMiss.add("MGI:1861674"); // Don't need this any more as Peter put them in iMits and they should be in now. 
+        knownToMiss.add("MGI:3688249"); // For bug MPII-1493, Ostes
+//        knownToMiss.add("MGI:1861674"); // For bug https://www.ebi.ac.uk/panda/jira/browse/MPII-1783? Nespas
+        // Don't need this any more as Peter put them in iMits and they should be in now. 
         
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);
@@ -79,6 +86,27 @@ public class CoreTests {
     }
 
     @Test
+    public void testAllExperimentGenesInGeneCore() 
+    throws SolrServerException {
+    	
+    	System.out.println("Test if all genes in experiment core are indexed in the gene core.");
+
+        Set<String> experimentGenes = oService.getAllGeneIdsByResource(null, true);
+
+        Set<String> gGenes = gService.getAllGenes();
+        Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.      
+        knownToMiss.add("MGI:3688249"); 
+        
+        Collection res = CollectionUtils.subtract(experimentGenes, gGenes);
+        res = CollectionUtils.subtract(res, knownToMiss);
+
+        if (res.size() > 0) {
+        	System.out.println("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
+        	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
+        }
+    }
+    
+    @Test
     public void testAllGPPhenotypeInMP() throws SolrServerException {
     	System.out.println("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
 
@@ -86,11 +114,7 @@ public class CoreTests {
 
         Set<String> mpPhen = mpService.getAllPhenotypes();
 
- //       System.out.println("Before " + gpPhen.size() + "  " + mpPhen.size() );
-
         Collection res = CollectionUtils.subtract(gpPhen, mpPhen);
-
- //       System.out.println(" After substract: " + res.size());
 
         if (res.size() > 0){
         	fail("The following phenotypes are in in the genotype-phenotype core but not in the MP core: " + res);
