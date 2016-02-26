@@ -72,10 +72,8 @@ public class SpecimenLoader {
     @Qualifier("password")
     protected String password;
 
-    private String context;
     private String filename;
-    private String dbrootname;
-    private boolean truncateTables = false;
+    private String dbName;
 
     protected ApplicationContext applicationContext;
 
@@ -97,35 +95,19 @@ public class SpecimenLoader {
 
         OptionParser parser = new OptionParser();
 
-        // parameter to indicate the name of the file to process
-        parser.accepts("filename").withRequiredArg().ofType(String.class);
-
         // parameter to indicate the application context xml file.
         parser.accepts("context").withRequiredArg().ofType(String.class);
 
-        // parameter to indicate the base directory (the one in the format "yyyy-mm-dd".
-        // Typically mounted on /nfs/komp2/web/phenotype_data/impc.
-        parser.accepts("dbrootname").withRequiredArg().ofType(String.class);
+        // parameter to indicate the database name
+        parser.accepts("dbname").withRequiredArg().ofType(String.class);
+
+        // parameter to indicate the name of the file to process
+        parser.accepts("filename").withRequiredArg().ofType(String.class);
 
         // parameter to indicate whether or not to truncate the tables first.
         parser.accepts("truncatetables").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
-        dbrootname = (String) options.valuesOf("dbrootname").get(0);
-
-        if (options.has("truncatetables")) {
-            String truncateTablesString = options.valuesOf("truncatetables").get(0).toString().toLowerCase().trim();
-            if ((truncateTablesString.equals("true") || (truncateTablesString.equals("1")))) {
-                truncateTables = true;
-            }
-        }
-
-        context = (String) options.valuesOf("context").get(0);
-        filename = (String) options.valuesOf("filename").get(0);
-        logger.info("Loading specimens file {}", filename);
-
-        applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
-        applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
         // Wire up spring support for this application
         ApplicationContext applicationContext;
@@ -136,21 +118,19 @@ public class SpecimenLoader {
         } else {
             applicationContext = new ClassPathXmlApplicationContext(context);
         }
-
+        applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
-        String dbName = "dccimport_" + dbrootname.replaceAll("-", "_");
+        dbName = (String) options.valuesOf("dbname").get(0);
         String dbUrl = komp2Url.replace("komp2", dbName);
-
         connection = DriverManager.getConnection(dbUrl, username, password);
         System.out.println("connection = " + connection);
+
+        filename = (String) options.valuesOf("filename").get(0);
+        logger.info("Loading specimens file {}", filename);
     }
 
     private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
-
-        if (truncateTables) {
-            truncateTables();
-        }
 
         List<CentreSpecimen> centerSpecimens = XMLUtils.unmarshal(SpecimenLoader.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
 
