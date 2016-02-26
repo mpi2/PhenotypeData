@@ -647,7 +647,7 @@
 						+ '<p>Export as: &nbsp;'
 						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;or&nbsp;'
 						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></p><p>'
-						+ 'For more informatioin, consider <a href=${baseUrl}/batchQuery>Batch query</a>';
+						+ 'For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a>';
 
 				//$('div.dataTables_processing').siblings('div#tableTool').append(
 				$('div#tableTool').append(saveTool, toolBox);
