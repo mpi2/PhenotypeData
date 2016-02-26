@@ -36,11 +36,11 @@ public class UniprotServiceTest {
 		try {
 			
 			dto = uniprotService.readXml("http://www.uniprot.org/uniprot/Q6ZNJ1.xml" , dto);
-
+		
 	        assert(dto.getFunction() != null);
-	        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 4);
+	        assert(dto.getGoCell() != null && dto.getGoCell().size() >= 2);
 	        assert(dto.getGoMolecularFunction() != null && dto.getGoMolecularFunction().size() >= 1);
-	        assert(dto.getGoProcess() != null && dto.getGoProcess().size() >= 5);
+	        assert(dto.getGoProcess() != null && dto.getGoProcess().size() >= 2);
 	        
 		} catch (JAXBException | IOException e) {
 			e.printStackTrace();
