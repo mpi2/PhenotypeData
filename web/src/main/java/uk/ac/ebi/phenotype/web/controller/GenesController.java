@@ -571,7 +571,6 @@ public class GenesController {
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
-		System.out.println("PHENOTYPES LIST " +  l.size());
 		model.addAttribute("phenotypes", l);
 
 	}
@@ -861,7 +860,6 @@ public class GenesController {
 	private void processDisease(String acc, Model model) {
 
 		String mgiId = acc;
-		log.info("Adding disease info to gene page {}", mgiId);
 		model.addAttribute("mgiId", mgiId);
 		GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
 
@@ -870,13 +868,13 @@ public class GenesController {
 			gene = phenoDigmDao.getGene(geneIdentifier);
 		} catch (RuntimeException e) {
 			log.error("Error retrieving disease data for {}", geneIdentifier);
+			log.error(ExceptionUtils.getFullStackTrace(e));
 		}
 
-		log.info("Found Gene: " + gene);
 		if (gene != null) {
 			model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
 			model.addAttribute("humanOrtholog", gene.getHumanGeneId());
-			log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
+	//		log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
 		} else {
 			model.addAttribute("geneIdentifier", geneIdentifier);
 			log.info("No human ortholog found for gene: {}", geneIdentifier);
@@ -884,9 +882,9 @@ public class GenesController {
 
 		List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
 		try {
-			log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+	//		log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
 			diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-			log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+	//		log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
 		} catch (RuntimeException e) {
 			log.error(ExceptionUtils.getFullStackTrace(e));
 			log.error("Error retrieving disease data for {}", geneIdentifier);
@@ -908,7 +906,7 @@ public class GenesController {
 		model.addAttribute("orthologousDiseaseAssociations", orthologousDiseaseAssociations);
 		model.addAttribute("phenotypicDiseaseAssociations", phenotypicDiseaseAssociations);
 
-		log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
+	//	log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
 	}
 
 
