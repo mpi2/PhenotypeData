@@ -30,7 +30,7 @@
     <div class='aleft'>
       <h6>Annotated lacZ+ tissues / organs:</h6>
       <ul id='expList'>
-        <c:forEach var="entry" items="${impcExpressionImageFacets}"
+        <c:forEach var="entry" items="${expressionAnatomyToRow}"
                    varStatus="status">
           <c:set var="href"
                  scope="page"

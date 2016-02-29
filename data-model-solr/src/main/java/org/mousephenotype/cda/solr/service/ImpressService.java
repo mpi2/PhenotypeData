@@ -58,6 +58,21 @@ public class ImpressService implements WebStatus {
 	@Autowired
 	@Qualifier("pipelineCore")
 	private HttpSolrServer solr;
+	
+	
+
+	public ImpressService(String solr) {
+		super();
+		this.solr = new HttpSolrServer(solr);
+	}
+
+
+
+	public ImpressService() {
+		super();
+	}
+
+
 
 	/**
 	 * @since 2015/07/17
