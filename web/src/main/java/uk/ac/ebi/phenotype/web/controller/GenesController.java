@@ -859,7 +859,6 @@ public class GenesController {
 	private void processDisease(String acc, Model model) {
 
 		String mgiId = acc;
-		log.info("Adding disease info to gene page {}", mgiId);
 		model.addAttribute("mgiId", mgiId);
 		GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
 
@@ -870,7 +869,6 @@ public class GenesController {
 			log.error("Error retrieving disease data for {}", geneIdentifier);
 		}
 
-		log.info("Found Gene: " + gene);
 		if (gene != null) {
 			model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
 			model.addAttribute("humanOrtholog", gene.getHumanGeneId());
