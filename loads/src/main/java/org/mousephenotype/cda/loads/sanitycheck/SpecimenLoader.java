@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -118,6 +119,8 @@ public class SpecimenLoader {
     }
 
     private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
+
+        List<String[]> duplicateExceptions = new ArrayList<>();
 
         List<CentreSpecimen> centerSpecimens = XMLUtils.unmarshal(SpecimenLoader.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
 
@@ -268,15 +271,6 @@ public class SpecimenLoader {
                     specimenPk = rs.getLong(1);
                 }
 
-
-
-
-
-
-
-
-
-
                 // embryo or mouse
                 if (specimen instanceof Embryo) {
                     Embryo embryo = (Embryo) specimen;
@@ -341,7 +335,14 @@ public class SpecimenLoader {
                 ps = connection.prepareStatement(query);
                 ps.setLong(1, centerPk);
                 ps.setLong(2, specimenPk);
-                ps.execute();
+                try {
+                    ps.execute();
+                } catch (SQLException e) {
+                    // Duplicate specimen
+                    duplicateExceptions.add(new String[] { filename, e.getLocalizedMessage() });
+                    connection.rollback();
+                    continue;
+                }
 
                 // relatedSpecimen NOTE: 'specimen_mine_fk cannot be loaded until ALL of the specimen files have been loaded,
                 // as the related specimens are not guaranteed to be defined in the same specimen file (and, in fact, are not).
@@ -359,6 +360,13 @@ public class SpecimenLoader {
         }
 
         connection.close();
+
+        // Dump any exceptions.
+        if ( ! duplicateExceptions.isEmpty()) {
+            for (String[] info : duplicateExceptions) {
+                logger.error(info[0] + ":\t" + info[1]);
+            }
+        }
     }
 
     protected ApplicationContext loadApplicationContext(String context) {
