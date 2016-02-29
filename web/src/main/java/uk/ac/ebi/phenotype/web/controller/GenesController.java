@@ -571,7 +571,6 @@ public class GenesController {
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
-		System.out.println("PHENOTYPES LIST " +  l.size());
 		model.addAttribute("phenotypes", l);
 
 	}
@@ -867,6 +866,7 @@ public class GenesController {
 			gene = phenoDigmDao.getGene(geneIdentifier);
 		} catch (RuntimeException e) {
 			log.error("Error retrieving disease data for {}", geneIdentifier);
+			log.error(ExceptionUtils.getFullStackTrace(e));
 		}
 
 		if (gene != null) {
