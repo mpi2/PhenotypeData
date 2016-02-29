@@ -292,8 +292,9 @@
 
 							<!-- general Gene info -->
 							<div class="section">
-
+								<%--<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>--%>
 								<div class="inner">
+
 									<jsp:include page="genesGene_frag.jsp"/>
 								</div>
 							</div>
@@ -359,123 +360,124 @@
 									<span class="documentation"><a href='' id='impcExpressionPanel' class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
-								<c:if test="${empty impcExpressionImageFacets
-								and empty expressionAnatomyToRow
-								and empty impcEmbryoExpressionImageFacets
-								and empty embryoExpressionAnatomyToRow
-								and empty expressionFacets}">
-									<div class="inner" style="display: block;"><div class="alert alert_info">Expression data not available</div></div>
-								</c:if>
+								<div class="inner" style="display: block;">
+									<c:if test="${empty impcExpressionImageFacets
+										and empty expressionAnatomyToRow
+										and empty impcEmbryoExpressionImageFacets
+										and empty embryoExpressionAnatomyToRow
+										and empty expressionFacets}">
+										<div class="alert alert_info">Expression data not available</div>
+									</c:if>
 
-								<c:if test="${not empty impcExpressionImageFacets
-									or not empty expressionAnatomyToRow
-									or not empty impcEmbryoExpressionImageFacets
-									or not empty embryoExpressionAnatomyToRow}">
 
-									<div class="inner" style="display: block;">
-										<h5 class="sectHint">IMPC lacZ Expression Data</h5>
-										<!-- section for expression data here -->
-										<div id="exptabs">
-											<ul class='tabs'>
-												<li><a href="#tabs-1">Adult Expression</a></li>
+									<c:if test="${not empty impcExpressionImageFacets
+										or not empty expressionAnatomyToRow
+										or not empty impcEmbryoExpressionImageFacets
+										or not empty embryoExpressionAnatomyToRow}">
 
-													<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
-													<%--<li><a href="#tabs-2">Adult Expression Data Overview</a></li>--%>
+											<h5 class="sectHint">IMPC lacZ Expression Data</h5>
+											<!-- section for expression data here -->
+											<div id="exptabs">
+												<ul class='tabs'>
+													<li><a href="#tabs-1">Adult Expression</a></li>
+
+														<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
+														<%--<li><a href="#tabs-2">Adult Expression Data Overview</a></li>--%>
+														<%--</c:if>--%>
+
+													<c:if test="${not empty impcExpressionImageFacets}">
+														<li><a href="#tabs-3">Adult Expression Image</a></li>
+													</c:if>
+
+													<c:if test="${not empty embryoExpressionAnatomyToRow}">
+														<li><a href="#tabs-4">Embryo Expression</a></li>
+													</c:if>
+
+													<c:if test="${not empty impcEmbryoExpressionImageFacets}">
+														<li><a href="#tabs-5">Embryo Expression Image</a></li>
+													</c:if>
+
+												</ul>
+
+												<div id="tabs-1">
+													<!-- Expression in Anatomogram -->
+													<c:if test="${!isLive}">
+														<jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+													</c:if>
+												</div>
+
+													<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
+													<%--<div id="tabs-2">--%>
+													<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
+													<%--</div>--%>
 													<%--</c:if>--%>
 
+												<!-- section for expression data here -->
 												<c:if test="${not empty impcExpressionImageFacets}">
-													<li><a href="#tabs-3">Adult Expression Image</a></li>
+													<div id="tabs-3">
+														<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
+													</div>
 												</c:if>
 
 												<c:if test="${not empty embryoExpressionAnatomyToRow}">
-													<li><a href="#tabs-4">Embryo Expression</a></li>
+													<div id="tabs-4" style="height: 500px; overflow: auto;">
+														<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
+													</div>
 												</c:if>
 
+												<!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
+												<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
 												<c:if test="${not empty impcEmbryoExpressionImageFacets}">
-													<li><a href="#tabs-5">Embryo Expression Image</a></li>
+													<div id="tabs-5">
+														<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+													</div>
 												</c:if>
+											</div><!-- end of tabs -->
+											<br style="clear: both">
+										<%--</div>--%>
+									</c:if>
 
-											</ul>
+									<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets
+										or not empty expressionAnatomyToRow
+										or not empty impcEmbryoExpressionImageFacets
+										or not empty embryoExpressionAnatomyToRow)}">
+										<hr>
+									</c:if>
 
-											<div id="tabs-1">
-												<!-- Expression in Anatomogram -->
-												<c:if test="${!isLive}">
-													<jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
-												</c:if>
-											</div>
+									<!-- Expression (legacy) -->
+									<c:if test="${not empty expressionFacets}">
+											<h5 class="sectHint">Legacy lacZ Expression Data</h5>
 
-												<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
-												<%--<div id="tabs-2">--%>
-												<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
-												<%--</div>--%>
-												<%--</c:if>--%>
-
-											<!-- section for expression data here -->
-											<c:if test="${not empty impcExpressionImageFacets}">
-												<div id="tabs-3">
-													<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
+											<!-- thumbnail scroller markup begin -->
+											<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
+												<div class="accordion-group">
+													<div class="accordion-heading">
+															${entry.name} (${entry.count})
+													</div>
+													<div class="accordion-body">
+														<ul>
+															<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
+																<li>
+																	<t:imgdisplay
+																			img="${doc}"
+																			mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
+																</li>
+															</c:forEach>
+														</ul>
+														<div class="clear"></div>
+														<c:if test="${entry.count>5}">
+															<p class="textright">
+																<a href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>show
+																	all ${entry.count} images</a>
+															</p>
+														</c:if>
+													</div>
 												</div>
-											</c:if>
-
-											<c:if test="${not empty embryoExpressionAnatomyToRow}">
-												<div id="tabs-4" style="height: 500px; overflow: auto;">
-													<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
-												</div>
-											</c:if>
-
-											<!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
-											<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
-											<c:if test="${not empty impcEmbryoExpressionImageFacets}">
-												<div id="tabs-5">
-													<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
-												</div>
-											</c:if>
-										</div><!-- end of tabs -->
-										<br style="clear: both">
-									</div>
-								</c:if>
-
-								<%--<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets--%>
-									<%--or not empty expressionAnatomyToRow--%>
-									<%--or not empty impcEmbryoExpressionImageFacets--%>
-									<%--or not empty embryoExpressionAnatomyToRow)}">--%>
-									<%--<hr>--%>
-								<%--</c:if>--%>
-
-								<!-- Expression (legacy) -->
-								<c:if test="${not empty expressionFacets}">
-									<div class="inner" style="display: block;">
-										<h5 class="sectHint">Legacy lacZ Expression Data</h5>
-
-										<!-- thumbnail scroller markup begin -->
-										<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
-											<div class="accordion-group">
-												<div class="accordion-heading">
-														${entry.name} (${entry.count})
-												</div>
-												<div class="accordion-body">
-													<ul>
-														<c:forEach var="doc" items="${expFacetToDocs[entry.name]}">
-															<li>
-																<t:imgdisplay
-																		img="${doc}"
-																		mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-															</li>
-														</c:forEach>
-													</ul>
-													<div class="clear"></div>
-													<c:if test="${entry.count>5}">
-														<p class="textright">
-															<a href='${baseUrl}/images?gene_id=${acc}&fq=sangerProcedureName:"Wholemount Expression"&fq=selected_top_level_ma_term:"${entry.name}"'>show
-																all ${entry.count} images</a>
-														</p>
-													</c:if>
-												</div>
-											</div>
-										</c:forEach>
-									</div>
-								</c:if>
-
+											</c:forEach>
+										<%--</div>--%>
+									</c:if>
+									<br style="clear: both">
+								</div>
 							</div><!-- end of IMPC / legacy Expressions -->
 
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
