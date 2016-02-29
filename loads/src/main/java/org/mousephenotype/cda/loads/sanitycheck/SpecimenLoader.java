@@ -292,8 +292,8 @@ public class SpecimenLoader {
 
                 // genotype
                 for (Genotype genotype : specimen.getGenotype()) {
-                    query = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_fk) +" +
-                            " VALUES (?, ?, ?, ?, ?, ?);";
+                    query = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_fk)"
+                          + " VALUES (?, ?, ?, ?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, genotype.getGeneSymbol());
                     ps.setString(2, genotype.getMGIAlleleId());
