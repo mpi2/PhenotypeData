@@ -18,7 +18,7 @@
    	<logger name="org.mousephenotype.cda.seleniumtests"                         level="INFO" />
     <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />
 
-    <logger name="org.mousephenotype.cda.loads.sanitycheck"                     level="ERROR" />
+    <logger name="org.mousephenotype.cda.loads.sanitycheck"                     level="INFO" />
 
 
 
