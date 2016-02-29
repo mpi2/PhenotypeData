@@ -521,17 +521,20 @@ public class AbstractGenotypePhenotypeService extends BasicService {
             return res;
         }
     
+    
     public SolrDocumentList getPhenotypes(String gene)
-        throws SolrServerException {
+    throws SolrServerException {
 
         SolrDocumentList result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
         return result;
     }
 
-    public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) throws SolrServerException {
+    
+    public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) 
+    throws SolrServerException {
 
         SolrQuery query = new SolrQuery().setRows(1000000);
-
+       
         if (resourceName != null){
             query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
         }else {
@@ -542,7 +545,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
     
-    public Set<String> getAllGenotypePhenotypes(String markerAccession) throws SolrServerException {
+    
+    public Set<String> getAllGenotypePhenotypesForGene(String markerAccession) 
+    throws SolrServerException {
 
         Set <String> alleles = new HashSet<>();
         SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
@@ -557,7 +562,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return alleles;
     }
 
-    public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
+    
+    public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) 
+    throws SolrServerException {
         SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
             .setRows(Integer.MAX_VALUE);
 
@@ -1064,7 +1071,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     
     /**
-     *
+     * @param mpTermName
+     * @param resource
      * @return map <colony_id, occurences>
      */
     public HashMap<String, Long> getAssociationsDistribution(String mpTermName, String resource) {

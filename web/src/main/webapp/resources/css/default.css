@@ -29,13 +29,16 @@ h2 > a.fa.fa-question-circle { color: #ccc; text-decoration: none; }
 a.fa.fa-question-circle:hover { /*color: #666;*/ text-decoration: none; }
 
 
-h2 .fa-question-circle,
+h2 .fa-question-circle, .section > .fa-question-circle,
 h1 .fa-question-circle  { font-size: 2rem; color: #0978A1;}
+.section > .fa-question-circle {margin: 10px 25px 125px 0;}
+
 h1 .fa-question-circle {color: white;}
 .fa-question-circle     { cursor: help !important; }
 .fa-muted             { color: #ddd; }
 a i                     { text-decoration: none !important; }
 h1.title i:hover        { color: #fff; }
+
 
 /* Headlines */
 h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,h1,h2,h3,h4,h5,h6 { color: #333; margin-bottom: 0.5em; line-height: 1em; text-decoration: none; font-weight: 300; letter-spacing: -0.01em; }
@@ -300,7 +303,7 @@ i.searchExample {
 a#batchquery {
 	float: right;
 	margin-top: -20px;
-	margin-right: 120px;
+	margin-right: 80px;
 	text-decoration: none;
     color: rgb(9,120,161);
 }
@@ -498,7 +501,7 @@ td.unCollapse:before,
 .messages               { padding: 1em; }
 .messages               { margin-bottom: 1em; }
 .messages.status,
-.alert-info             { background: none; }
+.alert-info             { background: none; width: 70%;}
 .messages.error         { background: #fdf2e6; }
 .messages .placeholder  { font-weight: 600; }
 .messages ul            { margin: 0 !important; }
@@ -778,4 +781,14 @@ div.filtertype {
 }
 div.dataTables_filter {
     padding-left: 5px;
+}
+
+ul.phenoSum > li {
+    margin-bottom: 10px;
+}
+div#expDataView {
+    margin-top: 20px;
+}
+.inner hr {
+    margin: 30px 0;
 }
