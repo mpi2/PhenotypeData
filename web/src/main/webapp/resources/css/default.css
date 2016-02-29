@@ -474,7 +474,7 @@ td.unCollapse:before,
 .section.collapsed .title:hover    { color: #0978A1; }
 .section.collapsed .title:before   { font-family: 'FontAwesome'; content: "\f0da"; position: absolute; margin-left: -0.8em;}
 .section.collapsed.open .title:before { content: "\f0d7"; }
-.section .floatright    { padding-left: 1.5em }
+.section .floatright    { padding-left: 1.5em;}
 .section.half           { width: 48%; }
 .section.half + .section.half { margin-left: 4%; }
 
@@ -771,18 +771,25 @@ div.dataTables_info, div.dataTables_paginate {
 div.diseaseHint {
     font-size: 18px;
 }
-
 form#target {
     padding: 15px 10px;
-    margin: -5px 0 20px 0;
+    margin: 0px 0 20px 0;
 }
 div.filtertype {
     background-color: lightgrey;
 }
 div.dataTables_filter {
     padding-left: 5px;
+    width: 80%;
 }
 
+div#phenoSumDiv {
+    min-height: 190px;
+}
+div#phenoSumDiv > p {
+    display: block;
+    width: 70%;
+}
 ul.phenoSum > li {
     margin-bottom: 10px;
 }
