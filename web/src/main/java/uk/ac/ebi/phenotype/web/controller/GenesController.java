@@ -706,7 +706,8 @@ public class GenesController {
 	throws SolrServerException, SQLException {
 		boolean overview=true;
 		boolean embryoOnly=false;
-		expressionService.getLacDataForAnatomogram(acc);
+		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
+		expressionService.getLacDataForAnatomogram(parameterCounts);
 		//expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.junit.Test;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
@@ -25,7 +26,8 @@ public class ExpressionServiceTest {
 		expressionService.initialiseAbnormalMaMap();
 		String geneAccession="MGI:1922730";
 		try {
-			expressionService.getLacDataForAnatomogram(geneAccession);
+			List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
+			expressionService.getLacDataForAnatomogram(parameterCounts);
 			
 			
 		} catch (SolrServerException e) {
