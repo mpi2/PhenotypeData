@@ -785,6 +785,7 @@ div.dataTables_filter {
 
 div#phenoSumDiv {
     min-height: 190px;
+    margin-bottom: 40px;
 }
 div#phenoSumDiv > p {
     display: block;
