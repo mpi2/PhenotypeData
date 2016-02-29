@@ -321,14 +321,13 @@
 							<c:if test="${phenotypeStarted}">
 
 								<div class="section">
-									<h2 class="title" id="heatmap">Pre-QC phenotype heatmap <span
+									<h2 class="title" id="heatmap">Phenotype heatmap <span
 											class="documentation"><a href='' id='preqcPanel'
 																	 class="fa fa-question-circle pull-right"></a></span>
 									</h2>
 
 									<div class="inner">
 										<div class="alert alert-info">
-											<h5>Caution</h5>
 
 											<p>These are the results of a preliminary statistical analysis. Data are still
 												in the process of being quality controlled and results may change.</p>
@@ -385,15 +384,15 @@
 													<%--</c:if>--%>
 
 												<c:if test="${not empty impcExpressionImageFacets}">
-													<li><a href="#tabs-3">Adult lacZ+ Expression Images</a></li>
+													<li><a href="#tabs-3">Adult Expression Image</a></li>
 												</c:if>
 
 												<c:if test="${not empty embryoExpressionAnatomyToRow}">
-													<li><a href="#tabs-4">Embryo Expression Data</a></li>
+													<li><a href="#tabs-4">Embryo Expression</a></li>
 												</c:if>
 
 												<c:if test="${not empty impcEmbryoExpressionImageFacets}">
-													<li><a href="#tabs-5">Embryo Expression Images</a></li>
+													<li><a href="#tabs-5">Embryo Expression Image</a></li>
 												</c:if>
 
 											</ul>
@@ -436,12 +435,12 @@
 									</div>
 								</c:if>
 
-								<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets
-									or not empty expressionAnatomyToRow
-									or not empty impcEmbryoExpressionImageFacets
-									or not empty embryoExpressionAnatomyToRow)}">
-									<hr>
-								</c:if>
+								<%--<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets--%>
+									<%--or not empty expressionAnatomyToRow--%>
+									<%--or not empty impcEmbryoExpressionImageFacets--%>
+									<%--or not empty embryoExpressionAnatomyToRow)}">--%>
+									<%--<hr>--%>
+								<%--</c:if>--%>
 
 								<!-- Expression (legacy) -->
 								<c:if test="${not empty expressionFacets}">
@@ -539,7 +538,7 @@
 														</table>
 													</c:when>
 													<c:otherwise>
-														<p>Human othologous disease model not found</p>
+														<p>No disease model association by gene orthology was found</p>
 													</c:otherwise>
 												</c:choose>
 											</div>
@@ -551,7 +550,7 @@
 														</table>
 													</c:when>
 													<c:otherwise>
-														<p>Human similarity disease model not found</p>
+														<p>No disease model association by phenotypic similarity was found</p>
 													</c:otherwise>
 												</c:choose>
 											</div>
