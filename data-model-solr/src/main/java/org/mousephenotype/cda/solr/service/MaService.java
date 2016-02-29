@@ -59,6 +59,12 @@ public class MaService extends BasicService implements WebStatus{
 
 
 
+	public MaService(String maServiceUrl) {
+		this.solr=new HttpSolrServer(maServiceUrl);
+	}
+
+
+
 	/**
 	 * Return an MA term
 	 *
@@ -142,6 +148,25 @@ public class MaService extends BasicService implements WebStatus{
         	}
         }
         return children;
+    }
+    
+    public List<String> getUberonIdForMaTerm(String maId) throws SolrServerException{
+    	SolrQuery solrQuery = new SolrQuery();
+    	solrQuery.setQuery(MaDTO.MA_ID + ":\"" + maId + "\"");
+    	solrQuery.setFields(MaDTO.UBERON_ID);
+		QueryResponse rsp = solr.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		
+		ArrayList<String> uberonIds = new ArrayList<String>();
+
+        for (SolrDocument doc : res) {
+        	if (doc.containsKey(MaDTO.UBERON_ID)){
+        		for (Object child: doc.getFieldValues(MaDTO.UBERON_ID)){
+        			uberonIds.add((String)child);
+        		}
+        	}
+        }
+        return uberonIds;
     }
 
     

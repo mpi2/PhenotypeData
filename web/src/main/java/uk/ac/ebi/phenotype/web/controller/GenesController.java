@@ -707,7 +707,8 @@ public class GenesController {
 	throws SolrServerException, SQLException {
 		boolean overview=true;
 		boolean embryoOnly=false;
-		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		expressionService.getLacDataForAnatomogram(acc);
+		//expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	
