@@ -72,7 +72,7 @@ public class SpecimenLoader {
         main.initialize(args);
         main.run();
 
-        logger.info("Process finished.  Exiting.");
+        logger.debug("Process finished.  Exiting.");
     }
 
     private void initialize(String[] args)
@@ -100,7 +100,7 @@ public class SpecimenLoader {
         // Wire up spring support for this application
         ApplicationContext applicationContext;
         String context = (String) options.valuesOf("context").get(0);
-        logger.info("Using application context file {}", context);
+        logger.debug("Using application context file {}", context);
         applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
@@ -112,10 +112,9 @@ public class SpecimenLoader {
         username = (String) options.valuesOf("username").get(0);
         password = (String) options.valuesOf("password").get(0);
         connection = DriverManager.getConnection(dbUrl, username, password);
-        System.out.println("connection = " + connection);
 
         filename = (String) options.valuesOf("filename").get(0);
-        logger.info("Loading specimens file {}", filename);
+        logger.info("Loading specimen file {}", filename);
     }
 
     private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
@@ -129,12 +128,12 @@ public class SpecimenLoader {
             throw new XMLloadingException(filename + " failed to unserialize.");
         }
 
-        logger.info("There are {} center specimen sets in specimen file {}", centerSpecimens.size(), filename);
+        logger.debug("There are {} center specimen sets in specimen file {}", centerSpecimens.size(), filename);
 
         PreparedStatement ps;
         String query;
         for (CentreSpecimen centerSpecimen : centerSpecimens) {
-            logger.info("Parsing center {}", centerSpecimen.getCentreID());
+            logger.debug("Parsing center {}", centerSpecimen.getCentreID());
 
             Long centerPk = 0L;
             for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
