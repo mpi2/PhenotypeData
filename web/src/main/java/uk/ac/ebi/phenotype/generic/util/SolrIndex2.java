@@ -182,7 +182,6 @@ public class SolrIndex2 {
 
 // gets product data for allele page
     public Map<String, Object> getAlleleProductInfo(String pipeline, Map<String, String> hash, boolean debug) throws IOException, URISyntaxException, Exception {
-        log.info("#### getAlleleProductInfo");
         String accession = hash.get("accession");
         String searchParams = "";
         String otherAllelesSearchParams;
@@ -195,15 +194,11 @@ public class SolrIndex2 {
         String gene_url;
 
         if (hash.containsKey("allele_name") && hash.get("allele_name") != null){
-            log.info(" With allele name");
-            log.info("MGI ACCESSION" + accession);
             allele_name = hash.get("allele_name");
             searchParams = getAllProductsUrl(accession, allele_name);
             alleleSearchParams = getAlleleUrl(accession, allele_name);
         }
         else if (hash.containsKey("cassette") && hash.containsKey("design_id")){
-            log.info(" With cassette and design_id");
-            log.info("MGI ACCESSION" + accession);
             String cassette = hash.get("cassette");
             String design_id = hash.get("design_id");
             searchParams = getAllProductsUrl(accession, cassette, design_id);
@@ -218,10 +213,10 @@ public class SolrIndex2 {
         other_alleles_url = searchProductCore(pipeline, otherAllelesSearchParams);
         gene_url = searchAlleleCore(pipeline, geneSearchParams);
 
-        log.info("#### url for getAlleleProductInfo=" + url);
-        log.info("#### url for getAlleleProductInfo=" + allele_url);
-        log.info("#### url for getAlleleProductInfo=" + other_alleles_url);
-        log.info("#### url for getAlleleProductInfo=" + gene_url);
+//        log.info("#### url for getAlleleProductInfo=" + url);
+//        log.info("#### url for getAlleleProductInfo=" + allele_url);
+//        log.info("#### url for getAlleleProductInfo=" + other_alleles_url);
+//        log.info("#### url for getAlleleProductInfo=" + gene_url);
 
         JSONObject geneJsonObject = getResults(gene_url);
         JSONArray geneDoc = geneJsonObject.getJSONObject("response").getJSONArray("docs");
@@ -245,9 +240,6 @@ public class SolrIndex2 {
             log.info("#### No rows returned for the query!");
             return null;
         }
-
-
-        log.info("#### Found " + docs.size() + " rows!");
 
         String title;
         String marker_symbol;
@@ -373,9 +365,6 @@ public class SolrIndex2 {
                      }
                  }
 
-
-                log.info("#### getAlleleProductInfo: mouse: " + mouse);
-
                 mice.add(mouse);
             }
 
@@ -428,8 +417,6 @@ public class SolrIndex2 {
 
         searchString = getAlleleUrl(acc, null);
         url = searchAlleleCore(pipeline, searchString);
-
-        log.info("#### url for solr=" + url);
 
         JSONObject jsonObject1 = getResults(url);
 
@@ -489,7 +476,6 @@ public class SolrIndex2 {
                 + "&start=0&rows=1&hl=true&wt=json";
 
         url = searchAlleleCore(pipeline, search_url);
-        log.info(url);
         JSONObject jsonObject = getResults(url);
 
         JSONArray docs = jsonObject.getJSONObject("response").getJSONArray("docs");
@@ -517,7 +503,6 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
-        log.info(search_url);
         return search_url;
     }
 
@@ -535,7 +520,6 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
-        log.info(search_url);
         return search_url;
     }
 
@@ -554,7 +538,6 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
-        log.info(search_url);
         return search_url;
     }
 
@@ -603,7 +586,6 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
-        log.info(search_url);
         return search_url;
     }
     
@@ -615,7 +597,6 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
-        log.info(search_url);
         return search_url;
     }
 
@@ -664,7 +645,6 @@ public class SolrIndex2 {
 
         url = hostUrl + searchUrl;
 
-        log.info("GETTING CONTENT FROM: " + url);
         return url;
     }
 
@@ -686,14 +666,11 @@ public class SolrIndex2 {
 
         url = hostUrl + searchUrl;
 
-        log.info("GETTING CONTENT FROM: " + url);
         return url;
     }
 
     private JSONObject getResults(String url) throws IOException,
             URISyntaxException {
-
-        log.info("GETTING CONTENT FROM: " + url);
 
         HttpProxy proxy = new HttpProxy();
         String content = proxy.getContent(new URL(url));
@@ -1591,8 +1568,6 @@ public class SolrIndex2 {
             mice_allele_names.put((String)mouse.get("allele_name"), true);
             array.add(mouse);
         }
-
-        log.info("#### filterGeneProductInfo2ListNew: mice_allele_names: " + mice_allele_names);
 
         es_cells = filterGeneProductInfoAE(filterGeneProductInfoGeneric(es_cells));
 
