@@ -292,7 +292,7 @@
 
 							<!-- general Gene info -->
 							<div class="section">
-								<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
+								<%--<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>--%>
 								<div class="inner">
 
 									<jsp:include page="genesGene_frag.jsp"/>
