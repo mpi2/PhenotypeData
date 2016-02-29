@@ -416,6 +416,7 @@ public class ImageService implements WebStatus{
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
 		query.setFilterQueries(ImageDTO.MA_ID + ":*");
+		query.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":*");
         query.setRows(1000000);
         query.addField(ImageDTO.GENE_SYMBOL);
 		query.addField(ImageDTO.GENE_ACCESSION_ID);

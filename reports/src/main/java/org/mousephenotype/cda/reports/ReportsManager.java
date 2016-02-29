@@ -26,6 +26,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
+import scala.collection.immutable.HashMap;
+
 import java.io.File;
 import java.util.List;
 
@@ -111,7 +113,6 @@ public class ReportsManager implements CommandLineRunner {
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
-
     public enum ReportType {
         BMD_STATS("bmdStats", "BMD stats (Bone Mineral Content, excluding skull) report"),
         BMD_STATS_GLUCOSE_CONCENTRATION("bmdStatsGlucoseConcentration", "lpGTT stats (Fasted blood glucose concentration) report"),
