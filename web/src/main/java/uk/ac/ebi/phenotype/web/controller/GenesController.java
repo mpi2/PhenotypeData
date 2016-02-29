@@ -470,8 +470,7 @@ public class GenesController {
 			String id = proxy.getContent(new URL(stringDbUrl), true);
 			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
 			
-			// Parse interactor gene symbol and score
-			// Example return format : 
+			// Parse interactor gene symbol and score. Example return format : 
 			// string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
 			// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
 			
