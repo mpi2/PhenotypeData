@@ -779,3 +779,10 @@ div.filtertype {
 div.dataTables_filter {
     padding-left: 5px;
 }
+
+ul.phenoSum > li {
+    margin-bottom: 10px;
+}
+div#expDataView {
+    margin-top: 20px;
+}
