@@ -107,7 +107,7 @@ public class PhenotypeSummaryDAO  {
 			for (SolrDocument doc: res){
 				if (isSignificant(doc)){
 					n += doc.containsKey(StatisticalResultDTO.PHENOTYPE_SEX) ? doc.getFieldValues(StatisticalResultDTO.PHENOTYPE_SEX).size() : 2;
-				} else {
+				} else if (doc.containsKey(StatisticalResultDTO.P_VALUE)){
 					break;
 				}
 			}
@@ -121,11 +121,13 @@ public class PhenotypeSummaryDAO  {
 		
 		boolean result = false;
 		if ( res.containsKey(StatisticalResultDTO.P_VALUE)){
-			result = (new Double(res.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
-		}
-		// For VIA data we only get p-values in for the significant calls. The p-valuse can be quite high but are significant nontheless.
-		if (res.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString().contains("IMPC_VIA")){
-			result = (res.containsKey(StatisticalResultDTO.P_VALUE)) ? true:false; 
+			if (new Double(res.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+				result = true;
+			}
+			// For VIA data we only get p-values in for the significant calls. The p-valuse can be quite high but are significant nontheless.
+			if (res.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString().contains("IMPC_VIA")){
+				result = true;
+			}
 		}
 		return result;
 		
@@ -141,7 +143,7 @@ public class PhenotypeSummaryDAO  {
 			PhenotypeSummaryBySex resSummary = new PhenotypeSummaryBySex();
 			HashMap<String, String> mps = srService.getTopLevelMPTerms(gene, zyg);
 			HashMap<String, SolrDocumentList> summary = srService.getPhenotypesForTopLevelTerm(gene, zyg);
-			
+						
 			for (String id: summary.keySet()){
 				
 				SolrDocumentList resp = summary.get(id);
@@ -152,7 +154,6 @@ public class PhenotypeSummaryDAO  {
 				boolean significant = (n > 0) ? true : false;
 				PhenotypeSummaryType phen = new PhenotypeSummaryType(id, mpName, sex, n, ds, significant);
 				resSummary.addPhenotye(phen);
-				
 			}
 			
 			if (resSummary.getTotalPhenotypesNumber() > 0){
