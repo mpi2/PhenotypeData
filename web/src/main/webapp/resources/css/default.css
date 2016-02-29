@@ -29,13 +29,16 @@ h2 > a.fa.fa-question-circle { color: #ccc; text-decoration: none; }
 a.fa.fa-question-circle:hover { /*color: #666;*/ text-decoration: none; }
 
 
-h2 .fa-question-circle,
+h2 .fa-question-circle, .section > .fa-question-circle,
 h1 .fa-question-circle  { font-size: 2rem; color: #0978A1;}
+.section > .fa-question-circle {margin: 10px 25px 125px 0;}
+
 h1 .fa-question-circle {color: white;}
 .fa-question-circle     { cursor: help !important; }
 .fa-muted             { color: #ddd; }
 a i                     { text-decoration: none !important; }
 h1.title i:hover        { color: #fff; }
+
 
 /* Headlines */
 h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,h1,h2,h3,h4,h5,h6 { color: #333; margin-bottom: 0.5em; line-height: 1em; text-decoration: none; font-weight: 300; letter-spacing: -0.01em; }
@@ -785,4 +788,7 @@ ul.phenoSum > li {
 }
 div#expDataView {
     margin-top: 20px;
+}
+.inner hr {
+    margin: 30px 0;
 }

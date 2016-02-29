@@ -144,18 +144,24 @@
         <field name="alt_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
         <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-   		<field name="efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-       	<field name="uberon_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-   
-        <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="child_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="child_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />			
-        <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="all_ae_mapped_efo_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="uberon_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="all_ae_mapped_uberon_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
         <field name="parent_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="parent_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="parent_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />			
-        
+        <field name="parent_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="child_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="child_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="child_ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="child_ma_idTerm" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
+        <field name="intermediate_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="intermediate_ma_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="intermediate_ma_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
         <field name="top_level_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="top_level_ma_term" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />   
 
