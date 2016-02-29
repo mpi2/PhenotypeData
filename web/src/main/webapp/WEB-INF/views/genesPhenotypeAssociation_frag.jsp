@@ -12,11 +12,20 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <!-- always show phenotype icons -->
-<jsp:include page="phenotype_icons_frag.jsp"/>
+<%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
 <c:choose>
+  <c:when test="${summaryNumber == 0}">
+    <jsp:include page="phenotype_icons_frag.jsp"/>
+    <div id="phenoSumDiv">
+        <h5 class="sectHint">Phenotype Summary</h5>
+        <p>No phenotype abnomalities found based on automated MP annotations supported by experiments
+          on knockout mouse models. </p>
+    </div>
+  </c:when>
+
   <c:when test="${summaryNumber > 0}">
 
-    <%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
+    <jsp:include page="phenotype_icons_frag.jsp"/>
 
     <c:if test="${!(empty dataMapList)}">
       <br/>
@@ -38,85 +47,88 @@
            href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
       </div>
     </c:if>
-    <h5 class="sectHint">Phenotype Summary</h5>
-    <p>Based on automated MP annotations supported by experiments
+    <div id="phenoSumDiv">
+        <h5 class="sectHint">Phenotype Summary</h5>
+        <p>Based on automated MP annotations supported by experiments
       on knockout mouse models. </p>
 
-    <c:forEach var="zyg"
-               items="${phenotypeSummaryObjects.keySet()}">
-      <p>In <b>${zyg} :</b>
-      </p>
-      <ul class="phenoSum">
-        <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-          <li> <b>Both sexes</b> have the following phenotypic abnormalities
-            <ul>
-              <c:forEach var="summaryObj"
-                         items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
-                <li>
-                  <a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                  Evidence from
-                  <c:forEach var="evidence"
-                             items="${summaryObj.getDataSources()}"
-                             varStatus="loop">
-                    ${evidence}
-                    <c:if test="${!loop.last}">,&nbsp;
-                    </c:if>
-                  </c:forEach> <%--&nbsp;&nbsp;&nbsp; (<a
-                        class="filterTrigger"
-                        id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
-                </li>
-              </c:forEach>
-            </ul>
-          </li>
-        </c:if>
+        <c:forEach var="zyg"
+                   items="${phenotypeSummaryObjects.keySet()}">
+          <p>In <b>${zyg} :</b>
+          </p>
+          <ul class="phenoSum">
+            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
+              <li> <b>Both sexes</b> have the following phenotypic abnormalities
+                <ul>
+                  <c:forEach var="summaryObj"
+                             items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
+                    <li>
+                      <a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
+                      Evidence from
+                      <c:forEach var="evidence"
+                                 items="${summaryObj.getDataSources()}"
+                                 varStatus="loop">
+                        ${evidence}
+                        <c:if test="${!loop.last}">,&nbsp;
+                        </c:if>
+                      </c:forEach> <%--&nbsp;&nbsp;&nbsp; (<a
+                            class="filterTrigger"
+                            id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
+                    </li>
+                  </c:forEach>
+                </ul>
+              </li>
+            </c:if>
 
-        <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-          <li><b>females</b> only have the following phenotypic abnormalities only only
-            <ul>
-              <c:forEach
-                      var="summaryObj"
-                      items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
-                <li><a
-                        href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                  Evidence from <c:forEach
-                          var="evidence"
-                          items="${summaryObj.getDataSources()}"
-                          varStatus="loop"> ${evidence} <c:if
-                          test="${!loop.last}">,&nbsp;</c:if>
-                  </c:forEach> <%-- &nbsp;&nbsp;&nbsp; (<a
-                          class="filterTrigger"
-                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
-                </li>
-              </c:forEach>
-            </ul>
-          </li>
-        </c:if>
+            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
+              <li><b>females</b> only have the following phenotypic abnormalities only only
+                <ul>
+                  <c:forEach
+                          var="summaryObj"
+                          items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
+                    <li><a
+                            href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
+                      Evidence from <c:forEach
+                              var="evidence"
+                              items="${summaryObj.getDataSources()}"
+                              varStatus="loop"> ${evidence} <c:if
+                              test="${!loop.last}">,&nbsp;</c:if>
+                      </c:forEach> <%-- &nbsp;&nbsp;&nbsp; (<a
+                              class="filterTrigger"
+                              id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
+                    </li>
+                  </c:forEach>
+                </ul>
+              </li>
+            </c:if>
 
-        <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-          <li> <b>males</b> only have the following phenotypic abnormalities only
-            <ul>
-              <c:forEach
-                      var="summaryObj"
-                      items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
-                <li><a
-                        href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                  Evidence from <c:forEach
-                          var="evidence"
-                          items="${summaryObj.getDataSources()}"
-                          varStatus="loop"> ${evidence} <c:if
-                          test="${!loop.last}">,&nbsp;</c:if>
-                  </c:forEach> <%-- &nbsp;&nbsp;&nbsp; (<a
-                          class="filterTrigger"
-                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
-                </li>
-              </c:forEach>
-            </ul>
-          </li>
-        </c:if>
-      </ul>
-    </c:forEach>
-
+            <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
+              <li> <b>males</b> only have the following phenotypic abnormalities only
+                <ul>
+                  <c:forEach
+                          var="summaryObj"
+                          items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
+                    <li><a
+                            href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
+                      Evidence from <c:forEach
+                              var="evidence"
+                              items="${summaryObj.getDataSources()}"
+                              varStatus="loop"> ${evidence} <c:if
+                              test="${!loop.last}">,&nbsp;</c:if>
+                      </c:forEach> <%-- &nbsp;&nbsp;&nbsp; (<a
+                              class="filterTrigger"
+                              id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) --%>
+                    </li>
+                  </c:forEach>
+                </ul>
+              </li>
+            </c:if>
+          </ul>
+        </c:forEach>
+    </div>
   </c:when>
+
+
 
   <c:when test="${summaryNumber == 0}">
 
