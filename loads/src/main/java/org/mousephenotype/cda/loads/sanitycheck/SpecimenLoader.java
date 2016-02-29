@@ -141,7 +141,7 @@ public class SpecimenLoader {
 
                 connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
-                Long statuscodePk, specimenPk, center_specimenPk;
+                Long statuscodePk, specimenPk;
                 ResultSet rs;
 
                 // center
@@ -166,7 +166,7 @@ public class SpecimenLoader {
                 }
 
                 // statuscode
-                if (specimen.getStatusCode()!= null) {
+                if (specimen.getStatusCode() != null) {
                     query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
@@ -194,7 +194,7 @@ public class SpecimenLoader {
                 ps.setString(4, specimen.getProject());
                 rs = ps.executeQuery();
                 if (rs.next()) {
-                    specimenPk = rs.getLong("pk");
+                    specimenPk = rs.getLong("s.pk");
                     // Validate that this specimen's info matches the existing one in the database.
                     if ( ! specimen.getGender().value().equals(rs.getString("gender"))) {
                         throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: " + specimen.getGender().value() + ". This gender: '" + rs.getString("gender") + "'.");
