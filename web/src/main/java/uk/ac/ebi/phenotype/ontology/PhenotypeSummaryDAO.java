@@ -123,7 +123,12 @@ public class PhenotypeSummaryDAO  {
 		boolean result = false;
 		if ( res.containsKey(StatisticalResultDTO.P_VALUE)){
 			result = (new Double(res.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) > 0.0001 ? false : true);
-		} 
+		}
+		// For VIA data we only get p-values in for the significant calls. The p-valuse can be quite high but are significant nontheless.
+		if (res.getFieldValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString().contains("IMPC_VIA")){
+			result = (res.containsKey(StatisticalResultDTO.P_VALUE)) ? true:false; 
+		}
+		System.out.println( " ++++++ _ +_ " + res);
 		return result;
 		
 	}
