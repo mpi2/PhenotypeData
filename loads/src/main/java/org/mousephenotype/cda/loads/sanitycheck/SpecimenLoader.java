@@ -338,7 +338,7 @@ public class SpecimenLoader {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    duplicateExceptions.add(new String[] { filename, e.getLocalizedMessage() });
+                    duplicateExceptions.add(new String[] { filename, dumpSpecimen(centerPk, specimenPk) });
                     connection.rollback();
                     continue;
                 }
@@ -363,7 +363,7 @@ public class SpecimenLoader {
         // Dump any exceptions.
         if ( ! duplicateExceptions.isEmpty()) {
             for (String[] info : duplicateExceptions) {
-                logger.error(info[0] + ":\t" + info[1]);
+                System.out.println(info[0] + ":\t" + info[1]);
             }
         }
     }
@@ -420,4 +420,76 @@ public class SpecimenLoader {
 //        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
 //        ps.execute();
 //    }
+
+    private String dumpSpecimen(long centerPk, long specimenPk) {
+        String retVal = "";
+
+        String query =
+                "SELECT\n"
+                    + "  cs.pk AS cs_pk\n"
+                    + ", c.pk AS c_pk\n"
+                    + ", s.pk AS s_pk\n"
+                    + ", s.statuscode_fk AS s_statuscode_fk\n"
+                    + ", c.centerId\n"
+                    + ", c.pipeline\n"
+                    + ", c.project\n"
+                    + ", s.colonyId\n"
+                    + ", s.gender\n"
+                    + ", s.isBaseline\n"
+                    + ", s.litterId\n"
+                    + ", s.phenotypingCenter\n"
+                    + ", s.pipeline\n"
+                    + ", s.productionCenter\n"
+                    + ", s.specimenId\n"
+                    + ", s.strainId\n"
+                    + ", s.zygosity\n"
+                    + ", sc.dateOfStatuscode\n"
+                    + ", sc.value\n"
+                    + ", m.DOB\n"
+                    + ", e.stage\n"
+                    + ", e.stageUnit\n"
+                    + "FROM center c\n"
+                    + "JOIN center_specimen cs ON cs.center_fk = c.pk\n"
+                    + "JOIN specimen s ON cs.specimen_fk = s.pk\n"
+                    + "LEFT OUTER JOIN mouse m ON m.specimen_fk = cs.specimen_fk\n"
+                    + "LEFT OUTER JOIN embryo e ON e.specimen_fk = cs.specimen_fk\n"
+                    + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk\n"
+                    + "WHERE c.pk = ? AND s.pk = ?;";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setLong(1, centerPk);
+            ps.setLong(2, specimenPk);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                retVal += "{"
+                        + "cs.pk=" + rs.getLong("cs_pk")
+                        + ",c.pk=" + rs.getLong("c_pk")
+                        + ",s.pk=" + rs.getLong("s_pk")
+                        + ",s.statuscode_fk=" + (rs.getLong("s_statuscode_fk") == 0 ? "<null>" : rs.getLong("s_statuscode_fk"))
+                        + ",centerId=" + rs.getString("c.centerId")
+                        + ",pipeline=" + rs.getString("c.pipeline")
+                        + ",project=" + rs.getString("c.project")
+                        + ",colonyId=" + rs.getString("s.colonyId")
+                        + ",gender=" + rs.getString("s.gender")
+                        + ",isBaseline=" + rs.getInt("s.isBaseline")
+                        + ",litterId=" + rs.getString("s.litterId")
+                        + ",phenotypingCenter=" + rs.getString("s.phenotypingCenter")
+                        + ",productionCenter=" + (rs.getString("s.productionCenter") == null ? "<null>" : rs.getString("s.productionCenter"))
+                        + ",specimenId=" + rs.getString("s.specimenId")
+                        + ",strainId=" + rs.getString("s.strainId")
+                        + ",zygosity=" + rs.getString("s.zygosity")
+                        + ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
+                        + ",sc.value=" + rs.getString("sc.value")
+                        + ",m.DOB=" + (rs.getDate("m.DOB") == null ? "<null>" : rs.getDate("m.DOB"))
+                        + ",e.stage=" + (rs.getString("e.stage") == null ? "<null>" : rs.getString("e.stage"))
+                        + ",e.stageUnit=" + (rs.getString("e.stageUnit") == null ? "<null>" : rs.getString("e.stageUnit"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+
+        return retVal;
+    }
 }
