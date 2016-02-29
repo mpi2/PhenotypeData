@@ -18,7 +18,7 @@
     <jsp:include page="phenotype_icons_frag.jsp"/>
     <div id="phenoSumDiv">
         <h5 class="sectHint">Phenotype Summary</h5>
-        <p class="phenoSummary">No phenotype abnomalities found based on automated MP annotations supported by experiments
+        <p>No phenotype abnomalities found based on automated MP annotations supported by experiments
           on knockout mouse models. </p>
     </div>
   </c:when>
@@ -49,7 +49,7 @@
     </c:if>
     <div id="phenoSumDiv">
         <h5 class="sectHint">Phenotype Summary</h5>
-        <p class="phenoSummary">Based on automated MP annotations supported by experiments
+        <p>Based on automated MP annotations supported by experiments
       on knockout mouse models. </p>
 
         <c:forEach var="zyg"
