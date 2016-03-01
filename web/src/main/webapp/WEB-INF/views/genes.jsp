@@ -139,16 +139,16 @@
 							}
 						});
 
-						$('li.showAdultImage').click(function(){
+						/* $('li.showAdultImage').click(function(){
 							$("#exptabs").tabs({ active: 1 });
-						});
+						}); We don't want to show adult images anymore as there may not be any for the categorical data??*/
 
 					});
 				</script>
 				<style>
-					li.showAdultImage {
+					/* li.showAdultImage {
 						cursor: pointer;
-					}
+					} */
 					div#expDataView, div#toggleWt {
 						font-size: 12px;
 						color: grey;

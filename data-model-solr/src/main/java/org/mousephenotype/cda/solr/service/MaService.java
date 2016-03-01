@@ -146,12 +146,10 @@ public class MaService extends BasicService implements WebStatus {
 		return children;
 	}
 
-	public Map<String, List<String>> getUberonIdForMaTerm(String maId) throws SolrServerException {
-		Map<String, List<String>> map = new HashMap<>();
+	public AnatomogramDataBean getUberonIdAndTopLevelMaTerm(AnatomogramDataBean bean) throws SolrServerException {
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(MaDTO.MA_ID + ":\"" + maId + "\"");
-		solrQuery.setFields(MaDTO.UBERON_ID);
-		solrQuery.setFields(MaDTO.SELECTED_TOP_LEVEL_MA_ID);
+		solrQuery.setQuery(MaDTO.MA_ID + ":\"" + bean.getMaId() + "\"");
+		solrQuery.setFields(MaDTO.ALL_AE_MAPPED_UBERON_ID, MaDTO.SELECTED_TOP_LEVEL_MA_ID, MaDTO.SELECTED_TOP_LEVEL_MA_TERM);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 
@@ -160,21 +158,24 @@ public class MaService extends BasicService implements WebStatus {
 			System.err.println("Warning - more than 1 MA term found where we only expect one doc!");
 		}
 		for (SolrDocument doc : res) {
-			if (doc.containsKey(MaDTO.UBERON_ID)) {
-				for (Object child : doc.getFieldValues(MaDTO.UBERON_ID)) {
+			if (doc.containsKey(MaDTO.ALL_AE_MAPPED_UBERON_ID)) {
+				for (Object child : doc.getFieldValues(MaDTO.ALL_AE_MAPPED_UBERON_ID)) {
 					uberonIds.add((String) child);
 				}
+				bean.setUberonIds( uberonIds);
 			}
-			map.put(MaDTO.UBERON_ID, uberonIds);
+			
 			if (doc.containsKey(MaDTO.SELECTED_TOP_LEVEL_MA_ID)) {
 				List<String> selectedTopLevelMas = (List<String>) doc.get(MaDTO.SELECTED_TOP_LEVEL_MA_ID);
-
-				System.out.println("selectedTopLevel=" + selectedTopLevelMas);
-				map.put(MaDTO.MA_ID, selectedTopLevelMas);
+				bean.addTopLevelMaIds(selectedTopLevelMas); 
+			}
+			if (doc.containsKey(MaDTO.SELECTED_TOP_LEVEL_MA_TERM)) {
+				List<String> selectedTopLevelMaTerms = (List<String>) doc.get(MaDTO.SELECTED_TOP_LEVEL_MA_TERM);
+				bean.addTopLevelMaNames(selectedTopLevelMaTerms); 
 			}
 		}
 
-		return map;
+		return bean;
 	}
 
 	@Override
