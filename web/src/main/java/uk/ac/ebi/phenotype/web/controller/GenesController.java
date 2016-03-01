@@ -244,7 +244,7 @@ public class GenesController {
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size()>0){
+			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0){
 				//if mortality aging is not significant we need to test if it's been tested or not
 				mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");	
 			}
@@ -288,7 +288,6 @@ public class GenesController {
 
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getMarkerSymbol().toUpperCase());
 
-		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){
 			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 		}
@@ -471,8 +470,7 @@ public class GenesController {
 			String id = proxy.getContent(new URL(stringDbUrl), true);
 			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
 			
-			// Parse interactor gene symbol and score
-			// Example return format : 
+			// Parse interactor gene symbol and score. Example return format : 
 			// string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
 			// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
 			
