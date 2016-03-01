@@ -591,8 +591,6 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
-		logger.info("getControlImagesForProcedure solr query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -618,9 +616,6 @@ public class ImageService implements WebStatus{
 					+ ":\"" + anatomy + "\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
-
-		logger.debug("getControlImagesForProcedure solr query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
