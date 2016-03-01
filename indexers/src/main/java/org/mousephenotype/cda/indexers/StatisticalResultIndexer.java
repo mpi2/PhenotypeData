@@ -135,10 +135,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			statResultCore.deleteByQuery("*:*");
 
-			count += processUnidimensionalResults();
-			count += processCategoricalResults();
 			count += processViabilityResults();
 			count += processFertilityResults();
+			count += processUnidimensionalResults();
+			count += processCategoricalResults();
 			count += processEmbryoViabilityResults();
 
 			logger.info(" Added {} statistical result documents", count);
@@ -279,7 +279,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"INNER JOIN project proj ON proj.id=exp.project_id " +
 			"INNER JOIN organisation org ON org.id=exp.organisation_id " +
 			"LEFT OUTER JOIN phenotype_call_summary sr ON (exp.colony_id=sr.colony_id AND sr.parameter_id=parameter.id) " +
-			"WHERE  parameter.stable_id = 'IMPC_VIA_001_001' ";
+			"WHERE  parameter.stable_id = 'IMPC_VIA_001_001' " ;
 
 		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 			p.setFetchSize(Integer.MIN_VALUE);
@@ -396,15 +396,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		return count;
 	}
 
-
-//	private String nullCheckResult(ResultSet r,  String field) throws SQLException {
-//		String v = r.getString(field);
-//		if (r.wasNull()) {
-//			return null;
-//		} else {
-//			return v;
-//		}
-//	}
 
 	private Double nullCheckResult(ResultSet r,  String field) throws SQLException {
 		Double v = r.getDouble(field);
@@ -734,6 +725,24 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
 			}
 
+		} else {
+
+			// When there is no p value for IMPC_VIA mp_term, put in the "mortality/aging" MP term
+			if (r.getString("dependent_variable").startsWith("IMPC_VIA") ) {
+
+				OntologyTermBean bean = mpOntologyService.getTerm("MP:0010768");
+				doc.setMpTermId(bean.getId());
+				doc.setMpTermName(bean.getName());
+
+				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+				doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+				doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+
+				doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+
+
+			}
 		}
 
 		// Process the male MP term
@@ -776,18 +785,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 
 	private void addImpressData(ResultSet r, StatisticalResultDTO doc)
-		throws SQLException {
+	throws SQLException {
 
 		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
-		doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
+		doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
 		doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
 		doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
 		doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
-		doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
+		doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).getStableKey());
 		doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
 		doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).getStableId());
 		doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
-		doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
+		doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).getStableKey());
 		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
 		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
