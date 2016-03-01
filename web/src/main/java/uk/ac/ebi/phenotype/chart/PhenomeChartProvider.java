@@ -15,18 +15,24 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
 
 public class PhenomeChartProvider {
 
@@ -576,7 +582,7 @@ public class PhenomeChartProvider {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public String generatePvaluesOverviewChart(	String geneAccession, Map<String, List<StatisticalResultDTO>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure)
+	public String generatePvaluesOverviewChart(	String geneAccession, Map<String, List<ExperimentsDataTableRow>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure)
 	throws IOException,	URISyntaxException {
 
 		String chartString = null;
@@ -615,18 +621,18 @@ public class PhenomeChartProvider {
 
 						int resultIndex = 0;
 						long tempTime = System.currentTimeMillis();
-						StatisticalResultDTO statsResult = statisticalResults.get(parameterStableId).get(0);
+						ExperimentsDataTableRow statsResult = statisticalResults.get(parameterStableId).get(0);
 
 						// smallest p-value sis the first (solr docs are sorted)
 						if (statsResult.getStatus().equalsIgnoreCase("SUCCESS") && resultIndex == 0 && statsResult.getpValue()!=null) {
 
 							// create the point first
 							JSONObject dataPoint = new JSONObject();
-							dataPoint.put("name", statsResult.getParameterName());
+							dataPoint.put("name", statsResult.getParameter().getName());
 							dataPoint.put("parameterStableId", parameterStableId);
-							dataPoint.put("parameterName", statsResult.getParameterName());
-							dataPoint.put("geneAccession", statsResult.getMarkerAccessionId());
-							dataPoint.put("alleleAccession", statsResult.getAlleleAccessionId());
+							dataPoint.put("parameterName", statsResult.getParameter().getName());
+							dataPoint.put("geneAccession", statsResult.getGene().getAccessionId());
+							dataPoint.put("alleleAccession", statsResult.getAllele().getAccessionId());
 							dataPoint.put("phenotypingCenter", statsResult.getPhenotypingCenter());
 							dataPoint.put("y", index);
 							dataPoint.put("x", getLogValue(statsResult.getpValue()));
@@ -637,8 +643,8 @@ public class PhenomeChartProvider {
 							dataPoint.put("maleMutants", statsResult.getMaleMutantCount());
 							dataPoint.put("metadataGroup", statsResult.getMetadataGroup());
 
-							if (!categories.contains(statsResult.getParameterName())) {
-								categories.add(statsResult.getParameterName());
+							if (!categories.contains(statsResult.getParameter().getName())) {
+								categories.add(statsResult.getParameter().getName());
 								dataArray.put(dataPoint);
 								resultIndex++;
 								index++;
