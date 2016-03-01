@@ -20,6 +20,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
@@ -952,6 +953,70 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
     }
 
+    /**
+     *  
+     * @param gene
+     * @param zygosity
+     * @return SolrDocumentList grouped by top level MP term
+     * @throws SolrServerException
+     * @author ilinca
+     */
+    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
+    throws SolrServerException {
+
+		HashMap<String, SolrDocumentList> res = new HashMap<>();
+
+		String query = "*:*";
+		if (gene.equalsIgnoreCase("*")) {
+			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene;
+		} else {
+			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
+		}
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(query);
+		solrQuery.setRows(Integer.MAX_VALUE);
+		solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
+		solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
+		solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
+		solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY,
+				GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
+				GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME,
+				GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+				StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
+				StatisticalResultDTO.PROCEDURE_STABLE_ID);
+
+		if (zygosity != null) {
+			solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
+		}
+
+		SolrDocumentList result = solr.query(solrQuery).getResults();
+
+		for (SolrDocument doc : result) {
+			if (doc.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+				for (Object topLevelMp : doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+					String id = topLevelMp.toString();
+					if (!res.containsKey(id)) {
+						res.put(id, new SolrDocumentList());
+					}
+					res.get(id).add(doc);
+				}
+			} else if (doc.containsKey(GenotypePhenotypeDTO.MP_TERM_ID)) {
+				for (Object topLevelMp : doc.getFieldValues(GenotypePhenotypeDTO.MP_TERM_ID)) {
+					String id = topLevelMp.toString();
+					if (!res.containsKey(id)) {
+						res.put(id, new SolrDocumentList());
+					}
+					res.get(id).add(doc);
+				}
+			}
+		}
+
+		return res;
+    }
+     
+     
+    
 
     public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
 	throws IOException, URISyntaxException, SolrServerException {
