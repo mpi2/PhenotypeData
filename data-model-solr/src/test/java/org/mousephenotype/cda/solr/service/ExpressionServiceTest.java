@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -27,8 +28,17 @@ public class ExpressionServiceTest {
 		String geneAccession="MGI:1922730";
 		try {
 			List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
-			expressionService.getLacDataForAnatomogram(parameterCounts);
+			List<AnatomogramDataBean> beans = expressionService.getAnatomogramDataBeans(parameterCounts);
+			for(AnatomogramDataBean bean:beans){
+				System.out.println("AnatomogramDataBean"+bean);
+			}
 			
+			
+		
+			Map<String, Long> anatomogramDataBeans = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(beans);
+			for( String topMa:anatomogramDataBeans.keySet()){
+				System.out.println("topMa="+topMa+" total count "+anatomogramDataBeans.get(topMa));
+			}
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block

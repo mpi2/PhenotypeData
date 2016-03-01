@@ -30,13 +30,13 @@
     <div class='aleft'>
       <h6>Adult tissues/organs lacZ+ expression</h6>
       <ul id='expList'>
-        <c:forEach var="entry" items="${expressionAnatomyToRow}"
+        <c:forEach var="entry" items="${topLevelMaCounts}"
                    varStatus="status">
-          <c:set var="href"
+         <%--  <c:set var="href"
                  scope="page"
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}">
-          </c:set>
-          <li class="showAdultImage">${entry.name}(${entry.count})</li>
+          </c:set> --%>
+          <li class="showAdultImage">${entry.key}(${entry.value})</li>
         </c:forEach>
       </ul>
     </div>
