@@ -44,11 +44,10 @@ import java.util.List;
 /**
  * Created by mrelac on 09/02/2016.
  * <p/>
- * This class encapsulates the code and data necessary to load the specified target database with the source dcc report
- * files currently found on ebi-00x at /nfs/komp2/web/phenotype_data/impc. This class is meant to be an executable jar
- * whose parameters describe the source location and the target database.
+ * This class encapsulates the code and data necessary to load the specified target database with the source dcc
+ * specimen files currently found at /nfs/komp2/web/phenotype_data/impc. This class is meant to be an executable jar
+ * whose arguments describe the source file, target database name and authentication, and spring context file.
  */
-@Component
 public class SpecimenLoader {
     /**
      * Load specimen data that was encoded using the IMPC XML format
@@ -67,7 +66,6 @@ public class SpecimenLoader {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DccLoaderException {
 
-        // Wire up spring support for this application
         SpecimenLoader main = new SpecimenLoader();
         main.initialize(args);
         main.run();
@@ -79,9 +77,6 @@ public class SpecimenLoader {
             throws IOException, SQLException, KeyManagementException, NoSuchAlgorithmException {
 
         OptionParser parser = new OptionParser();
-
-        // parameter to indicate the application context xml file.
-        parser.accepts("context").withRequiredArg().ofType(String.class);
 
         // parameter to indicate the database name
         parser.accepts("dbname").withRequiredArg().ofType(String.class);
@@ -97,12 +92,13 @@ public class SpecimenLoader {
 
         OptionSet options = parser.parse(args);
 
-        // Wire up spring support for this application
-        ApplicationContext applicationContext;
-        String context = (String) options.valuesOf("context").get(0);
-        logger.debug("Using application context file {}", context);
-        applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
-        applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+        /* Uncomment if you want to use spring. */
+//        // Wire up spring support for this application
+//        ApplicationContext applicationContext;
+//        String context = (String) options.valuesOf("context").get(0);
+//        logger.debug("Using application context file {}", context);
+//        applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
+//        applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
         dbName = (String) options.valuesOf("dbname").get(0);
         String dbUrl = "jdbc:mysql://mysql-mi-dev:4356/"
@@ -122,7 +118,7 @@ public class SpecimenLoader {
 
         if (centerSpecimens.size() == 0) {
             logger.error("{} failed to unmarshall", filename);
-            throw new XMLloadingException(filename + " failed to unserialize.");
+            throw new XMLloadingException(filename + " failed to unmarshall.");
         }
 
         logger.debug("There are {} center specimen sets in specimen file {}", centerSpecimens.size(), filename);
@@ -130,7 +126,7 @@ public class SpecimenLoader {
         PreparedStatement ps;
         String query;
         for (CentreSpecimen centerSpecimen : centerSpecimens) {
-            logger.debug("Parsing center {}", centerSpecimen.getCentreID());
+            logger.debug("Parsing specimens for center {}", centerSpecimen.getCentreID());
 
             Long centerPk = 0L;
             for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
