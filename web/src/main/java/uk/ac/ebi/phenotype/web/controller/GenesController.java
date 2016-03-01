@@ -547,7 +547,8 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService.hasImages(pcs.getGene().getAccessionId(), 
+					pcs.getProcedure().getName(), pcs.getColonyId()));
 			
 			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
