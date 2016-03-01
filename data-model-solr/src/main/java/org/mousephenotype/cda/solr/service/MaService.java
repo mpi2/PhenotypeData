@@ -173,6 +173,13 @@ public class MaService extends BasicService implements WebStatus {
 				List<String> selectedTopLevelMaTerms = (List<String>) doc.get(MaDTO.SELECTED_TOP_LEVEL_MA_TERM);
 				bean.addTopLevelMaNames(selectedTopLevelMaTerms); 
 			}
+			
+			if (doc.containsKey(MaDTO.ALL_AE_MAPPED_EFO_ID)) {
+				List<String> efoIds = (List<String>) doc.get(MaDTO.ALL_AE_MAPPED_EFO_ID);
+				bean.addEfoIds(efoIds); 
+			}
+			
+			
 		}
 
 		return bean;

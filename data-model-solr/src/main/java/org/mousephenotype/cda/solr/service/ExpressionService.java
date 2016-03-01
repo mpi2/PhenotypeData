@@ -254,15 +254,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.addFacetField("parameter_stable_id");
 		solrQuery.setRows(0);
 		QueryResponse response = experimentSolr.query(solrQuery);
-
-		SolrDocumentList categricalResponse = response.getResults();
-		System.out.println("categoryResponse=" + categricalResponse);
-
 		List<FacetField> categoryParameterFields = response.getFacetFields();
-		for (FacetField facetField : categoryParameterFields) {
-			System.out.println(
-					"facetFields=" + facetField.getName() + facetField.getValueCount() + facetField.getValues());
-		}
 		return categoryParameterFields.get(0).getValues();
 	}
 
@@ -382,22 +374,22 @@ public class ExpressionService extends BasicService {
 		JSONArray allPaths = new JSONArray();
 		List<String> mappedIds = new ArrayList<>();
 
-		//mappedIds.add(ImageDTO.UBERON_ID);
+		// mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
 
 		JSONObject anatomogram = new JSONObject();
-		
+
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
 			// work out list of uberon/efo ids with/without expressions
 			if (!embryoOnly) {
 				if (doc.containsKey(ImageDTO.MA_ID)) {
-					
+
 					List<String> maIds = Arrays.asList(doc.getFieldValues(termIdField).toArray(new String[0]));
-	
+
 					for (int i = 0; i < maIds.size(); i++) {
-						
+
 						if (doc.containsKey("parameter_association_value")) {
 							List<String> pav = Arrays
 									.asList(doc.getFieldValues("parameter_association_value").toArray(new String[0]));
@@ -463,7 +455,6 @@ public class ExpressionService extends BasicService {
 					}
 					list = expFacetToDocs.get(top);
 					list.add(doc);
-					System.out.println("added doc=" + doc);
 				}
 			}
 		}
@@ -544,7 +535,6 @@ public class ExpressionService extends BasicService {
 			bean.setParameterId(count.getName());
 			bean.setPatameterName(count.getName());
 			bean.setCount(count.getCount());
-			System.out.println("Count=" + count.getName() + " count=" + count.getCount());
 			if (abnormalMaFromImpress.containsKey(count.getName())) {
 				OntologyBean ontologyBean = abnormalMaFromImpress.get(count.getName());
 				bean.setMaId(ontologyBean.getId());
@@ -570,22 +560,13 @@ public class ExpressionService extends BasicService {
 
 		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
 			System.out.println("Count=" + dataBean.getPatameterName() + " count=" + dataBean.getCount());
-			if (dataBean.getMaId()!=null && dataBean.getUberonIds()!=null) {
-				
-				List<String> uberonIds = dataBean.getUberonIds();
-				for (String uberonId : uberonIds) {
-					JSONObject exp = new JSONObject();
-					// exp.put("factorName", ""); // not
-					// required
-					exp.put("value", "1");
-					exp.put("svgPathId", uberonId);
-					if (!expList.contains(exp)) {
-						expList.add(exp);
-					}
-					if (!allPaths.contains(uberonId)) {
-						allPaths.add(uberonId);
-					}
+			if (dataBean.getMaId() != null && dataBean.getUberonIds() != null) {
 
+				List<String> uberonIds = dataBean.getUberonIds();
+				addAnatomogramSpecialIds(expList, allPaths, uberonIds);
+				if (dataBean.getEfoIds() != null) {
+					List<String> efoIds = dataBean.getEfoIds();
+					addAnatomogramSpecialIds(expList, allPaths, efoIds);
 				}
 
 			}
@@ -596,6 +577,23 @@ public class ExpressionService extends BasicService {
 		anatomogram.put("allPaths", allPaths);
 		System.out.println("anatomogram from new method=" + anatomogram);
 		return anatomogram;
+	}
+
+	private void addAnatomogramSpecialIds(JSONArray expList, JSONArray allPaths, List<String> uberonOrEfoIds) {
+		for (String id : uberonOrEfoIds) {
+			JSONObject exp = new JSONObject();
+			// exp.put("factorName", ""); // not
+			// required
+			exp.put("value", "1");
+			exp.put("svgPathId", id);
+			if (!expList.contains(exp)) {
+				expList.add(exp);
+			}
+			if (!allPaths.contains(id)) {
+				allPaths.add(id);
+			}
+
+		}
 	}
 
 	/**
