@@ -118,9 +118,6 @@ public class SpecimenLoader {
     }
 
     private void run() throws JAXBException, XMLloadingException, IOException, SQLException, KeyManagementException, NoSuchAlgorithmException, DccLoaderException {
-
-        List<String[]> duplicateExceptions = new ArrayList<>();
-
         List<CentreSpecimen> centerSpecimens = XMLUtils.unmarshal(SpecimenLoader.CONTEXT_PATH, CentreSpecimenSet.class, filename).getCentre();
 
         if (centerSpecimens.size() == 0) {
@@ -338,7 +335,7 @@ public class SpecimenLoader {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    duplicateExceptions.add(new String[] { filename, dumpSpecimen(centerPk, specimenPk) });
+                    System.out.println("DUPLICATE SPECIMEN: " + dumpSpecimen(centerPk, specimenPk));
                     connection.rollback();
                     continue;
                 }
@@ -359,13 +356,6 @@ public class SpecimenLoader {
         }
 
         connection.close();
-
-        // Dump any exceptions.
-        if ( ! duplicateExceptions.isEmpty()) {
-            for (String[] info : duplicateExceptions) {
-                System.out.println(info[0] + ":\t" + info[1]);
-            }
-        }
     }
 
     protected ApplicationContext loadApplicationContext(String context) {
@@ -477,12 +467,12 @@ public class SpecimenLoader {
                         + ",productionCenter=" + (rs.getString("s.productionCenter") == null ? "<null>" : rs.getString("s.productionCenter"))
                         + ",specimenId=" + rs.getString("s.specimenId")
                         + ",strainId=" + rs.getString("s.strainId")
-                        + ",zygosity=" + rs.getString("s.zygosity")
-                        + ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
-                        + ",sc.value=" + rs.getString("sc.value")
-                        + ",m.DOB=" + (rs.getDate("m.DOB") == null ? "<null>" : rs.getDate("m.DOB"))
-                        + ",e.stage=" + (rs.getString("e.stage") == null ? "<null>" : rs.getString("e.stage"))
-                        + ",e.stageUnit=" + (rs.getString("e.stageUnit") == null ? "<null>" : rs.getString("e.stageUnit"));
+                        + ",zygosity=" + rs.getString("s.zygosity");
+                if (rs.getLong("s_statuscode_fk") != 0) {
+                    retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
+                    + ",sc.value=" + rs.getString("sc.value");
+                }
+                retVal += (rs.getDate("m.DOB") == null ? " (EMBRYO)" : " (MOUSE)");
             }
 
         } catch (SQLException e) {
