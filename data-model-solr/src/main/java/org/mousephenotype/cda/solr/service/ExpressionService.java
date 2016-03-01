@@ -371,42 +371,33 @@ public class ExpressionService extends BasicService {
 
 		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println("imagesResponse=" + imagesResponse);
-
 		List<FacetField> fields = laczResponse.getFacetFields();
-		System.out.println("Fields=" + fields);
-
 		// we have the unique ma top level terms associated and all the images
 		// now we need lists of images with these top level ma terms in their
 		// annotation
 		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
-
 		expFacetToDocs.put(noTopTermId, new SolrDocumentList());
-
 		JSONArray expList = new JSONArray();
 		JSONArray noExpList = new JSONArray();
 		JSONArray allPaths = new JSONArray();
 		List<String> mappedIds = new ArrayList<>();
 
-		mappedIds.add(ImageDTO.UBERON_ID);
+		//mappedIds.add(ImageDTO.UBERON_ID);
 		mappedIds.add(ImageDTO.EFO_ID);
 
 		JSONObject anatomogram = new JSONObject();
-		// System.out.println("======================image response is: " +
-		// imagesResponse);
+		
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
 			// work out list of uberon/efo ids with/without expressions
 			if (!embryoOnly) {
 				if (doc.containsKey(ImageDTO.MA_ID)) {
-					// System.out.println(doc.toString());
+					
 					List<String> maIds = Arrays.asList(doc.getFieldValues(termIdField).toArray(new String[0]));
-					// List<String> maTerms =
-					// Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
-
+	
 					for (int i = 0; i < maIds.size(); i++) {
-						// String ma_term_name = maTerms.get(i).toString();
+						
 						if (doc.containsKey("parameter_association_value")) {
 							List<String> pav = Arrays
 									.asList(doc.getFieldValues("parameter_association_value").toArray(new String[0]));
