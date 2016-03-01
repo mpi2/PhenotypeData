@@ -706,18 +706,12 @@ public class GenesController {
 		boolean embryoOnly=false;
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
 		List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
-		for(AnatomogramDataBean bean:anatomogramDataBeans){
-			System.out.println("AnatomogramDataBean"+bean);
-		}
 		Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
-		for( String topMa:topLevelMaCounts.keySet()){
-			System.out.println("topMa="+topMa+" total count "+topLevelMaCounts.get(topMa));
-		}
 		model.addAttribute("topLevelMaCounts", topLevelMaCounts);
 		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
 		model.addAttribute("anatomogram",anatomogram);
 		
-		//expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	
