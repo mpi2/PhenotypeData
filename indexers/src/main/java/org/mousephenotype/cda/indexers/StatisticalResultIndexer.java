@@ -785,7 +785,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 
 	private void addImpressData(ResultSet r, StatisticalResultDTO doc)
-		throws SQLException {
+	throws SQLException {
 
 		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
 		doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).getStableKey());

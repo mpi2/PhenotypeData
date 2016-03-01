@@ -897,7 +897,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 //				.addField(StatisticalResultDTO.PHENOTYPING_CENTER).addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
 //				.addField(StatisticalResultDTO.ALLELE_SYMBOL).addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
 //				.addField(StatisticalResultDTO.PROCEDURE_NAME).addField(StatisticalResultDTO.METADATA_GROUP)
-//				.setRows(Integer.MAX_VALUE).set("sort", StatisticalResultDTO.P_VALUE + " asc");
+		query.setRows(Integer.MAX_VALUE).set("sort", StatisticalResultDTO.P_VALUE + " asc");
 
 		if (geneAccession != null) {
 			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
@@ -936,6 +936,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if (resource != null) {
 			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
 		}
+		
 
 		List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
 
@@ -952,6 +953,15 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	}
     
+    
+    /**
+     * @author ilinca
+     * @since 2016/03/01
+     * @param dto
+     * @param graphBaseUrl
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     private ExperimentsDataTableRow getRowFromDto(StatisticalResultDTO dto, String graphBaseUrl) 
     throws UnsupportedEncodingException{
     	
@@ -971,85 +981,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     			dto.getStatus(), allele, gene, ZygosityType.valueOf(dto.getZygosity()), 
     			pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
     			dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
-    	
+
     	return row;
     	
     }
-    
-    
-    public Map<String, List<StatisticalResultDTO>> DEPRECATED_getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId)
-	throws NumberFormatException, SolrServerException {
-
-    	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
-    	SolrQuery query = new SolrQuery();
-    	
-	    query.setQuery("*:*")
-	         .addField(StatisticalResultDTO.P_VALUE)
-	         .addField(StatisticalResultDTO.EFFECT_SIZE)
-	         .addField(StatisticalResultDTO.STATUS)
-	         .addField(StatisticalResultDTO.STATISTICAL_METHOD)
-	         .addField(StatisticalResultDTO.ZYGOSITY)
-	         .addField(StatisticalResultDTO.MALE_CONTROL_COUNT)
-	         .addField(StatisticalResultDTO.MALE_MUTANT_COUNT)
-	         .addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
-	         .addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
-	         .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-	         .addField(StatisticalResultDTO.PARAMETER_NAME)
-	         .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-	         .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
-	         .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
-	         .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-	         .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-	         .addField(StatisticalResultDTO.PROCEDURE_NAME)
-	         .addField(StatisticalResultDTO.METADATA_GROUP)
-	         .setRows(Integer.MAX_VALUE)
-	         .set("sort", StatisticalResultDTO.P_VALUE + " asc");
-
-	    if (geneAccession != null){
-	    	query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
-	    }
-	    if (phenotypingCenter != null){
-	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"" +StringUtils.join(phenotypingCenter, "\" OR \"")  + "\")");
-	    }
-	    if (mpTermId != null){
-	    	query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
-	    			StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
-	    			StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.MALE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\")");
-	    }
-	    if (pipelineName != null){
-	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
-	    }
-	    if (alleleSymbol != null){
-	    	query.addFilterQuery(StatisticalResultDTO.ALLELE_SYMBOL + ":(\"" + StringUtils.join(alleleSymbol, "\" OR \"") + "\")");
-	    }
-		if (procedureStableIds != null){
-			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(" + StringUtils.join(procedureStableIds, " OR ") + ")");
-		}
-		if (resource != null) {
-			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
-		}
-
-	    List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
-
-	    for (StatisticalResultDTO statResult : solrResults) {
-
-		    if ( ! results.containsKey(statResult.getParameterStableId())) {
-			    results.put(statResult.getParameterStableId(), new ArrayList<StatisticalResultDTO>());
-		    }
-
-	   	    results.get(statResult.getParameterStableId()).add(statResult);
-	    }
-	    
-		return results;
-
-    }
-
+ 
     /**
      *  
      * @param gene

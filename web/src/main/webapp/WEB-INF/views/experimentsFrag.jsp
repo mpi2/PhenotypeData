@@ -43,8 +43,8 @@
 						<td><t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele></td>
 						<td>${row.getPhenotypingCenter()}</td>
 						<td>${row.getProcedure().getName()} / ${row.getParameter().getName()}</td>
-						<td>${row.getZygosity().substring(0,3).toUpperCase()}</td>
-						<td>${row.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
+						<td>${row.getZygosity().toString().substring(0,3).toUpperCase()}</td>
+						<td>${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m</td>
 						<td>${row.getStatisticalMethod()}</td>
 						<!-- pValue -->
 						<c:choose>
@@ -55,11 +55,11 @@
 								<c:set var="Gcolor" value="${palette[1][paletteIndex]}" />
 								<c:set var="Bcolor" value="${palette[2][paletteIndex]}" />
 								<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-									<t:formatScientific> ${row.getPValue()}</t:formatScientific>
+									<t:formatScientific> ${row.getpValue()}</t:formatScientific>
 								</td>
 							</c:when>
 							<c:otherwise>
-								<td><t:formatScientific>${row.getPValue()}</t:formatScientific></td>
+								<td><t:formatScientific>${row.getpValue()}</t:formatScientific></td>
 							</c:otherwise>
 						</c:choose>
 						<td>${row.status}</td>
