@@ -717,7 +717,7 @@ public class GenesController {
 		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
 		model.addAttribute("anatomogram",anatomogram);
 		
-		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		//expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	

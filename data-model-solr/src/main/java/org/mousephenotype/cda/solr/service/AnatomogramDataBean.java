@@ -54,7 +54,14 @@ public class AnatomogramDataBean {
 	List<String> topLevelMaNames=new ArrayList<>();
 	
 	private String maTerm;
+	private List<String> efoIds;
 	
+	public List<String> getEfoIds() {
+		return efoIds;
+	}
+	public void setEfoIds(List<String> efoIds) {
+		this.efoIds = efoIds;
+	}
 	public String getMaTerm() {
 		return maTerm;
 	}
@@ -68,11 +75,12 @@ public class AnatomogramDataBean {
 		this.topLevelMaNames = topLevelMaNames;
 	}
 	
+	
 	@Override
 	public String toString() {
 		return "AnatomogramDataBean [parameterId=" + parameterId + ", patameterName=" + patameterName + ", uberonIds="
-				+ uberonIds + ", maId=" + maId + ", topLevelMaIds=" + topLevelMaIds + ", topLevelMaNames="
-				+ topLevelMaNames + ", count=" + count + ", maTerm=" + maTerm + "]";
+				+ uberonIds + ", count=" + count + ", maId=" + maId + ", topLevelMaIds=" + topLevelMaIds
+				+ ", topLevelMaNames=" + topLevelMaNames + ", maTerm=" + maTerm + ", efoIds=" + efoIds + "]";
 	}
 	public void addTopLevelMaIds(List<String> selectedTopLevelMas) {
 		this.topLevelMaIds.addAll(selectedTopLevelMas);
@@ -80,6 +88,10 @@ public class AnatomogramDataBean {
 	}
 	public void addTopLevelMaNames(List<String> selectedTopLevelMaTerms) {
 		this.topLevelMaNames.addAll(selectedTopLevelMaTerms);
+		
+	}
+	public void addEfoIds(List<String> efoIds) {
+		this.efoIds.addAll(efoIds);
 		
 	}
 	
