@@ -218,7 +218,8 @@ public class ExpressionService extends BasicService {
 		return response;
 	}
 
-	public List<Count> getLaczCategoricalParametersForGene(String mgiAccession, String... fields) throws SolrServerException {
+	public List<Count> getLaczCategoricalParametersForGene(String mgiAccession, String... fields)
+			throws SolrServerException {
 		// e.g.
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
 		// for embryo data the fields would be like this
@@ -521,44 +522,66 @@ public class ExpressionService extends BasicService {
 	}
 
 	/**
-	 *
-	 * @param parameterCounts
-	 *            mgi_accession for gene
-	 * @param topMaNameFilter
-	 *            Only include images under the top level ma term specified here
-	 * @param imagesOverview
-	 *            If imagesOverview true then restrict response to only certain
-	 *            fields as we are only displaying annotations for a dataset not
-	 *            a specific thumbnail
-	 * @param imagesOverview
-	 *            If true we want some images data/stats added to the model for
-	 *            display in the tabbed pane on the gene page.
-	 * @param model
-	 *            Spring MVC model
+	 * 
+	 * @param anatomogramDataBeans
+	 * @return
 	 * @throws SolrServerException
-	 * @throws SQLException
 	 */
-	public JSONObject getLacDataForAnatomogram(List<Count> parameterCounts) throws SolrServerException {
-		JSONObject anatomogram = new JSONObject();
+	public Map<String, Long> getLacSelectedTopLevelMaCountsForAnatomogram(
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException {
+		Map<String, Long> topLevelMaToCountMap = new HashMap<>();
+		for (AnatomogramDataBean bean : anatomogramDataBeans) {
+			for (String topMaId : bean.getTopLevelMaNames()) {
+				if (!topLevelMaToCountMap.containsKey(topMaId)) {
+					topLevelMaToCountMap.put(topMaId, new Long(0));
+				}
+				Long count = topLevelMaToCountMap.get(topMaId);
+				count = count + bean.getCount();
+				topLevelMaToCountMap.put(topMaId, count);
 
-		
-		JSONArray expList = new JSONArray();
-		JSONArray noExpList = new JSONArray();
-		JSONArray allPaths = new JSONArray();
+			}
+		}
+
+		return topLevelMaToCountMap;
+	}
+
+	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException {
+		List<AnatomogramDataBean> anatomogramDataBeans = new ArrayList<>();
 
 		for (Count count : parameterCounts) {
-
-			System.out.println("Count=" + count.getName()+" count="+count.getCount());
+			AnatomogramDataBean bean = new AnatomogramDataBean();
+			bean.setParameterId(count.getName());
+			bean.setPatameterName(count.getName());
+			bean.setCount(count.getCount());
+			System.out.println("Count=" + count.getName() + " count=" + count.getCount());
 			if (abnormalMaFromImpress.containsKey(count.getName())) {
 				OntologyBean ontologyBean = abnormalMaFromImpress.get(count.getName());
-				System.out.println("ontology found=" + ontologyBean);
+				bean.setMaId(ontologyBean.getId());
+				bean.setMaTerm(ontologyBean.getName());
 				// this method for getting uberon ids needs to be changed so
 				// we get the associated intermediate terms so we include
 				// all possible uberon ids
 				// higher up the tree to display on the anatomogram
-				Map<String, List<String>> uberonAndMaIds = maService.getUberonIdForMaTerm(ontologyBean.getId());
-				List<String> uberonIds = uberonAndMaIds.get(MaDTO.UBERON_ID);
-				System.out.println("uberonIds=" + uberonIds);
+				bean = maService.getUberonIdAndTopLevelMaTerm(bean);
+				anatomogramDataBeans.add(bean);
+			}
+		}
+		return anatomogramDataBeans;
+
+	}
+
+	public JSONObject getAnatomogramJson(List<AnatomogramDataBean> anatomogramDataBeans) {
+		JSONObject anatomogram = new JSONObject();
+
+		JSONArray expList = new JSONArray();
+		JSONArray noExpList = new JSONArray();
+		JSONArray allPaths = new JSONArray();
+
+		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
+			System.out.println("Count=" + dataBean.getPatameterName() + " count=" + dataBean.getCount());
+			if (dataBean.getMaId()!=null && dataBean.getUberonIds()!=null) {
+				
+				List<String> uberonIds = dataBean.getUberonIds();
 				for (String uberonId : uberonIds) {
 					JSONObject exp = new JSONObject();
 					// exp.put("factorName", ""); // not
@@ -582,7 +605,6 @@ public class ExpressionService extends BasicService {
 		anatomogram.put("allPaths", allPaths);
 		System.out.println("anatomogram from new method=" + anatomogram);
 		return anatomogram;
-
 	}
 
 	/**
@@ -677,14 +699,15 @@ public class ExpressionService extends BasicService {
 							ontologyBean = abnormalEmapFromImpress.get(parameterStableId);
 						} else {
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
-							
+
 						}
 
 						if (ontologyBean != null) {
 							row.setAbnormalMaId(ontologyBean.getId());
 							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							//System.out.println("no ma id for anatomy term=" + anatomy);
+							// System.out.println("no ma id for anatomy term=" +
+							// anatomy);
 						}
 					}
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);

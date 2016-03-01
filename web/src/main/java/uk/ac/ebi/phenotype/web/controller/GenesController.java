@@ -50,6 +50,7 @@ import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
+import org.mousephenotype.cda.solr.service.AnatomogramDataBean;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -706,8 +707,19 @@ public class GenesController {
 		boolean overview=true;
 		boolean embryoOnly=false;
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
-		expressionService.getLacDataForAnatomogram(parameterCounts);
-		//expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
+		List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
+		for(AnatomogramDataBean bean:anatomogramDataBeans){
+			System.out.println("AnatomogramDataBean"+bean);
+		}
+		Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
+		for( String topMa:topLevelMaCounts.keySet()){
+			System.out.println("topMa="+topMa+" total count "+topLevelMaCounts.get(topMa));
+		}
+		model.addAttribute("topLevelMaCounts", topLevelMaCounts);
+		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
+		model.addAttribute("anatomogram",anatomogram);
+		
+		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
 	
