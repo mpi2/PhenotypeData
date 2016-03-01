@@ -178,7 +178,7 @@ public class SpecimenLoader {
                 // specimen
                 query =
                           "SELECT *\n"
-                        + "FROM dccimport_2015_12_16.specimen s\n"
+                        + "FROM specimen s\n"
                         + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
                         + "JOIN center           c ON  c.pk          = cs.center_fk\n"
                         + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
