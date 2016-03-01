@@ -347,7 +347,8 @@ public class PhenotypesController {
 
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
-            DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config);
+            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+            DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, false);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
