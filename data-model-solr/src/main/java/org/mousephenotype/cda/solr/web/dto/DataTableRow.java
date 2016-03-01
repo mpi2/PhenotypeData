@@ -95,7 +95,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
 
-        this.setEvidenceLink(baseUrl, hasImages);
+        this.buildEvidenceLink(baseUrl, hasImages);
         
     }
     
@@ -208,8 +208,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		return evidenceLink;
 	}
 
+    public void setEvidenceLink(EvidenceLink link){
+    	this.evidenceLink = link;
+    }
 	
-    public void setEvidenceLink(String baseGraphUrl, boolean hasImages)
+    public void buildEvidenceLink(String baseGraphUrl, boolean hasImages)
 	throws UnsupportedEncodingException {
 		
 		this.evidenceLink =  buildGraphUrl(baseGraphUrl, hasImages);

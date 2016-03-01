@@ -58,7 +58,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 		setPipeline(pipeline);
 		setProcedure(procedure);
 		setParameter(parameter);
-		setEvidenceLink(graphBaseUrl, false);
+		buildEvidenceLink(graphBaseUrl, false);
 		setpValue(pValue);
 		
 	}
