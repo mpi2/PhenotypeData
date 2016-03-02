@@ -64,10 +64,15 @@
 						</c:choose>
 						<td>${row.status}</td>
 						<td style="text-align: center">
-							<%--<a href='${baseUrl}/charts?accession=${pValueItem.getMarkerAccessionId()}&allele_accession_id=${pValueItem.getAlleleAccessionId()}&parameter_stable_id=${pValueItem.getParameterStableId()}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${pValueItem.getPhenotypingCenter()}'>--%>
-								<a href='${row.getGraphUrl()}'>
-								<i class="fa fa-bar-chart-o" title="Graphs"> </i>
-						</a></td>
+							<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
+								<a href='${row.getEvidenceLink().getUrl()}'>
+									<i class="fa fa-bar-chart-o" title="${row.getEvidenceLink().getAlt()}"> </i>
+								</a>
+							</c:if>
+							<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
+								<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
+							</c:if>
+						</td>
 					</tr>
 				</c:forEach>
 			</c:forEach>
