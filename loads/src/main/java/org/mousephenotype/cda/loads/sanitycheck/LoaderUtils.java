@@ -207,7 +207,7 @@ public class LoaderUtils {
      * <i>NOTE: The primary key value is returned in Hjid.</i>
      */
     public static Specimen getSpecimen(Connection connection, String specimenId, String centerId, String pipeline, String project) {
-        SpecimenCDA specimen = new SpecimenCDA();
+        SpecimenCDA specimen = null;
 
         String query = "";
         PreparedStatement ps;
@@ -227,6 +227,7 @@ public class LoaderUtils {
             ps.setString(4, project);
             rs = ps.executeQuery();
             if (rs.next()) {
+                specimen = new SpecimenCDA();
                 specimen.setHjid(rs.getLong("s.pk"));
                 String colonyId = rs.getString("colonyId");
                 if (colonyId != null) {
