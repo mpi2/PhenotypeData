@@ -18,8 +18,7 @@
     <jsp:include page="phenotype_icons_frag.jsp"/>
     <div id="phenoSumDiv">
         <h5 class="sectHint">Phenotype Summary</h5>
-        <p>No phenotype abnomalities found based on automated MP annotations supported by experiments
-          on knockout mouse models. </p>
+        <p>No significant phenotype found based on IMPC phenotyping calls pipeline.</p>
     </div>
   </c:when>
 

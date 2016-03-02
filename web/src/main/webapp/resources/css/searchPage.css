@@ -170,52 +170,24 @@ table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 
 
 /* table tool */
-div#tableTool {
+div#saveTable{
 	font-size: 14px;
 	position: absolute;
-	bottom: 0;
+	bottom: -50px;
 	right: 0;
 	margin-right: 0;
 }
-div#saveTable {
-	position: relative;
-	top: 100px;
-	float: right;
-	cursor: pointer;
-	z-index: 99;
-	width: auto;
-}
-
 div#toolBox a.gridDump {
 	font-size: 12px;
 }
 
-div#saveTable span {
-	color: #0978A1;
-}
 div#saveTable img {
 	vertical-align: middle !important;
 }
-div#toolBox {
-	position: absolute;
-	top: -35px;
-	right: 0px;
-	height: auto;
-	width: 160px;
-	display: none;
-	padding: 15px;
-	background-color: #F4F4F4;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	border: 1px solid gray;
+div#saveTable span {
+	margin-left: 50px;
 }
-div#toolBox span {
-	display: block;
-}
-div#saveSep {
-	margin: 10px;
-}
+
 div.dataName {
 	font-weight: bold;
 	height: auto;
