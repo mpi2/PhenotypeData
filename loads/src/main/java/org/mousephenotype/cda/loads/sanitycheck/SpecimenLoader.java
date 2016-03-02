@@ -137,15 +137,8 @@ public class SpecimenLoader {
                 ResultSet rs;
 
                 // center
-                query = "";
-                ps = connection.prepareStatement("SELECT * FROM center WHERE centerId = ? AND pipeline = ? AND project = ?;");
-                ps.setString(1, centerSpecimen.getCentreID().value());
-                ps.setString(2, specimen.getPipeline());
-                ps.setString(3, specimen.getProject());
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    centerPk = rs.getLong("pk");
-                } else {
+                centerPk = LoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                if (centerPk == null) {
                     query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, centerSpecimen.getCentreID().value());
@@ -172,56 +165,38 @@ public class SpecimenLoader {
                 }
 
                 // specimen
-                query =
-                          "SELECT *\n"
-                        + "FROM specimen s\n"
-                        + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
-                        + "JOIN center           c ON  c.pk          = cs.center_fk\n"
-                        + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
-
-                ps = connection.prepareStatement(query);
-                ps.setString(1, specimen.getSpecimenID());
-                ps.setString(2, centerSpecimen.getCentreID().value());
-                ps.setString(3, specimen.getPipeline());
-                ps.setString(4, specimen.getProject());
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    specimenPk = rs.getLong("s.pk");
+                Specimen existingSpecimen = LoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                if (existingSpecimen != null) {
+                    specimenPk = existingSpecimen.getHjid();
                     // Validate that this specimen's info matches the existing one in the database.
-                    if ( ! specimen.getGender().value().equals(rs.getString("gender"))) {
-                        throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: " + specimen.getGender().value() + ". This gender: '" + rs.getString("gender") + "'.");
+                    if ( ! specimen.getGender().value().equals(existingSpecimen.getGender().value())) {
+                        throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: '" + specimen.getGender().value() + "'. This gender: '" + existingSpecimen.getGender().value() + "'.");
                     }
-                    if ( ! specimen.isIsBaseline() == (rs.getInt("isBaseline") == 1)) {
-                        throw new DccLoaderException("isBaseline mismatch (pk " + specimenPk + "). Existing isBaseline: " + (specimen.isIsBaseline() ? 1 : 0) + ". This isBaseline: '" + rs.getInt("isBaseline") + "'.");
+                    if ( specimen.isIsBaseline() != existingSpecimen.isIsBaseline()) {
+                        throw new DccLoaderException("isBaseline mismatch (pk " + specimenPk + "). Existing isBaseline: '" + (specimen.isIsBaseline() ? 1 : 0) + "'. This isBaseline: '" + existingSpecimen.isIsBaseline() + "'.");
                     }
-                    if ( ! specimen.getLitterId().equals(rs.getString("litterId"))) {
-                        throw new DccLoaderException("litterId mismatch. (pk " + specimenPk + "). Existing gender: " + specimen.getLitterId() + ". This litterId: '" + rs.getString("litterId") + "'.");
+                    if ( ! specimen.getLitterId().equals(existingSpecimen.getLitterId())) {
+                        throw new DccLoaderException("litterId mismatch. (pk " + specimenPk + "). Existing litterId: '" + specimen.getLitterId() + "'. This litterId: '" + existingSpecimen.getLitterId() + "'.");
                     }
-                    if ( ! specimen.getPhenotypingCentre().value().equals(rs.getString("phenotypingCenter"))) {
-                        throw new DccLoaderException("phenotypingCenter mismatch. (pk " + specimenPk + "). Existing phenotypingCenter: " + specimen.getPhenotypingCentre().value()
-                                + ". This phenotypingCenter: '" + rs.getString("phenotypingCenter") + "'.");
-                    }
-                    if ( ! specimen.getPipeline().equals(rs.getString("pipeline"))) {
-                        throw new DccLoaderException("pipeline mismatch. (pk " + specimenPk + "). Existing pipeline: " + specimen.getPipeline()  + ". This pipeline: '" + rs.getString("pipeline") + "'.");
+                    if ( ! specimen.getPhenotypingCentre().value().equals(existingSpecimen.getPhenotypingCentre().value())) {
+                        throw new DccLoaderException("phenotypingCenter mismatch. (pk " + specimenPk + "). Existing phenotypingCenter: '" + specimen.getPhenotypingCentre().value()
+                                + "'. This phenotypingCenter: '" + existingSpecimen.getPhenotypingCentre() + "'.");
                     }
                     if (specimen.getProductionCentre() == null) {
-                        if (rs.getString("productionCenter") != null) {
-                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter is null. this productionCenter: '" + rs.getString("productionCenter)"));
+                        if (existingSpecimen.getProductionCentre() != null) {
+                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter is null. this productionCenter: '" + existingSpecimen.getProductionCentre());
                         }
                     } else {
-                        if ( ! specimen.getProductionCentre().value().equals(rs.getString("productionCenter"))) {
-                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter: " + specimen.getProductionCentre().value()
-                                    + ". This productionCenter: '" + rs.getString("productionCenter") + "'.");
+                        if ( ! specimen.getProductionCentre().value().equals(existingSpecimen.getProductionCentre().value())) {
+                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter: '" + specimen.getProductionCentre().value()
+                                    + "'. This productionCenter: '" + existingSpecimen.getProductionCentre().value() + "'.");
                         }
                     }
-                    if ( ! specimen.getProject().equals(rs.getString("project"))) {
-                        throw new DccLoaderException("project mismatch. (pk " + specimenPk + "). Existing project: " + specimen.getProject() + ". This project: '" + rs.getString("project") + "'.");
+                    if ( ! specimen.getStrainID().equals(existingSpecimen.getStrainID())) {
+                        throw new DccLoaderException("strainId mismatch. (pk " + specimenPk + "). Existing strainId: '" + specimen.getStrainID() + "'. This strainId: '" + existingSpecimen.getStrainID() + "'.");
                     }
-                    if ( ! specimen.getStrainID().equals(rs.getString("strainId"))) {
-                        throw new DccLoaderException("strainId mismatch. (pk " + specimenPk + "). Existing strainId: " + specimen.getStrainID() + ". This strainId: '" + rs.getString("strainId") + "'.");
-                    }
-                    if ( ! specimen.getZygosity().value().equals(rs.getString("zygosity"))) {
-                        throw new DccLoaderException("zygosity mismatch. (pk " + specimenPk + "). Existing zygosity: " + specimen.getZygosity().value() + ". This zygosity: '" + rs.getString("zygosity") + "'.");
+                    if ( ! specimen.getZygosity().value().equals(existingSpecimen.getZygosity().value())) {
+                        throw new DccLoaderException("zygosity mismatch. (pk " + specimenPk + "). Existing zygosity: '" + specimen.getZygosity().value() + "'. This zygosity: '" + existingSpecimen.getZygosity().value() + "'.");
                     }
                 } else {
                     query = "INSERT INTO specimen (" +
@@ -331,7 +306,7 @@ public class SpecimenLoader {
                     ps.execute();
                 } catch (SQLException e) {
                     // Duplicate specimen
-                    System.out.println("DUPLICATE SPECIMEN: " + dumpSpecimen(centerPk, specimenPk));
+                    System.out.println("DUPLICATE SPECIMEN: " + LoaderUtils.dumpSpecimen(connection, centerPk, specimenPk));
                     connection.rollback();
                     continue;
                 }
@@ -352,130 +327,5 @@ public class SpecimenLoader {
         }
 
         connection.close();
-    }
-
-    protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext appContext;
-
-        // Try context as a file resource.
-        File file = new File(context);
-        if (file.exists()) {
-            // Try context as a file resource
-            appContext = new FileSystemXmlApplicationContext("file:" + context);
-        } else {
-            // Try context as a class path resource
-            appContext = new ClassPathXmlApplicationContext(context);
-        }
-
-        if (appContext == null) {
-            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
-        }
-
-        return appContext;
-    }
-
-//    private void truncateTables() throws SQLException {
-//        String query;
-//        PreparedStatement ps;
-//
-//        String[] tables = new String[] {
-//                  "center"
-//                , "center_specimen"
-//                , "embryo"
-//                , "genotype"
-//                , "mouse"
-//                , "parentalStrain"
-//                , "relatedSpecimen"
-//                , "specimen"
-//                , "statuscode"
-//        };
-//
-//        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
-//        ps.execute();
-//        for (String tableName : tables) {
-//            query = "TRUNCATE " + tableName + ";";
-//
-//            try {
-//                ps = connection.prepareStatement(query);
-//                ps.execute();
-//            } catch (SQLException e) {
-//                logger.error("Unable to truncate table " + tableName);
-//                throw e;
-//            }
-//        }
-//        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
-//        ps.execute();
-//    }
-
-    private String dumpSpecimen(long centerPk, long specimenPk) {
-        String retVal = "";
-
-        String query =
-                "SELECT\n"
-                    + "  cs.pk AS cs_pk\n"
-                    + ", c.pk AS c_pk\n"
-                    + ", s.pk AS s_pk\n"
-                    + ", s.statuscode_fk AS s_statuscode_fk\n"
-                    + ", c.centerId\n"
-                    + ", c.pipeline\n"
-                    + ", c.project\n"
-                    + ", s.colonyId\n"
-                    + ", s.gender\n"
-                    + ", s.isBaseline\n"
-                    + ", s.litterId\n"
-                    + ", s.phenotypingCenter\n"
-                    + ", s.pipeline\n"
-                    + ", s.productionCenter\n"
-                    + ", s.specimenId\n"
-                    + ", s.strainId\n"
-                    + ", s.zygosity\n"
-                    + ", sc.dateOfStatuscode\n"
-                    + ", sc.value\n"
-                    + ", m.DOB\n"
-                    + ", e.stage\n"
-                    + ", e.stageUnit\n"
-                    + "FROM center c\n"
-                    + "JOIN center_specimen cs ON cs.center_fk = c.pk\n"
-                    + "JOIN specimen s ON cs.specimen_fk = s.pk\n"
-                    + "LEFT OUTER JOIN mouse m ON m.specimen_fk = cs.specimen_fk\n"
-                    + "LEFT OUTER JOIN embryo e ON e.specimen_fk = cs.specimen_fk\n"
-                    + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk\n"
-                    + "WHERE c.pk = ? AND s.pk = ?;";
-        try {
-            PreparedStatement ps = connection.prepareStatement(query);
-            ps.setLong(1, centerPk);
-            ps.setLong(2, specimenPk);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                retVal += "{"
-                        + "cs.pk=" + rs.getLong("cs_pk")
-                        + ",c.pk=" + rs.getLong("c_pk")
-                        + ",s.pk=" + rs.getLong("s_pk")
-                        + ",s.statuscode_fk=" + (rs.getLong("s_statuscode_fk") == 0 ? "<null>" : rs.getLong("s_statuscode_fk"))
-                        + ",centerId=" + rs.getString("c.centerId")
-                        + ",pipeline=" + rs.getString("c.pipeline")
-                        + ",project=" + rs.getString("c.project")
-                        + ",colonyId=" + rs.getString("s.colonyId")
-                        + ",gender=" + rs.getString("s.gender")
-                        + ",isBaseline=" + rs.getInt("s.isBaseline")
-                        + ",litterId=" + rs.getString("s.litterId")
-                        + ",phenotypingCenter=" + rs.getString("s.phenotypingCenter")
-                        + ",productionCenter=" + (rs.getString("s.productionCenter") == null ? "<null>" : rs.getString("s.productionCenter"))
-                        + ",specimenId=" + rs.getString("s.specimenId")
-                        + ",strainId=" + rs.getString("s.strainId")
-                        + ",zygosity=" + rs.getString("s.zygosity");
-                if (rs.getLong("s_statuscode_fk") != 0) {
-                    retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
-                    + ",sc.value=" + rs.getString("sc.value");
-                }
-                retVal += (rs.getDate("m.DOB") == null ? " (EMBRYO)" : " (MOUSE)");
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
-        return retVal;
     }
 }
