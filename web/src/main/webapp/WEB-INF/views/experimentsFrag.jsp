@@ -63,13 +63,13 @@
 							</c:otherwise>
 						</c:choose>
 						<td>${row.status}</td>
-						<td style="text-align: center">
-							<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
+						<td  class="postQcLink">
+							<c:if test="${row.getEvidenceLink().getDisplay()}">
 								<a href='${row.getEvidenceLink().getUrl()}'>
 									<i class="fa fa-bar-chart-o" title="${row.getEvidenceLink().getAlt()}"> </i>
 								</a>
 							</c:if>
-							<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
+							<c:if test="${!row.getEvidenceLink().getDisplay()}">
 								<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
 							</c:if>
 						</td>
