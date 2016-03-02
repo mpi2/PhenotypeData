@@ -29,6 +29,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ImpressService.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,6 +62,9 @@ public class ExpressionService extends BasicService {
 	@Autowired
 	ImpressService impressService;
 
+	@Autowired
+	private MaService maService;
+
 	// @Autowired
 	// MaService maService;
 
@@ -71,20 +75,18 @@ public class ExpressionService extends BasicService {
 	public ExpressionService() {
 	}
 
-	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl) {
+	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl, String impressServiceUrl,
+			String maServiceUrl) {
 
 		experimentSolr = new HttpSolrServer(experimentSolrUrl);
 		imagesSolr = new HttpSolrServer(imagesSolrUrl);
+		impressService = new ImpressService(impressServiceUrl);
+		maService = new MaService(maServiceUrl);
 	}
 
 	@PostConstruct
-	private void initialiseAbnormalMaMap() {
+	public void initialiseAbnormalMaMap() {
 		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
-
-	}
-
-	@PostConstruct
-	private void initialiseAbnormalEmapMap() {
 		abnormalEmapFromImpress = impressService.getParameterStableIdToAbnormalEmapMap();
 
 	}
@@ -216,6 +218,46 @@ public class ExpressionService extends BasicService {
 		return response;
 	}
 
+	public List<Count> getLaczCategoricalParametersForGene(String mgiAccession, String... fields)
+			throws SolrServerException {
+		// e.g.
+		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1920455%22&facet=true&facet.field=selected_top_level_ma_term&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)
+		// for embryo data the fields would be like this
+		// "parameter_name": "LacZ images section",
+		// "procedure_name": "Embryo LacZ",
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("gene_accession_id:\"" + mgiAccession + "\"");
+
+		solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
+		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
+		solrQuery.addFilterQuery("!" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+		solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+		solrQuery.addFilterQuery(ObservationDTO.CATEGORY + ":\"expression\"");// only
+																				// look
+																				// for
+																				// expresssion
+																				// at
+																				// the
+																				// moment
+																				// as
+																				// that
+																				// is
+																				// all
+																				// the
+																				// anatamogram
+																				// can
+																				// display
+		solrQuery.setFacetMinCount(1);
+		solrQuery.setFacet(true);
+		solrQuery.setFields(fields);
+		solrQuery.addFacetField("parameter_stable_id");
+		solrQuery.setRows(0);
+		QueryResponse response = experimentSolr.query(solrQuery);
+		List<FacetField> categoryParameterFields = response.getFacetFields();
+		return categoryParameterFields.get(0).getValues();
+	}
+
 	private QueryResponse getEmbryoLaczImageFacetsForGene(String mgiAccession, String... fields)
 			throws SolrServerException {
 		// e.g.
@@ -272,14 +314,24 @@ public class ExpressionService extends BasicService {
 	 */
 	public void getLacImageDataForGene(String acc, String topMaNameFilter, boolean imagesOverview, boolean embryoOnly,
 			Model model) throws SolrServerException {
-		System.out.println("embryoOnly=" + embryoOnly);
 		QueryResponse laczResponse = null;
 		String noTopTermId = "";
 		String topLevelField = "";// type ma or emap imageDTO field for top
 									// level terms
 		String termIdField = "";
 		if (embryoOnly) { // use EMAP terms and top level terms
-			noTopTermId = "TS20 embryo or Unassigned";//currently if unassigned they either have embryo TS20 as there EMAP id but our system doesn't find any selected_top_level emap or nothing is assigned but we know they are embryo so assing this id to unassigned
+			noTopTermId = "TS20 embryo or Unassigned";// currently if unassigned
+														// they either have
+														// embryo TS20 as there
+														// EMAP id but our
+														// system doesn't find
+														// any
+														// selected_top_level
+														// emap or nothing is
+														// assigned but we know
+														// they are embryo so
+														// assing this id to
+														// unassigned
 			topLevelField = ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
 			termIdField = ImageDTO.EMAP_ID;
 			if (imagesOverview) {
@@ -310,98 +362,27 @@ public class ExpressionService extends BasicService {
 
 		}
 		SolrDocumentList imagesResponse = laczResponse.getResults();
-		System.out.println("imagesResponse=" + imagesResponse);
-		
 		List<FacetField> fields = laczResponse.getFacetFields();
-		System.out.println("Fields=" + fields);
-
 		// we have the unique ma top level terms associated and all the images
 		// now we need lists of images with these top level ma terms in their
 		// annotation
 		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
-
 		expFacetToDocs.put(noTopTermId, new SolrDocumentList());
-
-		JSONArray expList = new JSONArray();
-		JSONArray noExpList = new JSONArray();
-		JSONArray allPaths = new JSONArray();
-		List<String> mappedIds = new ArrayList<>();
-
-		mappedIds.add(ImageDTO.UBERON_ID);
-		mappedIds.add(ImageDTO.EFO_ID);
 		
-		JSONObject anatomogram = new JSONObject();
-		// System.out.println("======================image response is: " +
-		// imagesResponse);
+
+		
+
+
 		for (SolrDocument doc : imagesResponse) {
 			List<String> tops = getListFromCollection(doc.getFieldValues(topLevelField));
 
 			// work out list of uberon/efo ids with/without expressions
-			if (!embryoOnly) {
-				if (doc.containsKey(ImageDTO.MA_ID)) {
-					// System.out.println(doc.toString());
-					List<String> maIds = Arrays.asList(doc.getFieldValues(termIdField).toArray(new String[0]));
-					// List<String> maTerms =
-					// Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
-
-					for (int i = 0; i < maIds.size(); i++) {
-						// String ma_term_name = maTerms.get(i).toString();
-						if (doc.containsKey("parameter_association_value")) {
-							List<String> pav = Arrays
-									.asList(doc.getFieldValues("parameter_association_value").toArray(new String[0]));
-							if (pav.get(i).equals("expression")) {
-								for (String id : mappedIds) {
-									if (doc.containsKey(id)) {
-										for (Object mappedId : doc.getFieldValues(id)) {
-											mappedId = mappedId.toString();
-											JSONObject exp = new JSONObject();
-											// exp.put("factorName", ""); // not
-											// required
-											exp.put("value", "1");
-											exp.put("svgPathId", mappedId);
-											if (!expList.contains(exp)) {
-												expList.add(exp);
-											}
-											if (!allPaths.contains(mappedId)) {
-												allPaths.add(mappedId);
-											}
-										}
-									}
-								}
-							} else if (pav.get(i).equals("no expression")) {
-								for (String id : mappedIds) {
-									if (doc.containsKey(id)) {
-										for (Object mappedId : doc.getFieldValues(id)) {
-											mappedId = mappedId.toString();
-											JSONObject noexp = new JSONObject();
-											// exp.put("factorName", "NA"); //
-											// not
-											// required
-											noexp.put("value", "1");
-											noexp.put("svgPathId", mappedId);
-											if (!noExpList.contains(noexp)) {
-												noExpList.add(noexp);
-											}
-											if (!allPaths.contains(mappedId)) {
-												allPaths.add(mappedId);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				anatomogram.put("expression", expList);
-				anatomogram.put("noExpression", noExpList);
-				anatomogram.put("allPaths", allPaths);
-			} // end of if !embryo
+			
 
 			// noTopLevelCount.setCount(c);
 			if (tops.isEmpty()) {// if no top level found this image then add it
 									// to the "No top level" term docs so we can
 									// display orphaned terms and images
-				 System.out.println("tops is empty for doc="+doc);
 				expFacetToDocs.get(noTopTermId).add(doc);
 			} else {
 
@@ -412,195 +393,139 @@ public class ExpressionService extends BasicService {
 					}
 					list = expFacetToDocs.get(top);
 					list.add(doc);
-					System.out.println("added doc="+doc);
 				}
 			}
 		}
 
-		System.out.println("expression: " + expList);
-		System.out.println("noExpression: " + noExpList);
-		System.out.println("allPaths: " + allPaths);
+		
 		List<Count> topLevelMaTerms = new ArrayList<>();
 		List<Count> filteredTopLevelMaTerms = new ArrayList<>();
-		//if (fields.get(0).getValues().size() > 0) {
+		// if (fields.get(0).getValues().size() > 0) {
 
-			topLevelMaTerms.addAll(fields.get(0).getValues());
-			if (expFacetToDocs.get(noTopTermId).size() > 0) {// only add this
-																// facet for no
-																// top levels
-																// found if
-																// there are any
-				Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
-						expFacetToDocs.get(noTopTermId).size());
-				System.out.println("adding dummyCount="+dummyCountForImagesWithNoHigherLevelMa);
-				topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
-			}
+		topLevelMaTerms.addAll(fields.get(0).getValues());
+		if (expFacetToDocs.get(noTopTermId).size() > 0) {// only add this
+															// facet for no
+															// top levels
+															// found if
+															// there are any
+			Count dummyCountForImagesWithNoHigherLevelMa = new Count(new FacetField(noTopTermId), noTopTermId,
+					expFacetToDocs.get(noTopTermId).size());
+			topLevelMaTerms.add(dummyCountForImagesWithNoHigherLevelMa);
+		}
 
-			if (topMaNameFilter != null) {
-				for (Count topLevel : topLevelMaTerms) {
-					if (topLevel.getName().equals(topMaNameFilter)) {
-						filteredTopLevelMaTerms.add(topLevel);
-					}
+		if (topMaNameFilter != null) {
+			for (Count topLevel : topLevelMaTerms) {
+				if (topLevel.getName().equals(topMaNameFilter)) {
+					filteredTopLevelMaTerms.add(topLevel);
 				}
-			} else {
-				filteredTopLevelMaTerms = topLevelMaTerms;
 			}
+		} else {
+			filteredTopLevelMaTerms = topLevelMaTerms;
+		}
 
-			ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
-			ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
+		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
+		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 
-			if (embryoOnly) {
-				model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelMaTerms);
-				model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
-			} else {
-				model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
-				model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
-				model.addAttribute("anatomogram", anatomogram);
-				System.out.println("anatomogram="+anatomogram);
-			}
-		//}
+		if (embryoOnly) {
+			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelMaTerms);
+			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
+		} else {
+			model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
+			model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
+		}
+		// }
 	}
 
-	// public void getEmbryoLacImageDataForGene(String acc, String
-	// topMaNameFilter,
-	// boolean imagesOverview, boolean embryoOnly, Model model)
-	// throws SolrServerException {
-	// QueryResponse laczResponse = null;
-	// if (imagesOverview) {
-	// laczResponse = getEmbryoLaczFacetsForGene(acc, ImageDTO.OMERO_ID,
-	// ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM,
-	// ImageDTO.PARAMETER_ASSOCIATION_NAME,
-	// ImageDTO.PARAMETER_ASSOCIATION_VALUE,
-	// ImageDTO.MA_ID,
-	// ImageDTO.EMAP_ID,
-	// ImageDTO.EMAP_TERM);
-	// } else {
-	// laczResponse = getEmbryoLaczFacetsForGene(acc, ImageDTO.OMERO_ID,
-	// ImageDTO.JPEG_URL, ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM,
-	// ImageDTO.PARAMETER_ASSOCIATION_NAME,
-	// ImageDTO.PARAMETER_ASSOCIATION_VALUE, ImageDTO.ZYGOSITY,
-	// ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
-	// ImageDTO.DOWNLOAD_URL, ImageDTO.IMAGE_LINK,
-	// ImageDTO.MA_ID,
-	// ImageDTO.EMAP_ID,
-	// ImageDTO.EMAP_TERM);
-	// }
-	//
-	// Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
-	// String noTopMa = "No Top Level MA";
-	// expFacetToDocs.put(noTopMa, new SolrDocumentList());
-	//
-	// SolrDocumentList imagesResponse = laczResponse.getResults();
-	// System.out.println("embryo response="+laczResponse);
-	// List<FacetField> fields = laczResponse.getFacetFields();
-	// List<String> mappedIds = new ArrayList<>();
-	// for (SolrDocument doc : imagesResponse) {
-	// List<String> tops =
-	// getListFromCollection(doc.getFieldValues(ImageDTO.SELECTED_TOP_LEVEL_EMAP_TERM));
-	//
-	// // work out list of uberon/efo ids with/without expressions
-	// if ( doc.containsKey(ImageDTO.EFO_ID) ){
-	// //System.out.println(doc.toString());
-	// List<String> maIds =
-	// Arrays.asList(doc.getFieldValues(ImageDTO.EMAP_ID).toArray());
-	// //List<String> maTerms =
-	// Arrays.asList(doc.getFieldValues(ImageDTO.MA_TERM).toArray());
-	//
-	// for ( int i=0; i<maIds.size(); i++ ){
-	// //String ma_term_name = maTerms.get(i).toString();
-	// if ( doc.containsKey("parameter_association_value") ){
-	// List<String> pav =
-	// Arrays.asList(doc.getFieldValues("parameter_association_value").toArray());
-	// if ( pav.get(i).equals("expression") ){
-	// for( String id : mappedIds ){
-	// if ( doc.containsKey(id) ){
-	// for ( Object mappedId : doc.getFieldValues(id) ){
-	// mappedId = mappedId.toString();
-	// JSONObject exp = new JSONObject();
-	// //exp.put("factorName", ""); // not required
-	// exp.put("value", "1");
-	// exp.put("svgPathId", mappedId);
-	// if ( !expList.contains(exp) ){
-	// expList.add(exp);
-	// }
-	// if ( ! allPaths.contains(mappedId)) {
-	// allPaths.add(mappedId);
-	// }
-	// }
-	// }
-	// }
-	// }
-	// else if ( pav.get(i).equals("no expression") ){
-	// for( String id : mappedIds ){
-	// if ( doc.containsKey(id) ){
-	// for ( Object mappedId : doc.getFieldValues(id) ){
-	// mappedId = mappedId.toString();
-	// JSONObject noexp = new JSONObject();
-	// //exp.put("factorName", "NA"); // not required
-	// noexp.put("value", "1");
-	// noexp.put("svgPathId", mappedId);
-	// if ( !noExpList.contains(noexp) ){
-	// noExpList.add(noexp);
-	// }
-	// if ( ! allPaths.contains(mappedId)) {
-	// allPaths.add(mappedId);
-	// }
-	// }
-	// }
-	// }
-	// }
-	// }
-	// }
-	// }
-	//
-	// if (tops == null) {
-	// expFacetToDocs.get(noTopMa).add(doc);
-	// } else {
-	//
-	// for (String top : tops) {
-	// SolrDocumentList list = null;
-	// if (!expFacetToDocs.containsKey(top)) {
-	// expFacetToDocs.put(top, new SolrDocumentList());
-	// }
-	// list = expFacetToDocs.get(top);
-	// list.add(doc);
-	// }
-	// }
-	// }
-	//
-	// List<Count> topLevelMaTerms = fields.get(0).getValues();
-	//
-	// List<Count> filteredTopLevelMaTerms = new ArrayList<>();
-	// if (topMaNameFilter != null) {
-	// for (Count topLevel : topLevelMaTerms) {
-	// if (topLevel.getName().equals(topMaNameFilter)) {
-	// filteredTopLevelMaTerms.add(topLevel);
-	// }
-	// }
-	// } else {
-	// filteredTopLevelMaTerms = topLevelMaTerms;
-	// }
-	//
-	// ImageServiceUtil
-	// .sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
-	// ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
-	// model.addAttribute("impcEmbryoExpressionImageFacets",
-	// filteredTopLevelMaTerms);
-	// model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
-	// }
+	/**
+	 * 
+	 * @param anatomogramDataBeans
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public Map<String, Long> getLacSelectedTopLevelMaCountsForAnatomogram(
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException {
+		Map<String, Long> topLevelMaToCountMap = new HashMap<>();
+		for (AnatomogramDataBean bean : anatomogramDataBeans) {
+			for (String topMaId : bean.getTopLevelMaNames()) {
+				if (!topLevelMaToCountMap.containsKey(topMaId)) {
+					topLevelMaToCountMap.put(topMaId, new Long(0));
+				}
+				Long count = topLevelMaToCountMap.get(topMaId);
+				count = count + bean.getCount();
+				topLevelMaToCountMap.put(topMaId, count);
 
-	// public SolrDocumentList getEmbryoLacImageDataForGene(String acc,
-	// String... fields) throws SolrServerException {
-	// SolrQuery solrQuery = new SolrQuery();
-	// solrQuery.setQuery("gene_accession_id:\"" + acc + "\"");
-	// solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME
-	// + ":\"Embryo LacZ\"");
-	// solrQuery.setRows(100000);
-	// QueryResponse response = imagesSolr.query(solrQuery);
-	// SolrDocumentList imagesDocs = response.getResults();
-	// return imagesDocs;
-	//
-	// }
+			}
+		}
+
+		return topLevelMaToCountMap;
+	}
+
+	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException {
+		List<AnatomogramDataBean> anatomogramDataBeans = new ArrayList<>();
+
+		for (Count count : parameterCounts) {
+			AnatomogramDataBean bean = new AnatomogramDataBean();
+			bean.setParameterId(count.getName());
+			bean.setPatameterName(count.getName());
+			bean.setCount(count.getCount());
+			if (abnormalMaFromImpress.containsKey(count.getName())) {
+				OntologyBean ontologyBean = abnormalMaFromImpress.get(count.getName());
+				bean.setMaId(ontologyBean.getId());
+				bean.setMaTerm(ontologyBean.getName());
+				// this method for getting uberon ids needs to be changed so
+				// we get the associated intermediate terms so we include
+				// all possible uberon ids
+				// higher up the tree to display on the anatomogram
+				bean = maService.getUberonIdAndTopLevelMaTerm(bean);
+				anatomogramDataBeans.add(bean);
+			}
+		}
+		return anatomogramDataBeans;
+
+	}
+
+	public JSONObject getAnatomogramJson(List<AnatomogramDataBean> anatomogramDataBeans) {
+		JSONObject anatomogram = new JSONObject();
+
+		JSONArray expList = new JSONArray();
+		JSONArray noExpList = new JSONArray();
+		JSONArray allPaths = new JSONArray();
+
+		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
+			if (dataBean.getMaId() != null && dataBean.getUberonIds() != null) {
+
+				List<String> uberonIds = dataBean.getUberonIds();
+				addAnatomogramSpecialIds(expList, allPaths, uberonIds);
+				if (dataBean.getEfoIds() != null) {
+					List<String> efoIds = dataBean.getEfoIds();
+					addAnatomogramSpecialIds(expList, allPaths, efoIds);
+				}
+
+			}
+		}
+
+		anatomogram.put("expression", expList);
+		anatomogram.put("noExpression", noExpList);
+		anatomogram.put("allPaths", allPaths);
+		return anatomogram;
+	}
+
+	private void addAnatomogramSpecialIds(JSONArray expList, JSONArray allPaths, List<String> uberonOrEfoIds) {
+		for (String id : uberonOrEfoIds) {
+			JSONObject exp = new JSONObject();
+			// exp.put("factorName", ""); // not
+			// required
+			exp.put("value", "1");
+			exp.put("svgPathId", id);
+			if (!expList.contains(exp)) {
+				expList.add(exp);
+			}
+			if (!allPaths.contains(id)) {
+				allPaths.add(id);
+			}
+
+		}
+	}
 
 	/**
 	 *
@@ -692,17 +617,17 @@ public class ExpressionService extends BasicService {
 						OntologyBean ontologyBean = null;
 						if (embryo) {
 							ontologyBean = abnormalEmapFromImpress.get(parameterStableId);
-							System.out.println("embryo ontologyBean="+ontologyBean);
 						} else {
 							ontologyBean = abnormalMaFromImpress.get(parameterStableId);
-							System.out.println("adult ontologyBean="+ontologyBean);
+
 						}
 
 						if (ontologyBean != null) {
 							row.setAbnormalMaId(ontologyBean.getId());
 							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							System.out.println("no ma id for anatomy term=" + anatomy);
+							// System.out.println("no ma id for anatomy term=" +
+							// anatomy);
 						}
 					}
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);

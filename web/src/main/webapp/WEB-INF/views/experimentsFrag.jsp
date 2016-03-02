@@ -35,39 +35,44 @@
 		</thead>
 
 		<tbody>
-			<c:forEach var="stableId" items="${pvaluesMap.keySet()}"
+			<c:forEach var="stableId" items="${experimentRows.keySet()}"
 				varStatus="status">
-				<c:set var="stableIdpValuesMap" value="${pvaluesMap[stableId]}" />
-				<c:forEach var="pValueItem" items="${stableIdpValuesMap}">
+				<c:set var="stableIdExperimentsRow" value="${experimentRows[stableId]}" />
+				<c:forEach var="row" items="${stableIdExperimentsRow}">
 					<tr>
-						<td><t:formatAllele>${pValueItem.getAlleleSymbol()}</t:formatAllele></td>
-						<td>${pValueItem.getPhenotypingCenter()}</td>
-						<td>${pValueItem.getProcedureName()} / ${pValueItem.getParameterName()}</td>
-						<td>${pValueItem["zygosity"].substring(0,3).toUpperCase()}</td>
-						<td>${pValueItem.femaleMutantCount}f:${pValueItem.maleMutantCount}m</td>
-						<td>${pValueItem.statisticalMethod}</td>
+						<td><t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele></td>
+						<td>${row.getPhenotypingCenter()}</td>
+						<td>${row.getProcedure().getName()} / ${row.getParameter().getName()}</td>
+						<td>${row.getZygosity().toString().substring(0,3).toUpperCase()}</td>
+						<td>${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m</td>
+						<td>${row.getStatisticalMethod()}</td>
 						<!-- pValue -->
 						<c:choose>
 							<c:when
-								test="${ ! empty pValueItem && pValueItem.getStatus() == 'SUCCESS'}">
-								<c:set var="paletteIndex" value="${pValueItem.colorIndex}" />
+								test="${ ! empty row && row.getStatus() == 'SUCCESS'}">
+								<c:set var="paletteIndex" value="${row.colorIndex}" />
 								<c:set var="Rcolor" value="${palette[0][paletteIndex]}" />
 								<c:set var="Gcolor" value="${palette[1][paletteIndex]}" />
 								<c:set var="Bcolor" value="${palette[2][paletteIndex]}" />
 								<td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-									<t:formatScientific> ${pValueItem.pValue}</t:formatScientific>
+									<t:formatScientific> ${row.getpValue()}</t:formatScientific>
 								</td>
 							</c:when>
 							<c:otherwise>
-								<td><t:formatScientific>${pValueItem.pValue}</t:formatScientific></td>
+								<td><t:formatScientific>${row.getpValue()}</t:formatScientific></td>
 							</c:otherwise>
 						</c:choose>
-						<td>${pValueItem.status}</td>
+						<td>${row.status}</td>
 						<td style="text-align: center">
-							<%--<a href='${baseUrl}/charts?accession=${pValueItem.getMarkerAccessionId()}&allele_accession_id=${pValueItem.getAlleleAccessionId()}&parameter_stable_id=${pValueItem.getParameterStableId()}&metadata_group=${pValueItem.metadataGroup}&zygosity=${pValueItem.zygosity}&phenotyping_center=${pValueItem.getPhenotypingCenter()}'>--%>
-								<a href='${pValueItem.getChartUrl(baseUrl)}'>
-								<i class="fa fa-bar-chart-o" title="Graphs"> </i>
-						</a></td>
+							<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
+								<a href='${row.getEvidenceLink().getUrl()}'>
+									<i class="fa fa-bar-chart-o" title="${row.getEvidenceLink().getAlt()}"> </i>
+								</a>
+							</c:if>
+							<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
+								<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
+							</c:if>
+						</td>
 					</tr>
 				</c:forEach>
 			</c:forEach>

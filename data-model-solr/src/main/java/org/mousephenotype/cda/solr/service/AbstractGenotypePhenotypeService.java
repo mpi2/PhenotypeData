@@ -469,59 +469,6 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return result;
     }
 
-    
-    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
-    throws SolrServerException {
-
-    		HashMap <String, SolrDocumentList> res = new HashMap<>();
-    	
-            String query = "*:*";
-            if (gene.equalsIgnoreCase("*")) {
-                query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene ;
-            } else {
-                query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
-            }
-
-            SolrQuery solrQuery = new SolrQuery();
-            solrQuery.setQuery(query);
-            solrQuery.setRows(Integer.MAX_VALUE);
-            solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-            solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
-            solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY, 
-            		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MP_TERM_ID, 
-            		GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
-            		StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME);
-            
-            if (zygosity != null) {
-                solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
-            }
-                     
-            SolrDocumentList result = solr.query(solrQuery).getResults();
-            
-            for (SolrDocument doc: result){
-            	if (doc.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
-            		for (Object topLevelMp: doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
-            			String id = topLevelMp.toString();
-            			if (!res.containsKey(id)){
-                			res.put(id, new SolrDocumentList());
-            			}
-            			res.get(id).add(doc);
-            		}
-            	} else if (doc.containsKey(GenotypePhenotypeDTO.MP_TERM_ID)){
-            		for (Object topLevelMp: doc.getFieldValues(GenotypePhenotypeDTO.MP_TERM_ID)){
-            			String id = topLevelMp.toString();
-            			if (!res.containsKey(id)){
-                			res.put(id, new SolrDocumentList());
-            			}
-            			res.get(id).add(doc);
-            		}
-            	}
-            }
-            
-            return res;
-        }
-    
-    
     public SolrDocumentList getPhenotypes(String gene)
     throws SolrServerException {
 

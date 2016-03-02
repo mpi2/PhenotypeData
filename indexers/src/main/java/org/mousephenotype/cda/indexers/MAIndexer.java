@@ -165,7 +165,7 @@ public class MAIndexer extends AbstractIndexer {
                 }
                 if ( ma.getEfoIds() != null ) {
                     all_ae_mapped_efoIds.addAll(ma.getEfoIds());
-                    ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_uberonIds));
+                    ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
                 }
 
                 // Image association fields
