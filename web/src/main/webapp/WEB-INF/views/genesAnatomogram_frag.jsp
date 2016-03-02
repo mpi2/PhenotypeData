@@ -36,7 +36,7 @@
                  scope="page"
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
           </c:set> 
-          <li class="showAdultImage">${entry.key}(${entry.value})</li>
+          <li class="showAdultImage">${entry.key}</li>
         </c:forEach>
       </ul>
     </div>
