@@ -563,9 +563,6 @@ public class ImageService implements WebStatus{
 			String parameter, Date date, int numberOfImagesToRetrieve,
 			SexType sex) throws SolrServerException {
 
-		logger.info("Getting {} nearest controls around {}",
-				numberOfImagesToRetrieve, date);
-
 		SolrQuery solrQuery = new SolrQuery();
 
 		solrQuery.setQuery("*:*");
@@ -594,8 +591,6 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
-		logger.info("getControlImagesForProcedure solr query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -621,9 +616,6 @@ public class ImageService implements WebStatus{
 					+ ":\"" + anatomy + "\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
-
-		logger.debug("getControlImagesForProcedure solr query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -746,8 +738,6 @@ public class ImageService implements WebStatus{
 			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
 		}
 
-		logger.info("Found {} controls. Adding to list", responseControl
-				.getResults().getNumFound());
 		list.addAll(responseControl.getResults());
 
 		return list;

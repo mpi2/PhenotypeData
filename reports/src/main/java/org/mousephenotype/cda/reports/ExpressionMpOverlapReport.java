@@ -87,7 +87,6 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        Map<String, Mapping> geneMaFromPhenotypeCombiantions = new HashMap<>();
 	        Set<String> maFromLacz = new HashSet<>();
 	        Set<String> maFromMp = new HashSet<>();
-	        Map<String, Set<String>> geneMpAssocMap = new HashMap<>();
 	        
 	        // Get gene-MA associations
 	        for (ImageDTO doc : impcLacz){
@@ -105,7 +104,6 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        		maFromLacz.add(maId.toString());
 	        	}
 	        }
-	        System.out.println("------ geneMaCombiantions: " + geneMaLaczCombiantions.size());
 	        
 	        // Get gene-MP associations
 	        List<GenotypePhenotypeDTO> mpCalls = postqcService.getAllGenotypePhenotypes(null); // Duplicate gene-mp paris.
@@ -115,7 +113,6 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        for (MpDTO doc :  mpService.getAllMpWithMaMapping()){
 	        	mpMaMap.put(doc.getMpId(), doc.getInferredMaTermId());
 	        }
-	        System.out.println("MAP_MP map : " + mpMaMap);
 	        
 	        // Convert gene-MP mappings to gene-MA
 	        for (GenotypePhenotypeDTO geneDto: mpCalls){
@@ -126,59 +123,44 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        		}
 	        	}
 	        }
-	        
-	        System.out.println("------ geneMaFromPhenotypeCombiantions: " + geneMaFromPhenotypeCombiantions.size());
-	        
-	        Set<String> common = new HashSet<>(geneMaFromPhenotypeCombiantions.keySet());
-	        common.retainAll(geneMaLaczCombiantions.keySet());   
-
-	        System.out.println("------ IN COMMON : " + common.size());
-	        
+	
+	        // Cet common ancestors for geneX-ma1 and geneX-ma2 associations
 	        List<String[]> result = new ArrayList<>();
-        	result.add(new String[] { "Gene Id", "Gene Symbol", "Ma Id", "Ma Term" });
-	        for (String s: common){
-	        	String maId = s.split("_")[1];
-	        	String geneId = s.split("_")[0];
-	        	String maTerm = getMa(maId).getMaTerm();
-	        	String geneSymbol = geneService.getGeneById(geneId, GeneDTO.MARKER_SYMBOL).getMarkerSymbol();
-	        	result.add(new String[] { geneId, geneSymbol, maId, maTerm });
+	        result.add(new String[] { "Gene Id", "Gene Symbol", "Expression MA Id", "Expression MA", "Pthenotype MA Id", "Phenotype MA", "Common MA Id", "Common MA Term", "Level" });
+	        for (Mapping m1: geneMaLaczCombiantions.values()){
+	        	for (Mapping m2: geneMaFromPhenotypeCombiantions.values()){
+	        		if (m1.getMgiAccession().equalsIgnoreCase(m2.getMgiAccession())){
+	        			CommonAncestor inCommon = getCommonClosestAncestor(getMa(m1.getMaId()), getMa(m2.getMaId()), 0); 
+	        			if ( inCommon != null && inCommon.getLevel() >= 0){
+	        				for (MaDTO ancestor: inCommon.getAncestors()){
+	        		        	String geneSymbol = geneService.getGeneById(m1.getMgiAccession(), GeneDTO.MARKER_SYMBOL).getMarkerSymbol();
+	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getMaTerm(), m2.maId, getMa(m2.getMaId()).getMaTerm(), ancestor.getMaId(), ancestor.getMaTerm(), "" + inCommon.getLevel() });
+	        				}
+	        			}
+	        		}
+	        	}
 	        }
-	        
-	        csvWriter.writeAll(result);
 
+	        csvWriter.writeAll(result);
 	        try {
 	            csvWriter.close();
 	        } catch (IOException e) {
 	            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
 	        }
-
-	        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
 	        
-	        for (Mapping m1: geneMaLaczCombiantions.values()){
-	        	for (Mapping m2: geneMaFromPhenotypeCombiantions.values()){
-	        		if (m1.getMgiAccession().equalsIgnoreCase(m2.getMgiAccession())){
-	        			// System.out.println("--- " + m1.getMaId() + " " + m2.getMaId() + " ---");
-	        			Integer res = getCommonClosestAncestor(getMa(m1.getMaId()), getMa(m2.getMaId()), 0); 
-	        			if ( res != null && res>= 0){
-	        				System.out.println(m1.getMgiAccession());
-	        			};
-	        		}
-	        	}
-	        }
-	    }
+	        logger.info("Expression overlap report took " + (System.currentTimeMillis() - start) + "ms to complete.");
+	        
+	}
 	
 	
-	public Integer getCommonClosestAncestor(MaDTO ma1, MaDTO ma2, Integer level) 
+	public CommonAncestor getCommonClosestAncestor(MaDTO ma1, MaDTO ma2, Integer level) 
 	throws SolrServerException{
-		
-//		System.out.println("+++++ " + level + " " + ma1.getMaTerm() +  "     " + ma2.getMaTerm());
-		
+				
 		if (ma1.getMaId().equalsIgnoreCase(ma2.getMaId())){
-			System.out.println("Found common ancestor at level " + level + "(" + ma1.getMaTerm() + ")"  );
-			return level;
+			return new CommonAncestor(level, ma1);
 		}
 		
-		if (level > 7){return -2;}
+		if (level > 7){return new CommonAncestor(-2, new MaDTO());}
 		
 		List<String> parents1 = ma1.getParentMaId();
 		List<String> parents2 = ma2.getParentMaId();
@@ -190,39 +172,36 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 			parents2 = new ArrayList<>();
 		}
 		if (parents1.contains(ma2.getMaId())){
-			System.out.println("Found common ancestor at level " + level + "(" + ma2.getMaTerm() + ")"  );
-			return level;
+			return new CommonAncestor(level, ma2);
 		}
 		if (parents2.contains(ma1.getMaId())){
-			System.out.println("Found common ancestor at level " + level + "(" + ma1.getMaTerm()+ ")"  );
-			return level;
+			return new CommonAncestor(level, ma1);
 		}
 		if( inCommon(parents1, parents2).size() > 0){
-			System.out.println("Found common ancestor at level " + level + "(" + getMa(inCommon(parents1, parents2).get(0)).getMaTerm() + ")"  ); // Empirically I observed there was always just one class in the intersection for our dataset. This might change though.
-			return level;
+			return new CommonAncestor(level, inCommon(parents1, parents2));
 		}
 		for (String m1: parents1){
 			MaDTO ma1Dto = getMa(m1);
-			Integer l = getCommonClosestAncestor(ma1Dto, ma2, level);
-			if (l >= 0 || l != -2){ // We found something OR we already checked too many levels
-				return l;
+			CommonAncestor ancestor = getCommonClosestAncestor(ma1Dto, ma2, level);
+			if (ancestor.getLevel() >= 0 || ancestor.getLevel() != -2){ // We found something OR we already checked too many levels
+				return ancestor;
 			}
 			for (String m2: parents2){
 				MaDTO ma2Dto = getMa(m2);
-				l = getCommonClosestAncestor(ma1Dto, ma2Dto, level);
-				if (l >= 0 || l != -2){
-					return l;
+				ancestor = getCommonClosestAncestor(ma1Dto, ma2Dto, level);
+				if (ancestor.getLevel() >= 0 || ancestor.getLevel() != -2){
+					return ancestor;
 				}
 			}
 		}
 		for (String m2: parents2){
 			MaDTO ma2Dto = getMa(m2);
-			Integer l = getCommonClosestAncestor(ma2Dto, ma1, level);
-			if (l >= 0 || l != -2){
-				return l;
+			CommonAncestor ancestor = getCommonClosestAncestor(ma2Dto, ma1, level);
+			if (ancestor.getLevel() >= 0 || ancestor.getLevel() != -2){
+				return ancestor;
 			}
 		}
-		return -1;
+		return new CommonAncestor(-1, new MaDTO());
 	}
 
 	public List<String>  inCommon (List<String> a, List<String>b){
@@ -263,7 +242,50 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		public void setMaId(String maId) {
 			this.maId = maId;
 		}
+	}
+
+	private class CommonAncestor{
 		
+		int level;
+		List<MaDTO> ancestors;
+		
+		public CommonAncestor(int level, String ancestorId) 
+		throws SolrServerException{
+			this.level = level;
+			this.ancestors = new ArrayList<>();
+			this.ancestors.add(maService.getMaTerm(ancestorId));
+		}
+
+		public CommonAncestor(int level, MaDTO ancestor) {
+			this.level = level;
+			this.ancestors = new ArrayList<>();
+			this.ancestors.add(ancestor);
+		}
+
+		public CommonAncestor(int level, List<String> ancestorIds) 
+		throws SolrServerException {
+			this.level = level;
+			this.ancestors = new ArrayList<>();
+			for (String a : ancestorIds){
+				this.ancestors.add(maService.getMaTerm(a));
+			}
+		}
+		
+		public int getLevel() {
+			return level;
+		}
+
+		public void setLevel(int level) {
+			this.level = level;
+		}
+
+		public List<MaDTO>  getAncestors() {
+			return ancestors;
+		}
+
+		public void setAncestors(List<MaDTO>  ancestorId) {
+			this.ancestors = ancestors;
+		}
 	}
 	
 }

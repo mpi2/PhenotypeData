@@ -243,7 +243,7 @@ public class StatisticalResultDTO {
     private String pipelineStableId;
 
     @Field(PIPELINE_STABLE_KEY)
-    private String pipelineStableKey;
+    private Integer pipelineStableKey;
 
     @Field(PIPELINE_NAME)
     private String pipelineName;
@@ -255,7 +255,7 @@ public class StatisticalResultDTO {
     private String procedureStableId;
 
     @Field(PROCEDURE_STABLE_KEY)
-    private String procedureStableKey;
+    private Integer procedureStableKey;
 
     @Field(PROCEDURE_NAME)
     private String procedureName;
@@ -267,7 +267,7 @@ public class StatisticalResultDTO {
     private String parameterStableId;
 
     @Field(PARAMETER_STABLE_KEY)
-    private String parameterStableKey;
+    private Integer parameterStableKey;
 
     @Field(PARAMETER_NAME)
     private String parameterName;
@@ -806,13 +806,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public String getPipelineStableKey() {
+    public Integer getPipelineStableKey() {
 
         return pipelineStableKey;
     }
 
 
-    public void setPipelineStableKey(String pipelineStableKey) {
+    public void setPipelineStableKey(Integer pipelineStableKey) {
 
         this.pipelineStableKey = pipelineStableKey;
     }
@@ -854,13 +854,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public String getProcedureStableKey() {
+    public Integer getProcedureStableKey() {
 
         return procedureStableKey;
     }
 
 
-    public void setProcedureStableKey(String procedureStableKey) {
+    public void setProcedureStableKey(Integer procedureStableKey) {
 
         this.procedureStableKey = procedureStableKey;
     }
@@ -902,13 +902,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public String getParameterStableKey() {
+    public Integer getParameterStableKey() {
 
         return parameterStableKey;
     }
 
 
-    public void setParameterStableKey(String parameterStableKey) {
+    public void setParameterStableKey(Integer parameterStableKey) {
 
         this.parameterStableKey = parameterStableKey;
     }

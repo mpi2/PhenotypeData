@@ -367,7 +367,6 @@ public class GeneService extends BasicService implements WebStatus{
 		final List<String> exportMiceStatus = new ArrayList<String>();		
 		Map<String, String> statusMap = new HashMap<String, String>();
 				
-		System.out.println("THIS GETS CALLED " + mouseStatus);
 		try {		
 			if ( mouseStatus != null ){				
 				
@@ -394,7 +393,6 @@ public class GeneService extends BasicService implements WebStatus{
 
 				if ( statusMap.containsKey("Mice Produced") ){
 
-					System.out.println("Contains MICE PRODUCED");
 					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";

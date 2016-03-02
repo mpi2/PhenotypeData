@@ -248,7 +248,6 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		query.addField("ma_id");
 		query.addField("accession");
 		query.setRows(Integer.MAX_VALUE);
-		System.out.println("+++++" + server + "/select?" + query);
 		return server.query(query).getResults();
 	}
 	

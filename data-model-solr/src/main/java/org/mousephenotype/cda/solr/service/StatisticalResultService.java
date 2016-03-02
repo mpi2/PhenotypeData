@@ -20,6 +20,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.Group;
@@ -41,6 +42,7 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.generic.util.GeneRowForHeatMap3IComparator;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
@@ -55,6 +57,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -878,80 +881,175 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	return res;
     }
 
+    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+    throws NumberFormatException, SolrServerException, UnsupportedEncodingException {
 
-    public Map<String, List<StatisticalResultDTO>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId)
-	throws NumberFormatException, SolrServerException {
+		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
+		SolrQuery query = new SolrQuery();
 
-    	Map<String, List<StatisticalResultDTO>> results = new HashMap<>();
-    	SolrQuery query = new SolrQuery();
-    	
-	    query.setQuery("*:*")
-	         .addField(StatisticalResultDTO.P_VALUE)
-	         .addField(StatisticalResultDTO.EFFECT_SIZE)
-	         .addField(StatisticalResultDTO.STATUS)
-	         .addField(StatisticalResultDTO.STATISTICAL_METHOD)
-	         .addField(StatisticalResultDTO.ZYGOSITY)
-	         .addField(StatisticalResultDTO.MALE_CONTROL_COUNT)
-	         .addField(StatisticalResultDTO.MALE_MUTANT_COUNT)
-	         .addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
-	         .addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT)
-	         .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-	         .addField(StatisticalResultDTO.PARAMETER_NAME)
-	         .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-	         .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
-	         .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
-	         .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-	         .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-	         .addField(StatisticalResultDTO.PROCEDURE_NAME)
-	         .addField(StatisticalResultDTO.METADATA_GROUP)
-	         .setRows(Integer.MAX_VALUE)
-	         .set("sort", StatisticalResultDTO.P_VALUE + " asc");
+		query.setQuery("*:*");
+//		addField(StatisticalResultDTO.P_VALUE).addField(StatisticalResultDTO.EFFECT_SIZE)
+//				.addField(StatisticalResultDTO.STATUS).addField(StatisticalResultDTO.STATISTICAL_METHOD)
+//				.addField(StatisticalResultDTO.ZYGOSITY).addField(StatisticalResultDTO.MALE_CONTROL_COUNT)
+//				.addField(StatisticalResultDTO.MALE_MUTANT_COUNT).addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
+//				.addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT).addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+//				.addField(StatisticalResultDTO.PARAMETER_NAME).addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+//				.addField(StatisticalResultDTO.PHENOTYPING_CENTER).addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+//				.addField(StatisticalResultDTO.ALLELE_SYMBOL).addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+//				.addField(StatisticalResultDTO.PROCEDURE_NAME).addField(StatisticalResultDTO.METADATA_GROUP)
+		query.setRows(Integer.MAX_VALUE).set("sort", StatisticalResultDTO.P_VALUE + " asc");
 
-	    if (geneAccession != null){
-	    	query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
-	    }
-	    if (phenotypingCenter != null){
-	    	query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"" +StringUtils.join(phenotypingCenter, "\" OR \"")  + "\")");
-	    }
-	    if (mpTermId != null){
-	    	query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
-	    			StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " +
-	    			StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\") OR " + 
-	    			StatisticalResultDTO.MALE_MP_TERM_ID + ":(\"" +StringUtils.join(mpTermId, "\" OR \"")  + "\")");
-	    }
-	    if (pipelineName != null){
-	    	query.addFilterQuery(StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
-	    }
-	    if (alleleSymbol != null){
-	    	query.addFilterQuery(StatisticalResultDTO.ALLELE_SYMBOL + ":(\"" + StringUtils.join(alleleSymbol, "\" OR \"") + "\")");
-	    }
-		if (procedureStableIds != null){
-			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(" + StringUtils.join(procedureStableIds, " OR ") + ")");
+		if (geneAccession != null) {
+			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\"");
+		}
+		if (phenotypingCenter != null) {
+			query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\""
+					+ StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
+		}
+		if (mpTermId != null) {
+			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+					+ "\") OR " + StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\""
+					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID
+					+ ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+					+ StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+					+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
+					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+					+ StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
+					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+					+ StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+					+ "\") OR " + StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
+					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.MALE_MP_TERM_ID + ":(\""
+					+ StringUtils.join(mpTermId, "\" OR \"") + "\")");
+		}
+		if (pipelineName != null) {
+			query.addFilterQuery(
+					StatisticalResultDTO.PIPELINE_NAME + ":(\"" + StringUtils.join(pipelineName, "\" OR \"") + "\")");
+		}
+		if (alleleSymbol != null) {
+			query.addFilterQuery(
+					StatisticalResultDTO.ALLELE_SYMBOL + ":(\"" + StringUtils.join(alleleSymbol, "\" OR \"") + "\")");
+		}
+		if (procedureStableIds != null) {
+			query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":("
+					+ StringUtils.join(procedureStableIds, " OR ") + ")");
 		}
 		if (resource != null) {
 			query.addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resource, " OR ") + ")");
 		}
+		
 
-	    List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
 
-	    for (StatisticalResultDTO statResult : solrResults) {
+		for (StatisticalResultDTO statResult : solrResults) {
 
-		    if ( ! results.containsKey(statResult.getParameterStableId())) {
-			    results.put(statResult.getParameterStableId(), new ArrayList<StatisticalResultDTO>());
-		    }
+			if (!results.containsKey(statResult.getParameterStableId())) {
+				results.put(statResult.getParameterStableId(), new ArrayList<ExperimentsDataTableRow>());
+			}
 
-	   	    results.get(statResult.getParameterStableId()).add(statResult);
-	    }
-	    
+			results.get(statResult.getParameterStableId()).add(getRowFromDto(statResult, graphBaseUrl));
+		}
+
 		return results;
 
-    }
+	}
+    
+    
+    /**
+     * @author ilinca
+     * @since 2016/03/01
+     * @param dto
+     * @param graphBaseUrl
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    private ExperimentsDataTableRow getRowFromDto(StatisticalResultDTO dto, String graphBaseUrl) 
+    throws UnsupportedEncodingException{
+    	
+    	MarkerBean allele = new MarkerBean();
+    	allele.setAccessionId(dto.getAlleleAccessionId());
+    	allele.setSymbol(dto.getAlleleSymbol());
 
+    	MarkerBean gene = new MarkerBean();
+    	gene.setAccessionId(dto.getMarkerAccessionId());
+    	gene.setSymbol(dto.getMarkerSymbol());
+    	
+    	ImpressBaseDTO procedure  = new ImpressBaseDTO(null, dto.getProcedureStableKey(), dto.getProcedureStableId(), dto.getProcedureName());
+    	ImpressBaseDTO parameter = new ImpressBaseDTO(null, dto.getParameterStableKey(), dto.getParameterStableId(), dto.getParameterName());
+    	ImpressBaseDTO pipeline = new ImpressBaseDTO(null, dto.getPipelineStableKey(), dto.getPipelineStableId(), dto.getPipelineName());
+    	ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
+    	ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getStatisticalMethod(),
+    			dto.getStatus(), allele, gene, zygosity, 
+    			pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
+    			dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
+
+    	return row;
+    	
+    }
+ 
+    /**
+     *  
+     * @param gene
+     * @param zygosity
+     * @return SolrDocumentList grouped by top level MP term
+     * @throws SolrServerException
+     * @author ilinca
+     */
+    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
+    throws SolrServerException {
+
+		HashMap<String, SolrDocumentList> res = new HashMap<>();
+
+		String query = "*:*";
+		if (gene.equalsIgnoreCase("*")) {
+			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene;
+		} else {
+			query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
+		}
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(query);
+		solrQuery.setRows(Integer.MAX_VALUE);
+		solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
+		solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
+		solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
+		solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY,
+				GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
+				GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME,
+				GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
+				StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
+				StatisticalResultDTO.PROCEDURE_STABLE_ID);
+
+		if (zygosity != null) {
+			solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
+		}
+
+		SolrDocumentList result = solr.query(solrQuery).getResults();
+
+		for (SolrDocument doc : result) {
+			if (doc.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+				for (Object topLevelMp : doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)) {
+					String id = topLevelMp.toString();
+					if (!res.containsKey(id)) {
+						res.put(id, new SolrDocumentList());
+					}
+					res.get(id).add(doc);
+				}
+			} else if (doc.containsKey(GenotypePhenotypeDTO.MP_TERM_ID)) {
+				for (Object topLevelMp : doc.getFieldValues(GenotypePhenotypeDTO.MP_TERM_ID)) {
+					String id = topLevelMp.toString();
+					if (!res.containsKey(id)) {
+						res.put(id, new SolrDocumentList());
+					}
+					res.get(id).add(doc);
+				}
+			}
+		}
+
+		return res;
+    }
+     
+     
+    
 
     public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
 	throws IOException, URISyntaxException, SolrServerException {
