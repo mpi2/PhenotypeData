@@ -51,7 +51,7 @@ public class HistopathService {
 			for (String observationType : observationTypesForGene) {
 				for (ObservationDTO obs : extSampleIdToObservations.get(sampleId)) {
 					if (observationType.equals(obs.getObservationType())) {
-						System.out.println(obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue());
+						System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue());
 
 					}
 				}

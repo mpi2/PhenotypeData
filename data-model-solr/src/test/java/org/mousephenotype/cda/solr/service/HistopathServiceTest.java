@@ -16,6 +16,12 @@ public class HistopathServiceTest {
 	
 	@Test
 	public void getTableDataTest(){
+		//HistoPath_1481
+		//looks like we don't pick up the associated pato term in the indexer e.g.
+		//<ontologyParameter parameterID="IMPC_HIS_119_001" sequenceID="1">
+        //<term>PATO:0001566:diffuse</term>
+		//</ontologyParameter>
+		
 		HttpSolrServer solr=new HttpSolrServer("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/");
 		ObservationService observationService= new ObservationService(solr);
 		HistopathService histopathService=new HistopathService(observationService);
