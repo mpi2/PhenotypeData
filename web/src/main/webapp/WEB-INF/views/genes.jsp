@@ -31,7 +31,7 @@
 						<li><a href="#section-expression">Expression</a></li>
 
 						<%--<c:if test="${not empty impcImageFacets}">--%>
-							<li><a href="#section-images">Associatred Images</a></li>
+							<li><a href="#section-images">Associated Images</a></li>
 						<%--</c:if>--%>
 
 						<%--<c:if test="${not empty orthologousDiseaseAssociations}">--%>

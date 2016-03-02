@@ -976,9 +976,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	ImpressBaseDTO procedure  = new ImpressBaseDTO(null, dto.getProcedureStableKey(), dto.getProcedureStableId(), dto.getProcedureName());
     	ImpressBaseDTO parameter = new ImpressBaseDTO(null, dto.getParameterStableKey(), dto.getParameterStableId(), dto.getParameterName());
     	ImpressBaseDTO pipeline = new ImpressBaseDTO(null, dto.getPipelineStableKey(), dto.getPipelineStableId(), dto.getPipelineName());
-    	
+    	ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
     	ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getStatisticalMethod(),
-    			dto.getStatus(), allele, gene, ZygosityType.valueOf(dto.getZygosity()), 
+    			dto.getStatus(), allele, gene, zygosity, 
     			pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
     			dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
 

@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
@@ -62,7 +60,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected ImpressBaseDTO procedure;
     protected ImpressBaseDTO parameter;
     protected String dataSourceName;//to hold the name of the origin of the data e.g. Europhenome or WTSI Mouse Genetics Project
-    protected String graphUrl;
+    protected EvidenceLink evidenceLink;
     protected ImpressBaseDTO pipeline;
     protected Double pValue;
     protected boolean isPreQc;
@@ -71,38 +69,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
     public DataTableRow() { }       
 
-    public DataTableRow(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException {
-
-	    this.config = config;
-        List<String> sex = new ArrayList<String>();
-        sex.add(pcs.getSex().toString());
-        this.setGid(pcs.getgId());
-        this.setPreQc(pcs.isPreQC());
- ////       this.setGene(pcs.getGene());
-///        this.setAllele(pcs.getAllele());
-        this.setSexes(sex);
-//TODO DELETE THIS WHOLE METHOD//////    this.setPhenotypeTerm(pcs.getPhenotypeTerm());
-  //      this.setPipeline(pcs.getPipeline());
-		// zygosity representation depends on source of information
-        // we need to know what the data source is so we can generate appropriate link on the page
-
-        this.pValue = pcs.getpValue();
-        this.setDataSourceName(pcs.getDatasource().getName());
-
-        this.setZygosity(pcs.getZygosity());
-        if (pcs.getExternalId() != null) {
-            this.setProjectId(pcs.getExternalId());
-        }
-
- //       this.setProcedure(pcs.getProcedure());
-  /////      this.setParameter(pcs.getParameter());
-        this.setPhenotypingCenter(pcs.getPhenotypingCenter());
-
-        this.setGraphUrl(baseUrl);
-
-    }
-
-    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, ImageService imageService) throws UnsupportedEncodingException, SolrServerException {
+    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages) 
+    throws UnsupportedEncodingException, SolrServerException {
 
 	    this.config = config;
         List<String> sex = new ArrayList<String>();
@@ -127,13 +95,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             this.setProjectId(new Integer(pcs.getProject().getId()));
         }
 
-        if (pcs.getPhenotypeTerm().getId().startsWith("MPATH:") && imageService != null && !imageService.hasImages(pcs.getGene().getAccessionId(), pcs.getProcedure().getName(), pcs.getColonyId())){
-			this.graphUrl = "";
-        }
-        else {
-            this.setGraphUrl(baseUrl);
-        }
-
+        this.buildEvidenceLink(baseUrl, hasImages);
+        
     }
     
     @Override
@@ -235,42 +198,73 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         return pipeline;
     }
 
+    
     public void setPipeline(ImpressBaseDTO pipeline) {
         this.pipeline = pipeline;
     }
 
-    public String getGraphUrl() {
-        return graphUrl;
-    }
+    
+    public EvidenceLink getEvidenceLink() {
+		return evidenceLink;
+	}
 
-    public void setGraphUrl(String graphBaseUrl) throws UnsupportedEncodingException {
-        this.graphUrl = buildGraphUrl(graphBaseUrl);
+    public void setEvidenceLink(EvidenceLink link){
+    	this.evidenceLink = link;
     }
-
-    public String buildGraphUrl(String baseUrl) throws UnsupportedEncodingException {
+	
+    public void buildEvidenceLink(String baseGraphUrl, boolean hasImages)
+	throws UnsupportedEncodingException {
+		
+		this.evidenceLink =  buildGraphUrl(baseGraphUrl, hasImages);
+	}
+    
+	
+    public EvidenceLink buildGraphUrl(String baseUrl, boolean hasImage) 
+    throws UnsupportedEncodingException {
+    	
     	String url= baseUrl;
-
+    	EvidenceLink evidenceLink = new EvidenceLink();
+    	
         if (!isPreQc){
             if ( procedure.getName().startsWith("Histopathology") ){
-                url = getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
-                System.out.println("URL: " + url);
-
-
+                evidenceLink.setAlt("Images");
+                evidenceLink.setIconType(EvidenceLink.IconType.IMAGE);
+            	if (hasImage){
+	                url = getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+	                evidenceLink.setDisplay(true);
+            	} else {
+            		url = "";
+	                evidenceLink.setDisplay(false);
+            	}
             }
             else {
                 url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), allele.getAccessionId(), null, zygosity, parameter.getStableId(),
                         pipeline.getStableId(), phenotypingCenter);
+                evidenceLink.setAlt("Graph");
+                evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
+                if (parameter.getStableId().contains("_FER_")){
+                	evidenceLink.setDisplay(false);
+                } else {
+                	evidenceLink.setDisplay(true);
+                }
             }
         } else {
             // Need to use the drupal base url because phenoview is not mapped under the /data url
             url = config.get("drupalBaseUrl");
             url += "/../phenoview/?gid=" + gid;
-
             if (parameter != null) {
                 url += "&qeid=" + parameter.getStableId();
             }
+            evidenceLink.setAlt("Graph");
+            evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
+            if (parameter.getStableId().contains("_FER_")){
+            	evidenceLink.setDisplay(false);
+            } else {
+            	evidenceLink.setDisplay(true);
+            }
         }
-        return url;
+        evidenceLink.setUrl(url);
+        return evidenceLink;
     }
 
     public String getPhenotypingCenter() {
@@ -374,7 +368,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.parameter = parameter;
     }
 
-    @Override
+
+	@Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -399,7 +394,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         if (parameter != null ? !parameter.equals(that.parameter) : that.parameter != null) return false;
         if (dataSourceName != null ? !dataSourceName.equals(that.dataSourceName) : that.dataSourceName != null)
             return false;
-        if (graphUrl != null ? !graphUrl.equals(that.graphUrl) : that.graphUrl != null) return false;
         if (pipeline != null ? !pipeline.equals(that.pipeline) : that.pipeline != null) return false;
         if (pValue != null ? !pValue.equals(that.pValue) : that.pValue != null) return false;
         return !(gid != null ? !gid.equals(that.gid) : that.gid != null);
@@ -426,7 +420,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         result = 31 * result + (procedure != null ? procedure.hashCode() : 0);
         result = 31 * result + (parameter != null ? parameter.hashCode() : 0);
         result = 31 * result + (dataSourceName != null ? dataSourceName.hashCode() : 0);
-        result = 31 * result + (graphUrl != null ? graphUrl.hashCode() : 0);
         result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
  //       result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
         result = 31 * result + (isPreQc ? 1 : 0);
@@ -460,7 +453,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getProcedure().getName() + " | " + getParameter().getName() + "\t"
                     + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
                     + getPrValueAsString() + "\t"
-                    + getGraphUrl();
+                    + getEvidenceLink().getUrl();
         } else if (targetPage.equalsIgnoreCase("phenotype")) {
             res = getGene().getSymbol() + "\t"
                     + getAllele().getSymbol() + "\t"
@@ -471,7 +464,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getProcedure().getName() + " | " + getParameter().getName() + "\t"
                     + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
                     + getPrValueAsString() + "\t"
-                    + getGraphUrl();
+                    + getEvidenceLink().getUrl();
         }
         return res;
     }
@@ -511,6 +504,5 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
         return url;
     }
-
-
+    
 }
