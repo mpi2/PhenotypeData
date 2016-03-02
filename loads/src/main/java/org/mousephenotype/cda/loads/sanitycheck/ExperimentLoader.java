@@ -47,7 +47,6 @@ import java.util.List;
  * experiment files currently found at /nfs/komp2/web/phenotype_data/impc. This class is meant to be an executable jar
   * whose arguments describe the source file, target database name and authentication, and spring context file.
  */
-@Component
 public class ExperimentLoader {
     /**
      * Load specimen data that was encoded using the IMPC XML format
@@ -66,7 +65,6 @@ public class ExperimentLoader {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, XMLloadingException, KeyManagementException, SQLException, JAXBException, DccLoaderException {
 
-        // Wire up spring support for this application
         ExperimentLoader main = new ExperimentLoader();
         main.initialize(args);
         main.run();
@@ -78,9 +76,6 @@ public class ExperimentLoader {
             throws IOException, SQLException, KeyManagementException, NoSuchAlgorithmException {
 
         OptionParser parser = new OptionParser();
-
-        // parameter to indicate the application context xml file.
-        parser.accepts("context").withRequiredArg().ofType(String.class);
 
         // parameter to indicate the database name
         parser.accepts("dbname").withRequiredArg().ofType(String.class);
@@ -95,13 +90,6 @@ public class ExperimentLoader {
         parser.accepts("password").withRequiredArg().ofType(String.class);
 
         OptionSet options = parser.parse(args);
-
-        // Wire up spring support for this application
-        ApplicationContext applicationContext;
-        String context = (String) options.valuesOf("context").get(0);
-        logger.debug("Using application context file {}", context);
-        applicationContext = loadApplicationContext((String)options.valuesOf("context").get(0));
-        applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
         dbName = (String) options.valuesOf("dbname").get(0);
         String dbUrl = "jdbc:mysql://mysql-mi-dev:4356/"
@@ -358,25 +346,6 @@ public class ExperimentLoader {
         connection.close();
     }
 
-    protected ApplicationContext loadApplicationContext(String context) {
-        ApplicationContext appContext;
-
-        // Try context as a file resource.
-        File file = new File(context);
-        if (file.exists()) {
-            // Try context as a file resource
-            appContext = new FileSystemXmlApplicationContext("file:" + context);
-        } else {
-            // Try context as a class path resource
-            appContext = new ClassPathXmlApplicationContext(context);
-        }
-
-        if (appContext == null) {
-            logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
-        }
-
-        return appContext;
-    }
 
 //    private void truncateTables() throws SQLException {
 //        String query;
