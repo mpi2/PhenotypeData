@@ -878,7 +878,7 @@ public class DataTableController {
             }
             rowData.add(mpDef);
 
-            // number of genes annotated to this MP
+            // number of postqc phenotyping calls of this MP
             int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
 
 			if (numCalls > 0){

@@ -1,9 +1,9 @@
 /* Additional styling written at EBI */
 .preQcLink{
-	text-align:center;color:#EF7B0B;
+	text-align:center;color: red; /*#EF7B0B;*/
 }
 .preQcLink a{
-	text-align:center;color:#EF7B0B;
+	text-align:center;color: red; /*#EF7B0B;*/
 }
 .postQcLink{
 	text-align:center;
