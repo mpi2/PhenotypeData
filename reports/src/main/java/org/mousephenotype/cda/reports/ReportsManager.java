@@ -321,10 +321,10 @@ public class ReportsManager implements CommandLineRunner {
                         zygosityReport.run(args);
                         file = zygosityReport.targetFile;
                         break;
-                    case LACZMPOVERLAP:
-                    	laczMpReport.run(args);
-                    	file = laczMpReport.targetFile;
-                    	break;
+//                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment. 
+//                    	laczMpReport.run(args);
+//                    	file = laczMpReport.targetFile;
+//                    	break;
                 }
 
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");

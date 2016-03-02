@@ -32,11 +32,11 @@
       <ul id='expList'>
         <c:forEach var="entry" items="${topLevelMaCounts}"
                    varStatus="status">
-         <%--  <c:set var="href"
+         <c:set var="href"
                  scope="page"
-                 value="${baseUrl}/impcImages/laczimages/${acc}/${entry.name}">
-          </c:set> --%>
-          <li class="showAdultImage">${entry.key}(${entry.value})</li>
+                 value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
+          </c:set> 
+          <li class="showAdultImage">${entry.key}</li>
         </c:forEach>
       </ul>
     </div>

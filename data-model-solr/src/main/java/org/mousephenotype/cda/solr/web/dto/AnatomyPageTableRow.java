@@ -28,13 +28,13 @@ import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.solr.web.dto.EvidenceLink.IconType;
 
 
 public class AnatomyPageTableRow extends DataTableRow{
 
 	
 	String expression;
-	String imageUrl;
     List<OntologyTerm> anatomy;
     String anatomyLinks;
     int numberOfImages = 0;
@@ -83,7 +83,7 @@ public class AnatomyPageTableRow extends DataTableRow{
                
         this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
-        this.setImageUrl(buildImageUrl(baseUrl, maId, image.getMaTerm().get(image.getMaTermId().indexOf(maId))));
+        this.setEvidenceLink(buildImageUrl(baseUrl, maId, image.getMaTerm().get(image.getMaTermId().indexOf(maId))));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
         this.numberOfImages ++;
     }
@@ -102,7 +102,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     }
     
     
-    public String buildImageUrl(String baseUrl, String maId, String maTerm){
+    public EvidenceLink buildImageUrl(String baseUrl, String maId, String maTerm){
     	
     	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
         url += ImageDTO.MA_ID + ":\"";
@@ -120,7 +120,14 @@ public class AnatomyPageTableRow extends DataTableRow{
     		url += " AND " + ImageDTO.PARAMETER_NAME + ":\"" + getParameter().getName() + "\"";
     	}
     	url += "&title=gene " + this.getGene().getSymbol() + " in " + maTerm + ""; 
-    	return url;
+    	
+    	EvidenceLink link = new EvidenceLink();
+    	link.setUrl(url);
+    	link.setDisplay(true);
+    	link.setIconType(IconType.IMAGE);
+    	link.setAlt("Images");
+    	
+    	return link;
     }
     
     public void addImage(){
@@ -168,19 +175,6 @@ public class AnatomyPageTableRow extends DataTableRow{
 			sexes.add(sex);
 		}		
 	}
-
-	
-	public String getImageUrl() {
-	
-		return imageUrl;
-	}
-
-	
-	public void setImageUrl(String imageUrl) {
-	
-		this.imageUrl = imageUrl;
-	}
-
 	
 	public List<OntologyTerm> getAnatomy() {
 	
