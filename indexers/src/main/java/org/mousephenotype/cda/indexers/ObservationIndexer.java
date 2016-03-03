@@ -169,6 +169,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "mo.data_point as multidimensional_data_point, "
                 + "tso.data_point as time_series_data_point, "
                 +" tro.text as text_value,"
+                + " ontE.term_value,"
                 + "mo.order_index, "
                 + "mo.dimension, "
                 + "tso.time_point, "
@@ -182,6 +183,7 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
                 + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
                 + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
+                +" LEFT OUTER JOIN ontology_entity ontE ON o.id=ontE.ontology_observation_id"
                 + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
                 + "INNER JOIN experiment e on eo.experiment_id=e.id "
                 + "WHERE o.missing=0";
@@ -383,6 +385,11 @@ public class ObservationIndexer extends AbstractIndexer {
 		        String text_value = r.getString("text_value");
 		        if (!r.wasNull()) {
 			        o.setTextValue(text_value);
+		        }
+		        
+		        String term_value = r.getString("term_value");
+		        if (!r.wasNull()) {
+			        o.setTermValue(term_value);
 		        }
 
 		        String file_type = r.getString("file_type");
