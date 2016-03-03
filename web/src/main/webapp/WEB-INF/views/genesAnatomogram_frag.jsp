@@ -12,7 +12,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 
-<div id="expDataView">See Adult expression table</div>
+<div id="expDataView">See expression table</div>
 
 <div id="anatomo1">
     <jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>
@@ -28,7 +28,7 @@
 
     <div class='aright' id='anatomogramContainer'></div>
     <div class='aleft'>
-      <h6>Adult tissues/organs lacZ+ expression</h6>
+      <h6>Tissues/organs lacZ+ expression</h6>
       <ul id='expList'>
         <c:forEach var="entry" items="${topLevelMaCounts}"
                    varStatus="status">
@@ -36,7 +36,7 @@
                  scope="page"
                  value="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">
           </c:set> 
-          <li class="showAdultImage">${entry.key}</li>
+          <li class="showAdultImage"><a href="${baseUrl}/impcImages/laczimages/${acc}/${entry.key}">${entry.key}</a></li>
         </c:forEach>
       </ul>
     </div>
