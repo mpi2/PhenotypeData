@@ -130,12 +130,66 @@ public class LoaderUtils {
         return appContext;
     }
 
+    public static void truncateExperimentTables(Connection connection) throws SQLException {
+        String query;
+        PreparedStatement ps;
+
+        String[] tables = new String[] {
+                  "experiment"
+                , "experiment_statuscode"
+                , "experiment_specimen"
+                , "housing"
+                , "line"
+                , "procedure"
+                , "center_procedure"
+                , "line_statuscode"
+                , "simpleParameter"
+                , "ontologyParameter"
+                , "seriesParameter"
+                , "mediaParameter"
+                , "ontologyParameterTerm"
+                , "seriesParameterValue"
+                , "mediaParameter_parameterAssociation"
+                , "mediaParameter_procedureMetadata"
+                , "parameterAssociation"
+                , "procedureMetadata"
+                , "dimension"
+                , "mediaSampleParameter"
+                , "mediaSample"
+                , "mediaSection"
+                , "mediaFile"
+                , "mediaFile_parameterAssociation"
+                , "mediaFile_procedureMetadata"
+                , "seriesMediaParameter"
+                , "procedure_procedureMetadata"
+                , "seriesMediaParameterValue"
+                , "seriesMediaParameterValue_parameterAssociation"
+                , "seriesMediaParameterValue_procedureMetadata"
+        };
+
+        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
+        ps.execute();
+        for (String tableName : tables) {
+            query = "TRUNCATE " + tableName + ";";
+
+            try {
+                ps = connection.prepareStatement(query);
+                ps.execute();
+            } catch (SQLException e) {
+                logger.error("Unable to truncate table " + tableName);
+                throw e;
+            }
+        }
+        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
+        ps.execute();
+    }
+
     public static void truncateSpecimenTables(Connection connection) throws SQLException {
         String query;
         PreparedStatement ps;
 
-        String[] tables = new String[]{
-                "center"
+        String[] tables = new String[] {
+                  "center"
                 , "center_specimen"
                 , "embryo"
                 , "genotype"
@@ -165,16 +219,16 @@ public class LoaderUtils {
 
     /**
      * Looks for the <code>center</code> table primary key for the given centerId, pipeline, and project. Retuns the
-     * key if found; null otherwise.
+     * key if found; 0 otherwise.
      *
      * @param connection A valid database connection
      * @param centerId   The center id
      * @param pipeline   The pipeline
      * @param project    The Project
-     * @return The center primary key if found; null otherwise.
+     * @return The center primary key if found; 0 otherwise.
      */
-    public static Long getCenterPk(Connection connection, String centerId, String pipeline, String project) {
-        Long centerPk = null;
+    public static long getCenterPk(Connection connection, String centerId, String pipeline, String project) {
+        long centerPk = 0L;
 
         String query = "";
         try {
@@ -215,10 +269,10 @@ public class LoaderUtils {
         try {
             query =
                     "SELECT *\n"
-                            + "FROM specimen s\n"
-                            + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
-                            + "JOIN center           c ON  c.pk          = cs.center_fk\n"
-                            + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
+                    + "FROM specimen s\n"
+                    + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
+                    + "JOIN center           c ON  c.pk          = cs.center_fk\n"
+                    + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
 
             ps = connection.prepareStatement(query);
             ps.setString(1, specimenId);
@@ -272,9 +326,9 @@ public class LoaderUtils {
         StatusCode statuscode = new StatusCode();
         String query =
                 "SELECT sc.pk, sc.dateOfStatuscode, sc.value\n"
-                        + "FROM specimen s"
-                        + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk"
-                        + "where s.pk = ?;";
+                + "FROM specimen s"
+                + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk"
+                + "where s.pk = ?;";
         PreparedStatement ps;
         ResultSet rs;
 
