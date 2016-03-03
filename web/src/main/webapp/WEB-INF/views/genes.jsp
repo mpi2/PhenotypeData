@@ -231,6 +231,7 @@
 						width: 200px;
 						float: left;
 						text-align: center;
+						margin-top: -45px;
 					}
 
 					.aleft {
@@ -238,6 +239,7 @@
 						background: white;
 						width: auto;
 						overflow: hidden;
+						margin-top: 0px;
 						margin-left: 250px;
 					}
 
