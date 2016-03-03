@@ -110,7 +110,9 @@
 						console.log('calling tabs now');
 
 						$("#exptabs").tabs({ active: 0 });
-						$("#diseasetabs").tabs({ active: 0 })
+						$("#diseasetabs").tabs({ active: 0 });
+
+						//$("#diseasetabs").find("td[class!='shown']").css('color','#666');
 
 						$('div#anatomo1').hide(); // by default
 
@@ -130,18 +132,19 @@
 							if ($('#anatomo1').is(':visible')) {
 								$('#anatomo1').hide();
 								$('#anatomo2').show();
-								$(this).text("Show adult expression data");
+								$(this).text("Show expression table");
 							}
 							else {
 								$('#anatomo1').show();
 								$('#anatomo2').hide();
-								$(this).text("Hide adult expression data");
+								$(this).text("Hide expression table");
 							}
 						});
 
-						 $('li.showAdultImage').click(function(){
-							$("#exptabs").tabs({ active: 1 });
-						}); 
+//						$('li.showAdultImage').click(function(){
+//							$("#exptabs").tabs({ active: 1 });
+//						});
+
 
 					});
 				</script>
@@ -202,6 +205,7 @@
 						padding: 3px 8px;
 						border-radius: 4px;
 						color: gray;
+						font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
 					}
 					#exptabs .ui-tabs-active, #diseasetabs .ui-tabs-active {
 						border: none;
@@ -227,6 +231,7 @@
 						width: 200px;
 						float: left;
 						text-align: center;
+						margin-top: -45px;
 					}
 
 					.aleft {
@@ -234,6 +239,7 @@
 						background: white;
 						width: auto;
 						overflow: hidden;
+						margin-top: 0px;
 						margin-left: 250px;
 					}
 
@@ -252,15 +258,15 @@
 						width: auto;
 					}
 
-					.ui-widget {
-						font-family: Verdana, Arial, sans-serif /*{ffDefault}*/;
-						font-size: 1.0em !important /*{fsDefault}*/;
+					/* override the anatomogram .ui-widget font */
+					div#diseasetabs.ui-widget {
+					font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+						font-size: 1.0em;
+						color: #333;
 					}
-
-					.ui-widget {
-						font-size: 1.0em !important;
+					div#diseasetabs td {
+						color: #666;
 					}
-
 
 				</style>
 
@@ -677,6 +683,11 @@
 						$(this).hide();
 					}
 				});
+
+//				$('.ui-widget').css({
+//					'font-family': "'Source Sans Pro', Arial, Helvetica, sans-serif"});
+
+
 			});
 
 
