@@ -106,11 +106,11 @@
 				<script type="text/javascript">
 					var gene_id = '${acc}';
 
-					$(function () {
+					$(document).ready(function() {
 						console.log('calling tabs now');
 
 						$("#exptabs").tabs({ active: 0 });
-						$("#diseasetabs").tabs({ active: 0 });
+						$("#diseasetabs").tabs({ active: 0 })
 
 						$('div#anatomo1').hide(); // by default
 
