@@ -11,119 +11,137 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
+<!-- always show phenotype icons -->
+<%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
 <c:choose>
+  <c:when test="${summaryNumber == 0}">
+    <jsp:include page="phenotype_icons_frag.jsp"/>
+    <div id="phenoSumDiv">
+        <h5 class="sectHint">Phenotype Summary</h5>
+        <p>No significant phenotype found based on IMPC phenotyping calls pipeline.</p>
+    </div>
+  </c:when>
+
   <c:when test="${summaryNumber > 0}">
 
     <jsp:include page="phenotype_icons_frag.jsp"/>
 
+    <%--<c:if test="${!(empty dataMapList)}">--%>
+      <%--<br/>--%>
+      <%--<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->--%>
 
-    <c:if
-            test="${!(empty dataMapList)}">
-      <br/>
-      <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+      <%--<div class="floatleft marginup"--%>
+           <%--style="clear: both">--%>
+        <%--<p>--%>
+          <%--<a class="btn"--%>
+             <%--href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>--%>
+        <%--</p>--%>
+      <%--</div>--%>
+    <%--</c:if>--%>
 
-      <div class="floatright marginup"
-           style="clear: both">
-        <p>
-          <a class="btn"
-             href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-        </p>
-      </div>
-    </c:if>
+    <%--<c:if test="${gene.embryoDataAvailable}">--%>
+      <%--<div class="floatleft marginup"--%>
+           <%--style="clear: both">--%>
+        <%--<a class="btn"--%>
+           <%--href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>--%>
+      <%--</div>--%>
+    <%--</c:if>--%>
 
-    <c:if
-            test="${gene.embryoDataAvailable}">
-      <div class="floatright marginup"
-           style="clear: both">
-        <a class="btn"
-           href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
-      </div>
-    </c:if>
-    <h5 class="sectHint">Phenotype Summary</h5>
-    <p>Based on automated MP annotations supported by experiments
+    <div id="phenoSumDiv">
+        <h5 class="sectHint">Phenotype Summary</h5>
+        <p>Based on automated MP annotations supported by experiments
       on knockout mouse models. </p>
-
-    <c:forEach var="zyg"
-               items="${phenotypeSummaryObjects.keySet()}">
-      <p>In <b>${zyg} :</b>
-      </p>
-      <ul>
-        <c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>
-          <li><p><b>Both sexes</b> have the following phenotypic abnormalities
-          </p>
-            <ul>
-              <c:forEach var="summaryObj"
-                         items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>
-                <li>
-                  <a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                  Evidence from
-                  <c:forEach var="evidence"
-                             items="${summaryObj.getDataSources()}"
-                             varStatus="loop">
-                    ${evidence}
-                    <c:if test="${!loop.last}">,&nbsp;
-                    </c:if>
-                  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-                        class="filterTrigger"
-                        id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-                </li>
-              </c:forEach>
-            </ul>
-          </li>
+        <p></p>
+        <c:if test="${!(empty dataMapList)}">
+            <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+            <a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>
+        </c:if>
+        <c:if test="${gene.embryoDataAvailable}">
+            <a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
         </c:if>
 
-        <c:if
-                test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>
-          <li><p> Following phenotypic abnormalities occured in <b>females</b>
-            only</p>
-            <ul>
-              <c:forEach
-                      var="summaryObj"
-                      items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>
-                <li><a
-                        href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                  Evidence from <c:forEach
-                          var="evidence"
-                          items="${summaryObj.getDataSources()}"
-                          varStatus="loop"> ${evidence} <c:if
-                          test="${!loop.last}">,&nbsp;</c:if>
-                  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-                          class="filterTrigger"
-                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-                </li>
-              </c:forEach>
-            </ul>
-          </li>
-        </c:if>
+        <%----%>
+        <%--<c:forEach var="zyg"--%>
+                   <%--items="${phenotypeSummaryObjects.keySet()}">--%>
+          <%--<p>In <b>${zyg} :</b>--%>
+          <%--</p>--%>
+          <%--<ul class="phenoSum">--%>
+            <%--<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true).size() > 0}'>--%>
+              <%--<li> <b>Both sexes</b> have the following phenotypic abnormalities--%>
+                <%--<ul>--%>
+                  <%--<c:forEach var="summaryObj"--%>
+                             <%--items='${phenotypeSummaryObjects.get(zyg).getBothPhenotypes(true)}'>--%>
+                    <%--<li>--%>
+                      <%--<a href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.--%>
+                      <%--Evidence from--%>
+                      <%--<c:forEach var="evidence"--%>
+                                 <%--items="${summaryObj.getDataSources()}"--%>
+                                 <%--varStatus="loop">--%>
+                        <%--${evidence}--%>
+                        <%--<c:if test="${!loop.last}">,&nbsp;--%>
+                        <%--</c:if>--%>
+                      <%--</c:forEach> &nbsp;&nbsp;&nbsp;--%>
+                        <%--&lt;%&ndash;(<a&ndash;%&gt;--%>
+                            <%--&lt;%&ndash;class="filterTrigger"&ndash;%&gt;--%>
+                            <%--&lt;%&ndash;id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>) &ndash;%&gt;--%>
+                    <%--</li>--%>
+                  <%--</c:forEach>--%>
+                <%--</ul>--%>
+              <%--</li>--%>
+            <%--</c:if>--%>
 
-        <c:if
-                test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>
-          <li><p> Following phenotypic abnormalities occured in <b>males</b>
-            only</p>
-            <ul>
-              <c:forEach
-                      var="summaryObj"
-                      items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>
-                <li><a
-                        href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.
-                  Evidence from <c:forEach
-                          var="evidence"
-                          items="${summaryObj.getDataSources()}"
-                          varStatus="loop"> ${evidence} <c:if
-                          test="${!loop.last}">,&nbsp;</c:if>
-                  </c:forEach> &nbsp;&nbsp;&nbsp; (<a
-                          class="filterTrigger"
-                          id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)
-                </li>
-              </c:forEach>
-            </ul>
-          </li>
-        </c:if>
-      </ul>
-    </c:forEach>
+            <%--<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true).size() > 0}'>--%>
+              <%--<li><b>Females</b> only have the following phenotypic abnormalities--%>
+                <%--<ul>--%>
+                  <%--<c:forEach--%>
+                          <%--var="summaryObj"--%>
+                          <%--items='${phenotypeSummaryObjects.get(zyg).getFemalePhenotypes(true)}'>--%>
+                    <%--<li><a--%>
+                            <%--href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.--%>
+                      <%--Evidence from <c:forEach--%>
+                              <%--var="evidence"--%>
+                              <%--items="${summaryObj.getDataSources()}"--%>
+                              <%--varStatus="loop"> ${evidence} <c:if--%>
+                              <%--test="${!loop.last}">,&nbsp;</c:if>--%>
+                      <%--</c:forEach>  &nbsp;&nbsp;&nbsp;--%>
+                        <%--&lt;%&ndash;(<a&ndash;%&gt;--%>
+                              <%--&lt;%&ndash;class="filterTrigger"&ndash;%&gt;--%>
+                              <%--&lt;%&ndash;id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)&ndash;%&gt;--%>
+                    <%--</li>--%>
+                  <%--</c:forEach>--%>
+                <%--</ul>--%>
+              <%--</li>--%>
+            <%--</c:if>--%>
 
-
+            <%--<c:if test='${phenotypeSummaryObjects.containsKey(zyg) && phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true).size() > 0}'>--%>
+              <%--<li> <b>Males</b> only have the following phenotypic abnormalities--%>
+                <%--<ul>--%>
+                  <%--<c:forEach--%>
+                          <%--var="summaryObj"--%>
+                          <%--items='${phenotypeSummaryObjects.get(zyg).getMalePhenotypes(true)}'>--%>
+                    <%--<li><a--%>
+                            <%--href="${baseUrl}/phenotypes/${summaryObj.getId()}">${summaryObj.getName()}</a>.--%>
+                      <%--Evidence from <c:forEach--%>
+                              <%--var="evidence"--%>
+                              <%--items="${summaryObj.getDataSources()}"--%>
+                              <%--varStatus="loop"> ${evidence} <c:if--%>
+                              <%--test="${!loop.last}">,&nbsp;</c:if>--%>
+                      <%--</c:forEach>  &nbsp;&nbsp;&nbsp;--%>
+                        <%--&lt;%&ndash;(<a&ndash;%&gt;--%>
+                              <%--&lt;%&ndash;class="filterTrigger"&ndash;%&gt;--%>
+                              <%--&lt;%&ndash;id="${summaryObj.getName()}">${summaryObj.getNumberOfEntries()}</a>)&ndash;%&gt;--%>
+                    <%--</li>--%>
+                  <%--</c:forEach>--%>
+                <%--</ul>--%>
+              <%--</li>--%>
+            <%--</c:if>--%>
+          <%--</ul>--%>
+        <%--</c:forEach>--%>
+    </div>
   </c:when>
+
+
+
   <c:when test="${summaryNumber == 0}">
 
     <c:if test="${empty dataMapList && empty phenotypes}">
@@ -159,13 +177,10 @@
       </div>
       <br/>
       <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-      <div class="floatright marginup"
-           style="clear: both">
-
-        <a class="btn"
-           href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-
+      <div class="floatright marginup" style="clear: both">
+        <a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
       </div>
+        <div class="clear"></div>
     </c:if>
 
     <c:if
@@ -190,22 +205,18 @@
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->
-  <h5>Filter this table</h5>
+  <h5>Abnormal phenotype table</h5>
 
 
   <div class="row-fluid">
-    <div
-            class="container span12">
+    <div class="container span12">
       <br/>
 
-      <div class="row-fluid"
-           id="phenotypesDiv">
+      <div class="row-fluid" id="phenotypesDiv">
 
-        <div
-                class="container span12">
+        <div class="container span12">
 
-          <c:if
-                  test="${not empty phenotypes}">
+          <c:if test="${not empty phenotypes}">
             <form
                     class="tablefiltering no-style" id="target"
                     action="destination.html">
@@ -222,14 +233,11 @@
                   </c:forEach>
                 </select>
               </c:forEach>
-              <div
-                      class="clear"></div>
+              <div class="clear"></div>
             </form>
-            <div
-                    class="clear"></div>
+            <div class="clear"></div>
 
-            <c:set
-                    var="count" value="0" scope="page"/>
+            <c:set var="count" value="0" scope="page"/>
             <c:forEach
                     var="phenotype" items="${phenotypes}"
                     varStatus="status">
@@ -239,8 +247,7 @@
               </c:forEach>
             </c:forEach>
 
-            <jsp:include
-                    page="PhenoFrag.jsp"></jsp:include>
+            <jsp:include page="PhenoFrag.jsp"></jsp:include>
             <br/>
 
             <div

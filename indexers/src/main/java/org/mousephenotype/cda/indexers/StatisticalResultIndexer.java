@@ -135,10 +135,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			statResultCore.deleteByQuery("*:*");
 
-			count += processUnidimensionalResults();
-			count += processCategoricalResults();
 			count += processViabilityResults();
 			count += processFertilityResults();
+			count += processUnidimensionalResults();
+			count += processCategoricalResults();
 			count += processEmbryoViabilityResults();
 
 			logger.info(" Added {} statistical result documents", count);
@@ -279,7 +279,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"INNER JOIN project proj ON proj.id=exp.project_id " +
 			"INNER JOIN organisation org ON org.id=exp.organisation_id " +
 			"LEFT OUTER JOIN phenotype_call_summary sr ON (exp.colony_id=sr.colony_id AND sr.parameter_id=parameter.id) " +
-			"WHERE  parameter.stable_id = 'IMPC_VIA_001_001' ";
+			"WHERE  parameter.stable_id = 'IMPC_VIA_001_001' " ;
 
 		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 			p.setFetchSize(Integer.MIN_VALUE);
@@ -397,6 +397,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	}
 
 
+	private Double nullCheckResult(ResultSet r,  String field) throws SQLException {
+		Double v = r.getDouble(field);
+		return r.wasNull() ? null : v;
+	}
+
 	private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
 
 		StatisticalResultDTO doc = parseResultCommonFields(r);
@@ -410,16 +415,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setFemaleControlMean(r.getDouble("female_control_mean"));
 		doc.setFemaleMutantMean(r.getDouble("female_experimental_mean"));
 
-		doc.setNullTestPValue(r.getDouble("null_test_significance"));
+		doc.setNullTestPValue(nullCheckResult(r, "null_test_significance"));
 
 		// If PhenStat did not run, then the result will have a NULL for the null_test_significance field
 		// In that case, fall back to Wilcoxon test
-		Double pv = r.getDouble("null_test_significance");
-		if (r.wasNull()) {
-			pv = 1.0;
-		}
-
-		if (pv == 1.0 && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
+		Double pv = doc.getNullTestPValue();
+		if (pv==null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
 
 			// Wilcoxon test.  Choose the most significant pvalue from the sexes
 			pv = 1.0;
@@ -438,15 +439,15 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setpValue(pv);
 
 		doc.setGroup1Genotype(r.getString("gp1_genotype"));
-		doc.setGroup1ResidualsNormalityTest(r.getDouble("gp1_residuals_normality_test"));
+		doc.setGroup1ResidualsNormalityTest(nullCheckResult(r, "gp1_residuals_normality_test"));
 		doc.setGroup2Genotype(r.getString("gp2_genotype"));
-		doc.setGroup2ResidualsNormalityTest(r.getDouble("gp2_residuals_normality_test"));
+		doc.setGroup2ResidualsNormalityTest(nullCheckResult(r, "gp2_residuals_normality_test"));
 
 		doc.setBatchSignificant(r.getBoolean("batch_significance"));
 		doc.setVarianceSignificant(r.getBoolean("variance_significance"));
 		doc.setInteractionSignificant(r.getBoolean("interaction_significance"));
 
-		doc.setGenotypeEffectParameterEstimate(r.getDouble("genotype_parameter_estimate"));
+		doc.setGenotypeEffectParameterEstimate(nullCheckResult(r, "genotype_parameter_estimate"));
 
 		String percentageChange = r.getString("genotype_percentage_change");
 		if (!r.wasNull()) {
@@ -461,31 +462,31 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			}
 		}
 
-		doc.setGenotypeEffectStderrEstimate(r.getDouble("genotype_stderr_estimate"));
-		doc.setGenotypeEffectPValue(r.getDouble("genotype_effect_pvalue"));
+		doc.setGenotypeEffectStderrEstimate(nullCheckResult(r, "genotype_stderr_estimate"));
+		doc.setGenotypeEffectPValue(nullCheckResult(r, "genotype_effect_pvalue"));
 
-		doc.setSexEffectParameterEstimate(r.getDouble("gender_parameter_estimate"));
-		doc.setSexEffectStderrEstimate(r.getDouble("gender_stderr_estimate"));
-		doc.setSexEffectPValue(r.getDouble("gender_effect_pvalue"));
+		doc.setSexEffectParameterEstimate(nullCheckResult(r, "gender_parameter_estimate"));
+		doc.setSexEffectStderrEstimate(nullCheckResult(r, "gender_stderr_estimate"));
+		doc.setSexEffectPValue(nullCheckResult(r, "gender_effect_pvalue"));
 
-		doc.setWeightEffectParameterEstimate(r.getDouble("weight_parameter_estimate"));
-		doc.setWeightEffectStderrEstimate(r.getDouble("weight_stderr_estimate"));
-		doc.setWeightEffectPValue(r.getDouble("weight_effect_pvalue"));
+		doc.setWeightEffectParameterEstimate(nullCheckResult(r, "weight_parameter_estimate"));
+		doc.setWeightEffectStderrEstimate(nullCheckResult(r, "weight_stderr_estimate"));
+		doc.setWeightEffectPValue(nullCheckResult(r, "weight_effect_pvalue"));
 
-		doc.setInterceptEstimate(r.getDouble("intercept_estimate"));
-		doc.setInterceptEstimateStderrEstimate(r.getDouble("intercept_stderr_estimate"));
-		doc.setInteractionEffectPValue(r.getDouble("interaction_effect_pvalue"));
+		doc.setInterceptEstimate(nullCheckResult(r, "intercept_estimate"));
+		doc.setInterceptEstimateStderrEstimate(nullCheckResult(r, "intercept_stderr_estimate"));
+		doc.setInteractionEffectPValue(nullCheckResult(r, "interaction_effect_pvalue"));
 
-		doc.setFemaleKoParameterEstimate(r.getDouble("gender_female_ko_estimate"));
-		doc.setFemaleKoEffectStderrEstimate(r.getDouble("gender_female_ko_stderr_estimate"));
-		doc.setFemaleKoEffectPValue(r.getDouble("gender_female_ko_pvalue"));
+		doc.setFemaleKoParameterEstimate(nullCheckResult(r, "gender_female_ko_estimate"));
+		doc.setFemaleKoEffectStderrEstimate(nullCheckResult(r, "gender_female_ko_stderr_estimate"));
+		doc.setFemaleKoEffectPValue(nullCheckResult(r, "gender_female_ko_pvalue"));
 
-		doc.setMaleKoParameterEstimate(r.getDouble("gender_male_ko_estimate"));
-		doc.setMaleKoEffectStderrEstimate(r.getDouble("gender_male_ko_stderr_estimate"));
-		doc.setMaleKoEffectPValue(r.getDouble("gender_male_ko_pvalue"));
+		doc.setMaleKoParameterEstimate(nullCheckResult(r, "gender_male_ko_estimate"));
+		doc.setMaleKoEffectStderrEstimate(nullCheckResult(r, "gender_male_ko_stderr_estimate"));
+		doc.setMaleKoEffectPValue(nullCheckResult(r, "gender_male_ko_pvalue"));
 
-		doc.setBlupsTest(r.getDouble("blups_test"));
-		doc.setRotatedResidualsTest(r.getDouble("rotated_residuals_normality_test"));
+		doc.setBlupsTest(nullCheckResult(r, "blups_test"));
+		doc.setRotatedResidualsTest(nullCheckResult(r, "rotated_residuals_normality_test"));
 		doc.setClassificationTag(r.getString("classification_tag"));
 		doc.setAdditionalInformation(r.getString("additional_information"));
 		return doc;
@@ -724,6 +725,24 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
 			}
 
+		} else {
+
+			// When there is no p value for IMPC_VIA mp_term, put in the "mortality/aging" MP term
+			if (r.getString("dependent_variable").startsWith("IMPC_VIA") ) {
+
+				OntologyTermBean bean = mpOntologyService.getTerm("MP:0010768");
+				doc.setMpTermId(bean.getId());
+				doc.setMpTermName(bean.getName());
+
+				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+				doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
+				doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
+
+				doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
+				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
+
+
+			}
 		}
 
 		// Process the male MP term
@@ -766,18 +785,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 
 	private void addImpressData(ResultSet r, StatisticalResultDTO doc)
-		throws SQLException {
+	throws SQLException {
 
 		doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
-		doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
+		doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
 		doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
 		doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
 		doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
-		doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
+		doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).getStableKey());
 		doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
 		doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).getStableId());
 		doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
-		doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
+		doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).getStableKey());
 		doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
 		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 

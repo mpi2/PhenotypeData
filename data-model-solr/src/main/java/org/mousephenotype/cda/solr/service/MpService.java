@@ -51,7 +51,19 @@ public class MpService extends BasicService implements WebStatus{
 	public MpService() {
 	}
 
-
+	
+	public List<MpDTO> getAllMpWithMaMapping() 
+	throws SolrServerException{
+		
+		SolrQuery q = new SolrQuery();
+		q.setRows(Integer.MAX_VALUE);
+		q.setQuery(MpDTO.INFERRED_MA_TERM_ID + ":*");
+		
+		q.addField(MpDTO.MP_ID);
+		q.addField(MpDTO.INFERRED_MA_TERM_ID);
+		
+		return solr.query(q).getBeans(MpDTO.class);
+	}
 
 	/**
 	 * Return the phenotype

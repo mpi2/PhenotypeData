@@ -89,8 +89,6 @@ public class FileExportController {
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	@Autowired
-	private ObservationService os;
-	@Autowired
 	private GeneService geneService;
 	
 	@Autowired
@@ -1198,7 +1196,8 @@ public class FileExportController {
 			}
 			ArrayList<GenePageTableRow> phenotypes = new ArrayList();
 			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config, imageService);
+				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config, imageService.hasImages(pcs.getGene().getAccessionId(), 
+						pcs.getProcedure().getName(), pcs.getColonyId()));
 				phenotypes.add(pr);
 			}
 			Collections.sort(phenotypes); // sort in same order as gene page.
@@ -1231,7 +1230,7 @@ public class FileExportController {
 				res.add("Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
 
 				for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-					PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config);
+					PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config, false);
 
 					if (pr.getParameter() != null && pr.getProcedure() != null) {
 						phenotypes.add(pr);

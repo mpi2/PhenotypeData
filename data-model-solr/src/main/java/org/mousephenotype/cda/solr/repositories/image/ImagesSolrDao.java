@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 
 /**
  * Interface for images data access from solr (probably not need an interface to
@@ -68,4 +69,6 @@ public interface ImagesSolrDao {
 			int length)
 			throws SolrServerException;
 
+	public SolrDocumentList getImagesForLacZ()
+			throws SolrServerException;
 }
