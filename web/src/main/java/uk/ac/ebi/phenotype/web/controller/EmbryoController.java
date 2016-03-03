@@ -51,6 +51,14 @@ public class EmbryoController {
 		System.out.println("viabilityTable="+viabilityTable);
 		return "embryo";
 	}
+	
+	@RequestMapping(value = "/embryo/vignettes", method = RequestMethod.GET)
+	public String loadVignettes(Model model, HttpServletRequest request, RedirectAttributes attributes)
+	throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+
+		
+		return "embryoVignettes";
+	}
 
 	
 }
