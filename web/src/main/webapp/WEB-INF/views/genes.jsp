@@ -132,12 +132,12 @@
 							if ($('#anatomo1').is(':visible')) {
 								$('#anatomo1').hide();
 								$('#anatomo2').show();
-								$(this).text("Show adult expression data");
+								$(this).text("Show expression table");
 							}
 							else {
 								$('#anatomo1').show();
 								$('#anatomo2').hide();
-								$(this).text("Hide adult expression data");
+								$(this).text("Hide expression table");
 							}
 						});
 
