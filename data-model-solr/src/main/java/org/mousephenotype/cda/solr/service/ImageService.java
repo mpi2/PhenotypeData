@@ -405,6 +405,28 @@ public class ImageService implements WebStatus{
 		return response;
 	}
 
+	/**
+	 * 
+	 * @return list of image DTOs with laczData. Selected fields only. 
+	 * @throws SolrServerException 
+	 */
+	public List<ImageDTO> getImagesForLacZ() 
+	throws SolrServerException{
+		
+		SolrQuery query = new SolrQuery();
+		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
+		query.setFilterQueries(ImageDTO.MA_ID + ":*");
+		query.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":*");
+        query.setRows(1000000);
+        query.addField(ImageDTO.GENE_SYMBOL);
+		query.addField(ImageDTO.GENE_ACCESSION_ID);
+		query.addField(ImageDTO.MA_ID);
+		query.addField(ImageDTO.MA_TERM);
+		
+		return solr.query(query).getBeans(ImageDTO.class);
+	}
+	
+	
 	public List<String[]> getLaczExpressionSpreadsheet() {
         SolrQuery query = new SolrQuery();
         ArrayList<String[]> res = new ArrayList<>();
@@ -541,9 +563,6 @@ public class ImageService implements WebStatus{
 			String parameter, Date date, int numberOfImagesToRetrieve,
 			SexType sex) throws SolrServerException {
 
-		logger.info("Getting {} nearest controls around {}",
-				numberOfImagesToRetrieve, date);
-
 		SolrQuery solrQuery = new SolrQuery();
 
 		solrQuery.setQuery("*:*");
@@ -572,8 +591,6 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
-		logger.info("getControlImagesForProcedure solr query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -599,9 +616,6 @@ public class ImageService implements WebStatus{
 					+ ":\"" + anatomy + "\"");
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
-
-		logger.debug("getControlImagesForProcedure solr query: {}/select?{}",
-				solr.getBaseURL(), solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 
 		return response;
@@ -724,8 +738,6 @@ public class ImageService implements WebStatus{
 			responseControl=this.getControlImagesForProcedure(metadataGroup, center, strain, procedureName, parameter, date, numberOfControls, sex);
 		}
 
-		logger.info("Found {} controls. Adding to list", responseControl
-				.getResults().getNumFound());
 		list.addAll(responseControl.getResults());
 
 		return list;

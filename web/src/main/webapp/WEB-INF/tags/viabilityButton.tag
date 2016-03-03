@@ -8,7 +8,8 @@
 <c:if test="${callList.size() == 1}">
 	<!--<a class="status done" href="${link}">	-->
 		<c:forEach var="call" items="${callList}" varStatus="loop">
-			<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>
+			<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
+			<span class="left">${call}</span>
 			<c:if test="${!loop.last}">   </c:if>
 		</c:forEach> 
 	<!--</a> -->
@@ -19,7 +20,8 @@
 	<!-- span  class="status done" title="Conflicting calls were made for this gene. For details refer to the associations table on the gene page."-->
 		<span class="left"><i class="fa fa-exclamation" ></i></span>
 		<c:forEach var="call" items="${callList}" varStatus="loop">
-			<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>
+			<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
+			<span class="left">${call}</span>
 			<c:if test="${!loop.last}">   </c:if>
 		</c:forEach> 
 	<!--/span-->

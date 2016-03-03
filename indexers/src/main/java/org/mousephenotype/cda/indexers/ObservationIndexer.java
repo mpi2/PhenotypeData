@@ -158,32 +158,34 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		observationSolrServer.deleteByQuery("*:*");
 
-        String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
-                + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
-                + "o.biological_sample_id, "
-                + "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, "
-                + "e.date_of_experiment, e.external_id, e.id as experiment_id, "
-                + "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, "
-                + "co.category as raw_category, "
-                + "uo.data_point as unidimensional_data_point, "
-                + "mo.data_point as multidimensional_data_point, "
-                + "tso.data_point as time_series_data_point, "
-                +" tro.text as text_value,"
-                + "mo.order_index, "
-                + "mo.dimension, "
-                + "tso.time_point, "
-                + "tso.discrete_point, "
-                + "iro.file_type, "
-                + "iro.download_file_path "
-                + "FROM observation o "
-                + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
-                + "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id "
-                + "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id "
-                + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
-                + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
-                + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
-                + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
-                + "INNER JOIN experiment e on eo.experiment_id=e.id "
+        String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id,\n"
+                + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message,\n"
+                + "o.biological_sample_id,\n"
+                + "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id,\n"
+                + "e.date_of_experiment, e.external_id, e.id as experiment_id,\n"
+                + "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group,\n"
+                + "co.category as raw_category,\n"
+                + "uo.data_point as unidimensional_data_point,\n"
+                + "mo.data_point as multidimensional_data_point,\n"
+                + "tso.data_point as time_series_data_point,\n"
+                + "tro.text as text_value,\n"
+                + "ontE.term_value,\n"
+                + "mo.order_index,\n"
+                + "mo.dimension,\n"
+                + "tso.time_point,\n"
+                + "tso.discrete_point,\n"
+                + "iro.file_type,\n"
+                + "iro.download_file_path\n"
+                + "FROM observation o\n"
+                + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id\n"
+                + "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id\n"
+                + "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id\n"
+                + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id\n"
+                + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id\n"
+                + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id\n"
+                +" LEFT OUTER JOIN ontology_entity ontE ON o.id=ontE.ontology_observation_id\n"
+                + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id\n"
+                + "INNER JOIN experiment e on eo.experiment_id=e.id\n"
                 + "WHERE o.missing=0";
 
         try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
@@ -384,6 +386,11 @@ public class ObservationIndexer extends AbstractIndexer {
 		        if (!r.wasNull()) {
 			        o.setTextValue(text_value);
 		        }
+		        
+		        String term_value = r.getString("term_value");
+		        if (!r.wasNull()) {
+			        o.setTermValue(term_value);
+		        }
 
 		        String file_type = r.getString("file_type");
 		        if (!r.wasNull()) {
@@ -447,7 +454,8 @@ public class ObservationIndexer extends AbstractIndexer {
 	        observationSolrServer.commit();
 
         } catch (Exception e) {
-	        runStatus.addError(" Big error :" + e.getMessage());
+			e.printStackTrace();
+	        System.out.println(" Big error :" + e.getMessage());
         }
 
 	    return count;

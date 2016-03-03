@@ -73,7 +73,7 @@
   	<div class="floatright"  style="clear: both">
   		<div class="abnormalities_key">
 			<span style="color: #e27010">Significant &nbsp; &nbsp; </span>
-            <span style="color: #0978a1">Tested &nbsp; &nbsp; </span>
+            <span style="color: #0978a1">Not Significant &nbsp; &nbsp; </span>
             <span style="color: #c2c2c2">Not tested &nbsp; &nbsp; </span>
         </div>
 	</div>

@@ -878,7 +878,7 @@ public class DataTableController {
             }
             rowData.add(mpDef);
 
-            // number of genes annotated to this MP
+            // number of postqc phenotyping calls of this MP
             int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
 
 			if (numCalls > 0){
@@ -1524,7 +1524,8 @@ public class DataTableController {
             String src = doc.getString("disease_source");
 			String[] IdParts =  diseaseId.split(":");
 			String digits = IdParts[1];
-			rowData.add("<a target='_blank' href='" + srcBaseUrlMap.get(src) + digits + "'>" + src + "</a>");
+			String srcId = src + ":" + digits;
+			rowData.add("<a target='_blank' href='" + srcBaseUrlMap.get(src) + digits + "'>" + srcId + "</a>");
 
             // curated data: human/mouse
             String human = "<span class='status done curatedHuman'>human</span>";
