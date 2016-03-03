@@ -205,7 +205,7 @@
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->
-  <h5>Abnormal phenotype table</h5>
+  <h5>Significant phenotype table</h5>
 
 
   <div class="row-fluid">
@@ -217,14 +217,11 @@
         <div class="container span12">
 
           <c:if test="${not empty phenotypes}">
-            <form
-                    class="tablefiltering no-style" id="target"
-                    action="destination.html">
+            <form class="tablefiltering no-style" id="target" action="destination.html">
               <c:forEach
                       var="phenoFacet" items="${phenoFacets}"
                       varStatus="phenoFacetStatus">
-                <select
-                        id="${phenoFacet.key}" class="impcdropdown"
+                <select id="${phenoFacet.key}" class="impcdropdown"
                         multiple="multiple"
                         title="Filter on ${phenoFacet.key}">
                   <c:forEach
@@ -250,8 +247,7 @@
             <jsp:include page="PhenoFrag.jsp"></jsp:include>
             <br/>
 
-            <div
-                    id="exportIconsDiv"></div>
+            <div id="exportIconsDiv"></div>
           </c:if>
 
           <!-- if no data to show -->
