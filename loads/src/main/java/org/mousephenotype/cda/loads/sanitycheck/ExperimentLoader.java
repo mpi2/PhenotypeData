@@ -114,18 +114,87 @@ public class ExperimentLoader {
 
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
+        long centerPk, specimenPk, statuscodePk;
         PreparedStatement ps;
+        ResultSet rs;
         String query;
         for (CentreProcedure centerProcedure : centerProcedures) {
             logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
 
-            Long centerPk = 0L;
+            connection.setAutoCommit(false);    // BEGIN TRANSACTION
+
+            centerPk = LoaderUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+
+            // Get centerPk
+            if (centerPk < 1) {
+                System.out.println("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + "," +  centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'");
+                connection.rollback();
+                continue;
+            }
 
             for (Experiment experiment : centerProcedure.getExperiment()) {
-                connection.setAutoCommit(false);    // BEGIN TRANSACTION
+                for (String specimenId : experiment.getSpecimenID()) {
+                    // get specimenPk
+                    Specimen specimen = LoaderUtils.getSpecimen(connection, specimenId, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    if (specimen == null) {
+                        System.out.println("UNKNOWN SPECIMEN,CENTER,PIPELINE,PROJECT: '" + specimenId + "," + centerProcedure.getCentreID().value() + "," +  centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'");
+                        connection.rollback();
+                        continue;
+                    }
+                    specimenPk = specimen.getHjid();
 
-                Long statuscodePk, specimenPk;
-                ResultSet rs;
+                    // procedure
+
+
+                    // center_procedure
+
+
+                    // experiment
+
+
+                    // experiment_statuscode
+
+
+                    // experiment_specimen
+
+
+                    // housing
+
+
+                    // line
+
+
+                    // line_statuscode
+
+
+                    // simpleParameter
+                    // ontologyParameter
+                    // seriesParameter
+                    // mediaParameter
+                    // ontologyParameterTerm
+                    // seriesParameterValue
+                    // mediaParameter_parameterAssociation
+                    // mediaParameter_procedureMetadata
+                    // parameterAssociation
+                    // procedureMetadata
+                    // dimension
+                    // mediaSampleParameter
+                    // mediaSample
+                    // mediaSection
+                    // mediaFile
+                    // mediaFile_parameterAssociation
+                    // mediaFile_procedureMetadata
+                    // seriesMediaParameter
+                    // procedure_procedureMetadata
+                    // seriesParameterValue
+                    // seriesMediaParameterValue_parameterAssociation
+                    // seriesMediaParameterValue_procedureMetadata
+
+
+                }
+
+
+
 
 
 //                // center

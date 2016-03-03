@@ -53,8 +53,8 @@ DROP TABLE IF EXISTS `procedure`;
 CREATE TABLE `procedure` (
  `pk` bigint(20) NOT NULL AUTO_INCREMENT,
  `procedureId` varchar(255) NOT NULL,
- PRIMARY KEY (`pk`),
- UNIQUE KEY procedureId_uk (procedureId)
+ `experiment_fk` bigint(20) NOT NULL,
+ PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `center_procedure`;
