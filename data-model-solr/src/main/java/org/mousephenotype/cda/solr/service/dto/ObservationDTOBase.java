@@ -88,6 +88,7 @@ public class ObservationDTOBase {
 	public final static String DATE_OF_EXPERIMENT = "date_of_experiment";
 	public final static String WEIGHT_DATE = "weight_date";
 	public static final String TEXT_VALUE ="text_value";
+	public static final String TERM_VALUE = "term_value";
 
 
 
@@ -266,9 +267,20 @@ public class ObservationDTOBase {
     
     @Field(TEXT_VALUE)
 	private String textValue;
+    
+    @Field(TERM_VALUE)
+	private String termValue;
 
 
-    public void setTextValue(String textValue) {
+    public String getTermValue() {
+		return termValue;
+	}
+
+	public void setTermValue(String termValue) {
+		this.termValue = termValue;
+	}
+
+	public void setTextValue(String textValue) {
 		this.textValue=textValue;
 		
 	}

@@ -16,6 +16,7 @@ public class HistopathServiceTest {
 	
 	@Test
 	public void getTableDataTest(){
+		//gene_accession_id:"MGI:2449119"
 		//HistoPath_1481
 		//looks like we don't pick up the associated pato term in the indexer e.g.
 		//<ontologyParameter parameterID="IMPC_HIS_119_001" sequenceID="1">

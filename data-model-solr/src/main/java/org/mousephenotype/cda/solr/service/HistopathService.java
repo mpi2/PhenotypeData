@@ -48,6 +48,8 @@ public class HistopathService {
 
 		for (String sampleId : extSampleIdToObservations.keySet()) {
 			System.out.println(sampleId);
+			//probably need to split these into embryo and adult - no we dont have any histopath for embryo
+			
 			for (String observationType : observationTypesForGene) {
 				for (ObservationDTO obs : extSampleIdToObservations.get(sampleId)) {
 					if (observationType.equals(obs.getObservationType())) {
