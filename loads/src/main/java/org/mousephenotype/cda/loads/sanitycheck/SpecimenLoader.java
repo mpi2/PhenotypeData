@@ -62,6 +62,7 @@ public class SpecimenLoader {
     private String username = "";
     private String password = "";
     private String dbName;
+    private boolean truncate = false;
 
     private Connection connection;
 
@@ -91,6 +92,9 @@ public class SpecimenLoader {
         // parameter to indicate the database password
         parser.accepts("password").withRequiredArg().ofType(String.class);
 
+        // parameter to indicate the database password
+        parser.accepts("truncate").withRequiredArg().ofType(String.class);
+
         OptionSet options = parser.parse(args);
 
         /* Uncomment if you want to use spring. */
@@ -111,6 +115,7 @@ public class SpecimenLoader {
         connection = DriverManager.getConnection(dbUrl, username, password);
 
         filename = (String) options.valuesOf("filename").get(0);
+        truncate = (options.valueOf("truncate").toString().toLowerCase().equals("true") ? true : false);
         logger.info("Loading specimen file {}", filename);
     }
 
@@ -153,19 +158,9 @@ public class SpecimenLoader {
 
                 // statuscode
                 if (specimen.getStatusCode() != null) {
-                    StatusCode existingStatuscode = LoaderUtils.getStatuscode(connection, specimen.getStatusCode().getValue());
-                    if (existingStatuscode != null) {
-                        statuscodePk = existingStatuscode.getHjid();
-                    } else {
-                        query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
-                        ps = connection.prepareStatement(query);
-                        ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
-                        ps.setString(2, specimen.getStatusCode().getValue());
-                        ps.execute();
-                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                        rs.next();
-                        statuscodePk = rs.getLong(1);
-                    }
+                    StatusCode existingStatuscode = LoaderUtils.selectOrInsertStatuscode(connection,
+                            specimen.getStatusCode().getValue(), specimen.getStatusCode().getDate());
+                    statuscodePk = existingStatuscode.getHjid();
                 } else {
                     statuscodePk = null;
                 }
