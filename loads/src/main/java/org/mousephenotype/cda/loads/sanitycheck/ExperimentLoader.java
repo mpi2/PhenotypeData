@@ -196,17 +196,28 @@ public class ExperimentLoader {
 
                     // line
                     if ((centerProcedure.getLine() != null) && ( ! centerProcedure.getLine().isEmpty())) {
-                        query = "INSERT INTO line (colonyId, center_procedure_fk) VALUES (?, ?);";
-                        ps = connection.prepareStatement(query);
                         for (Line line : centerProcedure.getLine()) {
+                            ps = connection.prepareStatement("SELECT * FROM line WHERE colonyId = ? AND center_procedure_fk = ?");
                             ps.setString(1, line.getColonyID());
                             ps.setLong(2, centerProcedurePk);
-                            ps.execute();
-                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                            rs.next();
-                            long linePk = rs.getLong(1);
+                            rs = ps.executeQuery();
+                            long linePk;
+                            if (rs.next()) {
+                                linePk = rs.getLong("pk");
+                            } else {
+                                query = "INSERT INTO line (colonyId, center_procedure_fk) VALUES (?, ?);";
+                                ps = connection.prepareStatement(query);
 
-                            if ((line.getStatusCode() != null) && ( ! line.getStatusCode().isEmpty())) {
+
+                                ps.setString(1, line.getColonyID());
+                                ps.setLong(2, centerProcedurePk);
+                                ps.execute();
+                                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                                rs.next();
+                                linePk = rs.getLong(1);
+                            }
+
+                            if ((line.getStatusCode() != null) && (!line.getStatusCode().isEmpty())) {
                                 // line_statuscode
                                 query = "INSERT INTO line_statuscode (line_fk, statuscode_fk) VALUES (?, ?);";
                                 ps = connection.prepareStatement(query);
