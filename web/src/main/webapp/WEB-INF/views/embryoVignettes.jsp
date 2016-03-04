@@ -91,7 +91,7 @@
                             				Embryo Gross Dysmorphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${baseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Image</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Image</a>
                             			</li> 
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1916804">table</a>
@@ -107,7 +107,7 @@
                        	
                        	
                        	<div class="section">
-							<h2 class="title">Acvr2atm1.1(KOMP)Vlcg</h2>
+							<h2 class="title"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 							<c:set var="geneId" value="MGI:102806"></c:set>
                             <div class="inner">
                             	<div class="half">
@@ -130,7 +130,7 @@
                             				Embryo Gross Dysmorphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${baseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
@@ -154,21 +154,23 @@
                        	
                        	
                        		<div class="section">
-							<h2 class="title">Acvr2atm1.1(KOMP)Vlcg</h2>
-							<c:set var="geneId" value="MGI:102806"></c:set>
+							<h2 class="title"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg>
+</t:formatAllele></h2>
+							<c:set var="geneId" value="MGI:1195985"></c:set>
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.
-										Acvr2a mutants are subviable with most pups dying before postnatal day 7. Micro-CT analysis at E15.5 revealed variable penetrance of eye and craniofacial abnormalities. Eye phenotypes varied from normal (Embryo 1- (E1)), to underdeveloped (E2), to cyclopic (E3), to absent (E4). Craniofacial phenotypes varied from normal (E1) to narrow snout (E2), to an elongated  snout missing the mandible and tongue (E3, 4) and low set ears (E2, 3, 4).
-<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal​embryos may have a heart defect.
+                         				Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development.
+Cbx4 mutants showed complete preweaning lethality but were viable at E12.5 and E15.5 with no obvious gross morphological change.
+Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistically smaller thymus and also revealed smaller adrenal glands and trigeminal ganglia compared to Cbx4+/+ wildtype embryos.
+
                         			</p>
                         			<p>
                         			Phenotype data  links
                         			</p>
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548407&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: NA
@@ -177,7 +179,7 @@
                             				Embryo Gross Dysmorphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${baseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
@@ -185,16 +187,20 @@
                             		</ul>
                             		
                             	</div>
-                            	<div class="half"><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2a.png" >Micro-CT analysis of E15.5 Acvr2a wildtype embryo compared to four  mutant embryos with variable penetrance of  eye and craniofacial abnormalities.
-								</div>
+                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbx4.png" >Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1 mutants viewed in coronal section revealed that mutant embryos had bilateral smaller trigeminal ganglia, thymus, and adrenal glands compared to Cbx4+/+ wildtype embryos as indicated by blue colour and highlighted by pink arrows (False Discovery Rate (FDR) threshold of 5%).
+</div>
 								
                             	<div class="clear"></div>
-                            	
-                            	<div >
-                            	<img src="${baseUrl}/img/vignettes/Acvr2aHist.png"/>
-                            	H&E stained sagittal section of an E15.5 Acvr2a+/+ wildtype embryo compared to an E15.5 Acvr2atm1.1/tm1.1 mutant embryo showing that the tongue and mandible are missing in the mutant embryo (arrow).
-                            	
-                            	</div>
+                            	<div class="inner">
+                       					<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbxVol1.png"  >
+                       					</div>
+                       					<div><img class="half" alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbxVol2.png">
+                       					</div>
+           								<div class="clear"></div>
+                       					<p>Whole structural volume differences calculated as a percentage of whole body	volume for the left and right thymic rudiment (left) and left and right adrenal (right) of Cbx4tm1.1/tm1.1 mutant embryos compared to Cbx4+/+ wildtype embryos.  Both organs are significantly smaller in the Cbx4 mutant embryos at an FDR threshold of 5% where the error bars represent 95% confidence intervals.
+                       					</p>
+                       			</div>	
+								</div>
                             </div>
                        	</div>
                        	
@@ -205,7 +211,7 @@
             </div>
         </div>
         
-        </div>
+        
 
 
 
