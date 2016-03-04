@@ -111,11 +111,15 @@ public class ObservationIndexer extends AbstractIndexer {
 
 			connection = komp2DataSource.getConnection();
 
+			System.out.println("populating pipeline map");
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
+			System.out.println("populating procedure map");
 			procedureMap = IndexerMap.getImpressProcedures(connection);
+			System.out.println("populating parameter map");
 			parameterMap = IndexerMap.getImpressParameters(connection);
 
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
@@ -131,19 +135,24 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		try {
 
+			System.out.println("pop datasource map");
 			populateDatasourceDataMap();
+			System.out.println("pop categorynames map");
 			populateCategoryNamesDataMap();
-
+			System.out.println("pop biological data map");
 			populateBiologicalDataMap();
+			System.out.println("pop line data map");
 			populateLineBiologicalDataMap();
 			populateParameterAssociationMap();
-
+			System.out.println("pop weight map");
 			populateWeightMap();
+			System.out.println("pop ipgt map");
 			populateIpgttWeightMap();
 
 			count = populateObservationSolrCore(runStatus);
 
 		} catch (SolrServerException | SQLException | IOException e) {
+			e.printStackTrace();
 			throw new IndexerException(e);
 		}
 
@@ -168,8 +177,8 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "uo.data_point as unidimensional_data_point,\n"
                 + "mo.data_point as multidimensional_data_point,\n"
                 + "tso.data_point as time_series_data_point,\n"
-                //+ "tro.text as text_value,\n"
-                //+ "ontE.term_value,\n"
+                + "tro.text as text_value,\n"
+                + "ontE.term_value,\n"
                 + "mo.order_index,\n"
                 + "mo.dimension,\n"
                 + "tso.time_point,\n"
@@ -182,17 +191,20 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id\n"
                 + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id\n"
                 + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id\n"
-                //+ "LEFT OUTER JOIN text_observation tro ON o.id=tro.id\n"
-                //+" LEFT OUTER JOIN ontology_entity ontE ON o.id=ontE.ontology_observation_id\n"
+                + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id\n"
+                +" LEFT OUTER JOIN ontology_entity ontE ON o.id=ontE.ontology_observation_id\n"
                 + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id\n"
                 + "INNER JOIN experiment e on eo.experiment_id=e.id\n"
                 + "WHERE o.missing=0";
+        
+        
 
         try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
 	        p.setFetchSize(Integer.MIN_VALUE);
-
+	        System.out.println("runnin main prep statement");
 	        ResultSet r = p.executeQuery();
+	        System.out.println("executed query");
 	        while (r.next()) {
 
 		        ObservationDTOWrite o = new ObservationDTOWrite();
@@ -206,6 +218,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			        dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 			        o.setDateOfExperiment(dateOfExperiment);
 		        } catch (NullPointerException e) {
+		        	e.printStackTrace();
 			        logger.debug("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
 			        o.setDateOfExperiment(null);
 		        }
@@ -445,7 +458,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		        count++;
 
-		        if (count % 2000000 == 0) {
+		        if (count % 2000 == 0) {
 			        logger.info(" Added " + count + " beans");
 		        }
 	        }
@@ -521,6 +534,7 @@ public class ObservationIndexer extends AbstractIndexer {
 				try {
 					b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 				} catch (NullPointerException e) {
+					e.printStackTrace();
 					b.dateOfBirth = null;
 					logger.debug("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
 				}
@@ -843,6 +857,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		        try {
 			        b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 		        } catch (NullPointerException e) {
+		        	e.printStackTrace();
 			        b.date = null;
 			        logger.debug("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
 		        }
@@ -889,6 +904,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			    try {
 				    b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 			    } catch (NullPointerException e) {
+			    	e.printStackTrace();
 				    b.date = null;
 				    logger.debug("No date of experiment set for sample id {} parameter {}", resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
 
