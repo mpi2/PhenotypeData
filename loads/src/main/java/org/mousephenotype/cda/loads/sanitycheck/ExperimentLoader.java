@@ -53,6 +53,7 @@ public class ExperimentLoader {
     private String username = "";
     private String password = "";
     private String dbName;
+    private boolean truncate = false;
 
     private Connection connection;
 
@@ -82,6 +83,9 @@ public class ExperimentLoader {
         // parameter to indicate the database password
         parser.accepts("password").withRequiredArg().ofType(String.class);
 
+        // parameter to indicate the database password
+        parser.accepts("truncate").withRequiredArg().ofType(String.class);
+
         OptionSet options = parser.parse(args);
 
         dbName = (String) options.valuesOf("dbname").get(0);
@@ -94,6 +98,7 @@ public class ExperimentLoader {
         connection = DriverManager.getConnection(dbUrl, username, password);
 
         filename = (String) options.valuesOf("filename").get(0);
+        truncate = (options.valueOf("truncate").toString().toLowerCase().equals("true") ? true : false);
         logger.info("Loading experiment file {}", filename);
     }
 
@@ -114,10 +119,9 @@ public class ExperimentLoader {
         for (CentreProcedure centerProcedure : centerProcedures) {
             logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
 
-
-LoaderUtils.truncateExperimentTables(connection);
-
-
+            if (truncate) {
+                LoaderUtils.truncateExperimentTables(connection);
+            }
 
             connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
@@ -158,20 +162,21 @@ LoaderUtils.truncateExperimentTables(connection);
                     }
 
                     // center_procedure
-                    query = "INSERT INTO center_procedure (center_fk, procedure_fk) VALUES (?, ?);";
-                    ps = connection.prepareStatement(query);
+                    ps = connection.prepareStatement("SELECT * FROM center_procedure WHERE center_fk = ? and procedure_fk = ?");
                     ps.setLong(1, centerPk);
                     ps.setLong(2, procedurePk);
-                    try {
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        centerProcedurePk = rs.getLong("pk");
+                    } else {
+                        query = "INSERT INTO center_procedure (center_fk, procedure_fk) VALUES (?, ?);";
+                        ps = connection.prepareStatement(query);
+                        ps.setLong(1, centerPk);
+                        ps.setLong(2, procedurePk);
                         ps.execute();
                         rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
                         rs.next();
                         centerProcedurePk = rs.getLong(1);
-                    } catch (SQLException e) {
-                        // Duplicate procedure
-                        System.out.println("DUPLICATE PROCEDURE: '" + experiment.getProcedure().getProcedureID());
-                        connection.rollback();
-                        continue;
                     }
 
                     // housing
@@ -203,24 +208,15 @@ LoaderUtils.truncateExperimentTables(connection);
                                 query = "INSERT INTO line_statuscode (line_fk, statuscode_fk) VALUES (?, ?);";
                                 ps = connection.prepareStatement(query);
                                 for (StatusCode statuscode : line.getStatusCode()) {
-                                    StatusCode existingStatuscode = LoaderUtils.getStatuscode(connection, statuscode.getValue());
-                                    if (existingStatuscode != null) {
-                                        statuscodePk = existingStatuscode.getHjid();
-                                    } else {
-                                        query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
-                                        ps = connection.prepareStatement(query);
-                                        ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
-                                        ps.setString(2, specimen.getStatusCode().getValue());
-                                        ps.execute();
-                                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                                        rs.next();
-                                        statuscodePk = rs.getLong(1);
-                                    }
+                                    StatusCode existingStatuscode = LoaderUtils.selectOrInsertStatuscode(connection, statuscode);
+                                    statuscodePk = existingStatuscode.getHjid();
+                                    ps.setLong(1, linePk);
+                                    ps.setLong(2, statuscodePk);
+                                    ps.execute();
                                 }
                             }
                         }
                     }
-
 
                     // experiment
 
@@ -255,6 +251,8 @@ LoaderUtils.truncateExperimentTables(connection);
                     // seriesMediaParameterValue_parameterAssociation
                     // seriesMediaParameterValue_procedureMetadata
 
+
+                    connection.commit();
 
                 }
 
@@ -472,8 +470,6 @@ LoaderUtils.truncateExperimentTables(connection);
 //                    ps.setLong(3, specimenPk);
 //                    ps.execute();
 //                }
-
-                connection.commit();
             }
         }
 

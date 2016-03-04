@@ -29,6 +29,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.io.File;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
@@ -303,7 +304,7 @@ public class LoaderUtils {
                     specimen.setStrainID(strainId);
                 }
                 specimen.setZygosity(Zygosity.fromValue(rs.getString("zygosity")));
-                specimen.setStatusCode(getStatuscode(connection, specimen.getHjid()));
+                specimen.setStatusCode(selectOrInsertStatuscode(connection, specimen.getStatusCode()));
             }
 
         } catch (SQLException e) {
@@ -311,51 +312,6 @@ public class LoaderUtils {
         }
 
         return specimen;
-    }
-
-    /**
-     * Returns the Specimen <code>StatusCode</code>, if it exists; null otherwise.
-     *
-     * @param connection  A valid database connection
-     * @param specimen_pk The specimen primary key
-     * @return The <code>StatusCode</code> matching specimen_pk, if it exists; null otherwise.
-     * <p/>
-     * <i>NOTE: The primary key value is returned in Hjid.</i>
-     */
-    @Deprecated
-    public static StatusCode getStatuscode(Connection connection, long specimen_pk) {
-        StatusCode statuscode = new StatusCode();
-        String query =
-                "SELECT sc.pk, sc.dateOfStatuscode, sc.value\n"
-                + "FROM specimen s"
-                + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk"
-                + "where s.pk = ?;";
-        PreparedStatement ps;
-        ResultSet rs;
-
-        try {
-            ps = connection.prepareStatement(query);
-            ps.setLong(1, specimen_pk);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                Long pk = rs.getLong("sc.pk");
-                if (pk > 0) {
-                    statuscode.setHjid(pk);
-                    Date dateOfStatuscode = rs.getDate("sc.dateOfStatuscode");
-                    if (dateOfStatuscode != null) {
-                        GregorianCalendar gc = new GregorianCalendar();
-                        gc.setTime(dateOfStatuscode);
-                        statuscode.setDate(gc);
-                        statuscode.setValue(rs.getString("sc.value"));
-                    }
-                }
-            }
-
-        } catch (SQLException e) {
-
-        }
-
-        return statuscode;
     }
 
     /**
@@ -404,18 +360,64 @@ public class LoaderUtils {
     }
 
     /**
-     * Give a statuscode value, attempts to fetch the matching object. If there is none, the value and (nullable)
+     * Given a statuscode value, attempts to fetch the matching object. If there is none, the value and (nullable)
      * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
      *
      * <i>NOTE: if <code>value</code> is null, a null <code>StatusCode</code> is returned.</i>
      *
+     * @param connection  A valid database connection
      * @param value The status code value (required)
-     * @param dateOfStatuscode statuscode date (may be null)
+     * @param dateOfStatuscode statuscode date (may be null)  (Not used in SELECT)
+     *
      * @return The <code>StatusCode</code> instance matching <code>value</code>, inserted first if necessary.
      */
-    public static StatusCode selectOrInsertStatuscode(String value, Date dateOfStatuscode) {
-        StatusCode statuscode = new StatusCode();
+    public static StatusCode selectOrInsertStatuscode(Connection connection, String value, Calendar dateOfStatuscode) {
+        StatusCode statuscode = getStatuscode(connection, value);
+
+        if (value == null)
+            return statuscode;
+
+        if (statuscode == null) {
+            String query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES (?, ?)\n";
+            try {
+                PreparedStatement ps = connection.prepareStatement(query);
+                if (dateOfStatuscode != null)
+                ps.setDate(1, dateOfStatuscode == null ? null : new java.sql.Date(dateOfStatuscode.getTimeInMillis()));
+                ps.setString(2, value);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Invalid date '" + dateOfStatuscode.getTime().toString());
+            }
+        }
+
+        statuscode = getStatuscode(connection, value);
 
         return statuscode;
+    }
+
+    /**
+     * Given a statuscode instance, attempts to fetch the matching object. If there is none, the value and (nullable)
+     * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
+     *
+     * @param connection  A valid database connection
+     * @param statuscode The <code>StatusCode</code> instance
+     *
+     * @return The <code>StatusCode</code> instance matching <code>value</code>, inserted first if necessary.
+     */
+    public static StatusCode selectOrInsertStatuscode(Connection connection, StatusCode statuscode) {
+        if (statuscode == null)
+            return null;
+
+        return selectOrInsertStatuscode(connection, statuscode.getValue(), statuscode.getDate());
+
+
+
+        // ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
+
+
+
+
+
     }
 }
