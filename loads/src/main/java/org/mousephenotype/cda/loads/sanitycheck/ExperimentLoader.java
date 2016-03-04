@@ -18,22 +18,15 @@ package org.mousephenotype.cda.loads.sanitycheck;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.CentreProcedure;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.CentreProcedureSet;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Experiment;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -114,7 +107,7 @@ public class ExperimentLoader {
 
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
-        long centerPk, specimenPk, statuscodePk;
+        long centerPk, centerProcedurePk, procedurePk, specimenPk, statuscodePk;
         PreparedStatement ps;
         ResultSet rs;
         String query;
@@ -144,9 +137,84 @@ public class ExperimentLoader {
                     specimenPk = specimen.getHjid();
 
                     // procedure
-
+                    ps = connection.prepareStatement("SELECT * FROM procedure WHERE procedureId = ?;");
+                    ps.setString(1, experiment.getProcedure().getProcedureID());
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        procedurePk = rs.getLong("pk");
+                    } else {
+                        query = "INSERT INTO procedure (procedureId) VALUES (?);";
+                        ps = connection.prepareStatement(query);
+                        ps.setString(1, experiment.getProcedure().getProcedureID());
+                        ps.execute();
+                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                        rs.next();
+                        procedurePk = rs.getLong(1);
+                    }
 
                     // center_procedure
+                    query = "INSERT INTO center_procedure (center_fk, procedure_fk) VALUES (?, ?);";
+                    ps = connection.prepareStatement(query);
+                    ps.setLong(1, centerPk);
+                    ps.setLong(2, procedurePk);
+                    try {
+                        ps.execute();
+                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                        rs.next();
+                        centerProcedurePk = rs.getLong(1);
+                    } catch (SQLException e) {
+                        // Duplicate procedure
+                        System.out.println("DUPLICATE PROCEDURE: '" + experiment.getProcedure().getProcedureID());
+                        connection.rollback();
+                        continue;
+                    }
+
+                    // housing
+                    if ((centerProcedure.getHousing() != null) && ( ! centerProcedure.getHousing().isEmpty())) {
+                        query = "INSERT INTO housing (fromLims, lastUpdated, center_procedure_fk) VALUES (?, ?, ?);";
+                        ps = connection.prepareStatement(query);
+                        for (Housing housing : centerProcedure.getHousing()) {
+                            ps.setInt(1, (housing.isFromLIMS() ? 1 : 0));
+                            ps.setDate(2, housing.getLastUpdated() == null ? null : new Date(housing.getLastUpdated().getTime().getTime()));
+                            ps.setLong(3, centerProcedurePk);
+                            ps.execute();
+                        }
+                    }
+
+                    // line
+                    if ((centerProcedure.getLine() != null) && ( ! centerProcedure.getLine().isEmpty())) {
+                        query = "INSERT INTO line (colonyId, center_procedure_fk) VALUES (?, ?);";
+                        ps = connection.prepareStatement(query);
+                        for (Line line : centerProcedure.getLine()) {
+                            ps.setString(1, line.getColonyID());
+                            ps.setLong(2, centerProcedurePk);
+                            ps.execute();
+                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                            rs.next();
+                            long linePk = rs.getLong(1);
+
+                            if ((line.getStatusCode() != null) && ( ! line.getStatusCode().isEmpty())) {
+                                // line_statuscode
+                                query = "INSERT INTO line_statuscode (line_fk, statuscode_fk) VALUES (?, ?);";
+                                ps = connection.prepareStatement(query);
+                                for (StatusCode statuscode : line.getStatusCode()) {
+                                    StatusCode existingStatuscode = LoaderUtils.getStatuscode(connection, statuscode.getValue());
+                                    if (existingStatuscode != null) {
+                                        statuscodePk = existingStatuscode.getHjid();
+                                    } else {
+                                        query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
+                                        ps = connection.prepareStatement(query);
+                                        ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
+                                        ps.setString(2, specimen.getStatusCode().getValue());
+                                        ps.execute();
+                                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                                        rs.next();
+                                        statuscodePk = rs.getLong(1);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
 
                     // experiment
@@ -155,16 +223,8 @@ public class ExperimentLoader {
                     // experiment_statuscode
 
 
+
                     // experiment_specimen
-
-
-                    // housing
-
-
-                    // line
-
-
-                    // line_statuscode
 
 
                     // simpleParameter

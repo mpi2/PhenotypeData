@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.sanitycheck;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.xmlserialization.exceptions.XMLloadingException;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
@@ -152,14 +153,19 @@ public class SpecimenLoader {
 
                 // statuscode
                 if (specimen.getStatusCode() != null) {
-                    query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
-                    ps = connection.prepareStatement(query);
-                    ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
-                    ps.setString(2, specimen.getStatusCode().getValue());
-                    ps.execute();
-                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                    rs.next();
-                    statuscodePk = rs.getLong(1);
+                    StatusCode existingStatuscode = LoaderUtils.getStatuscode(connection, specimen.getStatusCode().getValue());
+                    if (existingStatuscode != null) {
+                        statuscodePk = existingStatuscode.getHjid();
+                    } else {
+                        query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
+                        ps = connection.prepareStatement(query);
+                        ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
+                        ps.setString(2, specimen.getStatusCode().getValue());
+                        ps.execute();
+                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                        rs.next();
+                        statuscodePk = rs.getLong(1);
+                    }
                 } else {
                     statuscodePk = null;
                 }
