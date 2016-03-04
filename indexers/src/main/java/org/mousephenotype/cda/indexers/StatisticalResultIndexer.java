@@ -232,11 +232,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			while (r.next()) {
 
 				// Skip processing females for male infertility parameter
-				if (r.getString("dependent_variable").equals("IMPC_FER_001_001") && r.getString("sex").equals("female")) {
+				if (r.getString("dependent_variable")!=null && r.getString("dependent_variable").equals("IMPC_FER_001_001") && r.getString("sex")!=null && r.getString("sex").equals("female")) {
 					continue;
 				}
 				// Skip processing males for female infertility parameter
-				if (r.getString("dependent_variable").equals("IMPC_FER_019_001") && r.getString("sex").equals("male")) {
+				if (r.getString("dependent_variable")!=null &&r.getString("dependent_variable").equals("IMPC_FER_019_001") && r.getString("sex")!=null && r.getString("sex").equals("male")) {
 					continue;
 				}
 
