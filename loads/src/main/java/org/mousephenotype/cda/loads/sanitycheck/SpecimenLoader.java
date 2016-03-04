@@ -129,7 +129,7 @@ public class SpecimenLoader {
         for (CentreSpecimen centerSpecimen : centerSpecimens) {
             logger.debug("Parsing specimens for center {}", centerSpecimen.getCentreID());
 
-            Long centerPk = 0L;
+            long centerPk = 0L;
             for (Specimen specimen : centerSpecimen.getMouseOrEmbryo()) {
 
                 connection.setAutoCommit(false);    // BEGIN TRANSACTION
@@ -139,7 +139,7 @@ public class SpecimenLoader {
 
                 // center
                 centerPk = LoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
-                if (centerPk == null) {
+                if (centerPk < 1) {
                     query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, centerSpecimen.getCentreID().value());
