@@ -124,7 +124,7 @@
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression: NA
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
                             				Embryo Gross Dysmorphology: NA
@@ -154,8 +154,7 @@
                        	
                        	
                        		<div class="section">
-							<h2 class="title"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg>
-</t:formatAllele></h2>
+							<h2 class="title"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 							<c:set var="geneId" value="MGI:1195985"></c:set>
                             <div class="inner">
                             	<div class="half">
@@ -173,7 +172,7 @@ Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistic
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548407&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression: NA
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
                             				Embryo Gross Dysmorphology: NA
@@ -202,6 +201,55 @@ Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistic
                        			</div>	
 								</div>
                             </div>
+                            
+                            
+                            
+                            <div class="section">
+							<h2 class="title"><t:formatAllele>Tmem100<tm1e.1(komp)Wtsi></t:formatAllele></h2>
+							<c:set var="geneId" value="MGI:1915138"></c:set>
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway.
+Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5.
+LacZ staining in E12.5 Het embryos was found predominantly in arterial endothelial cells and the heart (arrow) .
+OPT analysis at E9.5 revealed that Tmem100 mutant embryos have a large pericardial effusion with cardiac dysmorphology and enlargement (arrow).
+
+                        			</p>
+                        			<p>
+                        			Phenotype data  links
+                        			</p>
+                            		<ul>
+                            			<li>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=NULL-73D315493&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: NA
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            			</li> 
+                            			<li>
+                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100.png" >OPT analysis of E9.5 Tmem100 wildtype embryo to a Tmem100tm1e.1/tm1e.1  mutant embryo and lacZ staining in an E12.5 Tmem100+/tm1e.1 embryo.
+								</div>
+								<div><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100GM.png" >Gross morphology at E9.5 revealed that Tmem100tm1e.1/tm1e.1 mutant embryos have a large pericardial effusion with cardiac dysmorphology and enlargement (arrow).
+								</div>
+								
+                            	<div class="clear"></div>
+                            	
+								</div>
+                            </div>
+                            
+                            
+                            
                        	</div>
                        	
                           
