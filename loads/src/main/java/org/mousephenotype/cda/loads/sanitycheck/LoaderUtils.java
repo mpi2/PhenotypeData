@@ -322,6 +322,7 @@ public class LoaderUtils {
      * <p/>
      * <i>NOTE: The primary key value is returned in Hjid.</i>
      */
+    @Deprecated
     public static StatusCode getStatuscode(Connection connection, long specimen_pk) {
         StatusCode statuscode = new StatusCode();
         String query =
@@ -353,6 +354,67 @@ public class LoaderUtils {
         } catch (SQLException e) {
 
         }
+
+        return statuscode;
+    }
+
+    /**
+     * Returns the <code>StatusCode</code> matching <code>value</code>, if found; null otherwise.
+     *
+     * @param connection  A valid database connection
+     * @param value The StatusCode value to search for
+     * @return The <code>StatusCode</code> matching <code>value</code>, if found; null otherwise.
+     * <p/>
+     * <i>NOTE: The primary key value is returned in Hjid.</i>
+     */
+    public static StatusCode getStatuscode(Connection connection, String value) {
+        StatusCode statuscode = new StatusCode();
+
+        if (value == null)
+            return statuscode;
+
+        String query =
+                "SELECT * FROM statuscode WHERE value = ?;\n";
+        PreparedStatement ps;
+        ResultSet rs;
+
+        try {
+            ps = connection.prepareStatement(query);
+            ps.setString(1, value);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                long pk = rs.getLong("pk");
+                if (pk > 0) {
+                    statuscode.setHjid(pk);
+                    Date dateOfStatuscode = rs.getDate("dateOfStatuscode");
+                    if (dateOfStatuscode != null) {
+                        GregorianCalendar gc = new GregorianCalendar();
+                        gc.setTime(dateOfStatuscode);
+                        statuscode.setDate(gc);
+                        statuscode.setValue(rs.getString("sc.value"));
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+
+        }
+
+        return statuscode;
+    }
+
+    /**
+     * Give a statuscode value, attempts to fetch the matching object. If there is none, the value and (nullable)
+     * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
+     *
+     * <i>NOTE: if <code>value</code> is null, a null <code>StatusCode</code> is returned.</i>
+     *
+     * @param value The status code value (required)
+     * @param dateOfStatuscode statuscode date (may be null)
+     * @return The <code>StatusCode</code> instance matching <code>value</code>, inserted first if necessary.
+     */
+    public static StatusCode selectOrInsertStatuscode(String value, Date dateOfStatuscode) {
+        StatusCode statuscode = new StatusCode();
 
         return statuscode;
     }
