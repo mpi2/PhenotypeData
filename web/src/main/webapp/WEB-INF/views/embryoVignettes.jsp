@@ -151,6 +151,53 @@
                             </div>
                        	</div>
                        	
+                       	
+                       	
+                       		<div class="section">
+							<h2 class="title">Acvr2atm1.1(KOMP)Vlcg</h2>
+							<c:set var="geneId" value="MGI:102806"></c:set>
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.
+										Acvr2a mutants are subviable with most pups dying before postnatal day 7. Micro-CT analysis at E15.5 revealed variable penetrance of eye and craniofacial abnormalities. Eye phenotypes varied from normal (Embryo 1- (E1)), to underdeveloped (E2), to cyclopic (E3), to absent (E4). Craniofacial phenotypes varied from normal (E1) to narrow snout (E2), to an elongated  snout missing the mandible and tongue (E3, 4) and low set ears (E2, 3, 4).
+<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal​embryos may have a heart defect.
+                        			</p>
+                        			<p>
+                        			Phenotype data  links
+                        			</p>
+                            		<ul>
+                            			<li>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: NA
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: NA
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${baseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            			</li> 
+                            			<li>
+                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half"><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2a.png" >Micro-CT analysis of E15.5 Acvr2a wildtype embryo compared to four  mutant embryos with variable penetrance of  eye and craniofacial abnormalities.
+								</div>
+								
+                            	<div class="clear"></div>
+                            	
+                            	<div >
+                            	<img src="${baseUrl}/img/vignettes/Acvr2aHist.png"/>
+                            	H&E stained sagittal section of an E15.5 Acvr2a+/+ wildtype embryo compared to an E15.5 Acvr2atm1.1/tm1.1 mutant embryo showing that the tongue and mandible are missing in the mutant embryo (arrow).
+                            	
+                            	</div>
+                            </div>
+                       	</div>
+                       	
                           
                       
                     <!--end of node wrapper should be after all secions  -->
