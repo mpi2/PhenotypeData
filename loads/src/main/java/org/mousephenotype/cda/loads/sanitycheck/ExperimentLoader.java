@@ -98,7 +98,10 @@ public class ExperimentLoader {
         connection = DriverManager.getConnection(dbUrl, username, password);
 
         filename = (String) options.valuesOf("filename").get(0);
-        truncate = (options.valueOf("truncate").toString().toLowerCase().equals("true") ? true : false);
+        truncate = false;
+        if ( ! options.valuesOf("truncate").isEmpty()) {
+            truncate = (options.valuesOf("truncate").get(0).toString().toLowerCase().equals("true") ? true : false);
+        }
         logger.info("Loading experiment file {}", filename);
     }
 
