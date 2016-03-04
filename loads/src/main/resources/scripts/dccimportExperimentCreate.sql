@@ -49,8 +49,8 @@ CREATE TABLE `line` (
  UNIQUE KEY colonyId_centerProcedureFk_uk (colonyId, center_procedure_fk)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `procedure`;
-CREATE TABLE `procedure` (
+DROP TABLE IF EXISTS `procedure_`;
+CREATE TABLE `procedure_` (
  `pk` bigint(20) NOT NULL AUTO_INCREMENT,
  `procedureId` varchar(255) NOT NULL,
  PRIMARY KEY (`pk`)
@@ -298,23 +298,23 @@ ADD CONSTRAINT `line_center_procedure_fk` FOREIGN KEY (`center_procedure_fk`) RE
 
 ALTER TABLE center_procedure
 ADD CONSTRAINT `center_procedure_center_fk` FOREIGN KEY (`center_fk`) REFERENCES `center` (`pk`),
-ADD CONSTRAINT `center_procedure_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `center_procedure_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE line_statuscode
 ADD CONSTRAINT `line_statuscode_line_fk` FOREIGN KEY (`line_fk`) REFERENCES `line` (`pk`),
 ADD CONSTRAINT `line_statuscode_statuscode_fk` FOREIGN KEY (`statuscode_fk`) REFERENCES `statuscode` (`pk`);
 
 ALTER TABLE simpleParameter
-ADD CONSTRAINT `simpleParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `simpleParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE ontologyParameter
-ADD CONSTRAINT `ontologyParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `ontologyParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE seriesParameter
-ADD CONSTRAINT `seriesParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `seriesParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE mediaParameter
-ADD CONSTRAINT `mediaParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `mediaParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE ontologyParameterTerm
 ADD CONSTRAINT `ontologyParameterTerm_ontologyParameter_fk` FOREIGN KEY (`ontologyParameter_fk`) REFERENCES `ontologyParameter` (`pk`);
@@ -334,7 +334,7 @@ ALTER TABLE dimension
 ADD CONSTRAINT `dimension_parameterAssociation_fk` FOREIGN KEY (`parameterAssociation_fk`) REFERENCES `parameterAssociation` (`pk`);
 
 ALTER TABLE mediaSampleParameter
-ADD CONSTRAINT `mediaSampleParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `mediaSampleParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE mediaSample
 ADD CONSTRAINT `mediaSample_mediaSampleParameter_fk` FOREIGN KEY (`mediaSampleParameter_fk`) REFERENCES `mediaSampleParameter` (`pk`);
@@ -354,10 +354,10 @@ ADD CONSTRAINT `mediaFile_procedureMetadata_mediaFile_fk` FOREIGN KEY (`mediaFil
 ADD CONSTRAINT `mediaFile_procedureMetadata_procedureMetadata_fk` FOREIGN KEY (`procedureMetadata_fk`) REFERENCES `procedureMetadata` (`pk`);
 
 ALTER TABLE seriesMediaParameter
-ADD CONSTRAINT `seriesMediaParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`);
+ADD CONSTRAINT `seriesMediaParameter_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`);
 
 ALTER TABLE procedure_procedureMetadata
-ADD CONSTRAINT `procedure_procedureMetadata_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure` (`pk`),
+ADD CONSTRAINT `procedure_procedureMetadata_procedure_fk` FOREIGN KEY (`procedure_fk`) REFERENCES `procedure_` (`pk`),
 ADD CONSTRAINT `procedure_procedureMetadata_procedureMetadata_fk` FOREIGN KEY (`procedureMetadata_fk`) REFERENCES `procedureMetadata` (`pk`);
 
 ALTER TABLE seriesMediaParameterValue
