@@ -140,7 +140,7 @@ public class LoaderUtils {
                 , "experiment_specimen"
                 , "housing"
                 , "line"
-                , "procedure"
+                , "procedure_"
                 , "center_procedure"
                 , "line_statuscode"
                 , "simpleParameter"
