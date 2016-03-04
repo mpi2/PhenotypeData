@@ -114,6 +114,11 @@ public class ExperimentLoader {
         for (CentreProcedure centerProcedure : centerProcedures) {
             logger.debug("Parsing experiments for center {}", centerProcedure.getCentreID());
 
+
+LoaderUtils.truncateExperimentTables(connection);
+
+
+
             connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
             centerPk = LoaderUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
@@ -137,13 +142,13 @@ public class ExperimentLoader {
                     specimenPk = specimen.getHjid();
 
                     // procedure
-                    ps = connection.prepareStatement("SELECT * FROM procedure WHERE procedureId = ?;");
+                    ps = connection.prepareStatement("SELECT * FROM procedure_ WHERE procedureId = ?;");
                     ps.setString(1, experiment.getProcedure().getProcedureID());
                     rs = ps.executeQuery();
                     if (rs.next()) {
                         procedurePk = rs.getLong("pk");
                     } else {
-                        query = "INSERT INTO procedure (procedureId) VALUES (?);";
+                        query = "INSERT INTO procedure_ (procedureId) VALUES (?);";
                         ps = connection.prepareStatement(query);
                         ps.setString(1, experiment.getProcedure().getProcedureID());
                         ps.execute();

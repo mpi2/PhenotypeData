@@ -5,7 +5,7 @@ TRUNCATE experiment_statuscode;
 TRUNCATE experiment_specimen;
 TRUNCATE housing;
 TRUNCATE line;
-TRUNCATE procedure;
+TRUNCATE procedure_;
 TRUNCATE center_procedure;
 TRUNCATE line_statuscode;
 TRUNCATE simpleParameter;
