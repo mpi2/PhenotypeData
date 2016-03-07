@@ -27,7 +27,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.service.ImpressService.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -68,9 +67,9 @@ public class ExpressionService extends BasicService {
 	// @Autowired
 	// MaService maService;
 
-	Map<String, ImpressService.OntologyBean> abnormalMaFromImpress = null;
+	Map<String, OntologyBean> abnormalMaFromImpress = null;
 
-	Map<String, ImpressService.OntologyBean> abnormalEmapFromImpress = null;
+	Map<String, OntologyBean> abnormalEmapFromImpress = null;
 
 	public ExpressionService() {
 	}
