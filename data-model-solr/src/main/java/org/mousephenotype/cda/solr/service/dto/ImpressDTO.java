@@ -67,6 +67,9 @@ public class ImpressDTO {
 	public static final String ABNORMAL_MP_ID = "abnormal_mp_id";
 	public static final String INCREASED_MP_ID = "increased_mp_id";
 	public static final String DECREASED_MP_ID = "decreased_mp_id";
+	public static final String ABNORMAL_MP_TERM = "abnormal_mp_term";
+	public static final String INCREASED_MP_TERM = "increased_mp_term";
+	public static final String DECREASED_MP_TERM = "decreased_mp_term";
 
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
@@ -80,14 +83,24 @@ public class ImpressDTO {
 	public static final String EMAP_TERM = "emap_term";
 
 	@Field(INCREASED_MP_ID)
-	String increasedMpId;
+	List<String> increasedMpId;
 
 	@Field(ABNORMAL_MP_ID)
-	String abnormalMpId;
+	List<String> abnormalMpId;
 
 	@Field(DECREASED_MP_ID)
-	String decreasedMpId;
+	List<String> decreasedMpId;
 
+
+	@Field(INCREASED_MP_TERM)
+	List<String> increasedMpTerm;
+
+	@Field(ABNORMAL_MP_TERM)
+	List<String> abnormalMpTerm;
+
+	@Field(DECREASED_MP_TERM)
+	List<String> decreasedMpTerm;
+	
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
@@ -237,6 +250,53 @@ public class ImpressDTO {
 	}
 
 
+	public List<String> getIncreasedMpTerm() {
+		return increasedMpTerm;
+	}
+
+
+	public void setIncreasedMpTerm(List<String> increasedMpTerm) {
+		this.increasedMpTerm = increasedMpTerm;
+	}
+	public void addIncreasedMpTerm(String mpTerm){
+		if (this.increasedMpTerm == null){
+			this.increasedMpTerm = new ArrayList<>();
+		}
+		increasedMpTerm.add(mpTerm);
+	}
+
+	public List<String> getAbnormalMpTerm() {
+		return abnormalMpTerm;
+	}
+
+
+	public void setAbnormalMpTerm(List<String> abnormalMpTerm) {
+		this.abnormalMpTerm = abnormalMpTerm;
+	}
+	public void addAbnormalMpTerm(String mpTerm){
+		if (this.abnormalMpTerm == null){
+			this.abnormalMpTerm = new ArrayList<>();
+		}
+		abnormalMpTerm.add(mpTerm);
+	}
+
+	public List<String> getDecreasedMpTerm() {
+		return decreasedMpTerm;
+	}
+
+
+	public void setDecreasedMpTerm(List<String> decreasedMpTerm) {
+		this.decreasedMpTerm = decreasedMpTerm;
+	}
+	
+	public void addDecreasedMpTerm(String mpTerm){
+		if (this.decreasedMpTerm == null){
+			this.decreasedMpTerm = new ArrayList<>();
+		}
+		decreasedMpId.add(mpTerm);
+	}
+
+
 	public void setEmapTerm(String emapTerm) {
 		this.emapTerm = emapTerm;
 	}
@@ -247,35 +307,50 @@ public class ImpressDTO {
 
 
 
-	public String getIncreasedMpId() {
+	public List<String> getIncreasedMpId() {
 		return increasedMpId;
 	}
 
 
-	public void setIncreasedMpId(String increasedMpId) {
+	public void setIncreasedMpId(List<String> increasedMpId) {
 		this.increasedMpId = increasedMpId;
 	}
+	public void addIncreasedMpId(String mpTerm){
+		if (this.increasedMpId == null){
+			this.increasedMpId = new ArrayList<>();
+		}
+		increasedMpId.add(mpTerm);
+	}
 
-
-	public String getAbnormalMpId() {
+	public List<String> getAbnormalMpId() {
 		return abnormalMpId;
 	}
 
 
-	public void setAbnormalMpId(String abnormalMpId) {
+	public void setAbnormalMpId(List<String> abnormalMpId) {
 		this.abnormalMpId = abnormalMpId;
 	}
+	public void addAbnormalMpId(String mpTerm){
+		if (this.abnormalMpId == null){
+			this.abnormalMpId = new ArrayList<>();
+		}
+		abnormalMpId.add(mpTerm);
+	}
 
-
-	public String getDecreasedMpId() {
+	public List<String> getDecreasedMpId() {
 		return decreasedMpId;
 	}
 
 
-	public void setDecreasedMpId(String decreasedMpId) {
+	public void setDecreasedMpId(List<String> decreasedMpId) {
 		this.decreasedMpId = decreasedMpId;
 	}
-
+	public void addDecreasedMpId(String mpTerm){
+		if (this.decreasedMpId == null){
+			this.decreasedMpId = new ArrayList<>();
+		}
+		decreasedMpId.add(mpTerm);
+	}
 
 	public List<String> getCatgories() {
 		return catgories;

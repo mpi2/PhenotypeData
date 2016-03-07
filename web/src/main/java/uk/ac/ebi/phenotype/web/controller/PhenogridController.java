@@ -11,7 +11,10 @@ import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.model.*;
 import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
 
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -27,8 +30,8 @@ public class PhenogridController {
     @Autowired
     private PhenoDigmWebDao phenoDigmDao;
 
-//    @Autowired
-//    private ServletContext servletContext;
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
 
     @RequestMapping(value="/phenodigm/phenogrid", method= RequestMethod.GET)
     public PhenoGrid getPhenogrid(@RequestParam String requestPageType, @RequestParam String diseaseId, @RequestParam String geneId) {
@@ -56,20 +59,25 @@ public class PhenogridController {
         List<DiseaseModelAssociation> sortedAssociations = new ArrayList<>(literatureAssociations);
         sortedAssociations.addAll(phenotypicAssociations);
 
-        String title = String.format("Comparison %s - %s for %s page", diseaseId, geneId, requestPageType);
+        String title = String.format("%s - %s disease-model phenotype matches", diseaseId, geneId, requestPageType);
         List<PhenoGridEntity> xAxis = makeMouseModelEntities(sortedAssociations, requestPageType);
         List<PhenoGridEntity> yAxis = Collections.singletonList(makeDiseaseEntity(diseaseGeneAssociationDetail));
-        return new PhenoGrid(title, xAxis, yAxis);
+        return new PhenoGrid(null, xAxis, yAxis);
     }
 
     private PhenoGridEntity makeDiseaseEntity(DiseaseGeneAssociationDetail diseaseGeneAssociationDetail) {
+        DiseaseIdentifier diseaseId = diseaseGeneAssociationDetail.getDiseaseId();
+        Disease disease = phenoDigmDao.getDisease(diseaseId);
+        String id = disease.getDiseaseId();
+        String label = disease.getTerm();
         List<PhenotypeTerm> phenotypes = diseaseGeneAssociationDetail.getDiseasePhenotypes();
-        String id = diseaseGeneAssociationDetail.getDiseaseId().getCompoundIdentifier();
-        String label = diseaseGeneAssociationDetail.getDiseaseId().getCompoundIdentifier();
         return new PhenoGridEntity(id, label, phenotypes, null, new ArrayList<>());
     }
 
     private List<PhenoGridEntity> makeMouseModelEntities(List<DiseaseModelAssociation> diseaseAssociations, String requestPageType) {
+        //TODO: need to make two groups of models:  literature associated and Phenodigm predicted - groupId: groupLabel [PhenoGridEntity]
+//        diseaseModelAssociation.hasLiteratureEvidence()
+
         List<PhenoGridEntity> mouseEntities = new ArrayList<>(diseaseAssociations.size());
         for (int i = 0; i < diseaseAssociations.size(); i++) {
             PhenoGridEntity mouseEntity = makeMouseModelEntityForPage(diseaseAssociations.get(i), i, requestPageType);
@@ -82,21 +90,60 @@ public class PhenogridController {
         MouseModel mouseModel = diseaseModelAssociation.getMouseModel();
         Integer modelId = mouseModel.getMgiModelId();
 
-        String label = mouseModel.getAllelicComposition() + " " + mouseModel.getGeneticBackground();
-        List<PhenotypeTerm> phenotypes = mouseModel.getPhenotypeTerms();
-        PhenoGridScore score = new PhenoGridScore("phenodigm", makeScoreForPageType(requestPageType, diseaseModelAssociation), rank);
-        List<EntityInfo> info = makeMouseModelInfo(mouseModel);
+        String label = mouseModel.getAllelicComposition();
+        //we only want to show the ids for the mouse phenotypes to cut down on payload size
+        List<PhenotypeTerm> phenotypes = makeIdOnlyPhenotypes(mouseModel.getPhenotypeTerms());
+        double phenodigmScore = makeScoreForPageType(requestPageType, diseaseModelAssociation);
+        PhenoGridScore score = new PhenoGridScore("Phenodigm score", phenodigmScore, rank);
+        List<EntityInfo> info = makeMouseModelInfo(mouseModel, phenodigmScore);
         return new PhenoGridEntity(modelId.toString(), label, phenotypes, score, info);
     }
 
-    private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel) {
-        EntityInfo source = new EntityInfo("Source", mouseModel.getSource(), null);
-        //TODO: re-work the MouseModel to have a proper allele representation e.g. list<Allele> where Allele has an mgi id and a label.
-//        EntityInfo genotype = new EntityInfo("Genotype", mouseModel.getAllelicComposition(), mouseModel.getAllelicCompositionLink());
-        EntityInfo background = new EntityInfo("Background", mouseModel.getGeneticBackground(), null);
+    private List<PhenotypeTerm> makeIdOnlyPhenotypes(List<PhenotypeTerm> phenotypeTerms) {
+        return phenotypeTerms.stream().map(phenotypeTerm -> new PhenotypeTerm()).collect(toList());
+    }
+
+    private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel, double phenodigmScore) {
+        EntityInfo source = new EntityInfo("Source: ", mouseModel.getSource(), null);
+        //TODO: re-work the MouseModel to have a proper allele representation e.g. list<Allele> where Allele has an mgi id, gene symbol and a lab code.
+        EntityInfo genotype = new EntityInfo("Genotype: ", addSuppTagsToLabCodes(mouseModel.getAllelicComposition()), null);
+        EntityInfo background = new EntityInfo("Background: ", mouseModel.getGeneticBackground(), null);
         //TODO: get the proper context path
-        EntityInfo impcGene = new EntityInfo("IMPC gene", mouseModel.getMgiGeneId(), "https://dev.mousephenotype.org/data/genes/" +  mouseModel.getMgiGeneId());
-        return Arrays.asList(source, background, impcGene);
+        EntityInfo impcGene = new EntityInfo("IMPC gene: ", mouseModel.getMgiGeneId(), "https://dev.mousephenotype.org/data/genes/" +  mouseModel.getMgiGeneId());
+        EntityInfo scoreInfo = new EntityInfo("Phenodigm score: ", Double.toString(phenodigmScore), null);
+        List<EntityInfo> info = new ArrayList<>(Arrays.asList(source, genotype, background, impcGene, scoreInfo));
+
+        info.add(new EntityInfo("Observed phenotypes: ", "", null));
+        List<EntityInfo> phenotypes = mouseModel.getPhenotypeTerms()
+                .stream()
+                .map(phenotype -> new EntityInfo("", phenotype.getTerm(), "https://dev.mousephenotype.org/data/phenotypes/" + phenotype.getId()))
+                .collect(toList());
+        info.addAll(phenotypes);
+
+        return info;
+    }
+
+    private String addSuppTagsToLabCodes(String allelicComposition) {
+        //e.g. "Fgfr2<tm1.1Dsn>/Fgfr2<+>"
+        String[] alleles = allelicComposition.split("/");
+        String alleleString = stripAngleBracketsAndAddSuppTags(alleles[0]) + "/" + stripAngleBracketsAndAddSuppTags(alleles[1]);
+        return alleleString;
+    }
+
+    private String stripAngleBracketsAndAddSuppTags(String allele) {
+        //allele examples "Fgfr2<+>", "Fgfr2<tm1.1Dsn>", "Fgfr2<tm1Lni>"
+        String[] tokens = allele.split("\\<");
+        String geneSymbol = tokens[0];
+        if (tokens.length == 2) {
+            String labCode = tokens[1].replace(">", "");
+            return geneSymbol + htmlSup(labCode);
+        } else {
+            return geneSymbol;
+        }
+    }
+
+    private String htmlSup(String string) {
+        return "<sup>" + string + "</sup>";
     }
 
     private double makeScoreForPageType(String requestPageType, DiseaseModelAssociation diseaseModelAssociation){
