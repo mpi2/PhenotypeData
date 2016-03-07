@@ -31,12 +31,21 @@ public class OntologyBean{
 	}
 	
 	//used for Text next to PATO terms in the xml
-	String termTextValue;
-	public String getTermTextValue() {
-		return termTextValue;
+//	String termTextValue;
+//	public String getTermTextValue() {
+//		return termTextValue;
+//	}
+//	public void setTermTextValue(String termTextValue) {
+//		this.termTextValue = termTextValue;
+//	}
+	
+	String description;
+	public String getDescription() {
+		return description;
 	}
-	public void setTermTextValue(String termTextValue) {
-		this.termTextValue = termTextValue;
+	public void setDescription(String description) {
+		this.description = description;
 	}
+	
 
 }
