@@ -440,6 +440,54 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                         
                         
                         
+                        
+                        <div class="section">
+							<h2 class="title"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
+							<c:set var="geneId" value="MGI:97491"></c:set>
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain.  It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult.
+                         			</p>
+                         			<p>
+Pax7 mutants showed complete preweaning lethality.
+Micro-CT analysis at E15.5 revealed voxel-wise local volume differences with a larger nasal septum, cavity and capsule (False Discovery Rate <5%) in the E15.5 Pax7tm1.1/tm1.1 mutant embryos compared the wildtype embryos.
+LacZ staining at E12.5 showed very strong staining in the medial region of the frontonasal prominence (arrows) where structural changes  were found. 
+LacZ staining was also seen in the midbrain, hindbrain, spinal cord, vertebrae, ribs and neural crest. 
+</p>
+                        			<p>
+                        			Phenotype data  links
+                        			</p>
+                            		<ul>
+                            			<li>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=allele_accession_id=MGI:5505636&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: NA
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            			</li> 
+                            			<li>
+                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half"><img alt="MicroCT Pax7 embryos and LacZ Staining" src="${baseUrl}/img/vignettes/Pax7.png" >Micro-CT analysis of E15.5 Pax7 embryos and lacZ staining of E12.5 embryos indicating volume changes and staining in the nasal area.
+
+								</div>
+								
+                            	<div class="clear"></div>
+                            	
+								</div>
+                            </div>
+                        
+                        
+                        
                             
                             
                             
