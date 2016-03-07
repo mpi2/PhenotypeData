@@ -41,9 +41,9 @@ public class ParameterDTO  extends ImpressBaseDTO{
 	String maName;
 	String unit;
 
-	String abnormalMpId;
-	String increasedMpId;
-	String decreasedMpId;
+	List<String> abnormalMpId;
+	List<String> increasedMpId;
+	List<String> decreasedMpId;
 
 	ObservationType observationType;
 	
@@ -182,23 +182,41 @@ public class ParameterDTO  extends ImpressBaseDTO{
 		this.mpIds.add(mpId);
 	}
 	
-	public String getAbnormalMpId() {
+	public List<String> getAbnormalMpId() {
 		return abnormalMpId;
 	}
-	public void setAbnormalMpId(String abnormalMpId) {
+	public void setAbnormalMpId(List<String> abnormalMpId) {
 		this.abnormalMpId = abnormalMpId;
 	}
-	public String getIncreasedMpId() {
+	public void addAbnormalMpId (String mpId){
+		if (this.abnormalMpId == null){
+			this.abnormalMpId = new ArrayList<>();
+		}
+		this.abnormalMpId.add(mpId);
+	}
+	public List<String> getIncreasedMpId() {
 		return increasedMpId;
 	}
-	public void setIncreasedMpId(String increasedMpId) {
+	public void setIncreasedMpId(List<String> increasedMpId) {
 		this.increasedMpId = increasedMpId;
 	}
-	public String getDecreasedMpId() {
+	public void addIncreasedMpId (String mpId){
+		if (this.increasedMpId == null){
+			this.increasedMpId = new ArrayList<>();
+		}
+		this.increasedMpId.add(mpId);
+	}
+	public List<String> getDecreasedMpId() {
 		return decreasedMpId;
 	}
-	public void setDecreasedMpId(String decreasedMpId) {
+	public void setDecreasedMpId(List<String> decreasedMpId) {
 		this.decreasedMpId = decreasedMpId;
+	}
+	public void addDecreasedMpId (String mpId){
+		if (this.decreasedMpId == null){
+			this.decreasedMpId = new ArrayList<>();
+		}
+		this.decreasedMpId.add(mpId);
 	}
 	@Override
 	public String toString() {
