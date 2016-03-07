@@ -196,8 +196,8 @@ public class ObservationIndexer extends AbstractIndexer {
                 + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id\n"
                 + "INNER JOIN experiment e on eo.experiment_id=e.id\n"
                 + "WHERE o.missing=0";
-        
-        
+
+
 
         try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
@@ -393,12 +393,12 @@ public class ObservationIndexer extends AbstractIndexer {
 		        if (!r.wasNull()) {
 			        o.setDiscretePoint(discrete_point);
 		        }
-		        
+
 		        String text_value = r.getString("text_value");
 		        if (!r.wasNull()) {
 			        o.setTextValue(text_value);
 		        }
-		        
+
 		        String term_value = r.getString("term_value");
 		        if (!r.wasNull()) {
 			        o.setTermValue(term_value);
@@ -533,7 +533,6 @@ public class ObservationIndexer extends AbstractIndexer {
 				try {
 					b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 				} catch (NullPointerException e) {
-					e.printStackTrace();
 					b.dateOfBirth = null;
 					logger.debug("No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
 				}
