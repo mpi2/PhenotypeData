@@ -197,12 +197,15 @@ public class PipelineIndexer extends AbstractIndexer {
 
 						if (param.getAbnormalMpId() != null){
 							doc.setAbnormalMpId(param.getAbnormalMpId());
+							doc.setAbnormalMpTerm(mpIdToMp.get(param.getAbnormalMpId()).getMpTerm());
 						}
 						if (param.getIncreasedMpId() != null){
 							doc.setIncreasedMpId(param.getIncreasedMpId());
+							doc.setIncreasedMpTerm(mpIdToMp.get(param.getIncreasedMpId()).getMpTerm());
 						}
 						if (param.getDecreasedMpId()!= null){
 							doc.setDecreasedMpId(param.getDecreasedMpId());
+							doc.setDecreasedMpTerm(mpIdToMp.get(param.getDecreasedMpId()).getMpTerm());
 						}
 
 						if (doc.getProcedureId() == null){

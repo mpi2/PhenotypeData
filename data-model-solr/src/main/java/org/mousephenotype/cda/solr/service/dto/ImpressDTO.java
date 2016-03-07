@@ -67,6 +67,9 @@ public class ImpressDTO {
 	public static final String ABNORMAL_MP_ID = "abnormal_mp_id";
 	public static final String INCREASED_MP_ID = "increased_mp_id";
 	public static final String DECREASED_MP_ID = "decreased_mp_id";
+	public static final String ABNORMAL_MP_TERM = "abnormal_mp_term";
+	public static final String INCREASED_MP_TERM = "increased_mp_term";
+	public static final String DECREASED_MP_TERM = "decreased_mp_term";
 
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
@@ -88,6 +91,16 @@ public class ImpressDTO {
 	@Field(DECREASED_MP_ID)
 	String decreasedMpId;
 
+
+	@Field(INCREASED_MP_TERM)
+	String increasedMpTerm;
+
+	@Field(ABNORMAL_MP_TERM)
+	String abnormalMpTerm;
+
+	@Field(DECREASED_MP_TERM)
+	String decreasedMpTerm;
+	
 	@Field(CATEGORIES)
 	private List<String> catgories;
 
@@ -234,6 +247,36 @@ public class ImpressDTO {
 
 	public String getEmapTerm() {
 		return emapTerm;
+	}
+
+
+	public String getIncreasedMpTerm() {
+		return increasedMpTerm;
+	}
+
+
+	public void setIncreasedMpTerm(String increasedMpTerm) {
+		this.increasedMpTerm = increasedMpTerm;
+	}
+
+
+	public String getAbnormalMpTerm() {
+		return abnormalMpTerm;
+	}
+
+
+	public void setAbnormalMpTerm(String abnormalMpTerm) {
+		this.abnormalMpTerm = abnormalMpTerm;
+	}
+
+
+	public String getDecreasedMpTerm() {
+		return decreasedMpTerm;
+	}
+
+
+	public void setDecreasedMpTerm(String decreasedMpTerm) {
+		this.decreasedMpTerm = decreasedMpTerm;
 	}
 
 
