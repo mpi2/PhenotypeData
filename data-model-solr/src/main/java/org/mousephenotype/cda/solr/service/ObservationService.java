@@ -94,7 +94,21 @@ public class ObservationService extends BasicService implements WebStatus {
 
     private CommonUtils commonUtils = new CommonUtils();
 
-    public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
+    /**
+     * set this constructor up for unit testing
+     * @param solr
+     */
+    public ObservationService(HttpSolrServer solr) {
+		this.solr=solr;
+	}
+    
+    
+    public ObservationService() {
+		
+	}
+
+
+	public  List<Group> getDatapointsByColony(List<String> resourceName, String parameterStableId, String biologicalSampleGroup)
     throws SolrServerException{
 
     	SolrQuery q = new SolrQuery();
@@ -2176,5 +2190,18 @@ public class ObservationService extends BasicService implements WebStatus {
 		public String toString() {
 			return "EmbryoTableRow [category=" + category + ", mpId=" + mpId + ", count=" + count + "]";
 		}
+	}
+
+
+	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession) throws SolrServerException {
+		SolrQuery q = new SolrQuery()
+                .setQuery("*:*")
+                .setRows(10000)
+                //.setFields(ObservationDTO.PROCEDURE_NAME, ObservationDTO.DATE_OF_EXPERIMENT)
+                .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":"+ procedureName)
+				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
+
+        return solr.query(q).getBeans(ObservationDTO.class);
+		
 	}
 }

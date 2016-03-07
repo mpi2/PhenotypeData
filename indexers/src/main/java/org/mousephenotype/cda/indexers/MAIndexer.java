@@ -38,10 +38,7 @@ import org.springframework.core.io.Resource;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 
@@ -114,17 +111,6 @@ public class MAIndexer extends AbstractIndexer {
                     ma.setAltMaIds(bean.getAltIds());
                 }
 
-                // index UBERON/EFO id for MA id
-                if ( maUberonEfoMap.containsKey(maId) ){
-                	
-                	if ( maUberonEfoMap.get(maId).containsKey("uberon_id") ){
-                		ma.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
-                	}
-                	if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
-                		ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
-                	}
-                }
-                
                 // Set collections.
                 OntologyTermMaBeanList sourceList = new OntologyTermMaBeanList(maOntologyService, bean.getId());
                 ma.setOntologySubset(sourceList.getSubsets());
@@ -135,9 +121,52 @@ public class MAIndexer extends AbstractIndexer {
                 ma.setChildMaTerm(sourceList.getChildren().getNames());
                 ma.setChildMaTermSynonym(sourceList.getChildren().getSynonyms());
 
+                ma.setParentMaId(sourceList.getParents().getIds());
+                ma.setParentMaTerm(sourceList.getParents().getNames());
+                ma.setParentMaTermSynonym(sourceList.getParents().getSynonyms());
+
+                ma.setIntermediateMaId(sourceList.getIntermediates().getIds());
+                ma.setIntermediateMaTerm(sourceList.getIntermediates().getNames());
+
                 ma.setSelectedTopLevelMaId(sourceList.getTopLevels().getIds());
                 ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
                 ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
+
+                // index UBERON/EFO id for MA id
+
+                if ( maUberonEfoMap.containsKey(maId) ){
+                    if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
+                        ma.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
+                    }
+                    if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
+                        ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
+                    }
+                }
+
+                // also index all UBERON/EFO ids for intermediate MA ids
+                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
+                Set<String> all_ae_mapped_efoIds = new HashSet<>();
+
+                for ( String intermediateMaId : ma.getIntermediateMaId() ) {
+
+                    if ( maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("uberon_id") ) {
+                        System.out.println("***** CHECKING intermediate uberon: "+intermediateMaId );
+                        all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateMaId).get("uberon_id"));
+                    }
+                    if ( maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id") ) {
+                        System.out.println("***** CHECKING intermediate efo: "+intermediateMaId );
+                        all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
+                    }
+                }
+
+                if ( ma.getUberonIds() != null ) {
+                    all_ae_mapped_uberonIds.addAll(ma.getUberonIds());
+                    ma.setAllAeMappedUberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
+                }
+                if ( ma.getEfoIds() != null ) {
+                    all_ae_mapped_efoIds.addAll(ma.getEfoIds());
+                    ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
+                }
 
                 // Image association fields
                 List<SangerImageDTO> sangerImages = maImagesMap.get(bean.getId());
@@ -195,7 +224,7 @@ public class MAIndexer extends AbstractIndexer {
             throw new IndexerException(e);
         }
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
     }

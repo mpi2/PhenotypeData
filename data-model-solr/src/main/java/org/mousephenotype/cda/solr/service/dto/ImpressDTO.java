@@ -15,17 +15,17 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.solr.client.solrj.beans.Field;
-
 public class ImpressDTO {
 
-	private static final String ID_ID_ID = "ididid"; // unique key 
-	
+	private static final String ID_ID_ID = "ididid"; // unique key
+
 	public static final String PIPELINE_ID = ObservationDTO.PIPELINE_ID;
 	public static final String PIPELINE_STABLE_ID = ObservationDTO.PIPELINE_STABLE_ID;
 	public static final String PIPELINE_STABLE_KEY = "pipeline_stable_key";
@@ -40,7 +40,7 @@ public class ImpressDTO {
 	public static final String PARAMETER_STABLE_ID = ObservationDTO.PARAMETER_STABLE_ID;
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
 	public static final String PARAMETER_NAME = ObservationDTO.PARAMETER_NAME;
-	
+
 	public static final String REQUIRED = "required";
 	public static final String MP_TERMS = "mp_terms";
 	public static final String DESCRIPTION = "description";
@@ -51,6 +51,7 @@ public class ImpressDTO {
 	public static final String CATEGORIES = "categories";
 	public static final String DERIVED = "derived";
 	public static final String MEDIA = "media";
+	public static final String ANNOTATE = "annotate";
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
@@ -66,6 +67,9 @@ public class ImpressDTO {
 	public static final String ABNORMAL_MP_ID = "abnormal_mp_id";
 	public static final String INCREASED_MP_ID = "increased_mp_id";
 	public static final String DECREASED_MP_ID = "decreased_mp_id";
+	public static final String ABNORMAL_MP_TERM = "abnormal_mp_term";
+	public static final String INCREASED_MP_TERM = "increased_mp_term";
+	public static final String DECREASED_MP_TERM = "decreased_mp_term";
 
 	public static final String MA_ID = "ma_id";
 	public static final String MA_TERM = "ma_term";
@@ -74,18 +78,28 @@ public class ImpressDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
-	
+
 	public static final String EMAP_ID = "emap_id";
 	public static final String EMAP_TERM = "emap_term";
 
 	@Field(INCREASED_MP_ID)
 	String increasedMpId;
-	
+
 	@Field(ABNORMAL_MP_ID)
 	String abnormalMpId;
-	
+
 	@Field(DECREASED_MP_ID)
-	String decreasedMpId;		
+	String decreasedMpId;
+
+
+	@Field(INCREASED_MP_TERM)
+	String increasedMpTerm;
+
+	@Field(ABNORMAL_MP_TERM)
+	String abnormalMpTerm;
+
+	@Field(DECREASED_MP_TERM)
+	String decreasedMpTerm;
 	
 	@Field(CATEGORIES)
 	private List<String> catgories;
@@ -106,8 +120,11 @@ public class ImpressDTO {
 	private boolean derived;
 
 	@Field(MEDIA)
-	private boolean media;		
-	
+	private boolean media;
+
+	@Field(ANNOTATE)
+	private boolean annotate;
+
 	@Field(REQUIRED)
 	private boolean required;
 
@@ -119,7 +136,7 @@ public class ImpressDTO {
 
 	@Field(OBSERVATION_TYPE)
 	private String observationType;
-	
+
 	@Field(PARAMETER_ID)
 	private int parameterId;
 
@@ -128,10 +145,10 @@ public class ImpressDTO {
 
 	@Field(PARAMETER_NAME)
 	private String parameterName;
-	
+
 	@Field(PARAMETER_STABLE_KEY)
 	private int parameterStableKey;
-	
+
 
 	@Field(PROCEDURE_ID)
 	private Integer procedureId;
@@ -141,10 +158,10 @@ public class ImpressDTO {
 
 	@Field(PROCEDURE_NAME)
 	private String procedureName;
-	
+
 	@Field(PROCEDURE_STABLE_KEY)
 	private int procedureStableKey;
-	
+
 	@Field(PIPELINE_ID)
 	private int pipelineId;
 
@@ -208,13 +225,13 @@ public class ImpressDTO {
 
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> inferredSelectedTopLevelMaId;
-	
+
 	@Field(MA_ID)
 	private String maId;
-	
+
 	@Field(MA_TERM)
 	private String maTerm;
-	
+
 	@Field(EMAP_ID)
 	private String emapId;
 
@@ -233,16 +250,46 @@ public class ImpressDTO {
 	}
 
 
+	public String getIncreasedMpTerm() {
+		return increasedMpTerm;
+	}
+
+
+	public void setIncreasedMpTerm(String increasedMpTerm) {
+		this.increasedMpTerm = increasedMpTerm;
+	}
+
+
+	public String getAbnormalMpTerm() {
+		return abnormalMpTerm;
+	}
+
+
+	public void setAbnormalMpTerm(String abnormalMpTerm) {
+		this.abnormalMpTerm = abnormalMpTerm;
+	}
+
+
+	public String getDecreasedMpTerm() {
+		return decreasedMpTerm;
+	}
+
+
+	public void setDecreasedMpTerm(String decreasedMpTerm) {
+		this.decreasedMpTerm = decreasedMpTerm;
+	}
+
+
 	public void setEmapTerm(String emapTerm) {
 		this.emapTerm = emapTerm;
 	}
 
 	@Field(EMAP_TERM)
 	private String emapTerm;
-	
 
 
-	
+
+
 	public String getIncreasedMpId() {
 		return increasedMpId;
 	}
@@ -519,13 +566,13 @@ public class ImpressDTO {
 		this.ididid = ididid;
 	}
 
-	
+
 	public int getParameterStableKey() {
 
 		return parameterStableKey;
 	}
 
-	
+
 	public int getParameterId() {
 
 		return parameterId;
@@ -675,8 +722,8 @@ public class ImpressDTO {
 			this.inferredSelectedTopLevelMaId = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaId.addAll(inferredSelectedTopLevelMaId);
-		
-		
+
+
 	}
 
 
@@ -686,7 +733,7 @@ public class ImpressDTO {
 			this.inferredSelectedTopLevelMaTerm = new ArrayList<>();
 		}
 		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
-		
+
 	}
 
 
@@ -696,7 +743,7 @@ public class ImpressDTO {
 			this.inferredSelectedToLevelMaTermSynonym = new ArrayList<>();
 		}
 		this.inferredSelectedToLevelMaTermSynonym.addAll(inferredSelectedTopLevelMaTermSynonym);
-		
+
 	}
 
 
@@ -859,6 +906,13 @@ public class ImpressDTO {
 		this.media = media;
 	}
 
+	public boolean isAnnotate() {
+		return annotate;
+	}
+
+	public void setAnnotate(boolean annotate) {
+		this.annotate = annotate;
+	}
 
 	public String getMaTerm() {
 		return maTerm;
@@ -895,16 +949,16 @@ public class ImpressDTO {
 				+ ", inferredSelectedTopLevelMaId=" + inferredSelectedTopLevelMaId + ", maId=" + maId + ", maTerm="
 				+ maTerm + "]";
 	}
-	
+
 	public ImpressDTO(){
-		
+
 	}
 
 	/**
 	 * @author tudose
 	 * @return sort by name but IMPC objects always first.
 	 */
-	public static Comparator<ImpressDTO> getComparatorByProcedureNameImpcFirst()	{   
+	public static Comparator<ImpressDTO> getComparatorByProcedureNameImpcFirst()	{
 		Comparator<ImpressDTO> comp = new Comparator<ImpressDTO>(){
 	    @Override
 	    public int compare(ImpressDTO param1, ImpressDTO param2)
@@ -920,8 +974,8 @@ public class ImpressDTO {
 		private boolean isImpc(String param){
 			return param.startsWith("IMPC");
 		}
-		
+
 		};
 		return comp;
-	}  
+	}
 }

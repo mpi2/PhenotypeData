@@ -171,7 +171,7 @@ public class AlleleIndexer extends AbstractIndexer {
 
             // this query would only pick up lines that imits have phenotype / production status info about
             SolrQuery query = new SolrQuery("latest_project_status:*");
-            query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
+            query.addFilterQuery("feature_type:* AND type:gene");
 
             query.setRows(BATCH_SIZE);
 

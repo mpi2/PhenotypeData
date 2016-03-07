@@ -28,7 +28,7 @@
 				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
 			</ul>
 		</div>
-		<!--<div><div id="resultMsg"></div><div id="tableTool"></div></div>-->
+		<!--<div><div id="resultMsg"></div><div id="saveTable"></div></div>-->
 
 		<div id="geneTab" class="hideme">
 			<div class="region region-sidebar-first">
@@ -59,7 +59,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="tableTool"></div>
+						<div id="saveTable"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -95,7 +95,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="tableTool"></div>
+						<div id="saveTable"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -131,7 +131,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="tableTool"></div>
+						<div id="saveTable"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -167,7 +167,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="tableTool"></div>
+						<div id="saveTable"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -203,7 +203,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="tableTool"></div>
+						<div id="saveTable"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -240,7 +240,7 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="tableTool"></div>
+						<div id="saveTable"></div>
 						<!-- container to display dataTable -->
 						<div class="HomepageTable" id="mpi2-search"></div>
 					</div>
@@ -604,8 +604,6 @@
 
 
 			function addDownloadTool(){
-				var saveTool = $("<div id='saveTable'></div>").html("<span class='fa fa-download'>&nbsp;<span id='dnld'>Download</span></span>");// .corner("4px");
-
 
 				var vals = $('div#dTable_pagination li.active a').attr('href').split("?");
 				var params = vals[1];
@@ -638,19 +636,12 @@
 				var urltsvA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeTsv;
 				var urlxlsA = "${baseUrl}/export2?" + paramStr2 + "&" + fileTypeXls;
 
-				var toolBox = '<div id="toolBox" style="display: block;">'
-//						+ '<div class="dataName">Current paginated entries in table</div>'
-//						+ '<p>Export as: &nbsp;'
-//						+ '<a id="tsvC" class="fa fa-download gridDump" href="' + urltsvC + '">TSV</a>&nbsp;or&nbsp;'
-//						+ '<a id="xlsC" class="fa fa-download gridDump" href="' + urlxlsC + '">XLS</a></p><p>'
-						+ '<div class="dataName">All entries in table</div>'
-						+ '<p>Export as: &nbsp;'
-						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;or&nbsp;'
-						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></p><p>'
-						+ 'For more informatioin, consider <a href=${baseUrl}/batchQuery>Batch query</a>';
+				var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
+						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>'
+						+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-				//$('div.dataTables_processing').siblings('div#tableTool').append(
-				$('div#tableTool').append(saveTool, toolBox);
+				$("div#saveTable").html(toolBox);
 
 				var cutoff = 10000;
 				$("a#tsvA, a#xlsA").click(function(){
@@ -662,17 +653,6 @@
 						// when true the href fireds and do query in batch on server side
 					}
 				})
-
-
-				$('div#toolBox').hide();
-				$('span#dnld').click(function(){
-					if ($('div#toolBox').is(":visible")) {
-						$('div#toolBox').hide();
-					}
-					else {
-						$('div#toolBox').show();
-					}
-				});
 			}
 
 			function adjustColWidth(){

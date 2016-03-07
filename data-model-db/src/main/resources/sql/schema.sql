@@ -752,8 +752,8 @@ CREATE TABLE ontology_entity (
 	ontology_observation_id INT(10) UNSIGNED NOT NULL,
 	term                    VARCHAR(255)     NULL,
 	term_value              VARCHAR(255)     NULL,
-	PRIMARY KEY (id)
-
+	PRIMARY KEY (id),
+	KEY `idx_ontology_entity_ontology_observation_id` (`ontology_observation_id`)
 )
 	COLLATE = utf8_general_ci
 	ENGINE = MyISAM;

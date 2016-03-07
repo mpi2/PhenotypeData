@@ -34,6 +34,7 @@ import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -82,18 +83,20 @@ public class ExperimentsController {
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
-		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
+		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
-
-		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId));
-		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
+		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();;
+		
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+
+		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
-		model.addAttribute("pvaluesMap", pvaluesMap);
+		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);
 
 		return "experimentsFrag";
@@ -114,19 +117,20 @@ public class ExperimentsController {
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
 		AllelePageDTO allelePageDTO = observationService.getAllelesInfo(geneAccession);
-		Map<String, List<StatisticalResultDTO>> pvaluesMap = new HashMap<>();
+		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
-
-		pvaluesMap.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId));
-		for ( List<StatisticalResultDTO> list : pvaluesMap.values()){
+		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
 
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, pvaluesMap, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
-		model.addAttribute("pvaluesMap", pvaluesMap);
+		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);
 
 		return "experiments";

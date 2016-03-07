@@ -1,4 +1,13 @@
 /* Additional styling written at EBI */
+.preQcLink{
+	text-align:center;color: red; /*#EF7B0B;*/
+}
+.preQcLink a{
+	text-align:center;color: red; /*#EF7B0B;*/
+}
+.postQcLink{
+	text-align:center;
+}
 .marginup{
 	margin-top:0.5em;
 }

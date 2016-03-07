@@ -19,6 +19,7 @@ import java.util.Date;
 
 public class ObservationDTOWrite extends ObservationDTOBase {
 
+	
 	@Field(DATE_OF_EXPERIMENT)
 	private Iso8601ZonedDateTime solrDateOfExperiment;
 	private ZonedDateTime dateOfExperiment;
@@ -113,5 +114,6 @@ public class ObservationDTOWrite extends ObservationDTOBase {
 			return inner.format(DateTimeFormatter.ISO_INSTANT);
 		}
 	}
+
 
 }
