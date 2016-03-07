@@ -24,6 +24,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -79,6 +80,8 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
 
+	private Map<Integer, List<OntologyBean>> ontologyEntityMap;
+
 	public static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 	public static final List<String> maleFertilityParameters = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001", "IMPC_FER_007_001", "IMPC_FER_008_001", "IMPC_FER_009_001");
 	public static final List<String> femaleFertilityParameters = Arrays.asList("IMPC_FER_019_001", "IMPC_FER_010_001", "IMPC_FER_011_001", "IMPC_FER_012_001", "IMPC_FER_013_001");
@@ -117,6 +120,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			procedureMap = IndexerMap.getImpressProcedures(connection);
 			System.out.println("populating parameter map");
 			parameterMap = IndexerMap.getImpressParameters(connection);
+			ontologyEntityMap=IndexerMap.getOntologyParameterSubTerms(connection);
 
 		} catch (SQLException e) {
 			e.printStackTrace();

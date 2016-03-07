@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.SolrUtils;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -33,6 +34,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -294,6 +297,34 @@ public class IndexerMap {
 		} catch (SolrServerException e) {
 			throw new IndexerException("Unable to query images core", e);
 		}
+		return map;
+	}
+
+	/**
+	 * get a map of ontology_entity_id to entity
+	 * @param connection
+	 * @return
+	 * @throws SQLException 
+	 */
+	public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
+		 Map<Integer, List<OntologyBean>> map = new HashMap<>();
+	        String query = "SELECT * FROM komp2.ontology_entity  GROUP BY ontology_observation_id";
+	        try (PreparedStatement p = connection.prepareStatement(query)) {
+
+	            ResultSet resultSet = p.executeQuery();
+	            while (resultSet.next()) {
+	            	List<OntologyBean>list;
+	                Integer ontObsId=resultSet.getInt("ontology_observation_id");
+	                OntologyBean b=new OntologyBean();
+	                b.setId(resultSet.getString("term"));
+	                b.setTermTextValue(resultSet.getString("term_value"));
+	                if(!map.containsKey(ontObsId)){
+	                	list = new ArrayList<>(0);
+	                	map.put(ontObsId, list);
+	                }
+	                map.get(resultSet.getInt("ontology_observation_id")).add(b);
+	            }
+	        }
 		return map;
 	}
 }
