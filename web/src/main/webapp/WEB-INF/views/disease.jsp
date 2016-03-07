@@ -168,7 +168,10 @@
             </div>
         </div>
 
-        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.min.js?v=${version}"></script>
+        <script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
+        <script type="text/javascript" src="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.js?v=${version}"></script>
+        <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.css?v=${version}">
+
         <script type="text/javascript">
             var diseaseTables = [
                 {id: '#orthologous_models_table',
