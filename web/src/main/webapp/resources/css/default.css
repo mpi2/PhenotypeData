@@ -743,6 +743,10 @@ td, th                  { padding: 0.7em 1.2em 0.7em 0.3em; }
 div.dataTables_info, div.dataTables_paginate {
 	display: inline;	
 }
+div.dataTables_length {
+    margin-bottom: 10px;
+}
+
 .thumb-image-holder{
 	width:200px;
 	height:200px;
@@ -785,7 +789,7 @@ div.dataTables_filter {
 
 div#phenoSumDiv {
     min-height: 190px;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
 }
 div#phenoSumDiv > p {
     display: block;
