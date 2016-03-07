@@ -360,6 +360,40 @@ public class LoaderUtils {
     }
 
     /**
+     * Inserts the given values into the center table. If the centerId, pipline, and project already exist, an error
+     * is logged and a value of 0 is returned.
+     *
+     * @param connection A valid database connection
+     * @param centerId   The center id
+     * @param pipeline   The pipeline
+     * @param project    The Project
+     *
+     * @return the primary key matching the newly inserted values
+     */
+    public static long insertIntoCenter(Connection connection, String centerId, String pipeline, String project) {
+        long centerPk = 0L;
+        PreparedStatement ps;
+        String query;
+        ResultSet rs;
+
+        try {
+            query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
+            ps = connection.prepareStatement(query);
+            ps.setString(1, centerId);
+            ps.setString(2, pipeline);
+            ps.setString(3, project);
+            ps.execute();
+            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+            rs.next();
+            centerPk = rs.getLong(1);
+        } catch (SQLException e) {
+            logger.error("Unable to insert into center(" + centerId + ", " + pipeline + ", " + project + ": " + e.getLocalizedMessage());
+        }
+
+        return centerPk;
+    }
+
+    /**
      * Given a statuscode value, attempts to fetch the matching object. If there is none, the value and (nullable)
      * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
      *
