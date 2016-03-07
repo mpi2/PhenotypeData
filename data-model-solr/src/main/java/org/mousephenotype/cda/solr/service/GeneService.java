@@ -245,7 +245,7 @@ public class GeneService extends BasicService implements WebStatus{
 		String phenotypeStatusHTMLRepresentation = "";
 		String webStatus = "";
 		List<String> statusList = new ArrayList<>();
-						
+
 		try {	
 				
 			if ( legacyOnly ){
@@ -258,7 +258,7 @@ public class GeneService extends BasicService implements WebStatus{
 				}	
 			}
 			else {
-				
+				Boolean hasImpcPhenotypeData = false;
 				if ( statusField != null && !statusField.isEmpty() ) {
 								
 					if ( statusField.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || statusField.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ){
@@ -269,9 +269,24 @@ public class GeneService extends BasicService implements WebStatus{
 						} else {
 							phenotypeStatusHTMLRepresentation += "<a class='status done phenotypingStatus' href='" + genePageUrl + "#section-associations'><span>"+webStatus+"</span></a>";
 						}
+						hasImpcPhenotypeData = true;
 					}
 				}
-				if (legacyPhenotypeStatus != null) {
+				// Eg. Akt2, there is no IMPC phenotyping data but there is legacy data -> show it as phenotype data available
+				if ( ! hasImpcPhenotypeData ){
+					if (legacyPhenotypeStatus != null) {
+
+						//webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
+						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
+						if ( toExport ){
+							statusList.add(genePageUrl + "#section-associations" + "|" + webStatus);
+						} else {
+							phenotypeStatusHTMLRepresentation += "<a class='status qc phenotypingStatus' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
+						}
+					}
+				}
+				// don't want to display legacy phenotyping data for now
+				/*if (legacyPhenotypeStatus != null) {
 					
 					webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;					
 					if ( toExport ){
@@ -279,7 +294,7 @@ public class GeneService extends BasicService implements WebStatus{
 					} else {
 						phenotypeStatusHTMLRepresentation += "<a class='status qc phenotypingStatus' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
 					}			
-				}						
+				}	*/
 			}			
 		} catch (Exception e) {
 			log.error("Error getting phenotyping status");
@@ -325,7 +340,7 @@ public class GeneService extends BasicService implements WebStatus{
 			}	
 		}
 		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
+			log.error("Error getting ES cell");
 			log.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
@@ -417,30 +432,37 @@ public class GeneService extends BasicService implements WebStatus{
 	 */
 	private String getDetailedMouseProductionStatusButtons(List<String> alleleNames, List<String> mouseStatus, String url) {
 		
-		String miceStatus = "";
-	
-		Pattern alleleNamePattern = Pattern.compile("(t|em.*).+");
+		String miceStatus = "";	
+		Pattern tmAlleleNamePattern = Pattern.compile("(tm.*)\\(.+\\).+");
+		Pattern emAlleleNamePattern = Pattern.compile("(em[0-9]+).+");
 
 		// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs)
+		// em1j .. (crispr alleles)
 		if (mouseStatus != null) {
 			
 			for (int i = 0; i < mouseStatus.size(); i++) {
 				
 				String mouseStatusStr = mouseStatus.get(i).toString();
 				String alleleName = alleleNames.get(i).toString();
-				Matcher matcher = alleleNamePattern.matcher(alleleName);
+				Matcher tMatcher = tmAlleleNamePattern.matcher(alleleName);
+				Matcher eMatcher = emAlleleNamePattern.matcher(alleleName);
+				
+				String alleleType = null;
+				if (tMatcher.find()) {
+					alleleType = tMatcher.group(1);
+				} else if (eMatcher.find()){
+					alleleType = eMatcher.group(1);
+				}
 				
 				if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 					
-					if (matcher.find()) {
-						String alleleType = matcher.group(1);
+					if (alleleType != null) {
 						miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + url + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
 					}
 					
 				} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
 					
-					if (matcher.find()) {
-						String alleleType = matcher.group(1);
+					if (alleleType != null) {
 						miceStatus += "<span class='status inprogress' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS + "'><span>Mice<br>" + alleleType + "</span></span>"; 
 					}
 				}
@@ -460,10 +482,11 @@ public class GeneService extends BasicService implements WebStatus{
 	public String getLatestProductionStatuses(JSONObject doc, boolean toExport, String geneLink){
 
 
-		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport);		
-		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+		String esCellStatus = doc.containsKey(GeneDTO.LATEST_ES_CELL_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport) : "";
+		
+		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
 
-		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
+		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) && !GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 		
 		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);		
 		
@@ -495,9 +518,11 @@ public class GeneService extends BasicService implements WebStatus{
 			String esStatus = (doc.getFieldValue(GeneDTO.LATEST_ES_CELL_STATUS) != null) ? doc.getFieldValue(GeneDTO.LATEST_ES_CELL_STATUS).toString() : null ;
 			esCellStatusHTMLRepresentation = getEsCellStatus(esStatus, url, false);
 			
-			// Get the HTML representation of the phenotyping status	
+			// Get the HTML representation of the phenotyping status
 			String statusField = (doc.getFieldValue(GeneDTO.LATEST_PHENOTYPE_STATUS) != null) ? doc.getFieldValue(GeneDTO.LATEST_PHENOTYPE_STATUS).toString() : null ;
-			Integer legacyPhenotypeStatus = Integer.getInteger("" + doc.getFieldValue(GeneDTO.LEGACY_PHENOTYPE_STATUS));
+
+			Integer legacyPhenotypeStatus = (Integer) doc.getFieldValue(GeneDTO.LEGACY_PHENOTYPE_STATUS);
+
 			Integer hasQc = Integer.getInteger("" +doc.getFieldValue(GeneDTO.HAS_QC));     
 			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, url, false, false);
 			

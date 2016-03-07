@@ -25,7 +25,7 @@
    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
    <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
  	<fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
- 	
+
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer,
 	 removes stop words from case-insensitive "stopwords.txt"
@@ -37,7 +37,7 @@
         <!--<tokenizer class="solr.StandardTokenizerFactory"/>-->
         <!-- use KeywordTokenizerFactory so that no work splitting on punctuation, hyphen. Ie, does not split the input at all -->
 
-        <tokenizer class="solr.KeywordTokenizerFactory" /> 
+        <tokenizer class="solr.KeywordTokenizerFactory" />
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt" enablePositionIncrements="true" />
         <!-- in this example, we will only use synonyms at query time
         <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
@@ -82,25 +82,25 @@
 
     </fieldType>
 
-    <!-- to be used for autosuggest -->    
+    <!-- to be used for autosuggest -->
 
     <fieldType name="text_ngram" class="solr.TextField">
         <analyzer type="index">
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>  
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="100" side="front"/>  
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="100" side="front"/>
         <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="false" />
         </analyzer>
 
-        <analyzer type="query"> 
+        <analyzer type="query">
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <!--<filter class="solr.KStemFilterFactory"/> -->
-        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/> 
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
         </analyzer>
 
-    </fieldType>  
+    </fieldType>
 
 	<fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100" autoGeneratePhraseQueries="true">
       <analyzer type="index">
@@ -132,18 +132,18 @@
     </fieldType>
 
   </types>
-  
-  <fields>  
 
-	<field name="ididid" type="string" indexed="true" stored="true"/> 
-	<field name="dataType" type="string" indexed="true" stored="true"/> 
-    <field name="_version_" type="long" indexed="true" stored="true"/> 
-    
+  <fields>
+
+	<field name="ididid" type="string" indexed="true" stored="true"/>
+	<field name="dataType" type="string" indexed="true" stored="true"/>
+    <field name="_version_" type="long" indexed="true" stored="true"/>
+
 	<field name="parameter_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="parameter_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>		
-    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>	
-    
+    <field name="parameter_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="parameter_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
+
     <field name="procedure_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="procedure_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
@@ -151,7 +151,7 @@
 
 	<field name="pipeline_id" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/> 
+    <field name="pipeline_name" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="pipeline_stable_key" type="int" indexed="true" stored="true" required="true" multiValued="false"/>
 
     <field name="required" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
@@ -165,9 +165,10 @@
     <field name="has_options" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="derived" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
     <field name="media" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
+    <field name="annotate" type="boolean" indexed="true" stored="true" required="false" multiValued="false"/>
 
 	<!-- MP stuff -->
-	
+
 	<field name="mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -177,17 +178,20 @@
 	<field name="top_level_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<field name="intermediate_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="intermediate_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
+	<field name="intermediate_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="intermediate_mp_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	
+
 	<field name="abnormal_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="increased_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="decreased_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-		
+	<field name="decreased_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="abnormal_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="increased_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="decreased_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<!-- mp to hp mapping -->
 	<field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />	
-	
+	<field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+
 	<!--  MA stuff -->
 	<field name="ma_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 	<field name="ma_term" type="string" indexed="true" stored="true" required="false" multiValued="false" />
@@ -199,10 +203,10 @@
 	<field name="imits_phenotype_started" type="string" indexed="true" multiValued="true"/>
     <field name="imits_phenotype_complete" type="string" indexed="true" multiValued="true"/>
     <field name="imits_phenotype_status" type="string" indexed="true" multiValued="true"/>
-				
+
    <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
    <field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
-	
+
  </fields>
  <uniqueKey>ididid</uniqueKey>
 
@@ -210,14 +214,14 @@
 
  <solrQueryParser defaultOperator="OR"/>
 
-    <copyField source="*" dest="text"/> 
+    <copyField source="*" dest="text"/>
 	<copyField source="parameter_stable_id"  dest="auto_suggest" />
    	<copyField source="parameter_name"  dest="auto_suggest" />
    	<copyField source="procedure_stable_id" dest="auto_suggest" />
    	<copyField source="procedure_name"  dest="auto_suggest" />
 	<copyField source="pipeline_stable_id" dest="auto_suggest" />
    	<copyField source="pipeline_name"  dest="auto_suggest" />
-   		
+
 </schema>
 
 

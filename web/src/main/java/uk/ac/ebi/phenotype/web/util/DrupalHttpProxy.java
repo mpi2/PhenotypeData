@@ -210,7 +210,6 @@ public class DrupalHttpProxy extends HttpProxy {
 				"<div class=\"clear\"></div></div>  \n" +
 				"</div>\n";
 		}
-		System.out.println("Retrieving drupal menu took " + (System.currentTimeMillis() - time));
 		return content;
 	}
 

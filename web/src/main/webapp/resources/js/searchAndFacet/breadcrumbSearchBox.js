@@ -111,8 +111,8 @@ $(document).ready(function () {
 	var solrBq = "&bq=marker_symbol:*^100 hp_term:*^95 hp_term_synonym:*^95 top_level_mp_term:*^90 disease_term:*^70 selected_top_level_ma_term:*^60";
 
 
-	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw');
-	$( "input#s").val(srchkw);
+	var srchkw = $.fn.fetchUrlParams('kw') == undefined ? "Search" : $.fn.fetchUrlParams('kw').replace("\\%3A",":");
+	$( "input#s").val(decodeURI(srchkw));
 	$( "input#s").click(function(){
 		$(this).val('');
 	});

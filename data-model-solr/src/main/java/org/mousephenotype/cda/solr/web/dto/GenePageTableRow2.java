@@ -35,10 +35,6 @@ public class GenePageTableRow2 extends DataTableRow {
         super();
     }
 
-    public GenePageTableRow2(PhenotypeCallSummary pcs, String baseUrl, Map<String, String> config) throws UnsupportedEncodingException {
-        super(pcs, baseUrl, config);
-    }
-
     /**
      * Sort by:
      * <ul>

@@ -50,6 +50,7 @@ import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
+import org.mousephenotype.cda.solr.service.AnatomogramDataBean;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -58,7 +59,6 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
@@ -244,7 +244,7 @@ public class GenesController {
 			phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
 			mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
 			mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size()>0){
+			if(!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0){
 				//if mortality aging is not significant we need to test if it's been tested or not
 				mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");	
 			}
@@ -288,7 +288,6 @@ public class GenesController {
 
 		List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows("mgi_gene_symbol", gene.getMarkerSymbol().toUpperCase());
 
-		System.out.println("GeneController FOUND " + gwasMappings.size() + " phenotype to gwas trait mappings");
 		if ( gwasMappings.size() > 0 ){
 			model.addAttribute("gwasPhenoMapping", gwasMappings.get(0).getPhenoMappingCategory());
 		}
@@ -416,7 +415,7 @@ public class GenesController {
 			}
 		}
 		Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypes(acc);
+		Set<String> allelesWithData = postqcService.getAllGenotypePhenotypesForGene(acc);
 		Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
 		String genePageUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 		Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl );
@@ -471,8 +470,7 @@ public class GenesController {
 			String id = proxy.getContent(new URL(stringDbUrl), true);
 			stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
 			
-			// Parse interactor gene symbol and score
-			// Example return format : 
+			// Parse interactor gene symbol and score. Example return format : 
 			// string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
 			// Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
 			
@@ -550,9 +548,10 @@ public class GenesController {
 
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 			
-
-			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService);
-			// Collapse rows on sex			
+			DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, imageService.hasImages(pcs.getGene().getAccessionId(), 
+					pcs.getProcedure().getName(), pcs.getColonyId()));
+			
+			// Collapse rows on sex	and p-value		
 			if (phenotypes.containsKey(pr.hashCode())) {
 				pr = phenotypes.get(pr.hashCode());
 				TreeSet<String> sexes = new TreeSet<String>();
@@ -561,7 +560,10 @@ public class GenesController {
 				}
 				sexes.add(pcs.getSex().toString());
 				pr.setSexes(new ArrayList<String>(sexes));
-
+				// Display lowest p-value only
+				if (pr.getpValue() > pcs.getpValue()){
+					pr.setpValue(pcs.getpValue());
+				}
 			}
 
 			phenotypes.put(pr.hashCode(), pr);
@@ -569,7 +571,6 @@ public class GenesController {
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
-		System.out.println("PHENOTYPES LIST " +  l.size());
 		model.addAttribute("phenotypes", l);
 
 	}
@@ -704,6 +705,13 @@ public class GenesController {
 	throws SolrServerException, SQLException {
 		boolean overview=true;
 		boolean embryoOnly=false;
+		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
+		List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
+		Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
+		model.addAttribute("topLevelMaCounts", topLevelMaCounts);
+		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
+		model.addAttribute("anatomogram",anatomogram);
+		
 		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
 		expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 	}
@@ -857,7 +865,6 @@ public class GenesController {
 	private void processDisease(String acc, Model model) {
 
 		String mgiId = acc;
-		log.info("Adding disease info to gene page {}", mgiId);
 		model.addAttribute("mgiId", mgiId);
 		GeneIdentifier geneIdentifier = new GeneIdentifier(mgiId, mgiId);
 
@@ -866,13 +873,13 @@ public class GenesController {
 			gene = phenoDigmDao.getGene(geneIdentifier);
 		} catch (RuntimeException e) {
 			log.error("Error retrieving disease data for {}", geneIdentifier);
+			log.error(ExceptionUtils.getFullStackTrace(e));
 		}
 
-		log.info("Found Gene: " + gene);
 		if (gene != null) {
 			model.addAttribute("geneIdentifier", gene.getOrthologGeneId());
 			model.addAttribute("humanOrtholog", gene.getHumanGeneId());
-			log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
+	//		log.info("Found gene: {} {}", gene.getOrthologGeneId().getCompoundIdentifier(), gene.getOrthologGeneId().getGeneSymbol());
 		} else {
 			model.addAttribute("geneIdentifier", geneIdentifier);
 			log.info("No human ortholog found for gene: {}", geneIdentifier);
@@ -880,9 +887,9 @@ public class GenesController {
 
 		List<DiseaseAssociationSummary> diseaseAssociationSummarys = new ArrayList<>();
 		try {
-			log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
+	//		log.info("{} - getting disease-gene associations using cutoff {}", geneIdentifier, rawScoreCutoff);
 			diseaseAssociationSummarys = phenoDigmDao.getGeneToDiseaseAssociationSummaries(geneIdentifier, rawScoreCutoff);
-			log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
+	//		log.info("{} - received {} disease-gene associations", geneIdentifier, diseaseAssociationSummarys.size());
 		} catch (RuntimeException e) {
 			log.error(ExceptionUtils.getFullStackTrace(e));
 			log.error("Error retrieving disease data for {}", geneIdentifier);
@@ -904,7 +911,7 @@ public class GenesController {
 		model.addAttribute("orthologousDiseaseAssociations", orthologousDiseaseAssociations);
 		model.addAttribute("phenotypicDiseaseAssociations", phenotypicDiseaseAssociations);
 
-		log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
+	//	log.info("Added {} disease associations for gene {} to model", diseaseAssociationSummarys.size(), mgiId);
 	}
 
 

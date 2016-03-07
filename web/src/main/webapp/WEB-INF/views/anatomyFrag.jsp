@@ -47,7 +47,11 @@
 					            <td>${row.parameter.name}</td>
 					            <td>${row.phenotypingCenter} </td>
 					            <td>${row.numberOfImages} </td>
-					            <td><a href='${row.imageUrl}'><i class="fa fa-image" alt="Images"></i></a></td>	
+					            <td>
+					            	<c:if test="${row.getEvidenceLink().getDisplay()}">
+					            		<a href='${row.getEvidenceLink().getUrl()}'><i class="fa fa-image" alt="${row.getEvidenceLink().getAlt()}"></i></a>
+					            	</c:if>
+					            </td>	
 					        </tr>
 					    </c:forEach>
 					    </tbody>

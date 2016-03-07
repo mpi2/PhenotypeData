@@ -469,69 +469,19 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return result;
     }
 
-    
-    public HashMap<String, SolrDocumentList> getPhenotypesForTopLevelTerm(String gene, ZygosityType zygosity)
-    throws SolrServerException {
-
-    		HashMap <String, SolrDocumentList> res = new HashMap<>();
-    	
-            String query = "*:*";
-            if (gene.equalsIgnoreCase("*")) {
-                query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene ;
-            } else {
-                query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
-            }
-
-            SolrQuery solrQuery = new SolrQuery();
-            solrQuery.setQuery(query);
-            solrQuery.setRows(Integer.MAX_VALUE);
-            solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-            solrQuery.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*");
-            solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY, 
-            		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.MP_TERM_ID, 
-            		GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME,
-            		StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME);
-            
-            if (zygosity != null) {
-                solrQuery.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
-            }
-                     
-            SolrDocumentList result = solr.query(solrQuery).getResults();
-            
-            for (SolrDocument doc: result){
-            	if (doc.containsKey(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
-            		for (Object topLevelMp: doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID)){
-            			String id = topLevelMp.toString();
-            			if (!res.containsKey(id)){
-                			res.put(id, new SolrDocumentList());
-            			}
-            			res.get(id).add(doc);
-            		}
-            	} else if (doc.containsKey(GenotypePhenotypeDTO.MP_TERM_ID)){
-            		for (Object topLevelMp: doc.getFieldValues(GenotypePhenotypeDTO.MP_TERM_ID)){
-            			String id = topLevelMp.toString();
-            			if (!res.containsKey(id)){
-                			res.put(id, new SolrDocumentList());
-            			}
-            			res.get(id).add(doc);
-            		}
-            	}
-            }
-            
-            return res;
-        }
-    
     public SolrDocumentList getPhenotypes(String gene)
-        throws SolrServerException {
+    throws SolrServerException {
 
         SolrDocumentList result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
         return result;
     }
 
-    public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) throws SolrServerException {
+    
+    public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) 
+    throws SolrServerException {
 
         SolrQuery query = new SolrQuery().setRows(1000000);
-
+       
         if (resourceName != null){
             query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
         }else {
@@ -542,7 +492,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     }
     
-    public Set<String> getAllGenotypePhenotypes(String markerAccession) throws SolrServerException {
+    
+    public Set<String> getAllGenotypePhenotypesForGene(String markerAccession) 
+    throws SolrServerException {
 
         Set <String> alleles = new HashSet<>();
         SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
@@ -557,7 +509,9 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return alleles;
     }
 
-    public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) throws SolrServerException {
+    
+    public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) 
+    throws SolrServerException {
         SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
             .setRows(Integer.MAX_VALUE);
 
@@ -1064,7 +1018,8 @@ public class AbstractGenotypePhenotypeService extends BasicService {
 
     
     /**
-     *
+     * @param mpTermName
+     * @param resource
      * @return map <colony_id, occurences>
      */
     public HashMap<String, Long> getAssociationsDistribution(String mpTermName, String resource) {
