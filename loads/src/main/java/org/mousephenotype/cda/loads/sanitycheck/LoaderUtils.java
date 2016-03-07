@@ -255,13 +255,11 @@ public class LoaderUtils {
      * @param connection A valid database connection
      * @param specimenId The specimen id
      * @param centerId   The center id
-     * @param pipeline   The pipeline
-     * @param project    The Project
      * @return The <code>Specimen</code> instance if found; null otherwise.
      * <p/>
      * <i>NOTE: The primary key value is returned in Hjid.</i>
      */
-    public static Specimen getSpecimen(Connection connection, String specimenId, String centerId, String pipeline, String project) {
+    public static Specimen getSpecimen(Connection connection, String specimenId, String centerId) {
         SpecimenCDA specimen = null;
 
         String query = "";
@@ -273,13 +271,11 @@ public class LoaderUtils {
                     + "FROM specimen s\n"
                     + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
                     + "JOIN center           c ON  c.pk          = cs.center_fk\n"
-                    + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
+                    + "WHERE s.specimenId = ? AND c.centerId = ?";
 
             ps = connection.prepareStatement(query);
             ps.setString(1, specimenId);
             ps.setString(2, centerId);
-            ps.setString(3, pipeline);
-            ps.setString(4, project);
             rs = ps.executeQuery();
             if (rs.next()) {
                 specimen = new SpecimenCDA();

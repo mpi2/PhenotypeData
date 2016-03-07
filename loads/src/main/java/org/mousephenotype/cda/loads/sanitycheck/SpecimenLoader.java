@@ -148,15 +148,7 @@ public class SpecimenLoader {
                 // center
                 centerPk = LoaderUtils.getCenterPk(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 if (centerPk < 1) {
-                    query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
-                    ps = connection.prepareStatement(query);
-                    ps.setString(1, centerSpecimen.getCentreID().value());
-                    ps.setString(2, specimen.getPipeline());
-                    ps.setString(3, specimen.getProject());
-                    ps.execute();
-                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-                    rs.next();
-                    centerPk = rs.getLong(1);
+                    centerPk = LoaderUtils.insertIntoCenter(connection, centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
                 }
 
                 // statuscode
@@ -169,10 +161,16 @@ public class SpecimenLoader {
                 }
 
                 // specimen
-                Specimen existingSpecimen = LoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value(), specimen.getPipeline(), specimen.getProject());
+                Specimen existingSpecimen = LoaderUtils.getSpecimen(connection, specimen.getSpecimenID(), centerSpecimen.getCentreID().value());
                 if (existingSpecimen != null) {
                     specimenPk = existingSpecimen.getHjid();
                     // Validate that this specimen's info matches the existing one in the database.
+                    if ( ! specimen.getPipeline().equals(existingSpecimen.getPipeline())) {
+                        throw new DccLoaderException("pipeline mismatch (pk " + specimenPk + "). Existing pipeline: '" + specimen.getPipeline() + "'. This pipeline: '" + existingSpecimen.getPipeline() + "'.");
+                    }
+                    if ( ! specimen.getGender().value().equals(existingSpecimen.getGender().value())) {
+                        throw new DccLoaderException("project mismatch (pk " + specimenPk + "). Existing project: '" + specimen.getProject() + "'. This project: '" + existingSpecimen.getProject() + "'.");
+                    }
                     if ( ! specimen.getGender().value().equals(existingSpecimen.getGender().value())) {
                         throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: '" + specimen.getGender().value() + "'. This gender: '" + existingSpecimen.getGender().value() + "'.");
                     }
