@@ -13,8 +13,6 @@ import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -100,7 +98,7 @@ public class PhenogridController {
     }
 
     private List<PhenotypeTerm> makeIdOnlyPhenotypes(List<PhenotypeTerm> phenotypeTerms) {
-        return phenotypeTerms.stream().map(phenotypeTerm -> new PhenotypeTerm()).collect(toList());
+        return phenotypeTerms.stream().map(phenotypeTerm -> {PhenotypeTerm term = new PhenotypeTerm(); term.setId(phenotypeTerm.getId()); return term;}).collect(toList());
     }
 
     private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel, double phenodigmScore) {
@@ -108,15 +106,14 @@ public class PhenogridController {
         //TODO: re-work the MouseModel to have a proper allele representation e.g. list<Allele> where Allele has an mgi id, gene symbol and a lab code.
         EntityInfo genotype = new EntityInfo("Genotype: ", addSuppTagsToLabCodes(mouseModel.getAllelicComposition()), null);
         EntityInfo background = new EntityInfo("Background: ", mouseModel.getGeneticBackground(), null);
-        //TODO: get the proper context path
-        EntityInfo impcGene = new EntityInfo("IMPC gene: ", mouseModel.getMgiGeneId(), "https://dev.mousephenotype.org/data/genes/" +  mouseModel.getMgiGeneId());
+        EntityInfo impcGene = new EntityInfo("IMPC gene: ", mouseModel.getMgiGeneId(), config.get("baseUrl") +"/genes/" +  mouseModel.getMgiGeneId());
         EntityInfo scoreInfo = new EntityInfo("Phenodigm score: ", Double.toString(phenodigmScore), null);
         List<EntityInfo> info = new ArrayList<>(Arrays.asList(source, genotype, background, impcGene, scoreInfo));
 
         info.add(new EntityInfo("Observed phenotypes: ", "", null));
         List<EntityInfo> phenotypes = mouseModel.getPhenotypeTerms()
                 .stream()
-                .map(phenotype -> new EntityInfo("", phenotype.getTerm(), "https://dev.mousephenotype.org/data/phenotypes/" + phenotype.getId()))
+                .map(phenotype -> new EntityInfo("", phenotype.getTerm(), config.get("baseUrl") +"/phenotypes/" + phenotype.getId()))
                 .collect(toList());
         info.addAll(phenotypes);
 
