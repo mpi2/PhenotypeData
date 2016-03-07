@@ -26,31 +26,39 @@
 
     <jsp:include page="phenotype_icons_frag.jsp"/>
 
-    <c:if test="${!(empty dataMapList)}">
-      <br/>
-      <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+    <%--<c:if test="${!(empty dataMapList)}">--%>
+      <%--<br/>--%>
+      <%--<!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->--%>
 
-      <div class="floatright marginup"
-           style="clear: both">
-        <p>
-          <a class="btn"
-             href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>
-        </p>
-      </div>
-    </c:if>
+      <%--<div class="floatleft marginup"--%>
+           <%--style="clear: both">--%>
+        <%--<p>--%>
+          <%--<a class="btn"--%>
+             <%--href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>--%>
+        <%--</p>--%>
+      <%--</div>--%>
+    <%--</c:if>--%>
 
-    <c:if test="${gene.embryoDataAvailable}">
-      <div class="floatright marginup"
-           style="clear: both">
-        <a class="btn"
-           href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
-      </div>
-    </c:if>
+    <%--<c:if test="${gene.embryoDataAvailable}">--%>
+      <%--<div class="floatleft marginup"--%>
+           <%--style="clear: both">--%>
+        <%--<a class="btn"--%>
+           <%--href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>--%>
+      <%--</div>--%>
+    <%--</c:if>--%>
 
     <div id="phenoSumDiv">
         <h5 class="sectHint">Phenotype Summary</h5>
         <p>Based on automated MP annotations supported by experiments
       on knockout mouse models. </p>
+        <p></p>
+        <c:if test="${!(empty dataMapList)}">
+            <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
+            <a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotype</a>
+        </c:if>
+        <c:if test="${gene.embryoDataAvailable}">
+            <a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
+        </c:if>
 
         <%----%>
         <%--<c:forEach var="zyg"--%>
@@ -197,7 +205,7 @@
 <c:if
         test='${hasPreQcData || summaryNumber > 0 || phenotypes.size() > 0}'>
   <!-- Associations table -->
-  <h5>Abnormal phenotype table</h5>
+  <h5>Significant phenotype table</h5>
 
 
   <div class="row-fluid">
@@ -209,14 +217,11 @@
         <div class="container span12">
 
           <c:if test="${not empty phenotypes}">
-            <form
-                    class="tablefiltering no-style" id="target"
-                    action="destination.html">
+            <form class="tablefiltering no-style" id="target" action="destination.html">
               <c:forEach
                       var="phenoFacet" items="${phenoFacets}"
                       varStatus="phenoFacetStatus">
-                <select
-                        id="${phenoFacet.key}" class="impcdropdown"
+                <select id="${phenoFacet.key}" class="impcdropdown"
                         multiple="multiple"
                         title="Filter on ${phenoFacet.key}">
                   <c:forEach
@@ -242,8 +247,7 @@
             <jsp:include page="PhenoFrag.jsp"></jsp:include>
             <br/>
 
-            <div
-                    id="exportIconsDiv"></div>
+            <div id="exportIconsDiv"></div>
           </c:if>
 
           <!-- if no data to show -->

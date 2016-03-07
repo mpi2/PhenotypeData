@@ -182,7 +182,7 @@ public class MPIndexer extends AbstractIndexer {
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp, runStatus);
                  
-                // this sets the number of postqc phenotyping calls of this MP
+                // this sets the number of postqc/preqc phenotyping calls of this MP
                 mp.setPhenoCalls(sumPhenotypingCalls(termId)); 
                 //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
@@ -218,14 +218,16 @@ public class MPIndexer extends AbstractIndexer {
     		SolrServer solrSvr = ss.get(i);
     
 	    	SolrQuery query = new SolrQuery();
-			query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
+
+            query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
 			query.setRows(0);
 			
 			QueryResponse response = solrSvr.query(query);
-			calls += response.getResults().getNumFound();
-		
-		}
-    	
+
+            calls += response.getResults().getNumFound();
+
+        }
+
         return calls;
     }
     
