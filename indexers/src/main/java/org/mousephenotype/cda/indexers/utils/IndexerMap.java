@@ -308,7 +308,7 @@ public class IndexerMap {
 	 */
 	public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
 		 Map<Integer, List<OntologyBean>> map = new HashMap<>();
-	        String query = "SELECT ontology_observation_id, acc, description, term_value FROM ontology_entity, ontology_term where ontology_entity.term=ontology_term.acc GROUP BY ontology_observation_id";
+	        String query = "SELECT ontology_observation_id, acc, name, description, term_value FROM ontology_entity, ontology_term where ontology_entity.term=ontology_term.acc GROUP BY ontology_observation_id";
 	        try (PreparedStatement p = connection.prepareStatement(query)) {
 
 	            ResultSet resultSet = p.executeQuery();
