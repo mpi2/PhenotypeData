@@ -503,33 +503,6 @@ public class ImpressService implements WebStatus {
 	}
 	
 
-	public class OntologyBean{
-
-		@Override
-		public String toString() {
-			return "OntologyBean [id=" + id + ", name=" + name + "]";
-		}
-		public OntologyBean(String id, String name){
-			this.id=id;
-			this.name=name;
-		}
-
-		String id;
-		public String getId() {
-			return id;
-		}
-		public void setId(String maId) {
-			this.id = maId;
-		}
-		String name;
-		public String getName() {
-			return name;
-		}
-		public void setName(String maName) {
-			this.name = maName;
-		}
-	}
-	
 	@Override
 	public long getWebStatus() throws SolrServerException {
 		SolrQuery query = new SolrQuery();
