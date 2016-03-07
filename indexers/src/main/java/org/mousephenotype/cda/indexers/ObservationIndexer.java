@@ -218,7 +218,6 @@ public class ObservationIndexer extends AbstractIndexer {
 			        dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 			        o.setDateOfExperiment(dateOfExperiment);
 		        } catch (NullPointerException e) {
-		        	e.printStackTrace();
 			        logger.debug("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
 			        o.setDateOfExperiment(null);
 		        }
