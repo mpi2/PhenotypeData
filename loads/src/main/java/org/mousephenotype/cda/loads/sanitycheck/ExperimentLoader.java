@@ -131,7 +131,7 @@ public class ExperimentLoader {
             // Get centerPk
             centerPk = LoaderUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
             if (centerPk < 1) {
-                logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
+                System.out.println("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
                         + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
                 centerPk = LoaderUtils.insertIntoCenter(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
             }
@@ -139,9 +139,9 @@ public class ExperimentLoader {
             for (Experiment experiment : centerProcedure.getExperiment()) {
                 for (String specimenId : experiment.getSpecimenID()) {
                     // get specimenPk
-                    Specimen specimen = LoaderUtils.getSpecimen(connection, specimenId, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
+                    Specimen specimen = LoaderUtils.getSpecimen(connection, specimenId, centerProcedure.getCentreID().value());
                     if (specimen == null) {
-                        System.out.println("UNKNOWN SPECIMEN,CENTER,PIPELINE,PROJECT: '" + specimenId + "," + centerProcedure.getCentreID().value() + "," +  centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'");
+                        System.out.println("UNKNOWN SPECIMEN,CENTER: '" + specimenId + "," + centerProcedure.getCentreID().value() + "'. INSERTING...");
                         connection.rollback();
                         continue;
                     }
