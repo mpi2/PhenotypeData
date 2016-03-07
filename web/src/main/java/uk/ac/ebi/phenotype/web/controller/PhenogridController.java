@@ -100,7 +100,7 @@ public class PhenogridController {
     }
 
     private List<PhenotypeTerm> makeIdOnlyPhenotypes(List<PhenotypeTerm> phenotypeTerms) {
-        return phenotypeTerms.stream().map(phenotypeTerm -> new PhenotypeTerm(phenotypeTerm.getId(), "")).collect(toList());
+        return phenotypeTerms.stream().map(phenotypeTerm -> new PhenotypeTerm()).collect(toList());
     }
 
     private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel, double phenodigmScore) {
