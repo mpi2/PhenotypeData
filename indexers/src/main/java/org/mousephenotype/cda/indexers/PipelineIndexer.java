@@ -197,15 +197,15 @@ public class PipelineIndexer extends AbstractIndexer {
 
 						if (param.getAbnormalMpId() != null){
 							doc.setAbnormalMpId(param.getAbnormalMpId());
-							doc.setAbnormalMpTerm(mpIdToMp.get(param.getAbnormalMpId()).getMpTerm());
+							doc.addAbnormalMpTerm(mpIdToMp.get(param.getAbnormalMpId()).getMpTerm());
 						}
 						if (param.getIncreasedMpId() != null){
 							doc.setIncreasedMpId(param.getIncreasedMpId());
-							doc.setIncreasedMpTerm(mpIdToMp.get(param.getIncreasedMpId()).getMpTerm());
+							doc.addIncreasedMpTerm(mpIdToMp.get(param.getIncreasedMpId()).getMpTerm());
 						}
 						if (param.getDecreasedMpId()!= null){
 							doc.setDecreasedMpId(param.getDecreasedMpId());
-							doc.setDecreasedMpTerm(mpIdToMp.get(param.getDecreasedMpId()).getMpTerm());
+							doc.addDecreasedMpTerm(mpIdToMp.get(param.getDecreasedMpId()).getMpTerm());
 						}
 
 						if (doc.getProcedureId() == null){
@@ -389,12 +389,13 @@ public class PipelineIndexer extends AbstractIndexer {
 				}
 
 				String type = resultSet.getString("event_type");
-				if (type.equalsIgnoreCase("abnormal")){
-					param.setAbnormalMpId(resultSet.getString("ontology_acc"));
-				} else if(type.equalsIgnoreCase("increased")){
-					param.setIncreasedMpId(resultSet.getString("ontology_acc"));
-				} else if (type.equalsIgnoreCase("decreased")){
-					param.setDecreasedMpId(resultSet.getString("ontology_acc"));
+				String mpId = resultSet.getString("ontology_acc");
+				if (type.equalsIgnoreCase("abnormal") && !param.getAbnormalMpId().contains(mpId)){
+					param.addAbnormalMpId(mpId);
+				} else if(type.equalsIgnoreCase("increased") && !param.getIncreasedMpId().contains(mpId)){
+					param.addIncreasedMpId(mpId);
+				} else if (type.equalsIgnoreCase("decreased") && !param.getDecreasedMpId().contains(mpId)){
+					param.addDecreasedMpId(mpId);
 				}
 
 				param.addMpIds(resultSet.getString("ontology_acc"));
