@@ -128,13 +128,12 @@ public class ExperimentLoader {
 
             connection.setAutoCommit(false);    // BEGIN TRANSACTION
 
-            centerPk = LoaderUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
-
             // Get centerPk
+            centerPk = LoaderUtils.getCenterPk(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
             if (centerPk < 1) {
-                System.out.println("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + "," +  centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'");
-                connection.rollback();
-                continue;
+                logger.warn("UNKNOWN CENTER,PIPELINE,PROJECT: '" + centerProcedure.getCentreID().value() + ","
+                        + centerProcedure.getPipeline() + "," + centerProcedure.getProject() + "'. INSERTING...");
+                centerPk = LoaderUtils.insertIntoCenter(connection, centerProcedure.getCentreID().value(), centerProcedure.getPipeline(), centerProcedure.getProject());
             }
 
             for (Experiment experiment : centerProcedure.getExperiment()) {
