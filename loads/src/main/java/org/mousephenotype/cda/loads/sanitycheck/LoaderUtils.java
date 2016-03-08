@@ -320,7 +320,7 @@ public class LoaderUtils {
      * <i>NOTE: The primary key value is returned in Hjid.</i>
      */
     public static StatusCode getStatuscode(Connection connection, String value) {
-        StatusCode statuscode = new StatusCode();
+        StatusCode statuscode = null;
 
         if (value == null)
             return statuscode;
@@ -337,7 +337,9 @@ public class LoaderUtils {
             if (rs.next()) {
                 long pk = rs.getLong("pk");
                 if (pk > 0) {
+                    statuscode = new StatusCode();
                     statuscode.setHjid(pk);
+                    statuscode.setValue(rs.getString("value"));
                     Date dateOfStatuscode = rs.getDate("dateOfStatuscode");
                     if (dateOfStatuscode != null) {
                         GregorianCalendar gc = new GregorianCalendar();
@@ -411,9 +413,9 @@ public class LoaderUtils {
             String query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES (?, ?)\n";
             try {
                 PreparedStatement ps = connection.prepareStatement(query);
-                if (dateOfStatuscode != null)
                 ps.setDate(1, dateOfStatuscode == null ? null : new java.sql.Date(dateOfStatuscode.getTimeInMillis()));
                 ps.setString(2, value);
+                ps.execute();
 
             } catch (SQLException e) {
                 e.printStackTrace();

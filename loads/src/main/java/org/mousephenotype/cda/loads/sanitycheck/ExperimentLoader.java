@@ -216,7 +216,7 @@ public class ExperimentLoader {
                                 linePk = rs.getLong(1);
                             }
 
-                            if ((line.getStatusCode() != null) && (!line.getStatusCode().isEmpty())) {
+                            if ((line.getStatusCode() != null) && ( ! line.getStatusCode().isEmpty())) {
                                 // line_statuscode
                                 query = "INSERT INTO line_statuscode (line_fk, statuscode_fk) VALUES (?, ?);";
                                 ps = connection.prepareStatement(query);
