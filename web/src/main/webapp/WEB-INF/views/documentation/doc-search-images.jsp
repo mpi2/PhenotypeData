@@ -36,6 +36,7 @@
         <p>To list annotations to an image, simply click on the "Show Image View" link in the top-right corner of the results grid. The label of the same link will then change to "Show Annotation View" so that you can toggle the views.</p><br>
         <img src='img/search-image-imgview.png' /><br>
 
+
         <b>Columns in the dataset on the right panel:</b>
 
         <table>
