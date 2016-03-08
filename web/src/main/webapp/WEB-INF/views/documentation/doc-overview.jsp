@@ -45,7 +45,7 @@
       <tr>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-search'>Search</a></td>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-explore'>Explore</a></td>
-        <td class="descTxt">FAQ</td>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-faq'>FAQ</a></td>
       </tr>
       <tr>
         <td><i class="fa fa-line-chart fa-4x"></i></td>

@@ -35,7 +35,7 @@ MDOC.search = {
 							+'     <li>Click on the <b>info button</b> for detailed description.</li>'
 							+ '</ul>', 
 			
-		'facetPanelDocUrl'   				: baseUrl + '/documentation/search-help',
+		'facetPanelDocUrl'   				: baseUrl + '/documentation/doc-search',
 };
 MDOC.gene = {
 		'detailsPanel'         				: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
