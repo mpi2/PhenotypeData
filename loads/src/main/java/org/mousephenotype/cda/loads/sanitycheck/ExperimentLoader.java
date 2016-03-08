@@ -283,13 +283,119 @@ public class ExperimentLoader {
                     }
 
                     // simpleParameter
-                    // ontologyParameter
+                    if ((experiment.getProcedure().getSimpleParameter() != null) && ( ! experiment.getProcedure().getSimpleParameter().isEmpty())) {
+                        for (SimpleParameter simpleParameter : experiment.getProcedure().getSimpleParameter()) {
+                            query = "INSERT INTO simpleParameter (parameterId, sequenceId, unit, value, parameterStatus, procedure_fk)"
+                                    + " VALUES (?, ?, ?, ?, ?, ?)";
+                            ps = connection.prepareStatement(query);
+                            ps.setString(1, simpleParameter.getParameterID());
+                            ps.setLong(2, simpleParameter.getSequenceID().longValue());
+                            ps.setString(3, simpleParameter.getUnit());
+                            ps.setString(4, simpleParameter.getValue());
+                            ps.setString(5, simpleParameter.getParameterStatus());
+                            ps.setLong(6, procedurePk);
+                            ps.execute();
+                        }
+                    }
+
+                    // ontologyParameter and ontologyParameterTerm
+                    if ((experiment.getProcedure().getOntologyParameter() != null) && ( ! experiment.getProcedure().getOntologyParameter().isEmpty())) {
+                        for (OntologyParameter ontologyParameter : experiment.getProcedure().getOntologyParameter()) {
+                            query = "INSERT INTO ontologyParameter (parameterId, parameterStatus, sequenceId, procedure_fk)"
+                                    + " VALUES (?, ?, ?, ?)";
+                            ps = connection.prepareStatement(query);
+                            ps.setString(1, ontologyParameter.getParameterID());
+                            ps.setString(2, ontologyParameter.getParameterStatus());
+                            ps.setLong(3, ontologyParameter.getSequenceID().longValue());
+                            ps.setLong(4, procedurePk);
+                            ps.execute();
+                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                            rs.next();
+                            long ontologyParameterPk = rs.getLong(1);
+
+                            for (String term : ontologyParameter.getTerm()) {
+                                query = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_fk) VALUES (?, ?)";
+                                ps = connection.prepareStatement(query);
+                                ps.setString(1, term);
+                                ps.setLong(2, ontologyParameterPk);
+                            }
+                        }
+                    }
+
                     // seriesParameter
+                    if ((experiment.getProcedure().getSeriesParameter() != null) && ( ! experiment.getProcedure().getSeriesParameter().isEmpty())) {
+                        for (SeriesParameter seriesParameter : experiment.getProcedure().getSeriesParameter()) {
+                            query = "INSERT INTO seriesParameter (parameterId, parameterStatus, sequenceId, procedure_fk)"
+                                    + " VALUES (?, ?, ?, ?)";
+                            ps = connection.prepareStatement(query);
+                            ps.setString(1, seriesParameter.getParameterID());
+                            ps.setString(2, seriesParameter.getParameterStatus());
+                            ps.setLong(3, seriesParameter.getSequenceID().longValue());
+                            ps.setLong(4, procedurePk);
+                            ps.execute();
+                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                            rs.next();
+                            long seriesParameterPk = rs.getLong(1);
+
+                            // seriesParameterValue
+                            for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
+                                query = "INSERT INTO seriesParameterValue(value, incrementValue, incrementStatus, seriesParameter_fk) VALUES (?, ?, ?, ?)";
+                                ps = connection.prepareStatement(query);
+                                ps.setString(1, seriesParameterValue.getValue());
+                                ps.setString(2, seriesParameterValue.getIncrementValue());
+                                ps.setString(3, seriesParameterValue.getIncrementStatus());
+                                ps.setLong(4, seriesParameterPk);
+                            }
+                        }
+                    }
+
                     // mediaParameter
-                    // ontologyParameterTerm
-                    // seriesParameterValue
-                    // mediaParameter_parameterAssociation
-                    // mediaParameter_procedureMetadata
+                    if ((experiment.getProcedure().getMediaParameter() != null) && ( ! experiment.getProcedure().getMediaParameter().isEmpty())) {
+                        for (MediaParameter mediaParameter : experiment.getProcedure().getMediaParameter()) {
+                            query = "INSERT INTO mediaParameter (parameterId, parameterStatus, filetype, URI, procedure_fk)"
+                                    + " VALUES (?, ?, ?, ?, ?)";
+                            ps = connection.prepareStatement(query);
+                            ps.setString(1, mediaParameter.getParameterID());
+                            ps.setString(2, mediaParameter.getParameterStatus());
+                            ps.setString(3, mediaParameter.getFileType());
+                            ps.setString(4, mediaParameter.getURI());
+                            ps.setLong(5, procedurePk);
+                            ps.execute();
+                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                            rs.next();
+                            long mediaParameterPk = rs.getLong(1);
+
+                            // mediaParameter_parameterAssociation
+                            if ((mediaParameter.getParameterAssociation() != null) && (mediaParameter.getParameterAssociation().isEmpty())) {
+                                for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
+                                    long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, mediaParameter.getParameterID(), null).getHjid();
+                                    query = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                    ps = connection.prepareStatement(query);
+                                    ps.setLong(1, mediaParameterPk);
+                                    ps.setLong(2, parameterAssociationPk);
+                                    ps.execute();
+                                }
+                            }
+
+                            // mediaParameter_procedureMetadata
+                            if ((mediaParameter.getProcedureMetadata() != null) && (mediaParameter.getProcedureMetadata().isEmpty())) {
+                                for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
+                                    long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, mediaParameter.getParameterID(), null).getHjid();
+                                    query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                    ps = connection.prepareStatement(query);
+                                    ps.setLong(1, mediaParameterPk);
+                                    ps.setLong(2, procedureMetadataPk);
+                                    ps.execute();
+                                }
+                            }
+                        }
+                    }
+
+
+
+
+
+
                     // parameterAssociation
                     // procedureMetadata
                     // dimension
