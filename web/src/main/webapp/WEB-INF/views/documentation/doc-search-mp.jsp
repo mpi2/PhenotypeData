@@ -41,7 +41,7 @@
               </td>
             </tr>
             <tr>
-              <td>Register Interest</td>
+              <td>Register</td>
               <td>The "Interest" link takes you to login page if you have not. Once you have logged in you will be taken back to this column and the label will be changed to "Register interest".<br>
                 Click on it will register you to the interest alert system of IMPC and you will be alerted once the phenotyping data is available/updated
               </td>

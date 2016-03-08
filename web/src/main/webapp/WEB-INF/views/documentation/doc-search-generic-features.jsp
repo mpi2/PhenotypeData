@@ -87,13 +87,12 @@
       </table>
 
       <h6 id="export">Data Export of Search Results</h6>
-      <div>Click on the download icon <p>
+      <div>Click on one of the the Export icons for data format of your choice:<p>
         <img src='img/search-download.png' /><br>
-        in the top-right corner of the results grid to expand or hide it.
-        When expanded, it looks like this:<p> <img src='img/search-export-expanded.png' /><p><p>
-        Click on either the TSV (tab separated) or the XLS (MS Excel) link for the desired report format.
-        <p>To download data for the currently displayed page only, choose the set of links under the label "Current paginated entries in table".
-          To download larger dataset, click on the "Batch query" link.</p>
+        at the bottom-right corner of the results grid.
+        <p>To download larger dataset of your favorite gene/phenotype/disease list, click on the "Batch search" link.
+         next to the Export icons or use the batch search link on top of the search page:<br><img src='img/search-batch1.png' />
+      </p>
 
       </div><%-- end of content div--%>
 
