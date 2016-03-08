@@ -196,13 +196,22 @@ public class PipelineIndexer extends AbstractIndexer {
 						}
 
 						if (param.getAbnormalMpId() != null){
-							doc.setAbnormalMpId(param.getAbnormalMpId());
+							doc.setAbnormalMpId(new ArrayList<String>(param.getAbnormalMpId()));
+							for (String mpId: param.getAbnormalMpId()){
+								doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
+							}
 						}
 						if (param.getIncreasedMpId() != null){
-							doc.setIncreasedMpId(param.getIncreasedMpId());
+							doc.setIncreasedMpId(new ArrayList<String>(param.getIncreasedMpId()));
+							for(String mpId: param.getIncreasedMpId()){
+								doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+							}
 						}
 						if (param.getDecreasedMpId()!= null){
-							doc.setDecreasedMpId(param.getDecreasedMpId());
+							doc.setDecreasedMpId(new ArrayList<String>(param.getDecreasedMpId()));
+							for(String mpId: param.getDecreasedMpId()){
+								doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+							}
 						}
 
 						if (doc.getProcedureId() == null){
@@ -386,12 +395,13 @@ public class PipelineIndexer extends AbstractIndexer {
 				}
 
 				String type = resultSet.getString("event_type");
-				if (type.equalsIgnoreCase("abnormal")){
-					param.setAbnormalMpId(resultSet.getString("ontology_acc"));
-				} else if(type.equalsIgnoreCase("increased")){
-					param.setIncreasedMpId(resultSet.getString("ontology_acc"));
-				} else if (type.equalsIgnoreCase("decreased")){
-					param.setDecreasedMpId(resultSet.getString("ontology_acc"));
+				String mpId = resultSet.getString("ontology_acc");
+				if (type.equalsIgnoreCase("abnormal") && (param.getAbnormalMpId() == null || !param.getAbnormalMpId().contains(mpId))){
+					param.addAbnormalMpId(mpId);
+				} else if(type.equalsIgnoreCase("increased") && (param.getIncreasedMpId() == null ||!param.getIncreasedMpId().contains(mpId))){
+					param.addIncreasedMpId(mpId);
+				} else if (type.equalsIgnoreCase("decreased") && (param.getDecreasedMpId() == null || !param.getDecreasedMpId().contains(mpId))){
+					param.addDecreasedMpId(mpId);
 				}
 
 				param.addMpIds(resultSet.getString("ontology_acc"));

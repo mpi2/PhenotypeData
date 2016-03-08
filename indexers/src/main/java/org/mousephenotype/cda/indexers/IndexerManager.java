@@ -295,7 +295,7 @@ public class IndexerManager {
                 runStatus = indexerItem.indexer.run();
                 if (runStatus.hasErrors()) {
                     for (String errorMessage : runStatus.getErrorMessages()) {
-                        runStatus.addError(errorMessage);
+                    	logger.error(errorMessage);
                         runResult = RunResult.FAIL;
                     }
                 } else {
@@ -309,7 +309,7 @@ public class IndexerManager {
                     runStatus = indexerItem.indexer.validateBuild();
                     if (runStatus.hasErrors()) {
                         for (String errorMessage : runStatus.getErrorMessages()) {
-                            runStatus.addError(errorMessage);
+                        	logger.error(errorMessage);
                             runResult = RunResult.FAIL;
                         }
                     } else {
