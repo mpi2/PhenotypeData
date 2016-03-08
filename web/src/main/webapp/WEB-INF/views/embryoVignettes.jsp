@@ -110,7 +110,7 @@
 							<h2 class="title"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 							<c:set var="geneId" value="MGI:102806"></c:set>
                             <div class="inner">
-                            	<div class="half">
+                            	<div>
                          			<p>
                          				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.
 										Acvr2a mutants are subviable with most pups dying before postnatal day 7. Micro-CT analysis at E15.5 revealed variable penetrance of eye and craniofacial abnormalities. Eye phenotypes varied from normal (Embryo 1- (E1)), to underdeveloped (E2), to cyclopic (E3), to absent (E4). Craniofacial phenotypes varied from normal (E1) to narrow snout (E2), to an elongated  snout missing the mandible and tongue (E3, 4) and low set ears (E2, 3, 4).
@@ -127,7 +127,7 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Dysmorphology: <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
@@ -138,14 +138,15 @@
                             		</ul>
                             		
                             	</div>
-                            	<div class="half"><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2a.png" >Micro-CT analysis of E15.5 Acvr2a wildtype embryo compared to four  mutant embryos with variable penetrance of  eye and craniofacial abnormalities.
+                            	<div ><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png" >
 								</div>
 								
                             	<div class="clear"></div>
                             	
                             	<div >
-                            	<img src="${baseUrl}/img/vignettes/Acvr2aHist.png"/>
-                            	H&E stained sagittal section of an E15.5 Acvr2a+/+ wildtype embryo compared to an E15.5 Acvr2atm1.1/tm1.1 mutant embryo showing that the tongue and mandible are missing in the mutant embryo (arrow).
+                            	<div class="inner">
+                            	<img src="${baseUrl}/img/vignettes/Acvr2aHist.png" style="width:85%"/>
+                            	</div>
                             	
                             	</div>
                             </div>
@@ -338,10 +339,10 @@ Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cer
 				            				Embryo Lacz Expression:  NA
 				            			</li>
 				            			<li>
-				            				Embryo Gross Dysmorphology: <a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology">Images</a>
+				            				Embryo Gross Dysmorphology: NA
 				            			</li>
 				            			<li>
-				            				3-D imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Image</a>
+				            				3-D imaging: NA
 				            			</li>
 				            			<li>
 				            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
