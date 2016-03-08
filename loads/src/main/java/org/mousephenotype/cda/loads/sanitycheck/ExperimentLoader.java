@@ -161,6 +161,18 @@ public class ExperimentLoader {
                         rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
                         rs.next();
                         procedurePk = rs.getLong(1);
+
+                        // procedure_procedureMetadata
+                        if ((experiment.getProcedure().getProcedureMetadata() != null) && ( ! experiment.getProcedure().getProcedureMetadata().isEmpty())) {
+                            for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
+                                long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+                                query = "INSERT INTO procedure_procedureMetadata(procedure_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                ps = connection.prepareStatement(query);
+                                ps.setLong(1, procedurePk);
+                                ps.setLong(2, procedureMetadataPk);
+                                ps.execute();
+                            }
+                        }
                     }
 
                     // center_procedure
@@ -378,9 +390,9 @@ public class ExperimentLoader {
                             long mediaParameterPk = rs.getLong(1);
 
                             // mediaParameter_parameterAssociation
-                            if ((mediaParameter.getParameterAssociation() != null) && (mediaParameter.getParameterAssociation().isEmpty())) {
+                            if ((mediaParameter.getParameterAssociation() != null) && ( ! mediaParameter.getParameterAssociation().isEmpty())) {
                                 for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
-                                    long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, mediaParameter.getParameterID(), null).getHjid();
+                                    long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
                                     query = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_fk, parameterAssociation_fk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setLong(1, mediaParameterPk);
@@ -390,10 +402,10 @@ public class ExperimentLoader {
                             }
 
                             // mediaParameter_procedureMetadata
-                            if ((mediaParameter.getProcedureMetadata() != null) && (mediaParameter.getProcedureMetadata().isEmpty())) {
+                            if ((mediaParameter.getProcedureMetadata() != null) && ( ! mediaParameter.getProcedureMetadata().isEmpty())) {
                                 for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
-                                    long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, mediaParameter.getParameterID(), null).getHjid();
-                                    query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                    long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+                                    query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_fk, procedureMetadata_fk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setLong(1, mediaParameterPk);
                                     ps.setLong(2, procedureMetadataPk);
@@ -403,284 +415,147 @@ public class ExperimentLoader {
                         }
                     }
 
-
-
-
-
-
-                    // parameterAssociation
-                    // procedureMetadata
-                    // dimension
                     // mediaSampleParameter
-                    // mediaSample
-                    // mediaSection
-                    // mediaFile
-                    // mediaFile_parameterAssociation
-                    // mediaFile_procedureMetadata
-                    // seriesMediaParameter
-                    // procedure_procedureMetadata
-                    // seriesParameterValue
-                    // seriesMediaParameterValue_parameterAssociation
-                    // seriesMediaParameterValue_procedureMetadata
+                    if ((experiment.getProcedure().getMediaSampleParameter() != null) && ( ! experiment.getProcedure().getMediaSampleParameter().isEmpty())) {
+                        for (MediaSampleParameter mediaSampleParameter : experiment.getProcedure().getMediaSampleParameter()) {
+                            query = "INSERT INTO mediaSampleParameter (parameterId, parameterStatus, procedure_fk)"
+                                    + " VALUES (?, ?, ?)";
+                            ps = connection.prepareStatement(query);
+                            ps.setString(1, mediaSampleParameter.getParameterID());
+                            ps.setString(2, mediaSampleParameter.getParameterStatus());
+                            ps.setLong(5, procedurePk);
+                            ps.execute();
+                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                            rs.next();
+                            long mediaSampleParameterPk = rs.getLong(1);
 
+                            // mediaSample
+                            for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
+                                query = "INSERT INTO mediaSample (localId, mediaSampleParameter_fk) VALUES (?, ?, ?)";
+                                ps = connection.prepareStatement(query);
+                                ps.setString(1, mediaSample.getLocalId());
+                                ps.setLong(2, mediaSampleParameterPk);
+                                ps.execute();
+                                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                                rs.next();
+                                long mediaSamplePk = rs.getLong(1);
+
+                                // mediaSection
+                                for (MediaSection mediaSection : mediaSample.getMediaSection()) {
+                                    query = "INSERT INTO mediaSection (localId, mediaSample_fk) VALUES (?, ?)";
+                                    ps = connection.prepareStatement(query);
+                                    ps.setString(1, mediaSection.getLocalId());
+                                    ps.setLong(2, mediaSamplePk);
+                                    ps.execute();
+                                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                                    rs.next();
+                                    long mediaSectionPk = rs.getLong(1);
+
+                                    // mediaFile
+                                    for (MediaFile mediaFile : mediaSection.getMediaFile()) {
+                                        query = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_fk) VALUES (?, ?, ?, ?)";
+                                        ps = connection.prepareStatement(query);
+                                        ps.setString(1, mediaFile.getLocalId());
+                                        ps.setString(2, mediaFile.getFileType());
+                                        ps.setString(3, mediaFile.getURI());
+                                        ps.setLong(4, mediaSectionPk);
+                                        ps.execute();
+                                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                                        rs.next();
+                                        long mediaFilePk = rs.getLong(1);
+
+                                        // mediaFile_parameterAssociation
+                                        if ((mediaFile.getParameterAssociation() != null) && ( ! mediaFile.getParameterAssociation().isEmpty())) {
+                                            for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
+                                                long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
+                                                query = "INSERT INTO mediaFile_parameterAssociation(mediaFile_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                                ps = connection.prepareStatement(query);
+                                                ps.setLong(1, mediaFilePk);
+                                                ps.setLong(2, parameterAssociationPk);
+                                                ps.execute();
+                                            }
+                                        }
+
+                                        // mediaFile_procedureMetadata
+                                        if ((mediaFile.getProcedureMetadata() != null) && ( ! mediaFile.getProcedureMetadata().isEmpty())) {
+                                            for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
+                                                long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+
+                                                query = "INSERT INTO mediaFile_procedureMetadata(mediaFile_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                                ps = connection.prepareStatement(query);
+                                                ps.setLong(1, mediaFilePk);
+                                                ps.setLong(2, procedureMetadataPk);
+                                                ps.execute();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // seriesMediaParameter
+                    if ((experiment.getProcedure().getSeriesMediaParameter() != null) && ( ! experiment.getProcedure().getSeriesMediaParameter().isEmpty())) {
+                        for (SeriesMediaParameter seriesMediaParameter : experiment.getProcedure().getSeriesMediaParameter()) {
+                            query = "INSERT INTO seriesMediaParameter (parameterId, parameterStatus, procedure_fk)"
+                                    + " VALUES (?, ?, ?)";
+                            ps = connection.prepareStatement(query);
+                            ps.setString(1, seriesMediaParameter.getParameterID());
+                            ps.setString(2, seriesMediaParameter.getParameterStatus());
+                            ps.setLong(3, procedurePk);
+                            ps.execute();
+                            rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                            rs.next();
+                            long seriesMediaParameterPk = rs.getLong(1);
+
+                            // seriesMediaParameterValue
+                            for (SeriesMediaParameterValue seriesMediaParameterValue : seriesMediaParameter.getValue()) {
+                                query = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_fk) VALUES (?, ?, ?, ?)";
+                                ps = connection.prepareStatement(query);
+                                ps.setString(1, seriesMediaParameterValue.getFileType());
+                                ps.setString(2, seriesMediaParameterValue.getIncrementValue());
+                                ps.setString(3, seriesMediaParameterValue.getURI());
+                                ps.setLong(4, seriesMediaParameterPk);
+                                ps.execute();
+                                rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                                rs.next();
+                                long seriesMediaParameterValuePk = rs.getLong(1);
+
+                                // seriesMediaParameterValue_parameterAssociation
+                                if ((seriesMediaParameterValue.getParameterAssociation() != null) && ( ! seriesMediaParameterValue.getParameterAssociation().isEmpty())) {
+                                    for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
+                                        long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
+                                        query = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                        ps = connection.prepareStatement(query);
+                                        ps.setLong(1, seriesMediaParameterValuePk);
+                                        ps.setLong(2, parameterAssociationPk);
+                                        ps.execute();
+                                    }
+                                }
+
+                                // seriesMediaParameterValue_procedureMetadata
+                                if ((seriesMediaParameterValue.getProcedureMetadata() != null) && ( ! seriesMediaParameterValue.getProcedureMetadata().isEmpty())) {
+                                    for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
+                                        long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
+
+                                        query = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                        ps = connection.prepareStatement(query);
+                                        ps.setLong(1, seriesMediaParameterValuePk);
+                                        ps.setLong(2, procedureMetadataPk);
+                                        ps.execute();
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     connection.commit();
-
                 }
-
-
-
-
-
-//                // center
-//                query = "";
-//                ps = connection.prepareStatement("SELECT * FROM center WHERE centerId = ? AND pipeline = ? AND project = ?;");
-//                ps.setString(1, centerProcedure.getCentreID().value());
-//                ps.setString(2, experiment.getPipeline());
-//                ps.setString(3, experiment.getProject());
-//                rs = ps.executeQuery();
-//                if (rs.next()) {
-//                    centerPk = rs.getLong("pk");
-//                } else {
-//                    query = "INSERT INTO center (centerId, pipeline, project) VALUES (?, ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setString(1, centerProcedure.getCentreID().value());
-//                    ps.setString(2, experiment.getPipeline());
-//                    ps.setString(3, experiment.getProject());
-//                    ps.execute();
-//                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-//                    rs.next();
-//                    centerPk = rs.getLong(1);
-//                }
-//
-//                // statuscode
-//                if (experiment.getStatusCode() != null) {
-//                    query = "INSERT INTO statuscode (dateOfStatuscode, value) VALUES ( ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setDate(1, new Date(experiment.getStatusCode().getDate().getTime().getTime()));
-//                    ps.setString(2, experiment.getStatusCode().getValue());
-//                    ps.execute();
-//                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-//                    rs.next();
-//                    statuscodePk = rs.getLong(1);
-//                } else {
-//                    statuscodePk = null;
-//                }
-//
-//                // specimen
-//                query =
-//                          "SELECT *\n"
-//                        + "FROM specimen s\n"
-//                        + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
-//                        + "JOIN center           c ON  c.pk          = cs.center_fk\n"
-//                        + "WHERE s.specimenId = ? AND c.centerId = ? AND c.pipeline = ? AND c.project = ?;";
-//
-//                ps = connection.prepareStatement(query);
-//                ps.setString(1, experiment.getSpecimenID());
-//                ps.setString(2, centerProcedure.getCentreID().value());
-//                ps.setString(3, experiment.getPipeline());
-//                ps.setString(4, experiment.getProject());
-//                rs = ps.executeQuery();
-//                if (rs.next()) {
-//                    specimenPk = rs.getLong("s.pk");
-//                    // Validate that this specimen's info matches the existing one in the database.
-//                    if ( ! experiment.getGender().value().equals(rs.getString("gender"))) {
-//                        throw new DccLoaderException("gender mismatch (pk " + specimenPk + "). Existing gender: " + experiment.getGender().value() + ". This gender: '" + rs.getString("gender") + "'.");
-//                    }
-//                    if ( ! experiment.isIsBaseline() == (rs.getInt("isBaseline") == 1)) {
-//                        throw new DccLoaderException("isBaseline mismatch (pk " + specimenPk + "). Existing isBaseline: " + (experiment.isIsBaseline() ? 1 : 0) + ". This isBaseline: '" + rs.getInt("isBaseline") + "'.");
-//                    }
-//                    if ( ! experiment.getLitterId().equals(rs.getString("litterId"))) {
-//                        throw new DccLoaderException("litterId mismatch. (pk " + specimenPk + "). Existing gender: " + experiment.getLitterId() + ". This litterId: '" + rs.getString("litterId") + "'.");
-//                    }
-//                    if ( ! experiment.getPhenotypingCentre().value().equals(rs.getString("phenotypingCenter"))) {
-//                        throw new DccLoaderException("phenotypingCenter mismatch. (pk " + specimenPk + "). Existing phenotypingCenter: " + experiment.getPhenotypingCentre().value()
-//                                + ". This phenotypingCenter: '" + rs.getString("phenotypingCenter") + "'.");
-//                    }
-//                    if ( ! experiment.getPipeline().equals(rs.getString("pipeline"))) {
-//                        throw new DccLoaderException("pipeline mismatch. (pk " + specimenPk + "). Existing pipeline: " + experiment.getPipeline()  + ". This pipeline: '" + rs.getString("pipeline") + "'.");
-//                    }
-//                    if (experiment.getProductionCentre() == null) {
-//                        if (rs.getString("productionCenter") != null) {
-//                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter is null. this productionCenter: '" + rs.getString("productionCenter)"));
-//                        }
-//                    } else {
-//                        if ( ! experiment.getProductionCentre().value().equals(rs.getString("productionCenter"))) {
-//                            throw new DccLoaderException("productionCenter mismatch. (pk " + specimenPk + "). Existing productionCenter: " + experiment.getProductionCentre().value()
-//                                    + ". This productionCenter: '" + rs.getString("productionCenter") + "'.");
-//                        }
-//                    }
-//                    if ( ! experiment.getProject().equals(rs.getString("project"))) {
-//                        throw new DccLoaderException("project mismatch. (pk " + specimenPk + "). Existing project: " + experiment.getProject() + ". This project: '" + rs.getString("project") + "'.");
-//                    }
-//                    if ( ! experiment.getStrainID().equals(rs.getString("strainId"))) {
-//                        throw new DccLoaderException("strainId mismatch. (pk " + specimenPk + "). Existing strainId: " + experiment.getStrainID() + ". This strainId: '" + rs.getString("strainId") + "'.");
-//                    }
-//                    if ( ! experiment.getZygosity().value().equals(rs.getString("zygosity"))) {
-//                        throw new DccLoaderException("zygosity mismatch. (pk " + specimenPk + "). Existing zygosity: " + experiment.getZygosity().value() + ". This zygosity: '" + rs.getString("zygosity") + "'.");
-//                    }
-//                } else {
-//                    query = "INSERT INTO specimen (" +
-//                                "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project," +
-//                                " specimenId, strainId, zygosity, statuscode_fk)" +
-//                            " VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    if (experiment.getColonyID() == null) {
-//                        ps.setNull(1, Types.VARCHAR);
-//                    } else {
-//                        ps.setString(1, experiment.getColonyID());
-//                    }
-//                    ps.setString(2, experiment.getGender().value());
-//                    ps.setInt(3, experiment.isIsBaseline() ? 1 : 0);
-//                    ps.setString(4, experiment.getLitterId());
-//                    ps.setString(5, experiment.getPhenotypingCentre().value());
-//                    ps.setString(6, experiment.getPipeline());
-//                    if (experiment.getProductionCentre() == null) {
-//                        ps.setNull(7, Types.VARCHAR);
-//                    } else {
-//                        ps.setString(7, experiment.getProductionCentre().value());
-//                    }
-//                    ps.setString(8, experiment.getProject());
-//                    ps.setString(9, experiment.getSpecimenID());
-//                    if (experiment.getStrainID() == null) {
-//                        ps.setNull(10, Types.VARCHAR);
-//                    } else {
-//                        ps.setString(10, experiment.getStrainID());
-//                    }
-//                    ps.setString(11, experiment.getZygosity().value());
-//                    if (statuscodePk == null) {
-//                        ps.setNull(12, Types.BIGINT);
-//                    } else {
-//                        ps.setLong(12, statuscodePk);
-//                    }
-//                    ps.execute();
-//                    rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
-//                    rs.next();
-//                    specimenPk = rs.getLong(1);
-//                }
-//
-//                // embryo or mouse
-//                if (experiment instanceof Embryo) {
-//                    Embryo embryo = (Embryo) experiment;
-//                    query = "INSERT INTO embryo (stage, stageUnit, specimen_fk) VALUES (?, ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setString(1, embryo.getStage());
-//                    ps.setString(2, embryo.getStageUnit().value());
-//                    ps.setLong(3, specimenPk);
-//                } else  if (experiment instanceof Mouse) {
-//                    Mouse mouse = (Mouse) experiment;
-//                    query = "INSERT INTO mouse (DOB, specimen_fk) VALUES (?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setDate(1, new Date(mouse.getDOB().getTime().getTime()));
-//                    ps.setLong(2, specimenPk);
-//                } else {
-//                    throw new DccLoaderException("Unknown specimen type '" + experiment.getClass().getSimpleName());
-//                }
-//                ps.execute();
-//
-//                // genotype
-//                for (Genotype genotype : experiment.getGenotype()) {
-//                    query = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_fk)"
-//                          + " VALUES (?, ?, ?, ?, ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setString(1, genotype.getGeneSymbol());
-//                    ps.setString(2, genotype.getMGIAlleleId());
-//                    ps.setString(3, genotype.getMGIGeneId());
-//                    if (genotype.getFatherZygosity() != null) {
-//                        ps.setString(4, genotype.getFatherZygosity().value());
-//                    } else {
-//                        ps.setNull(4, Types.VARCHAR);
-//                    }
-//                    if (genotype.getMotherZygosity() != null) {
-//                        ps.setString(5, genotype.getMotherZygosity().value());
-//                    } else {
-//                        ps.setNull(5, Types.VARCHAR);
-//                    }
-//
-//                    ps.setLong(6, specimenPk);
-//                    ps.execute();
-//                }
-//
-//                // parentalStrain
-//                for (ParentalStrain parentalStrain : experiment.getParentalStrain()) {
-//                    query = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_fk) VALUES (?, ?, ?, ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setDouble(1, parentalStrain.getPercentage());
-//                    ps.setString(2, parentalStrain.getMGIStrainID());
-//                    ps.setString(3, parentalStrain.getGender().value());
-//                    ps.setInt(4, parentalStrain.getLevel());
-//                    ps.setLong(5, specimenPk);
-//                    ps.execute();
-//                }
-//
-//                // chromosomalAlteration
-//                if ( ! experiment.getChromosomalAlteration().isEmpty()) {
-//                    throw new DccLoaderException("chromosomalAlteration is not yet supported. Records found!");
-//                }
-//
-//                // center_specimen
-//                query = "INSERT INTO center_specimen (center_fk, specimen_fk) VALUES ( ?, ?);";
-//                ps = connection.prepareStatement(query);
-//                ps.setLong(1, centerPk);
-//                ps.setLong(2, specimenPk);
-//                try {
-//                    ps.execute();
-//                } catch (SQLException e) {
-//                    // Duplicate specimen
-//                    System.out.println("DUPLICATE SPECIMEN: " + dumpSpecimen(centerPk, specimenPk));
-//                    connection.rollback();
-//                    continue;
-//                }
-//
-//                // relatedSpecimen NOTE: 'specimen_mine_fk cannot be loaded until ALL of the specimen files have been loaded,
-//                // as the related specimens are not guaranteed to be defined in the same specimen file (and, in fact, are not).
-//                for (RelatedSpecimen relatedSpecimen : experiment.getRelatedSpecimen()) {
-//                    query = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_fk) VALUES ( ?, ?, ?);";
-//                    ps = connection.prepareStatement(query);
-//                    ps.setString(1, relatedSpecimen.getRelationship().value());
-//                    ps.setString(2, relatedSpecimen.getSpecimenID());
-//                    ps.setLong(3, specimenPk);
-//                    ps.execute();
-//                }
             }
         }
 
         connection.close();
     }
-
-
-//    private void truncateTables() throws SQLException {
-//        String query;
-//        PreparedStatement ps;
-//
-//        String[] tables = new String[] {
-//                  "center"
-//                , "center_specimen"
-//                , "embryo"
-//                , "genotype"
-//                , "mouse"
-//                , "parentalStrain"
-//                , "relatedSpecimen"
-//                , "specimen"
-//                , "statuscode"
-//        };
-//
-//        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=0");
-//        ps.execute();
-//        for (String tableName : tables) {
-//            query = "TRUNCATE " + tableName + ";";
-//
-//            try {
-//                ps = connection.prepareStatement(query);
-//                ps.execute();
-//            } catch (SQLException e) {
-//                logger.error("Unable to truncate table " + tableName);
-//                throw e;
-//            }
-//        }
-//        ps = connection.prepareStatement("SET FOREIGN_KEY_CHECKS=1");
-//        ps.execute();
-//    }
 
     private String dumpSpecimen(long centerPk, long specimenPk) {
         String retVal = "";
