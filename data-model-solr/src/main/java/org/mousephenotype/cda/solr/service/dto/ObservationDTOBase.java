@@ -88,7 +88,10 @@ public class ObservationDTOBase {
 	public final static String DATE_OF_EXPERIMENT = "date_of_experiment";
 	public final static String WEIGHT_DATE = "weight_date";
 	public static final String TEXT_VALUE ="text_value";
-	public static final String TERM_VALUE = "term_value";
+	public static final String SUB_TERM_NAME = "sub_term_name";
+	public static final String SUB_TERM_ID = "sub_term_id";
+	public static final String SUB_TERM_DESCRIPTION= "sub_term_description";
+	
 
 
 
@@ -268,16 +271,57 @@ public class ObservationDTOBase {
     @Field(TEXT_VALUE)
 	private String textValue;
     
-    @Field(TERM_VALUE)
-	private String termValue;
+	@Field(SUB_TERM_NAME)
+	private List<String> subTermName;
+	@Field(SUB_TERM_ID)
+	private List<String> subTermId;
+	@Field(SUB_TERM_DESCRIPTION)
+	private List<String> subTermDescription;
+   
 
-
-    public String getTermValue() {
-		return termValue;
+	public List<String> getSubTermName() {
+		return subTermName;
 	}
 
-	public void setTermValue(String termValue) {
-		this.termValue = termValue;
+	public void setSubTermName(List<String> subTermName) {
+		this.subTermName = subTermName;
+	}
+
+	public List<String> getSubTermId() {
+		return subTermId;
+	}
+	
+	public void addSubTermId(String id){
+		if(this.subTermId==null){
+			this.subTermId=new ArrayList<String>();
+		}
+		this.subTermId.add(id);
+	}
+	
+	public void addSubTermName(String name){
+		if(this.subTermName==null){
+			this.subTermName=new ArrayList<String>();
+		}
+		this.subTermName.add(name);
+	}
+	
+	public void addSubTermDescription(String description){
+		if(this.subTermDescription==null){
+			this.subTermDescription=new ArrayList<String>();
+		}
+		this.subTermDescription.add(description);
+	}
+
+	public void setSubTermId(List<String> subTermId) {
+		this.subTermId = subTermId;
+	}
+
+	public List<String> getSubTermDescription() {
+		return subTermDescription;
+	}
+
+	public void setSubTermDescription(List<String> subTermDescription) {
+		this.subTermDescription = subTermDescription;
 	}
 
 	public void setTextValue(String textValue) {

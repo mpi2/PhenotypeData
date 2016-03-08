@@ -184,6 +184,9 @@
 	<field name="abnormal_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="increased_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 	<field name="decreased_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="abnormal_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="increased_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
+	<field name="decreased_mp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
 	<!-- mp to hp mapping -->
 	<field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
