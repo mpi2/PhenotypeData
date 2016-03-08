@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.sanitycheck;
 
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Dimension;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ParameterAssociation;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Procedure;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
@@ -31,10 +32,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Created by mrelac on 02/03/2016.
@@ -263,6 +267,7 @@ public class LoaderUtils {
      * <code>sequenceId</code>, if found; null otherwise.
      * <p/>
      * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     * <i>NOTE: The <code>Dimension</code> collection, if any, is returned as well.</i>
      */
     public static ParameterAssociation getParameterAssociation(Connection connection, String parameterId, Integer sequenceId) {
         ParameterAssociation parameterAssociation = null;
@@ -294,6 +299,23 @@ public class LoaderUtils {
                 parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
             }
 
+            query = "SELECT * FROM dimension WHERE parameterAssociation_fk = ?";
+            ps = connection.prepareStatement(query);
+            ps.setLong(1, parameterAssociation.getHjid());
+            rs = ps.executeQuery();
+            List<Dimension> dimensionList = new ArrayList<>();
+            parameterAssociation.setDim(dimensionList);
+            while (rs.next()) {
+                Dimension dimension = new Dimension();
+                dimension.setHjid(rs.getLong("pk"));
+                dimension.setId(rs.getString("id"));
+                dimension.setOrigin(rs.getString("origin"));
+                dimension.setUnit(rs.getString("unit"));
+                BigDecimal value = rs.getBigDecimal("value");
+                dimension.setValue( (rs.wasNull() ? null : value));
+                dimensionList.add(dimension);
+            }
+
         } catch (SQLException e) {
 
         }
@@ -322,9 +344,9 @@ public class LoaderUtils {
         String query;
 
         if (sequenceId == null) {
-            query = "SELECT * FROM ProcedureMetadata WHERE parameterId = ?";
+            query = "SELECT * FROM procedureMetadata WHERE parameterId = ?";
         } else {
-            query = "SELECT * FROM ProcedureMetadata WHERE parameterId = ? AND sequenceId = ?";
+            query = "SELECT * FROM procedureMetadata WHERE parameterId = ? AND sequenceId = ?";
         }
 
         PreparedStatement ps;
@@ -502,33 +524,56 @@ public class LoaderUtils {
      * returned.
      *
      * <i>NOTE: if <code>parameterId</code> is null, a null <code>ParameterAssociation</code> is returned.</i>
+     * <i>NOTE: Any <code>Dimension</code></i> instances in the parameterAssociation are added to the dimension table
+     *          and returned in the returned <code>ParameterAssociation</code> instance.
      *
      * @param connection  A valid database connection
-     * @param parameterId the parameterId to search for
-     * @param sequenceId the sequence id to search for (may be null)
+     * @param parameterAssociation a valid <code>ParameterAssociation</code> instance
      *
      * @return The <code>ParameterAssociation</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
      * if specified), inserted first if necessary.
      */
-    public static ParameterAssociation selectOrInsertParameterAssociation(Connection connection, String parameterId, Integer sequenceId) {
-        ParameterAssociation parameterAssociation = getParameterAssociation(connection, parameterId, sequenceId);
+    public static ParameterAssociation selectOrInsertParameterAssociation(Connection connection, ParameterAssociation parameterAssociation) {
+        String parameterId = parameterAssociation.getParameterID();
+        Integer sequenceId = (parameterAssociation.getSequenceID() == null ? null : parameterAssociation.getSequenceID().intValue());
 
-        if (parameterAssociation == null) {
+        ParameterAssociation retVal = getParameterAssociation(connection, parameterId, sequenceId);
+
+        if (retVal == null) {
             String query = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (?, ?)\n";
             try {
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, parameterId);
-                ps.setInt(2, sequenceId);
+                if (sequenceId == null)
+                    ps.setNull(2, Types.INTEGER);
+                else
+                    ps.setInt(2, sequenceId);
                 ps.execute();
-                parameterAssociation = getParameterAssociation(connection, parameterId, sequenceId);
+                long parameterAssociationPk = getParameterAssociation(connection, parameterId, sequenceId).getHjid();
+
+                if ((parameterAssociation.getDim() != null) && ( ! parameterAssociation.getDim().isEmpty())) {
+                    for (Dimension dimension : parameterAssociation.getDim()) {
+                        query = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_fk)"
+                              + "VALUES (?, ?, ?, ?, ?)";
+                        ps = connection.prepareStatement(query);
+                        ps.setString(1, dimension.getId());
+                        ps.setString(2, dimension.getOrigin());
+                        ps.setString(3, dimension.getUnit());
+                        ps.setBigDecimal(4, dimension.getValue());
+                        ps.setLong(5, parameterAssociationPk);
+                        ps.execute();
+                    }
+                }
+
+                retVal = getParameterAssociation(connection, parameterId, sequenceId);
 
             } catch (SQLException e) {
                 e.printStackTrace();
-                throw new RuntimeException("INSERT of parameterAssociation(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
+                throw new RuntimeException("INSERT of retVal(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
             }
         }
 
-        return parameterAssociation;
+        return retVal;
     }
 
     /**
@@ -549,11 +594,14 @@ public class LoaderUtils {
         ProcedureMetadata procedureMetadata = getProcedureMetadata(connection, parameterId, sequenceId);
 
         if (procedureMetadata == null) {
-            String query = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (?, ?)\n";
+            String query = "INSERT INTO procedureMetadata (parameterId, sequenceId) VALUES (?, ?)\n";
             try {
                 PreparedStatement ps = connection.prepareStatement(query);
                 ps.setString(1, parameterId);
-                ps.setInt(2, sequenceId);
+                if (sequenceId == null)
+                    ps.setNull(2, Types.INTEGER);
+                else
+                    ps.setInt(2, sequenceId);
                 ps.execute();
                 procedureMetadata = getProcedureMetadata(connection, parameterId, sequenceId);
 

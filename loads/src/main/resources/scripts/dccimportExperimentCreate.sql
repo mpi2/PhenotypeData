@@ -79,7 +79,7 @@ CREATE TABLE `simpleParameter` (
  `parameterId` varchar(255) NOT NULL,
  `sequenceId` INTEGER DEFAULT NULL,
  `unit` varchar(255) DEFAULT NULL,
- `value` varchar(255) DEFAULT NULL,
+ `value` varchar(4096) DEFAULT NULL,
  `parameterStatus` varchar(255) DEFAULT NULL,
  `procedure_fk` bigint(20) NOT NULL,
  PRIMARY KEY (`pk`)
@@ -128,7 +128,7 @@ CREATE TABLE `ontologyParameterTerm` (
 DROP TABLE IF EXISTS `seriesParameterValue`;
 CREATE TABLE `seriesParameterValue` (
  `pk` bigint(20) NOT NULL AUTO_INCREMENT,
- `value` varchar(255) DEFAULT NULL,
+ `value` varchar(4096) DEFAULT NULL,
  `incrementValue` varchar(255) NOT NULL,
  `incrementStatus` varchar(255) DEFAULT NULL,
  `seriesParameter_fk` bigint(20) NOT NULL,
@@ -165,17 +165,17 @@ CREATE TABLE `procedureMetadata` (
  `parameterId` varchar(255) NOT NULL,
  `parameterStatus` varchar(255) DEFAULT NULL,
  `sequenceId` INTEGER DEFAULT NULL,
- `value` varchar(255) DEFAULT NULL,
+ `value` varchar(4096) DEFAULT NULL,
  PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `dimension`;
 CREATE TABLE `dimension` (
  `pk` bigint(20) NOT NULL AUTO_INCREMENT,
- `value` varchar(255) NOT NULL,
  `id` varchar(255) NOT NULL,
  `origin` varchar(255) NOT NULL,
  `unit` varchar(255) DEFAULT NULL,
+ `value` decimal(15, 10) NOT NULL,
  `parameterAssociation_fk` bigint(20) NOT NULL,
  PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
