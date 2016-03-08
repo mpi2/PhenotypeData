@@ -8,7 +8,7 @@ CREATE TABLE `experiment` (
 `pk` bigint(20) NOT NULL AUTO_INCREMENT,
 `dateOfExperiment` date NOT NULL,
 `experimentId` varchar(255) NOT NULL,
-`sequenceId` INTEGER DEFAULT NULL,
+`sequenceId` VARCHAR(255) DEFAULT NULL,
 `center_procedure_fk` bigint(20) NOT NULL,
 PRIMARY KEY (`pk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
