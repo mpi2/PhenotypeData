@@ -196,16 +196,22 @@ public class PipelineIndexer extends AbstractIndexer {
 						}
 
 						if (param.getAbnormalMpId() != null){
-							doc.setAbnormalMpId(param.getAbnormalMpId());
-							doc.addAbnormalMpTerm(mpIdToMp.get(param.getAbnormalMpId()).getMpTerm());
+							doc.setAbnormalMpId(new ArrayList<String>(param.getAbnormalMpId()));
+							for (String mpId: param.getAbnormalMpId()){
+								doc.addAbnormalMpTerm(mpIdToMp.get(mpId).getMpTerm());
+							}
 						}
 						if (param.getIncreasedMpId() != null){
-							doc.setIncreasedMpId(param.getIncreasedMpId());
-							doc.addIncreasedMpTerm(mpIdToMp.get(param.getIncreasedMpId()).getMpTerm());
+							doc.setIncreasedMpId(new ArrayList<String>(param.getIncreasedMpId()));
+							for(String mpId: param.getIncreasedMpId()){
+								doc.addIncreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+							}
 						}
 						if (param.getDecreasedMpId()!= null){
-							doc.setDecreasedMpId(param.getDecreasedMpId());
-							doc.addDecreasedMpTerm(mpIdToMp.get(param.getDecreasedMpId()).getMpTerm());
+							doc.setDecreasedMpId(new ArrayList<String>(param.getDecreasedMpId()));
+							for(String mpId: param.getDecreasedMpId()){
+								doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+							}
 						}
 
 						if (doc.getProcedureId() == null){
