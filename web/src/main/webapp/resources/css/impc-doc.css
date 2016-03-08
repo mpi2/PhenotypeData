@@ -1,0 +1,53 @@
+i.fleft {
+    float: left;
+}
+div.fleft {
+    font-size: 25px;
+    padding-top: 20px;
+    padding-left: 80px;
+}
+
+div#tabs {
+    border-top: none;
+    width: 100%;
+    margin-top: 50px;
+}
+
+div#tabs > ul {
+    border: none;
+    border-bottom: 1px solid #666;
+    padding-bottom: 3px;
+    margin-bottom: 0px;
+    background: none;
+    list-style-type: none;
+}
+
+div#tabs > ul li {
+    float: left;
+}
+
+div.srchdocTab {
+    border: 1px solid gray;
+    border-top: none;
+    padding: 45px;
+}
+div#tabs > ul li a {
+    margin: 0 0px -3px 20px;
+    border: 1px solid #666;
+    border-bottom: none;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 3px 5px 3px 5px;
+    border-radius: 4px;
+    color: gray;
+}
+#tabs .ui-tabs-active > a {
+    border-bottom: 1px solid white;
+    color: black;
+}
+img {
+    /* images will be automatically adjusted to fit container */
+    max-width:100%;
+    max-height:100%;
+}
+div#note {color: darkorange;}

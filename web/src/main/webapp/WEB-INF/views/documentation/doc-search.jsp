@@ -3,63 +3,13 @@
 
 <t:genericpage>
 
-  <jsp:attribute name="title">IMPC Search</jsp:attribute>
+  <jsp:attribute name="title">IMPC Portal Documentation</jsp:attribute>
   <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/documentation/doc-overview">Documentation</a> &raquo; <a href="${baseUrl}/documentation/doc-search">Search data</a></jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-      <style>
-
-          div#tabs {
-            border-top: none;
-          }
-
-          div#tabs > ul {
-            border: none;
-            border-bottom: 1px solid #666;
-            padding-bottom: 3px;
-            margin-bottom: 0px;
-            background: none;
-            list-style-type: none;
-          }
-
-          div#tabs > ul li {
-            float: left;
-          }
-
-          div.srchdocTab {
-            border: 1px solid gray;
-            border-top: none;
-            padding: 45px;
-          }
-
-
-          div#tabs > ul li a {
-            margin: 0 0px -3px 20px;
-            border: 1px solid #666;
-            border-bottom: none;
-            font-size: 16px;
-            text-decoration: none;
-            padding: 3px 5px 3px 5px;
-            border-radius: 4px;
-            color: gray;
-          }
-
-          #tabs .ui-tabs-active {
-
-          }
-          #tabs .ui-tabs-active > a {
-            border-bottom: 1px solid white;
-            color: black;
-          }
-          img {
-            /* images will be automatically adjusted to fit container */
-            max-width:100%;
-            max-height:100%;
-          }
-          div#note {color: darkorange;}
-
-        </style>
+      <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
+      <style></style>
 
 	</jsp:attribute>
 
@@ -70,7 +20,7 @@
   <jsp:body>
     <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <h1>IMPC data portal documentation</h1>
-
+    <div><i class="fleft fa fa-search fa-4x"></i><div class="fleft">Search</div></div>
     <div id="tabs">
       <ul>
         <li><a href="#tabs-1">Generic Search Features</a></li>

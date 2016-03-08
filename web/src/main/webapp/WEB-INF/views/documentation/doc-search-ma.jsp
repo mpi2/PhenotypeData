@@ -30,6 +30,10 @@
             <td>Anatomy</td>
             <td>This column shows the ontological term of a mouse anatomical tissue/organ with a linkout to the IMPC anatomy page</td>
           </tr>
+          <tr>
+            <td>LacZ Expression Data</td>
+            <td>This column indicates existence of expression data associated with this anatomy term</td>
+          </tr>
         </table>
    </body>
 </html>
