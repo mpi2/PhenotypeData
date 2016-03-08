@@ -104,16 +104,16 @@ public class PhenogridController {
     private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel, double phenodigmScore) {
         EntityInfo source = new EntityInfo("Source: ", mouseModel.getSource(), null);
         //TODO: re-work the MouseModel to have a proper allele representation e.g. list<Allele> where Allele has an mgi id, gene symbol and a lab code.
-        EntityInfo genotype = new EntityInfo("Genotype: ", addSuppTagsToLabCodes(mouseModel.getAllelicComposition()), null);
+        EntityInfo genotype = new EntityInfo("Genotype: ", mouseModel.getAllelicCompositionLink(), null);
         EntityInfo background = new EntityInfo("Background: ", mouseModel.getGeneticBackground(), null);
-        EntityInfo impcGene = new EntityInfo("IMPC gene: ", mouseModel.getMgiGeneId(), config.get("baseUrl") +"/genes/" +  mouseModel.getMgiGeneId());
+        EntityInfo impcGene = new EntityInfo("Gene: ", mouseModel.getMgiGeneId(), config.get("baseUrl") + "/genes/" +  mouseModel.getMgiGeneId());
         EntityInfo scoreInfo = new EntityInfo("Phenodigm score: ", Double.toString(phenodigmScore), null);
         List<EntityInfo> info = new ArrayList<>(Arrays.asList(source, genotype, background, impcGene, scoreInfo));
 
         info.add(new EntityInfo("Observed phenotypes: ", "", null));
         List<EntityInfo> phenotypes = mouseModel.getPhenotypeTerms()
                 .stream()
-                .map(phenotype -> new EntityInfo("", phenotype.getTerm(), config.get("baseUrl") +"/phenotypes/" + phenotype.getId()))
+                .map(phenotype -> new EntityInfo("", phenotype.getTerm(), config.get("baseUrl") + "/phenotypes/" + phenotype.getId()))
                 .collect(toList());
         info.addAll(phenotypes);
 
