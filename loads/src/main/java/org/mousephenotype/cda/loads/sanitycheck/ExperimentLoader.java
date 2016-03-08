@@ -115,7 +115,7 @@ public class ExperimentLoader {
 
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
-        long centerPk, centerProcedurePk, procedurePk, specimenPk, statuscodePk;
+        long centerPk, centerProcedurePk, experimentPk, procedurePk, specimenPk, statuscodePk;
         PreparedStatement ps;
         ResultSet rs;
         String query;
@@ -232,14 +232,55 @@ public class ExperimentLoader {
                     }
 
                     // experiment
-
+                    ps = connection.prepareStatement("SELECT * FROM experiment WHERE experimentId = ? and center_procedure_fk = ?");
+                    ps.setString(1, experiment.getExperimentID());
+                    ps.setLong(2, centerProcedurePk);
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        experimentPk = rs.getLong("pk");
+                    } else {
+                        query = "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, center_procedure_fk) VALUES (?, ?, ?);";
+                        ps = connection.prepareStatement(query);
+                        ps.setDate(1, experiment.getDateOfExperiment() == null ? null : new Date(experiment.getDateOfExperiment().getTime().getTime()));
+                        ps.setString(2, experiment.getExperimentID());
+                        ps.setString(3, experiment.getSequenceID() == null ? null : experiment.getSequenceID());
+                        ps.setLong(4, centerProcedurePk);
+                        ps.execute();
+                        rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
+                        rs.next();
+                        experimentPk = rs.getLong(1);
+                    }
 
                     // experiment_statuscode
-
-
+                    if ((experiment.getStatusCode() != null) && ( ! experiment.getStatusCode().isEmpty())) {
+                        for (StatusCode statuscode : experiment.getStatusCode()) {
+                            long statuscodeFk = LoaderUtils.selectOrInsertStatuscode(connection, statuscode).getHjid();
+                            ps = connection.prepareStatement("SELECT * FROM experiment_statuscode WHERE experiment_fk = ? and statuscode_fk = ?");
+                            ps.setLong(1, experimentPk);
+                            ps.setLong(2, statuscodeFk);
+                            rs = ps.executeQuery();
+                            if ( ! rs.next()) {
+                                query = "INSERT INTO experiment_statuscode (experiment_fk, statuscode_fk) VALUES (?, ?)";
+                                ps = connection.prepareStatement(query);
+                                ps.setLong(1, experimentPk);
+                                ps.setLong(2, statuscodeFk);
+                                ps.execute();
+                            }
+                        }
+                    }
 
                     // experiment_specimen
-
+                    ps = connection.prepareStatement("SELECT * FROM experiment_specimen WHERE experiment_fk = ? and specimen_fk = ?");
+                    ps.setLong(1, experimentPk);
+                    ps.setLong(2, specimenPk);
+                    rs = ps.executeQuery();
+                    if ( ! rs.next()) {
+                        query = "INSERT INTO experiment_specimen (experiment_fk, specimen_fk) VALUES (?, ?)";
+                        ps = connection.prepareStatement(query);
+                        ps.setLong(1, experimentPk);
+                        ps.setLong(2, specimenPk);
+                        ps.execute();
+                    }
 
                     // simpleParameter
                     // ontologyParameter
