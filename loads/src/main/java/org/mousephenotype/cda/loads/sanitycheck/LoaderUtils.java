@@ -18,6 +18,9 @@ package org.mousephenotype.cda.loads.sanitycheck;
 
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ParameterAssociation;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.Procedure;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.StatusCode;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
@@ -28,6 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -249,6 +253,107 @@ public class LoaderUtils {
     }
 
     /**
+     * Returns the <code>ParameterAssociation</code> matching <code>parameterId</code> and <code>sequenceId</code>,
+     * if found; null otherwise.
+     *
+     * @param connection  A valid database connection
+     * @param parameterId The parameterId value to search for
+     * @param sequenceId An optional sequence Id to search for. May be null.
+     * @return The <code>ParameterAssociation</code> matching <code>parameterId</code> and, if not null,
+     * <code>sequenceId</code>, if found; null otherwise.
+     * <p/>
+     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     */
+    public static ParameterAssociation getParameterAssociation(Connection connection, String parameterId, Integer sequenceId) {
+        ParameterAssociation parameterAssociation = null;
+
+        if (parameterId == null)
+            return parameterAssociation;
+        String query;
+
+        if (sequenceId == null) {
+            query = "SELECT * FROM parameterAssociation WHERE parameterId = ?";
+        } else {
+            query = "SELECT * FROM parameterAssociation WHERE parameterId = ? AND sequenceId = ?";
+        }
+
+        PreparedStatement ps;
+        ResultSet rs;
+
+        try {
+            ps = connection.prepareStatement(query);
+            ps.setString(1, parameterId);
+            if (sequenceId != null) {
+                ps.setInt(2, sequenceId);
+            }
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                parameterAssociation = new ParameterAssociation();
+                parameterAssociation.setHjid(rs.getLong("pk"));
+                parameterAssociation.setParameterID(parameterId);
+                parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+            }
+
+        } catch (SQLException e) {
+
+        }
+
+        return parameterAssociation;
+    }
+
+    /**
+     * Returns the <code>ProcedureMetadata</code> matching <code>parameterId</code> and <code>sequenceId</code>,
+     * if found; null otherwise.
+     *
+     * @param connection  A valid database connection
+     * @param parameterId The parameterId value to search for
+     * @param sequenceId An optional sequence Id to search for. May be null.
+     * @return The <code>ProcedureMetadata</code> matching <code>parameterId</code> and, if not null, <code>sequenceId</code>,
+     * if found; null otherwise.
+     * <p/>
+     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
+     */
+    public static ProcedureMetadata getProcedureMetadata(Connection connection, String parameterId, Integer sequenceId) {
+        ProcedureMetadata procedureMetadata = null;
+
+        if (parameterId == null)
+            return procedureMetadata;
+
+        String query;
+
+        if (sequenceId == null) {
+            query = "SELECT * FROM ProcedureMetadata WHERE parameterId = ?";
+        } else {
+            query = "SELECT * FROM ProcedureMetadata WHERE parameterId = ? AND sequenceId = ?";
+        }
+
+        PreparedStatement ps;
+        ResultSet rs;
+
+        try {
+            ps = connection.prepareStatement(query);
+            ps.setString(1, parameterId);
+            if (sequenceId != null) {
+                ps.setInt(2, sequenceId);
+            }
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                procedureMetadata = new ProcedureMetadata();
+                procedureMetadata.setHjid(rs.getLong("pk"));
+                procedureMetadata.setParameterID(parameterId);
+                procedureMetadata.setParameterStatus(rs.getString("parameterStatus"));
+                procedureMetadata.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
+                procedureMetadata.setValue(rs.getString("value"));
+            }
+
+        } catch (SQLException e) {
+
+        }
+
+        return procedureMetadata;
+    }
+
+    /**
      * Looks for the <code>specimen</code> for the given specimenId, centerId, pipeline, and project.
      * Retuns the <code>Specimen</code> instance if found; null otherwise.
      *
@@ -257,7 +362,7 @@ public class LoaderUtils {
      * @param centerId   The center id
      * @return The <code>Specimen</code> instance if found; null otherwise.
      * <p/>
-     * <i>NOTE: The primary key value is returned in Hjid.</i>
+     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      */
     public static Specimen getSpecimen(Connection connection, String specimenId, String centerId) {
         SpecimenCDA specimen = null;
@@ -317,7 +422,7 @@ public class LoaderUtils {
      * @param value The StatusCode value to search for
      * @return The <code>StatusCode</code> matching <code>value</code>, if found; null otherwise.
      * <p/>
-     * <i>NOTE: The primary key value is returned in Hjid.</i>
+     * <i>NOTE: If found, the primary key value is returned in Hjid.</i>
      */
     public static StatusCode getStatuscode(Connection connection, String value) {
         StatusCode statuscode = null;
@@ -392,6 +497,76 @@ public class LoaderUtils {
     }
 
     /**
+     * Given a parameterId value, attempts to fetch the matching <code>ParameterAssociation</code> instance. If there is
+     * none, the parameterId and sequenceId are first inserted. The <code>ParameterAssociation</code> instance is then
+     * returned.
+     *
+     * <i>NOTE: if <code>parameterId</code> is null, a null <code>ParameterAssociation</code> is returned.</i>
+     *
+     * @param connection  A valid database connection
+     * @param parameterId the parameterId to search for
+     * @param sequenceId the sequence id to search for (may be null)
+     *
+     * @return The <code>ParameterAssociation</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
+     * if specified), inserted first if necessary.
+     */
+    public static ParameterAssociation selectOrInsertParameterAssociation(Connection connection, String parameterId, Integer sequenceId) {
+        ParameterAssociation parameterAssociation = getParameterAssociation(connection, parameterId, sequenceId);
+
+        if (parameterAssociation == null) {
+            String query = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (?, ?)\n";
+            try {
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, parameterId);
+                ps.setInt(2, sequenceId);
+                ps.execute();
+                parameterAssociation = getParameterAssociation(connection, parameterId, sequenceId);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("INSERT of parameterAssociation(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
+            }
+        }
+
+        return parameterAssociation;
+    }
+
+    /**
+     * Given a parameterId value, attempts to fetch the matching <code>ProcedureMetadata</code> instance. If there is
+     * none, the parameterId and sequenceId are first inserted. The <code>ProcedureMetadata</code> instance is then
+     * returned.
+     *
+     * <i>NOTE: if <code>parameterId</code> is null, a null <code>ProcedureMetadata</code> is returned.</i>
+     *
+     * @param connection  A valid database connection
+     * @param parameterId the parameterId to search for
+     * @param sequenceId the sequence id to search for (may be null)
+     *
+     * @return The <code>ProcedureMetadata</code> instance matching <code>parameterId</code> (and <code>sequenceId</code>,
+     * if specified), inserted first if necessary.
+     */
+    public static ProcedureMetadata selectOrInsertProcedureMetadata(Connection connection, String parameterId, Integer sequenceId) {
+        ProcedureMetadata procedureMetadata = getProcedureMetadata(connection, parameterId, sequenceId);
+
+        if (procedureMetadata == null) {
+            String query = "INSERT INTO parameterAssociation (parameterId, sequenceId) VALUES (?, ?)\n";
+            try {
+                PreparedStatement ps = connection.prepareStatement(query);
+                ps.setString(1, parameterId);
+                ps.setInt(2, sequenceId);
+                ps.execute();
+                procedureMetadata = getProcedureMetadata(connection, parameterId, sequenceId);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException("INSERT of parameterAssociation(" + parameterId + ", " + sequenceId + " FAILED: " + e.getLocalizedMessage());
+            }
+        }
+
+        return procedureMetadata;
+    }
+
+    /**
      * Given a statuscode value, attempts to fetch the matching object. If there is none, the value and (nullable)
      * dateOfStatuscode are first inserted. The <code>StatusCode</code> instance is then returned.
      *
@@ -416,14 +591,13 @@ public class LoaderUtils {
                 ps.setDate(1, dateOfStatuscode == null ? null : new java.sql.Date(dateOfStatuscode.getTimeInMillis()));
                 ps.setString(2, value);
                 ps.execute();
+                statuscode = getStatuscode(connection, value);
 
             } catch (SQLException e) {
                 e.printStackTrace();
                 throw new RuntimeException("Invalid date '" + dateOfStatuscode.getTime().toString());
             }
         }
-
-        statuscode = getStatuscode(connection, value);
 
         return statuscode;
     }
@@ -442,14 +616,5 @@ public class LoaderUtils {
             return null;
 
         return selectOrInsertStatuscode(connection, statuscode.getValue(), statuscode.getDate());
-
-
-
-        // ps.setDate(1, new java.sql.Date(specimen.getStatusCode().getDate().getTime().getTime()));
-
-
-
-
-
     }
 }
