@@ -239,7 +239,7 @@ public class ExperimentLoader {
                     if (rs.next()) {
                         experimentPk = rs.getLong("pk");
                     } else {
-                        query = "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, center_procedure_fk) VALUES (?, ?, ?);";
+                        query = "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, center_procedure_fk) VALUES (?, ?, ?, ?);";
                         ps = connection.prepareStatement(query);
                         ps.setDate(1, experiment.getDateOfExperiment() == null ? null : new Date(experiment.getDateOfExperiment().getTime().getTime()));
                         ps.setString(2, experiment.getExperimentID());
