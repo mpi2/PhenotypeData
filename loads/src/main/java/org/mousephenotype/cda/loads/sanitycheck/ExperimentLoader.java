@@ -243,7 +243,10 @@ public class ExperimentLoader {
                         ps = connection.prepareStatement(query);
                         ps.setDate(1, experiment.getDateOfExperiment() == null ? null : new Date(experiment.getDateOfExperiment().getTime().getTime()));
                         ps.setString(2, experiment.getExperimentID());
-                        ps.setString(3, experiment.getSequenceID() == null ? null : experiment.getSequenceID());
+                        if (experiment.getSequenceID() == null)
+                            ps.setNull(3, Types.BIGINT);
+                        else
+                            ps.setString(3, experiment.getSequenceID());
                         ps.setLong(4, centerProcedurePk);
                         ps.execute();
                         rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
@@ -289,7 +292,10 @@ public class ExperimentLoader {
                                     + " VALUES (?, ?, ?, ?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, simpleParameter.getParameterID());
-                            ps.setLong(2, (simpleParameter.getSequenceID() == null ? null : simpleParameter.getSequenceID().longValue()));
+                            if (simpleParameter.getSequenceID() == null)
+                                ps.setNull(2, Types.BIGINT);
+                            else
+                                ps.setLong(2, simpleParameter.getSequenceID().longValue());
                             ps.setString(3, simpleParameter.getUnit());
                             ps.setString(4, simpleParameter.getValue());
                             ps.setString(5, simpleParameter.getParameterStatus());
@@ -306,7 +312,10 @@ public class ExperimentLoader {
                             ps = connection.prepareStatement(query);
                             ps.setString(1, ontologyParameter.getParameterID());
                             ps.setString(2, ontologyParameter.getParameterStatus());
-                            ps.setLong(3, (ontologyParameter.getSequenceID() == null ? null : ontologyParameter.getSequenceID().longValue()));
+                            if (ontologyParameter.getSequenceID() == null)
+                                ps.setNull(3, Types.BIGINT);
+                            else
+                                ps.setLong(3, ontologyParameter.getSequenceID().longValue());
                             ps.setLong(4, procedurePk);
                             ps.execute();
                             rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
@@ -330,7 +339,10 @@ public class ExperimentLoader {
                             ps = connection.prepareStatement(query);
                             ps.setString(1, seriesParameter.getParameterID());
                             ps.setString(2, seriesParameter.getParameterStatus());
-                            ps.setLong(3, (seriesParameter.getSequenceID() == null ? null : seriesParameter.getSequenceID().longValue()));
+                            if (seriesParameter.getSequenceID() == null)
+                                ps.setNull(3, Types.BIGINT);
+                            else
+                                ps.setLong(3, seriesParameter.getSequenceID().longValue());
                             ps.setLong(4, procedurePk);
                             ps.execute();
                             rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
