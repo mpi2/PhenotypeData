@@ -177,8 +177,8 @@
 						color: #CD8500;
 					}
 
-					div#exptabs {
-						border-top: none;
+					div.ui-tabs {
+						border: none;
 						width: 100%;
 					}
 					div#exptabs > ul, div#diseasetabs > ul {
@@ -259,13 +259,16 @@
 					}
 
 					/* override the anatomogram .ui-widget font */
-					div#diseasetabs.ui-widget {
+					div#diseasetabs.ui-widget, div#exptabs.ui-widget {
 					font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
 						font-size: 1.0em;
 						color: #333;
 					}
-					div#diseasetabs td {
+					div#diseasetabs td, div#exptabs td {
 						color: #666;
+					}
+					div#diseasetabs a, div#exptabs a {
+						color: #0978a1;
 					}
 
 				</style>
@@ -438,9 +441,8 @@
 														<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
 													</div>
 												</c:if>
+												<br style="clear: both">
 											</div><!-- end of tabs -->
-											<br style="clear: both">
-										<%--</div>--%>
 									</c:if>
 
 									<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets
