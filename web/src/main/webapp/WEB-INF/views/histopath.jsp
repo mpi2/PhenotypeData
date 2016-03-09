@@ -43,6 +43,40 @@
                     <div class="node node-gene">
 
                       Histopath page here ${gene.markerName}
+                      <table>
+                     
+                      <c:forEach var="entry" items="${extSampleIdToObservations}">
+                       <c:forEach var="obs" items="${entry.value}">
+                      	<tr>
+                      		<td>
+                      			${obs.externalSampleId }
+                      		</td>
+                      		<td>
+                      			${obs.observationType }
+                      		</td>
+                      		<td>
+                      			${obs.parameterName }
+                      		</td>
+                      		<td>
+                      			${obs.category }
+                      		</td>
+                      		<td>
+                      			${obs.textValue }
+                      		</td>
+                      		<td>
+                      			${obs.subTermId }
+                      		</td>
+                      		<td>
+                      			name: ${obs.subTermName }
+                      		</td>
+                      		<td>
+                      			${obs.subTermDescription }
+                      		</td>
+                      	</tr>
+                      	</c:forEach>
+                      </c:forEach>
+                      
+                      </table>
                     </div>
                 </div>
             </div>

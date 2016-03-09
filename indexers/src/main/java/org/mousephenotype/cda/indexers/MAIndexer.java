@@ -150,11 +150,9 @@ public class MAIndexer extends AbstractIndexer {
                 for ( String intermediateMaId : ma.getIntermediateMaId() ) {
 
                     if ( maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("uberon_id") ) {
-                        System.out.println("***** CHECKING intermediate uberon: "+intermediateMaId );
                         all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateMaId).get("uberon_id"));
                     }
                     if ( maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id") ) {
-                        System.out.println("***** CHECKING intermediate efo: "+intermediateMaId );
                         all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
                     }
                 }

@@ -38,7 +38,7 @@ public class HistopathController {
 		
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
-		histopathService.getTableData(acc);
+		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.getTableData(acc);
 //		List<ObservationDTO> observations=histopathService.getTableData("MGI:2449119");
 //		
 //		Map<String, List<ObservationDTO>> extSampleIdToObservations=new HashMap<>();
@@ -55,6 +55,7 @@ public class HistopathController {
 //			extSampleIdToObservations.get(externalSampeId).add(obs);
 //			
 //		}
+		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
 		return "histopath";	
 	}
 }

@@ -30,7 +30,7 @@ public class HistopathService {
 		
 	}
 
-	public List<ObservationDTO> getTableData(String geneAccession) throws SolrServerException {
+	public Map<String, List<ObservationDTO>> getTableData(String geneAccession) throws SolrServerException {
 		List<HistopathPageTableRow> rows=new ArrayList<>();
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
 				geneAccession);
@@ -44,33 +44,54 @@ public class HistopathService {
 			if (!observationTypesForGene.contains(obs.getObservationType())) {
 				observationTypesForGene.add(obs.getObservationType());
 			}
+			
+			boolean addObservation=true;
+			if(obs.getObservationType().equalsIgnoreCase("categorical")){
+				if(obs.getCategory().equalsIgnoreCase("0")){
+					addObservation=false;
+					System.out.println("setting obs to false");
+					
+				}
+				
+			}
+			if(obs.getObservationType().equalsIgnoreCase("ontological")){
+				for(String name:obs.getSubTermName()){
+					if(name.equalsIgnoreCase("normal"))
+					addObservation=false;
+					System.out.println("setting obs to false");
+					
+				}
+				
+			}
 
-			extSampleIdToObservations.get(externalSampeId).add(obs);
+			if(addObservation){
+				extSampleIdToObservations.get(externalSampeId).add(obs);
+			}
 
 		}
 
 		for (String sampleId : extSampleIdToObservations.keySet()) {
 			System.out.println(sampleId);
 			//probably need to split these into embryo and adult - no we dont have any histopath for embryo
-			
+			List<ObservationDTO> observationsForSample = extSampleIdToObservations.get(sampleId);
 			for (String observationType : observationTypesForGene) {
 				for (ObservationDTO obs : extSampleIdToObservations.get(sampleId)) {
 					if (observationType.equals(obs.getObservationType())) {
 						System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue=");
 						
-						ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, obs.getProcedureStableId(), obs.getProcedureName());
-				    	ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(), obs.getParameterName());
-				    	ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, obs.getPipelineStableId(), obs.getPipelineName());
-				    	ZygosityType zygosity = obs.getZygosity() != null ? ZygosityType.valueOf(obs.getZygosity()) : ZygosityType.not_applicable;
+//						ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, obs.getProcedureStableId(), obs.getProcedureName());
+//				    	ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(), obs.getParameterName());
+//				    	ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, obs.getPipelineStableId(), obs.getPipelineName());
+//				    	ZygosityType zygosity = obs.getZygosity() != null ? ZygosityType.valueOf(obs.getZygosity()) : ZygosityType.not_applicable;
 						
-						HistopathPageTableRow row=new HistopathPageTableRow();
+						//HistopathPageTableRow row=new HistopathPageTableRow();
 
 					}
 				}
 			}
 
 		}
-		return observations;
+		return extSampleIdToObservations;
 
 	}
 
