@@ -3693,7 +3693,7 @@ body .ui-tooltip {
 */
 /* #pg_container contains SVG (#pg_svg) and HTML (#pg_controls, #pg_unmatched) */
 .pg_container {
-margin:20px 10px;
+margin:20px 0;
 position:relative;
 font-family:Verdana, Geneva, sans-serif;
 font-size:12px;
@@ -3877,8 +3877,7 @@ width: 0;
 
 .pg_container  .pg_unmatched_btn{
 position:absolute;
-left:13px;
-width:202px;
+width:185px;
 text-align:right;
 font-size:14px;
 color:#44A293;
@@ -3890,12 +3889,6 @@ stroke:#4CA092;
 stroke-width: 2;
 fill: #4CA092;
 fill-opacity: 0.1;
-}
-
-.pg_container  .pg_tip {
-width: 80px;
-height:10px;
-font-size:11px;
 }
 
 .pg_container  .pg_scores_tip_icon{

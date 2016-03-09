@@ -8,59 +8,15 @@
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-
+        <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
         <style>
-          table {
-            margin-top: 80px;
-          }
-          td {
-            border: none;
-          }
-          td {border: 1px solid white;
-            width: 33%;
-          }
-          .fleft {float: left;}
-          div.fleft {
-            font-size: 25px;
-            margin-top: 20px;
-            padding-left: 20px;
-          }
-          ul#method {
-            clear: left;
-            margin-top: 120px;
-          }
-          ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-          }
 
-          li {
-            /*font: 150 20px/1.5 Helvetica, Verdana, sans-serif;*/
-            border-bottom: 1px solid #ccc;
-          }
-
-          li:last-child {
-            border: none;
-          }
-
-          li a {
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            padding: 5px;
-          }
-
-          li a:hover {
-            font-weight: bold;
-            text-decoration: none;
-          }
           span#areaMsg {
             position: absolute;
             width: auto;
             top: 164px;
             left: 250px;
-            color: darkorange;
+            color: grey;
           }
           .ui-tooltip {display: none !important;}
         </style>
@@ -75,15 +31,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <h1>IMPC data portal documentation</h1>
     <div><i class="fleft fa fa-line-chart fa-4x"></i><div class="fleft">Methods</div></div>
-  <!--<ul id="method">
-    <li><a href="">Data pipeline needed</a></li>
-    <li><a href="">IMPReSS documentation</a></li>
-    <li><a href="">Imits documentation</a></li>
-    <li><a href="${baseUrl}/documentation/doc-method-statistics">Statistics</a></li>
-    <li><a href="">Phenodigm (need documentation)</a></li>
-    <li><a href="">Image</a></li>
-  </ul>
--->
+
     <span id="areaMsg"></span>
     <img src="${baseUrl}/documentation/img/data_flow_v2.png" alt="" usemap="#Map" />
     <map name="Map" id="Map">

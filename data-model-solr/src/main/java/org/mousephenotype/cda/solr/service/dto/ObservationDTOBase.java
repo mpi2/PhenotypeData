@@ -309,6 +309,7 @@ public class ObservationDTOBase {
 		if(this.subTermDescription==null){
 			this.subTermDescription=new ArrayList<String>();
 		}
+		this.subTermDescription.add(description);
 	}
 
 	public void setSubTermId(List<String> subTermId) {
