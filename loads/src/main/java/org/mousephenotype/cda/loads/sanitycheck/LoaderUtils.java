@@ -297,23 +297,23 @@ public class LoaderUtils {
                 parameterAssociation.setHjid(rs.getLong("pk"));
                 parameterAssociation.setParameterID(parameterId);
                 parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
-            }
 
-            query = "SELECT * FROM dimension WHERE parameterAssociation_fk = ?";
-            ps = connection.prepareStatement(query);
-            ps.setLong(1, parameterAssociation.getHjid());
-            rs = ps.executeQuery();
-            List<Dimension> dimensionList = new ArrayList<>();
-            parameterAssociation.setDim(dimensionList);
-            while (rs.next()) {
-                Dimension dimension = new Dimension();
-                dimension.setHjid(rs.getLong("pk"));
-                dimension.setId(rs.getString("id"));
-                dimension.setOrigin(rs.getString("origin"));
-                dimension.setUnit(rs.getString("unit"));
-                BigDecimal value = rs.getBigDecimal("value");
-                dimension.setValue( (rs.wasNull() ? null : value));
-                dimensionList.add(dimension);
+                query = "SELECT * FROM dimension WHERE parameterAssociation_fk = ?";
+                ps = connection.prepareStatement(query);
+                ps.setLong(1, parameterAssociation.getHjid());
+                rs = ps.executeQuery();
+                List<Dimension> dimensionList = new ArrayList<>();
+                parameterAssociation.setDim(dimensionList);
+                while (rs.next()) {
+                    Dimension dimension = new Dimension();
+                    dimension.setHjid(rs.getLong("pk"));
+                    dimension.setId(rs.getString("id"));
+                    dimension.setOrigin(rs.getString("origin"));
+                    dimension.setUnit(rs.getString("unit"));
+                    BigDecimal value = rs.getBigDecimal("value");
+                    dimension.setValue( (rs.wasNull() ? null : value));
+                    dimensionList.add(dimension);
+                }
             }
 
         } catch (SQLException e) {
