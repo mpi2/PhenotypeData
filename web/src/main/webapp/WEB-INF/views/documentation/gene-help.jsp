@@ -1,6 +1,6 @@
 <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
 
-<h3 id="details">Gene Details</h3>
+<h3 id="details"><a name="detailsSection">Gene Details</a></h3>
 The first section of the page shows detail information about the gene.
 <img src="img/gene-details.png" />
 The information displayed includes:
@@ -42,7 +42,7 @@ The information displayed includes:
 <div class="threeBr"></div>
 
 
-<h3 id="phenotype-associations">Phenotype associations</h3>
+<h3 id="phenotype-associations"><a name="phenoAssocSection">Phenotype associations</a></h3>
 
 <p>This section shows the association of genes to <a href="http://www.informatics.jax.org/searches/MP_form.shtml">Mammalian phenotype</a> terms.</p>
 <p>It contains 4 ways of data viewing:</p>
@@ -96,7 +96,7 @@ then both are shown on the same row indicated by the male / female icons (<img s
 
 <div class="threeBr"></div>
 
-<h3 id="preqc-heatmap">Phenotype Heatmap</h3>
+<h3 id="preqc-heatmap"><a name="heatmapSection">Phenotype Heatmap</a></h3>
 <p>When there is data available, but not yet complete, from the IMPC resource, the Pre-QC panel will appear.  The pre QC panel shows a heatmap of the results of preliminary analysis on data that has been collected by the IMPC production centers to date, but is not yet complete. In order to be marked Complete, 7 males and 7 females must complete all core screens required by the IMPC pipeline.
 </p>
 <p>Please visit the <a href="https://www.mousephenotype.org/heatmap/manual.html">comprehensive heatmap documentation</a> for more information about the heatmap.</p>
@@ -107,7 +107,7 @@ then both are shown on the same row indicated by the male / female icons (<img s
 
 <div class="threeBr"></div>
 
-<h3 id="impc-expression">Expression</h3>
+<h3 id="impc-expression"><a name="expressionSection">Expression</a></h3>
 <p>
 This section displays IMPC lacZ expression data (A). In some cases where legacy lacZ expression data is available (B), they will be shown as well.<br>
 </p>
@@ -149,7 +149,7 @@ The number in parentheses indicates how many images are available for a given im
 
 <div class="threeBr"></div>
 
-<h3 id="impc-images">Phenotype Associated Images</h3>
+<h3 id="impc-images"><a name="phenoAssocImgSection">Phenotype Associated Images</a></h3>
 <p>
     A number of assays generate image data and are used by the phenotyping centers to score the presence or absence
     of an abnormal phenotype. Uploaded phenotype images are presented here organised by the procedure generating the image. In addition to the IMPC images, some genes have legacy ones.</p>
@@ -157,7 +157,12 @@ The number in parentheses indicates how many images are available for a given im
 
 <div class="threeBr"></div>
 
-<h3 id="order">Order Mouse and ES Cells</h3>
+
+<h3 id="disease"><a name="diseaseSection">Disease Models</a></h3>
+To be completed
+<div class="threeBr"></div>
+
+<h3 id="order"><a nem="order">Order Mouse and ES Cells</a></h3>
 <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries.</p>
 <p>The links in the <strong>Order/Contact</strong> column will take you to the purchase place of the ES cell or mouse when available.</p>
 <p>The <strong>genbank file</strong> link points to a genbank file describing the genomic sequence of the allele.</p>
