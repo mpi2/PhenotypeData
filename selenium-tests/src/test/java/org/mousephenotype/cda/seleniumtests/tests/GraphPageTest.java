@@ -24,7 +24,6 @@
 
 package org.mousephenotype.cda.seleniumtests.tests;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -50,6 +49,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
