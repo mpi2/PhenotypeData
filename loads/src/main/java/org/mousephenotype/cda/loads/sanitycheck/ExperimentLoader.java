@@ -115,7 +115,7 @@ public class ExperimentLoader {
 
         logger.debug("There are {} center procedure sets in experiment file {}", centerProcedures.size(), filename);
 
-        long centerPk, centerProcedurePk, experimentPk, procedurePk, specimenPk, statuscodePk;
+        long centerPk, centerProcedurePk, experimentPk, procedurePk, specimenPk;
         PreparedStatement ps;
         ResultSet rs;
         String query;
@@ -166,7 +166,7 @@ public class ExperimentLoader {
                         if ((experiment.getProcedure().getProcedureMetadata() != null) && ( ! experiment.getProcedure().getProcedureMetadata().isEmpty())) {
                             for (ProcedureMetadata procedureMetadata : experiment.getProcedure().getProcedureMetadata()) {
                                 long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
-                                query = "INSERT INTO procedure_procedureMetadata(procedure_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                query = "INSERT INTO procedure_procedureMetadata(procedure_pk, procedureMetadata_pk) VALUES (?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setLong(1, procedurePk);
                                 ps.setLong(2, procedureMetadataPk);
@@ -176,14 +176,14 @@ public class ExperimentLoader {
                     }
 
                     // center_procedure
-                    ps = connection.prepareStatement("SELECT * FROM center_procedure WHERE center_fk = ? and procedure_fk = ?");
+                    ps = connection.prepareStatement("SELECT * FROM center_procedure WHERE center_pk = ? and procedure_pk = ?");
                     ps.setLong(1, centerPk);
                     ps.setLong(2, procedurePk);
                     rs = ps.executeQuery();
                     if (rs.next()) {
                         centerProcedurePk = rs.getLong("pk");
                     } else {
-                        query = "INSERT INTO center_procedure (center_fk, procedure_fk) VALUES (?, ?);";
+                        query = "INSERT INTO center_procedure (center_pk, procedure_pk) VALUES (?, ?);";
                         ps = connection.prepareStatement(query);
                         ps.setLong(1, centerPk);
                         ps.setLong(2, procedurePk);
@@ -195,7 +195,7 @@ public class ExperimentLoader {
 
                     // housing
                     if ((centerProcedure.getHousing() != null) && ( ! centerProcedure.getHousing().isEmpty())) {
-                        query = "INSERT INTO housing (fromLims, lastUpdated, center_procedure_fk) VALUES (?, ?, ?);";
+                        query = "INSERT INTO housing (fromLims, lastUpdated, center_procedure_pk) VALUES (?, ?, ?);";
                         ps = connection.prepareStatement(query);
                         for (Housing housing : centerProcedure.getHousing()) {
                             ps.setInt(1, (housing.isFromLIMS() ? 1 : 0));
@@ -208,7 +208,7 @@ public class ExperimentLoader {
                     // line
                     if ((centerProcedure.getLine() != null) && ( ! centerProcedure.getLine().isEmpty())) {
                         for (Line line : centerProcedure.getLine()) {
-                            ps = connection.prepareStatement("SELECT * FROM line WHERE colonyId = ? AND center_procedure_fk = ?");
+                            ps = connection.prepareStatement("SELECT * FROM line WHERE colonyId = ? AND center_procedure_pk = ?");
                             ps.setString(1, line.getColonyID());
                             ps.setLong(2, centerProcedurePk);
                             rs = ps.executeQuery();
@@ -216,7 +216,7 @@ public class ExperimentLoader {
                             if (rs.next()) {
                                 linePk = rs.getLong("pk");
                             } else {
-                                query = "INSERT INTO line (colonyId, center_procedure_fk) VALUES (?, ?);";
+                                query = "INSERT INTO line (colonyId, center_procedure_pk) VALUES (?, ?);";
                                 ps = connection.prepareStatement(query);
 
 
@@ -230,11 +230,11 @@ public class ExperimentLoader {
 
                             if ((line.getStatusCode() != null) && ( ! line.getStatusCode().isEmpty())) {
                                 // line_statuscode
-                                query = "INSERT INTO line_statuscode (line_fk, statuscode_fk) VALUES (?, ?);";
+                                query = "INSERT INTO line_statuscode (line_pk, statuscode_pk) VALUES (?, ?);";
                                 ps = connection.prepareStatement(query);
                                 for (StatusCode statuscode : line.getStatusCode()) {
                                     StatusCode existingStatuscode = LoaderUtils.selectOrInsertStatuscode(connection, statuscode);
-                                    statuscodePk = existingStatuscode.getHjid();
+                                    long statuscodePk = existingStatuscode.getHjid();
                                     ps.setLong(1, linePk);
                                     ps.setLong(2, statuscodePk);
                                     ps.execute();
@@ -244,14 +244,14 @@ public class ExperimentLoader {
                     }
 
                     // experiment
-                    ps = connection.prepareStatement("SELECT * FROM experiment WHERE experimentId = ? and center_procedure_fk = ?");
+                    ps = connection.prepareStatement("SELECT * FROM experiment WHERE experimentId = ? and center_procedure_pk = ?");
                     ps.setString(1, experiment.getExperimentID());
                     ps.setLong(2, centerProcedurePk);
                     rs = ps.executeQuery();
                     if (rs.next()) {
                         experimentPk = rs.getLong("pk");
                     } else {
-                        query = "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, center_procedure_fk) VALUES (?, ?, ?, ?);";
+                        query = "INSERT INTO experiment (dateOfExperiment, experimentId, sequenceId, center_procedure_pk) VALUES (?, ?, ?, ?);";
                         ps = connection.prepareStatement(query);
                         ps.setDate(1, experiment.getDateOfExperiment() == null ? null : new Date(experiment.getDateOfExperiment().getTime().getTime()));
                         ps.setString(2, experiment.getExperimentID());
@@ -269,28 +269,28 @@ public class ExperimentLoader {
                     // experiment_statuscode
                     if ((experiment.getStatusCode() != null) && ( ! experiment.getStatusCode().isEmpty())) {
                         for (StatusCode statuscode : experiment.getStatusCode()) {
-                            long statuscodeFk = LoaderUtils.selectOrInsertStatuscode(connection, statuscode).getHjid();
-                            ps = connection.prepareStatement("SELECT * FROM experiment_statuscode WHERE experiment_fk = ? and statuscode_fk = ?");
+                            long statuscodePk = LoaderUtils.selectOrInsertStatuscode(connection, statuscode).getHjid();
+                            ps = connection.prepareStatement("SELECT * FROM experiment_statuscode WHERE experiment_pk = ? and statuscode_pk = ?");
                             ps.setLong(1, experimentPk);
-                            ps.setLong(2, statuscodeFk);
+                            ps.setLong(2, statuscodePk);
                             rs = ps.executeQuery();
                             if ( ! rs.next()) {
-                                query = "INSERT INTO experiment_statuscode (experiment_fk, statuscode_fk) VALUES (?, ?)";
+                                query = "INSERT INTO experiment_statuscode (experiment_pk, statuscode_pk) VALUES (?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setLong(1, experimentPk);
-                                ps.setLong(2, statuscodeFk);
+                                ps.setLong(2, statuscodePk);
                                 ps.execute();
                             }
                         }
                     }
 
                     // experiment_specimen
-                    ps = connection.prepareStatement("SELECT * FROM experiment_specimen WHERE experiment_fk = ? and specimen_fk = ?");
+                    ps = connection.prepareStatement("SELECT * FROM experiment_specimen WHERE experiment_pk = ? and specimen_pk = ?");
                     ps.setLong(1, experimentPk);
                     ps.setLong(2, specimenPk);
                     rs = ps.executeQuery();
                     if ( ! rs.next()) {
-                        query = "INSERT INTO experiment_specimen (experiment_fk, specimen_fk) VALUES (?, ?)";
+                        query = "INSERT INTO experiment_specimen (experiment_pk, specimen_pk) VALUES (?, ?)";
                         ps = connection.prepareStatement(query);
                         ps.setLong(1, experimentPk);
                         ps.setLong(2, specimenPk);
@@ -300,7 +300,7 @@ public class ExperimentLoader {
                     // simpleParameter
                     if ((experiment.getProcedure().getSimpleParameter() != null) && ( ! experiment.getProcedure().getSimpleParameter().isEmpty())) {
                         for (SimpleParameter simpleParameter : experiment.getProcedure().getSimpleParameter()) {
-                            query = "INSERT INTO simpleParameter (parameterId, sequenceId, unit, value, parameterStatus, procedure_fk)"
+                            query = "INSERT INTO simpleParameter (parameterId, sequenceId, unit, value, parameterStatus, procedure_pk)"
                                     + " VALUES (?, ?, ?, ?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, simpleParameter.getParameterID());
@@ -319,7 +319,7 @@ public class ExperimentLoader {
                     // ontologyParameter and ontologyParameterTerm
                     if ((experiment.getProcedure().getOntologyParameter() != null) && ( ! experiment.getProcedure().getOntologyParameter().isEmpty())) {
                         for (OntologyParameter ontologyParameter : experiment.getProcedure().getOntologyParameter()) {
-                            query = "INSERT INTO ontologyParameter (parameterId, parameterStatus, sequenceId, procedure_fk)"
+                            query = "INSERT INTO ontologyParameter (parameterId, parameterStatus, sequenceId, procedure_pk)"
                                     + " VALUES (?, ?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, ontologyParameter.getParameterID());
@@ -335,7 +335,7 @@ public class ExperimentLoader {
                             long ontologyParameterPk = rs.getLong(1);
 
                             for (String term : ontologyParameter.getTerm()) {
-                                query = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_fk) VALUES (?, ?)";
+                                query = "INSERT INTO ontologyParameterTerm(term, ontologyParameter_pk) VALUES (?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setString(1, term);
                                 ps.setLong(2, ontologyParameterPk);
@@ -346,7 +346,7 @@ public class ExperimentLoader {
                     // seriesParameter
                     if ((experiment.getProcedure().getSeriesParameter() != null) && ( ! experiment.getProcedure().getSeriesParameter().isEmpty())) {
                         for (SeriesParameter seriesParameter : experiment.getProcedure().getSeriesParameter()) {
-                            query = "INSERT INTO seriesParameter (parameterId, parameterStatus, sequenceId, procedure_fk)"
+                            query = "INSERT INTO seriesParameter (parameterId, parameterStatus, sequenceId, procedure_pk)"
                                     + " VALUES (?, ?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, seriesParameter.getParameterID());
@@ -363,7 +363,7 @@ public class ExperimentLoader {
 
                             // seriesParameterValue
                             for (SeriesParameterValue seriesParameterValue : seriesParameter.getValue()) {
-                                query = "INSERT INTO seriesParameterValue(value, incrementValue, incrementStatus, seriesParameter_fk) VALUES (?, ?, ?, ?)";
+                                query = "INSERT INTO seriesParameterValue(value, incrementValue, incrementStatus, seriesParameter_pk) VALUES (?, ?, ?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setString(1, seriesParameterValue.getValue());
                                 ps.setString(2, seriesParameterValue.getIncrementValue());
@@ -376,7 +376,7 @@ public class ExperimentLoader {
                     // mediaParameter
                     if ((experiment.getProcedure().getMediaParameter() != null) && ( ! experiment.getProcedure().getMediaParameter().isEmpty())) {
                         for (MediaParameter mediaParameter : experiment.getProcedure().getMediaParameter()) {
-                            query = "INSERT INTO mediaParameter (parameterId, parameterStatus, filetype, URI, procedure_fk)"
+                            query = "INSERT INTO mediaParameter (parameterId, parameterStatus, filetype, URI, procedure_pk)"
                                     + " VALUES (?, ?, ?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, mediaParameter.getParameterID());
@@ -393,7 +393,7 @@ public class ExperimentLoader {
                             if ((mediaParameter.getParameterAssociation() != null) && ( ! mediaParameter.getParameterAssociation().isEmpty())) {
                                 for (ParameterAssociation parameterAssociation : mediaParameter.getParameterAssociation()) {
                                     long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
-                                    query = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                    query = "INSERT INTO mediaParameter_parameterAssociation(mediaParameter_pk, parameterAssociation_pk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setLong(1, mediaParameterPk);
                                     ps.setLong(2, parameterAssociationPk);
@@ -405,7 +405,7 @@ public class ExperimentLoader {
                             if ((mediaParameter.getProcedureMetadata() != null) && ( ! mediaParameter.getProcedureMetadata().isEmpty())) {
                                 for (ProcedureMetadata procedureMetadata : mediaParameter.getProcedureMetadata()) {
                                     long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
-                                    query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                    query = "INSERT INTO mediaParameter_procedureMetadata(mediaParameter_pk, procedureMetadata_pk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setLong(1, mediaParameterPk);
                                     ps.setLong(2, procedureMetadataPk);
@@ -418,7 +418,7 @@ public class ExperimentLoader {
                     // mediaSampleParameter
                     if ((experiment.getProcedure().getMediaSampleParameter() != null) && ( ! experiment.getProcedure().getMediaSampleParameter().isEmpty())) {
                         for (MediaSampleParameter mediaSampleParameter : experiment.getProcedure().getMediaSampleParameter()) {
-                            query = "INSERT INTO mediaSampleParameter (parameterId, parameterStatus, procedure_fk)"
+                            query = "INSERT INTO mediaSampleParameter (parameterId, parameterStatus, procedure_pk)"
                                     + " VALUES (?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, mediaSampleParameter.getParameterID());
@@ -431,7 +431,7 @@ public class ExperimentLoader {
 
                             // mediaSample
                             for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
-                                query = "INSERT INTO mediaSample (localId, mediaSampleParameter_fk) VALUES (?, ?, ?)";
+                                query = "INSERT INTO mediaSample (localId, mediaSampleParameter_pk) VALUES (?, ?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setString(1, mediaSample.getLocalId());
                                 ps.setLong(2, mediaSampleParameterPk);
@@ -442,7 +442,7 @@ public class ExperimentLoader {
 
                                 // mediaSection
                                 for (MediaSection mediaSection : mediaSample.getMediaSection()) {
-                                    query = "INSERT INTO mediaSection (localId, mediaSample_fk) VALUES (?, ?)";
+                                    query = "INSERT INTO mediaSection (localId, mediaSample_pk) VALUES (?, ?)";
                                     ps = connection.prepareStatement(query);
                                     ps.setString(1, mediaSection.getLocalId());
                                     ps.setLong(2, mediaSamplePk);
@@ -453,7 +453,7 @@ public class ExperimentLoader {
 
                                     // mediaFile
                                     for (MediaFile mediaFile : mediaSection.getMediaFile()) {
-                                        query = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_fk) VALUES (?, ?, ?, ?)";
+                                        query = "INSERT INTO mediaFile (localId, fileType, URI, mediaSection_pk) VALUES (?, ?, ?, ?)";
                                         ps = connection.prepareStatement(query);
                                         ps.setString(1, mediaFile.getLocalId());
                                         ps.setString(2, mediaFile.getFileType());
@@ -468,7 +468,7 @@ public class ExperimentLoader {
                                         if ((mediaFile.getParameterAssociation() != null) && ( ! mediaFile.getParameterAssociation().isEmpty())) {
                                             for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
                                                 long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
-                                                query = "INSERT INTO mediaFile_parameterAssociation(mediaFile_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                                query = "INSERT INTO mediaFile_parameterAssociation(mediaFile_pk, parameterAssociation_pk) VALUES (?, ?)";
                                                 ps = connection.prepareStatement(query);
                                                 ps.setLong(1, mediaFilePk);
                                                 ps.setLong(2, parameterAssociationPk);
@@ -481,7 +481,7 @@ public class ExperimentLoader {
                                             for (ProcedureMetadata procedureMetadata : mediaFile.getProcedureMetadata()) {
                                                 long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
 
-                                                query = "INSERT INTO mediaFile_procedureMetadata(mediaFile_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                                query = "INSERT INTO mediaFile_procedureMetadata(mediaFile_pk, procedureMetadata_pk) VALUES (?, ?)";
                                                 ps = connection.prepareStatement(query);
                                                 ps.setLong(1, mediaFilePk);
                                                 ps.setLong(2, procedureMetadataPk);
@@ -497,7 +497,7 @@ public class ExperimentLoader {
                     // seriesMediaParameter
                     if ((experiment.getProcedure().getSeriesMediaParameter() != null) && ( ! experiment.getProcedure().getSeriesMediaParameter().isEmpty())) {
                         for (SeriesMediaParameter seriesMediaParameter : experiment.getProcedure().getSeriesMediaParameter()) {
-                            query = "INSERT INTO seriesMediaParameter (parameterId, parameterStatus, procedure_fk)"
+                            query = "INSERT INTO seriesMediaParameter (parameterId, parameterStatus, procedure_pk)"
                                     + " VALUES (?, ?, ?)";
                             ps = connection.prepareStatement(query);
                             ps.setString(1, seriesMediaParameter.getParameterID());
@@ -510,7 +510,7 @@ public class ExperimentLoader {
 
                             // seriesMediaParameterValue
                             for (SeriesMediaParameterValue seriesMediaParameterValue : seriesMediaParameter.getValue()) {
-                                query = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_fk) VALUES (?, ?, ?, ?)";
+                                query = "INSERT INTO seriesMediaParameterValue (fileType, incrementValue, URI, seriesMediaParameter_pk) VALUES (?, ?, ?, ?)";
                                 ps = connection.prepareStatement(query);
                                 ps.setString(1, seriesMediaParameterValue.getFileType());
                                 ps.setString(2, seriesMediaParameterValue.getIncrementValue());
@@ -525,7 +525,7 @@ public class ExperimentLoader {
                                 if ((seriesMediaParameterValue.getParameterAssociation() != null) && ( ! seriesMediaParameterValue.getParameterAssociation().isEmpty())) {
                                     for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
                                         long parameterAssociationPk = LoaderUtils.selectOrInsertParameterAssociation(connection, parameterAssociation).getHjid();
-                                        query = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_fk, parameterAssociation_fk) VALUES (?, ?)";
+                                        query = "INSERT INTO seriesMediaParameterValue_parameterAssociation(seriesMediaParameterValue_pk, parameterAssociation_pk) VALUES (?, ?)";
                                         ps = connection.prepareStatement(query);
                                         ps.setLong(1, seriesMediaParameterValuePk);
                                         ps.setLong(2, parameterAssociationPk);
@@ -549,7 +549,7 @@ public class ExperimentLoader {
                                     for (ProcedureMetadata procedureMetadata : seriesMediaParameterValue.getProcedureMetadata()) {
                                         long procedureMetadataPk = LoaderUtils.selectOrInsertProcedureMetadata(connection, procedureMetadata.getParameterID(), null).getHjid();
 
-                                        query = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_fk, procedureMetadata_fk) VALUES (?, ?)";
+                                        query = "INSERT INTO seriesMediaParameterValue_procedureMetadata(seriesMediaParameterValue_pk, procedureMetadata_pk) VALUES (?, ?)";
                                         ps = connection.prepareStatement(query);
                                         ps.setLong(1, seriesMediaParameterValuePk);
                                         ps.setLong(2, procedureMetadataPk);
@@ -588,7 +588,7 @@ public class ExperimentLoader {
                     + "  cs.pk AS cs_pk\n"
                     + ", c.pk AS c_pk\n"
                     + ", s.pk AS s_pk\n"
-                    + ", s.statuscode_fk AS s_statuscode_fk\n"
+                    + ", s.statuscode_pk AS s_statuscode_pk\n"
                     + ", c.centerId\n"
                     + ", c.pipeline\n"
                     + ", c.project\n"
@@ -608,11 +608,11 @@ public class ExperimentLoader {
                     + ", e.stage\n"
                     + ", e.stageUnit\n"
                     + "FROM center c\n"
-                    + "JOIN center_specimen cs ON cs.center_fk = c.pk\n"
-                    + "JOIN specimen s ON cs.specimen_fk = s.pk\n"
-                    + "LEFT OUTER JOIN mouse m ON m.specimen_fk = cs.specimen_fk\n"
-                    + "LEFT OUTER JOIN embryo e ON e.specimen_fk = cs.specimen_fk\n"
-                    + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk\n"
+                    + "JOIN center_specimen cs ON cs.center_pk = c.pk\n"
+                    + "JOIN specimen s ON cs.specimen_pk = s.pk\n"
+                    + "LEFT OUTER JOIN mouse m ON m.specimen_pk = cs.specimen_pk\n"
+                    + "LEFT OUTER JOIN embryo e ON e.specimen_pk = cs.specimen_pk\n"
+                    + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_pk\n"
                     + "WHERE c.pk = ? AND s.pk = ?;";
         try {
             PreparedStatement ps = connection.prepareStatement(query);
@@ -624,7 +624,7 @@ public class ExperimentLoader {
                         + "cs.pk=" + rs.getLong("cs_pk")
                         + ",c.pk=" + rs.getLong("c_pk")
                         + ",s.pk=" + rs.getLong("s_pk")
-                        + ",s.statuscode_fk=" + (rs.getLong("s_statuscode_fk") == 0 ? "<null>" : rs.getLong("s_statuscode_fk"))
+                        + ",s.statuscode_pk=" + (rs.getLong("s_statuscode_pk") == 0 ? "<null>" : rs.getLong("s_statuscode_pk"))
                         + ",centerId=" + rs.getString("c.centerId")
                         + ",pipeline=" + rs.getString("c.pipeline")
                         + ",project=" + rs.getString("c.project")
@@ -637,7 +637,7 @@ public class ExperimentLoader {
                         + ",specimenId=" + rs.getString("s.specimenId")
                         + ",strainId=" + rs.getString("s.strainId")
                         + ",zygosity=" + rs.getString("s.zygosity");
-                if (rs.getLong("s_statuscode_fk") != 0) {
+                if (rs.getLong("s_statuscode_pk") != 0) {
                     retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
                     + ",sc.value=" + rs.getString("sc.value");
                 }

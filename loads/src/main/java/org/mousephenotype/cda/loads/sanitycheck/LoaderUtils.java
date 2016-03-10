@@ -55,7 +55,7 @@ public class LoaderUtils {
                         + "  cs.pk AS cs_pk\n"
                         + ", c.pk AS c_pk\n"
                         + ", s.pk AS s_pk\n"
-                        + ", s.statuscode_fk AS s_statuscode_fk\n"
+                        + ", s.statuscode_pk AS s_statuscode_pk\n"
                         + ", c.centerId\n"
                         + ", c.pipeline\n"
                         + ", c.project\n"
@@ -75,11 +75,11 @@ public class LoaderUtils {
                         + ", e.stage\n"
                         + ", e.stageUnit\n"
                         + "FROM center c\n"
-                        + "JOIN center_specimen cs ON cs.center_fk = c.pk\n"
-                        + "JOIN specimen s ON cs.specimen_fk = s.pk\n"
-                        + "LEFT OUTER JOIN mouse m ON m.specimen_fk = cs.specimen_fk\n"
-                        + "LEFT OUTER JOIN embryo e ON e.specimen_fk = cs.specimen_fk\n"
-                        + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_fk\n"
+                        + "JOIN center_specimen cs ON cs.center_pk = c.pk\n"
+                        + "JOIN specimen s ON cs.specimen_pk = s.pk\n"
+                        + "LEFT OUTER JOIN mouse m ON m.specimen_pk = cs.specimen_pk\n"
+                        + "LEFT OUTER JOIN embryo e ON e.specimen_pk = cs.specimen_pk\n"
+                        + "LEFT OUTER JOIN statuscode sc ON sc.pk = s.statuscode_pk\n"
                         + "WHERE c.pk = ? AND s.pk = ?;";
         try {
             PreparedStatement ps = connection.prepareStatement(query);
@@ -91,7 +91,7 @@ public class LoaderUtils {
                         + "cs.pk=" + rs.getLong("cs_pk")
                         + ",c.pk=" + rs.getLong("c_pk")
                         + ",s.pk=" + rs.getLong("s_pk")
-                        + ",s.statuscode_fk=" + (rs.getLong("s_statuscode_fk") == 0 ? "<null>" : rs.getLong("s_statuscode_fk"))
+                        + ",s.statuscode_pk=" + (rs.getLong("s_statuscode_pk") == 0 ? "<null>" : rs.getLong("s_statuscode_pk"))
                         + ",centerId=" + rs.getString("c.centerId")
                         + ",pipeline=" + rs.getString("c.pipeline")
                         + ",project=" + rs.getString("c.project")
@@ -104,7 +104,7 @@ public class LoaderUtils {
                         + ",specimenId=" + rs.getString("s.specimenId")
                         + ",strainId=" + rs.getString("s.strainId")
                         + ",zygosity=" + rs.getString("s.zygosity");
-                if (rs.getLong("s_statuscode_fk") != 0) {
+                if (rs.getLong("s_statuscode_pk") != 0) {
                     retVal += ",sc.dateOfStatuscode=" + (rs.getDate("sc.dateOfStatuscode") == null ? "<null>" : rs.getDate("sc.dateOfStatuscode"))
                             + ",sc.value=" + rs.getString("sc.value");
                 }
@@ -298,7 +298,7 @@ public class LoaderUtils {
                 parameterAssociation.setParameterID(parameterId);
                 parameterAssociation.setSequenceID(BigInteger.valueOf(rs.getLong("sequenceId")));
 
-                query = "SELECT * FROM dimension WHERE parameterAssociation_fk = ?";
+                query = "SELECT * FROM dimension WHERE parameterAssociation_pk = ?";
                 ps = connection.prepareStatement(query);
                 ps.setLong(1, parameterAssociation.getHjid());
                 rs = ps.executeQuery();
@@ -396,8 +396,8 @@ public class LoaderUtils {
             query =
                     "SELECT *\n"
                     + "FROM specimen s\n"
-                    + "JOIN center_specimen cs ON cs.specimen_fk =  s.pk\n"
-                    + "JOIN center           c ON  c.pk          = cs.center_fk\n"
+                    + "JOIN center_specimen cs ON cs.specimen_pk =  s.pk\n"
+                    + "JOIN center           c ON  c.pk          = cs.center_pk\n"
                     + "WHERE s.specimenId = ? AND c.centerId = ?";
 
             ps = connection.prepareStatement(query);
@@ -553,7 +553,7 @@ public class LoaderUtils {
 
                 if ((parameterAssociation.getDim() != null) && ( ! parameterAssociation.getDim().isEmpty())) {
                     for (Dimension dimension : parameterAssociation.getDim()) {
-                        query = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_fk)"
+                        query = "INSERT INTO dimension (id, origin, unit, value, parameterAssociation_pk)"
                               + "VALUES (?, ?, ?, ?, ?)";
                         ps = connection.prepareStatement(query);
                         ps.setString(1, dimension.getId());
