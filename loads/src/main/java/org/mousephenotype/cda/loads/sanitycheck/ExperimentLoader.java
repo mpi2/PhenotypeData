@@ -216,13 +216,20 @@ public class ExperimentLoader {
                             if (rs.next()) {
                                 linePk = rs.getLong("pk");
                             } else {
-                                query = "INSERT INTO line (colonyId, center_procedure_pk) VALUES (?, ?);";
+                                query = "INSERT INTO line (colonyId, center_procedure_pk) VALUES (?, ?)";
                                 ps = connection.prepareStatement(query);
-
 
                                 ps.setString(1, line.getColonyID());
                                 ps.setLong(2, centerProcedurePk);
-                                ps.execute();
+
+                                try {
+                                    ps.execute();
+                                } catch (SQLException e) {
+                                    logger.error("INSERT INTO line failed. colonyId: " + line.getColonyID() + ". procedure: " + line.getProcedure().getProcedureID() + ". centerProcedure_pk: " + centerProcedurePk);
+                                    System.out.println(e.getLocalizedMessage());
+                                    throw e;
+                                }
+
                                 rs = ps.executeQuery("SELECT LAST_INSERT_ID();");
                                 rs.next();
                                 linePk = rs.getLong(1);
