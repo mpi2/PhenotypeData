@@ -1,7 +1,18 @@
 <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
 
-<h3 id="details"><a name="detailsSection0">Gene Details</a></h3>
-The first section of the page shows detail information about the gene.
+The Gene page contain several subsections which will be described here.
+<ul  class="subUl">
+    <li>Gene summary</li>
+    <li>Phenotype Associations</li>
+    <li>Phenotype Heatmap</li>
+    <li>Expression</li>
+    <li>Associated Images</li>
+    <li>Disease Models</li>
+    <li>Order Mouse and ES Cells</li>
+</ul>
+
+<h3 id="details"><a name="detailsSection0">Gene Summary</a></h3>
+The first section of the page shows summary information about the gene.
 <img src="img/gene-details.png" />
 The information displayed includes:
 <ul class="docLi">
@@ -102,6 +113,7 @@ then both are shown on the same row indicated by the male / female icons (<img s
 <p>Please visit the <a href="https://www.mousephenotype.org/heatmap/manual.html">comprehensive heatmap documentation</a> for more information about the heatmap.</p>
 <p>Please visit the <a href="https://www.mousephenotype.org/impress">IMPReSS</a> website for more information about the IMPC pipeline.</p>
 <p>NOTE: Use this analysis with caution as the analysis is likely to change when more data becomes available. </p>
+<p>Below is an example of a typical IMPC heatmap.</p>
 <br/>
 <img src="img/gene-heatmap.png" />
 
@@ -150,9 +162,10 @@ The number in parentheses indicates how many images are available for a given im
 <p class="sectBr">
 
 <h3 id="impc-images"><a name="phenoAssocImgSection0">Phenotype Associated Images</a></h3>
-<p>
-    A number of assays generate image data and are used by the phenotyping centers to score the presence or absence
+<p>A number of assays generate image data and are used by the phenotyping centers to score the presence or absence
     of an abnormal phenotype. Uploaded phenotype images are presented here organised by the procedure generating the image. In addition to the IMPC images, some genes have legacy ones.</p>
+<p>The screenshot below shows the number of images grouped by procedures. Click to reveal the content.</p>
+<p class="intraSectBr"></p>
 <img src="img/gene-phenoAssoc-img.png" />
 
 <p class="sectBr">
