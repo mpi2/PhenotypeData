@@ -35,7 +35,7 @@ MDOC.search = {
 							+'     <li>Click on the <b>info button</b> for detailed description.</li>'
 							+ '</ul>', 
 			
-		'facetPanelDocUrl'   				: baseUrl + '/documentation/doc-search',
+		'facetPanelDocUrl'  : baseUrl + '/documentation/doc-search'
 };
 
 var docuBase = baseUrl + '/documentation/doc-explore';

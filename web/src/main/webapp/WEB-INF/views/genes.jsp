@@ -270,6 +270,15 @@
 					div#diseasetabs a, div#exptabs a {
 						color: #0978a1;
 					}
+					div#diseasetabs div.dataTables_paginate li a {
+						color: #666;
+					}
+					div#diseasetabs div.dataTables_paginate a:hover {
+						color: white;
+					}
+					div#diseasetabs div.dataTables_paginate li.active a {
+						color: white;
+					}
 
 				</style>
 
