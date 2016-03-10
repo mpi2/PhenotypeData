@@ -55,7 +55,10 @@
 
     <script>
       $(function() {
-        $( "#tabs" ).tabs({ active: 0 });
+        var matches = window.location.hash.match(/(\d)$/);
+        var tabIndex = matches[0];
+
+        $( "#tabs" ).tabs({ active: tabIndex });
       });
     </script>
 

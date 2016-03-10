@@ -51,8 +51,11 @@
 							<div class="inner">
 							 Histopath page here ${gene.markerName}
 							 
+							 Parameter names= ${parameterNames }
+							 
+							 <c:forEach var="parameterName" items="${parameterNames }">
 								<c:forEach var="histRow" items="${histopathRows}">
-								<table>
+								<table id="histopath" class="table tableSorter">
 								<tr>
 									<td>
 										${histRow.sampleId}
@@ -68,6 +71,17 @@
 										</td>
 									</c:forEach>
 									<td>
+									
+										<c:forEach var="category" items="${histRow.categoryList}">
+										<td>
+											 Parameter:${category.parameter.name} Text: ${category.textValue }
+										</td>
+										</c:forEach>
+									
+									
+									
+									
+									
 										<c:forEach var="textParam" items="${histRow.textParameters}">
 										<td>
 											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
@@ -78,6 +92,8 @@
 								</tr>
 								</table>	
 								</c:forEach>
+								
+							</c:forEach>
 							
 							
 							

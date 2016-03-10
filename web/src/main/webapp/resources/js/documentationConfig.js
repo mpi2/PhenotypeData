@@ -41,19 +41,19 @@ MDOC.search = {
 var docuBase = baseUrl + '/documentation/doc-explore';
 MDOC.gene = {
 		'detailsSection'         			: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
-		'detailsSectionDocUrl'   			: docuBase + '#detailsSection',
+		'detailsSectionDocUrl'   			: docuBase + '#detailsSection0',
 		'phenoAssocSection'              	: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
-		'phenoAssocSectionDocUrl'        	: docuBase + '#phenoAssocSection',
+		'phenoAssocSectionDocUrl'        	: docuBase + '#phenoAssocSection0',
 		'heatmapSection'           			: '<p>Analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
-		'heatmapSectionDocUrl'     			: docuBase + '#heatmapSection',
+		'heatmapSectionDocUrl'     			: docuBase + '#heatmapSection0',
 		'expressionSection'       		    : '<p>Expression of IMPC images associated to this gene.</p><p>Click the help icon for more detail.</p>',
-		'expressionSectionDocUrl' 		    : docuBase + '#expressionSection',
+		'expressionSectionDocUrl' 		    : docuBase + '#expressionSection0',
 		'phenoAssocImgSection'      		: '<p>Image data used by the phenotyping centers to score the presence or absence of an abnormal phenotyp</p><p>Click the help icon for more detail.</p>',
-		'phenoAssocImgSectionDocUrl'		: docuBase + '#phenoAssocImgSection',
+		'phenoAssocImgSectionDocUrl'		: docuBase + '#phenoAssocImgSection0',
 		'diseaseSection'           		    : '<p>Human disease models found to be associated with mouse phenotypes.</p><p>Click the help icon for more detail.</p>',
-		'diseaseSectionDocUrl'     		    : docuBase + '#diseaseSection',
+		'diseaseSectionDocUrl'     		    : docuBase + '#diseaseSection0',
 		'orderSection'          			: '<p>Ordering information for alleles and ES cells of this gene produced from the IKMC project.  When available to order a link to the correspondiong repository will be included.</p><p>Click the help icon for more detail.</p>',
-		'orderSectionDocUrl'    			: docuBase + '#order',
+		'orderSectionDocUrl'    			: docuBase + '#orderSection0',
 };
 MDOC.phenotypes = {
 		'generalPanel'         				: "<p> Phenotype details panel.<p> <p>Click the help icon for more detail.</p>",

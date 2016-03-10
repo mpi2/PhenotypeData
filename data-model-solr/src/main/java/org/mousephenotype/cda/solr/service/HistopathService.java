@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -38,18 +39,19 @@ public class HistopathService {
 				geneAccession);
 	
 		Map<String, List<ObservationDTO>> extSampleIdToObservations = screenOutObservationsThatAreNormal(observations);
-
+		
 		for (String sampleId : extSampleIdToObservations.keySet()) {
 			System.out.println(sampleId);
+			Set<String> parameterNames=new TreeSet<>();
 			//probably need to split these into embryo and adult - no we dont have any histopath for embryo
 			List<ObservationDTO> observationsForSample = extSampleIdToObservations.get(sampleId);
 			HistopathPageTableRow row=new HistopathPageTableRow();
 				for (ObservationDTO obs : observationsForSample) {
 						row.setSampleId(sampleId);
-						System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue=");
-						
-						
+						System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue=");	
+						parameterNames.add(obs.getParameterName());
 						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(), obs.getParameterName());
+						
 						if(obs.getObservationType().equalsIgnoreCase("categorical")){
 						row.addCategoricalParam(parameter, obs.getCategory());
 						}
@@ -68,7 +70,9 @@ public class HistopathService {
 
 					
 				}
+				row.setParameterNames(parameterNames);
 				rows.add(row);
+				
 			
 
 		}
