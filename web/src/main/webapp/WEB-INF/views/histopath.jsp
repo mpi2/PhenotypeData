@@ -53,6 +53,7 @@
 							 
 							 Parameter names= ${parameterNames }
 							 
+							 <c:forEach var="parameterName" items="${parameterNames }">
 								<c:forEach var="histRow" items="${histopathRows}">
 								<table id="histopath" class="table tableSorter">
 								<tr>
@@ -91,6 +92,8 @@
 								</tr>
 								</table>	
 								</c:forEach>
+								
+							</c:forEach>
 							
 							
 							
