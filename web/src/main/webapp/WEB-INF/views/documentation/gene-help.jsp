@@ -11,7 +11,7 @@ The Gene page contain several subsections which will be described here.
     <li>Order Mouse and ES Cells</li>
 </ul>
 
-<h3 id="details"><a name="detailsSection0">Gene Summary</a></h3>
+<h3 id="details"><a name="summarySection0">Gene Summary</a></h3>
 The first section of the page shows summary information about the gene.
 <img src="img/gene-details.png" />
 The information displayed includes:
