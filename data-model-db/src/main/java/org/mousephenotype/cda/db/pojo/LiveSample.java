@@ -53,6 +53,32 @@ public class LiveSample extends BiologicalSample {
 	@Column(name = "date_of_birth")
 	private Date dateOfBirth;
 
+	@OneToOne
+	@JoinColumn(
+		name = "production_center_id"
+	)
+	private Organisation productionCenter;
+	@Column(
+		name = "litter_id"
+	)
+	private String litterId;
+
+
+	public Organisation getProductionCenter() {
+		return productionCenter;
+	}
+
+	public void setProductionCenter(Organisation productionCenter) {
+		this.productionCenter = productionCenter;
+	}
+
+	public String getLitterId() {
+		return litterId;
+	}
+
+	public void setLitterId(String litterId) {
+		this.litterId = litterId;
+	}
 	/**
 	 * @return the developmentalStage
 	 */
