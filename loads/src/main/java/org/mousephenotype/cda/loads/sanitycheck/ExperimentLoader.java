@@ -529,7 +529,15 @@ public class ExperimentLoader {
                                         ps = connection.prepareStatement(query);
                                         ps.setLong(1, seriesMediaParameterValuePk);
                                         ps.setLong(2, parameterAssociationPk);
-                                        ps.execute();
+                                        try {
+                                            ps.execute();
+                                        } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException e) {
+                                            if (e.getLocalizedMessage().toLowerCase().contains("duplicate")) {
+                                                logger.warn("Duplicate entry. Ignoring. Message:" + "\n" + e.getLocalizedMessage());
+                                            } else {
+                                                throw e;
+                                            }
+                                        }
                                     }
                                 }
 
@@ -542,7 +550,15 @@ public class ExperimentLoader {
                                         ps = connection.prepareStatement(query);
                                         ps.setLong(1, seriesMediaParameterValuePk);
                                         ps.setLong(2, procedureMetadataPk);
-                                        ps.execute();
+                                        try {
+                                            ps.execute();
+                                        } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException e) {
+                                            if (e.getLocalizedMessage().toLowerCase().contains("duplicate")) {
+                                                logger.warn("Duplicate entry. Ignoring. Message:" + "\n" + e.getLocalizedMessage());
+                                            } else {
+                                                throw e;
+                                            }
+                                        }
                                     }
                                 }
                             }
