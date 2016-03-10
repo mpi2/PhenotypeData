@@ -13,6 +13,7 @@ import org.mousephenotype.cda.solr.service.HistopathService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,8 @@ public class HistopathController {
 		
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
-		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.getTableData(acc);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(acc);
+		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.getObservations();
 //		List<ObservationDTO> observations=histopathService.getTableData("MGI:2449119");
 //		
 //		Map<String, List<ObservationDTO>> extSampleIdToObservations=new HashMap<>();
@@ -55,6 +57,7 @@ public class HistopathController {
 //			extSampleIdToObservations.get(externalSampeId).add(obs);
 //			
 //		}
+		model.addAttribute("histopathRows", histopathRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
 		return "histopath";	
 	}
