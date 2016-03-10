@@ -84,8 +84,8 @@ Filter options will change according to datatypes and will dynamically count dat
       </table>
       <p class="intraSectBr"></p>
       <h4 id="export">Data Export of Search Results</h4>
-      <p>Click on one of the the Export icons for data format of your choice:<p>
-        <img src='img/search-download.png' /><br>
+      <p>Click on one of the the Export icons for data format of your choice:
+        <br><img src='img/search-download.png' /><br>
         at the bottom-right corner of the results grid.
         <p>To download larger dataset of your favorite gene/phenotype/disease list, click on the<br><img src='img/search-batch1.png' /><br>link on top of the search page.
 
