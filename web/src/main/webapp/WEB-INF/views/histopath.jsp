@@ -49,33 +49,53 @@
                     
                     <div class="section">
 							<div class="inner">
-							 Histopath page here ${gene.markerName}
+							 ${gene.markerName}
 							 
-							 Parameter names= ${parameterNames }
+							 <%-- Parameter names= ${parameterNames } --%>
 							 
-							 <c:forEach var="parameterName" items="${parameterNames }">
+							 <table id="histopath" class="table tableSorter">
+							
+							<thead>
+							<tr>
+							<th>Sample Id</th>
+							<c:forEach var="paramHead" items="${parameterNames }">
+							
+							
+							<th class="headerSort">
+							${paramHead }
+							</th>
+						
+							
+							</c:forEach>
+							</tr>
+							</thead>
 								<c:forEach var="histRow" items="${histopathRows}">
-								<table id="histopath" class="table tableSorter">
+								
 								<tr>
 									<td>
 										${histRow.sampleId}
 									</td>
-									<c:forEach var="entry" items="${histRow.subOntologyBeans}">
-									<td>
-									Key=${entry.key}
-										<c:forEach var="subOntology" items="${ entry.value}">
 									
-											subOntology= ${subOntology.id } : ${subOntology.name } <%-- description= ${subOntology.description} --%>
+									<c:forEach var="parameterName" items="${parameterNames }">
+									 <td>
+									 <div style="height: 100px; overflow:auto">
+										<c:forEach var="entry" items="${histRow.subOntologyBeans}">
 									
+											<c:if test="${entry.key eq parameterName }">
+												<c:forEach var="subOntology" items="${ entry.value}">													
+														<%-- ${subOntology.id } : --%> ${subOntology.name } <%-- description= ${subOntology.description} --%>	
+												</c:forEach>
+										
+											</c:if>
 										</c:forEach>
-										</td>
-									</c:forEach>
-									<td>
+									
 									
 										<c:forEach var="category" items="${histRow.categoryList}">
-										<td>
-											 Parameter:${category.parameter.name} Text: ${category.textValue }
-										</td>
+										<c:if test="${category.parameter.name eq parameterName }">
+										
+											 Parameter:${category.parameter.name} experim  ${category.textValue }
+										
+										</c:if>
 										</c:forEach>
 									
 									
@@ -83,18 +103,24 @@
 									
 									
 										<c:forEach var="textParam" items="${histRow.textParameters}">
-										<td>
-											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
-										</td>
+										<c:if test="${textParam.parameter.name eq parameterName }">
+										
+											 <%-- Parameter:${textParam.parameter.name} Text: --%> ${textParam.textValue }
+										
+										</c:if>
+										
 										</c:forEach>
+									</div>
+									</td>
+									</c:forEach>
 									
 									
 								</tr>
-								</table>	
+								
 								</c:forEach>
 								
-							</c:forEach>
 							
+							</table>	
 							
 							
 							</div>
