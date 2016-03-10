@@ -533,7 +533,10 @@ public class ExperimentLoader {
                                             ps.execute();
                                         } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException e) {
                                             if (e.getLocalizedMessage().toLowerCase().contains("duplicate")) {
-                                                logger.warn("Duplicate entry. Ignoring. Message:" + "\n" + e.getLocalizedMessage());
+                                                logger.warn("Duplicate entry. Ignoring. Message: " + e.getLocalizedMessage());
+                                                System.out.println("seriesMediaParameter: " + seriesMediaParameter.getParameterID()
+                                                        + ", seriesMediaParameterValue " + seriesMediaParameterValue.getURI()
+                                                        + ", parameterAssociation: " + parameterAssociation.getParameterID());
                                             } else {
                                                 throw e;
                                             }
@@ -554,7 +557,11 @@ public class ExperimentLoader {
                                             ps.execute();
                                         } catch (com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException e) {
                                             if (e.getLocalizedMessage().toLowerCase().contains("duplicate")) {
-                                                logger.warn("Duplicate entry. Ignoring. Message:" + "\n" + e.getLocalizedMessage());
+                                                logger.warn("Duplicate entry. Ignoring. Message: " + e.getLocalizedMessage());
+                                                System.out.println("seriesMediaParameter: " + seriesMediaParameter.getParameterID()
+                                                        + ", seriesMediaParameterValue " + seriesMediaParameterValue.getURI()
+                                                        + ", procedureMetadata: " + procedureMetadata.getParameterID() + ", value "
+                                                        + procedureMetadata.getValue());
                                             } else {
                                                 throw e;
                                             }
