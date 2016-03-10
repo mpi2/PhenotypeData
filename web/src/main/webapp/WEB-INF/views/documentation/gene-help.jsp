@@ -1,7 +1,18 @@
 <link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
 
-<h3 id="details"><a name="detailsSection0">Gene Details</a></h3>
-The first section of the page shows detail information about the gene.
+The Gene page contain several subsections which will be described here.
+<ul  class="subUl">
+    <li>Gene summary</li>
+    <li>Phenotype Associations</li>
+    <li>Phenotype Heatmap</li>
+    <li>Expression</li>
+    <li>Associated Images</li>
+    <li>Disease Models</li>
+    <li>Order Mouse and ES Cells</li>
+</ul>
+
+<h3 id="details"><a name="detailsSection0">Gene Summary</a></h3>
+The first section of the page shows summary information about the gene.
 <img src="img/gene-details.png" />
 The information displayed includes:
 <ul class="docLi">
