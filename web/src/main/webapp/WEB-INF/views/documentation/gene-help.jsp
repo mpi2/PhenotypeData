@@ -39,7 +39,7 @@ The information displayed includes:
     </li>
     <li><strong>Viability</strong> Shows lethality in homo-/hemi-/heterogyzosity background</li>
 </ul>
-<div class="sectBr"></div>
+<p class="sectBr">
 
 
 <h3 id="phenotype-associations"><a name="phenoAssocSection">Phenotype associations</a></h3>
@@ -53,7 +53,7 @@ The information displayed includes:
 </br>
 <img src="img/gene-phenoAssoc.png" />
 
-<div class="intraSectBr"></div>
+<p class="intraSectBr">
 
 <h4>(1) See all adult phenotypes:</h4>
 Press the "All Adult Phenotypes" button.<br />
@@ -61,7 +61,7 @@ Press the "All Adult Phenotypes" button.<br />
     Hovering over any point shows some important experiment details. Clicking on any point shows a graph of the experiment data.
 </p><img src="img/gene-all-phenotype-data.png" />
 
-<div class="intraSectBr"></div>
+<p class="intraSectBr">
 
 <h4>(2) See all embryo images:</h4>Press the "Embryo Viewer" button.<br>
 <p>You will be taken to a new page with an interactive graphical interface with which you could view the embryos</p>
@@ -71,7 +71,7 @@ Press the "All Adult Phenotypes" button.<br />
 The icons on the right hand side show a visual summary of the same data. The colors indicate how significant phenotypes
 were discovered.</h4>
 
-<div class="intraSectBr"></div>
+<p class="intraSectBr">
 
 <h4>(4) Table view of significant phenotypes</h4>
 This phenotype table lists the individual phenotypes associated to this gene through a specific allele. If both sexes are associated,
@@ -79,7 +79,7 @@ then both are shown on the same row indicated by the male / female icons (<img s
 <p>The results shown in the phenotype table may be filtered using the dropdown filters.  Select the check boxes to include entries pertaining to the selection. The displayed rows are the result of logically ORing within and logically ANDing between dropdowns.</p>
 <img src="img/gene-phenotype-filter.png" alt="Filter be top level MP term" />
 
-<div class="intraSectBr"></div>
+<p class="intraSectBr">
 
 <h4 id="phenotype-download">Gene-phenotype association download</h4>
 <p>The results in the table may be downloaded for further processing.  The resulting download respects all filters that have been applied to the data.</p>
@@ -94,7 +94,7 @@ then both are shown on the same row indicated by the male / female icons (<img s
     In the export file however we export all lines separately, to allow easier further processing of the data. This holds for both XLS and TSV files.
 </p>
 
-<div class="sectBr"></div>
+<p class="sectBr">
 
 <h3 id="preqc-heatmap"><a name="heatmapSection">Phenotype Heatmap</a></h3>
 <p>When there is data available, but not yet complete, from the IMPC resource, the Pre-QC panel will appear.  The pre QC panel shows a heatmap of the results of preliminary analysis on data that has been collected by the IMPC production centers to date, but is not yet complete. In order to be marked Complete, 7 males and 7 females must complete all core screens required by the IMPC pipeline.
@@ -105,7 +105,7 @@ then both are shown on the same row indicated by the male / female icons (<img s
 <br/>
 <img src="img/gene-heatmap.png" />
 
-<div class="sectBr"></div>
+<p class="sectBr">
 
 <h3 id="impc-expression"><a name="expressionSection">Expression</a></h3>
 <p>
@@ -114,7 +114,7 @@ This section displays IMPC lacZ expression data (A). In some cases where legacy 
 <br>
 <img src="img/gene-expression.png" />
 
-<div class="intraSectBr"></div>
+<p class="intraSectBr">
 
 <h4>(A) IMPC lacZ Expression Data:</h4>
 <p>Eventually, all genes should have both embyo and adult expression data. They are organized in tabs.
@@ -142,12 +142,12 @@ The number in parentheses indicates how many images are available for a given im
     <br /><img src="img/gene-emb-exp-img.png" />
     </li>
 </ul>
-<div class="intraSectBr"></div>
+<p class="intraSectBr">
 
 <h4>(B) Legacy lacZ Expression Data:</h4>
 <p>The data are organized by anatomy terms from the Mouse adult gross anatomy ontology.</p>
 
-<div class="sectBr"></div>
+<p class="sectBr">
 
 <h3 id="impc-images"><a name="phenoAssocImgSection">Phenotype Associated Images</a></h3>
 <p>
@@ -155,17 +155,17 @@ The number in parentheses indicates how many images are available for a given im
     of an abnormal phenotype. Uploaded phenotype images are presented here organised by the procedure generating the image. In addition to the IMPC images, some genes have legacy ones.</p>
 <img src="img/gene-phenoAssoc-img.png" />
 
-<div class="sectBr"></div>
+<p class="sectBr">
 
 
 <h3 id="disease"><a name="diseaseSection">Disease Models</a></h3>
 <p>Model organisms represent a valuable resource for the characterization as well as identification of disease-gene associations, especially where the molecular basis is unknown and there is no clue to the candidate gene’s function, pathway involvement or expression pattern.
 <p>Shown here are human diseases found by <a target="_blank" href="http://www.sanger.ac.uk/resources/databases/phenodigm/">PhenoDigm</a> analysis (PHENOtype comparisons for DIsease and Gene Models) which uses a semantic approach to map between clinical features observed in humans and mouse phenotype (either from MGI or IMPC phenotype evidences) annotations.
-<div class="intraSectBr"></div><img src="img/gene-disease-models.png" /><div class="intraSectBr"></div>
+<p class="intraSectBr"><img src="img/gene-disease-models.png" /><p class="intraSectBr">
 <p>The human disease model associations are based on gene orthology or phenotypic similarity that you can browse by clicking on the respective tabs.</p>
 <p>In the table, each row is a human disease to mouse phenotype association. To see what mouse genes (alleles) are annotated to these mapped mouse phenotypes, clicked on the "plus" icon.</p>
 
-<div class="sectBr"></div>
+<p class="sectBr">
 
 <h3 id="order"><a nem="order">Order Mouse and ES Cells</a></h3>
 <p>The alleles and ES cells section describes the mutations available from the IKMC resource.  Each row corresponds to an allele of this gene.  A diagram is included depicting the mutation the allele carries.</p>
