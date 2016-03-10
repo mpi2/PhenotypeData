@@ -270,6 +270,15 @@
 					div#diseasetabs a, div#exptabs a {
 						color: #0978a1;
 					}
+					div#diseasetabs div.dataTables_paginate li a {
+						color: #666;
+					}
+					div#diseasetabs div.dataTables_paginate a:hover {
+						color: white;
+					}
+					div#diseasetabs div.dataTables_paginate li.active a {
+						color: white;
+					}
 
 				</style>
 
@@ -295,7 +304,7 @@
 						<div class="node node-gene">
 							<h1 class="title" id="top">Gene: ${gene.markerSymbol}
 								<span class="documentation">
-									<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
+									<a href='' id='detailsSection' class="fa fa-question-circle pull-right"></a>
 								</span>
 							</h1>
 
@@ -315,7 +324,7 @@
 								<h2 class="title "
 									id="section-associations"> Phenotype associations for ${gene.markerSymbol}
 										<span class="documentation"><a
-												href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span>
+												href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
 									<!--  this works, but need js to drive tip position -->
 								</h2>
 
@@ -327,12 +336,12 @@
 							<!-- end of Phenotype Associations -->
 
 
-							<!-- Pre-QC phenotype heatmap -->
+							<!-- phenotype heatmap -->
 							<c:if test="${phenotypeStarted}">
 
 								<div class="section">
 									<h2 class="title" id="heatmap">Phenotype heatmap <span
-											class="documentation"><a href='' id='preqcPanel'
+											class="documentation"><a href='' id='heatmapSection'
 																	 class="fa fa-question-circle pull-right"></a></span>
 									</h2>
 
@@ -366,7 +375,7 @@
 							<div class="section">
 
 								<h2 class="title" id="section-expression">Expression
-									<span class="documentation"><a href='' id='impcExpressionPanel' class="fa fa-question-circle pull-right"></a></span>
+									<span class="documentation"><a href='' id='expressionSection' goto="geneTab" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
@@ -491,7 +500,7 @@
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
 							<div class="section">
 								<h2 class="title" id="section-images">Phenotype Associated Images
-									<span class="documentation"><a href="" id="phenoAssocImagesPanel" class="fa fa-question-circle pull-right"></a></span>
+									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
@@ -524,7 +533,7 @@
 
 								<a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                 <span class="documentation">
-	                                <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+	                                <a href="" id="diseaseSection" class="mpPanel">
 		                                <i class="fa fa-question-circle pull-right"></i>
 	                                </a>
                                 </span>
@@ -577,7 +586,7 @@
 						<!-- Order Mouse and ES Cells -->
 						<div class="section" id="order2">
 							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
-									class="documentation"><a href='' id='orderPanel' class="fa fa-question-circle pull-right"></a></span>
+									class="documentation"><a href='' id='orderSection' class="fa fa-question-circle pull-right"></a></span>
 							</h2>
 
 							<div class="inner">
