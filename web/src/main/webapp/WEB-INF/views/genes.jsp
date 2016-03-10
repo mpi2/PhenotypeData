@@ -304,7 +304,7 @@
 						<div class="node node-gene">
 							<h1 class="title" id="top">Gene: ${gene.markerSymbol}
 								<span class="documentation">
-									<a href='' id='detailsSection' class="fa fa-question-circle pull-right"></a>
+									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
 								</span>
 							</h1>
 
