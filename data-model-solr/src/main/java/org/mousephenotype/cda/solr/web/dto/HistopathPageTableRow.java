@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -22,22 +23,20 @@ public class HistopathPageTableRow {
 	
 	
 	
-	private String parameterName;
+	private Set<String> parameterNames;
 	@Override
 	public String toString() {
-		return "HistopathPageTableRow [sampleId=" + sampleId + ", parameterName=" + parameterName
-				+ ", parameterStableId=" + parameterStableId + ", observationType=" + observationType + ", category="
-				+ category + ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", categoryList="
+		return "HistopathPageTableRow [sampleId=" + sampleId + ", parameterNames=" + parameterNames
+				+ ", parameterStableId=" + parameterStableId + ", observationType=" + observationType  + ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", categoryList="
 				+ categoryList + ", textParameters=" + textParameters + "]";
 	}
-	public HistopathPageTableRow(String sampleId, String parameterName, String parameterStableId,
-			String observationType, String category, String textValue, Map<String, List<OntologyBean>> subOntologyBeans) {
+	public HistopathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
+			String observationType, List<ParameterValueBean> category, String textValue, Map<String, List<OntologyBean>> subOntologyBeans) {
 		super();
 		this.sampleId = sampleId;
-		this.parameterName = parameterName;
+		this.parameterNames = parameterNames;
 		this.parameterStableId = parameterStableId;
 		this.observationType = observationType;
-		this.category = category;
 		this.textValue = textValue;
 		this.subOntologyBeans = subOntologyBeans;
 	}
@@ -50,12 +49,10 @@ public class HistopathPageTableRow {
 	public void setSampleId(String sampleId) {
 		this.sampleId = sampleId;
 	}
-	public String getParameterName() {
-		return parameterName;
+	public Set<String> getParameterNames() {
+		return parameterNames;
 	}
-	public void setParameterName(String parameterName) {
-		this.parameterName = parameterName;
-	}
+	
 	public String getParameterStableId() {
 		return parameterStableId;
 	}
@@ -68,12 +65,8 @@ public class HistopathPageTableRow {
 	public void setObservationType(String observationType) {
 		this.observationType = observationType;
 	}
-	public String getCategory() {
-		return category;
-	}
-	public void setCategory(String category) {
-		this.category = category;
-	}
+	
+	
 	public String getTextValue() {
 		return textValue;
 	}
@@ -84,26 +77,29 @@ public class HistopathPageTableRow {
 		return subOntologyBeans;
 	}
 	
+	public List<ParameterValueBean> getCategoryList() {
+		return categoryList;
+	}
+
 	private String parameterStableId;
 	private String observationType;
-	private String category;
 	private String textValue;
 	private Map<String, List<OntologyBean>> subOntologyBeans=new HashMap<>();
 
 
-	private List<CategoryBean> categoryList=new ArrayList<>();
+	private List<ParameterValueBean> categoryList=new ArrayList<>();
 
 	//reusing categoryBean here as 
-	private List<CategoryBean> textParameters=new ArrayList<>();
+	private List<ParameterValueBean> textParameters=new ArrayList<>();
 	
-	public List<CategoryBean> getTextParameters() {
+	public List<ParameterValueBean> getTextParameters() {
 		return textParameters;
 	}
-	public void setTextParameters(List<CategoryBean> textParameters) {
+	public void setTextParameters(List<ParameterValueBean> textParameters) {
 		this.textParameters = textParameters;
 	}
 	public void addCategoricalParam(ImpressBaseDTO parameter, String category) {
-		this.categoryList.add(new CategoryBean(parameter, category));
+		this.categoryList.add(new ParameterValueBean(parameter, category));
 		
 	}
 	public void addOntologicalParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
@@ -114,11 +110,11 @@ public class HistopathPageTableRow {
 		
 	}
 	public void addTextParam(ImpressBaseDTO parameter, String textValue) {
-		this.textParameters.add(new CategoryBean(parameter, textValue));
+		this.textParameters.add(new ParameterValueBean(parameter, textValue));
 		
 	}
 	
-	public  class CategoryBean{
+	public  class ParameterValueBean{
 		ImpressBaseDTO parameter;
 		public ImpressBaseDTO getParameter() {
 			return parameter;
@@ -138,11 +134,16 @@ public class HistopathPageTableRow {
 
 		String textValue;
 		
-		public CategoryBean(ImpressBaseDTO parameter, String textValue){
+		public ParameterValueBean(ImpressBaseDTO parameter, String textValue){
 			this.parameter=parameter;
 			this.textValue=textValue;
 		}
 		
+		
+	}
+
+	public void setParameterNames(Set<String> parameterNames) {
+		this.parameterNames=parameterNames;
 		
 	}
 	
