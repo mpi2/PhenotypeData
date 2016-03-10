@@ -667,6 +667,7 @@ CREATE TABLE observation (
 	db_id                      INT(10) UNSIGNED NOT NULL,
 	biological_sample_id       INT(10) UNSIGNED NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
+  sequence_id                INT(10) UNSIGNED NULL,
 	parameter_stable_id        VARCHAR(30) NOT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
