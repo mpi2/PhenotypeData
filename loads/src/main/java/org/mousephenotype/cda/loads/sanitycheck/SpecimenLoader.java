@@ -203,7 +203,7 @@ public class SpecimenLoader {
                 } else {
                     query = "INSERT INTO specimen (" +
                                 "colonyId, gender, isBaseline, litterId, phenotypingCenter, pipeline, productionCenter, project," +
-                                " specimenId, strainId, zygosity, statuscode_fk)" +
+                                " specimenId, strainId, zygosity, statuscode_pk)" +
                             " VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     if (specimen.getColonyID() == null) {
@@ -243,14 +243,14 @@ public class SpecimenLoader {
                 // embryo or mouse
                 if (specimen instanceof Embryo) {
                     Embryo embryo = (Embryo) specimen;
-                    query = "INSERT INTO embryo (stage, stageUnit, specimen_fk) VALUES (?, ?, ?);";
+                    query = "INSERT INTO embryo (stage, stageUnit, specimen_pk) VALUES (?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, embryo.getStage());
                     ps.setString(2, embryo.getStageUnit().value());
                     ps.setLong(3, specimenPk);
                 } else  if (specimen instanceof Mouse) {
                     Mouse mouse = (Mouse) specimen;
-                    query = "INSERT INTO mouse (DOB, specimen_fk) VALUES (?, ?);";
+                    query = "INSERT INTO mouse (DOB, specimen_pk) VALUES (?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setDate(1, new java.sql.Date(mouse.getDOB().getTime().getTime()));
                     ps.setLong(2, specimenPk);
@@ -261,7 +261,7 @@ public class SpecimenLoader {
 
                 // genotype
                 for (Genotype genotype : specimen.getGenotype()) {
-                    query = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_fk)"
+                    query = "INSERT INTO genotype (geneSymbol, mgiAlleleId, mgiGeneId, fatherZygosity, motherZygosity, specimen_pk)"
                           + " VALUES (?, ?, ?, ?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, genotype.getGeneSymbol());
@@ -284,7 +284,7 @@ public class SpecimenLoader {
 
                 // parentalStrain
                 for (ParentalStrain parentalStrain : specimen.getParentalStrain()) {
-                    query = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_fk) VALUES (?, ?, ?, ?, ?);";
+                    query = "INSERT INTO parentalStrain (percentage, mgiStrainId, gender, level, specimen_pk) VALUES (?, ?, ?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setDouble(1, parentalStrain.getPercentage());
                     ps.setString(2, parentalStrain.getMGIStrainID());
@@ -300,7 +300,7 @@ public class SpecimenLoader {
                 }
 
                 // center_specimen
-                query = "INSERT INTO center_specimen (center_fk, specimen_fk) VALUES ( ?, ?);";
+                query = "INSERT INTO center_specimen (center_pk, specimen_pk) VALUES ( ?, ?);";
                 ps = connection.prepareStatement(query);
                 ps.setLong(1, centerPk);
                 ps.setLong(2, specimenPk);
@@ -313,10 +313,10 @@ public class SpecimenLoader {
                     continue;
                 }
 
-                // relatedSpecimen NOTE: 'specimen_mine_fk cannot be loaded until ALL of the specimen files have been loaded,
+                // relatedSpecimen NOTE: 'specimen_mine_pk cannot be loaded until ALL of the specimen files have been loaded,
                 // as the related specimens are not guaranteed to be defined in the same specimen file (and, in fact, are not).
                 for (RelatedSpecimen relatedSpecimen : specimen.getRelatedSpecimen()) {
-                    query = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_fk) VALUES ( ?, ?, ?);";
+                    query = "INSERT INTO relatedSpecimen (relationship, specimenIdMine, specimen_theirs_pk) VALUES ( ?, ?, ?);";
                     ps = connection.prepareStatement(query);
                     ps.setString(1, relatedSpecimen.getRelationship().value());
                     ps.setString(2, relatedSpecimen.getSpecimenID());
