@@ -14,7 +14,7 @@
       <%@ include file="doc-search-generic-features-note.jsp" %><br>
         <div>First, click on the "Genes" datatype tab. It will show all the genes that IMPC knows about if no filters are ticked on the left panel.<br>
           You could enter a gene symbol/ID/name or human orthologue into the main input box and/or click on a filter on the left panel to narrow down your result to relevant gene(s).
-          <p>The screenshot below shows searching the gene symbol "mtf1":<br>
+          <p>The screenshot below shows searching the gene symbol "nxn":<br>
         </div><br>
         <img src='img/search-gene.png' /><p>
 

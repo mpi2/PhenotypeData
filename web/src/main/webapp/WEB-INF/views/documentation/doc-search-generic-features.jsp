@@ -12,38 +12,35 @@
 </head>
 <body>
 
-  <h3>Explore the diverse entry points to mouse phenotype data.</h3><br>
+<p>
+This page is separated into different subsections which are highlighted on the screenshot below.
+<ul class="subUl">
+    <li>Search box (see below for more information)</li>
+    <li>Datatype subsection<br>
+   Currently, the IMPC portal supports 6 main datatypes on the search page: Genes, Phenotypes, Diseases, Anatomy, Impc Images, and legacy Images.
+Each main datatype has filters to allow for data filtering. The selected one is highlighted in dark blue. The ones w/o results will be grayed out.</li>
+    <li>Filter subsection<br>
+The user is in control of whether a filter is open or closed by ticking on it.
+Filter options will change according to datatypes and will dynamically count data corresponding to user's filtering choice. The counts of non-matching filters will become zero and disabled (grayed out).
+    </li>
+    <li>Results subsection</li>
+</ul>
+    <p class="intraSectBr"></p>
+      <img src='img/search-main-data-type.png' />
 
+<p class="intraSectBr"></p>
+      <h4 id="autosuggest_srch">Search box: more information on Auto-suggest support</h4>
+      <p>Enter at least 3 letters to invoke a drop-down list of terms related to your search keyword. The results will be prefixed by a datatype which are described in the table below. The top ten most relevant terms will be shown, in order of relevance scores. You can select the desired term by using the UP/DOWN keys or by selecting the term with the mouse and pressing the ENTER key.
+      <p class="intraSectBr"></p>
 
-      Currently, the IMPC portal supports 6 main datatypes on the search page:
-      Genes, Phenotypes, Diseases, Anatomy, Impc Images, and legacy Images.<br>
-      Each main datatype has filters to allow for data filtering.<p>
-      <img src='img/search-main-data-type.png' /><p>
+      <img src='img/search-autosuggest.png' />
+      <p class="intraSectBr"></p>
 
-      <div>Clicking on a main datatype tab under the main input box on top of the search page (eg, Genes, Phenotypes, Diseases) without ticking its filter(s) (in left side panel) will display all records of that datatype.
-        The screenshot above shows the total number of genes in the portal.<p><p></p>
+      <h4>Keyword search and datatype</h4><p class="intraSectBr"></p>
+      When a main datatype is chosen (Genes, Phenotypes, Diseases, Anatomy), typing a keyword in the main input box and hit ENTER w/o choosing an item from the dropdown list will show the result with the same main datatype selected.
+      However, when you specifically choose an item from the dropdown list, the selected datatype will be the one associated with the selected item.
+    <p class="intraSectBr"></p>
 
-        Depending on the datatype, the filters will be changed dynamically.<br><br>
-
-        <h6>Filter control and behavior</h6>
-        <div>You are in control of whether a filter is open or closed by ticking on it.<p>
-          When a filter is checked (ie, ticking on the checkbox), the result counts will change dynamically. The counts of non-matching filters will become zero and disabled (grayed out) and when you hover over them, a no-entry sign will appear indicating that that filter is now unclickable until it matches other filter combinations.
-        </div>
-
-      </div><br>
-
-      <h6 id="autosuggest_srch">Auto-suggest Support for Keyword Search</h6>
-      <div>Enter at least 3 letters to invoke a drop-down list of terms (prefixed by datatype) related to your search keyword.
-        The top ten most relevant terms will be shown, in order of relevance scores.
-        You can select the desired term by using the UP/DOWN keys or by selecting the term with the mouse and pressing the ENTER key.<p></p><p></p>
-
-        <img src='img/search-autosuggest.png' /><p>
-
-          <b>Keyword search and datatype</b><br>
-          When a datatype is chosen, typing a keyword in the main input box and hit ENTER w/o choosing an item from the dropdown list will show the result with the same main datatype selected.<br>
-          However, when you specifically choose an item from the dropdown list, the selected datatype will be the one associated with the selected item.<br>
-
-      </div><br>
       The table shows the possible datatypes currently searchable.
 
       <table>
@@ -63,38 +60,37 @@
           <td>mp</td>
           <td>abnormal IgM level</td>
           <td><a href="http://www.obofoundry.org/ontology/mp.html">Mammalian phenotype </a></td>
-          <td>MPs in IMPC are associated with phenotypes assessed using <a href="http://www.mousephenotype.org/impress">IMPReSS</a> phenotyping protocols</td>
+          <td>Mouse phenotypes in IMPC are assayed using <a href="http://www.mousephenotype.org/impress">IMPReSS</a> phenotyping protocols</td>
         </tr>
         <tr>
           <td>ma</td>
           <td>brain</td>
           <td><a href="http://www.obofoundry.org/ontology/ma.html">Mouse adult gross anatomy </a></td>
-          <td>MAs in IMPC are associated with tissues/organs assessed using <a href="http://www.mousephenotype.org/impress">IMPReSS</a> phenotyping protocols</td>
+          <td>Mouse anatomy terms in IMPC are associated with tissues/organs assessed according to <a href="http://www.mousephenotype.org/impress">IMPReSS</a> phenotyping protocols</td>
         </tr>
         <tr>
           <td>disease (human disease)</td>
           <td>Bloom Syndrome</td>
           <td>OMIM/ORPHANET/DECIPHER</a></td>
-          <td>Human to mouse disease mapping using <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a></td>
+          <td>Human to mouse disease mapping is done using <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a></td>
         </tr>
         <tr>
           <td>hp</td>
-          <td>Glucose intolerance » MP:0005293 - impaired glucose tolerance</td>
+          <td>Glucose intolerance &raquo; MP:0005293 - impaired glucose tolerance</td>
           <td><a href="http://www.obofoundry.org/ontology/hp.html">Human phenotype ontology</a></td>
-          <td>Hp to Mp mapping using <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a></td>
+          <td>Human (hp) to mouse (mp) phenotypes mapping is done using <a href="http://www.sanger.ac.uk/resources/databases/phenodigm/">Phenodigm</a></td>
         </tr>
 
       </table>
-
-      <h6 id="export">Data Export of Search Results</h6>
-      <div>Click on one of the the Export icons for data format of your choice:<p>
-        <img src='img/search-download.png' /><br>
+      <p class="intraSectBr"></p>
+      <h4 id="export">Data Export of Search Results</h4>
+      <p>Click on one of the the Export icons for data format of your choice:
+        <br><img src='img/search-download.png' /><br>
         at the bottom-right corner of the results grid.
-        <p>To download larger dataset of your favorite gene/phenotype/disease list, click on the "Batch search" link.
-         next to the Export icons or use the batch search link on top of the search page:<br><img src='img/search-batch1.png' />
-      </p>
+        <p>To download larger dataset of your favorite gene/phenotype/disease list, click on the<br><img src='img/search-batch1.png' /><br>link on top of the search page.
 
-      </div><%-- end of content div--%>
+
+      </p><%-- end of content div--%>
 
 </body>
 </html>
