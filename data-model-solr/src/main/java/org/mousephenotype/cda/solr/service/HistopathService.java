@@ -33,12 +33,12 @@ public class HistopathService {
 		
 	}
 
-	public List<HistopathPageTableRow> getTableData(String geneAccession) throws SolrServerException {
+	public List<HistopathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException {
 		List<HistopathPageTableRow> rows=new ArrayList<>();
-		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
-				geneAccession);
+		
+		System.out.println("observations for histopath size with normal and abnormal="+allObservations.size());
 	
-		Map<String, List<ObservationDTO>> extSampleIdToObservations = screenOutObservationsThatAreNormal(observations);
+		Map<String, List<ObservationDTO>> extSampleIdToObservations = screenOutObservationsThatAreNormal(allObservations);
 		
 		for (String sampleId : extSampleIdToObservations.keySet()) {
 			System.out.println(sampleId);
@@ -56,6 +56,7 @@ public class HistopathService {
 						row.addCategoricalParam(parameter, obs.getCategory());
 						}
 						if(obs.getObservationType().equalsIgnoreCase("ontological")){
+						
 							for(int i=0;i<obs.getSubTermId().size();i++){
 								System.out.println("subtermId="+obs.getSubTermId()+"subtermname="+obs.getSubTermName().get(i));
 							
@@ -81,9 +82,14 @@ public class HistopathService {
 
 	}
 	
+	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException{
+		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
+				acc);
+		return observations;
+	}
 	
 
-	private Map<String, List<ObservationDTO>> screenOutObservationsThatAreNormal(List<ObservationDTO> observations) {
+	public  Map<String, List<ObservationDTO>> screenOutObservationsThatAreNormal(List<ObservationDTO> observations) {
 		
 		Map<String, List<ObservationDTO>> extSampleIdToObservations = new HashMap<>();
 		for (ObservationDTO obs : observations) {
@@ -96,7 +102,7 @@ public class HistopathService {
 			if(obs.getObservationType().equalsIgnoreCase("categorical")){
 				if(obs.getCategory().equalsIgnoreCase("0")){
 					addObservation=false;
-					System.out.println("setting obs to false");
+					//System.out.println("setting obs to false");
 					
 				}
 				
@@ -105,7 +111,7 @@ public class HistopathService {
 				for(String name:obs.getSubTermName()){
 					if(name.equalsIgnoreCase("normal"))
 					addObservation=false;
-					System.out.println("setting obs to false");
+					//System.out.println("setting obs to false");
 					
 				}
 				
