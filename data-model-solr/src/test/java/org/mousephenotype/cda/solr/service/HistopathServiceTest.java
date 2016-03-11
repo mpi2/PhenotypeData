@@ -1,11 +1,13 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Test;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 
 
 //@ContextConfiguration( locations={ "classpath:test-Observations.xml" })
@@ -26,9 +28,13 @@ public class HistopathServiceTest {
 		HttpSolrServer solr=new HttpSolrServer("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/");
 		ObservationService observationService= new ObservationService(solr);
 		HistopathService histopathService=new HistopathService(observationService);
+		
+		
 		String geneAccession="MGI:2449119";
 		try {
-			histopathService.getTableData(geneAccession);
+			List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
+			Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
+			List<HistopathPageTableRow> histopathRows = histopathService.getTableData(allObservations);
 			
 			
 		} catch (SolrServerException e) {

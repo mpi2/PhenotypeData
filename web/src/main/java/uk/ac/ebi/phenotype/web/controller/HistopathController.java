@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -13,6 +14,7 @@ import org.mousephenotype.cda.solr.service.HistopathService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,27 +37,22 @@ public class HistopathController {
 	
 	@RequestMapping("/histopath/{acc}")
 	public String histopath(@PathVariable String acc, Model model) throws SolrServerException{
-		
+		//exmple Lpin2 MGI:1891341
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
-		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.getTableData(acc);
-//		List<ObservationDTO> observations=histopathService.getTableData("MGI:2449119");
-//		
-//		Map<String, List<ObservationDTO>> extSampleIdToObservations=new HashMap<>();
-//		Set<String> observationTypesForGene=new HashSet<>();
-//		for(ObservationDTO obs: observations){
-//			String externalSampeId=obs.getExternalSampleId();
-//			if(!extSampleIdToObservations.containsKey(externalSampeId)){
-//				extSampleIdToObservations.put(externalSampeId, new ArrayList<ObservationDTO>());
-//			}
-//			if(!observationTypesForGene.contains(obs.getObservationType())){
-//				observationTypesForGene.add(obs.getObservationType());
-//			}
-//			
-//			extSampleIdToObservations.get(externalSampeId).add(obs);
-//			
-//		}
+		
+		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
+		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(allObservations);
+		Set<String> parameterNames=new TreeSet<>();
+		for(HistopathPageTableRow row: histopathRows){
+			parameterNames.addAll(row.getParameterNames());
+		}
+		
+
+		model.addAttribute("histopathRows", histopathRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
+		model.addAttribute("parameterNames", parameterNames);
 		return "histopath";	
 	}
 }
