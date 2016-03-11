@@ -128,7 +128,7 @@ This section displays IMPC lacZ expression data (A). In some cases where legacy 
 
 <p class="intraSectBr">
 
-<h4>(A) IMPC lacZ Expression Data:</h4>
+<h4>(1) IMPC lacZ Expression Data:</h4>
 <p>Eventually, all genes should have both embyo and adult expression data. They are organized in tabs.
 <ul class="subUl">
     <li>Adult Expression tab
@@ -156,7 +156,7 @@ The number in parentheses indicates how many images are available for a given im
 </ul>
 <p class="intraSectBr">
 
-<h4>(B) Legacy lacZ Expression Data:</h4>
+<h4>(2) Legacy lacZ Expression Data:</h4>
 <p>The data are organized by anatomy terms from the Mouse adult gross anatomy ontology.</p>
 
 <p class="sectBr">
