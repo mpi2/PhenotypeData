@@ -37,15 +37,18 @@ public class HistopathController {
 	
 	@RequestMapping("/histopath/{acc}")
 	public String histopath(@PathVariable String acc, Model model) throws SolrServerException{
-		
+		//exmple Lpin2 MGI:1891341
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
-		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(acc);
+		
+		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
+		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(allObservations);
 		Set<String> parameterNames=new TreeSet<>();
 		for(HistopathPageTableRow row: histopathRows){
 			parameterNames.addAll(row.getParameterNames());
 		}
-		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.getObservations();
+		
 
 		model.addAttribute("histopathRows", histopathRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
