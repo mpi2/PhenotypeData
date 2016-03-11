@@ -8,18 +8,12 @@
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-		<link href="${baseUrl}/css/searchPage.cssssss" rel="stylesheet" type="text/css" />
+		<link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
         <style>
 
-          .fleft {float: left;}
-          div.fleft {
-            font-size: 25px;
-            margin-top: 20px;
-            padding-left: 20px;
-          }
           ul#method {
             clear: left;
-            margin-top: 120px;
+            margin-top: 50px;
             list-style-type: none;
             padding: 0;
           }
