@@ -436,7 +436,7 @@
 								foundMsg = '<p>Found '
 										+ '<span id="resultCount">'
 										+ '<span id="annotCount">' + ${jsonStr}.iTotalRecords + ' annotations / </span>'
-								+ '<a href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
+								+ '<a rel="nofollow" href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
 								+ '</span></div>';
 							}
 							else {
@@ -446,7 +446,7 @@
 										+ '<span id="imgViewSwitcher">Show Annotation View</span>';
 								foundMsg = '<p>Found '
 										+ '<span id="resultCount">'
-										+ '<a href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
+										+ '<a rel="nofollow" href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
 								+ '</span></div>';
 							}
 							switcher = viewMsg + foundMsg;
