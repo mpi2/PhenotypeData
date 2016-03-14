@@ -50,7 +50,7 @@ function insertPhenogrid(clicked) {
 
     getPhenoGridSkeleton(geneId, diseaseId, requestPageType).done(function (result) {
         Phenogrid.createPhenogridForElement(targetRow, {
-            serverURL: "http://monarchinitiative.org",
+            serverURL: "https://beta.monarchinitiative.org",
             selectedSort: "Frequency and Rarity", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
             gridSkeletonDataVendor: 'IMPC',
             gridSkeletonData: result,

@@ -40,8 +40,8 @@ MDOC.search = {
 
 var docuBase = baseUrl + '/documentation/doc-explore';
 MDOC.gene = {
-		'detailsSection'         			: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
-		'detailsSectionDocUrl'   			: docuBase + '#detailsSection0',
+		'summarySection'         			: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
+		'summarySectionDocUrl'   			: docuBase + '#summarySection0',
 		'phenoAssocSection'              	: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
 		'phenoAssocSectionDocUrl'        	: docuBase + '#phenoAssocSection0',
 		'heatmapSection'           			: '<p>Analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
