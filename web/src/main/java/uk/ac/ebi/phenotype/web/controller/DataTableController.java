@@ -1239,7 +1239,7 @@ public class DataTableController {
 					//String thisImgUrl = mediaBaseUrl + defaultQStr + " AND (" + query + ")&" + defaultFqStr;
 					thisImgUrl = mediaBaseUrl + defaultQStr + '&' + currFqStr;
 
-					imgSubSetLink = "<a href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
+					imgSubSetLink = "<a rel='nofollow' href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 
 					rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
 					rowData.add(pathAndImgCount.get(0).toString());
