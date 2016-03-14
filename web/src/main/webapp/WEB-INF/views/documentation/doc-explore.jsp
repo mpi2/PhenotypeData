@@ -44,7 +44,7 @@
         <%@ include file="disease-help.jsp" %>
       </div>
       <div id="tabs-4" class="srchdocTab">
-        <%@ include file="phenotype-help.jsp" %>
+        <%@ include file="anatomy-help.jsp" %>
       </div>
       <div id="tabs-5" class="srchdocTab">
         <%@ include file="image-help.jsp" %>

@@ -106,10 +106,12 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">
-			<h1 class="title" id="top">Phenotype: ${phenotype.getMpTerm()} </h1>
+						<h1 class="title" id="top">Phenotype: ${phenotype.getMpTerm()}
+							<span class="documentation"><a href='' id='summarySection' class="fa fa-question-circle pull-right"></a></span>
+						</h1>
 
-				<div class="section">
-					<div class="inner">
+					<div class="section">
+						<div class="inner">
 
 						 <!--  login interest button -->
                          <div class="floatright">
@@ -181,7 +183,7 @@
 
 				<c:if test="${genePercentage.getDisplay()}">
 					<div class="section">
-						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsPanel' class="fa fa-question-circle pull-right"></a></span> </h2>
+						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsSection' class="fa fa-question-circle pull-right"></a></span> </h2>
 						<div class="inner">
 							<!-- Phenotype Assoc. summary -->
 
@@ -244,7 +246,7 @@
 				<div class="section">
 
 			    <h2 class="title" id="gene-variants"><a name="hasGeneVariants">Gene variants with ${phenotype.getMpTerm()}</a>
-			    <span class="documentation" ><a href='' id='relatedMpPanel' class="fa fa-question-circle pull-right"></a></span>
+			    <span class="documentation" ><a href='' id='geneVariantSection' class="fa fa-question-circle pull-right"></a></span>
 			    </h2>
 
 					<div class="inner">
