@@ -18,6 +18,7 @@ package org.mousephenotype.cda.db.dao;
 
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public interface AnalyticsDAO {
 	 * Get all meta information for this release
 	 * @return all meta information in a Map
 	 */
-	Map<String, String> getMetaData();
+	Map<String, String> getMetaData() throws SQLException;
 
 	/**
 	 * Retrieves number of lines per procedure for every phenotyping center.
