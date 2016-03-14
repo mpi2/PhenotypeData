@@ -1049,9 +1049,9 @@ public class DataTableController {
                     String largeThumbNailPath = thumbnailPath + "/800/";  //width in pixel
                     String img = "<img src='" + smallThumbNailPath + "'/>";
                     if(doc.getString("download_url").contains("annotation")){
-                    	imgLink = "<a href='" + doc.getString("download_url") + "'>" + img + "</a>";
+                    	imgLink = "<a rel='nofollow' href='" + doc.getString("download_url") + "'>" + img + "</a>";
                     }else{
-                    	imgLink = "<a class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                    	imgLink = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
                     }
                 } else {
                     imgLink = IMG_NOT_FOUND;
@@ -1291,7 +1291,7 @@ public class DataTableController {
                 String largeThumbNailPath = imgBaseUrl + doc.getString("largeThumbnailFilePath");
                 String img = "<img src='" + imgBaseUrl + doc.getString("smallThumbnailFilePath") + "'/>";
                 String fullSizePath = largeThumbNailPath.replace("tn_large", "full");
-                String imgLink = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+                String imgLink = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
 
                 try {
                     ArrayList<String> mp = new ArrayList<String>();
@@ -1457,7 +1457,7 @@ public class DataTableController {
 
 					imgUrl = imgUrl.replaceAll("&q=.+&", "&defType=edismax&q=" + query + " AND " + facetField + ":\"" + names[0] + "\"&");
 
-					String imgSubSetLink = "<a href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
+					String imgSubSetLink = "<a rel='nofollow' href='" + imgUrl + "'>" + imgCount + " " + unit + "</a>";
 
 					rowData.add(displayAnnotName + " (" + imgSubSetLink + ")");
 
@@ -1613,7 +1613,7 @@ public class DataTableController {
             String largeThumbNailPath = mediaBaseUrl + "/" + doc.getString("largeThumbnailFilePath");
             String fullSizePath = largeThumbNailPath.replace("tn_large", "full");
             String img = "<img src='" + mediaBaseUrl + "/" + doc.getString("smallThumbnailFilePath") + "'/>";
-            String link = "<a class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
+            String link = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath + "' href='" + largeThumbNailPath + "'>" + img + "</a>";
 
             imgPath.add(link);
         }
