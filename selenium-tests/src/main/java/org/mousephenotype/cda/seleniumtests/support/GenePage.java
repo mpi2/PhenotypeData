@@ -53,11 +53,37 @@ public class GenePage {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
+    private boolean hasDiseaseModels;
     private boolean hasImages;
     private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
-    private int resultsCount;
+    private ResultsCount resultsCount;
+
+    public class ResultsCount {
+        private int females;
+        private int males;
+
+        public int getFemales() {
+            return females;
+        }
+
+        public void setFemales(int females) {
+            this.females = females;
+        }
+
+        public int getMales() {
+            return males;
+        }
+
+        public void setMales(int males) {
+            this.males = males;
+        }
+
+        public int getTotals() {
+            return males + females;
+        }
+    }
 
     /**
      * Creates a new <code>GenePage</code> instance
@@ -267,7 +293,7 @@ public class GenePage {
      * @return the number at the end of the gene page string 'Total number of results: xxxx'
      */
     public int getResultsCount() {
-        return resultsCount;
+        return resultsCount.getTotals();
     }
 
     /**
@@ -495,29 +521,46 @@ public class GenePage {
         }
 
         List<WebElement> elements;
-        // Determine if this page has images.
-        elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
-        hasImages = ! elements.isEmpty();
 
-        List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
-        hasImpcImages= ! impcElements.isEmpty();
-
-        // Determine if this page has phenotype associations. If it does, get the results count.
+        // Check for phenotype associations. If it does, get the results count.
         try {
             elements = driver.findElements(By.xpath("//table[@id='genes']"));
             hasGenesTable = ! elements.isEmpty();
             if (hasGenesTable) {
-                elements = driver.findElements(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']"));
+                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']/div/p/text()"));
                 String totResultsString = elements.get(0).getText();
                 int index = totResultsString.lastIndexOf(":");
-                String count = totResultsString.substring(index + 1).trim();
-                resultsCount = commonUtils.tryParseInt(count);
+                String[] counts = totResultsString.substring(index + 1).split(",");
+                if ((counts != null) && (counts.length > 0)) {
+                    for (String count : counts) {
+                        if (count.contains("female")) {
+                            resultsCount.setFemales(commonUtils.tryParseInt(count.replace("(", "").replace(")", "")));
+                        } else if (count.contains("male")) {
+                            resultsCount.setMales(commonUtils.tryParseInt(count.replace("(", "").replace(")", "")));
+                        }
+                    }
+                }
             }
+            hasGraphs = (resultsCount.getTotals() > 0);
         } catch (Exception e) {
             throw new TestException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
         }
 
-        hasGraphs = (resultsCount > 0);
+        // Check for expression.
+
+        // Check for phenotype associated images.
+        elements = driver.findElements(By.xpath("//*[@id='section-images']/following-sibling::div[1]//h5"));
+        if ( ! elements.isEmpty()) {
+            String text = elements.get(0).getText().toLowerCase();
+            hasImages = text.contains("legacy");
+            hasImpcImages = text.contains("impc");
+        }
+
+        // Check for disease models.
+        elements = driver.findElements(By.xpath("//*[@id='predicted_diseases_table']"));
+        if ( ! elements.isEmpty()) {
+            hasDiseaseModels = ! elements.isEmpty();
+        }
     }
 
     /**
