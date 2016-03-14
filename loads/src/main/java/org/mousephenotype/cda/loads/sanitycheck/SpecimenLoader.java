@@ -328,6 +328,12 @@ public class SpecimenLoader {
             }
         }
 
+        // Update the relatedSpecimen.specimen_mine_pk column.
+        query = "UPDATE relatedSpecimen SET specimen_mine_pk = (SELECT pk FROM specimen WHERE relatedSpecimen.specimenIdMine = specimen.specimenId)";
+        ps = connection.prepareStatement(query);
+        ps.execute();
+        connection.commit();
+
         connection.close();
     }
 }
