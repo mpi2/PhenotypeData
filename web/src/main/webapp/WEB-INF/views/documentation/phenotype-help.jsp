@@ -4,7 +4,7 @@
     associated with the current phenotype.
 </p>
 
-<h3 id="details">Phenotype Details</h3>
+<h3 id="details"><a name="summarySection1">Phenotype Summary</a></h3>
 
 <p>The synonyms and definitions we provide come from the mouse phenotype ontology (MP), which
    is administered by <a href="http://www.informatics.jax.org/">Mouse Genome Informatics (MGI)</a>.
@@ -17,7 +17,7 @@
 </figure>
 
 
-<h3 id="phenotype-stats-panel">Phenotype Association Stats</h3>
+<h3 id="phenotype-stats-panel"><a name="phenotypeStatsSection1">Phenotype Association Stats</a></h3>
 
 <p> IMPC mouse strains are subjected to a wide range of phenotype assays, allowing for estimates on the percentage of genes that, when knocked out, contribute to
     a phenotype. As multiple parameters may map to the same phenotype, percentages are calculated across all parameters that map to a phenotype.</p>

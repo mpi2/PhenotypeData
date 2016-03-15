@@ -39,7 +39,9 @@
 
     <jsp:body>
 
-        <h1 class="title" id="top">Disease: ${disease.term}</h1>
+        <h1 class="title" id="top">Disease: ${disease.term}
+            <span class="documentation"><a href='' id='summarySection' class="fa fa-question-circle pull-right"></a></span>
+        </h1>
         <div class="section">
             <div class="inner">
                 <p class="with-label">
@@ -121,13 +123,9 @@
         </div>
 
         <div class="section" id="orthologous_mouse_models">
+
             <h2 class="title">Mouse Models <small class="sub">associated by gene orthology</small>
-                <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                <span class='documentation'>
-                    <a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'>
-                        <i class="fa fa-question-circle pull-right"></i>
-                    </a>
-                </span>
+                <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
             </h2>
             <div class="inner">                
                 <c:choose>
@@ -146,12 +144,7 @@
 
         <div class="section" id="potential_mouse_models">
             <h2 class="title">Potential Mouse Models <small class="sub">predicted by phenotypic similarity</small>
-                <a href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
-                <span class='documentation'>
-                    <a href='${baseUrl}/documentation/disease-help.html#details' class='mpPanel'>
-                        <i class="fa fa-question-circle pull-right"></i>
-                    </a>
-                </span>
+                <span class="documentation"><a href='' id='similaritySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
             </h2>
             <div class="inner">                
                 <c:choose>
@@ -196,6 +189,8 @@
                     var dataTable = $(diseaseTable.id).DataTable(diseaseTable.tableConf);
                     $.fn.addTableClickCallbackHandler(diseaseTable.id, dataTable);
                 }
+
+                $.fn.qTip({'pageName':'diseases'});
             });
         </script>
     </jsp:body>
