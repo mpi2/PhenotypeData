@@ -153,7 +153,7 @@
 	<field name="alt_mp_id" type="string" indexed="true" stored="true" required="false" multiValued="false" />
 
 	  <!-- for copyfield -->
-	<field name="auto_suggest" type="text_ngram" indexed="true" stored="false" multiValued="true"/>
+	<field name="auto_suggest" type="text_ngram" indexed="true" stored="true" multiValued="true"/>
 	
  </fields>
 
@@ -175,6 +175,7 @@
 	<copyField source="marker_synonym" dest="auto_suggest"/>
 	
 	<copyField source="hp_synonym" dest="hp_term_synonym" />
+	<copyField source="hp_synonym" dest="auto_suggest" />
 	<copyField source="hp_id" dest="auto_suggest"/>
 	<copyField source="hp_term" dest="auto_suggest"/>
 	<copyField source="hp_term_synonym" dest="auto_suggest"/>
