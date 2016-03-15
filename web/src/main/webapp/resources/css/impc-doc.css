@@ -65,3 +65,6 @@ ul.subUl {
     list-style-type: square;
     margin-left: 50px;
 }
+table.twoCols th:nth-child(1) {
+    width: 45%;
+}
