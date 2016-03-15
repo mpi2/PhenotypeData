@@ -146,7 +146,7 @@ public class GenePageTest {
             try {
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
                 boolean phenotypesTableRequired = false;
-                genePage.validate(phenotypesTableRequired);
+                status.add(genePage.validate(phenotypesTableRequired));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
                 status.addError(message);
@@ -622,7 +622,6 @@ public class GenePageTest {
         //   5 - significant (orange)
         // ... count
         numOccurrences = 0;
-        masterStatus = new RunStatus();
         final List<String> expectedSignificantList = Arrays.asList(
                 new String[]{
                         "growth/size/body region phenotype"
