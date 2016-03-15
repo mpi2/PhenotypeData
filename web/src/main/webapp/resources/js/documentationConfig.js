@@ -40,8 +40,8 @@ MDOC.search = {
 
 var docuBase = baseUrl + '/documentation/doc-explore';
 MDOC.gene = {
-		'detailsSection'         			: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
-		'detailsSectionDocUrl'   			: docuBase + '#detailsSection0',
+		'summarySection'         			: '<p>Details about the gene including: Gene name, accession IDs, location, links and a genome browser.</p><p>Click the help icon for more detail.</p>',
+		'summarySectionDocUrl'   			: docuBase + '#summarySection0',
 		'phenoAssocSection'              	: '<p>Mammalian Phenotype (MP) associations made to this gene.</p><p>Click the help icon for more detail.</p>',
 		'phenoAssocSectionDocUrl'        	: docuBase + '#phenoAssocSection0',
 		'heatmapSection'           			: '<p>Analysis of the IMPC data displayed in a heatmap.</p><p>Click the help icon for more detail.</p>',
@@ -56,13 +56,24 @@ MDOC.gene = {
 		'orderSectionDocUrl'    			: docuBase + '#orderSection0',
 };
 MDOC.phenotypes = {
-		'generalPanel'         				: "<p> Phenotype details panel.<p> <p>Click the help icon for more detail.</p>",
-		'generalPanelDocUrl'   				: baseUrl + '/documentation/phenotype-help',
-		'relatedMpPanel'       				: "<p>Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. <p>Click the help icon for more detail.</p>",
-		'relatedMpPanelDocUrl' 				: baseUrl + '/documentation/phenotype-help#associations',
-		'phenotypeStatsPanel'  				: "<p> Find out more about how we obtain the stats and associations presented in this panel. <p>",
-		'phenotypeStatsPanelDocUrl'			: baseUrl + '/documentation/phenotype-help#phenotype-stats-panel'
+		'summarySection'         			: "<p> Phenotype summary panel.<p> <p>Click the help icon for more detail.</p>",
+		'summarySectionDocUrl'   			: docuBase + '#summarySection1',
+		'phenotypeStatsSection'  			: "<p> Find out more about how we obtain the stats and associations presented in this panel. <p>",
+		'phenotypeStatsSectionDocUrl'		: docuBase + '#phenotypeStatsSection1',
+		'geneVariantSection'       			: "<p>Allele associated with current phenotype. You can filter the table using the dropdown checkbox filters over the table, sort by one column and export the data. <p>Click the help icon for more detail.</p>",
+		'geneVariantSectionDocUrl' 			: docuBase + '#geneVariantSection1',
+
 };
+MDOC.diseases = {
+	'summarySection'         				: "<p> Disease summary.<p> <p>Click the help icon for more detail.</p>",
+	'summarySectionDocUrl'   				: docuBase + '#summarySection2',
+	'orthologySection'  					: "<p>For details about how disease model association by gene orthology is calculated, please click the help icon.<p>",
+	'orthologySectionDocUrl'				: docuBase + '#orthologySection2',
+	'similaritySection'       				: "<p>For details about how disease model association by phenotype similarity is calculated, please click the help icon.</p>",
+	'similaritySectionDocUrl' 				: docuBase + '#similaritySection2',
+
+};
+
 MDOC.images = {
 		'generalPanel'         				: "<p>All images associated with current phenotype.</p> <p>Click the help icon for more detail.</p>",
 		'generalPanelDocUrl'   				: baseUrl + '/documentation/image-help',

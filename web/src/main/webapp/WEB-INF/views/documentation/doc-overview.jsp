@@ -10,7 +10,7 @@
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-		<link href="${baseUrl}/css/searchPage.cssssss" rel="stylesheet" type="text/css" />
+
         <style>
           table {
             margin-top: 80px;

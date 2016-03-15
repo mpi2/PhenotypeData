@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DeploymentInterceptor extends HandlerInterceptorAdapter {
@@ -53,15 +54,21 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
             return true;
         }
 
-        request.setAttribute("baseUrl", request.getContextPath());
-        request.setAttribute("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
+	    Map<String, String> requestConfig = new HashMap<>();
+	    requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
 
-        String mappedHostname =  "//" + (String)request.getServerName(); 
-        
-        if (request.getServerPort() != 80) {
-            mappedHostname += ":" + request.getServerPort();
-        }
-        request.setAttribute("mappedHostname", mappedHostname);
+	    // Map the global config values into the request configuration
+	    config.keySet().forEach(key -> {
+		    log.debug("Setting {} to {}", key, config.get(key));
+		    requestConfig.put(key, config.get(key));
+	    });
+
+
+	    // Base url and mapped hostname get overwritten when there is a proxy in the middle.
+	    // Set the defaults here and override below if necessary.
+	    String mappedHostname = getMappedHostname(request.getServerName(), request.getServerPort(), request.getHeader("x-forwarded-host"));
+	    requestConfig.put("mappedHostname", mappedHostname);
+	    requestConfig.put("baseUrl", request.getContextPath());
 
         // If this webapp is being accessed behind a proxy, the
         // x-forwarded-host header will be set, in which case, use the
@@ -75,33 +82,51 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
             for (String forward : forwards) {
                 if ( ! forward.matches(".*ebi\\.ac\\.uk")) {
                     log.debug("Request proxied. Using baseUrl: " + config.get("baseUrl"));
-                    request.setAttribute("baseUrl", config.get("baseUrl"));
+	                requestConfig.put("baseUrl", config.get("baseUrl"));
                     break;
                 }
             }
-            request.setAttribute("mappedHostname", config.get("drupalBaseUrl"));
         }
-//        log.info("baseUrl: " + request.getAttribute("baseUrl"));
-//        log.info("mappedHostname: " + request.getAttribute("mappedHostname"));
 
-        request.setAttribute("version", config.get("version"));
 
         if (config.get("liveSite").equals("false")) {
             // If DEV or BETA, refresh the cache daily
             String dateStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-            request.setAttribute("version", dateStamp);
+	        requestConfig.put("version", dateStamp);
         }
 
-        request.setAttribute("drupalBaseUrl", config.get("drupalBaseUrl"));
-        request.setAttribute("mediaBaseUrl", config.get("mediaBaseUrl"));
-        request.setAttribute("impcMediaBaseUrl", config.get("impcMediaBaseUrl"));
-        request.setAttribute("pdfThumbnailUrl", config.get("pdfThumbnailUrl"));
-        request.setAttribute("solrUrl", config.get("solrUrl"));
-        request.setAttribute("internalSolrUrl", config.get("internalSolrUrl"));
-        request.setAttribute("googleAnalytics", config.get("googleAnalytics"));
-        request.setAttribute("liveSite", config.get("liveSite"));
+	    // Map the request configuration into the request object
+	    requestConfig.keySet().forEach(key -> {
+		    request.setAttribute(key, requestConfig.get(key));
+	    });
+	    request.setAttribute("requestConfig", requestConfig);
 
-        log.debug("Interception! Intercepted path " + request.getRequestURI());
-        return true;
+	    log.debug("Interception! Intercepted path " + request.getRequestURI());
+	    return true;
     }
+
+	/**
+	 * Get the correct mapped hostname depending on if the request has been proxied or not
+	 *
+	 * @param hostname request hostname
+	 * @param port request port
+	 * @param forward list of forwards
+	 * @return the appropriate mapped hostname
+	 */
+	private String getMappedHostname(String hostname, Integer port, String forward) {
+
+		if (forward == null) {
+			String mappedHostname = "//" + hostname;
+
+			if (port != 80) {
+				mappedHostname += ":" + port;
+			}
+
+			return mappedHostname;
+		}
+
+		return config.get("drupalBaseUrl");
+	}
+
 }
+

@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -155,7 +156,7 @@ public class ImpcGafReport extends AbstractReport {
                 csvWriter.writeRow(row);
             }
 
-        } catch (SolrServerException e) {
+        } catch (SolrServerException | SQLException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

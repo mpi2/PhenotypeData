@@ -25,6 +25,7 @@
     jspContext.setAttribute("baseUrl", baseUrl);
 
 
+
     // Use the drupal destination parameter to redirect back to this page
     // after logging in
     String dest = (String) request.getAttribute("javax.servlet.forward.request_uri");
@@ -103,12 +104,16 @@
                 };
             }
 
-            var baseUrl = "${baseUrl}";
-            var solrUrl = '${solrUrl}';
-            var drupalBaseUrl = "${drupalBaseUrl}";
-            var mediaBaseUrl = "${mediaBaseUrl}";
+            <c:forEach var="entry" items="${requestConfig}">
+                var ${entry.key} = "${entry.value}";
+            </c:forEach>
+
+            <%--var baseUrl = "${baseUrl}";--%>
+            <%--var solrUrl = '${solrUrl}';--%>
+            <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
+            <%--var drupalBaseUrl = "${drupalBaseUrl}";--%>
+            <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
             console.log("mediaBaseUrl set="+mediaBaseUrl);
-            var pdfThumbnailUrl = "${pdfThumbnailUrl}";
             console.log("pdfThumbnailUrl set="+pdfThumbnailUrl);
 
         </script>
@@ -161,7 +166,7 @@
         <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.fancybox-2.1.5/jquery.fancybox.pack.js?v=${version}"></script>
         <script type="text/javascript" src="${baseUrl}/js/vendor/jquery/jquery.tablesorter.min.js?v=${version}"></script>
-      
+
         <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script>
 
         <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
