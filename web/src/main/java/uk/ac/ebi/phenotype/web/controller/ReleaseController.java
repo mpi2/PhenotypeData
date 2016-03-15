@@ -22,6 +22,9 @@ import org.mousephenotype.cda.db.dao.AnalyticsDAO;
 import org.mousephenotype.cda.db.dao.StatisticalResultDAO;
 import org.mousephenotype.cda.enumerations.SignificantType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.AlleleService;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -34,9 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import org.mousephenotype.cda.solr.service.AlleleService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -75,10 +75,16 @@ public class ReleaseController {
 	@RequestMapping(value="/release.json", method=RequestMethod.GET)
 	public ResponseEntity<String> getJsonReleaseInformation() {
 
-		Map<String, String> metaInfo = analyticsDAO.getMetaData();
-		JSONObject json = new JSONObject(metaInfo);
+		Map<String, String> metaInfo = null;
+		try {
+			metaInfo = analyticsDAO.getMetaData();
+			JSONObject json = new JSONObject(metaInfo);
+			return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return new ResponseEntity<>("Error retreiving release information", createResponseHeaders(), HttpStatus.SERVICE_UNAVAILABLE);
+		}
 
-		return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
 
 	}
 	private HttpHeaders createResponseHeaders() {

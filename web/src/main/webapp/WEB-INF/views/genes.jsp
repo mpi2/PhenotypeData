@@ -259,13 +259,49 @@
 					}
 
 					/* override the anatomogram .ui-widget font */
-					div#diseasetabs.ui-widget, div#exptabs.ui-widget {
-					font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+
+					div.ui-dropdownchecklist-item, div#diseasetabs.ui-widget, div#exptabs.ui-widget {
+						font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
 						font-size: 1.0em;
 						color: #333;
 					}
-					div#diseasetabs td, div#exptabs td {
+
+					div.ui-dropdownchecklist-dropcontainer.ui-widget-content {
+						border: none;
+					}
+
+					div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas {
+						overflow: auto;
+						min-width: 21%;
+						max-height: 18em;
+						white-space: nowrap;
+						margin: 0 0 0 -1px;
+						border: none;
+					}
+					/*div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas.open {*/
+						/*border: 1px solid gray;*/
+					/*}*/
+					div.ui-dropdownchecklist-selector {
+						background: none;
+						background-color: lightgray;
+						border: none;
+					}
+					div.ui-dropdownchecklist-selector:hover {
+						background-color: white;
+						border: none;
+					}
+
+					div.ui-dropdownchecklist-item.ui-state-default {
+						background: none;
+						border: none;
+						font-weight: normal;
+						padding: 5px 10px;
+					}
+					div#genes_wrapper th, div#diseasetabs th, div#exptabs th, div#allele2 th,
+					div#genes_wrapper td, div#diseasetabs td, div#exptabs td, div#allele2 td {
 						color: #666;
+						padding: 0.5em 0.7em 0.5em 0.2em;
+
 					}
 					div#diseasetabs a, div#exptabs a {
 						color: #0978a1;
@@ -304,7 +340,7 @@
 						<div class="node node-gene">
 							<h1 class="title" id="top">Gene: ${gene.markerSymbol}
 								<span class="documentation">
-									<a href='' id='detailsSection' class="fa fa-question-circle pull-right"></a>
+									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
 								</span>
 							</h1>
 
@@ -696,10 +732,6 @@
 						$(this).hide();
 					}
 				});
-
-//				$('.ui-widget').css({
-//					'font-family': "'Source Sans Pro', Arial, Helvetica, sans-serif"});
-
 
 			});
 

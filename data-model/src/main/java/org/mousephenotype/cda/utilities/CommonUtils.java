@@ -55,6 +55,28 @@ public class CommonUtils {
         return sb.toString();
     }
 
+    /**
+     * Returns the first int found, if the int is wrapped in a set of parentheses; returns null otherwise
+     * Example: "Females: (32), Males: (47)" returns the int value 32.
+     *
+     * @param inputString The input string
+     * @return  the first int found, if the int is wrapped in a set of parentheses; null otherwise
+     */
+    public int extractIntFromParens(String inputString) {
+        Integer retVal = null;
+
+        int openParen = inputString.indexOf("(");
+        if (openParen >= 0) {
+            int closeParen = inputString.indexOf(")");
+            if ((closeParen >= 0) && (openParen < closeParen)) {
+                retVal = tryParseInt(inputString.substring(openParen + 1, closeParen));
+            }
+        }
+
+        return retVal;
+    }
+
+
     public Map<String,Integer> getGoCodeRank() {
 
     	//GO evidence code ranking mapping

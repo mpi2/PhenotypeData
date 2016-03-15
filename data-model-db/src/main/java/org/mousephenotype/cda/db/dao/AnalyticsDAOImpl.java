@@ -50,15 +50,13 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	}
 
 	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")	public Map<String, String> getMetaData() {
+	@SuppressWarnings("unchecked")	public Map<String, String> getMetaData() throws SQLException {
 
-		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		Map<String, String> metaInfo = new HashMap<String, String>();
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement("SELECT * from meta_info")) {
 
-			statement = connection.prepareStatement("SELECT * from meta_info");
 			resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
@@ -68,10 +66,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 				metaInfo.put(pKey,  pValue);
 
 			}
-			statement.close();
-
-		}catch (SQLException e) {
-			e.printStackTrace();
 
 		}
 

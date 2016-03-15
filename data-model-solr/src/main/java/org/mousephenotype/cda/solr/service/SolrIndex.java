@@ -437,7 +437,7 @@ public class SolrIndex {
                 	img="<img style='width: 200px' src='" + pdfThumbnailUrl + "'/>";
                 	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
-                link = "<a class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
+                link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
                 }
             } else {
                 link = IMG_NOT_FOUND;
