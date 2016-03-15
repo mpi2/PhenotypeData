@@ -119,7 +119,7 @@ public class GenePageTest {
 
 
     private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
-        RunStatus status = new RunStatus();
+        RunStatus masterStatus = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
 
         geneIds = testUtils.removeKnownBadGeneIds(geneIds);
@@ -146,27 +146,31 @@ public class GenePageTest {
             try {
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
                 boolean phenotypesTableRequired = false;
-                genePage.validate(phenotypesTableRequired);
+                RunStatus status = genePage.validate(phenotypesTableRequired);
+                if (status.hasErrors()) {
+                    System.out.println(status.toStringErrorMessages());
+                }
+                masterStatus.add(status);
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                status.addError(message);
+                masterStatus.addError(message);
                 commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                status.addError(message);
+                masterStatus.addError(message);
                 commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
             }
 
-            if ( ! status.hasErrors()) {
-                status.successCount++;
+            if ( ! masterStatus.hasErrors()) {
+                masterStatus.successCount++;
             }
 
             commonUtils.sleep(threadWaitInMilliseconds);
         }
 
-        testUtils.printEpilogue(testName, start, status, targetCount, geneIds.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, geneIds.size());
     }
 
     private void tick(String phenoStatus, String prodCentre, String phenoCentre) {
@@ -304,7 +308,6 @@ public class GenePageTest {
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList<>(geneService.getAllGenes());
-
         geneIdsTestEngine(testName, geneIds);
     }
 
@@ -516,10 +519,9 @@ public class GenePageTest {
         String[] sectionTitlesArray = {
                 "Gene: Akt2",
                 "Phenotype associations for Akt2",
-                "Phenotype Associated Images",
                 "Expression",
-                "Disease Models associated by gene orthology",
-                "Potential Disease Models predicted by phenotypic similarity",
+                "Phenotype Associated Images",
+                "Disease Models",
                 "Order Mouse and ES Cells",};
         List<String> expectedSectionTitles = Arrays.asList(sectionTitlesArray);
         List<String> actualSectionTitles = genePage.getSectionTitles();
@@ -570,7 +572,7 @@ public class GenePageTest {
         String[] buttonLabelsArray = {
                 "Login to register interest",
                 "Order",
-                "All Adult Data",
+                "All Adult Phenotypes",
                 "KOMP",
                 "EUMMCR",};
         List<String> expectedButtonLabels = Arrays.asList(buttonLabelsArray);
@@ -622,7 +624,6 @@ public class GenePageTest {
         //   5 - significant (orange)
         // ... count
         numOccurrences = 0;
-        masterStatus = new RunStatus();
         final List<String> expectedSignificantList = Arrays.asList(
                 new String[]{
                         "growth/size/body region phenotype"

@@ -30,7 +30,7 @@
         <li><a href="#tabs-3">Diseases Page</a></li>
         <li><a href="#tabs-4">Anatomy Page</a></li>
         <li><a href="#tabs-5">Images Page</a></li>
-
+        <li><a href="#tabs-6">Others</a></li>
       </ul>
 
 
@@ -49,7 +49,9 @@
       <div id="tabs-5" class="srchdocTab">
         <%@ include file="image-help.jsp" %>
       </div>
-
+      <div id="tabs-6" class="srchdocTab">
+        <%@ include file="data-release-overview.jsp" %>
+      </div>
 
     </div>
 
@@ -58,6 +60,8 @@
         // find out which tab to open from hash tag
         var matches = window.location.hash.match(/(\d)$/);
         var tabIndex = matches == null ? 0 : matches[0];
+
+
 
         $( "#tabs" ).tabs({ active: tabIndex });
       });
