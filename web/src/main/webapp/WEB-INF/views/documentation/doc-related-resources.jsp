@@ -9,10 +9,6 @@
 
 	<jsp:attribute name="header">
 		<link href="${baseUrl}/css/impc-doc.css" rel="stylesheet" type="text/css" />
-        <style>
-
-
-        </style>
 
 	</jsp:attribute>
 
@@ -59,7 +55,7 @@
       </table>
     </li>
     <h3>Disease Resources</h3>
-    <table>
+    <table class="twoCols">
       <thead>
         <th>Source</th>
         <th>Descriptioin</th>
@@ -83,7 +79,7 @@
     </table>
 
     <h3>Other Resources</h3>
-    <table>
+    <table class="twoCols">
       <thead>
         <th>Source</th>
         <th>Descriptioin</th>
