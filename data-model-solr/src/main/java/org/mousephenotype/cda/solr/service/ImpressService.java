@@ -447,7 +447,7 @@ public class ImpressService implements WebStatus {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-	
+		System.out.println("idToAbnormalMaId="+idToAbnormalMaId);
 		return idToAbnormalMaId;
 	}
 	
@@ -471,7 +471,7 @@ public class ImpressService implements WebStatus {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-	
+		System.out.println("idToAbnormalEmapId="+idToAbnormalEmapId);
 		return idToAbnormalEmapId;
 	}
 	
