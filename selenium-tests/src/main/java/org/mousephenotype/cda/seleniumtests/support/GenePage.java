@@ -58,26 +58,26 @@ public class GenePage {
     private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
-    private ResultsCount resultsCount;
+    private ResultsCount resultsCount = new ResultsCount();
 
     public class ResultsCount {
-        private int females;
-        private int males;
+        private int females = 0;
+        private int males = 0;
 
         public int getFemales() {
             return females;
         }
 
-        public void setFemales(int females) {
-            this.females = females;
+        public void setFemales(Integer females) {
+            this.females = (females == null ? 0 : females);
         }
 
         public int getMales() {
             return males;
         }
 
-        public void setMales(int males) {
-            this.males = males;
+        public void setMales(Integer males) {
+            this.males = (males == null ? 0 : males);
         }
 
         public int getTotals() {
@@ -533,7 +533,6 @@ public class GenePage {
                 int index = totResultsString.lastIndexOf(":");
                 String[] counts = totResultsString.substring(index + 1).split(",");
                 if ((counts != null) && (counts.length > 0)) {
-                    resultsCount = new ResultsCount();
                     for (String count : counts) {
                         if (count.contains("female")) {
                             resultsCount.setFemales(commonUtils.extractIntFromParens(count));
