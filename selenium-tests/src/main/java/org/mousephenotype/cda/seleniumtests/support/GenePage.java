@@ -522,21 +522,23 @@ public class GenePage {
 
         List<WebElement> elements;
 
+
         // Check for phenotype associations. If it does, get the results count.
         try {
             elements = driver.findElements(By.xpath("//table[@id='genes']"));
             hasGenesTable = ! elements.isEmpty();
             if (hasGenesTable) {
-                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']/div/p/text()"));
+                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']//p[@class='resultCount']"));
                 String totResultsString = elements.get(0).getText();
                 int index = totResultsString.lastIndexOf(":");
                 String[] counts = totResultsString.substring(index + 1).split(",");
                 if ((counts != null) && (counts.length > 0)) {
+                    resultsCount = new ResultsCount();
                     for (String count : counts) {
                         if (count.contains("female")) {
-                            resultsCount.setFemales(commonUtils.tryParseInt(count.replace("(", "").replace(")", "")));
+                            resultsCount.setFemales(commonUtils.extractIntFromParens(count));
                         } else if (count.contains("male")) {
-                            resultsCount.setMales(commonUtils.tryParseInt(count.replace("(", "").replace(")", "")));
+                            resultsCount.setMales(commonUtils.extractIntFromParens(count));
                         }
                     }
                 }
