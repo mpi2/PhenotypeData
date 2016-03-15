@@ -804,51 +804,38 @@ public class AutosuggestIndexer extends AbstractIndexer {
             .setFields(StringUtils.join(hpFields, ","))
             .addFilterQuery("type:hp_mp")
             .setRows(PHENODIGM_CORE_MAX_RESULTS);
-
+        //System.out.println("QRY: "+ query);
         QueryResponse r = phenodigmCore.query(query);
         List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
+
         for (HpDTO hp : hps) {
             
             Set<AutosuggestBean> beans = new HashSet<>();
-            for (String field : hpFields) {
 
-                AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("hp");
-                
-                switch (field) {
-                    case HpDTO.HP_ID:
-                        mapKey = hp.getHpId();
-                        if (hpIdSet.add(mapKey)) {
-                            a.setHpID(hp.getHpId());
-                            a.setHpmpID(hp.getMpId());
-                            a.setHpmpTerm(hp.getMpTerm());
-                            beans.add(a);
-                        }
-                        break;
-                    case HpDTO.HP_TERM:
-                        mapKey = hp.getHpTerm();
-                        if (hpTermSet.add(mapKey)) {
-                            a.setHpTerm(hp.getHpTerm());
-                            a.setHpmpID(hp.getMpId());
-                            a.setHpmpTerm(hp.getMpTerm());
-                            beans.add(a);
-                        }
-                        break;
-                    case HpDTO.HP_SYNONYM:
-                        if (hp.getHpSynonym() != null) {
-                            for (String s : hp.getHpSynonym()) {
-                                mapKey = s;
-                                if (hpSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setDocType("hp");
-                                    asyn.setHpSynonym(s);
-                                    asyn.setHpmpID(hp.getMpId());
-                                    asyn.setHpmpTerm(hp.getMpTerm());
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
+            if (hp.getHpSynonym() != null) {
+                for (String s : hp.getHpSynonym()) {
+                    mapKey = s;
+
+                    if (hpSynonymSet.add(mapKey)) {
+                        AutosuggestBean asyn = new AutosuggestBean();
+                        asyn.setDocType("hp");
+                        asyn.setHpID(hp.getHpId());
+                        asyn.setHpSynonym(s);
+                        asyn.setHpmpID(hp.getMpId());
+                        asyn.setHpmpTerm(hp.getMpTerm());
+
+                        beans.add(asyn);
+                    }
+                }
+            }
+            else {
+                if (hpIdSet.add(mapKey)) {
+                    AutosuggestBean a = new AutosuggestBean();
+                    a.setDocType("hp");
+                    a.setHpID(hp.getHpId());
+                    a.setHpmpID(hp.getMpId());
+                    a.setHpmpTerm(hp.getMpTerm());
+                    beans.add(a);
                 }
             }
 
