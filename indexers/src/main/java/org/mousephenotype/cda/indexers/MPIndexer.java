@@ -344,6 +344,7 @@ public class MPIndexer extends AbstractIndexer {
         try {
             SolrQuery query = new SolrQuery("*:*");
             query.addFilterQuery("type:mp_hp");
+            //query.setFields("mp_id", "hp_id", "hp_term", "hp_synonym");
             query.setFields("mp_id", "hp_id", "hp_term");
             query.setRows(5000);
 
