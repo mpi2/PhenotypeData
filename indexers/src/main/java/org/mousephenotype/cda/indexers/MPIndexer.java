@@ -343,8 +343,8 @@ public class MPIndexer extends AbstractIndexer {
 
         try {
             SolrQuery query = new SolrQuery("*:*");
-            query.addFilterQuery("type:mp_hp");
-            query.setFields("mp_id", "hp_id", "hp_term");
+            query.addFilterQuery("type:hp_mp");
+            query.setFields("mp_id", "hp_id", "hp_term", "hp_synonym");
             query.setRows(5000);
 
             QueryResponse response = phenodigmCore.query(query);
