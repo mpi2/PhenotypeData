@@ -159,7 +159,7 @@
 
                         </div>
                         
-             <c:set var="vignettesLink" value='<a class="btn" style="float: right" href="${drupalBaseUrl}/vignettes">Full Analysis</a>'/>
+             <c:set var="vignettesLink" value='<a class="btn" style="float: right" href="${drupalBaseUrl}/embryo/vignettes">Full Analysis</a>'/>
                         <div class="section">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
