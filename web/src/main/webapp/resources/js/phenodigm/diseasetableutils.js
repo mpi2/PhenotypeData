@@ -50,7 +50,8 @@ function insertPhenogrid(clicked) {
 
     getPhenoGridSkeleton(geneId, diseaseId, requestPageType).done(function (result) {
         Phenogrid.createPhenogridForElement(targetRow, {
-            serverURL: "https://beta.monarchinitiative.org",
+            //monarchUrl is a global variable provided via Spring from application.properties
+            serverURL: monarchUrl,
             selectedSort: "Frequency and Rarity", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
             gridSkeletonDataVendor: 'IMPC',
             gridSkeletonData: result,
