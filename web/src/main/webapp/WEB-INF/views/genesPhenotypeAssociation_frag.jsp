@@ -59,6 +59,10 @@
         <c:if test="${gene.embryoDataAvailable}">
             <a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
         </c:if>
+        
+        <c:if test="${hasVignette}">
+            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
+        </c:if>
 
         <%----%>
         <%--<c:forEach var="zyg"--%>
