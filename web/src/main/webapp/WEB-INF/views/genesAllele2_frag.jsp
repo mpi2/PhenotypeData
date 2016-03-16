@@ -50,7 +50,7 @@
                             </c:choose>
                             <td>
                                 <c:if test="${not empty alleleProduct['allele_simple_image']}">
-                                        <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['allele_simple_image']}.jpg">
+                                        <div style="padding:3px;"><a class="fancybox" target="_blank" href="${alleleProduct['allele_simple_image']}.jpg" fullRes="${alleleProduct['allele_simple_image']}.jpg" original="${alleleProduct['allele_simple_image']}.jpg">
                                                 <i class="fa fa-th-list fa-lg"></i></a><span>&nbsp;&nbsp;image</span></div>
                                 </c:if>
                                 
