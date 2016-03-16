@@ -500,7 +500,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                     case DiseaseDTO.DISEASE_TERM:
                         mapKey = disease.getDiseaseTerm();
                         if (diseaseTermSet.add(mapKey)) {
-                            a.setMarkerSymbol(disease.getDiseaseTerm());
+                            a.setDiseaseTerm(disease.getDiseaseTerm());
                             beans.add(a);
                         }
                         break;
