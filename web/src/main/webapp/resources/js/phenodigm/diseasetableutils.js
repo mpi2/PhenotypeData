@@ -86,8 +86,8 @@ $.fn.addTableClickCallbackHandler = function (tableId, table) {
         else {
             // Open this row
             row.child(makeChildRow(tr)).show();
-            //row.child(insertDiseaseAssociations(tr)).show();
-            row.child(insertPhenogrid(tr)).show();
+            row.child(insertDiseaseAssociations(tr)).show();
+            //row.child(insertPhenogrid(tr)).show();
             tr.addClass('shown');
             tr.find("td#toggleButton i").removeClass("fa-plus-square").addClass("fa-minus-square");
         }
