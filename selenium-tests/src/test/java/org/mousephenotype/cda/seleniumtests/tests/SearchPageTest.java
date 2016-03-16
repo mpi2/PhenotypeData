@@ -414,7 +414,7 @@ public class SearchPageTest {
 
 
     @Test
-@Ignore
+//@Ignore
     public void testAutosuggestForSpecificKnownGenes() throws TestException {
         String testName = "testAutosuggestForSpecificKnownGenes";
         Date start = new Date();
@@ -424,7 +424,6 @@ public class SearchPageTest {
 
         String[] geneSymbols = {
               "Klk4"
-            , "Del(7Gabrb3-Ube3a)1Yhj"
         };
 
         // NOTE: Results don't seem to be ordered, so it's possible the gene is beyond the first 10 shown.
