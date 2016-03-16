@@ -29,7 +29,7 @@
                         <div class="section">
                             <div class="inner">
                             <c:set var="geneId" value="MGI:1913761"></c:set>
-                            	<h2 id="${geneId}">Chtop</h2>
+                            	<%-- <a href="${baseUrl}/genes/${geneId}"> --%><h2 id="${geneId}">Chtop</h2><!-- </a> -->
                             	
                             	
                             	<div  class="twothird">
