@@ -23,6 +23,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -146,6 +147,8 @@ public class GenesController {
 	private Map<String, String> config;
 	
 	HttpProxy proxy = new HttpProxy();
+	
+	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806" });
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -201,6 +204,8 @@ public class GenesController {
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
+		
+		
 		GeneDTO gene = geneService.getGeneById(acc);
 
 		if (gene == null) {
@@ -341,6 +346,10 @@ public class GenesController {
 		model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
 		model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
 		model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
+		if(genesWithVignettes.contains(acc)){
+			System.out.println("hasVignette="+true);
+			model.addAttribute("hasVignette", true);
+		}
 		// add in the disease predictions from phenodigm
 		processDisease(acc, model);
 

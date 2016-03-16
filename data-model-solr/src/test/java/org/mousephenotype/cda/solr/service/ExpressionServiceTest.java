@@ -18,10 +18,12 @@ public class ExpressionServiceTest {
 	
 	@Test
 	public void getLacDataForAnatomogram(){
-		String experimentCore=("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/");
-		String imagesCore=("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/");
-		String pipelineCore=("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/pipeline/");
-		String maCore=("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/ma/");
+		String solrServer="http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/";
+		//String solrServer="http://ves-hx-d1.ebi.ac.uk:8080/mi/impc/beta/solr/";
+		String experimentCore=(solrServer+"experiment/");
+		String imagesCore=(solrServer+"impc_images/");
+		String pipelineCore=(solrServer+"pipeline/");
+		String maCore=(solrServer+"ma/");
 		
 		ExpressionService expressionService= new ExpressionService(experimentCore, imagesCore , pipelineCore, maCore );
 		expressionService.initialiseAbnormalMaMap();
