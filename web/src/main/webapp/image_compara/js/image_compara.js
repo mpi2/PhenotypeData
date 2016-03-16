@@ -10,7 +10,7 @@ var solrUrl='//wwwdev.ebi.ac.uk/mi/impc/dev/solr';
 var omero_gateway_root="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway";
 var backTo;//where should the back button point
 if(window.location.href.indexOf('beta') > -1){
-	solrUrl='//www.ebi.ac.uk/mi/impc/beta/solr';
+	solrUrl='//wwwdev.ebi.ac.uk/mi/impc/beta/solr';
 	omero_gateway_root="//www.ebi.ac.uk/mi/media/omero/webgateway";
 }
 if(window.location.href.indexOf('www.mousephenotype.org') > -1 || window.location.href.indexOf('ves-oy-d8') > -1 || window.location.href.indexOf('ves-pg-d8') > -1 || window.location.href.indexOf('ves-hx-d8') > -1){
