@@ -452,12 +452,20 @@ public class PhenotypesController {
     @RequestMapping(value="/mpTree/json", method=RequestMethod.GET)	
     public @ResponseBody String getParentChildren(Model model) 
     throws SolrServerException, IOException, URISyntaxException {
+    	
+    	JSONObject data = new JSONObject();
+    	JSONObject node = new JSONObject();
+    	node.element("name", "abnormal hematopoietic cell morphology");
+//    	Jsonobj
+    	
 		
     	// Example for  MP_0013661 (2 parents and multiple children)
-		return "{\"name\": \"abnormal hematopoietic cell number\", "
+		return "{\"name\": \"abnormal hematopoietic cell morphology\", \"children\":[ {\"name\": \"abnormal hematopoietic cell number\", "
 				+ "\"children\": [{\"name\": \"abnormal hematopoietic precursor cell number\", \"size\": 1000},"
 				+ "{\"name\": \"abnormal leukocyte cell number\"}, {\"name\": \"abnormal myeloid cell number\"}"
-				+ "] } ";	
+				+ "] } ], "
+				+ "{\"name\": \"abnormal hematopoietic system morphology/development\", \"children\":[ {\"name\": \"abnormal hematopoietic cell number\"}, "
+				+ "] } }" ;	
     }
     
     
