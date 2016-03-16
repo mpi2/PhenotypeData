@@ -26,7 +26,7 @@ public class ExpressionServiceTest {
 		String maCore=(solrServer+"ma/");
 		
 		ExpressionService expressionService= new ExpressionService(experimentCore, imagesCore , pipelineCore, maCore );
-		expressionService.initialiseAbnormalMaMap();
+		expressionService.initialiseAbnormalOntologyMaps();
 		String geneAccession="MGI:1922730";
 		try {
 			List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);
