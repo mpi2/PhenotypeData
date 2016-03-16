@@ -84,7 +84,8 @@ class SecondaryProjectServiceIdg implements SecondaryProjectService {
 			// get a list of genes for the project - which will be the row
 			// headers
 			Set<String> accessions = secondaryProjectDAO.getAccessionsBySecondaryProjectId("idg");
-			Map<String, String> geneToMouseStatusMap = geneService.getProductionStatusForGeneSet(accessions, request.getAttribute("mappedHostname").toString());
+			String url = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl");
+			Map<String, String> geneToMouseStatusMap = geneService.getProductionStatusForGeneSet(accessions, url);
 			Map<String, List<String>> geneToTopLevelMpMap = geneService.getTopLevelMpForGeneSet(accessions);
 			// for(String key: geneToMouseStatusMap.keySet()){
 			// System.out.println("key="+key+"  value="+geneToMouseStatusMap.get(key));
