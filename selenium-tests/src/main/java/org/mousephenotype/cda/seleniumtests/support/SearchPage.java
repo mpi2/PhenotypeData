@@ -933,27 +933,18 @@ public class SearchPage {
     }
 
     /**
-     * Returns the count to the right of the specified facet tab
+     * Returns the tab count at the bottom of the selected tab (HTML id 'dTable')
      *
      * @param facet the facet tab for which the count is desired
      *
-     * @return the count to the right of the specified facet tab
+     * @return the tab count at the bottom of the selected tab (HTML id 'dTable')
      */
     public int getTabResultCount(Facet facet) {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//li[@id='" + getFacetId(facet) + "T']//span[@class='tabfc']")));
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated((By.xpath("//div[@id='dTable_info']"))));
 
-        Integer niCount = null;
-        try {
+        String[] showingParts = element.getText().split(" ");       // Typical string: "Showing 1 to 10 of 23432 entries"
 
-            int start = element.getText().indexOf("(");
-            int end = element.getText().indexOf(")");
-            String sCount = element.getText().substring(start + 1, end);
-            niCount = commonUtils.tryParseInt(sCount);
-        } catch (Exception e) {
-            logger.error("SearchPage.getResultCount(): There was no result count.");
-        }
-
-        return (niCount == null ? 0 : niCount);
+        return commonUtils.tryParseInt(showingParts[5].trim());
     }
 
     /**
@@ -964,7 +955,7 @@ public class SearchPage {
      * @throws TestException
      */
     public Facet getSelectedTab() throws TestException {
-        String xpathTabName = "//div[@id='tabs']//a[@class='currDataType']/..";
+        String xpathTabName = "//div[@id='tabs']//li[@class='currDataType']";
 
         String tabId = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathTabName))).getAttribute("id");
 

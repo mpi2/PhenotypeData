@@ -122,7 +122,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			System.out.println("populating parameter map");
 			parameterMap = IndexerMap.getImpressParameters(connection);
 			ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
-
+			System.out.println("ontology entity map size="+ontologyEntityMap.size());
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);

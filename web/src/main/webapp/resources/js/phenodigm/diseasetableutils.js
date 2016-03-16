@@ -45,12 +45,13 @@ function insertPhenogrid(clicked) {
     var diseaseId = $(clicked).attr("diseaseId");
     var requestPageType = $(clicked).attr("requestPageType");
 
-    var gridColumnWidth = 20;
+    var gridColumnWidth = 25;
     var gridRowHeight= 20;
 
     getPhenoGridSkeleton(geneId, diseaseId, requestPageType).done(function (result) {
         Phenogrid.createPhenogridForElement(targetRow, {
-            serverURL: "http://monarchinitiative.org",
+            //monarchUrl is a global variable provided via Spring from application.properties
+            serverURL: monarchUrl,
             selectedSort: "Frequency and Rarity", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
             gridSkeletonDataVendor: 'IMPC',
             gridSkeletonData: result,
