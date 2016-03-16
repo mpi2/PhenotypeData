@@ -59,10 +59,7 @@
         <tr>
             <td><a
                     href="${baseUrl}/anatomy/${mapEntry.value.abnormalMaId}">${mapEntry.value.abnormalMaName}</a>
-                <c:if
-                        test="${!fn:containsIgnoreCase(mapEntry.key, mapEntry.value.abnormalMaName)}"> <span
-                        title="IMPReSS Term differs from EMAP term">(${mapEntry.key})</span>
-                </c:if></td>
+                </td>
             <td><span
                     title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>
             </td>
