@@ -468,19 +468,22 @@ public class GenePage {
             }
         }
 
-        // Buttons
-        List<WebElement> buttons = driver.findElements(By.className("btn"));
+        // Buttons - these are the only buttons that are guaranteed to exist.
+        List<String> expectedButtons = Arrays.asList( new String[] { "Login to register interest" } );
+        List<String> actualButtons = new ArrayList<>();
+
+        List<WebElement> actualButtonElements = driver.findElements(By.xpath("//a[contains(@class, 'btn')]"));
+        for (WebElement webElement : actualButtonElements) {
+            actualButtons.add(webElement.getText());
+        }
         // ... count
-        if (buttons.size() != 3) {
-            status.addError("Expected 3 buttons but found " + buttons.size());
+        if (actualButtons.size() < expectedButtons.size()) {
+            status.addError("Expected at least " + expectedButtons.size() + " buttons but found " + actualButtons.size());
         }
         // ... Button text
-        String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
-        List<String> buttonTitles = new ArrayList(Arrays.asList(buttonTitlesArray));
-        for (WebElement webElement : buttons) {
-            String buttonText = webElement.getText();
-            if ( ! buttonTitles.contains(buttonText)) {
-                status.addError("Expected button with title '" + buttonText + "' but none was found.");
+        for (String expectedButton : expectedButtons) {
+            if ( ! actualButtons.contains(expectedButton)) {
+                status.addError("Expected button with title '" + expectedButton + "' but none was found.");
             }
         }
 
@@ -706,29 +709,27 @@ public class GenePage {
                     sexIconCount + ").");
         }
 
-        // XLS download links are expected to be encoded.
-        if (downloadType == DownloadType.XLS) {
-            logger.debug("GenePage: Encoding page data for XLS image link comparison.");
-            pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
-        }
+        // Encode the page and download graph links for accurate comparison.
+        pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
+        downloadData = new GridMap(urlUtils.urlEncodeColumn(downloadData.getData(), DownloadGeneMap.COL_INDEX_GRAPH_LINK), downloadData.getTarget());
 
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
         final Integer[] pageColumns = {
-                  GeneTable.COL_INDEX_GENES_ALLELE
+                  GeneTable.COL_INDEX_GENES_PHENOTYPE
+                , GeneTable.COL_INDEX_GENES_ALLELE
                 , GeneTable.COL_INDEX_GENES_ZYGOSITY
-                , GeneTable.COL_INDEX_GENES_PHENOTYPE
                 , GeneTable.COL_INDEX_GENES_LIFE_STAGE
                 , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
                 , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER_SOURCE
                 , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
-                  DownloadGeneMap.COL_INDEX_ALLELE
+                  DownloadGeneMap.COL_INDEX_PHENOTYPE
+                , DownloadGeneMap.COL_INDEX_ALLELE
                 , DownloadGeneMap.COL_INDEX_ZYGOSITY
-                , DownloadGeneMap.COL_INDEX_PHENOTYPE
                 , DownloadGeneMap.COL_INDEX_LIFE_STAGE
                 , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
                 , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER_SOURCE

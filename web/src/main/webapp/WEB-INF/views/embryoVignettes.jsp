@@ -28,8 +28,9 @@
 
                         <div class="section">
                             <div class="inner">
-                            	<h2>Chtop</h2>
-                            	<c:set var="geneId" value="MGI:1913761"></c:set>
+                            <c:set var="geneId" value="MGI:1913761"></c:set>
+                            	<%-- <a href="${baseUrl}/genes/${geneId}"> --%><h2 id="${geneId}">Chtop</h2><!-- </a> -->
+                            	
                             	
                             	<div  class="twothird">
 				            		<p>
@@ -70,7 +71,7 @@
         				
 
 						<div class="section">
-							<h2 class="title">Kldhc2- heart defect linked to disease</h2>
+							<h2 class="title" id="${geneId}">Kldhc2- heart defect linked to disease</h2>
                             <div class="inner">
                             	<div class="twothird">
                          			<p>
@@ -107,8 +108,9 @@
                        	
                        	
                        	<div class="section">
-							<h2 class="title"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
-							<c:set var="geneId" value="MGI:102806"></c:set>
+                       	<c:set var="geneId" value="MGI:102806"></c:set>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
+							
                             <div class="inner">
                             	<div>
                          			<p>
@@ -155,8 +157,9 @@
                        	
                        	
                        		<div class="section">
-							<h2 class="title"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
-							<c:set var="geneId" value="MGI:1195985"></c:set>
+                       		<c:set var="geneId" value="MGI:1195985"></c:set>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
+							
                             <div class="inner">
                             	<div class="half">
                          			<p>
@@ -206,8 +209,9 @@ Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistic
                             
                             
                             <div class="section">
-							<h2 class="title"><t:formatAllele>Tmem100<tm1e.1(komp)Wtsi></t:formatAllele></h2>
-							<c:set var="geneId" value="MGI:1915138"></c:set>
+                            <c:set var="geneId" value="MGI:1915138"></c:set>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Tmem100<tm1e.1(komp)Wtsi></t:formatAllele></h2>
+							
                             <div class="inner">
                             	<div class="half">
                          			<p>
@@ -251,9 +255,10 @@ OPT analysis at E9.5 revealed that Tmem100 mutant embryos have a large pericardi
                             
                             
                             <div class="section">
-							<h2 class="title"><t:formatAllele>Eya4
+                            <c:set var="geneId" value="MGI:1915138"></c:set>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Eya4
 <tm1b(KOMP)Wtsi></t:formatAllele></h2>
-							<c:set var="geneId" value="MGI:1915138"></c:set>
+							
                             <div class="inner">
                             	<div class="half">
                          			<p>
@@ -315,10 +320,11 @@ BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, 
                             
                             
                             <div class="section">
+                            <c:set var="geneId" value="MGI:3039593"></c:set>
                             <div class="inner">
-                            	<h2><t:formatAllele>Tox3
+                            	<h2 id="${geneId}"><t:formatAllele>Tox3
 <tm1b(KOMP)Mbp></t:formatAllele></h2></h2>
-                            	<c:set var="geneId" value="MGI:3039593"></c:set>
+                            	
                             	
                             	<div  class="half">
 				            		<p>
@@ -377,10 +383,11 @@ Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cer
                         
                         
                             <div class="section">
+                            <c:set var="geneId" value="MGI:1922814"></c:set>
                             <div class="inner">
-                            	<h2><t:formatAllele>Rsph9
+                            	<h2 id="${geneId}"><t:formatAllele>Rsph9
 <tm1.1(KOMP)Vlcg></t:formatAllele></h2></h2>
-                            	<c:set var="geneId" value="MGI:1922814"></c:set>
+                            	
                             	
                             	<div  class="half">
 				            		<p>
@@ -443,8 +450,9 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                         
                         
                         <div class="section">
-							<h2 class="title"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
-							<c:set var="geneId" value="MGI:97491"></c:set>
+                        <c:set var="geneId" value="MGI:97491"></c:set>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
+							
                             <div class="inner">
                             	<div class="half">
                          			<p>
