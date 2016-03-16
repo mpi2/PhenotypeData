@@ -177,8 +177,8 @@
 						color: #CD8500;
 					}
 
-					div#exptabs {
-						border-top: none;
+					div.ui-tabs {
+						border: none;
 						width: 100%;
 					}
 					div#exptabs > ul, div#diseasetabs > ul {
@@ -259,13 +259,61 @@
 					}
 
 					/* override the anatomogram .ui-widget font */
-					div#diseasetabs.ui-widget {
-					font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+
+					div.ui-dropdownchecklist-item, div#diseasetabs.ui-widget, div#exptabs.ui-widget {
+						font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
 						font-size: 1.0em;
 						color: #333;
 					}
-					div#diseasetabs td {
+
+					div.ui-dropdownchecklist-dropcontainer.ui-widget-content {
+						border: none;
+					}
+
+					div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas {
+						overflow: auto;
+						min-width: 21%;
+						max-height: 18em;
+						white-space: nowrap;
+						margin: 0 0 0 -1px;
+						border: none;
+					}
+					/*div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas.open {*/
+						/*border: 1px solid gray;*/
+					/*}*/
+					div.ui-dropdownchecklist-selector {
+						background: none;
+						background-color: lightgray;
+						border: none;
+					}
+					div.ui-dropdownchecklist-selector:hover {
+						background-color: white;
+						border: none;
+					}
+
+					div.ui-dropdownchecklist-item.ui-state-default {
+						background: none;
+						border: none;
+						font-weight: normal;
+						padding: 5px 10px;
+					}
+					div#genes_wrapper th, div#diseasetabs th, div#exptabs th, div#allele2 th,
+					div#genes_wrapper td, div#diseasetabs td, div#exptabs td, div#allele2 td {
 						color: #666;
+						padding: 0.5em 0.7em 0.5em 0.2em;
+
+					}
+					div#diseasetabs a, div#exptabs a {
+						color: #0978a1;
+					}
+					div#diseasetabs div.dataTables_paginate li a {
+						color: #666;
+					}
+					div#diseasetabs div.dataTables_paginate a:hover {
+						color: white;
+					}
+					div#diseasetabs div.dataTables_paginate li.active a {
+						color: white;
 					}
 
 				</style>
@@ -292,7 +340,7 @@
 						<div class="node node-gene">
 							<h1 class="title" id="top">Gene: ${gene.markerSymbol}
 								<span class="documentation">
-									<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
+									<a href='' id='summarySection' class="fa fa-question-circle pull-right"></a>
 								</span>
 							</h1>
 
@@ -312,7 +360,7 @@
 								<h2 class="title "
 									id="section-associations"> Phenotype associations for ${gene.markerSymbol}
 										<span class="documentation"><a
-												href='' id='mpPanel' class="fa fa-question-circle pull-right"></a></span>
+												href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
 									<!--  this works, but need js to drive tip position -->
 								</h2>
 
@@ -324,12 +372,12 @@
 							<!-- end of Phenotype Associations -->
 
 
-							<!-- Pre-QC phenotype heatmap -->
+							<!-- phenotype heatmap -->
 							<c:if test="${phenotypeStarted}">
 
 								<div class="section">
 									<h2 class="title" id="heatmap">Phenotype heatmap <span
-											class="documentation"><a href='' id='preqcPanel'
+											class="documentation"><a href='' id='heatmapSection'
 																	 class="fa fa-question-circle pull-right"></a></span>
 									</h2>
 
@@ -363,7 +411,7 @@
 							<div class="section">
 
 								<h2 class="title" id="section-expression">Expression
-									<span class="documentation"><a href='' id='impcExpressionPanel' class="fa fa-question-circle pull-right"></a></span>
+									<span class="documentation"><a href='' id='expressionSection' goto="geneTab" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
@@ -438,9 +486,8 @@
 														<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
 													</div>
 												</c:if>
+												<br style="clear: both">
 											</div><!-- end of tabs -->
-											<br style="clear: both">
-										<%--</div>--%>
 									</c:if>
 
 									<c:if test="${not empty expressionFacets and (not empty impcExpressionImageFacets
@@ -489,7 +536,7 @@
 							<!-- nicolas accordion for IMPC / Legacy phenotype associated images here -->
 							<div class="section">
 								<h2 class="title" id="section-images">Phenotype Associated Images
-									<span class="documentation"><a href="" id="phenoAssocImagesPanel" class="fa fa-question-circle pull-right"></a></span>
+									<span class="documentation"><a href="" id="phenoAssocImgSection" class="fa fa-question-circle pull-right"></a></span>
 								</h2>
 
 								<div class="inner" style="display: block;">
@@ -522,7 +569,7 @@
 
 								<a target="_blank" href='http://www.sanger.ac.uk/resources/databases/phenodigm/'></a>
                                 <span class="documentation">
-	                                <a href='${baseUrl}/documentation/disease-help.html#details' class="mpPanel">
+	                                <a href="" id="diseaseSection" class="mpPanel">
 		                                <i class="fa fa-question-circle pull-right"></i>
 	                                </a>
                                 </span>
@@ -575,7 +622,7 @@
 						<!-- Order Mouse and ES Cells -->
 						<div class="section" id="order2">
 							<h2 class="title documentation" id="order-panel">Order Mouse and ES Cells<span
-									class="documentation"><a href='' id='orderPanel' class="fa fa-question-circle pull-right"></a></span>
+									class="documentation"><a href='' id='orderSection' class="fa fa-question-circle pull-right"></a></span>
 							</h2>
 
 							<div class="inner">
@@ -685,10 +732,6 @@
 						$(this).hide();
 					}
 				});
-
-//				$('.ui-widget').css({
-//					'font-family': "'Source Sans Pro', Arial, Helvetica, sans-serif"});
-
 
 			});
 

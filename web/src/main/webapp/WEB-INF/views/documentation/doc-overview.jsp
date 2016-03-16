@@ -10,7 +10,7 @@
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-		<link href="${baseUrl}/css/searchPage.cssssss" rel="stylesheet" type="text/css" />
+
         <style>
           table {
             margin-top: 80px;
@@ -38,19 +38,19 @@
 
     <table style="width:100%">
       <tr>
-        <td><i class="fa fa-search fa-4x"></i></td>
-        <td><i class="fa fa-map-o fa-4x"></i></td>
-        <td><i class="fa fa-info fa-4x"></i></td>
+        <td><a href='${baseUrl}/documentation/doc-search'><i class="fa fa-search fa-4x"></i></a></td>
+        <td><a href='${baseUrl}/documentation/doc-explore'><i class="fa fa-map-o fa-4x"></i></a></td>
+        <td><a href='${baseUrl}/documentation/doc-faq'><i class="fa fa-info fa-4x"></i></a></td>
       </tr>
       <tr>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-search'>Search</a></td>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-explore'>Explore</a></td>
-        <td class="descTxt">FAQ</td>
+        <td class="descTxt"><a href='${baseUrl}/documentation/doc-faq'>FAQ</a></td>
       </tr>
       <tr>
-        <td><i class="fa fa-line-chart fa-4x"></i></td>
-        <td><i class="fa fa-sitemap fa-4x"></i></td>
-        <td><i class="fa fa-download fa-4x"></i></td>
+        <td><a href='${baseUrl}/documentation/doc-method'><i class="fa fa-line-chart fa-4x"></i></a></td>
+        <td><a href='${baseUrl}/documentation/doc-related-resources'><i class="fa fa-sitemap fa-4x"></i></a></td>
+        <td><a href='${baseUrl}/documentation/doc-access-submission'><i class="fa fa-download fa-4x"></i></a></td>
       </tr>
       <tr>
         <td class="descTxt"><a href='${baseUrl}/documentation/doc-method'>Methods</a></td>

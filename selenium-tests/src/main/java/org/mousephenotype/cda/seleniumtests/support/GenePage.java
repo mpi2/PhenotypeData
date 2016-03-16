@@ -53,11 +53,37 @@ public class GenePage {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
+    private boolean hasDiseaseModels;
     private boolean hasImages;
     private boolean hasImpcImages;
     private boolean hasGraphs;
     private boolean hasGenesTable;
-    private int resultsCount;
+    private ResultsCount resultsCount = new ResultsCount();
+
+    public class ResultsCount {
+        private int females = 0;
+        private int males = 0;
+
+        public int getFemales() {
+            return females;
+        }
+
+        public void setFemales(Integer females) {
+            this.females = (females == null ? 0 : females);
+        }
+
+        public int getMales() {
+            return males;
+        }
+
+        public void setMales(Integer males) {
+            this.males = (males == null ? 0 : males);
+        }
+
+        public int getTotals() {
+            return males + females;
+        }
+    }
 
     /**
      * Creates a new <code>GenePage</code> instance
@@ -267,7 +293,7 @@ public class GenePage {
      * @return the number at the end of the gene page string 'Total number of results: xxxx'
      */
     public int getResultsCount() {
-        return resultsCount;
+        return resultsCount.getTotals();
     }
 
     /**
@@ -442,19 +468,22 @@ public class GenePage {
             }
         }
 
-        // Buttons
-        List<WebElement> buttons = driver.findElements(By.className("btn"));
+        // Buttons - these are the only buttons that are guaranteed to exist.
+        List<String> expectedButtons = Arrays.asList( new String[] { "Login to register interest" } );
+        List<String> actualButtons = new ArrayList<>();
+
+        List<WebElement> actualButtonElements = driver.findElements(By.xpath("//a[contains(@class, 'btn')]"));
+        for (WebElement webElement : actualButtonElements) {
+            actualButtons.add(webElement.getText());
+        }
         // ... count
-        if (buttons.size() != 3) {
-            status.addError("Expected 3 buttons but found " + buttons.size());
+        if (actualButtons.size() < expectedButtons.size()) {
+            status.addError("Expected at least " + expectedButtons.size() + " buttons but found " + actualButtons.size());
         }
         // ... Button text
-        String[] buttonTitlesArray = { "Login to register interest", "Order", "KOMP" };
-        List<String> buttonTitles = new ArrayList(Arrays.asList(buttonTitlesArray));
-        for (WebElement webElement : buttons) {
-            String buttonText = webElement.getText();
-            if ( ! buttonTitles.contains(buttonText)) {
-                status.addError("Expected button with title '" + buttonText + "' but none was found.");
+        for (String expectedButton : expectedButtons) {
+            if ( ! actualButtons.contains(expectedButton)) {
+                status.addError("Expected button with title '" + expectedButton + "' but none was found.");
             }
         }
 
@@ -495,29 +524,47 @@ public class GenePage {
         }
 
         List<WebElement> elements;
-        // Determine if this page has images.
-        elements = driver.findElements(By.xpath("//h2[@id='section-images']"));
-        hasImages = ! elements.isEmpty();
 
-        List<WebElement> impcElements = driver.findElements(By.xpath("//h2[@id='section-impc-images']"));
-        hasImpcImages= ! impcElements.isEmpty();
 
-        // Determine if this page has phenotype associations. If it does, get the results count.
+        // Check for phenotype associations. If it does, get the results count.
         try {
             elements = driver.findElements(By.xpath("//table[@id='genes']"));
             hasGenesTable = ! elements.isEmpty();
             if (hasGenesTable) {
-                elements = driver.findElements(By.xpath("//div[@id='phenotypesDiv']/div[@class='container span12']/p[@class='resultCount']"));
+                elements = driver.findElements(By.xpath("//*[@id='phenotypesDiv']//p[@class='resultCount']"));
                 String totResultsString = elements.get(0).getText();
                 int index = totResultsString.lastIndexOf(":");
-                String count = totResultsString.substring(index + 1).trim();
-                resultsCount = commonUtils.tryParseInt(count);
+                String[] counts = totResultsString.substring(index + 1).split(",");
+                if ((counts != null) && (counts.length > 0)) {
+                    for (String count : counts) {
+                        if (count.contains("female")) {
+                            resultsCount.setFemales(commonUtils.extractIntFromParens(count));
+                        } else if (count.contains("male")) {
+                            resultsCount.setMales(commonUtils.extractIntFromParens(count));
+                        }
+                    }
+                }
             }
+            hasGraphs = (resultsCount.getTotals() > 0);
         } catch (Exception e) {
             throw new TestException("GenePage.load(): page appears to have a 'genes' HTML table but it was not found.");
         }
 
-        hasGraphs = (resultsCount > 0);
+        // Check for expression.
+
+        // Check for phenotype associated images.
+        elements = driver.findElements(By.xpath("//*[@id='section-images']/following-sibling::div[1]//h5"));
+        if ( ! elements.isEmpty()) {
+            String text = elements.get(0).getText().toLowerCase();
+            hasImages = text.contains("legacy");
+            hasImpcImages = text.contains("impc");
+        }
+
+        // Check for disease models.
+        elements = driver.findElements(By.xpath("//*[@id='predicted_diseases_table']"));
+        if ( ! elements.isEmpty()) {
+            hasDiseaseModels = ! elements.isEmpty();
+        }
     }
 
     /**
@@ -662,29 +709,27 @@ public class GenePage {
                     sexIconCount + ").");
         }
 
-        // XLS download links are expected to be encoded.
-        if (downloadType == DownloadType.XLS) {
-            logger.debug("GenePage: Encoding page data for XLS image link comparison.");
-            pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
-        }
+        // Encode the page and download graph links for accurate comparison.
+        pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
+        downloadData = new GridMap(urlUtils.urlEncodeColumn(downloadData.getData(), DownloadGeneMap.COL_INDEX_GRAPH_LINK), downloadData.getTarget());
 
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
 
         final Integer[] pageColumns = {
-                  GeneTable.COL_INDEX_GENES_ALLELE
+                  GeneTable.COL_INDEX_GENES_PHENOTYPE
+                , GeneTable.COL_INDEX_GENES_ALLELE
                 , GeneTable.COL_INDEX_GENES_ZYGOSITY
-                , GeneTable.COL_INDEX_GENES_PHENOTYPE
                 , GeneTable.COL_INDEX_GENES_LIFE_STAGE
                 , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
                 , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER_SOURCE
                 , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
-                  DownloadGeneMap.COL_INDEX_ALLELE
+                  DownloadGeneMap.COL_INDEX_PHENOTYPE
+                , DownloadGeneMap.COL_INDEX_ALLELE
                 , DownloadGeneMap.COL_INDEX_ZYGOSITY
-                , DownloadGeneMap.COL_INDEX_PHENOTYPE
                 , DownloadGeneMap.COL_INDEX_LIFE_STAGE
                 , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
                 , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER_SOURCE

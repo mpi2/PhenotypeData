@@ -43,7 +43,7 @@ import javax.persistence.Table;
  * @see PipelineEntry
  */
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.mousephenotype.cda.enumerations.CategoriesExclude;

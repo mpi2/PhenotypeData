@@ -84,7 +84,7 @@ public class ExpressionService extends BasicService {
 	}
 
 	@PostConstruct
-	public void initialiseAbnormalMaMap() {
+	public void initialiseAbnormalOntologyMaps() {
 		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
 		abnormalEmapFromImpress = impressService.getParameterStableIdToAbnormalEmapMap();
 
@@ -462,11 +462,17 @@ public class ExpressionService extends BasicService {
 	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException {
 		List<AnatomogramDataBean> anatomogramDataBeans = new ArrayList<>();
 
+		//if the solr core wasn't up before the webapp starts then these maps maybe empty - of so we need to populate them before continuing
+		if(abnormalMaFromImpress ==null || abnormalMaFromImpress.size()==0){
+			this.initialiseAbnormalOntologyMaps();
+		}
+		
 		for (Count count : parameterCounts) {
 			AnatomogramDataBean bean = new AnatomogramDataBean();
 			bean.setParameterId(count.getName());
 			bean.setPatameterName(count.getName());
 			bean.setCount(count.getCount());
+			
 			if (abnormalMaFromImpress.containsKey(count.getName())) {
 				OntologyBean ontologyBean = abnormalMaFromImpress.get(count.getName());
 				bean.setMaId(ontologyBean.getId());

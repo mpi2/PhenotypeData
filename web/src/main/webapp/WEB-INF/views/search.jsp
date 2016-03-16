@@ -436,7 +436,7 @@
 								foundMsg = '<p>Found '
 										+ '<span id="resultCount">'
 										+ '<span id="annotCount">' + ${jsonStr}.iTotalRecords + ' annotations / </span>'
-								+ '<a href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
+								+ '<a rel="nofollow" href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
 								+ '</span></div>';
 							}
 							else {
@@ -446,7 +446,7 @@
 										+ '<span id="imgViewSwitcher">Show Annotation View</span>';
 								foundMsg = '<p>Found '
 										+ '<span id="resultCount">'
-										+ '<a href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
+										+ '<a rel="nofollow" href="' + ${jsonStr}.imgHref + '">' + ${jsonStr}.imgCount + '</a> images'
 								+ '</span></div>';
 							}
 							switcher = viewMsg + foundMsg;
@@ -638,8 +638,8 @@
 
 				var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
 						+ '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>'
-						+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
+						//+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
 				$("div#saveTable").html(toolBox);
 

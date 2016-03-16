@@ -38,7 +38,7 @@
             <td>A human disease term is from either OMIM or DECIPHER or ORPHANET
             </td>
           </tr>
-          <tr>
+         <!-- <tr>
             <td>Curated Genes</td>
             <td>Possible values are:<br>
               (1) human: known disease-gene associations in human from OMIM/DECIPHER/ORPHANET in blue box<br>
@@ -50,7 +50,7 @@
           <tr>
             <td>Candidate Genes by phenotype</td>
             <td>The value is MGI in blue box if applicable. It represents predicted mouse models of disease based on the PhenoDigm phenotypic similarity tool using either Sanger-MGP or MGI data</td>
-          </tr>
+          </tr>-->
         </table>
 
 </body>

@@ -42,7 +42,6 @@ public class SearchConfig {
         else {
             coreDefault.put("gene", "*:*");
         }
-        coreDefault.put("gene2", "marker_type:\"protein coding gene\"");
         coreDefault.put("mp", "top_level_mp_term:*");
         coreDefault.put("disease", "*:*");
         coreDefault.put("ma", "selected_top_level_ma_term:*");

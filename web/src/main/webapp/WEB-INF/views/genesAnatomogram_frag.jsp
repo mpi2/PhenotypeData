@@ -18,17 +18,16 @@
     <jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>
 </div>
 <div id="anatomo2">
-    <br>
-    <h6 class="title" id="expression-anatomogram">Expression in Anatomogram
+    <div class="title" id="expression-anatomogram">Expression in Anatomogram
         <!--<span
 			class="documentation"><a href='' id='expressionAnatomogramPanel'
 									 class="fa fa-question-circle pull-right"></a></span>-->
         <!--  this works, but need js to drive tip position -->
-    </h6>
+    </div><br>
 
     <div class='aright' id='anatomogramContainer'></div>
     <div class='aleft'>
-      <h6>Tissues/organs lacZ+ expression</h6>
+      <div>Tissues/organs lacZ+ expression</div><br>
       <ul id='expList'>
         <c:forEach var="entry" items="${topLevelMaCounts}"
                    varStatus="status">
