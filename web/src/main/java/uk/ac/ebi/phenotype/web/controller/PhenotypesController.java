@@ -74,6 +74,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -436,6 +438,28 @@ public class PhenotypesController {
         return "geneVariantsWithPhenotypeTable";
     }
 
+    @RequestMapping("/mpTree/{mpId}")
+    public String getChildParentTree(
+            @PathVariable String mpId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) 
+    throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+        
+        return "pageTree";
+    }
+    
+    @RequestMapping(value="/mpTree/json", method=RequestMethod.GET)	
+    public @ResponseBody String getParentChildren(Model model) 
+    throws SolrServerException, IOException, URISyntaxException {
+		
+    	// Example for  MP_0013661 (2 parents and multiple children)
+		return "{\"name\": \"abnormal hematopoietic cell number\", "
+				+ "\"children\": [{\"name\": \"abnormal hematopoietic precursor cell number\", \"size\": 1000},"
+				+ "{\"name\": \"abnormal leukocyte cell number\"}, {\"name\": \"abnormal myeloid cell number\"}"
+				+ "] } ";	
+    }
+    
     
     public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException { // <sex, percentage>
         PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
