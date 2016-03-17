@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -256,7 +257,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		String query;
 
 		// Populate viability results
-		query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, " +
+		query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, co.category, " +
 			"'line' AS data_type, db.id AS db_id, " +
 			"zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
 			"parameter.stable_id as dependent_variable, " +
@@ -282,6 +283,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"  WHERE exp2.colony_id=exp.colony_id AND obs2.parameter_stable_id='IMPC_VIA_014_001' limit 1) AS  female_mutants " +
 			"FROM phenotype_parameter parameter " +
 			"INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id = 'IMPC_VIA_001_001' " +
+			"INNER JOIN categorical_observation co ON co.id=obs.id " +
 			"INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
 			"INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
 			"INNER JOIN external_db db ON db.id=obs.db_id " +
@@ -545,6 +547,34 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			String category = r.getString("category");
 			if (!r.wasNull() && category.equals("Insufficient numbers to make a call")) {
 				doc.setStatus("Failed - " + category);
+			}
+		} catch (java.sql.SQLException e) {
+			// do nothing. Result set did not have "category" in it
+		}
+
+		try {
+			r.getString("experimental_zygosity");
+			if (r.wasNull()) {
+				String category = r.getString("category");
+				if (!r.wasNull()) {
+					String[] fields = category.split("-");
+
+					ZygosityType zygosity;
+					switch (fields[0].trim().toLowerCase()) {
+						case "heterozygous":
+							zygosity = ZygosityType.heterozygote;
+							break;
+						case "hemizygous":
+							zygosity = ZygosityType.hemizygote;
+							break;
+						case "homozygous":
+						default:
+							zygosity = ZygosityType.homozygote;
+							break;
+					}
+
+					doc.setZygosity(zygosity.getName());
+				}
 			}
 		} catch (java.sql.SQLException e) {
 			// do nothing. Result set did not have "category" in it
