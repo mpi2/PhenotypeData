@@ -477,37 +477,37 @@
 									"sPaginationType" : "bootstrap",
 									"aaData" : ${jsonStr}.aaData,  // array of objects
 								"iTotalRecords" : ${jsonStr}.iTotalRecords
-					});
+						});
 
-					// adjust col width
-					adjustColWidth();
+						// adjust col width
+						adjustColWidth();
 
-					// update pagination control
-					addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
-
-
-					// do these only when there is result found
-					if ( $('div#dTable_pagination li.active a').size() > 0 ) {
-						// add Download
-						addDownloadTool();
+						// update pagination control
+						addPaginationControl(parentContainer, infoDivId, paginationDivId, ${jsonStr});
 
 
-						// highlight synonyms
-						highlighSynonym();
+						// do these only when there is result found
+						if ( $('div#dTable_pagination li.active a').size() > 0 ) {
+							// add Download
+							addDownloadTool();
 
-						// register interest js
-						addRegisterInterestJs();
+
+							// highlight synonyms
+							highlighSynonym();
+
+							// register interest js
+							addRegisterInterestJs();
+						}
 					}
-				}
 
-			});
-			// ----------- highlights current "tab" and populates facet filters and dataTable -----------
+				});
+				// ----------- highlights current "tab" and populates facet filters and dataTable -----------
 
 
-			// submit query when facet filter is ticked
-			fetchResultByFilters();
+				// submit query when facet filter is ticked
+				fetchResultByFilters();
 
-			//------------------------- FUNCTIONS ------------------------
+				//------------------------- FUNCTIONS ------------------------
 
 			function highlighSynonym(){
 
@@ -641,7 +641,7 @@
 						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
 						//+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-				$("div#saveTable").html(toolBox);
+				$("div#"+coreName + "Tab").find("div#saveTable").html(toolBox);
 
 				var cutoff = 10000;
 				$("a#tsvA, a#xlsA").click(function(){
@@ -826,7 +826,7 @@
 
 			}
 
-			});
+		});
 
 		</script>
 
