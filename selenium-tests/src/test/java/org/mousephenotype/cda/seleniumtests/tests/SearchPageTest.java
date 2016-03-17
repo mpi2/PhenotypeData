@@ -462,9 +462,41 @@ public class SearchPageTest {
     }
 
     @Test
+//@Ignore
+    public void testAutosuggestMinCharacters() throws TestException {
+        String testName = "testAutosuggestForSpecificKnownGenes";
+        Date start = new Date();
+        RunStatus status = new RunStatus();
+
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+
+        String geneSymbol = "mas";
+
+        // NOTE: Results don't seem to be ordered, so it's possible the gene is beyond the first 10 shown.
+        String message;
+
+        String target = baseUrl + "/search";
+
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+        List<SearchPage.AutosuggestRow> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
+
+        commonUtils.sleep(2000);            // wait until the dropdown list pops up
+
+         int numTerms = driver.findElements(By.cssSelector("ul.ui-autocomplete li")).size();
+         if ( numTerms > 0) {
+            status.successCount++;
+         }
+         else {
+            status.addError("Entered " + geneSymbol + " into search box. Expected matches but found none.");
+         }
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
+    }
+
+    @Test
 @Ignore
     // test that there is a dropdown when at least 3 letters with match are entered into the input box
-    public void testAutosuggestMinCharacters() throws TestException {
+    public void testAutosuggestMinCharacters_999() throws TestException {
         String testName = "testAutosuggestMinCharacters";
         Date start = new Date();
         RunStatus status = new RunStatus();
