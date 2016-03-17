@@ -639,9 +639,7 @@
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.css?v=${version}">
 
 		<script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-		<c:if test="${!isLive}">
-			<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
-		</c:if>
+		<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
 		<script type="text/javascript">
 			var diseaseTables = [{
 				id: '#orthologous_diseases_table',
