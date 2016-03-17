@@ -659,7 +659,7 @@ public class GeneService extends BasicService implements WebStatus{
 	 */
 	public String getProductionStatusForEsCellAndMice(JSONObject doc, String url, boolean toExport){
 
-		String esCellStatus = getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), url, toExport);
+		String esCellStatus = doc.containsKey(GeneDTO.LATEST_ES_CELL_STATUS) ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), url, toExport) : "";
 		String miceStatus = "";		
 		final List<String> exportMiceStatus = new ArrayList<String>();
 		

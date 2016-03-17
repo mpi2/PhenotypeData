@@ -689,7 +689,7 @@ div#tableShowAllLess span {
 div#foundEntries, div#tableShowAllLess {
 	padding-left: 10px;	
 }
-div#mpi2-search table.dataTable th {
+div.mpi2-search table.dataTable th {
 	cursor: text !important; /* still need to do this even though dataTable is told not to sort by bSort: false */ 
 }
 
