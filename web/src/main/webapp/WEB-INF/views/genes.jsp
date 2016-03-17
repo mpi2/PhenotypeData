@@ -455,9 +455,9 @@
 
 												<div id="tabs-1">
 													<!-- Expression in Anatomogram -->
-													<c:if test="${!isLive}">
+													
 														<jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
-													</c:if>
+													
 												</div>
 
 													<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
