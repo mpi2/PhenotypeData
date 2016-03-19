@@ -128,7 +128,7 @@
 //	    			_updateMainFacetCount(facet, facetCountJson[facet], facetMode);
 //	    		}
 	    		
-	    		$('div#facetSrchMsg').html('&nbsp;');
+	    		$('div.facetSrchMsg').html('&nbsp;');
 
 	    		
 	    		var firstCoreWithResult = $.fn.setSearchMode(oFacets.count); 
@@ -187,7 +187,7 @@
     	    	}   
 	    	},
 	    	error: function(jqXHR, textStatus, errorThrown) {
-	    		$('div#facetSrchMsg').html('Error fetching data ...');
+	    		$('div.facetSrchMsg').html('Error fetching data ...');
 	    	}
 	    });
 	}

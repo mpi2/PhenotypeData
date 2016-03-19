@@ -28,18 +28,18 @@
 				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
 			</ul>
 		</div>
-		<!--<div><div id="resultMsg"></div><div id="saveTable"></div></div>-->
+		<!--<div><div id="resultMsg"></div><div class='saveTable'></div></div>-->
 
 		<div id="geneTab" class="hideme">
 			<div class="region region-sidebar-first">
 
-				<div id='facet' class='fblock block'>
+				<div class='facet' class='fblock block'>
 					<div id="filterHint">Filter <span class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
 					</div>
 					<div class='content'>
-						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="gene">
@@ -59,9 +59,9 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="saveTable"></div>
+						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
-						<div class="HomepageTable" id="mpi2-search"></div>
+						<div class="HomepageTable, mpi2-search"></div>
 					</div>
 				</div>
 			</div>
@@ -70,13 +70,13 @@
 		<div id="mpTab" class="hideme">
 			<div class="region region-sidebar-first">
 
-				<div id='facet' class='fblock block'>
-					<div id="filterHint">Filter <span class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
 					</div>
 					<div class='content'>
-						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="mp">
@@ -95,9 +95,9 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="saveTable"></div>
+						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
-						<div class="HomepageTable" id="mpi2-search"></div>
+						<div class="HomepageTable, mpi2-search"></div>
 					</div>
 				</div>
 			</div>
@@ -106,13 +106,13 @@
 		<div id="diseaseTab" class="hideme">
 			<div class="region region-sidebar-first">
 
-				<div id='facet' class='fblock block'>
-					<div id="filterHint">Filter <span class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
 					</div>
 					<div class='content'>
-						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="disease">
@@ -131,9 +131,9 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="saveTable"></div>
+						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
-						<div class="HomepageTable" id="mpi2-search"></div>
+						<div class="HomepageTable, mpi2-search"></div>
 					</div>
 				</div>
 			</div>
@@ -142,13 +142,13 @@
 		<div id="maTab" class="hideme">
 			<div class="region region-sidebar-first">
 
-				<div id='facet' class='fblock block'>
-					<div id="filterHint">Filter <span class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
 					</div>
 					<div class='content'>
-						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="ma">
@@ -167,9 +167,9 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="saveTable"></div>
+						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
-						<div class="HomepageTable" id="mpi2-search"></div>
+						<div class="HomepageTable, mpi2-search"></div>
 					</div>
 				</div>
 			</div>
@@ -178,13 +178,13 @@
 		<div id="impc_imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
 
-				<div id='facet' class='fblock block'>
-					<div id="filterHint">Filter <span class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
 					</div>
 					<div class='content'>
-						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="impc_images">
@@ -203,9 +203,9 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="saveTable"></div>
+						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
-						<div class="HomepageTable" id="mpi2-search"></div>
+						<div class="HomepageTable, mpi2-search"></div>
 					</div>
 				</div>
 			</div>
@@ -215,13 +215,13 @@
 		<div id="imagesTab" class="hideme">
 			<div class="region region-sidebar-first">
 
-				<div id='facet' class='fblock block'>
-					<div id="filterHint">Filter <span class='documentation title textright'>
-						<a href='' id='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
+				<div class='facet' class='fblock block'>
+					<div class='filterHint'>Filter <span class='documentation title textright'>
+						<a href='' class='facetPanel' class="fa fa-question-circle" aria-describedby="qtip-26"></a>
 						</span>
 					</div>
 					<div class='content'>
-						<div id='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
+						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
 								<li class="fmcat" id="images">
@@ -240,9 +240,9 @@
 				<div class="block block-system">
 					<div class='content'>
 						<div class="clear"></div>
-						<div id="saveTable"></div>
+						<div class='saveTable'></div>
 						<!-- container to display dataTable -->
-						<div class="HomepageTable" id="mpi2-search"></div>
+						<div class="HomepageTable, mpi2-search"></div>
 					</div>
 				</div>
 			</div>
@@ -419,7 +419,7 @@
 						}
 
 						var tabId = '#' + coreName + 'Tab';
-						var parentContainer = $(tabId).find("div#mpi2-search");
+						var parentContainer = $(tabId).find("div.mpi2-search");
 
 
 						// images cores related
@@ -616,7 +616,7 @@
 				// only results from current page
 				var paramList1 = [dataType, params, fileName];
 				var paramStr1 = paramList1.join("&");
-				paramStr1 += "&mode=page";
+				//paramStr1 += "&mode=page";
 
 				// all results in table
 				var total = ${jsonStr}.iTotalRecords;
@@ -641,7 +641,7 @@
 						+ '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
 						//+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
 
-				$("div#"+coreName + "Tab").find("div#saveTable").html(toolBox);
+				$("div#"+coreName + "Tab").find("div.saveTable").html(toolBox);
 
 				var cutoff = 10000;
 				$("a#tsvA, a#xlsA").click(function(){
