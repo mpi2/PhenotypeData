@@ -54,7 +54,7 @@
 		else if ( core == "images" ){
 			displayImagesFacet(json);
 		}
-		$('div#facetSrchMsg').html("");
+		$('div.facetSrchMsg').html("");
 	}
 
 
