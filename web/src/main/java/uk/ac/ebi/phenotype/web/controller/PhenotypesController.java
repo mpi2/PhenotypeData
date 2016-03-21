@@ -448,24 +448,41 @@ public class PhenotypesController {
         
         return "pageTree";
     }
+   
+    @RequestMapping("/mpTree2/{mpId}")
+    public String getChildParentTree2(
+            @PathVariable String mpId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) 
+    throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+        
+        return "pageTree2";
+    }
+    
     
     @RequestMapping(value="/mpTree/json", method=RequestMethod.GET)	
     public @ResponseBody String getParentChildren(Model model) 
     throws SolrServerException, IOException, URISyntaxException {
     	
     	JSONObject data = new JSONObject();
-    	JSONObject node = new JSONObject();
-    	node.element("name", "abnormal hematopoietic cell morphology");
-//    	Jsonobj
-    	
-		
-    	// Example for  MP_0013661 (2 parents and multiple children)
-		return "{\"name\": \"abnormal hematopoietic cell morphology\", \"children\":[ {\"name\": \"abnormal hematopoietic cell number\", "
-				+ "\"children\": [{\"name\": \"abnormal hematopoietic precursor cell number\", \"size\": 1000},"
-				+ "{\"name\": \"abnormal leukocyte cell number\"}, {\"name\": \"abnormal myeloid cell number\"}"
-				+ "] } ], "
-				+ "{\"name\": \"abnormal hematopoietic system morphology/development\", \"children\":[ {\"name\": \"abnormal hematopoietic cell number\"}, "
-				+ "] } }" ;	
+    	data.element("name", "abnormal hematopoietic cell morphology");
+    	JSONArray children = new JSONArray();
+    	JSONArray parents = new JSONArray();
+    	children.add(getJsonObj("abnormal hematopoietic cell number"));    
+    	children.add(getJsonObj("abnormal hematopoietic precursor cell number"));    
+    	children.add(getJsonObj("abnormal leukocyte cell number"));    	  
+    	children.add(getJsonObj("abnormal myeloid cell number")); 
+    	data.element("children", children);
+    	parents.add(getJsonObj("PARENT abnormal hematopoietic cell number"));
+    	parents.add(getJsonObj("PARENT abnormal hematopoietic system morphology/developmentr"));
+ //   	data.element("parents", parents);
+	
+		return data.toString();
+    }
+    
+    public JSONObject getJsonObj(String name){
+    	return new JSONObject().element("name", name);
     }
     
     
