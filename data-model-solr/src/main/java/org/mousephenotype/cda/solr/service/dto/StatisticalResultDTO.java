@@ -101,6 +101,7 @@ public class StatisticalResultDTO {
     public final static String FEMALE_CONTROL_MEAN = "female_control_mean";
     public final static String FEMALE_MUTANT_MEAN = "female_mutant_mean";
 
+	public final static String WORKFLOW = "workflow";
     public final static String STATISTICAL_METHOD = "statistical_method";
     public final static String STATUS = "status";
     public final static String ADDITIONAL_INFORMATION = "additional_information";
@@ -347,7 +348,10 @@ public class StatisticalResultDTO {
     @Field(MALE_CONTROL_MEAN)
     private Double maleControlMean;
 
-    @Field(STATISTICAL_METHOD)
+	@Field(WORKFLOW)
+	private String workflow;
+
+	@Field(STATISTICAL_METHOD)
     private String statisticalMethod;
 
     @Field(STATUS)
@@ -1221,9 +1225,15 @@ public class StatisticalResultDTO {
         this.maleControlMean = maleControlMean;
     }
 
+	public String getWorkflow() {
+		return workflow;
+	}
 
+	public void setWorkflow(String workflow) {
+		this.workflow = workflow;
+	}
 
-    public String getStatisticalMethod() {
+	public String getStatisticalMethod() {
 
         return statisticalMethod;
     }
