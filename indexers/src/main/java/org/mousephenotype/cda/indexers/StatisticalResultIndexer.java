@@ -136,12 +136,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			statResultCore.deleteByQuery("*:*");
 
-			count += processViabilityResults();
-			count += processFertilityResults();
+//			count += processViabilityResults();
+//			count += processFertilityResults();
 			count += processReferenceRangePlusResults();
-			count += processUnidimensionalResults();
-			count += processCategoricalResults();
-			count += processEmbryoViabilityResults();
+//			count += processUnidimensionalResults();
+//			count += processCategoricalResults();
+//			count += processEmbryoViabilityResults();
 
 			logger.info(" Added {} statistical result documents", count);
 
@@ -320,7 +320,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
 			+ "  dependent_variable, control_selection_strategy, male_controls, "
 			+ "  male_mutants, female_controls, female_mutants, "
-			+ "  metadata_group, statistical_method, status, "
+			+ "  metadata_group, statistical_method, workflow, status, "
 			+ "  category_a, category_b, "
 			+ "  p_value as categorical_p_value, effect_size AS categorical_effect_size, "
 			+ "  mp_acc, null as male_mp_acc, null as female_mp_acc, "
@@ -350,14 +350,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	public int processReferenceRangePlusResults() throws SQLException, IOException, SolrServerException {
 		int count = 0;
-		String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='stats_unidimensional_results' AND TABLE_SCHEMA=(SELECT database())";
-		Set<String> featureFlagMeans = new HashSet<>();
-		try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
-			ResultSet r = p.executeQuery();
-			while (r.next()) {
-				featureFlagMeans.add(r.getString("column_name"));
-			}
-		}
 
 		// Populate reference range plus statistic results
 		String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
@@ -368,7 +360,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "  dependent_variable, control_selection_strategy, "
 			+ "  male_controls, male_mutants, female_controls, female_mutants, "
 			+ "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, "
-			+ "  metadata_group, statistical_method, status, "
+			+ "  metadata_group, statistical_method, workflow, status, "
 			+ "  batch_significance, "
 			+ "  variance_significance, null_test_significance, genotype_parameter_estimate, "
 			+ "  genotype_percentage_change, "
@@ -405,16 +397,25 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		return count;
 	}
 
-	public int processUnidimensionalResults() throws SQLException, IOException, SolrServerException {
-		int count = 0;
-		String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='stats_unidimensional_results' AND TABLE_SCHEMA=(SELECT database())";
-		Set<String> featureFlagMeans = new HashSet<>();
-		try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
+	public Boolean columnInSchema(Connection connection, String tableName, String columnName) throws SQLException {
+
+		Boolean found = Boolean.FALSE;
+		String columnQuery = "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=(SELECT database()) AND TABLE_NAME=? AND column_name=?";
+
+		try (PreparedStatement p = connection.prepareStatement(columnQuery)) {
+			p.setString(1, tableName);
+			p.setString(2, columnName);
 			ResultSet r = p.executeQuery();
-			while (r.next()) {
-				featureFlagMeans.add(r.getString("column_name"));
+			if (r.next()) {
+				found = Boolean.TRUE;
 			}
 		}
+
+		return found;
+	}
+
+	public int processUnidimensionalResults() throws SQLException, IOException, SolrServerException {
+		int count = 0;
 
 		// Populate unidimensional statistic results
 		String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
@@ -423,13 +424,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "  external_db_id, organisation_id, "
 			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
 			+ "  dependent_variable, control_selection_strategy, "
-			+ "  male_controls, male_mutants, female_controls, female_mutants, ";
-
-		if (featureFlagMeans.contains("male_control_mean")) {
-			query += "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, ";
-		}
-
-		query += "  metadata_group, statistical_method, status, "
+			+ "  male_controls, male_mutants, female_controls, female_mutants, "
+			+ "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, "
+			+ "  metadata_group, statistical_method, workflow, status, "
 			+ "  batch_significance, "
 			+ "  variance_significance, null_test_significance, genotype_parameter_estimate, "
 			+ "  genotype_percentage_change, "
@@ -485,63 +482,97 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setFemaleControlMean(r.getDouble("female_control_mean"));
 		doc.setFemaleMutantMean(r.getDouble("female_experimental_mean"));
 
-		doc.setNullTestPValue(nullCheckResult(r, "null_test_significance"));
-
-		// If PhenStat did not run, then the result will have a NULL for the null_test_significance field
-		// In that case, fall back to Wilcoxon test
-		Double pv = doc.getNullTestPValue();
-		if (pv==null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
-
-			// Wilcoxon test.  Choose the most significant pvalue from the sexes
-			pv = 1.0;
-			Double fPv = r.getDouble("gender_female_ko_pvalue");
-			if (!r.wasNull() && fPv < pv) {
-				pv = fPv;
-			}
-
-			Double mPv = r.getDouble("gender_male_ko_pvalue");
-			if (!r.wasNull() && mPv < pv) {
-				pv = mPv;
-			}
-
-		}
-
-		doc.setpValue(pv);
-
 		doc.setGroup1Genotype(r.getString("gp1_genotype"));
-		doc.setGroup1ResidualsNormalityTest(nullCheckResult(r, "gp1_residuals_normality_test"));
 		doc.setGroup2Genotype(r.getString("gp2_genotype"));
-		doc.setGroup2ResidualsNormalityTest(nullCheckResult(r, "gp2_residuals_normality_test"));
 
-		doc.setBatchSignificant(r.getBoolean("batch_significance"));
-		doc.setVarianceSignificant(r.getBoolean("variance_significance"));
-		doc.setInteractionSignificant(r.getBoolean("interaction_significance"));
 
-		doc.setGenotypeEffectParameterEstimate(nullCheckResult(r, "genotype_parameter_estimate"));
+		// Set the overall genotype effect fields
+		String genotypePvalue = r.getString("genotype_effect_pvalue");
+		if (! r.wasNull()) {
+			String [] fields = genotypePvalue.split(",");
 
-		String percentageChange = r.getString("genotype_percentage_change");
-		if (!r.wasNull()) {
-			Double femalePercentageChange = StatisticalResultService.getFemalePercentageChange(percentageChange);
-			if (femalePercentageChange != null) {
-				doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
+			// Low vs normal&high genotype pvalue
+			Double pvalue = Double.parseDouble(fields[0]);
+			doc.setGenotypePvalueLowVsNormalHigh(pvalue);
+
+			// High vs low&normal genotype pvalue
+			pvalue = Double.parseDouble(fields[1]);
+			doc.setGenotypePvalueLowNormalVsHigh(pvalue);
+
+			doc.setNullTestPValue(Math.min(doc.getGenotypePvalueLowNormalVsHigh(), doc.getGenotypePvalueLowVsNormalHigh()));
+			doc.setpValue(doc.getNullTestPValue());
+
+			String genotypeEffectSize = r.getString("genotype_parameter_estimate");
+			if (! r.wasNull()) {
+				fields = genotypeEffectSize.replaceAll("%", "").split(",");
+
+				// Low vs normal&high genotype effect size
+				Double es = Double.parseDouble(fields[0]);
+				doc.setGenotypeEffectSizeLowVsNormalHigh(es);
+
+				// High vs low&normal genotype effect size
+				es = Double.parseDouble(fields[1]);
+				doc.setGenotypeEffectSizeLowNormalVsHigh(es);
 			}
 
-			Double malePercentageChange = StatisticalResultService.getMalePercentageChange(percentageChange);
-			if (malePercentageChange != null) {
-				doc.setMalePercentageChange(malePercentageChange.toString() + "%");
-			}
 		}
 
-		doc.setGenotypeEffectStderrEstimate(nullCheckResult(r, "genotype_stderr_estimate"));
-		doc.setGenotypeEffectPValue(nullCheckResult(r, "genotype_effect_pvalue"));
+		// Set the female female effect fields
+		genotypePvalue = r.getString("gender_female_ko_pvalue");
+		if (! r.wasNull() && ! genotypePvalue.equals("NA")) {
+			String [] fields = genotypePvalue.split(",");
 
-		doc.setFemaleKoParameterEstimate(nullCheckResult(r, "gender_female_ko_estimate"));
-		doc.setFemaleKoEffectStderrEstimate(nullCheckResult(r, "gender_female_ko_stderr_estimate"));
-		doc.setFemaleKoEffectPValue(nullCheckResult(r, "gender_female_ko_pvalue"));
+			// Low vs normal&high female pvalue
+			Double pvalue = Double.parseDouble(fields[0]);
+			doc.setFemalePvalueLowVsNormalHigh(pvalue);
 
-		doc.setMaleKoParameterEstimate(nullCheckResult(r, "gender_male_ko_estimate"));
-		doc.setMaleKoEffectStderrEstimate(nullCheckResult(r, "gender_male_ko_stderr_estimate"));
-		doc.setMaleKoEffectPValue(nullCheckResult(r, "gender_male_ko_pvalue"));
+			// High vs low&normal female pvalue
+			pvalue = Double.parseDouble(fields[1]);
+			doc.setFemalePvalueLowNormalVsHigh(pvalue);
+
+			String genotypeEffectSize = r.getString("gender_female_ko_estimate");
+			if (! r.wasNull()) {
+				fields = genotypeEffectSize.replaceAll("%", "").split(",");
+
+				// Low vs normal&high female effect size
+				Double es = Double.parseDouble(fields[0]);
+				doc.setFemaleEffectSizeLowVsNormalHigh(es);
+
+				// High vs low&normal female effect size
+				es = Double.parseDouble(fields[1]);
+				doc.setFemaleEffectSizeLowNormalVsHigh(es);
+			}
+
+		}
+
+		// Set the male effect fields
+		genotypePvalue = r.getString("gender_male_ko_pvalue");
+		if (! r.wasNull() && ! genotypePvalue.equals("NA")) {
+			String [] fields = genotypePvalue.split(",");
+
+			// Low vs normal&high male pvalue
+			Double pvalue = Double.parseDouble(fields[0]);
+			doc.setMalePvalueLowVsNormalHigh(pvalue);
+
+			// High vs low&normal male pvalue
+			pvalue = Double.parseDouble(fields[1]);
+			doc.setMalePvalueLowNormalVsHigh(pvalue);
+
+			String genotypeEffectSize = r.getString("gender_male_ko_estimate");
+			if (! r.wasNull()) {
+				fields = genotypeEffectSize.replaceAll("%", "").split(",");
+
+				// Low vs normal&high male effect size
+				Double es = Double.parseDouble(fields[0]);
+				doc.setMaleEffectSizeLowVsNormalHigh(es);
+
+				// High vs low&normal male effect size
+				es = Double.parseDouble(fields[1]);
+				doc.setMaleEffectSizeLowNormalVsHigh(es);
+			}
+
+		}
+
 
 		doc.setClassificationTag(r.getString("classification_tag"));
 		doc.setAdditionalInformation(r.getString("additional_information"));
@@ -774,6 +805,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
 		doc.setStatisticalMethod(r.getString("statistical_method"));
+		doc.setWorkflow(r.getString("workflow"));
 		doc.setMaleControlCount(r.getInt("male_controls"));
 		doc.setFemaleControlCount(r.getInt("female_controls"));
 		doc.setMaleMutantCount(r.getInt("male_mutants"));
