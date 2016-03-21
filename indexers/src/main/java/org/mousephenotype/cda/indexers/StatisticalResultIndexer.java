@@ -395,7 +395,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			p.setFetchSize(Integer.MIN_VALUE);
 			ResultSet r = p.executeQuery();
 			while (r.next()) {
-				StatisticalResultDTO doc = parseUnidimensionalResult(r);
+				StatisticalResultDTO doc = parseReferenceRangeResult(r);
 				documentCount++;
 				statResultCore.addBean(doc, 30000);
 				count++;
@@ -470,6 +470,83 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	private Double nullCheckResult(ResultSet r,  String field) throws SQLException {
 		Double v = r.getDouble(field);
 		return r.wasNull() ? null : v;
+	}
+
+	private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException {
+
+		StatisticalResultDTO doc = parseResultCommonFields(r);
+		if (sexesMap.containsKey("rrplus-" + doc.getDbId())) {
+			doc.setPhenotypeSex(sexesMap.get("rrplus-" + doc.getDbId()));
+		}
+
+		// Index the mean fields
+		doc.setMaleControlMean(r.getDouble("male_control_mean"));
+		doc.setMaleMutantMean(r.getDouble("male_experimental_mean"));
+		doc.setFemaleControlMean(r.getDouble("female_control_mean"));
+		doc.setFemaleMutantMean(r.getDouble("female_experimental_mean"));
+
+		doc.setNullTestPValue(nullCheckResult(r, "null_test_significance"));
+
+		// If PhenStat did not run, then the result will have a NULL for the null_test_significance field
+		// In that case, fall back to Wilcoxon test
+		Double pv = doc.getNullTestPValue();
+		if (pv==null && doc.getStatus().equals("Success") && doc.getStatisticalMethod() != null && doc.getStatisticalMethod().startsWith("Wilcoxon")) {
+
+			// Wilcoxon test.  Choose the most significant pvalue from the sexes
+			pv = 1.0;
+			Double fPv = r.getDouble("gender_female_ko_pvalue");
+			if (!r.wasNull() && fPv < pv) {
+				pv = fPv;
+			}
+
+			Double mPv = r.getDouble("gender_male_ko_pvalue");
+			if (!r.wasNull() && mPv < pv) {
+				pv = mPv;
+			}
+
+		}
+
+		doc.setpValue(pv);
+
+		doc.setGroup1Genotype(r.getString("gp1_genotype"));
+		doc.setGroup1ResidualsNormalityTest(nullCheckResult(r, "gp1_residuals_normality_test"));
+		doc.setGroup2Genotype(r.getString("gp2_genotype"));
+		doc.setGroup2ResidualsNormalityTest(nullCheckResult(r, "gp2_residuals_normality_test"));
+
+		doc.setBatchSignificant(r.getBoolean("batch_significance"));
+		doc.setVarianceSignificant(r.getBoolean("variance_significance"));
+		doc.setInteractionSignificant(r.getBoolean("interaction_significance"));
+
+		doc.setGenotypeEffectParameterEstimate(nullCheckResult(r, "genotype_parameter_estimate"));
+
+		String percentageChange = r.getString("genotype_percentage_change");
+		if (!r.wasNull()) {
+			Double femalePercentageChange = StatisticalResultService.getFemalePercentageChange(percentageChange);
+			if (femalePercentageChange != null) {
+				doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
+			}
+
+			Double malePercentageChange = StatisticalResultService.getMalePercentageChange(percentageChange);
+			if (malePercentageChange != null) {
+				doc.setMalePercentageChange(malePercentageChange.toString() + "%");
+			}
+		}
+
+		doc.setGenotypeEffectStderrEstimate(nullCheckResult(r, "genotype_stderr_estimate"));
+		doc.setGenotypeEffectPValue(nullCheckResult(r, "genotype_effect_pvalue"));
+
+		doc.setFemaleKoParameterEstimate(nullCheckResult(r, "gender_female_ko_estimate"));
+		doc.setFemaleKoEffectStderrEstimate(nullCheckResult(r, "gender_female_ko_stderr_estimate"));
+		doc.setFemaleKoEffectPValue(nullCheckResult(r, "gender_female_ko_pvalue"));
+
+		doc.setMaleKoParameterEstimate(nullCheckResult(r, "gender_male_ko_estimate"));
+		doc.setMaleKoEffectStderrEstimate(nullCheckResult(r, "gender_male_ko_stderr_estimate"));
+		doc.setMaleKoEffectPValue(nullCheckResult(r, "gender_male_ko_pvalue"));
+
+		doc.setClassificationTag(r.getString("classification_tag"));
+		doc.setAdditionalInformation(r.getString("additional_information"));
+		return doc;
+
 	}
 
 	private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
