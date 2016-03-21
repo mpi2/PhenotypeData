@@ -155,6 +155,20 @@
         <field name="p_value" type="double" indexed="true" stored="true" multiValued="false"/>
         <field name="effect_size" type="double" indexed="true" stored="true" multiValued="false"/>
 
+        <!-- Reference Range Plus statistics details  -->
+        <field name="genotype_pvalue_low_vs_normal_high"      type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="genotype_pvalue_low_normal_vs_high"      type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="genotype_effect_size_low_vs_normal_high" type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="genotype_effect_size_low_normal_vs_high" type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="female_pvalue_low_vs_normal_high"        type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="female_pvalue_low_normal_vs_high"        type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="female_effect_size_low_vs_normal_high"   type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="female_effect_size_low_normal_vs_high"   type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="male_pvalue_low_vs_normal_high"          type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="male_pvalue_low_normal_vs_high"          type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="male_effect_size_low_vs_normal_high"     type="double" indexed="true" stored="true" multiValued="false"/>
+        <field name="male_effect_size_low_normal_vs_high"     type="double" indexed="true" stored="true" multiValued="false"/>
+
         <!-- Fisher exact statistics details  -->
         <field name="categories" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="categorical_p_value" type="double" indexed="true" stored="true" multiValued="false"/>
