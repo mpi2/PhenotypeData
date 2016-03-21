@@ -136,12 +136,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			statResultCore.deleteByQuery("*:*");
 
-//			count += processViabilityResults();
-//			count += processFertilityResults();
+			count += processViabilityResults();
+			count += processFertilityResults();
 			count += processReferenceRangePlusResults();
-//			count += processUnidimensionalResults();
-//			count += processCategoricalResults();
-//			count += processEmbryoViabilityResults();
+			count += processUnidimensionalResults();
+			count += processCategoricalResults();
+			count += processEmbryoViabilityResults();
 
 			logger.info(" Added {} statistical result documents", count);
 
