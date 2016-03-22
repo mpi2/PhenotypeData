@@ -87,7 +87,7 @@ public class PhenogridController {
         MouseModel mouseModel = diseaseModelAssociation.getMouseModel();
         Integer modelId = mouseModel.getMgiModelId();
 
-        String label = mouseModel.getAllelicComposition();
+        String label = shortFormNotation(mouseModel.getAllelicComposition());
         //we only want to show the ids for the mouse phenotypes to cut down on payload size
         List<PhenotypeTerm> phenotypes = makeIdOnlyPhenotypes(mouseModel.getPhenotypeTerms());
         double phenodigmScore = makeScoreForPageType(requestPageType, diseaseModelAssociation);
@@ -117,6 +117,37 @@ public class PhenogridController {
         info.addAll(phenotypes);
 
         return info;
+    }
+
+    /**
+     * Transforms "Fgfr2<tm1.1Dsn>/Fgfr2<+>" to "Fgfr2 (tm1.1Dsn/+)"
+     *
+     * @param allelicComposition
+     * @return The short-form notation of a mouse allele
+     */
+    private String shortFormNotation(String allelicComposition) {
+        //e.g. "Fgfr2<tm1.1Dsn>/Fgfr2<+>" -> "Fgfr2 (tm1.1Dsn/+)"
+        String[] alleles = allelicComposition.split("/");
+        //return gene symbol lab codes for model -
+        String geneSymbol = geneSymbol(alleles[0]);
+        String alleleId0 = labCode(geneSymbol, alleles[0]);
+        //cater for single-allele cases such as "mt-Rnr2<m1Dwa>"
+        String alleleId1 = "";
+        if (alleles.length == 2) {
+            alleleId1 = "/" + labCode(geneSymbol, alleles[1]);
+        }
+        return String.format("%s (%s%s)", geneSymbol, alleleId0, alleleId1);
+    }
+
+    private String geneSymbol(String allele) {
+        //"Fgfr2<tm1.1Dsn>" -> "Fgfr2"
+        String[] tokens = allele.split("\\<");
+        return tokens[0];
+    }
+
+    private String labCode(String geneSymbol, String alleleId) {
+        //"Fgfr2<tm1.1Dsn>" -> "tm1.1Dsn"
+        return alleleId.replace(geneSymbol, "").replace("<", "").replace(">", "");
     }
 
     private String addSuppTagsToLabCodes(String allelicComposition) {
