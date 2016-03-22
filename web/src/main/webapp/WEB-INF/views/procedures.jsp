@@ -18,18 +18,17 @@
 	</script>
 
 	<!--    extra header stuff goes here such as extra page specific javascript -->
-	<%-- <script src="${baseUrl}/js/mpi2_search/all.js"></script> --%>
 
 
-	
+
 
 <style>
 </style>
 
     </jsp:attribute>
     <jsp:body>
-    
-    
+
+
     <c:if test="${not empty pipelineProcedureData}">
 	<div class="row-fluid dataset">
 		<div class="row-fluid">
@@ -49,17 +48,17 @@
 								<c:forEach var="table" items="${pipe.listOfTables}" varStatus="tableStatus">
 								<!-- should be a table in each div with the correct number of columns and rows -->
 								<table>
-										
+
 												<c:forEach var="row" items="${table.rows}" varStatus="rowStatus">
-												<tr> 
+												<tr>
 														<c:forEach var="cellData" items="${row.cellData}" varStatus="cellStatus">
 														<c:if test="${cellData.colspan!=0}">
 														<c:set var="string1" value="${cellData.dataString}"/>
 														<c:set var="shortString" value="${fn:substring(string1,0, 12)}" />
 														<td colspan="${cellData.colspan}" style="border:none;">
-														
-														
-														
+
+
+
 														<c:choose>
 															<c:when  test="${rowStatus.last}">
 															<c:set var="iconString" value='<i class="icon-forward"></i>'/>
@@ -75,48 +74,48 @@
 																	<button class="span12 btn btn_mini btn-info" title="${cellData.dataString}" disabled>${shortString}</button>
 																	</c:if>
 																	</c:otherwise>
-																	
+
 																	</c:choose>
 															</c:otherwise>
-														</c:choose>	
+														</c:choose>
 														</td>
 														</c:if>
 														</c:forEach>
 												</tr>
-												
-								
+
+
 												</c:forEach><!-- end of table -->
-										
+
 								</table>
 								</c:forEach><!-- end of bootDiv -->
-						
-						
+
+
 						</div><!--  end of accordion inner i.e. the dropdown div-->
 						</div>
 					</div>
-				
+
 				</c:forEach>
 			</div>
 		</div>
 	</div>
 
 </c:if>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		<c:if test="${not empty allPipelines}">
 	<div class="row-fluid dataset">
 		<div class="row-fluid">
@@ -142,27 +141,27 @@
 																<c:if test="${columnProduced eq false}">
 																		<div class="span1">
 																		<c:set var="spanNumber" value="${spanNumber+1}"/>
-														
+
 																<button class="span12 btn tn_small btn-warning impcPStatus" style="color:blue">week   ${i}</button>
-																
-														
+
+
 												</c:if>
 												<button class="span12 btn btn_small btn-info impcPStatus">${proc.name}</button>
 													<c:set var="columnProduced" value="true"/>
 											</c:if>
 										</c:forEach>
 									</c:forEach>
-									
+
 									<c:if test="${columnProduced}"><!--end of week if column needed  -->
 									</div>
 									<!--close the fluid div and create a new one  -->
 									<c:if test="${spanNumber>=12}"><c:set var="spanNumber" value="0"/></div><div class="row"></c:if>
 									</c:if>
 								</c:forEach>
-								
+
 							</div><!--  end of first row-fluid in toggle dropdown-->
-							
-							
+
+
 						</div>
 					</div>
 				</div>

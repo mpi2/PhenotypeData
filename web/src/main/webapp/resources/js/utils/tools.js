@@ -230,7 +230,7 @@
 
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
-				$('div#facetSrchMsg').html('Error fetching subfacet data ...');
+				$('div.facetSrchMsg').html('Error fetching subfacet data ...');
 			}
 		});
 	}
