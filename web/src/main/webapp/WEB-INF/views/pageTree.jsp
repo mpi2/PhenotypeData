@@ -19,7 +19,9 @@
     
     <jsp:attribute name="addToFooter">
         <script type="text/javascript">
-
+        
+        var mp_id = '${mpId}';
+        
         var width = 260,
         height = 200;
 
@@ -44,7 +46,7 @@
 	  
 	   
 	
-	    d3.json("json", function(error, root) {
+	    d3.json("json/" + mp_id + "?type=children", function(error, root) {
 	    	  
 		    var svg = d3.select("#childDiv").append("svg")
 		        .attr("width", width)
@@ -85,7 +87,7 @@
 	    });
 	     
 	     
-	    d3.json("parents.json", function(error, root) {
+	    d3.json("json/" + mp_id + "?type=parents", function(error, root) {
 	    	 
 	    	 var svgP = d3.select("#parentDiv").append("svg")
 		        .attr("width", width)
@@ -99,7 +101,7 @@
 		     if (error){ 
 		    	  console.log(error);
 		    	  throw error;
-		   	 }
+		     }
 		
 		     var nodes = cluster.nodes(root),
 		          links = cluster.links(nodes);
@@ -114,7 +116,7 @@
 		          .data(nodes)
 		          .enter().append("g")
 		          .attr("class", "node")
-		          .attr("transform", function(d) { console.log("called"); return "translate(" +  orientation_left.x(d) + "," + orientation_left.y(d) + ")"; })
+		          .attr("transform", function(d) { return "translate(" +  orientation_left.x(d) + "," + orientation_left.y(d) + ")"; })
 		
 		     node.append("circle")
 		          .attr("r", 4.5);
