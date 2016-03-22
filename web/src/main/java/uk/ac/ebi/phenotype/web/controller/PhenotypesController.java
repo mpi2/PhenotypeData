@@ -51,6 +51,7 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -446,26 +447,59 @@ public class PhenotypesController {
             RedirectAttributes attributes) 
     throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
+    	model.addAttribute("mpId", mpId);
         return "pageTree";
-    }
+    }    
     
-    @RequestMapping(value="/mpTree/json", method=RequestMethod.GET)	
-    public @ResponseBody String getParentChildren(Model model) 
+    
+    /**
+     * @author ilinca
+     * @since 2016/03/22
+     * @param mpId
+     * @param type
+     * @param model
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
+    public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
     throws SolrServerException, IOException, URISyntaxException {
     	
-    	JSONObject data = new JSONObject();
-    	JSONObject node = new JSONObject();
-    	node.element("name", "abnormal hematopoietic cell morphology");
-//    	Jsonobj
+    	System.out.println("MP ID :: " + mpId);
+    	if (type.equals("parents")){
     	
-		
-    	// Example for  MP_0013661 (2 parents and multiple children)
-		return "{\"name\": \"abnormal hematopoietic cell morphology\", \"children\":[ {\"name\": \"abnormal hematopoietic cell number\", "
-				+ "\"children\": [{\"name\": \"abnormal hematopoietic precursor cell number\", \"size\": 1000},"
-				+ "{\"name\": \"abnormal leukocyte cell number\"}, {\"name\": \"abnormal myeloid cell number\"}"
-				+ "] } ], "
-				+ "{\"name\": \"abnormal hematopoietic system morphology/development\", \"children\":[ {\"name\": \"abnormal hematopoietic cell number\"}, "
-				+ "] } }" ;	
+	    	JSONObject data = new JSONObject();
+	    	data.element("label", mpId);
+	    	JSONArray nodes = new JSONArray();
+	    	
+	    	for (OntologyBean term : mpService.getParents(mpId)){
+	    		nodes.add(term.toJson());
+	    	}
+
+	    	data.element("children", nodes);
+			return data.toString();
+			
+    	} else if (type.equals("children")){
+    		
+    		JSONObject data = new JSONObject();
+        	data.element("label", mpId);
+        	JSONArray nodes = new JSONArray();
+
+        	for (OntologyBean term : mpService.getChildren(mpId)){
+	    		nodes.add(term.toJson());
+	    	}
+        	
+        	data.element("children", nodes);
+    		return data.toString();
+    	}
+    	return "";
+    }
+        
+    
+    public JSONObject getJsonObj(String name, String type){
+    	return new JSONObject().element("name", name).element(type, true);
     }
     
     
