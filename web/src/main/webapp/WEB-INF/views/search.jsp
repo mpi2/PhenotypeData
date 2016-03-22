@@ -468,10 +468,23 @@
 						var infoDivId = tableId + "_info";
 						var paginationDivId = tableId + "_pagination";
 
+						var noSort = {}; // should match all existing columns
+						noSort["gene"] = [1,2,3];
+						noSort["mp"] = [1,2,3,4];
+						noSort["disease"] = [1];
+						noSort["ma"] = [1];
+						noSort["images"] = [0,1];
+						noSort["impc_images"] = [0,1];
+
 						$('table#'+tableId).dataTable({
-									"bSort" : false,
+									//"bSort" : true,  // sorts on current page only
 									"bProcessing" : true,
 									//"bServerSide" : true,
+									"aaSorting" : [[0, "desc"]],
+									"columnDefs": [ {
+										"targets": noSort[coreName],
+										"orderable": false
+									} ],
 									//"sDom" : "<<'#exportSpinner'><'#tableTool'>r>t<'#" + infoDivId + "'><'#" + paginationDivId + "'>",
 									"sDom" : "<<'#exportSpinner'>r>t<'#" + infoDivId + "'><'#" + paginationDivId + "'>",
 									"sPaginationType" : "bootstrap",
