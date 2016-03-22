@@ -1,7 +1,16 @@
 package org.mousephenotype.cda.solr.service;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 public class OntologyBean{
 
+
+	String name;
+	String id;
+	String description;
+	
+	
 	@Override
 	public String toString() {
 		return "OntologyBean [id=" + id + ", name=" + name + "]";
@@ -10,24 +19,24 @@ public class OntologyBean{
 		this.id=id;
 		this.name=name;
 	}
-
-	public OntologyBean() {
-
-	}
-
+	
 	public OntologyBean(String id, String name, String description) {
 		this(id, name);
 		this.description=description;
 	}
 
-	String id;
+	public OntologyBean() {
+
+	}
+
+
+
 	public String getId() {
 		return id;
 	}
 	public void setId(String maId) {
 		this.id = maId;
 	}
-	String name;
 	public String getName() {
 		return name;
 	}
@@ -44,7 +53,6 @@ public class OntologyBean{
 //		this.termTextValue = termTextValue;
 //	}
 	
-	String description;
 	public String getDescription() {
 		return description;
 	}
@@ -52,5 +60,7 @@ public class OntologyBean{
 		this.description = description;
 	}
 	
-
+	public JSONObject toJson(){
+		return new JSONObject().element("name", name).element("id", id);
+	}
 }

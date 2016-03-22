@@ -15,6 +15,7 @@ import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
+import org.neo4j.cypher.internal.compiler.v2_1.ast.containsAggregate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,11 +43,16 @@ public class HistopathController {
 		model.addAttribute("gene", gene);
 		
 		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
-		Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
+		List<ObservationDTO> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
 		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(allObservations);
 		Set<String> parameterNames=new TreeSet<>();
+		
+		//chop the parameter names so we have just the beginning as we have parameter names like "Brain - Description" and "Brain - MPATH Diagnostic Term" we want to lump all into Brain related
+		
 		for(HistopathPageTableRow row: histopathRows){
 			parameterNames.addAll(row.getParameterNames());
+			
+			
 		}
 		
 
