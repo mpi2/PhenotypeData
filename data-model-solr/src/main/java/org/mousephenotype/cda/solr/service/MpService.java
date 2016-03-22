@@ -88,6 +88,74 @@ public class MpService extends BasicService implements WebStatus{
 	}
 
 
+	/**
+	 * @author ilinca
+	 * @since 2016/03/22
+	 * @param id
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<OntologyBean> getParents(String id) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+			.setRows(1);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		List<OntologyBean> parents = new ArrayList<>();
+
+		if (mps.size() > 1){
+			throw new Error("More documents in MP core for the same MP id: " + id);
+		}
+		
+		if (mps.get(0).getParentMpId().size() != mps.get(0).getParentMpTerm().size()){
+			throw new Error("Length of parent id list and parent term list does not match for MP id: " + id);			
+		}
+		
+		for (int i = 0; i < mps.get(0).getParentMpId().size(); i++){
+			parents.add(new OntologyBean(mps.get(0).getParentMpId().get(i), mps.get(0).getParentMpTerm().get(i)));
+		}
+
+		return parents;
+	}
+
+	
+	
+
+	/**
+	 * @author ilinca
+	 * @since 2016/03/22
+	 * @param id
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<OntologyBean> getChildren(String id) throws SolrServerException {
+
+			SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+				.setRows(1);
+
+			QueryResponse rsp = solr.query(solrQuery);
+			List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+			List<OntologyBean> children = new ArrayList<>();
+
+			if (mps.size() > 1){
+				throw new Error("More documents in MP core for the same MP id: " + id);
+			}
+			
+			if (mps.get(0).getChildMpTerm().size() != mps.get(0).getChildMpId().size()){
+				throw new Error("Length of children id list and children term list does not match for MP id: " + id);			
+			}
+			
+			for (int i = 0; i < mps.get(0).getChildMpId().size(); i++){
+				children.add(new OntologyBean(mps.get(0).getChildMpId().get(i), mps.get(0).getChildMpTerm().get(i)));
+			}
+
+			return children;
+	}
+
+		
     /**
      * Return all phenotypes from the mp core.
      *
