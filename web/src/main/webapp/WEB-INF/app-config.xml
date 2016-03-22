@@ -45,6 +45,8 @@
     <property name="username" value="${datasource.komp2.username}"/>
     <property name="password" value="${datasource.komp2.password}"/>
     <property name="initialSize" value="3"/>
+    <property name="testOnBorrow" value="true" />
+    <property name="validationQuery" value="SELECT 1" />
     <property name="removeAbandoned" value="true"/>
     <property name="removeAbandonedTimeout" value="60"/>
     <property name="logAbandoned" value="true"/>
@@ -57,6 +59,8 @@
     <property name="username" value="${admintoolsusername}"/>
     <property name="password" value="${admintoolspassword}"/>
     <property name="initialSize" value="3"/>
+    <property name="testOnBorrow" value="true" />
+    <property name="validationQuery" value="SELECT 1" />
     <property name="removeAbandoned" value="true"/>
     <property name="removeAbandonedTimeout" value="60"/>
     <property name="logAbandoned" value="true"/>
