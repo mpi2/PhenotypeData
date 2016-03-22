@@ -1,4 +1,11 @@
 /* Additional styling written at EBI */
+.quarter {
+	width:25%;
+	float: left; 
+}
+.treeLabel{
+	font-size: 12px;
+}
 .preQcLink{
 	text-align:center;color: red; /*#EF7B0B;*/
 }
