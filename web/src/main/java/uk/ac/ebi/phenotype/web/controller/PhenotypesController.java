@@ -51,6 +51,7 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -446,53 +447,56 @@ public class PhenotypesController {
             RedirectAttributes attributes) 
     throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
+    	model.addAttribute("mpId", mpId);
         return "pageTree";
-    }
-   
-    @RequestMapping("/mpTree2/{mpId}")
-    public String getChildParentTree2(
-            @PathVariable String mpId,
-            Model model,
-            HttpServletRequest request,
-            RedirectAttributes attributes) 
-    throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
-        
-        return "pageTree2";
-    }
+    }    
     
     
-    @RequestMapping(value="/mpTree/json", method=RequestMethod.GET)	
-    public @ResponseBody String getParentChildren(Model model) 
+    /**
+     * @author ilinca
+     * @since 2016/03/22
+     * @param mpId
+     * @param type
+     * @param model
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
+    public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
     throws SolrServerException, IOException, URISyntaxException {
     	
-    	JSONObject data = new JSONObject();
-    	data.element("label", "abnormal hematopoietic cell morphology");
-    	JSONArray children = new JSONArray();
-    	children.add(getJsonObj("abnormal hematopoietic cell number", "child"));    
-    	children.add(getJsonObj("abnormal hematopoietic precursor cell number", "child"));    
-    	children.add(getJsonObj("abnormal leukocyte cell number", "child"));    	  
-    	children.add(getJsonObj("abnormal myeloid cell number", "child")); 
-    //	children.add(getJsonObj("PARENT abnormal hematopoietic cell number", "parent"));
-    //	children.add(getJsonObj("PARENT abnormal hematopoietic system morphology/developmentr", "parent"));
-    	data.element("children", children);
+    	System.out.println("MP ID :: " + mpId);
+    	if (type.equals("parents")){
+    	
+	    	JSONObject data = new JSONObject();
+	    	data.element("label", mpId);
+	    	JSONArray nodes = new JSONArray();
+	    	
+	    	for (OntologyBean term : mpService.getParents(mpId)){
+	    		nodes.add(term.toJson());
+	    	}
+
+	    	data.element("children", nodes);
+			return data.toString();
+			
+    	} else if (type.equals("children")){
     		
-		return data.toString();
+    		JSONObject data = new JSONObject();
+        	data.element("label", mpId);
+        	JSONArray nodes = new JSONArray();
+
+        	for (OntologyBean term : mpService.getChildren(mpId)){
+	    		nodes.add(term.toJson());
+	    	}
+        	
+        	data.element("children", nodes);
+    		return data.toString();
+    	}
+    	return "";
     }
-    
-    @RequestMapping(value="/mpTree/parents.json", method=RequestMethod.GET)	
-    public @ResponseBody String getParents(Model model) 
-    throws SolrServerException, IOException, URISyntaxException {
-    	
-    	JSONObject data = new JSONObject();
-    	data.element("label", "abnormal hematopoietic cell morphology");
-    	JSONArray parents = new JSONArray();
-    	parents.add(getJsonObj("abnormal hematopoietic cell number", "child"));
-    	parents.add(getJsonObj("abnormal hematopoietic system morphology/developmentr", "child"));
-    	data.element("children", parents);
-	
-		return data.toString();
-    }
-    
+        
     
     public JSONObject getJsonObj(String name, String type){
     	return new JSONObject().element("name", name).element(type, true);
