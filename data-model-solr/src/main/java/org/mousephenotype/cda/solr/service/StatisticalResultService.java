@@ -1284,7 +1284,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			        	xAxisToCellMap.put(procedure.getId(), null);
 		        	}
 		            cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
-		            if(Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
+		            if(doc.getFieldValue(StatisticalResultDTO.P_VALUE)!=null && Double.valueOf(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001){
 		            	cell.setStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
 		            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")){
 		            		cell.setStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);

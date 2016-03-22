@@ -17,17 +17,27 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 public class HistopathPageTableRow {
 
 	private String sampleId;
+	private String anatomyName;
 	
 	
 	//System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue="+obs.getTermValue());
 	
 	
 	
+	public String getAnatomyName() {
+		return anatomyName;
+	}
+	public void setAnatomyName(String anatomyName) {
+		this.anatomyName = anatomyName;
+	}
+
 	private Set<String> parameterNames;
+	
 	@Override
 	public String toString() {
-		return "HistopathPageTableRow [sampleId=" + sampleId + ", parameterNames=" + parameterNames
-				+ ", parameterStableId=" + parameterStableId + ", observationType=" + observationType  + ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", categoryList="
+		return "HistopathPageTableRow [sampleId=" + sampleId + ", anatomyName=" + anatomyName + ", parameterNames="
+				+ parameterNames + ", parameterStableId=" + parameterStableId + ", observationType=" + observationType
+				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", categoryList="
 				+ categoryList + ", textParameters=" + textParameters + "]";
 	}
 	public HistopathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
@@ -76,20 +86,99 @@ public class HistopathPageTableRow {
 	public Map<String, List<OntologyBean>> getSubOntologyBeans() {
 		return subOntologyBeans;
 	}
-	
-	public List<ParameterValueBean> getCategoryList() {
-		return categoryList;
-	}
 
 	private String parameterStableId;
 	private String observationType;
 	private String textValue;
 	private Map<String, List<OntologyBean>> subOntologyBeans=new HashMap<>();
+	public void addOntologicalParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
+		if(!this.subOntologyBeans.containsKey(parameter.getName())){
+			this.subOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
+		}
+		this.subOntologyBeans.get(parameter.getName()).add(subOntologyBean);
+		
+	}
+	
+	
+	private Map<String, List<OntologyBean>> mpathProcessOntologyBeans=new HashMap<>();
+	
+	public void addMpathProcessParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
+		if(!this.mpathProcessOntologyBeans.containsKey(parameter.getName())){
+			this.mpathProcessOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
+		}
+		this.mpathProcessOntologyBeans.get(parameter.getName()).add(subOntologyBean);
+		
+	}
+	
+private Map<String, List<OntologyBean>> mpathDiagnosticOntologyBeans=new HashMap<>();
+	
+	public Map<String, List<OntologyBean>> getMpathDiagnosticOntologyBeans() {
+	return mpathDiagnosticOntologyBeans;
+}
+public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpathDiagnosticOntologyBeans) {
+	this.mpathDiagnosticOntologyBeans = mpathDiagnosticOntologyBeans;
+}
+	public void addMpathDiagnosticParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
+		if(!this.mpathDiagnosticOntologyBeans.containsKey(parameter.getName())){
+			this.mpathDiagnosticOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
+		}
+		this.mpathDiagnosticOntologyBeans.get(parameter.getName()).add(subOntologyBean);
+		
+	}
+	
+	public Map<String, List<OntologyBean>> getMpathProcessOntologyBeans() {
+		return mpathProcessOntologyBeans;
+	}
+	public void setMpathProcessOntologyBeans(Map<String, List<OntologyBean>> mpathOntologyBeans) {
+		this.mpathProcessOntologyBeans = mpathOntologyBeans;
+	}
+	public Map<String, List<OntologyBean>> getPatoOntologyBeans() {
+		return patoOntologyBeans;
+	}
+	public void setPatoOntologyBeans(Map<String, List<OntologyBean>> patoOntologyBeans) {
+		this.patoOntologyBeans = patoOntologyBeans;
+	}
 
+	private Map<String, List<OntologyBean>> patoOntologyBeans=new HashMap<>();
+	
+	public void addPatoParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
+		if(!this.patoOntologyBeans.containsKey(parameter.getName())){
+			this.patoOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
+		}
+		this.patoOntologyBeans.get(parameter.getName()).add(subOntologyBean);
+		
+	}
 
-	private List<ParameterValueBean> categoryList=new ArrayList<>();
-
-	//reusing categoryBean here as 
+	private List<ParameterValueBean> descriptionTextParameters=new ArrayList<>();
+	
+	public List<ParameterValueBean> getDescriptionTextParameters() {
+		return descriptionTextParameters;
+	}
+	public void setDescriptionTextParameters(List<ParameterValueBean> descriptionTextParameters) {
+		this.descriptionTextParameters = descriptionTextParameters;
+	}
+	
+	public void addDescriptionTextParam(ImpressBaseDTO parameter, String textValue) {
+		this.descriptionTextParameters.add(new ParameterValueBean(parameter, textValue));
+		
+	}
+	
+	private List<ParameterValueBean> freeTextParameters=new ArrayList<>();
+	
+	public List<ParameterValueBean> getFreeTextParameters() {
+		return freeTextParameters;
+	}
+	public void setFreeTextParameters(List<ParameterValueBean> freeTextParameters) {
+		this.freeTextParameters = freeTextParameters;
+	}
+	
+	public void addFreeTextParam(ImpressBaseDTO parameter, String textValue) {
+		this.freeTextParameters.add(new ParameterValueBean(parameter, textValue));
+		
+	}
+	
+	
+	
 	private List<ParameterValueBean> textParameters=new ArrayList<>();
 	
 	public List<ParameterValueBean> getTextParameters() {
@@ -98,23 +187,60 @@ public class HistopathPageTableRow {
 	public void setTextParameters(List<ParameterValueBean> textParameters) {
 		this.textParameters = textParameters;
 	}
+	
+	
+	private List<ParameterValueBean> significance=new ArrayList<>();
+	
+	public List<ParameterValueBean> getSignificance() {
+		return significance;
+	}
+	
+	public void addSignficiance(ImpressBaseDTO parameter, String category) {
+		this.significance.add(new ParameterValueBean(parameter, category));
+		
+	}
+	
+	private List<ParameterValueBean> severity=new ArrayList<>();
+	
+	public List<ParameterValueBean> getSeverity() {
+		return severity;
+	}
+	
+	public void addSeveirty(ImpressBaseDTO parameter, String category) {
+		this.severity.add(new ParameterValueBean(parameter, category));
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	private List<ParameterValueBean> categoryList=new ArrayList<>();
+	
+	public List<ParameterValueBean> getCategoryList() {
+		return categoryList;
+	}
+	
 	public void addCategoricalParam(ImpressBaseDTO parameter, String category) {
 		this.categoryList.add(new ParameterValueBean(parameter, category));
 		
 	}
-	public void addOntologicalParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
-		if(!this.subOntologyBeans.containsKey(parameter)){
-			this.subOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
-		}
-		this.subOntologyBeans.get(parameter.getName()).add(subOntologyBean);
-		
-	}
+	
+	
+	
 	public void addTextParam(ImpressBaseDTO parameter, String textValue) {
 		this.textParameters.add(new ParameterValueBean(parameter, textValue));
 		
 	}
 	
 	public  class ParameterValueBean{
+		@Override
+		public String toString() {
+			return "ParameterValueBean [parameter=" + parameter + ", textValue=" + textValue + "]";
+		}
+
 		ImpressBaseDTO parameter;
 		public ImpressBaseDTO getParameter() {
 			return parameter;
@@ -146,6 +272,7 @@ public class HistopathPageTableRow {
 		this.parameterNames=parameterNames;
 		
 	}
+	
 	
 
 }

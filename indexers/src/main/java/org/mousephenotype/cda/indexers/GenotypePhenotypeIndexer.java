@@ -209,6 +209,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
             "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id " +
             "  LEFT OUTER JOIN stats_categorical_results scr ON scr.id = srpcs.categorical_result_id " +
+	        "  LEFT OUTER JOIN stats_rrplus_results srr ON srr.id = srpcs.rrplus_result_id " +
             "  INNER JOIN organisation o ON s.organisation_id = o.id " +
             "  INNER JOIN project p ON s.project_id = p.id " +
             "  INNER JOIN ontology_term ot ON ot.acc = s.mp_acc " +
@@ -220,7 +221,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             "  OR (s.p_value IS NULL AND s.sex='male' AND sur.gender_male_ko_pvalue<0.0001) " +
             "  OR (s.p_value IS NULL AND s.sex='female' AND sur.gender_female_ko_pvalue<0.0001)) " +
             "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
-            "OR s.p_value IS NULL";
+            "OR s.p_value IS NULL " ;
 
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
