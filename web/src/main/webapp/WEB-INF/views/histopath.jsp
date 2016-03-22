@@ -1,5 +1,6 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <t:genericpage>
@@ -51,22 +52,41 @@
 							<div class="inner">
 							 ${gene.markerName}
 							 
-							 <%-- Parameter names= ${parameterNames } --%>
-							 
 							 <table id="histopath" class="table tableSorter">
 							
 							<thead>
 							<tr>
 							<th>Sample Id</th>
-							<c:forEach var="paramHead" items="${parameterNames }">
+							
 							
 							
 							<th class="headerSort">
-							${paramHead }
+							Anatomy
+							</th>
+							<th>
+							Significance
+							</th>
+							<th>
+							Severity
+							</th>
+							<th>
+							Process
+							</th>
+							<th>
+							Diagnostic
+							</th>
+							<th>
+							PATO
+							</th>
+							<th>
+							Description
+							</th>
+							<th>
+							Free Text
 							</th>
 						
 							
-							</c:forEach>
+							
 							</tr>
 							</thead>
 								<c:forEach var="histRow" items="${histopathRows}">
@@ -75,15 +95,119 @@
 									<td>
 										${histRow.sampleId}
 									</td>
+									<td>
+										${histRow.anatomyName}
+									</td>
+									<td>
+									<c:forEach var="parameter" items="${histRow.significance }">
+										
+											${parameter.textValue }
+										
+									</c:forEach>
+									</td>
+									<td>
+									<c:forEach var="parameter" items="${histRow.severity }">
+										
+											${parameter.textValue }
+										
+									</c:forEach> 
+									</td>
 									
-									<c:forEach var="parameterName" items="${parameterNames }">
-									 <td>
+									<c:choose>
+									<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
+										<td>
+										</td>
+									</c:when>
+									<c:otherwise>
+									<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
+										 <td title="${parameter}">
+											
+										
+									<!-- do for each here values-->
+										<c:forEach var="value" items="${parameter.value }">
+											
+											${value.name }:
+											
+											${value.description }
+											
+										</c:forEach>
+										</td>
+									</c:forEach> 
+									</c:otherwise>
+									</c:choose>
+									
+									<c:choose>
+									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
+										<td>
+										</td>
+									</c:when>
+									<c:otherwise>
+									<c:forEach var="parameter" items="${histRow.mpathDiagnosticOntologyBeans }">
+										<td title="${parameter.value }">
+											
+										
+										<c:forEach var="value" items="${parameter.value }">
+											${value.name }:											
+											${value.description }
+										</c:forEach>
+										</td>
+									</c:forEach>
+									</c:otherwise>
+									</c:choose> 
+									
+									<c:choose>
+									<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
+										<td>
+										</td>
+									</c:when>
+									<c:otherwise>
+									<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+										<td title="${parameter.value }">
+											
+										
+										<c:forEach var="value" items="${parameter.value }">
+											${value.name }:											
+											${value.description }
+										</c:forEach>
+										</td>
+									</c:forEach>
+									</c:otherwise>
+									</c:choose> 
+									<td>
+										<c:forEach var="parameter" items="${histRow.descriptionTextParameters }">
+										
+										${parameter.textValue }
+										
+										</c:forEach>
+									</td> 
+									<td>
+										<c:forEach var="parameter" items="${histRow.freeTextParameters }">
+										
+										${parameter.textValue }
+										
+										</c:forEach> 
+									</td>
+									
+									<%-- <c:forEach var="parameter" items="${histRow.categoryList }">
+										<td>
+											category= ${parameter }
+										</td>
+									</c:forEach> 
+
+									<c:forEach var="parameter" items="${histRow.subOntologyBeans }">
+										<td>
+											ont= ${parameter }
+										</td>
+									</c:forEach>  --%>
+									
+									
+									<%--  <td>
 									 <div style="height: 100px; overflow:auto">
 										<c:forEach var="entry" items="${histRow.subOntologyBeans}">
 									
 											<c:if test="${entry.key eq parameterName }">
 												<c:forEach var="subOntology" items="${ entry.value}">													
-														<%-- ${subOntology.id } : --%> ${subOntology.name } <%-- description= ${subOntology.description} --%>	
+														${subOntology.id } : ${subOntology.name } description= ${subOntology.description}	
 												</c:forEach>
 										
 											</c:if>
@@ -105,14 +229,14 @@
 										<c:forEach var="textParam" items="${histRow.textParameters}">
 										<c:if test="${textParam.parameter.name eq parameterName }">
 										
-											 <%-- Parameter:${textParam.parameter.name} Text: --%> ${textParam.textValue }
+											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
 										
 										</c:if>
 										
 										</c:forEach>
 									</div>
-									</td>
-									</c:forEach>
+									</td> --%>
+									<%-- </c:forEach> --%>
 									
 									
 								</tr>
@@ -137,11 +261,11 @@
 									
 
                      
-                      <table>
+                     <table>
                      
-                      <c:forEach var="entry"
+                      <c:forEach var="obs"
 										items="${extSampleIdToObservations}">
-                       <c:forEach var="obs" items="${entry.value}">
+                      
                       	<tr>
                       		<td>
                       			${obs.externalSampleId }
@@ -168,7 +292,7 @@
                       			${obs.subTermDescription }
                       		</td>
                       	</tr>
-                      	</c:forEach>
+                      	
                       </c:forEach>
                       
                       </table>

@@ -33,9 +33,10 @@ public class HistopathServiceTest {
 		String geneAccession="MGI:2449119";
 		try {
 			List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
-			Map<String, List<ObservationDTO>> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
-			List<HistopathPageTableRow> histopathRows = histopathService.getTableData(allObservations);
-			
+			 List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(allObservations);	
+			 for(HistopathPageTableRow row: filteredObservations){
+				 //System.out.println("row="+row);
+			 }
 			
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
