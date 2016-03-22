@@ -466,23 +466,36 @@ public class PhenotypesController {
     throws SolrServerException, IOException, URISyntaxException {
     	
     	JSONObject data = new JSONObject();
-    	data.element("name", "abnormal hematopoietic cell morphology");
+    	data.element("label", "abnormal hematopoietic cell morphology");
     	JSONArray children = new JSONArray();
-    	JSONArray parents = new JSONArray();
-    	children.add(getJsonObj("abnormal hematopoietic cell number"));    
-    	children.add(getJsonObj("abnormal hematopoietic precursor cell number"));    
-    	children.add(getJsonObj("abnormal leukocyte cell number"));    	  
-    	children.add(getJsonObj("abnormal myeloid cell number")); 
+    	children.add(getJsonObj("abnormal hematopoietic cell number", "child"));    
+    	children.add(getJsonObj("abnormal hematopoietic precursor cell number", "child"));    
+    	children.add(getJsonObj("abnormal leukocyte cell number", "child"));    	  
+    	children.add(getJsonObj("abnormal myeloid cell number", "child")); 
+    //	children.add(getJsonObj("PARENT abnormal hematopoietic cell number", "parent"));
+    //	children.add(getJsonObj("PARENT abnormal hematopoietic system morphology/developmentr", "parent"));
     	data.element("children", children);
-    	parents.add(getJsonObj("PARENT abnormal hematopoietic cell number"));
-    	parents.add(getJsonObj("PARENT abnormal hematopoietic system morphology/developmentr"));
- //   	data.element("parents", parents);
+    		
+		return data.toString();
+    }
+    
+    @RequestMapping(value="/mpTree/parents.json", method=RequestMethod.GET)	
+    public @ResponseBody String getParents(Model model) 
+    throws SolrServerException, IOException, URISyntaxException {
+    	
+    	JSONObject data = new JSONObject();
+    	data.element("label", "abnormal hematopoietic cell morphology");
+    	JSONArray parents = new JSONArray();
+    	parents.add(getJsonObj("abnormal hematopoietic cell number", "child"));
+    	parents.add(getJsonObj("abnormal hematopoietic system morphology/developmentr", "child"));
+    	data.element("children", parents);
 	
 		return data.toString();
     }
     
-    public JSONObject getJsonObj(String name){
-    	return new JSONObject().element("name", name);
+    
+    public JSONObject getJsonObj(String name, String type){
+    	return new JSONObject().element("name", name).element(type, true);
     }
     
     

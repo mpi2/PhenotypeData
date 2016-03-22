@@ -20,7 +20,7 @@
     <jsp:attribute name="addToFooter">
         <script type="text/javascript">
 
-        var width = 460,
+        var width = 260,
         height = 200;
 
 	    var cluster = d3.layout.cluster()
@@ -29,19 +29,29 @@
 	    var diagonal = d3.svg.diagonal()
 	        .projection(function(d) { return [d.y, d.x]; });
 	
-	    var orientation_left = {
+
+	    var orientation_left = { // right to left
 	        size: [height, width],
-	        x: function(d) { return d.y; },
+	        x: function(d) { return width/2 - d.y * 100 / width; },
 	        y: function(d) { return d.x; }
 	    };
 	    
-	    var svg = d3.select("body").append("svg")
-	        .attr("width", width)
-	        .attr("height", height)
-	        .append("g")
-	        .attr("transform", "translate(40,0)");
+	    var orientation_right = { // left to right
+	    	    size: [height, width],
+	    	    x: function(d) { return d.y * 100 / width; },
+	    	    y: function(d) { return d.x; }
+	    	  };
+	  
+	   
 	
-	     d3.json("json", function(error, root) {
+	    d3.json("json", function(error, root) {
+	    	  
+		    var svg = d3.select("#childDiv").append("svg")
+		        .attr("width", width)
+		        .attr("height", height)
+		        .append("g")
+		        .attr("transform", "translate(5,0)");
+	    	
 		     if (error){ 
 		    	  console.log(error);
 		    	  throw error;
@@ -54,22 +64,68 @@
 		          .data(links)
 		          .enter().append("path")
 		          .attr("class", "link")
-		          .attr("d", diagonal);
-		
+		          .attr("d", d3.svg.diagonal().projection(function(d) { return [orientation_right.x(d), orientation_right.y(d)]; }));
+	
 		     var node = svg.selectAll(".node")
 		          .data(nodes)
 		          .enter().append("g")
 		          .attr("class", "node")
-		          .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
-		
+		          .attr("transform", function(d) { return "translate(" +  orientation_right.x(d) + "," + orientation_right.y(d) + ")"; })
+		          
 		     node.append("circle")
 		          .attr("r", 4.5);
 		
-		     node.append("text")
-		          .attr("dx", function(d) { return d.children ? -8 : 8; })
-		          .attr("dy", 3)
+		     node.append("svg:foreignObject")
+		          .attr("x", function(d) { return d.children ? -8 : 8; })
+		          .attr("y", -20)
+		          .attr("class", "treeLabel")
 		          .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-		          .text(function(d) { return d.name; });
+		          .text(function(d) { return d.name; })
+	   		      .style("width", "150px"); // width of the node labels;
+	    });
+	     
+	     
+	    d3.json("parents.json", function(error, root) {
+	    	 
+	    	 var svgP = d3.select("#parentDiv").append("svg")
+		        .attr("width", width)
+		        .attr("height", height)
+		        .append("g")
+		        .attr("transform", "translate(95,0)");
+	    	 
+		     var diagonalP = d3.svg.diagonal()
+	        	.projection(function(d) { return [d.y, d.x]; });
+	    	
+		     if (error){ 
+		    	  console.log(error);
+		    	  throw error;
+		   	 }
+		
+		     var nodes = cluster.nodes(root),
+		          links = cluster.links(nodes);
+		
+		     var link = svgP.selectAll(".link")
+		          .data(links)
+		          .enter().append("path")
+		          .attr("class", "link")
+		          .attr("d", d3.svg.diagonal().projection(function(d) { return [orientation_left.x(d), orientation_left.y(d)]; }));
+		
+		     var node = svgP.selectAll(".node")
+		          .data(nodes)
+		          .enter().append("g")
+		          .attr("class", "node")
+		          .attr("transform", function(d) { console.log("called"); return "translate(" +  orientation_left.x(d) + "," + orientation_left.y(d) + ")"; })
+		
+		     node.append("circle")
+		          .attr("r", 4.5);
+
+		     node.append("svg:foreignObject")
+	          .attr("x", function(d) { return d.children ? 8 : -150; })
+	          .attr("y", -20)
+	          .attr("class", "treeLabel")
+	          .style("text-anchor", function(d) { return d.children ? "start" : "end"; })
+	          .text(function(d) { return d.name; })
+  		      .style("width", "150px"); // width of the node labels;
 	    });
 	
 	    d3.select(self.frameElement).style("height", height + "px");
@@ -82,8 +138,8 @@
        
 
     <div id="body">
-      <div id="footer">
-      </div>
+		<div class="quarter" id="parentDiv"></div>
+		<div class="quarter" id="childDiv"></div>
     </div>
     
         
