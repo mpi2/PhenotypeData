@@ -3,8 +3,9 @@
 	width:25%;
 	float: left; 
 }
-.treeLabel{
+.node text.treeLabel{
 	font-size: 12px;
+	cursor: pointer;
 }
 .preQcLink{
 	text-align:center;color: red; /*#EF7B0B;*/

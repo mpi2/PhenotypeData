@@ -14,22 +14,29 @@
 
 	<!-- CSS Local Imports -->
 		<link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/mp-heatmap/heatmap/css/heatmap.css">
+        <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
 		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css" />
 		<style>
 			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
 		</style-->
+		
+		<script type="text/javascript">
+			var phenotypeId = '${phenotype.getMpId()}';
+			var drupalBaseUrl = '${drupalBaseUrl}';
+		</script>
+		
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
 
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+    	
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>		
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
+    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 
-		<script type="text/javascript">
-			var phenotypeId = '${phenotype.getMpId()}';
-			var drupalBaseUrl = '${drupalBaseUrl}';
-		</script>
 
 	</jsp:attribute>
 
@@ -37,31 +44,36 @@
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
 	<jsp:attribute name="addToFooter">
-			<div class="region region-pinned">
+	
+		<script type="text/javascript">
+			var mp_id = '${phenotype.getMpId()}';
+		</script>
+    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
+	
+		<div class="region region-pinned">
+	        <div id="flyingnavi" class="block">
+		
+				<a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
+		
+		        <ul>
+		 	        <li><a href="#top">Phenotype</a></li>
+		            <c:if test="${genePercentage.getDisplay()}">
+		                		<li><a href="#data-summary">Phenotype Association Stats</a></li>
+		            </c:if>
+		            <c:if test="${hasData}">
+		                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
+		                <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
+		            </c:if>
+		            <c:if test="${not empty images && fn:length(images) !=0}">
+		                <li><a href="#imagesSection">Images</a></li>
+		            </c:if>
+		        </ul>
+		
+		        <div class="clear"></div>
+		
+	        </div>
 
-        <div id="flyingnavi" class="block">
-
-            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-
-            <ul>
-                <li><a href="#top">Phenotype</a></li>
-                <c:if test="${genePercentage.getDisplay()}">
-                		<li><a href="#data-summary">Phenotype Association Stats</a></li>
-                </c:if>
-                <c:if test="${hasData}">
-                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
-                <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
-                </c:if>
-                <c:if test="${not empty images && fn:length(images) !=0}">
-                <li><a href="#imagesSection">Images</a></li>
-                </c:if>
-            </ul>
-
-            <div class="clear"></div>
-
-        </div>
-
-    </div>
+	</div>
 
     <c:if test="${hasData}">
 			<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>
@@ -113,21 +125,7 @@
 					<div class="section">
 						<div class="inner">
 
-						 <!--  login interest button -->
-                         <div class="floatright">
-                             <c:choose>
-                                 <c:when test="${registerButtonAnchor!=''}">
-                                     <p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
-                                         </c:when>
-                                         <c:otherwise>
-                                     <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
-                                         </c:otherwise>
-                                     </c:choose>
-                                     <c:if test="${orderPossible}">
-                                 <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
-                             </c:if>
-                         </div>
-
+					<div class="half">
 						<c:if test="${not empty phenotype.getMpDefinition()}">
 							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 						</c:if>
@@ -159,7 +157,7 @@
  										<c:set var="count" value="${count+1}" />
   										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">${procedure.procedureName} (${procedure.pipelineName})</a></li>
 	 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
-										<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></div></c:if>
+										<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></c:if>
 									</c:forEach>
 								</ul>
 							</div>
@@ -177,8 +175,31 @@
 						<c:if test="${!hasData}">
 							<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
 						</c:if>
-					</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
+						<c:choose>
+                        	<c:when test="${registerButtonAnchor!=''}">
+                            	<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+                            </c:when>
+	                        <c:otherwise>
+	                            <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+	                        </c:otherwise>
+                        </c:choose>
+                        <c:if test="${orderPossible}">
+                          	<p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+                        </c:if>
 					</div>
+						
+						
+					<div class="half">
+						 <!--  login interest button -->
+                   
+                             
+                            <div class="half" id="parentDiv"></div>
+							<div class="half" id="childDiv"></div>
+					</div>
+						
+					<div class="clear"></div>
+				</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
+				</div>
 
 
 				<c:if test="${genePercentage.getDisplay()}">
