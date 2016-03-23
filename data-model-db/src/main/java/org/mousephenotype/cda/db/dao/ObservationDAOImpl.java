@@ -29,6 +29,7 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,7 +62,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 				+ " INNER JOIN biological_sample bs ON bs.organisation_id=o.id"
 				+ " INNER JOIN observation ob ON ob.biological_sample_id=bs.id";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 
@@ -95,7 +96,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		+ " WHERE bs.organisation_id=?"
 		;
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
 	        statement.setInt(1, organisation.getId());
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -118,7 +119,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		+ " AND o.observation_type='categorical'"
 		;
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
 	        statement.setInt(1, organisation.getId());
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -145,7 +146,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 		"INNER JOIN experiment e ON e.id=eo.experiment_id " +
 		"WHERE o.observation_type='unidimensional' " ;
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)){
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)){
 
 			ResultSet resultSet = statement.executeQuery();
 
@@ -633,7 +634,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
                 + "GROUP BY observation_type, e.organisation_id\n"
                 + "ORDER BY e.organisation_id limit 1000000\n";
 
-        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 String[] row = new String[6];
@@ -677,7 +678,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
                 + "GROUP BY o.observation_type, e.organisation_id\n"
                 + "ORDER BY e.organisation_id limit 1000000\n";
 
-        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 String[] row = new String[6];
@@ -720,7 +721,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
                 + "  AND ot.acc IS NULL\n"
                 + "ORDER BY o.parameter_status, e.organisation_id, o.observation_type\n";
 
-        try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 String[] row = new String[4];

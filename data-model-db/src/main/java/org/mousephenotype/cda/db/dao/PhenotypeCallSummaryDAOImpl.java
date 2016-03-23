@@ -26,14 +26,15 @@ package org.mousephenotype.cda.db.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -130,9 +131,9 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 	@Transactional(readOnly = false)
 	public void deletePhenotypeCallSummariesByDatasource(Datasource datasource, Parameter parameter) throws SQLException {
 
-		String sql = "DELETE FROM phenotype_call_summary WHERE external_db_id=? AND parameter_id=?";
+		String query = "DELETE FROM phenotype_call_summary WHERE external_db_id=? AND parameter_id=?";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(sql)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 			statement.setInt(1, datasource.getId());
 			statement.setInt(2, parameter.getId());
 			statement.executeUpdate();
@@ -145,7 +146,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 
 		String query = "DELETE FROM stats_categorical_results WHERE parameter_id=?";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 			statement.setInt(1, parameter.getId());
 			statement.executeUpdate();
 		}
@@ -156,7 +157,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 
 		String query = "DELETE FROM stats_unidimensional_results WHERE parameter_id=?";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 			statement.setInt(1, parameter.getId());
 			statement.executeUpdate();
 		}
@@ -167,7 +168,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 
 		String query = "TRUNCATE TABLE stats_categorical_results";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 			statement.executeUpdate();
 		}
 	}
@@ -177,7 +178,7 @@ public class PhenotypeCallSummaryDAOImpl extends HibernateDAOImpl implements Phe
 
 		String query = "TRUNCATE TABLE stats_unidimensional_results";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 			statement.executeUpdate();
 		}
 	}
