@@ -188,8 +188,6 @@
 			
 			function createDropdown(multipleSel, emptyText,  allDd){
 				
-				console.log("called phen createDropdown "+ multipleSel);
-				
 				$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 					minWidth: 150, onItemClick: function(checkbox, selector){
 						console.log("IN dropdownchecklist");
