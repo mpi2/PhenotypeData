@@ -49,7 +49,6 @@ $(document).ready(function(){
 		var id = $(this).attr('parameter');
 		var chartUrl = document.URL.split("/phenotypes/")[0];
 		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
-		console.log("request uri = " + chartUrl);	
 		$.ajax({
 		  url: chartUrl,
 		  cache: false

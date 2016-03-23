@@ -35,7 +35,6 @@
     	
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>		
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
-    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 
 
 	</jsp:attribute>
@@ -190,9 +189,6 @@
 						
 						
 					<div class="half">
-						 <!--  login interest button -->
-                   
-                             
                             <div class="half" id="parentDiv"></div>
 							<div class="half" id="childDiv"></div>
 					</div>
