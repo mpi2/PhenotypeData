@@ -14,8 +14,13 @@
 
         <style>
 
-            .x-grid-tree-node-expanded .x-tree-icon-parent {
-               // background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/folder-open.gif");
+            .x-grid-tree-loading .x-tree-icon {
+                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/loading.gif");
+            }
+
+            .x-grid-tree-node-expanded .x-tree-icon-parent
+            {
+               background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/folder-open.gif");
             }
 
             .x-tree-icon-leaf {
@@ -136,7 +141,7 @@
           },
           root: {
             text: ontologyLabel,
-            id: 'src',
+            id: '0',
             expanded: true
             //nodeType: 'async'
             }
@@ -184,7 +189,7 @@
 
                 console.log(s.getRootNode().firstChild.data.expandNodeIds);
 
-                // console.log( "length: " + store.getNodeById(1).data.expandNodeIds.length);
+                console.log( "length: " + s.getRootNode().firstChild.data.expandNodeIds.length);
 
                 var expandList = s.getRootNode().firstChild.data.expandNodeIds;
                 //var expandList = store.getNodeById(1).data.expandNodeIds;
