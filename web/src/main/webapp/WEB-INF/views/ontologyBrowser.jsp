@@ -226,6 +226,7 @@
             listeners: {
               itemclick: function (s, r) {
                 var node = r.data;
+                  console.log(node.href + " " + node.hrefTarget);
                 // links to term page on new tab
                 // just so that click on all area of the div will jump to new page
                 window.open(node.href, node.hrefTarget);
