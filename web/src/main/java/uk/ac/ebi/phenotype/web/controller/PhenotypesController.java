@@ -467,7 +467,6 @@ public class PhenotypesController {
     public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
     throws SolrServerException, IOException, URISyntaxException {
     	
-    	System.out.println("MP ID :: " + mpId);
     	if (type.equals("parents")){
     	
 	    	JSONObject data = new JSONObject();
