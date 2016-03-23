@@ -90,6 +90,8 @@ public class OntologyBrowserController {
             ontologyName = "mp";
         }
 
+        rootId = rootId.equals("src") ? "0" : rootId;
+
         TreeHelper helper = getTreeHelper(request, ontologyName, termId);
 
         List<JSONObject> tree = createTreeJson(helper, rootId, null, termId);
@@ -104,8 +106,6 @@ public class OntologyBrowserController {
 
         String sql = fetchNextLevelChildrenSql(helper, rootId, childNodeId);
 
-        //System.out.println(">>>>>> " + sql);
-
         try (Connection conn = komp2DataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
             ResultSet resultSet = p.executeQuery();
@@ -116,10 +116,11 @@ public class OntologyBrowserController {
 
                 String nodeId = resultSet.getString("node_id");
 
-                System.out.println("ROOT node id now: " + nodeId);
-                System.out.println("PATH NODES: " + helper.getPathNodes());
+//                System.out.println("ROOT node id now: " + nodeId);
+//                System.out.println("PATH NODES: " + helper.getPathNodes());
                 if ( helper.getPreOpenNodes().containsKey(nodeId) ){
                     // check if this is the node to start fetching it children recursively
+
                     // the tree should be expanded until the query term
                     // eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
                     String topNodeId = null;
@@ -141,7 +142,7 @@ public class OntologyBrowserController {
                             JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
 
                             //System.out.println("2nd Level node id now: " + thisNode.getId());
-                            System.out.println("2nd Level node id now: " + thisNode.getString("id"));
+                            //System.out.println("2nd Level node id now: " + thisNode.getString("id"));
 
                             //if (!thisNode.isLeaf()) {
                             if (!thisNode.getBoolean("leaf")) {
@@ -196,7 +197,7 @@ public class OntologyBrowserController {
                     JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 
                     //System.out.println("3rd Level node id now: " + thisNode.getId());
-                    System.out.println("3rd Level node id now: " + thisNode.getString("id"));
+                    //System.out.println("3rd Level node id now: " + thisNode.getString("id"));
 
                     //if ( ! thisNode.isLeaf() ){
                     if (!thisNode.getBoolean("leaf")) {
@@ -238,7 +239,7 @@ public class OntologyBrowserController {
                     JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 
                     //System.out.println("4th Level node id now: " + thisNode.getId());
-                    System.out.println("4th Level node id now: " + thisNode.getString("id"));
+                    //System.out.println("4th Level node id now: " + thisNode.getString("id"));
 
                     //if ( ! thisNode.isLeaf() ){
                     if (!thisNode.getBoolean("leaf")) {
@@ -258,38 +259,6 @@ public class OntologyBrowserController {
 
         return nodeObj;
     }
-
-//   public TreeNodeObject recursiveFetchChildNodes(TreeNodeObject nodeObj) throws SQLException {
-//
-//        String parentNodeId = nodeObj.getId();
-//        String childNodeId = null;
-//
-//        String sql = fetchNextLevelChildrenSql(parentNodeId, childNodeId);
-//
-//        List<TreeNodeObject> children = new ArrayList<>();
-//
-//        try (PreparedStatement p = conn.prepareStatement(sql)) {
-//
-//            ResultSet resultSet = p.executeQuery();
-//            while (resultSet.next()) {
-//
-//                TreeNodeObject thisNode = fetchNodeInfo(resultSet);
-//
-//                System.out.println("4th Level node id now: " + thisNode.getId());
-//                if ( ! thisNode.isLeaf() ){
-//                    thisNode = recursiveFetchChildNodes(thisNode);
-//                }
-//
-//                children.add(thisNode);
-//                nodeObj.setChildren(children);
-//            }
-//        }
-//        catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        return nodeObj;
-//    }
 
     public String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId) throws SQLException {
 
@@ -312,7 +281,6 @@ public class OntologyBrowserController {
         return sql;
     }
 
-
     public TreeHelper getTreeHelper(HttpServletRequest request, String ontologyName, String termId) throws SQLException {
 
         String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path "
@@ -320,9 +288,7 @@ public class OntologyBrowserController {
                 + "WHERE node_id IN "
                 + "(SELECT node_id FROM " + ontologyName + "_node2term WHERE term_id = ?)";
 
-//        System.out.println("*****QUERY: "+ query);
-//        System.out.println("*****TERM: "+ termId);
-
+        //System.out.println("HELPER :" + query);
         Map<String, String> nameMap = new HashMap<>();
         nameMap.put("ma", "anatomy");
         nameMap.put("mp", "phenotypes");
@@ -346,7 +312,7 @@ public class OntologyBrowserController {
 
             while (resultSet.next()) {
                 String fullpath = resultSet.getString("path");
-                System.out.println("PATH: " + fullpath);
+                //System.out.println("FULLPATH: " + fullpath);
                 String[] nodes = fullpath.split(" ");
 
                 pathNodes.addAll(Arrays.asList(nodes));
@@ -362,6 +328,7 @@ public class OntologyBrowserController {
 
                 Map<String, String> nodeStartEnd = new HashMap<>();
                 nodeStartEnd.put(nodes[0], endNodeId);
+
                 preOpenNodes.get(topNodeId).add(nodeStartEnd);
 
             }
@@ -412,17 +379,12 @@ public class OntologyBrowserController {
         //thisNode.setText(url);
         node.put("text", url);
 
-        node.put("qtip", nodeId + "- " + termId);
+        //node.put("qtip", nodeId + "- " + termId);
 
         node.put("id", Integer.toString(resultSet.getInt("node_id")));
         node.put("term_id", resultSet.getString("term_id"));
-
         node.put("expandNodeIds", helper.getExpandNodeIds());
-
-        node.put("text", url);
         node.put("leaf", resultSet.getString("node_type").equals("folder") ? false : true);
-        //node.put("children", n.getChildren());
-
 
         //return thisNode;
         return node;
@@ -487,7 +449,7 @@ public class OntologyBrowserController {
     }
 
 
-        private class TreeNodeObject {
+    private class TreeNodeObject {
 
         String id;
         String term_id;

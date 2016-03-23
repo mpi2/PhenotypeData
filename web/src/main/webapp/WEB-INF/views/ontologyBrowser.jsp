@@ -58,9 +58,7 @@
                 padding: 5px;
             }
 
-
         </style>
-
 
 	</jsp:attribute>
 
@@ -124,24 +122,13 @@
               update: 'POST'
             }
           },
-          //clearOnLoad: true, // default
           model: 'myModel',
           listeners: {
-              beforeload: function(s, r){
-
-                  console.log("root id:" + s.getRootNode().data.id);
-                 // this.fireEvent('clear',this); // not working
-                 // s.removeAll(); // not working
-                  //s.loadData([],false); // not working
-
-                  //s.getProxy().clear();
-                  //s.data.clear();
-                  s.sync();
-              }
+              //beforeload: function(s, r){}
           },
           root: {
             text: ontologyLabel,
-            id: '0',
+            id: 'src',
             expanded: true
             //nodeType: 'async'
             }
@@ -153,8 +140,6 @@
   //          }]
           }
         );
-
-
 
         var tree = Ext.create('Ext.tree.Panel', {
             store: store,
@@ -182,18 +167,9 @@
               load: function (s, r) {
 
                 //var node = r.data;
-                  console.log("test loading")
-
-
-                          $(".x-grid-tree-node-expanded .x-tree-icon-parent").addClass("fa-folder-o");
-
-                console.log(s.getRootNode().firstChild.data.expandNodeIds);
-
-                console.log( "length: " + s.getRootNode().firstChild.data.expandNodeIds.length);
-
                 var expandList = s.getRootNode().firstChild.data.expandNodeIds;
                 //var expandList = store.getNodeById(1).data.expandNodeIds;
-                 // var expandList = r.data.expandNodeIds;
+
                 for (var i = 0; i < expandList.length; i++) {
                   var enode = s.getNodeById(expandList[i]);
 
