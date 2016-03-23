@@ -71,13 +71,13 @@
 	     
 	     
 	    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
-	    	 
+	    	
 	    	 var svgP = d3.select("#parentDiv").append("svg")
 		        .attr("width", width)
 		        .attr("height", height)
 		        .append("g")
 		        .attr("transform", "translate(95,0)");
-	    	 
+	    	
 		     var diagonalP = d3.svg.diagonal()
 	        	.projection(function(d) { return [d.y, d.x]; });
 	    	
@@ -104,7 +104,7 @@
 		     node.append("circle")
 		          .attr("r", 4.5)
 		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
-		     
+		    
 		     node.append("text")
 		          .attr("x", function(d) { return d.children ?  8 : -8; })
 		          .attr("y", 3)
@@ -114,7 +114,13 @@
 	  		      .style("width", "150px")
 	  		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
-				   }); // width of the node labels; 
+				   })
+//				  .on("mouseover", function(){return tooltip.style("visibility", "visible");})
+//				  .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+//				  .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+				; // width of the node labels; 
+		     
+		     
 	    });
 	
 	    d3.select(self.frameElement).style("height", height + "px");
