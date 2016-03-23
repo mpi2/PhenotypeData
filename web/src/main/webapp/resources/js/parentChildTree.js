@@ -23,8 +23,6 @@
 	    	    y: function(d) { return d.x; }
 	    	  };
 	    
-	   console.log("MP_ID" + mp_id);
-	   
 	
 	    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
 	    	  
@@ -55,7 +53,8 @@
 		          .attr("transform", function(d) { return "translate(" +  orientation_right.x(d) + "," + orientation_right.y(d) + ")"; })
 		          
 		     node.append("circle")
-		          .attr("r", 4.5);
+		          .attr("r", 4.5)
+		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
 		
 		     node.append("text")
 		          .attr("x", function(d) { return d.children ? -8 : 8; })
@@ -103,8 +102,8 @@
 		          .attr("transform", function(d) { return "translate(" +  orientation_left.x(d) + "," + orientation_left.y(d) + ")"; })
 		
 		     node.append("circle")
-		          .attr("r", 4.5);
-
+		          .attr("r", 4.5)
+		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
 		     
 		     node.append("text")
 		          .attr("x", function(d) { return d.children ?  8 : -8; })
