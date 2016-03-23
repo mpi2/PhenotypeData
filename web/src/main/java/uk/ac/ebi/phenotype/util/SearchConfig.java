@@ -33,6 +33,20 @@ public class SearchConfig {
         setGridColumns();
     }
 
+    public String getSortingStr(String coreName) {
+
+        Map<String, String> sorting = new HashMap<>();
+
+        sorting.put("gene", "&sort=marker_symbol asc");
+        sorting.put("mp", "&sort=mp_term asc");
+        sorting.put("disease", "&sort=disease_term asc");
+        sorting.put("ma", "&sort=ma_term asc");
+        sorting.put("impc_images", "");  // these have multivalue fields, not sortable
+        sorting.put("images", "");  // these have multivalue fields, not sortable
+
+        return sorting.get(coreName);
+    }
+
     public String getFqStr(String coreName, String fqStr) {
 
         Map<String, String> coreDefault = new HashMap<>();
@@ -282,7 +296,7 @@ public class SearchConfig {
 
     private void setGridColumns(){
         List<String> geneCols = Arrays.asList(new String[]{"Gene", "Production", "Phenotype", "Register"});
-        List<String> mpCols = Arrays.asList(new String[]{"Phenotype", "Definition", "Phenotyping<br>Call(s)", "Register"});
+        List<String> mpCols = Arrays.asList(new String[]{"Phenotype", "Definition", "Phenotyping<br>Call(s)", "Browse Ontology", "Register"});
 
        // List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source", "Curated Genes", "Candidate Genes<br>by phenotype"});
         List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source"});
