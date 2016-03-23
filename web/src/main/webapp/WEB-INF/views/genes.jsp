@@ -497,7 +497,7 @@
 
 									<!-- Expression (legacy) -->
 									<c:if test="${not empty expressionFacets}">
-											<h5 class="sectHint">Legacy lacZ Expression Data</h5>
+											<h5 class="sectHint">Secondary lacZ Expression Data</h5>
 
 											<!-- thumbnail scroller markup begin -->
 											<c:forEach var="entry" items="${expressionFacets}" varStatus="status">

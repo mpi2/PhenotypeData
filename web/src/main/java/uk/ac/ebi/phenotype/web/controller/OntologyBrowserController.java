@@ -1,0 +1,504 @@
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
+
+package uk.ac.ebi.phenotype.web.controller;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import uk.ac.ebi.uniprot.jaxb.SourceType;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
+/**
+ * Created by ckc on 21/03/2016.
+ */
+
+@Controller
+public class OntologyBrowserController {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
+    @Resource(name = "globalConfiguration")
+    private Map<String, String> config;
+
+    @Autowired
+    @Qualifier("komp2DataSource")
+    DataSource komp2DataSource;
+
+    protected Connection conn;
+    protected String ONTOLOGYNAME;
+    protected Set<String> pathNodes = new HashSet<>();
+    protected Map<String, List<Map<String, String>>> preOpenNodes = new HashMap<>();
+    protected Set<String> expandNodeIds = new HashSet<>();
+    protected String baseUrl;
+    protected String pageBaseUrl;
+
+
+
+    @RequestMapping(value = "/ontologyBrowser", method = RequestMethod.GET)
+    public String getParams(
+
+            @RequestParam(value = "termId", required = true) String termId,
+            HttpServletRequest request,
+            Model model)
+            throws IOException, URISyntaxException, SQLException {
+
+        model.addAttribute("termId", termId);
+
+        return "ontologyBrowser";
+    }
+
+
+    //@ResponseBody
+    @RequestMapping(value = "/ontologyBrowser2", method = RequestMethod.POST)
+    public ResponseEntity<String> getTreeJson(
+            @RequestParam(value = "node", required = true) String rootId,
+            @RequestParam(value = "termId", required = true) String termId,
+            HttpServletRequest request,
+            Model model)
+            throws IOException, URISyntaxException, SQLException {
+
+        conn = komp2DataSource.getConnection();
+        if ( termId.startsWith("MA:") ){
+            ONTOLOGYNAME = "ma";
+        }
+        else if (termId.startsWith("MP:") ){
+            ONTOLOGYNAME = "mp";
+        }
+
+        baseUrl = request.getAttribute("baseUrl").toString();
+
+        Map<String, String> nameMap = new HashMap<>();
+        nameMap.put("ma", "anatomy");
+        nameMap.put("mp", "phenotypes");
+        pageBaseUrl = baseUrl + "/" + nameMap.get(ONTOLOGYNAME);
+
+        rootId = rootId.equals("src") ? "0" : rootId;
+
+        fetchPreOpenNodes(termId);
+
+        List<JSONObject> tree = createTreeJson(rootId, null, termId);
+
+        return new ResponseEntity<String>(tree.toString(), createResponseHeaders(), HttpStatus.CREATED);
+    }
+
+    public List<JSONObject> createTreeJson(String rootId, String childNodeId, String termId) throws SQLException {
+
+        //List<TreeNodeObject> tn = new ArrayList<>();
+        List<JSONObject> tn = new ArrayList<>();
+
+        String sql = fetchNextLevelChildrenSql(rootId, childNodeId);
+
+        //System.out.println(">>>>>> " + sql);
+
+        try (PreparedStatement p = conn.prepareStatement(sql)) {
+
+            ResultSet resultSet = p.executeQuery();
+
+            List<String> endNodes = new ArrayList<>();
+
+            while (resultSet.next()) {
+
+                String nodeId = resultSet.getString("node_id");
+
+                System.out.println("ROOT node id now: " + nodeId);
+                System.out.println("PATH NODES: " + pathNodes);
+                if ( preOpenNodes.containsKey(nodeId) ){
+                    // check if this is the node to start fetching it children recursively
+                    // the tree should be expanded until the query term
+                    // eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
+                    String topNodeId = null;
+                    for ( Map<String, String> topEnd : preOpenNodes.get(nodeId) ) {
+                        for (String thisTopNodeId : topEnd.keySet()) {
+                            topNodeId = thisTopNodeId;
+                            break;  // do only once: should have a better way
+                        }
+                    }
+                    String thisSql = fetchNextLevelChildrenSql(topNodeId, nodeId);
+
+                    try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
+
+                        ResultSet resultSet2 = p2.executeQuery();
+                        while (resultSet2.next()) {
+
+                            //String thisNodeId = resultSet2.getString("node_id");
+                            //TreeNodeObject thisNode = fetchNodeInfo(resultSet2);
+                            JSONObject thisNode = fetchNodeInfo(resultSet2);
+
+                            //System.out.println("2nd Level node id now: " + thisNode.getId());
+                            System.out.println("2nd Level node id now: " + thisNode.getString("id"));
+
+                            //if (!thisNode.isLeaf()) {
+                            if (!thisNode.getBoolean("leaf")) {
+                                thisNode = fetchChildNodes(thisNode);
+                            }
+                            //echo print_r($thisTerm);
+
+                            tn.add(thisNode);
+                        }
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    // just fetch the term of this node
+                    //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
+                    JSONObject thisNode = fetchNodeInfo(resultSet);
+                    tn.add(thisNode);
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return tn;
+    }
+
+
+    //public TreeNodeObject fetchChildNodes(TreeNodeObject nodeObj) throws SQLException {
+    public JSONObject fetchChildNodes(JSONObject nodeObj) throws SQLException {
+        //String parentNodeId = nodeObj.getId();
+        String parentNodeId = nodeObj.getString("id");
+        String childNodeId = null;
+
+        String sql = fetchNextLevelChildrenSql(parentNodeId, childNodeId);
+
+        //List<TreeNodeObject> children = new ArrayList<>();
+        List<JSONObject> children = new ArrayList<>();
+
+        try (PreparedStatement p = conn.prepareStatement(sql)) {
+
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+
+                //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
+
+                if ( pathNodes.contains(Integer.toString(resultSet.getInt("node_id")))) {
+
+                    JSONObject thisNode = fetchNodeInfo(resultSet);
+
+                    //System.out.println("3rd Level node id now: " + thisNode.getId());
+                    System.out.println("3rd Level node id now: " + thisNode.getString("id"));
+
+                    //if ( ! thisNode.isLeaf() ){
+                    if (!thisNode.getBoolean("leaf")) {
+                        thisNode = recursiveFetchChildNodes(thisNode);
+                        //thisNode = fetchChildNodes(thisNode);
+                    }
+
+                    children.add(thisNode);
+                    //nodeObj.setChildren(children);
+                    nodeObj.put("children", children);
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return nodeObj;
+    }
+
+    public JSONObject recursiveFetchChildNodes(JSONObject nodeObj) throws SQLException {
+        //String parentNodeId = nodeObj.getId();
+        String parentNodeId = nodeObj.getString("id");
+        String childNodeId = null;
+
+        String sql = fetchNextLevelChildrenSql(parentNodeId, childNodeId);
+
+        //List<TreeNodeObject> children = new ArrayList<>();
+        List<JSONObject> children = new ArrayList<>();
+
+        try (PreparedStatement p = conn.prepareStatement(sql)) {
+
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+
+                if ( pathNodes.contains(Integer.toString(resultSet.getInt("node_id")))) {
+                    //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
+                    JSONObject thisNode = fetchNodeInfo(resultSet);
+
+                    //System.out.println("4th Level node id now: " + thisNode.getId());
+                    System.out.println("4th Level node id now: " + thisNode.getString("id"));
+
+                    //if ( ! thisNode.isLeaf() ){
+                    if (!thisNode.getBoolean("leaf")) {
+                        thisNode = recursiveFetchChildNodes(thisNode);
+                        //thisNode = fetchChildNodes(thisNode);
+                    }
+
+                    children.add(thisNode);
+                    //nodeObj.setChildren(children);
+                    nodeObj.put("children", children);
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return nodeObj;
+    }
+
+//   public TreeNodeObject recursiveFetchChildNodes(TreeNodeObject nodeObj) throws SQLException {
+//
+//        String parentNodeId = nodeObj.getId();
+//        String childNodeId = null;
+//
+//        String sql = fetchNextLevelChildrenSql(parentNodeId, childNodeId);
+//
+//        List<TreeNodeObject> children = new ArrayList<>();
+//
+//        try (PreparedStatement p = conn.prepareStatement(sql)) {
+//
+//            ResultSet resultSet = p.executeQuery();
+//            while (resultSet.next()) {
+//
+//                TreeNodeObject thisNode = fetchNodeInfo(resultSet);
+//
+//                System.out.println("4th Level node id now: " + thisNode.getId());
+//                if ( ! thisNode.isLeaf() ){
+//                    thisNode = recursiveFetchChildNodes(thisNode);
+//                }
+//
+//                children.add(thisNode);
+//                nodeObj.setChildren(children);
+//            }
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//        }
+//
+//        return nodeObj;
+//    }
+
+    public String fetchNextLevelChildrenSql(String parentNodeId, String childNodeId) throws SQLException {
+
+        String subqry = "SELECT child_node_id "
+                    + "FROM " + ONTOLOGYNAME + "_parent_children "
+                    + "WHERE parent_node_id = " + parentNodeId;
+
+        if ( childNodeId != null ){
+            subqry += " AND child_node_id = " + childNodeId;
+        }
+
+        String sql = "SELECT n.node_id, n.term_id, t.name, nt.node_type "
+                + "FROM " + ONTOLOGYNAME + "_node2term n, " + ONTOLOGYNAME + "_term_infos t, " + ONTOLOGYNAME + "_node_id_type nt "
+                + "WHERE n.term_id=t.term_id "
+                + "AND n.node_id=nt.node_id "
+                + "AND n.node_id IN (" + subqry + ") "
+                + "ORDER BY t.name";
+
+        return sql;
+    }
+
+
+    public Map<String, List<Map<String, String>>> fetchPreOpenNodes(String termId) throws SQLException {
+
+        String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path "
+                + "FROM " + ONTOLOGYNAME + "_node_backtrace_fullpath "
+                + "WHERE node_id IN "
+                + "(SELECT node_id FROM " + ONTOLOGYNAME + "_node2term WHERE term_id = ?)";
+
+//        System.out.println("*****QUERY: "+ query);
+//        System.out.println("*****TERM: "+ termId);
+        try (PreparedStatement p = conn.prepareStatement(query)) {
+            p.setString(1, termId);
+
+            ResultSet resultSet = p.executeQuery();
+
+            int topIndex = 1; // 2nd in the fullpath is the one below the real root in obo
+
+            while (resultSet.next()) {
+                String fullpath = resultSet.getString("path");
+                System.out.println("PATH: " + fullpath);
+                String[] nodes = fullpath.split(" ");
+
+                pathNodes.addAll(Arrays.asList(nodes));
+
+                String topNodeId = nodes[topIndex]; // 2nd in fullpath
+                String endNodeId = nodes[nodes.length - 1]; // last in fullpath
+
+                expandNodeIds.add(endNodeId);
+
+                if ( ! preOpenNodes.containsKey(topNodeId) ) {
+                    preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
+                }
+
+                Map<String, String> nodeStartEnd = new HashMap<>();
+                nodeStartEnd.put(nodes[0], endNodeId);
+                preOpenNodes.get(topNodeId).add(nodeStartEnd);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        Iterator it = preOpenNodes.entrySet().iterator();
+//        while (it.hasNext()) {
+//            Map.Entry pair = (Map.Entry)it.next();
+//            System.out.println(pair.getKey() + " = " + pair.getValue());
+//            it.remove(); // avoids a ConcurrentModificationException
+//        }
+
+        return preOpenNodes;
+
+    }
+
+    //public TreeNodeObject fetchNodeInfo(ResultSet resultSet) throws SQLException {
+    public JSONObject fetchNodeInfo(ResultSet resultSet) throws SQLException {
+
+        JSONObject node = new JSONObject();
+        String nodeId = Integer.toString(resultSet.getInt("node_id"));
+        String termId = resultSet.getString("term_id");
+
+//        TreeNodeObject thisNode = new TreeNodeObject();
+//        thisNode.setId(Integer.toString(resultSet.getInt("node_id")));
+//        thisNode.setLeaf(resultSet.getString("node_type").equals("folder") ? false : true);
+//        thisNode.setTermId(resultSet.getString("term_id"));
+
+        String name = resultSet.getString("name");
+        String termDisplayText = null;
+        //if ( expandNodeIds.contains(thisNode.getId()) ){
+        if ( expandNodeIds.contains(nodeId) ){
+            termDisplayText = "<span class='qryTerm'>" + name + "</span>";
+        }
+        else {
+            termDisplayText = name;
+        }
+
+        String url = "<a target='_blank' href='" + pageBaseUrl + "/" + termId + "'>" + termDisplayText + "</a>";
+        //thisNode.setText(url);
+        node.put("text", url);
+
+        node.put("qtip", nodeId + "- " + termId);
+
+        node.put("id", Integer.toString(resultSet.getInt("node_id")));
+        node.put("term_id", resultSet.getString("term_id"));
+
+        node.put("expandNodeIds", expandNodeIds);
+
+        node.put("text", url);
+        node.put("leaf", resultSet.getString("node_type").equals("folder") ? false : true);
+        //node.put("children", n.getChildren());
+
+
+        //return thisNode;
+        return node;
+    }
+
+
+    private class TreeNodeObject {
+
+        String id;
+        String term_id;
+        List<String> expandNodeIds;
+        List<TreeNodeObject> children;
+        String text;
+        Boolean leaf;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getTermId() {
+            return term_id;
+        }
+
+        public void setTermId(String term_id) {
+            this.term_id = term_id;
+        }
+
+        public List<String> getExpandNodeIds() {
+            return expandNodeIds;
+        }
+
+        public void setExpandNodeIds(List<String> expandNodeIds) {
+            this.expandNodeIds = expandNodeIds;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public Boolean isLeaf() {
+            return leaf;
+        }
+
+        public void setLeaf(Boolean leaf) {
+            this.leaf = leaf;
+        }
+
+        public List<TreeNodeObject> getChildren() {
+            return children;
+        }
+
+        public void setChildren(List<TreeNodeObject> children) {
+            this.children = children;
+        }
+
+        @Override
+        public String toString() {
+            return "TreeNodeObject{" +
+                    "id='" + id + '\'' +
+                    ", term_id='" + term_id + '\'' +
+                    ", expandNodeIds=" + expandNodeIds +
+                    ", children=" + children +
+                    ", text='" + text + '\'' +
+                    ", leaf=" + leaf +
+                    '}';
+        }
+    }
+
+    private HttpHeaders createResponseHeaders() {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return responseHeaders;
+    }
+}
