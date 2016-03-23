@@ -113,7 +113,14 @@ public class SiteMapController {
 	}
 
 	private String generateBaseUrl(String mappedHostname, String baseUrl) {
-		return "http:" + mappedHostname + baseUrl;
+		String baseUrlString = mappedHostname + baseUrl;
+
+		// Ensure the protocol is included on the URL
+		if (! baseUrlString.startsWith("http")) {
+			baseUrlString = "http:" + baseUrlString;
+		}
+
+		return baseUrlString;
 	}
 
 	/**
@@ -163,7 +170,7 @@ public class SiteMapController {
 		String[] sitemapUrls = {"/sitemap_genes.xml", "/sitemap_phenotypes.xml", "/sitemap_diseases.xml"};
 
 		for (String sitemapUrl : sitemapUrls) {
-			String location = mappedHostname + baseUrl + sitemapUrl;
+			String location = generateBaseUrl(mappedHostname, baseUrl) + sitemapUrl;
 			XmlSitemap xmlSitemap = new XmlSitemap(location);
 			xmlSitemapIndex.addSitemap(xmlSitemap);
 		}
