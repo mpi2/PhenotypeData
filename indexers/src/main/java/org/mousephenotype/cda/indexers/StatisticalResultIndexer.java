@@ -361,17 +361,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "  male_controls, male_mutants, female_controls, female_mutants, "
 			+ "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, "
 			+ "  metadata_group, statistical_method, workflow, status, "
-			+ "  batch_significance, "
-			+ "  variance_significance, null_test_significance, genotype_parameter_estimate, "
-			+ "  genotype_percentage_change, "
-			+ "  genotype_stderr_estimate, genotype_effect_pvalue, gender_parameter_estimate, "
-			+ "  gender_stderr_estimate, gender_effect_pvalue, weight_parameter_estimate, "
-			+ "  weight_stderr_estimate, weight_effect_pvalue, gp1_genotype, "
-			+ "  gp1_residuals_normality_test, gp2_genotype, gp2_residuals_normality_test, "
-			+ "  blups_test, rotated_residuals_normality_test, intercept_estimate, "
-			+ "  intercept_stderr_estimate, interaction_significance, interaction_effect_pvalue, "
-			+ "  gender_female_ko_estimate, gender_female_ko_stderr_estimate, gender_female_ko_pvalue, "
-			+ "  gender_male_ko_estimate, gender_male_ko_stderr_estimate, gender_male_ko_pvalue, "
+			+ "  genotype_parameter_estimate, genotype_effect_pvalue, "
+			+ "  gp1_genotype, gp2_genotype, "
+			+ "  gender_female_ko_estimate, gender_female_ko_pvalue, "
+			+ "  gender_male_ko_estimate, gender_male_ko_pvalue, "
 			+ "  classification_tag, additional_information, "
 			+ "  mp_acc, male_mp_acc, female_mp_acc, "
 			+ "  db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, "
@@ -380,8 +373,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "FROM stats_rrplus_results sr "
 			+ "INNER JOIN external_db db on db.id=sr.external_db_id "
 			+ "INNER JOIN project proj on proj.id=sr.project_id "
-			+ "INNER JOIN organisation org on org.id=sr.organisation_id "
-			+ "WHERE dependent_variable NOT LIKE '%FER%' AND dependent_variable NOT LIKE '%VIA%'";
+			+ "INNER JOIN organisation org on org.id=sr.organisation_id ";
 
 		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 			p.setFetchSize(Integer.MIN_VALUE);
