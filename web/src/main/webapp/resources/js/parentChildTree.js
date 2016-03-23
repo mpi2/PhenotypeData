@@ -22,7 +22,8 @@
 	    	    x: function(d) { return d.y * 100 / width; },
 	    	    y: function(d) { return d.x; }
 	    	  };
-	  
+	    
+	   console.log("MP_ID" + mp_id);
 	   
 	
 	    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
@@ -70,7 +71,7 @@
 	    });
 	     
 	     
-	    d3.json("json/" + mp_id + "?type=parents", function(error, root) {
+	    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
 	    	 
 	    	 var svgP = d3.select("#parentDiv").append("svg")
 		        .attr("width", width)
