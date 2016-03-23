@@ -8,7 +8,7 @@
 	<jsp:attribute name="title">Histopath Information for ${gene.markerName}</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search/impc_images?kw=*">IMPC Images</a> &raquo; Results</jsp:attribute>
+			href="${baseUrl}/search/genes?kw=*">Genes</a> &raquo; Results</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -83,6 +83,9 @@
 							</th>
 							<th>
 							Free Text
+							</th>
+							<th>
+							Images
 							</th>
 						
 							
@@ -184,6 +187,14 @@
 									</td> 
 									<td>
 										<c:forEach var="parameter" items="${histRow.freeTextParameters }">
+										
+										${parameter.textValue }
+										
+										</c:forEach> 
+									</td>
+									
+									<td>
+										<c:forEach var="parameter" items="${histRow.imageList }">
 										
 										${parameter.textValue }
 										
