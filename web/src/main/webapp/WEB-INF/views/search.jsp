@@ -490,6 +490,7 @@
 									"sPaginationType" : "bootstrap",
 									"aaData" : ${jsonStr}.aaData,  // array of objects
 								"iTotalRecords" : ${jsonStr}.iTotalRecords
+
 						});
 
 						// adjust col width
