@@ -42,6 +42,7 @@ public class HistopathService {
 
 		List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Set<String> anatomyNames=this.getAnatomyNamesFromObservations(filteredObservations);//We want each row to represent and antomy set i.e related to Brain
+		
 		Map<String, List<ObservationDTO>> sampleToObservations=this.getSampleToObservationMap(filteredObservations);
 		for (String sampleId : sampleToObservations.keySet()) {
 			for (String anatomyName : anatomyNames) {
@@ -162,7 +163,7 @@ public class HistopathService {
 
 	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
-				acc);
+				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.CATEGORY, ObservationDTO.VALUE );
 		return observations;
 	}
 
