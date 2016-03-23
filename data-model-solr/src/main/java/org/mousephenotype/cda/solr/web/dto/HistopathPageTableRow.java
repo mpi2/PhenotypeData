@@ -33,12 +33,17 @@ public class HistopathPageTableRow {
 
 	private Set<String> parameterNames;
 	
+	
 	@Override
 	public String toString() {
 		return "HistopathPageTableRow [sampleId=" + sampleId + ", anatomyName=" + anatomyName + ", parameterNames="
 				+ parameterNames + ", parameterStableId=" + parameterStableId + ", observationType=" + observationType
-				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", categoryList="
-				+ categoryList + ", textParameters=" + textParameters + "]";
+				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", mpathProcessOntologyBeans="
+				+ mpathProcessOntologyBeans + ", mpathDiagnosticOntologyBeans=" + mpathDiagnosticOntologyBeans
+				+ ", patoOntologyBeans=" + patoOntologyBeans + ", descriptionTextParameters="
+				+ descriptionTextParameters + ", freeTextParameters=" + freeTextParameters + ", textParameters="
+				+ textParameters + ", significance=" + significance + ", severity=" + severity + ", categoryList="
+				+ categoryList + ", imageList=" + imageList + "]";
 	}
 	public HistopathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
 			String observationType, List<ParameterValueBean> category, String textValue, Map<String, List<OntologyBean>> subOntologyBeans) {
@@ -270,6 +275,20 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 
 	public void setParameterNames(Set<String> parameterNames) {
 		this.parameterNames=parameterNames;
+		
+	}
+	
+	private List<ParameterValueBean> imageList=new ArrayList<>();
+	
+	public List<ParameterValueBean> getImageList() {
+		return imageList;
+	}
+	
+	public void addImageParam(ImpressBaseDTO parameter, String downloadFilePath) {
+		System.out.println("adding image param");
+			this.imageList.add(new ParameterValueBean(parameter, downloadFilePath));
+			
+		
 		
 	}
 	
