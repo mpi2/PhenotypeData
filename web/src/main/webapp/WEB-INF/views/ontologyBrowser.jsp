@@ -119,7 +119,10 @@
                 color: #0978A1;
             }
 
-
+            ul.ui-autocomplete li  {
+                padding: 3px;
+                font-size: 12px;
+            }
 
         </style>
 
