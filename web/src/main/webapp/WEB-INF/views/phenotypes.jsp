@@ -21,6 +21,12 @@
 			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
 			.ui-dropdownchecklist-text {padding:2px;margin:0;}
 		</style-->
+		
+		<script type="text/javascript">
+			var phenotypeId = '${phenotype.getMpId()}';
+			var drupalBaseUrl = '${drupalBaseUrl}';
+		</script>
+		
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
 
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
@@ -31,11 +37,6 @@
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
     	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 
-		<script type="text/javascript">
-			var phenotypeId = '${phenotype.getMpId()}';
-			var drupalBaseUrl = '${drupalBaseUrl}';
-			var mp_id = '${mpId}';
-		</script>
 
 	</jsp:attribute>
 
@@ -43,6 +44,11 @@
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
 
 	<jsp:attribute name="addToFooter">
+	
+		<script type="text/javascript">
+			var mp_id = '${phenotype.getMpId()}';
+		</script>
+    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 	
 		<div class="region region-pinned">
 	        <div id="flyingnavi" class="block">
@@ -186,8 +192,8 @@
                                  <p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
                              </c:if>
                              
-                            <div class="quarter" id="parentDiv"></div>
-							<div class="quarter" id="childDiv"></div>
+                            <div class="half" id="parentDiv"></div>
+							<div class="half" id="childDiv"></div>
 					</div>
 						
 					<div class="clear"></div>
