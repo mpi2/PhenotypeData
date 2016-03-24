@@ -478,7 +478,6 @@ public class PhenotypesController {
 	    	}
 
 	    	data.element("children", nodes);
-	    	System.out.println("Returning: " + data.toString()); 
 			return data.toString();
 			
     	} else if (type.equals("children")){
