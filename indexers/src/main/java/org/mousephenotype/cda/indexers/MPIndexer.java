@@ -932,8 +932,11 @@ public class MPIndexer extends AbstractIndexer {
             List<String> childTermIds = new ArrayList<>();
             List<String> childTermNames = new ArrayList<>();
             Set<String> childSynonyms = new HashSet<>();
-
-            for (Integer childId : childNodeIds.get(nodeId)) {
+            
+            Set<Integer> childIds = new HashSet<>();
+            childIds.addAll(childNodeIds.get(nodeId));
+            
+            for (Integer childId : childIds) {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
                     childTermIds.add(bean.getTermId());
                     childTermNames.add(bean.getName());
