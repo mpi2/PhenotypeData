@@ -118,7 +118,8 @@ public class MpService extends BasicService implements WebStatus{
 		}
 		
 		for (int i = 0; i < mps.get(0).getParentMpId().size(); i++){
-			parents.add(new OntologyBean(mps.get(0).getParentMpId().get(i), mps.get(0).getParentMpTerm().get(i)));
+			parents.add(new OntologyBean(mps.get(0).getParentMpId().get(i), 
+					shortenLabel(mps.get(0).getParentMpTerm().get(i))));
 		}
 
 		return parents;
@@ -157,12 +158,27 @@ public class MpService extends BasicService implements WebStatus{
 			}
 			
 			for (int i = 0; i < mps.get(0).getChildMpId().size(); i++){
-				children.add(new OntologyBean(mps.get(0).getChildMpId().get(i), mps.get(0).getChildMpTerm().get(i)));
+				children.add(new OntologyBean(mps.get(0).getChildMpId().get(i), 
+						shortenLabel(mps.get(0).getChildMpTerm().get(i))));
 			}
 
 			return children;
 	}
 
+	private String shortenLabel(String label){
+
+		String res = label;
+		res = res.replaceAll("abnormal ", "abn. ");
+		res = res.replaceAll("phenotype ", "phen. ");
+		res = res.replaceAll("decreased ", "dec. ");
+		res = res.replaceAll("increased ", "inc. ");
+		res = res.replaceAll("abnormality ", "abn. ");
+		res = res.replaceAll("abnormal$", "abn.");
+		res = res.replaceAll("decreased$", "dec.");
+		res = res.replaceAll("increased$", "inc.");
+		res = res.replaceAll("phenotype$", "phen.");
+		return res;
+	}
 		
     /**
      * Return all phenotypes from the mp core.
