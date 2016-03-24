@@ -172,7 +172,8 @@ public class SearchController {
 		String bqStr = searchConfig.getBqStr(dataType, query);
 		String sortStr = searchConfig.getSortingStr(dataType);
 
-		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
+		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
+		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
 
 		if (dataType.equals("ma")) {
 			fqStr = fqStr == null ? "selected_top_level_ma_term:*" : fqStr;

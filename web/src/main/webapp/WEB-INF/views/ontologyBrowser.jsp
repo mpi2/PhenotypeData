@@ -8,54 +8,119 @@
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">
-      <%--<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />--%>
+        <%--<link href="${baseUrl}/css/searchPage.css" rel="stylesheet" type="text/css" />--%>
         <%--<link type="text/css" rel="stylesheet" href="${baseUrl}/js/vendor/extjs-4.1.3/ jquery-ui-1.7.2.custom.css"/>--%>
         <link type="text/css" rel="stylesheet" href="${baseUrl}/js/vendor/extjs-4.1.3/ext-all-gray.css"/>
 
         <style>
 
+            table.x-grid-table tr:nth-child(2) {
+                cursor: default !important;
+            }
+            div.breadcrumb {
+                margin-top: -24px;
+                font-size: 12.8px;
+                font-weight: 400;
+            }
+            input#s {
+                line-height: 16px;
+                height: 30px !important;
+            }
+            h1#h1tree {
+                font-family: "Source Sans Pro",​Arial,​Helvetica,​sans-serif;
+                font-size: 40px;
+                font-weight: 300;
+                color: rgb(51,51,51);
+                letter-spacing: -1px;
+                line-height: 40px;
+                margin-top: 35px;
+            }
+            div#tree {
+                margin-top: 10px;
+            }
             .x-grid-tree-loading .x-tree-icon {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/loading.gif");
+                background-image: url("js/vendor/extjs-4.1.3/loading.gif");
             }
 
             .x-grid-tree-node-expanded .x-tree-icon-parent
             {
-               background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/folder-open.gif");
+               background-image: url("js/vendor/extjs-4.1.3/folder-open.giff");
             }
 
             .x-tree-icon-leaf {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/leaf.gif");
+
+                /*we need this one*/
+
+                /*background-image: url("js/vendor/extjs-4.1.3/leaf.gif");*/
+                background-size: 16px 16px;
             }
             .x-tree-icon-parent {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/folder.gif");
+
+                /* we need this one */
+                /*background-image: url("js/vendor/extjs-4.1.3/folder.gif");*/
+
             }
 
             .x-tree-lines .x-tree-elbow-line {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-line.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-line.gif");
             }
             .x-tree-lines .x-grid-tree-node-expanded .x-tree-elbow-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-minus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-minus.gif");
             }
             .x-tree-lines .x-tree-elbow {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow.gif");
             }
             .x-tree-lines .x-tree-elbow-end {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-end.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-end.gif");
             }
             .x-tree-lines .x-tree-elbow-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-plus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-plus.gif");
             }
             .x-tree-lines .x-tree-elbow-end-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-end-plus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-end-plus.gif");
             }
             .x-tree-lines .x-grid-tree-node-expanded .x-tree-elbow-end-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-end-minus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-end-minus.gif");
+            }
+
+            .x-grid-header-hidden .x-grid-body{
+                border-top-color: none;
+            }
+            div#headercontainer-1010 {
+                border: none;
+                background: none;
+            }
+            div#treepanel-1009_header {
+                background: none;
+                border: none;
+                display: none;
+            }
+            div#treepanel-1009-body {
+                border: none;
+                /*border-radius: 5px;*/
+                padding: 20px;
+
             }
 
             span.qryTerm {
                 background-color: #0978a1;
                 color: white;
                 padding: 5px;
+            }
+            div.x-grid-cell-inner {
+                font-size: 16px;
+            }
+            .x-grid-table td {
+                padding: 5px;
+            }
+            td a {
+                font-size: 14px;
+                color: #0978A1;
+            }
+
+            ul.ui-autocomplete li  {
+                padding: 3px;
+                font-size: 12px;
             }
 
         </style>
@@ -160,6 +225,7 @@
             listeners: {
               itemclick: function (s, r) {
                 var node = r.data;
+                  console.log(node.href + " " + node.hrefTarget);
                 // links to term page on new tab
                 // just so that click on all area of the div will jump to new page
                 window.open(node.href, node.hrefTarget);
@@ -173,7 +239,7 @@
                 for (var i = 0; i < expandList.length; i++) {
                   var enode = s.getNodeById(expandList[i]);
 
-                  console.log(enode.getPath());
+                  //console.log(enode.getPath());
                   tree.expandPath(enode.getPath());
                 }
 
@@ -182,6 +248,10 @@
                 $('div.x-grid-cell-inner a').click(function(e) {
                   e.stopPropagation();
                 });
+                $('table.x-grid-table tr:nth-child(2)').click(function(){
+                    return false; // this one is the ontology root
+                })
+
 
               }
             }
@@ -190,6 +260,7 @@
     });
   </script>
 
+  <h1 id="h1tree">IMPC Ontology browser</h1h1tree>
   <div id="tree"></div>
 
   </jsp:body>
