@@ -385,6 +385,8 @@ public class OntologyBrowserController {
         node.put("term_id", resultSet.getString("term_id"));
         node.put("expandNodeIds", helper.getExpandNodeIds());
         node.put("leaf", resultSet.getString("node_type").equals("folder") ? false : true);
+        node.put("href", helper.getPageBaseUrl() + "/" + termId);
+        node.put("hrefTarget", "_blank");
 
         //return thisNode;
         return node;

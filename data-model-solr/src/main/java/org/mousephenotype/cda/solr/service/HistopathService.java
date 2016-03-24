@@ -42,8 +42,14 @@ public class HistopathService {
 
 		List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Set<String> anatomyNames=this.getAnatomyNamesFromObservations(filteredObservations);//We want each row to represent and antomy set i.e related to Brain
+		
 		Map<String, List<ObservationDTO>> sampleToObservations=this.getSampleToObservationMap(filteredObservations);
 		for (String sampleId : sampleToObservations.keySet()) {
+			
+			//just for images here as no anatomy currently
+			
+			
+			
 			for (String anatomyName : anatomyNames) {
 				
 				System.out.println("anatomyName=" + anatomyName);
@@ -105,6 +111,17 @@ public class HistopathService {
 
 						
 						
+					}else{
+						//should be image here
+						if(obs.getObservationType().equals("image_record")){
+							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
+									obs.getParameterName());
+							parameterNames.add(obs.getParameterName());
+							row.addImageParam(parameter, obs.getDownloadFilePath());
+							
+							
+							
+						}
 					}
 					
 					
@@ -162,7 +179,7 @@ public class HistopathService {
 
 	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
-				acc);
+				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.CATEGORY, ObservationDTO.VALUE , ObservationDTO.DOWNLOAD_FILE_PATH);
 		return observations;
 	}
 

@@ -8,7 +8,7 @@
 	<jsp:attribute name="title">Histopath Information for ${gene.markerName}</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search/impc_images?kw=*">IMPC Images</a> &raquo; Results</jsp:attribute>
+			href="${baseUrl}/search/genes?kw=*">Genes</a> &raquo; Results</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -50,7 +50,7 @@
                     
                     <div class="section">
 							<div class="inner">
-							 ${gene.markerName}
+							 ${gene.markerSymbol}: ${gene.markerName}
 							 
 							 <table id="histopath" class="table tableSorter">
 							
@@ -70,19 +70,22 @@
 							Severity
 							</th>
 							<th>
+							PATO
+							</th>
+							<th>
 							Process
 							</th>
 							<th>
 							Diagnostic
 							</th>
 							<th>
-							PATO
-							</th>
-							<th>
 							Description
 							</th>
 							<th>
 							Free Text
+							</th>
+							<th>
+							Images
 							</th>
 						
 							
@@ -114,24 +117,42 @@
 									</td>
 									
 									<c:choose>
+									<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
+										<td>
+										</td>
+									</c:when>
+									<c:otherwise>
+									<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+										<td title="${value.description }">
+											
+										
+										<c:forEach var="value" items="${parameter.value }">
+											${value.name }											
+											
+										</c:forEach>
+										</td>
+									</c:forEach>
+									</c:otherwise>
+									</c:choose> 
+									
+									
+									<c:choose>
 									<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
 										<td>
 										</td>
 									</c:when>
 									<c:otherwise>
 									<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
-										 <td title="${parameter}">
+										
 											
 										
 									<!-- do for each here values-->
 										<c:forEach var="value" items="${parameter.value }">
-											
-											${value.name }:
-											
-											${value.description }
-											
+											 <td title="${value.description }">
+													${value.name }
+											</td>
 										</c:forEach>
-										</td>
+										
 									</c:forEach> 
 									</c:otherwise>
 									</c:choose>
@@ -143,36 +164,20 @@
 									</c:when>
 									<c:otherwise>
 									<c:forEach var="parameter" items="${histRow.mpathDiagnosticOntologyBeans }">
-										<td title="${parameter.value }">
+										
 											
 										
 										<c:forEach var="value" items="${parameter.value }">
-											${value.name }:											
-											${value.description }
+										<td title="${value.description }">
+											${value.name }										
+											</td>
 										</c:forEach>
-										</td>
+										
 									</c:forEach>
 									</c:otherwise>
 									</c:choose> 
 									
-									<c:choose>
-									<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
-										<td>
-										</td>
-									</c:when>
-									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
-										<td title="${parameter.value }">
-											
-										
-										<c:forEach var="value" items="${parameter.value }">
-											${value.name }:											
-											${value.description }
-										</c:forEach>
-										</td>
-									</c:forEach>
-									</c:otherwise>
-									</c:choose> 
+									
 									<td>
 										<c:forEach var="parameter" items="${histRow.descriptionTextParameters }">
 										
@@ -182,6 +187,14 @@
 									</td> 
 									<td>
 										<c:forEach var="parameter" items="${histRow.freeTextParameters }">
+										
+										${parameter.textValue }
+										
+										</c:forEach> 
+									</td>
+									
+									<td>
+										<c:forEach var="parameter" items="${histRow.imageList }">
 										
 										${parameter.textValue }
 										
@@ -309,6 +322,12 @@
                 </div>
             </div>
         </div>
+      <script> 
+        $(document).ready(function() {
+    $('#histopath').DataTable(
+    		{"paging":   false, "searching": false});
+} );
+        </script> 
     </jsp:body>
 
 </t:genericpage>
