@@ -1,9 +1,6 @@
-
-        
-        
         var width = 260,
         height = 200;
-
+        
 	    var cluster = d3.layout.cluster()
 	        .size([height, width - 160]);
 	
@@ -18,10 +15,10 @@
 	    };
 	    
 	    var orientation_right = { // left to right
-	    	    size: [height, width],
-	    	    x: function(d) { return d.y * 100 / width; },
-	    	    y: function(d) { return d.x; }
-	    	  };
+	   	    size: [height, width],
+	   	    x: function(d) { return d.y * 100 / width; },
+	 	    y: function(d) { return d.x; }
+	    };
 	    
 	
 	    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
@@ -37,6 +34,13 @@
 		    	  throw error;
 		   	 }
 		
+		     if (root.children.length == 0){
+		    		hasParents = false;
+		    		d3.select("#childDiv").remove();
+		    		d3.selectAll("#parentDiv")
+		    		  .classed("half", false);
+		  	 }
+		     
 		     var nodes = cluster.nodes(root),
 		          links = cluster.links(nodes);
 		
@@ -66,7 +70,6 @@
 	   		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
 				   }); // width of the node labels; 
-	   		   
 	    });
 	     
 	     
@@ -77,7 +80,7 @@
 		        .attr("height", height)
 		        .append("g")
 		        .attr("transform", "translate(95,0)");
-	    	
+	    	 
 		     var diagonalP = d3.svg.diagonal()
 	        	.projection(function(d) { return [d.y, d.x]; });
 	    	
@@ -85,7 +88,14 @@
 		    	  console.log(error);
 		    	  throw error;
 		     }
-		
+		     
+		     if (root.children.length == 0){
+		    		hasParents = false;
+		    		d3.select("#parentDiv").remove();
+		    		d3.selectAll("#childDiv")
+		    		  .classed("half", false);
+		  	 }
+		     
 		     var nodes = cluster.nodes(root),
 		          links = cluster.links(nodes);
 		
@@ -122,6 +132,5 @@
 		     
 		     
 	    });
-	
 	    d3.select(self.frameElement).style("height", height + "px");
 	    
