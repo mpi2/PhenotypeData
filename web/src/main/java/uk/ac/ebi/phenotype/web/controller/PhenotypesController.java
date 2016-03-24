@@ -472,12 +472,13 @@ public class PhenotypesController {
 	    	JSONObject data = new JSONObject();
 	    	data.element("label", mpId);
 	    	JSONArray nodes = new JSONArray();
-	    	
+	    
 	    	for (OntologyBean term : mpService.getParents(mpId)){
 	    		nodes.add(term.toJson());
 	    	}
 
 	    	data.element("children", nodes);
+	    	System.out.println("Returning: " + data.toString()); 
 			return data.toString();
 			
     	} else if (type.equals("children")){

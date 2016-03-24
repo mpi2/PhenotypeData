@@ -109,6 +109,10 @@ public class MpService extends BasicService implements WebStatus{
 			throw new Error("More documents in MP core for the same MP id: " + id);
 		}
 		
+		if (mps.get(0).getParentMpId() == null || mps.get(0).getParentMpId().size() == 0){ // top level
+			return parents;
+		}
+		
 		if (mps.get(0).getParentMpId().size() != mps.get(0).getParentMpTerm().size()){
 			throw new Error("Length of parent id list and parent term list does not match for MP id: " + id);			
 		}
@@ -142,6 +146,10 @@ public class MpService extends BasicService implements WebStatus{
 
 			if (mps.size() > 1){
 				throw new Error("More documents in MP core for the same MP id: " + id);
+			}
+			
+			if (mps.size() == 0){ // top level
+				return null;
 			}
 			
 			if (mps.get(0).getChildMpTerm().size() != mps.get(0).getChildMpId().size()){
