@@ -928,17 +928,25 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void buildChildLevelNodes(MpDTO mp, int nodeId) {
+    	
         if (childNodeIds.containsKey(nodeId)) {
+        	
             List<String> childTermIds = new ArrayList<>();
             List<String> childTermNames = new ArrayList<>();
             Set<String> childSynonyms = new HashSet<>();
+            
+            if (mp.getChildMpId() == null) {
+                mp.setChildMpId(new ArrayList<String>());
+                mp.setChildMpTerm(new ArrayList<String>());
+                mp.setChildMpTermSynonym(new ArrayList<String>());
+            }
             
             Set<Integer> childIds = new HashSet<>();
             childIds.addAll(childNodeIds.get(nodeId));
             
             for (Integer childId : childIds) {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
-                    if (!childTermIds.contains(bean.getTermId())){
+                    if (!childTermIds.contains(bean.getTermId()) && !mp.getChildMpId().contains(bean.getTermId())){
 	                	childTermIds.add(bean.getTermId());
 	                    childTermNames.add(bean.getName());
 	                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
@@ -948,11 +956,7 @@ public class MPIndexer extends AbstractIndexer {
                 }
             }
 
-            if (mp.getChildMpId() == null) {
-                mp.setChildMpId(new ArrayList<String>());
-                mp.setChildMpTerm(new ArrayList<String>());
-                mp.setChildMpTermSynonym(new ArrayList<String>());
-            }
+            
             mp.getChildMpId().addAll(childTermIds);
             mp.getChildMpTerm().addAll(childTermNames);
             mp.getChildMpTermSynonym().addAll(new ArrayList<>(childSynonyms));
