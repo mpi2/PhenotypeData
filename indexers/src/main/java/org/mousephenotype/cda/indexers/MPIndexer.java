@@ -938,10 +938,12 @@ public class MPIndexer extends AbstractIndexer {
             
             for (Integer childId : childIds) {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
-                    childTermIds.add(bean.getTermId());
-                    childTermNames.add(bean.getName());
-                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
-                        childSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
+                    if (!childTermIds.contains(bean.getTermId())){
+	                	childTermIds.add(bean.getTermId());
+	                    childTermNames.add(bean.getName());
+	                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
+	                        childSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
+	                    }
                     }
                 }
             }
