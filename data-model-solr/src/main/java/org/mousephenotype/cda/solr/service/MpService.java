@@ -148,8 +148,8 @@ public class MpService extends BasicService implements WebStatus{
 				throw new Error("More documents in MP core for the same MP id: " + id);
 			}
 			
-			if (mps.size() == 0){ // top level
-				return null;
+			if (mps.get(0).getChildMpTerm() == null || mps.get(0).getChildMpTerm().size() == 0){
+				return children;
 			}
 			
 			if (mps.get(0).getChildMpTerm().size() != mps.get(0).getChildMpId().size()){
