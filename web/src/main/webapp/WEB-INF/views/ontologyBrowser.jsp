@@ -39,49 +39,48 @@
                 margin-top: 10px;
             }
             .x-grid-tree-loading .x-tree-icon {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/loading.gif");
+                background-image: url("js/vendor/extjs-4.1.3/loading.gif");
             }
 
             .x-grid-tree-node-expanded .x-tree-icon-parent
             {
-               background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/folder-open.giff");
+               background-image: url("js/vendor/extjs-4.1.3/folder-open.giff");
             }
 
             .x-tree-icon-leaf {
 
                 /*we need this one*/
 
-                /*background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/leaf.gif");*/
+                /*background-image: url("js/vendor/extjs-4.1.3/leaf.gif");*/
                 background-size: 16px 16px;
             }
             .x-tree-icon-parent {
 
                 /* we need this one */
+                /*background-image: url("js/vendor/extjs-4.1.3/folder.gif");*/
 
-
-                /*background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/folder.giff");*/
             }
 
             .x-tree-lines .x-tree-elbow-line {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-line.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-line.gif");
             }
             .x-tree-lines .x-grid-tree-node-expanded .x-tree-elbow-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-minus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-minus.gif");
             }
             .x-tree-lines .x-tree-elbow {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow.gif");
             }
             .x-tree-lines .x-tree-elbow-end {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-end.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-end.gif");
             }
             .x-tree-lines .x-tree-elbow-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-plus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-plus.gif");
             }
             .x-tree-lines .x-tree-elbow-end-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-end-plus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-end-plus.gif");
             }
             .x-tree-lines .x-grid-tree-node-expanded .x-tree-elbow-end-plus {
-                background-image: url("http://localhost:8080/phenotype-archive/js/vendor/extjs-4.1.3/elbow-end-minus.gif");
+                background-image: url("js/vendor/extjs-4.1.3/elbow-end-minus.gif");
             }
 
             .x-grid-header-hidden .x-grid-body{
