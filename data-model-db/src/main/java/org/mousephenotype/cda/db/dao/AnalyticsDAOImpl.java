@@ -55,7 +55,8 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 		ResultSet resultSet = null;
 		Map<String, String> metaInfo = new HashMap<String, String>();
 
-		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement("SELECT * from meta_info")) {
+		try (Connection connection = getConnection(); 
+			PreparedStatement statement = connection.prepareStatement("SELECT * from meta_info")) {
 
 			resultSet = statement.executeQuery();
 
@@ -75,13 +76,12 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	@Override
 	public List<AggregateCountXYBean> getAllProcedureLines() {
 
-		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection(); 
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM analytics_lines_procedures")) {
 
-			statement = connection.prepareStatement("SELECT * FROM analytics_lines_procedures");
 			resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
@@ -96,7 +96,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 						null
 						));
 			}
-			statement.close();
 
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -109,13 +108,12 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	@Override
 	public List<AggregateCountXYBean> getAllProcedurePhenotypeCalls() {
 
-		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection();
+			PreparedStatement statement = connection.prepareStatement("SELECT * FROM analytics_significant_calls_procedures")) {
 
-			statement = connection.prepareStatement("SELECT * FROM analytics_significant_calls_procedures");
 			resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
@@ -130,7 +128,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 						null
 						));
 			}
-			statement.close();
 
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -143,13 +140,12 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	@Override
 	public Map<String, List<String>> getAllStatisticalMethods() {
 
-		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		Map<String, List<String>> results = new HashMap<String, List<String>>();
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection();
+			PreparedStatement statement = connection.prepareStatement("SELECT DISTINCT datatype, statistical_method FROM analytics_pvalue_distribution")) {
 
-			statement = connection.prepareStatement("SELECT DISTINCT datatype, statistical_method FROM analytics_pvalue_distribution;");
 			resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
@@ -167,7 +163,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 				methods.add(method);
 
 			}
-			statement.close();
 
 		}catch (SQLException e) {
 			e.printStackTrace();
@@ -181,13 +176,12 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	public List<AggregateCountXYBean> getPValueDistribution(String dataType,
 			String statisticalMethod) {
 
-		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection();
+			PreparedStatement statement = connection.prepareStatement("select pvalue_count, pvalue_bin from analytics_pvalue_distribution where datatype = ? and statistical_method = ? order by pvalue_bin asc")) {
 
-			statement = connection.prepareStatement("select pvalue_count, pvalue_bin from analytics_pvalue_distribution where datatype = ? and statistical_method = ? order by pvalue_bin asc;");
 			statement.setString(1, dataType);
 			statement.setString(2, statisticalMethod);
 
@@ -205,7 +199,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 						null
 						));
 			}
-			statement.close();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -218,12 +211,11 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	@Override
 	public List<AggregateCountXYBean> getHistoricalData(String propertyKey) {
 
-			PreparedStatement statement = null;
 			ResultSet resultSet = null;
 			List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
-			try (Connection connection = getConnection()) {
+			try (Connection connection = getConnection();
+				PreparedStatement statement = connection.prepareStatement("SELECT property_value, property_key, data_release_version FROM meta_history WHERE property_key = ? ORDER BY data_release_version ASC")) {
 
-				statement = connection.prepareStatement("SELECT property_value, property_key, data_release_version FROM meta_history WHERE property_key = ? ORDER BY data_release_version ASC");
 				statement.setString(1, propertyKey);
 				resultSet = statement.executeQuery();
 
@@ -238,7 +230,6 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 							null
 							));
 				}
-				statement.close();
 
 			}catch (SQLException e) {
 				e.printStackTrace();
@@ -286,9 +277,9 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 		String query = "SELECT property_value as release_version FROM meta_info WHERE property_key='data_release_version'";
 		String releaseVersion = "";
 
-		try (Connection connection = getConnection()) {
+		try (Connection connection = getConnection();
+			PreparedStatement statement = connection.prepareStatement(query)) {
 
-			PreparedStatement statement = connection.prepareStatement(query);
 			ResultSet rs = statement.executeQuery();
 			if (rs.next()) {
 				releaseVersion = rs.getString("release_version");
