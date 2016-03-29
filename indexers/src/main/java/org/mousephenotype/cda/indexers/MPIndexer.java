@@ -909,9 +909,9 @@ public class MPIndexer extends AbstractIndexer {
 		}
     	
       	if (ids.size() > 0){
-	        mp.getIntermediateMpId().addAll(ids);
-	        mp.getIntermediateMpTerm().addAll(names);
-	        mp.getIntermediateMpTermSynonym().addAll(new ArrayList<>(synonyms));
+	        mp.setIntermediateMpId(ids);
+	        mp.setIntermediateMpTerm(names);
+	        mp.setIntermediateMpTermSynonym(new ArrayList<>(synonyms));
       	}
     }
 
