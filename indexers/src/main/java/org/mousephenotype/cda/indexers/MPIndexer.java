@@ -184,7 +184,14 @@ public class MPIndexer extends AbstractIndexer {
 
                 addMpHpTerms(mp, mphpBeans.get(termId));
                 mp.setMpNodeId(termNodeIds.get(termId));
-                buildNodes(mp);
+
+                addTopLevelNodes(mp);
+                addIntermediateLevelNodes(mp);
+                addChildLevelNodes(mp);
+                addParentLevelNodes(mp);
+                
+                
+                
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
@@ -866,78 +873,49 @@ public class MPIndexer extends AbstractIndexer {
         }
     }
 
-    private void buildNodes(MpDTO mp) {
-        List<Integer> nodeIds = termNodeIds.get(mp.getMpId());
-
-        if (nodeIds != null) {
-            for (Integer nodeId : nodeIds) {
-                // Build the top level nodes
-                buildTopLevelNodes(mp, nodeId);
-                buildIntermediateLevelNodes(mp, nodeId);
-                buildChildLevelNodes(mp, nodeId);
-                buildParentLevelNodes(mp, nodeId);
-            }
+    private void addTopLevelNodes(MpDTO mp) {
+    	
+    	List<String> ids = new ArrayList<>();
+      	List<String> names = new ArrayList<>();
+      	List<String> nameId = new ArrayList<>();
+      	Set<String> synonyms = new HashSet<>();
+      	
+      	for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
+			ids.add(term.getId());
+			names.add(term.getName());
+			synonyms.addAll(term.getSynonyms());
+			nameId.add(term.getTermIdTermName());
+		}
+    	
+      	if (ids.size() > 0){
+            mp.setTopLevelMpId(ids);
+            mp.setTopLevelMpTerm(names);
+            mp.setTopLevelMpTermId(nameId);
+            mp.setTopLevelMpTermSynonym(new ArrayList<>(synonyms));
         }
     }
 
-    private void buildTopLevelNodes(MpDTO mp, int nodeId) {
-        List<MPTopLevelTermBean> topLevelTermBeans = topLevelTerms.get(nodeId);
-        if (topLevelTermBeans != null) {
-            List<String> topLevelMpIds = new ArrayList<>(topLevelTermBeans.size());
-            List<String> topLevelMpTerms = new ArrayList<>(topLevelTermBeans.size());
-            List<String> topLevelMpTermIds = new ArrayList<>(topLevelTermBeans.size());
-            Set<String> topLevelSynonyms = new HashSet<>();
+    private void addIntermediateLevelNodes(MpDTO mp) {
+    	
 
-            for (MPTopLevelTermBean bean : topLevelTermBeans) {
-                topLevelMpIds.add(bean.getTermId());
-                topLevelMpTerms.add(bean.getName());
-                topLevelMpTermIds.add(bean.getTopLevelMPTermId());
-                if (mpTermSynonyms.containsKey(bean.getTermId())) {
-                    topLevelSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
-                }
-            }
-
-            if (mp.getTopLevelMpId() == null) {
-                mp.setTopLevelMpId(new ArrayList<String>());
-                mp.setTopLevelMpTerm(new ArrayList<String>());
-                mp.setTopLevelMpTermId(new ArrayList<String>());
-                mp.setTopLevelMpTermSynonym(new ArrayList<String>());
-            }
-            mp.getTopLevelMpId().addAll(topLevelMpIds);
-            mp.getTopLevelMpTerm().addAll(topLevelMpTerms);
-            mp.getTopLevelMpTermId().addAll(topLevelMpTermIds);
-            mp.getTopLevelMpTermSynonym().addAll(new ArrayList<>(topLevelSynonyms));
-        }
+    	List<String> ids = new ArrayList<>();
+      	List<String> names = new ArrayList<>();
+      	Set<String> synonyms = new HashSet<>();
+      	
+      	for (OntologyTermBean term : mpOntologyService.getIntermediates(mp.getMpId())) {
+			ids.add(term.getId());
+			names.add(term.getName());
+			synonyms.addAll(term.getSynonyms());
+		}
+    	
+      	if (ids.size() > 0){
+	        mp.getIntermediateMpId().addAll(ids);
+	        mp.getIntermediateMpTerm().addAll(names);
+	        mp.getIntermediateMpTermSynonym().addAll(new ArrayList<>(synonyms));
+      	}
     }
 
-    private void buildIntermediateLevelNodes(MpDTO mp, int nodeId) {
-        if (intermediateNodeIds.containsKey(nodeId)) {
-            List<String> intermediateTermIds = new ArrayList<>();
-            List<String> intermediateTermNames = new ArrayList<>();
-            Set<String> intermediateSynonyms = new HashSet<>();
-
-            for (Integer intId : intermediateNodeIds.get(nodeId)) {
-                for (MPTermNodeBean bean : intermediateTerms.get(intId)) {
-                    intermediateTermIds.add(bean.getTermId());
-                    intermediateTermNames.add(bean.getName());
-                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
-                        intermediateSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
-                    }
-                }
-            }
-
-            if (mp.getIntermediateMpId() == null) {
-                mp.setIntermediateMpId(new ArrayList<String>());
-                mp.setIntermediateMpTerm(new ArrayList<String>());
-                mp.setIntermediateMpTermSynonym(new ArrayList<String>());
-            }
-            mp.getIntermediateMpId().addAll(intermediateTermIds);
-            mp.getIntermediateMpTerm().addAll(intermediateTermNames);
-            mp.getIntermediateMpTermSynonym().addAll(new ArrayList<>(intermediateSynonyms));
-        }
-    }
-
-    private void buildChildLevelNodes(MpDTO mp, int nodeId) {
+    private void addChildLevelNodes(MpDTO mp) {
 
     	List<String> childTermIds = new ArrayList<>();
       	List<String> childTermNames = new ArrayList<>();
@@ -957,31 +935,22 @@ public class MPIndexer extends AbstractIndexer {
         
     }
 
-    private void buildParentLevelNodes(MpDTO mp, int nodeId) {
+    private void addParentLevelNodes(MpDTO mp) {
+    	
         List<String> parentTermIds = new ArrayList<>();
         List<String> parentTermNames = new ArrayList<>();
         Set<String> parentSynonyms = new HashSet<>();
 
-        for (Integer parentId : parentNodeIds.get(nodeId)) {
-            if (intermediateTerms.containsKey(parentId)) {
-                for (MPTermNodeBean bean : intermediateTerms.get(parentId)) {
-                    parentTermIds.add(bean.getTermId());
-                    parentTermNames.add(bean.getName());
-                }
-            }
-            if (mpTermSynonyms.containsKey(parentId.toString())) {
-                parentSynonyms.addAll(mpTermSynonyms.get(parentId.toString()));
-            }
-        }
-
-        if (mp.getParentMpId() == null) {
-            mp.setParentMpId(new ArrayList<String>());
-            mp.setParentMpTerm(new ArrayList<String>());
-            mp.setParentMpTermSynonym(new ArrayList<String>());
-        }
-        mp.getParentMpId().addAll(parentTermIds);
-        mp.getParentMpTerm().addAll(parentTermNames);
-        mp.getParentMpTermSynonym().addAll(parentSynonyms);
+        
+        for (OntologyTermBean parent : mpOntologyService.getParents(mp.getMpId())) {
+        	parentTermIds.add(parent.getId());
+        	parentTermNames.add(parent.getName());
+        	parentSynonyms.addAll(parent.getSynonyms());
+		}
+       
+        mp.setParentMpId(parentTermIds);
+        mp.setParentMpTerm(parentTermNames);
+        mp.setParentMpTermSynonym(new ArrayList<>(parentSynonyms));
     }
 
     private void addMaRelationships(MpDTO mp, String termId) {
