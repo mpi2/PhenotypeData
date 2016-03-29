@@ -470,17 +470,17 @@
 
 						var noSort = {}; // should match all existing columns
 						noSort["gene"] = [1,2,3];
-						noSort["mp"] = [1,2,3,4];
+						noSort["mp"] = [0,1,2,3];
 						noSort["disease"] = [1];
 						noSort["ma"] = [1];
 						noSort["images"] = [0,1];
 						noSort["impc_images"] = [0,1];
 
 						$('table#'+tableId).dataTable({
-									//"bSort" : true,  // sorts on current page only
+									"bSort" : false,  // sorts on current page only
 									"bProcessing" : true,
 									//"bServerSide" : true,
-									"aaSorting" : [[0, "desc"]],
+								//	"aaSorting" : [[0, "desc"]],
 									"columnDefs": [ {
 										"targets": noSort[coreName],
 										"orderable": false
