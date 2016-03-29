@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class encapsulates the code and data necessary to serve a Mammalian
@@ -31,7 +32,8 @@ import org.slf4j.LoggerFactory;
  */
 public class MpOntologyDAO extends OntologyDAO {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass()); 
+
     
     public MpOntologyDAO() throws SQLException {
         

@@ -25,6 +25,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -73,13 +76,17 @@ public class MPIndexer extends AbstractIndexer {
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
 
+
+    @Autowired
+    MpOntologyDAO mpOntologyService;
+    
     /**
      * Destination Solr core
      */
     @Autowired
     @Qualifier("mpIndexing")
     private SolrServer mpCore;
-
+  
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -94,7 +101,7 @@ public class MPIndexer extends AbstractIndexer {
     Map<Integer, List<MPTopLevelTermBean>> topLevelTerms;
     // Intermediate node IDs and terms can also be used for allChildren
     Map<Integer, List<Integer>> intermediateNodeIds;
-    Map<Integer, List<Integer>> childNodeIds;
+ //   Map<Integer, List<Integer>> childNodeIds;
     // Intermediate terms can also be used for parents
     Map<Integer, List<MPTermNodeBean>> intermediateTerms;
     Map<Integer, List<Integer>> parentNodeIds;
@@ -307,7 +314,7 @@ public class MPIndexer extends AbstractIndexer {
             // Intermediate node terms
             intermediateNodeIds = getIntermediateNodeIds();
             // ChildNodeIds is inverse of intermediateNodeIds
-            childNodeIds = getChildNodeIds();
+//            childNodeIds = getChildNodeIds();
             // Intermediate terms can also be used for parents
             intermediateTerms = getIntermediateTerms();
             parentNodeIds = getParentNodeIds();
@@ -931,39 +938,21 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void buildChildLevelNodes(MpDTO mp, int nodeId) {
-    	
-        if (childNodeIds.containsKey(nodeId)) {
-        	
-            List<String> childTermIds = new ArrayList<>();
-            List<String> childTermNames = new ArrayList<>();
-            Set<String> childSynonyms = new HashSet<>();
-            
-            if (mp.getChildMpId() == null) {
-                mp.setChildMpId(new ArrayList<String>());
-                mp.setChildMpTerm(new ArrayList<String>());
-                mp.setChildMpTermSynonym(new ArrayList<String>());
-            }
-            
-            Set<Integer> childIds = new HashSet<>();
-            childIds.addAll(childNodeIds.get(nodeId));
-            
-            for (Integer childId : childIds) {
-                for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
-                    if (bean.getTermId().equals(termNodeIds.get(childId)) && !childTermIds.contains(bean.getTermId()) && !mp.getChildMpId().contains(bean.getTermId())){
-	                	childTermIds.add(bean.getTermId());
-	                    childTermNames.add(bean.getName());
-	                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
-	                        childSynonyms.addAll(mpTermSynonyms.get(bean.getTermId()));
-	                    }
-                    }
-                }
-            }
 
-            
-            mp.getChildMpId().addAll(childTermIds);
-            mp.getChildMpTerm().addAll(childTermNames);
-            mp.getChildMpTermSynonym().addAll(new ArrayList<>(childSynonyms));
-        }
+    	List<String> childTermIds = new ArrayList<>();
+      	List<String> childTermNames = new ArrayList<>();
+      	Set<String> childSynonyms = new HashSet<>();
+
+		for (OntologyTermBean child : mpOntologyService.getChildren(mp.getMpId())) {
+			childTermIds.add(child.getId());
+			childTermNames.add(child.getName());
+			childSynonyms.addAll(child.getSynonyms());
+		}
+
+		mp.getChildMpId().addAll(childTermIds);
+		mp.getChildMpTerm().addAll(childTermNames);
+		mp.getChildMpTermSynonym().addAll(new ArrayList<>(childSynonyms));
+        
     }
 
     private void buildParentLevelNodes(MpDTO mp, int nodeId) {
