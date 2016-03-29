@@ -302,7 +302,7 @@ public class MPIndexer extends AbstractIndexer {
             mphpBeans = getMPHPBeans();
             termNodeIds = getNodeIds();
             topLevelTerms = getTopLevelTerms();
-            // Intermediate node terms can also be used for allChildren
+            // Intermediate node terms
             intermediateNodeIds = getIntermediateNodeIds();
             // ChildNodeIds is inverse of intermediateNodeIds
             childNodeIds = getChildNodeIds();
@@ -946,7 +946,7 @@ public class MPIndexer extends AbstractIndexer {
             
             for (Integer childId : childIds) {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
-                    if (!childTermIds.contains(bean.getTermId()) && !mp.getChildMpId().contains(bean.getTermId())){
+                    if (bean.getTermId().equals(mp.getMpId()) && !childTermIds.contains(bean.getTermId()) && !mp.getChildMpId().contains(bean.getTermId())){
 	                	childTermIds.add(bean.getTermId());
 	                    childTermNames.add(bean.getName());
 	                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
