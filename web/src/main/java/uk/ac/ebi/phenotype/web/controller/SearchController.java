@@ -51,7 +51,6 @@ public class SearchController {
 		return "redirect:/search";
 	}
 
-
 	private String internalSolrUrl;
 
 	@Autowired
