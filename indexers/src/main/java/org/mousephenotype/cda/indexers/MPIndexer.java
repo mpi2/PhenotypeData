@@ -121,6 +121,8 @@ public class MPIndexer extends AbstractIndexer {
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
+    
+    Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
 
     // number of postqc calls of an MP
     Map<String, Integer> mpCalls = new HashMap<>();
@@ -382,6 +384,7 @@ public class MPIndexer extends AbstractIndexer {
             }
             beans.get(tId).add(nId);
             count ++;
+            lookupTableByNodeId.put(nId, tId);
         }
         logger.debug(" Added {} node Ids", count);
 
@@ -946,7 +949,7 @@ public class MPIndexer extends AbstractIndexer {
             
             for (Integer childId : childIds) {
                 for (MPTermNodeBean bean : intermediateTerms.get(childId)) {
-                    if (bean.getTermId().equals(mp.getMpId()) && !childTermIds.contains(bean.getTermId()) && !mp.getChildMpId().contains(bean.getTermId())){
+                    if (bean.getTermId().equals(termNodeIds.get(childId)) && !childTermIds.contains(bean.getTermId()) && !mp.getChildMpId().contains(bean.getTermId())){
 	                	childTermIds.add(bean.getTermId());
 	                    childTermNames.add(bean.getName());
 	                    if (mpTermSynonyms.containsKey(bean.getTermId())) {
