@@ -909,9 +909,9 @@ public class MPIndexer extends AbstractIndexer {
 		}
     	
       	if (ids.size() > 0){
-	        mp.getIntermediateMpId().addAll(ids);
-	        mp.getIntermediateMpTerm().addAll(names);
-	        mp.getIntermediateMpTermSynonym().addAll(new ArrayList<>(synonyms));
+	        mp.setIntermediateMpId(ids);
+	        mp.setIntermediateMpTerm(names);
+	        mp.setIntermediateMpTermSynonym(new ArrayList<>(synonyms));
       	}
     }
 
@@ -927,7 +927,6 @@ public class MPIndexer extends AbstractIndexer {
 			childSynonyms.addAll(child.getSynonyms());
 		}
 			
-		System.out.println("Indexing  " + mp.getMpId() + " with children " + childTermIds);
 		
 		mp.setChildMpId(childTermIds);
 		mp.setChildMpTerm(childTermNames);
@@ -947,6 +946,8 @@ public class MPIndexer extends AbstractIndexer {
         	parentTermNames.add(parent.getName());
         	parentSynonyms.addAll(parent.getSynonyms());
 		}
+        
+		System.out.println("Indexing  " + mp.getMpId() + " with parents " + parentTermIds);
        
         mp.setParentMpId(parentTermIds);
         mp.setParentMpTerm(parentTermNames);
