@@ -109,7 +109,14 @@ public class MpService extends BasicService implements WebStatus{
 			throw new Error("More documents in MP core for the same MP id: " + id);
 		}
 		
-		if (mps.get(0).getParentMpId() == null || mps.get(0).getParentMpId().size() == 0){ // top level
+		if (mps.get(0).getParentMpId() == null){
+			return parents; 
+		}
+		if ( mps.get(0).getParentMpId().size() == 0 && mps.get(0).getTopLevel().size() > 0){ // first level below top level
+			for (int i = 0; i < mps.get(0).getTopLevel().size(); i++){
+				parents.add(new OntologyBean(mps.get(0).getTopLevel().get(i), 
+					shortenLabel(mps.get(0).getTopLevel().get(i))));
+			}
 			return parents;
 		}
 		

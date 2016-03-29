@@ -27,9 +27,9 @@
                         <h1 class="title" id="top">Embryo Vignettes</h1>
 
                         <div class="section">
-                            <div class="inner">
+                            <div id="1" class="inner">
                             <c:set var="geneId" value="MGI:1913761"></c:set>
-                            	<%-- <a href="${baseUrl}/genes/${geneId}"> --%><h2 id="${geneId}">Chtop</h2><!-- </a> -->
+                            	<%-- <a href="${baseUrl}/genes/${geneId}"> --%><h2 id="${geneId}"><t:formatAllele>Chtop<tm1a(EUCOMM)Wtsi></t:formatAllele></h2><!-- </a> -->
                             	
                             	
                             	<div  class="twothird">
@@ -72,7 +72,7 @@
 
 						<div class="section">
 							<h2 class="title" id="${geneId}">Kldhc2- heart defect linked to disease</h2>
-                            <div class="inner">
+                            <div id="2" class="inner">
                             	<div class="twothird">
                          			<p>
                          				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) The gene is expressed in <a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> (expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and 
@@ -111,7 +111,7 @@
                        	<c:set var="geneId" value="MGI:102806"></c:set>
 							<h2 class="title" id="${geneId}"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 							
-                            <div class="inner">
+                            <div id="3" class="inner">
                             	<div>
                          			<p>
                          				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.

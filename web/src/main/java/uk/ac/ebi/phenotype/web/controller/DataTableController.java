@@ -1195,7 +1195,6 @@ public class DataTableController {
 
 			int numAnnots = annots.size();
 
-			System.out.println("NUM ANNOTS: " + numAnnots);
 			JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
 			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
@@ -2143,7 +2142,7 @@ public class DataTableController {
             List<String> paperLinksOther = new ArrayList<>();
             List<String> paperLinksPubmed = new ArrayList<>();
             List<String> paperLinksEuroPubmed = new ArrayList<>();
-            String[] urlList = reference.getPaperUrls().toArray(new String[0]);
+            String[] urlList = (reference.getPaperUrls() != null) ? reference.getPaperUrls().toArray(new String[0]) : new String[0];
 
             for (int i = 0; i < urlList.length; i ++) {
                 String[] urls = urlList[i].split(",");
