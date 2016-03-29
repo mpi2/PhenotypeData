@@ -948,7 +948,9 @@ public class MPIndexer extends AbstractIndexer {
 			childTermNames.add(child.getName());
 			childSynonyms.addAll(child.getSynonyms());
 		}
-
+			
+		System.out.println("Indexing  " + mp.getMpId() + " with children " + childTermIds);
+		
 		mp.getChildMpId().addAll(childTermIds);
 		mp.getChildMpTerm().addAll(childTermNames);
 		mp.getChildMpTermSynonym().addAll(new ArrayList<>(childSynonyms));
