@@ -165,7 +165,7 @@
                             <div class="inner">
 								<div id="sliderDiv">
 									<div id="slider">
-										<div id="sliderHighlight" class="slider" imgUrl="//dev.mousephenotype.org/vignettes"> </div>
+										<div id="sliderHighlight" class="slider" imgUrl="${baseUrl}/embryo/vignettes"> </div>
 										<div> 
 											<span class="control_next half left">></span>
 											<span class="control_prev half right"><</span>
@@ -179,29 +179,31 @@
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
 										    		vertebrae, abnormal joint morphology and edema.  ${vignettesLink}</p>
-										    	<p class="sliderTitle"> Chtop -/-</p></li>
+										    	<p class="sliderTitle"><t:formatAllele>Chtop<tm1a(EUCOMM)Wtsi></t:formatAllele></p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
-										    	<p class="sliderTitle">Rab23</p></li>
+										    	<p class="embryo-caption"> The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) ${vignettesLink}</p> 
+										    	<p class="sliderTitle"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></p></li>
 										    <li id="item2"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-										    	<p class="embryo-caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. ${vignettesLink}</p>
-										    	<p class="sliderTitle"> Glycogenin 1</p></li>
-										    <li id="item3"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
-										    	<p class="sliderTitle"> Gene symbol</p> </li>
+										    	<p class="embryo-caption">Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes. Acvr2a mutants are subviable with most pups dying before postnatal day 7. ${vignettesLink}</p>
+										    	<p class="sliderTitle"> <t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
+										    <li id="item3"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />
+										    	<p class="embryo-caption">Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development.</p>	
+										    	<p class="sliderTitle"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></p> </li>
 										    <li id="item4"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-										    	<p class="embryo-caption"> This is interesting because see here and here and here and here </p> 
-										    	<p class="sliderTitle"> Gene symbol</p></li>
+										    	<p class="embryo-caption">Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway. Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5.</p> 
+										    	<p class="sliderTitle"><t:formatAllele>Tmem100<tm1e.1(KOMP)Wtsi></t:formatAllele></p></li>
 										    <li id="item5"> <img src="${baseUrl}/img/vignettes/Rab34.png" /> 
-										    	<p class="embryo-caption"> Paralog of Rab23, a paralog of Rab23, which is a key component of hedgehog signalling. Homozygous E15.5 mutant embryos have the following phenotypes, consistent with a role in hedgehog signalling. ${vignettesLink}</p> 
-										    	<p class="sliderTitle">Rab23</p></li>
+										    	<p class="embryo-caption"> Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety of developmental defects including hearing loss. Eya4 mutants showed complete preweaning lethality with no homozygous pups observed. ${vignettesLink}</p> 
+										    	<p class="sliderTitle"><t:formatAllele>Eya4<tm1b(KOMP)Wtsi></t:formatAllele></p></li>
 										    <li id="item6"><img src="${baseUrl}/img/vignettes/Gyg.png" /> 
-										    	<p class="embryo-caption">Glycogenin 1 is involved in glycogen biosynthesis. Recently a novel human mutation Gyg was shown to be associated with skeletal myopathy. ${vignettesLink}</p>
-										    	<p class="sliderTitle"> Glycogenin 1</p></li>
-										    <li id="item7"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />	
-										    	<p class="sliderTitle"> Gene symbol</p> </li>
+										    	<p class="embryo-caption">Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA. Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7. ${vignettesLink}</p>
+										    	<p class="sliderTitle"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></p></li>
+										    <li id="item7"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140715/" />
+										    	<p class="embryo-caption">Radial spoke head protein 9 is a component of the radial spoke head in motile cilia and flagella. Rsph9 mutants showed partial pre-weaning lethality but viable to P7.</p>	
+										    	<p class="sliderTitle"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></p> </li>
 										    <li id="item8"><img src="http://www.ebi.ac.uk/mi/media/omero/webgateway/render_image/140711/" /> 
-										    	<p class="embryo-caption"> This is interesting because see here and here and here and here </p> 
-										    	<p class="sliderTitle"> Gene symbol</p></li>
+										    	<p class="embryo-caption">Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain. It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult. </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
 										  </ul> 
 									</div>
 	                           	</div>
