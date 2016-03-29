@@ -303,13 +303,17 @@ public abstract class OntologyDAO {
      * <code>id</code>'s parent terms, or an empty list if there are none.
      */
     public List<OntologyTermBean> getParents(String id) {
+    	
         Set<OntologyTermBean> beans = new LinkedHashSet();
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
         if (ancestorGraphsId != null) {
             for (List<String> ancestorGraphId : ancestorGraphsId) {
-            	if (ancestorGraphId.size() >= 2){
-            		beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 2)));
+            	if (id.equalsIgnoreCase("MP:0000428")){
+	            	System.out.println("Ancestorgraph::" + id + " " + ancestorGraphId);
             	}
+	            if (ancestorGraphId.size() >= 2){
+	            	beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 2)));
+	            }
             }
         }
 
