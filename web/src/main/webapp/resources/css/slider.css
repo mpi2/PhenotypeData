@@ -73,9 +73,16 @@ h2.sliderTitle {
 	display: bloc;
 }
 
+sup {
+font-size: 70%;
+position: relative;
+bottom: 0.3em;
+}
+
 #sliderOnDisplay p.sliderTitle {
 	display: none;
 }
+
 
 #sliderControl {
 	width: 100%;
