@@ -927,7 +927,6 @@ public class MPIndexer extends AbstractIndexer {
 			childSynonyms.addAll(child.getSynonyms());
 		}
 			
-		System.out.println("Indexing  " + mp.getMpId() + " with children " + childTermIds);
 		
 		mp.setChildMpId(childTermIds);
 		mp.setChildMpTerm(childTermNames);
@@ -947,6 +946,8 @@ public class MPIndexer extends AbstractIndexer {
         	parentTermNames.add(parent.getName());
         	parentSynonyms.addAll(parent.getSynonyms());
 		}
+        
+		System.out.println("Indexing  " + mp.getMpId() + " with parents " + parentTermIds);
        
         mp.setParentMpId(parentTermIds);
         mp.setParentMpTerm(parentTermNames);
