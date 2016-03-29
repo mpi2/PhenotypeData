@@ -194,8 +194,6 @@ public class MPIndexer extends AbstractIndexer {
                 addChildLevelNodes(mp);
                 addParentLevelNodes(mp);
                 
-                
-                
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
@@ -935,7 +933,6 @@ public class MPIndexer extends AbstractIndexer {
         List<String> parentTermIds = new ArrayList<>();
         List<String> parentTermNames = new ArrayList<>();
         Set<String> parentSynonyms = new HashSet<>();
-
         
         for (OntologyTermBean parent : mpOntologyService.getParents(mp.getMpId())) {
         	parentTermIds.add(parent.getId());
