@@ -980,7 +980,7 @@ public class FileExportController {
 
 		List<String> rowData = new ArrayList();
 		rowData.add(
-				"Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy id link\tMouse adult gross anatomy synonym\tLacZ Expression Data"); // column
+				"Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy id link\tMouse adult gross anatomy synonym\tLacZ Expression Images"); // column
 																																						// names
 
 		for (int i = 0; i < docs.size(); i++) {
