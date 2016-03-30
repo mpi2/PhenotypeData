@@ -1005,46 +1005,55 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		// Create field that contains all possible MP terms (including intermediate and top level terms)
 		// that this parameter can produce
 		Set<String> mpIds = parameterMpTermMap.get(doc.getParameterStableId());
-		Set<OntologyTermBean> ontoTerms = new HashSet<>();
 
-		mpIds.forEach(mpId -> {
+		if (mpIds != null) {
+			Set<OntologyTermBean> ontoTerms = new HashSet<>();
 
-			OntologyTermBean bean = mpOntologyService.getTerm(mpId);
+			mpIds.forEach(mpId -> {
 
-			if (bean != null) {
+				OntologyTermBean bean = mpOntologyService.getTerm(mpId);
 
-				ontoTerms.add(bean);
+				if (bean != null) {
 
-				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+					ontoTerms.add(bean);
 
-				// Add all intermediate terms for this MP ID
-				beanlist.getIntermediates().getIds().forEach(mp -> {
-					OntologyTermBean b = mpOntologyService.getTerm(mp);
-					if (b != null) {
-						ontoTerms.add(b);
-					}
-				});
+					OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
 
-				// Add all top level terms for this MP ID
-				beanlist.getTopLevels().getIds().forEach(mp -> {
-					OntologyTermBean b = mpOntologyService.getTerm(mp);
-					if (b != null) {
-						ontoTerms.add(b);
-					}
-				});
+					// Add all intermediate terms for this MP ID
+					beanlist.getIntermediates().getIds().forEach(mp -> {
+						OntologyTermBean b = mpOntologyService.getTerm(mp);
+						if (b != null) {
+							ontoTerms.add(b);
+						}
+					});
 
-			}
+					// Add all top level terms for this MP ID
+					beanlist.getTopLevels().getIds().forEach(mp -> {
+						OntologyTermBean b = mpOntologyService.getTerm(mp);
+						if (b != null) {
+							ontoTerms.add(b);
+						}
+					});
 
-		});
+				}
 
-		// Default the term options to empty lists
-		doc.setMpTermIdOptions(new ArrayList<>());
-		doc.setMpTermNameOptions(new ArrayList<>());
+			});
 
-		ontoTerms.forEach(term -> {
-			doc.getMpTermIdOptions().add(term.getId());
-			doc.getMpTermNameOptions().add(term.getName());
-		});
+			// Default the term options to empty lists
+			doc.setMpTermIdOptions(new ArrayList<>());
+			doc.setMpTermNameOptions(new ArrayList<>());
+
+			ontoTerms.forEach(term -> {
+				doc.getMpTermIdOptions().add(term.getId());
+				doc.getMpTermNameOptions().add(term.getName());
+			});
+
+
+		} else {
+
+			logger.info("Cannot find MP terms for parameter {}", doc.getParameterStableId());
+
+		}
 
 	}
 
