@@ -274,27 +274,6 @@ public class MpService extends BasicService implements WebStatus{
 
     }
 
-	/**
-	 *
-	 * @param mpTermId
-	 * @return List of all parameters that may lead to associations to the MP
-	 * term or any of it's children (based on the slim only)
-	 */
-	public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
-		HashSet<String> res = new HashSet<>();
-		ArrayList<String> mpIds;
-		try {
-			mpIds = getChildrenFor(mpTermId);
-			res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
-			for (String mp : mpIds) {
-				res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
-			}
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-		return res;
-	}
-	
 	@Override
 	public long getWebStatus() throws SolrServerException {
 		SolrQuery query = new SolrQuery();
