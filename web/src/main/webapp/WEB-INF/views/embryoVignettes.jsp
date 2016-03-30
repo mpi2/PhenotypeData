@@ -129,6 +129,9 @@
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
                             			</li>
                             			<li>
+                            				Viability at P3/P7: <a id="acvr2aP3Trigger" class="various" href="#acvr2aP3">Lethal</a>
+                            			</li>
+                            			<li>
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
@@ -143,9 +146,7 @@
                             			<li>
                             				Embryo Histopathology: <a id="acvr2aHistTrigger" class="various" href="#acvr2aHist">Image</a>
                             			</li>
-                            			<li>
-                            				Viability at P3/P7: <a id="acvr2aP3Trigger" class="various" href="#acvr2aP3">Lethal</a>
-                            			</li>
+                            			
                             		</ul>
                             		
                             	</div>
