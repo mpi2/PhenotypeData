@@ -188,7 +188,7 @@
 					</div>
 						
 						
-					<div class="half">
+					<div id="parentChild" class="half">
                             <div class="half" id="parentDiv"></div>
 							<div class="half" id="childDiv"></div>
 					</div>
