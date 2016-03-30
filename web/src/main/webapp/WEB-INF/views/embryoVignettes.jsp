@@ -34,12 +34,12 @@
                             	
                             	<div  class="twothird">
 				            		<p>
-				            		Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 5-Hydroxymethylcytosine, thus affecting gene expression.
+				            		Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 5-Hydroxymethylcytosine, thus affecting gene expression.<br>
+				            		
+				            		
+				            		Chtop mutants showed complete preweaning lethality with no homozygous pups observed. High resolution episcopic microscopy (HREM) imaging at E14.5 revealed multiple phenotypes including edema, abnormal forebrain morphology and decreased number of vertebrae and ribs.<br>
 				            		</p>
-				            		<p>
-				            		Chtop mutants showed complete preweaning lethality with no homozygous pups observed. High resolution episcopic microscopy (HREM) imaging, revealed decreased number of vertebrae, abnormal joint morphology and edema.
-				            		</p>
-				            		Phenotype data  links
+				            		<p>Phenotype data links</p>
 				            		<ul>
 				            			<li>
 				            				Viability: <a href="${baseUrl}/charts?accession=MGI:1913761&amp;allele_accession_id=MGI:4842477&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Complete preweaning lethality</a>
@@ -51,10 +51,13 @@
 				            				Embryo Gross Dysmorphology: <a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology">Images</a>
 				            			</li>
 				            			<li>
-				            				3-D imaging: NA (Consider this link: <a href="http://dmdd.org.uk/stacks/DMDD5009/xy">http://dmdd.org.uk/stacks/DMDD5009/xy</a>
+				            				3-D imaging: NA (Consider this link: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
 				            			</li>
 				            			<li>
-				            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1913761#section-associations">table</a>
+				            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1913761#section-associations">Table</a>
+				            			</li>
+				            			<li>
+				            				Placental histopath: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
 				            			</li>
 				            		</ul>
 								</div>
@@ -71,16 +74,17 @@
         				
 
 						<div class="section">
-							<h2 class="title" id="${geneId}">Kldhc2- heart defect linked to disease</h2>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
                             <div id="2" class="inner">
                             	<div class="twothird">
                          			<p>
-                         				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) The gene is expressed in <a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> (expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and 
-                         				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal​embryos may have a heart defect.
+                         				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM).<br>
+                         				The gene is expressed in <a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> (expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and 
+                         				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal ​embryos may have a heart defect.
                         			</p>
-                        			<p>
-                        			Phenotype data  links
-                        			</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
                             		<ul>
                             			<li>
                             				Viability:<a href="${baseUrl}/charts?accession=MGI:1916804&amp;allele_accession_id=MGI:5548587&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=HRWL_001&amp;phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
@@ -92,10 +96,10 @@
                             				Embryo Gross Dysmorphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Image</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Images</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1916804">table</a>
+                            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -114,13 +118,12 @@
                             <div id="3" class="inner">
                             	<div>
                          			<p>
-                         				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.
+                         				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.<br>
 										Acvr2a mutants are subviable with most pups dying before postnatal day 7. Micro-CT analysis at E15.5 revealed variable penetrance of eye and craniofacial abnormalities. Eye phenotypes varied from normal (Embryo 1- (E1)), to underdeveloped (E2), to cyclopic (E3), to absent (E4). Craniofacial phenotypes varied from normal (E1) to narrow snout (E2), to an elongated  snout missing the mandible and tongue (E3, 4) and low set ears (E2, 3, 4).
-<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal​embryos may have a heart defect.
                         			</p>
-                        			<p>
-                        			Phenotype data  links
-                        			</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
                             		<ul>
                             			<li>
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
@@ -145,7 +148,7 @@
 								
                             	<div class="clear"></div>
                             	
-                            	<div >
+                            	<div>
                             	<div class="inner">
                             	<img src="${baseUrl}/img/vignettes/Acvr2aHist.png" style="width:85%"/>
                             	</div>
@@ -163,14 +166,14 @@
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development.
-Cbx4 mutants showed complete preweaning lethality but were viable at E12.5 and E15.5 with no obvious gross morphological change.
-Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistically smaller thymus and also revealed smaller adrenal glands and trigeminal ganglia compared to Cbx4+/+ wildtype embryos.
+                         				Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development.<br>
+										Cbx4 mutants showed complete preweaning lethality but were viable at E12.5 and E15.5 with no obvious gross morphological change.
+										Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistically smaller thymus and also revealed smaller adrenal glands and trigeminal ganglia compared to Cbx4+/+ wildtype embryos.
 
                         			</p>
-                        			<p>
-                        			Phenotype data  links
-                        			</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
                             		<ul>
                             			<li>
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548407&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
@@ -215,15 +218,15 @@ Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistic
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway.
-Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5.
-LacZ staining in E12.5 Het embryos was found predominantly in arterial endothelial cells and the heart (arrow) .
-OPT analysis at E9.5 revealed that Tmem100 mutant embryos have a large pericardial effusion with cardiac dysmorphology and enlargement (arrow).
+                         				Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway.<br>
+										Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5.
+										LacZ staining in E12.5 Het embryos was found predominantly in arterial endothelial cells and the heart (arrow) .
+										OPT analysis at E9.5 revealed that Tmem100 mutant embryos have a large pericardial effusion with cardiac dysmorphology and enlargement (arrow).
 
                         			</p>
-                        			<p>
-                        			Phenotype data  links
-                        			</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
                             		<ul>
                             			<li>
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=NULL-73D315493&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
@@ -262,14 +265,14 @@ OPT analysis at E9.5 revealed that Tmem100 mutant embryos have a large pericardi
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety of developmental defects including hearing loss.
-Eya4 mutants showed complete preweaning lethality with no homozygous pups observed.
-Micro-CT analysis at E15.5 revealed Eya tm1b/tm1b mutant embryos had bi-lateral smaller cochlear volumes as well as a smaller thyroid gland, Meckel’s cartilage, trachea (opening), cricoid cartilage, and arytenoid cartilage.
+                         				Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety of developmental defects including hearing loss.<br>
+										Eya4 mutants showed complete preweaning lethality with no homozygous pups observed.
+										Micro-CT analysis at E15.5 revealed Eya tm1b/tm1b mutant embryos had bi-lateral smaller cochlear volumes as well as a smaller thyroid gland, Meckel’s cartilage, trachea (opening), cricoid cartilage, and arytenoid cartilage.
 
                         			</p>
-                        			<p>
-                        			Phenotype data  links
-                        			</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
                             		<ul>
                             			<li>
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548437&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
@@ -333,7 +336,7 @@ Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before
 Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cerebellum and pontine nucleus (blue) compared to the Tox3+/+ wildtype mice and larger amygdala, thalamus, pons, respectively (red).
 </p>
 				            		
-				            		Phenotype data  links
+				            		Phenotype data links
 				            		<ul>
 				            			<li>
 				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&amp;allele_accession_id=MGI:5548886&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Partial preweaning lethality</a>
@@ -398,7 +401,7 @@ Coronal section through the nasal region showed that the sinuses of the Rsph9 mu
 Both hydrocephaly and nasal blockage are phenotypes associated with Primary Ciliary Dyskinesia in humans.
 </p>
 				            		
-				            		Phenotype data  links
+				            		<p>Phenotype data links</p>
 				            		<ul>
 				            			<li>
 				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&amp;allele_accession_id=MGI:5695930&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Partial preweaning lethality</a>
@@ -456,17 +459,16 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain.  It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult.
-                         			</p>
-                         			<p>
-Pax7 mutants showed complete preweaning lethality.
-Micro-CT analysis at E15.5 revealed voxel-wise local volume differences with a larger nasal septum, cavity and capsule (False Discovery Rate <5%) in the E15.5 Pax7tm1.1/tm1.1 mutant embryos compared the wildtype embryos.
-LacZ staining at E12.5 showed very strong staining in the medial region of the frontonasal prominence (arrows) where structural changes  were found. 
-LacZ staining was also seen in the midbrain, hindbrain, spinal cord, vertebrae, ribs and neural crest. 
-</p>
-                        			<p>
-                        			Phenotype data  links
-                        			</p>
+                         				Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain.<br>
+                         				It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult.
+										Pax7 mutants showed complete preweaning lethality.
+										Micro-CT analysis at E15.5 revealed voxel-wise local volume differences with a larger nasal septum, cavity and capsule (False Discovery Rate <5%) in the E15.5 Pax7tm1.1/tm1.1 mutant embryos compared the wildtype embryos.
+										LacZ staining at E12.5 showed very strong staining in the medial region of the frontonasal prominence (arrows) where structural changes  were found. 
+										LacZ staining was also seen in the midbrain, hindbrain, spinal cord, vertebrae, ribs and neural crest. 
+									</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
                             		<ul>
                             			<li>
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=allele_accession_id=MGI:5505636&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
