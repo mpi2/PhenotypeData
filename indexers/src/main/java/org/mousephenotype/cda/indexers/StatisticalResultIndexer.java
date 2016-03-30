@@ -70,6 +70,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
 	Map<String, ResourceBean> resourceMap = new HashMap<>();
 	Map<String, List<String>> sexesMap = new HashMap<>();
+	Set<String> alreadyReported = new HashSet<>();
 
 	Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 	Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
@@ -1051,7 +1052,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		} else {
 
-			logger.info("Cannot find MP terms for parameter {}", doc.getParameterStableId());
+			String p = doc.getParameterStableId();
+			if ( ! alreadyReported.contains(p)) {
+				alreadyReported.add(p);
+				logger.debug("Cannot find MP terms for parameter {}", p);
+			}
 
 		}
 
