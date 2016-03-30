@@ -129,6 +129,9 @@
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
                             			</li>
                             			<li>
+                            				Viability at P3/P7: <a id="acvr2aP3Trigger" class="various" href="#acvr2aP3">Lethal</a>
+                            			</li>
+                            			<li>
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
@@ -140,6 +143,10 @@
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
+                            			<li>
+                            				Embryo Histopathology: <a id="acvr2aHistTrigger" class="various" href="#acvr2aHist">Image</a>
+                            			</li>
+                            			
                             		</ul>
                             		
                             	</div>
@@ -148,11 +155,18 @@
 								
                             	<div class="clear"></div>
                             	
-                            	<div>
-                            	<div class="inner">
-                            	<img src="${baseUrl}/img/vignettes/Acvr2aHist.png" style="width:85%"/>
+                            	<div id="acvr2aHist" name="acvr2aHist" style="display:none" >
+                            		<div class="inner">
+                            			<img src="${baseUrl}/img/vignettes/Acvr2aHist.png"/>
+                            		</div>
+                            		
                             	</div>
                             	
+                            	<div id="acvr2aP3" style="display:none" >
+                            		<div class="inner">
+                            			<img src="${baseUrl}/img/vignettes/acvr2aP3.png"/>
+                            		</div>
+                            		
                             	</div>
                             </div>
                        	</div>
@@ -516,6 +530,12 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 
 
 	
+	<script type="text/javascript">
+    $("#acvr2aHistTrigger").fancybox();
+    
+    $("#acvr2aP3Trigger").fancybox();
+</script>
+
 
       </jsp:body>
 
