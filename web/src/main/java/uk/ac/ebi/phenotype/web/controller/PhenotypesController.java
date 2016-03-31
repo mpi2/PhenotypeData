@@ -455,7 +455,7 @@ public class PhenotypesController {
     	if (type.equals("parents")){
     	
 	    	JSONObject data = new JSONObject();
-	    	data.element("label", mpId);
+	    	data.element("id", mpId);
 	    	JSONArray nodes = new JSONArray();
 	    
 	    	for (OntologyBean term : mpService.getParents(mpId)){
@@ -468,7 +468,7 @@ public class PhenotypesController {
     	} else if (type.equals("children")){
     		
     		JSONObject data = new JSONObject();
-        	data.element("label", mpId);
+        	data.element("id", mpId);
         	JSONArray nodes = new JSONArray();
 
         	for (OntologyBean term : mpService.getChildren(mpId)){
