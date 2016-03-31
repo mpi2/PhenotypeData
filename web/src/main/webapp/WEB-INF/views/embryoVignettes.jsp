@@ -74,6 +74,7 @@
         				
 
 						<div class="section">
+						<c:set var="geneId" value="MGI:1916804"></c:set>
 							<h2 class="title" id="${geneId}"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
                             <div id="2" class="inner">
                             	<div class="twothird">
@@ -87,7 +88,7 @@
                         			
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=MGI:1916804&amp;allele_accession_id=MGI:5548587&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=HRWL_001&amp;phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
+                            				Viability:<a href="${baseUrl}/charts?accession=MGI:1916804&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: NA
@@ -246,7 +247,7 @@
                         			
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=NULL-73D315493&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=MGI:1915138&allele_accession_id=MGI:5548552&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
@@ -266,7 +267,7 @@
                             	</div>
                             		
                             	
-                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100.png" >OPT analysis of E9.5 Tmem100 wildtype embryo compared to a <t:formatAllele>Tmem100<tm1e.1/tm1e.1></t:formatAllele>  mutant embryo and lacZ staining in an E12.5 <t:formatAllele>Tmem100<+/tm1e.1></t:formatAllele> embryo.
+                            	<div class="half"><img alt="Tmem100 wildtype embryo compared to a mutant" src="${baseUrl}/img/vignettes/tmem100.png" >OPT analysis of E9.5 Tmem100 wildtype embryo compared to a <t:formatAllele>Tmem100<tm1e.1/tm1e.1></t:formatAllele>  mutant embryo and lacZ staining in an E12.5 <t:formatAllele>Tmem100<+/tm1e.1></t:formatAllele> embryo.
 								</div>
 								<div id="tmem100EmbGross" style="display:none" >
 								<img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100GM.png" >
@@ -282,7 +283,7 @@
                             
                             
                             <div class="section">
-                            <c:set var="geneId" value="MGI:1915138"></c:set>
+                            <c:set var="geneId" value="MGI:1337104"></c:set>
 							<h2 class="title" id="${geneId}"><t:formatAllele>Eya4<tm1b(KOMP)Wtsi></t:formatAllele></h2>
 							
                             <div class="inner">
@@ -298,7 +299,7 @@
                         			
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548437&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548437&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: <a id="eyaEmbLacZTrigger" href="#eyaEmbLacZ" class="various">Images</a>
@@ -369,7 +370,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 				            		Phenotype data links
 				            		<ul>
 				            			<li>
-				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&amp;allele_accession_id=MGI:5548886&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Partial preweaning lethality</a>
+				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548886&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
 				            			</li>
 				            			<li>
 				            				Viability at P3/P7: <a href="#tox3Viable" id="tox3ViableTrigger" class="various">Viable</a> 
@@ -438,7 +439,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            		<p>Phenotype data links</p>
 				            		<ul>
 				            			<li>
-				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&amp;allele_accession_id=MGI:5695930&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Partial preweaning lethality</a>
+				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5695930&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Partial preweaning lethality</a>
 				            			</li>
 				            			<li>
 				            				Viability at P3/P7: <a href="#rsph9Viable" class="various" id="rsph9ViableTrigger">Viable</a>
@@ -447,14 +448,12 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            				Embryo Lacz Expression:  NA
 				            			</li>
 				            			<li>
-				            				Embryo Gross Dysmorphology: <a href="${baseUrl}/images?gene_id=${geneId}&amp;fq=expName:Embryo%20Dysmorphology">Images</a>
+				            				Embryo Gross Dysmorphology: NA
 				            			</li>
 				            			<li>
 				            				3-D imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
 				            			</li>
-				            			<li>
-				            				Histopathology: <a href="">Images</a><!-- We have no histopath images for this gene yet?? -->
-				            			</li>
+				          
 				            			<li>
 				            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
 				            			</li>
@@ -509,7 +508,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                         			
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=allele_accession_id=MGI:5505636&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5505636&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Partial preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
