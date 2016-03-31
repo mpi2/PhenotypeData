@@ -67,7 +67,10 @@
 		
 		     node.append("circle")
 		          .attr("r", 4.5)
-		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
+		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; })
+		          .on('click', function(d, i) {
+		        	  window.location.href = "../phenotypes/"  + d.id;
+			 });
 		    
 		     node.append("text")
 		          .attr("x", function(d) { return d.children ?  8 : -8; })
@@ -78,13 +81,7 @@
 	  		      .style("width", "150px")
 	  		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
-				   })
-//				  .on("mouseover", function(){return tooltip.style("visibility", "visible");})
-//				  .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-//				  .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-				; // width of the node labels; 
-		     
-		     
+	  		  }) ; // width of the node labels; 
 	    });
 	    
 	    
@@ -127,14 +124,18 @@
 		          
 		     node.append("circle")
 		          .attr("r", 4.5)
-		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
+		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; })
+		          .on('click', function(d, i) {
+					  window.location.href = "../phenotypes/"  + d.id;
+				   });
 		
 		     node.append("text")
 		          .attr("x", function(d) { return d.children ? -8 : 8; })
 		          .attr("y", 3)
 		          .attr("class", "treeLabel")
-		          .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-		          .text(function(d) { return d.name; })
+		          .style("text-anchor", function(d) { return d.children ? "start" : "start"; })
+		          .attr("transform", function(d) {return d.children ? "rotate(270) translate (15,0)" : ""})
+		          .text(function(d) {  return d.children ? "current page" : d.name; })
 	   		      .style("width", "150px")
 	   		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
