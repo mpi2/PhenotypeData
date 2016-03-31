@@ -78,6 +78,7 @@
 		          .attr("class", "treeLabel")
 		          .style("text-anchor", function(d) { return d.children ? "start" : "end"; })
 		          .text(function(d) { return d.children ? "current page" : d.name; })
+		          .attr("transform", function(d) {return d.children ? "rotate(270)" : ""})
 	  		      .style("width", "150px")
 	  		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
