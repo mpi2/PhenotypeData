@@ -68,6 +68,8 @@
 
 
         <!-- Information about the MP term -->
+        <field name="mp_term_id_options" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+        <field name="mp_term_name_options" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
         <field name="mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="mp_term_name" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
         <field name="top_level_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true"/>

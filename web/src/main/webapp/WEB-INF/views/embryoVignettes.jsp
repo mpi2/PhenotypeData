@@ -182,7 +182,7 @@
                          			<p>
                          				Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development.<br>
 										Cbx4 mutants showed complete preweaning lethality but were viable at E12.5 and E15.5 with no obvious gross morphological change.
-										Micro-CT analysis at E15.5 confirmed that Cbx4tm1.1/tm1.1 mutants  had statistically smaller thymus and also revealed smaller adrenal glands and trigeminal ganglia compared to Cbx4+/+ wildtype embryos.
+										Micro-CT analysis at E15.5 confirmed that <t:formatAllele>Cbx4<tm1.1/tm1.1></t:formatAllele> mutants  had statistically smaller thymus and also revealed smaller adrenal glands and trigeminal ganglia compared to <t:formatAllele>Cbx4<+/+></t:formatAllele> wildtype embryos.
 
                         			</p>
                         			
@@ -190,7 +190,7 @@
                         			
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548407&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548407&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank"> Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
@@ -204,20 +204,23 @@
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
+                            			<li>
+                            				3D Volumetric Analysis: <a href="#cbx4Graphs" id="cbx4GraphsTrigger" class="various">Graph</a>
+                            			</li>
                             		</ul>
                             		
                             	</div>
-                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbx4.png" >Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1 mutants viewed in coronal section revealed that mutant embryos had bilateral smaller trigeminal ganglia, thymus, and adrenal glands compared to Cbx4+/+ wildtype embryos as indicated by blue colour and highlighted by pink arrows (False Discovery Rate (FDR) threshold of 5%).
+                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbx4.png" >Automated MRI analysis of E15.5 <t:formatAllele>Cbx4<tm1.1/tm1.1></t:formatAllele> mutants viewed in coronal section revealed that mutant embryos had bilateral smaller trigeminal ganglia, thymus, and adrenal glands compared to <t:formatAllele>Cbx4<+/+></t:formatAllele> wildtype embryos as indicated by blue colour and highlighted by pink arrows (False Discovery Rate (FDR) threshold of 5%).
 </div>
 								
                             	<div class="clear"></div>
-                            	<div class="inner">
-                       					<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbxVol1.png"  >
+                            	<div id="cbx4Graphs" style="display:none" >
+                       					<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/thymus_black.png" style="height: 600px; width:600px" >
                        					</div>
-                       					<div><img class="half" alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/cbxVol2.png">
+                       					<div><img class="half" alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/adrenal_black.png" style="height: 600px;  width:600px">
                        					</div>
            								<div class="clear"></div>
-                       					<p>Whole structural volume differences calculated as a percentage of whole body	volume for the left and right thymic rudiment (left) and left and right adrenal (right) of Cbx4tm1.1/tm1.1 mutant embryos compared to Cbx4+/+ wildtype embryos.  Both organs are significantly smaller in the Cbx4 mutant embryos at an FDR threshold of 5% where the error bars represent 95% confidence intervals.
+                       					<p>Whole structural volume differences calculated as a percentage of whole body	volume for the left and right thymic rudiment (left) and left and right adrenal (right) of <t:formatAllele>Cbx4<tm1.1/tm1.1></t:formatAllele> mutant embryos compared to <t:formatAllele>Cbx4<+/+></t:formatAllele> wildtype embryos.  Both organs are significantly smaller in the Cbx4 mutant embryos at an FDR threshold of 5% where the error bars represent 95% confidence intervals.
                        					</p>
                        			</div>	
 								</div>
@@ -227,7 +230,7 @@
                             
                             <div class="section">
                             <c:set var="geneId" value="MGI:1915138"></c:set>
-							<h2 class="title" id="${geneId}"><t:formatAllele>Tmem100<tm1e.1(komp)Wtsi></t:formatAllele></h2>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Tmem100<tm1e.1(KOMP)Wtsi></t:formatAllele></h2>
 							
                             <div class="inner">
                             	<div class="half">
@@ -249,7 +252,7 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Dysmorphology: <a id="tmem100EmbGrossTrigger" href="#tmem100EmbGross" class="various" >Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
@@ -258,11 +261,18 @@
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
                             		</ul>
+
                             		
                             	</div>
-                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100.png" >OPT analysis of E9.5 Tmem100 wildtype embryo to a Tmem100tm1e.1/tm1e.1  mutant embryo and lacZ staining in an E12.5 Tmem100+/tm1e.1 embryo.
+                            		
+                            	
+                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100.png" >OPT analysis of E9.5 Tmem100 wildtype embryo compared to a <t:formatAllele>Tmem100<tm1e.1/tm1e.1></t:formatAllele>  mutant embryo and lacZ staining in an E12.5 <t:formatAllele>Tmem100<+/tm1e.1></t:formatAllele> embryo.
 								</div>
-								<div><img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100GM.png" >Gross morphology at E9.5 revealed that Tmem100tm1e.1/tm1e.1 mutant embryos have a large pericardial effusion with cardiac dysmorphology and enlargement (arrow).
+								<div id="tmem100EmbGross" style="display:none" >
+								<img alt="Automated MRI analysis of E15.5 Cbx4tm1.1/tm1.1" src="${baseUrl}/img/vignettes/tmem100GM.png" >
+								<p>
+								Gross morphology at E9.5 revealed that <t:formatAllele>Tmem100<tm1e.1/tm1e.1></t:formatAllele> mutant embryos have a large pericardial effusion with cardiac dysmorphology and enlargement (arrow).
+								</p>
 								</div>
 								
                             	<div class="clear"></div>
@@ -273,15 +283,14 @@
                             
                             <div class="section">
                             <c:set var="geneId" value="MGI:1915138"></c:set>
-							<h2 class="title" id="${geneId}"><t:formatAllele>Eya4
-<tm1b(KOMP)Wtsi></t:formatAllele></h2>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Eya4<tm1b(KOMP)Wtsi></t:formatAllele></h2>
 							
                             <div class="inner">
                             	<div class="half">
                          			<p>
                          				Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety of developmental defects including hearing loss.<br>
 										Eya4 mutants showed complete preweaning lethality with no homozygous pups observed.
-										Micro-CT analysis at E15.5 revealed Eya tm1b/tm1b mutant embryos had bi-lateral smaller cochlear volumes as well as a smaller thyroid gland, Meckel’s cartilage, trachea (opening), cricoid cartilage, and arytenoid cartilage.
+										Micro-CT analysis at E15.5 revealed <t:formatAllele>Eya<tm1b/tm1b></t:formatAllele> mutant embryos had bi-lateral smaller cochlear volumes as well as a smaller thyroid gland, Meckel's cartilage, trachea (opening), cricoid cartilage, and arytenoid cartilage.
 
                         			</p>
                         			
@@ -292,10 +301,13 @@
                             				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548437&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                            				Embryo LacZ Expression: <a id="eyaEmbLacZTrigger" href="#eyaEmbLacZ" class="various">Images</a>
                             			</li>
                             			<li>
                             				Embryo Gross Dysmorphology: NA
+                            			</li>
+                            			<li>
+                            				Embryo Histopathology: <a id="eyaEmbHisTrigger" href="#eyaEmbHis" class="various">Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
@@ -303,6 +315,7 @@
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
+                            			
                             		</ul>
                             		
                             	</div>
@@ -312,18 +325,22 @@
 								
                             	<div class="clear"></div>
                             	
-                            	
-                            	<div class="inner">
-								<div><img alt="Lac Z staining at E12.5" src="${baseUrl}/img/vignettes/eye4Lac.png" >
-								<p>Lac Z staining at E12.5 showed that Eya4 expression is primarily in the craniofacial mesenchyme, cochleae and outer ear, dermamyotome, and limb.
-								</p>
+                            	<div id="eyaEmbLacZ" style="display:none">
+                            		
+										<div>
+											<img alt="Lac Z staining at E12.5" src="${baseUrl}/img/vignettes/eye4Lac.png" >
+											<p>Lac Z staining at E12.5 showed that Eya4 expression is primarily in the craniofacial mesenchyme, cochleae and outer ear, dermamyotome, and limb.
+											</p>
 
+										</div>
+									
 								</div>
-								</div>
-								<div class="inner">
+								
+								
+								<div id="eyaEmbHis" style="display: none">
                             	<img src="${baseUrl}/img/vignettes/eya4LacSlides.png"/>
                             	<p>
-                            	H&E stained sagittal section through the right cochlea of an Eya4+/+ wildtype embryo compared to an Eya4tm1b/tm1b mutant embryo indicated that the mutant embryo had a hypoplastic cochlea. Higher magnification of the region (indicated by the white box) showed abnormal perilymphatic (periotic) mesenchyme (PM) in the mutant embryo compared to the wildtype embryo. In the wildtype embryo the perilymphatic mesenchyme (PM) was rarefied and had multifocal vacuolation (arrow) suggesting normal perilymph development. In the mutant embryo the perilymphatic mesenchyme (PM) did not show rarefaction and had reduced vacuolation (arrow) suggesting the cochlear hypoplasia was due to delayed perilymph development. 
+                            	H&E stained sagittal section through the right cochlea of an <t:formatAllele>Eya4<+/+></t:formatAllele> wildtype embryo compared to an <t:formatAllele>Eya4<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant embryo had a hypoplastic cochlea. Higher magnification of the region (indicated by the white box) showed abnormal perilymphatic (periotic) mesenchyme (PM) in the mutant embryo compared to the wildtype embryo. In the wildtype embryo the perilymphatic mesenchyme (PM) was rarefied and had multifocal vacuolation (arrow) suggesting normal perilymph development. In the mutant embryo the perilymphatic mesenchyme (PM) did not show rarefaction and had reduced vacuolation (arrow) suggesting the cochlear hypoplasia was due to delayed perilymph development. 
 BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, ML-Membranous Labyrinth, EN-Endolymph
                             	</p>
                             	
@@ -339,15 +356,14 @@ BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, 
                             <div class="section">
                             <c:set var="geneId" value="MGI:3039593"></c:set>
                             <div class="inner">
-                            	<h2 id="${geneId}"><t:formatAllele>Tox3
-<tm1b(KOMP)Mbp></t:formatAllele></h2></h2>
+                            	<h2 id="${geneId}"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></h2></h2>
                             	
                             	
                             	<div  class="half">
 				            		<p>
 				            		Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA.
-Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.
-Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cerebellum and pontine nucleus (blue) compared to the Tox3+/+ wildtype mice and larger amygdala, thalamus, pons, respectively (red).
+Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.<br>
+Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutants had a much smaller cerebellum and pontine nucleus (blue) compared to the <t:formatAllele>Tox<3+/+></t:formatAllele> wildtype mice and larger amygdala, thalamus, pons, respectively (red).
 </p>
 				            		
 				            		Phenotype data links
@@ -356,7 +372,7 @@ Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cer
 				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&amp;allele_accession_id=MGI:5548886&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Partial preweaning lethality</a>
 				            			</li>
 				            			<li>
-				            				Viability at P3/P7: Subviable
+				            				Viability at P3/P7: <a href="#tox3Viable" id="tox3ViableTrigger" class="various">Viable</a> 
 				            			</li>
 				            			<li>
 				            				Embryo Lacz Expression:  NA
@@ -365,11 +381,15 @@ Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cer
 				            				Embryo Gross Dysmorphology: NA
 				            			</li>
 				            			<li>
+				            				Embryo Histopathology: <a href="#tox3His" id="tox3HisTrigger" class="various">Images</a> 
+				            			</li>
+				            			<li>
 				            				3-D imaging: NA
 				            			</li>
 				            			<li>
 				            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
 				            			</li>
+				            			
 				            		</ul>
 								</div>
                             	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/tox3MRI.png" >Caudal to rostral coronal sections of whole brain MRI with automated volume analysis revealed P7 Tox3tm1b/tm1b mutant mice had smaller (blue) and larger (red) tissues compared to the Tox3+/+ wildtype average.
@@ -377,17 +397,17 @@ Whole brain MRI at P7 revealed that Tox3tm1b/tm1b mutants had a much smaller cer
 				            		<div class="clear"></div>		
 				            		
 				            		
-				            	<div class="inner">
+				            	<div id="tox3Viable" style="display: none">
 				            		<h3>P3/P7 viability test Tox3</h3>
 				    
 				            		<img src="${baseUrl}/img/vignettes/Tox3Table.png">		
 	                           	</div>
 	                           	
-	                       <div class="inner">
-	                       <img src="${baseUrl}/img/vignettes/Tox3Sections.png">
-	                       <p>
-	                       H&E stained coronal section through the brain of a Tox3+/+ wildtype embryo compared to a Tox3tm1b/tm1b mutant embryo indicated that the mutant embryo had a hypoplastic and dysplastic cerebellum (CE) with markedly reduced fissure formation. Higher magnification revealed that the transient external granular layer was absent in the Tox3tm1b/tm1b mutant  mice and the subjacent molecular layer was hypotrophic and irregular in thickness (arrow).
-	                       </p>
+	                       <div id="tox3His" style="display: none">
+	                       		<img src="${baseUrl}/img/vignettes/Tox3Sections.png">
+	                       		<p>
+	                       			H&E stained coronal section through the brain of a Tox3+/+ wildtype embryo compared to a Tox3tm1b/tm1b mutant embryo indicated that the mutant embryo had a hypoplastic and dysplastic cerebellum (CE) with markedly reduced fissure formation. Higher magnification revealed that the transient external granular layer was absent in the Tox3tm1b/tm1b mutant  mice and the subjacent molecular layer was hypotrophic and irregular in thickness (arrow).
+	                       		</p>
 	                       </div>
 	                           
 	                           
@@ -421,7 +441,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&amp;allele_accession_id=MGI:5695930&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI" target="_blank">Partial preweaning lethality</a>
 				            			</li>
 				            			<li>
-				            				Viability at P3/P7: Viable
+				            				Viability at P3/P7: <a href="#rsph9Viable" class="various" id="rsph9ViableTrigger">Viable</a>
 				            			</li>
 				            			<li>
 				            				Embryo Lacz Expression:  NA
@@ -438,24 +458,28 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            			<li>
 				            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
 				            			</li>
+				            			<li>
+				            				Whole Brain MRI: <a href="#rsph9Mri" class="various" id="rsph9MriTrigger">Images</a>
+				            			</li>
 				            		</ul>
 								</div>
-                            	<div class="half"><img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png" >H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the Rsph9tm1.1/tm1.1 mutant mice. 
-</div>
+                            	<div class="half">
+                            		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png" >H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the Rsph9tm1.1/tm1.1 mutant mice. 
+								</div>
 				            		<div class="clear"></div>		
 				            		
 				            		
-				            	<div class="inner">
+				            	<div id="rsph9Viable" style="display: none">
 				            		<h3>P3/P7 viability test Rsph9</h3>
 				    
 				            		<img src="${baseUrl}/img/vignettes/Rsph9Table.png">		
 	                           	</div>
 	                           	
-	                       <div class="inner">
-	                       <img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
-	                       <p>
-	                       Coronal sections of whole brain MRI showed enlarged ventricles in P7 Rsph9tm1.1/tm1.1 mutant mice.  P7 Rsph9 tm1.1/tm1.1 mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the Rsph9+/+ wildtype average.
-	                       </p>
+	                       <div id="rsph9Mri" style="display:none">
+	                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
+	                       			<p>
+	                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
+	                       			</p>
 	                       </div>
 	                           
 	                           
@@ -476,7 +500,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                          				Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain.<br>
                          				It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult.
 										Pax7 mutants showed complete preweaning lethality.
-										Micro-CT analysis at E15.5 revealed voxel-wise local volume differences with a larger nasal septum, cavity and capsule (False Discovery Rate <5%) in the E15.5 Pax7tm1.1/tm1.1 mutant embryos compared the wildtype embryos.
+										Micro-CT analysis at E15.5 revealed voxel-wise local volume differences with a larger nasal septum, cavity and capsule (False Discovery Rate <5%) in the E15.5 <t:formatAllele>Pax7<tm1.1/tm1.1></t:formatAllele> mutant embryos compared the wildtype embryos.
 										LacZ staining at E12.5 showed very strong staining in the medial region of the frontonasal prominence (arrows) where structural changes  were found. 
 										LacZ staining was also seen in the midbrain, hindbrain, spinal cord, vertebrae, ribs and neural crest. 
 									</p>
@@ -532,8 +556,18 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 	
 	<script type="text/javascript">
     $("#acvr2aHistTrigger").fancybox();
-    
     $("#acvr2aP3Trigger").fancybox();
+    $("#tmem100EmbGrossTrigger").fancybox();
+    $("#eyaEmbLacZTrigger").fancybox();
+    $("#eyaEmbHisTrigger").fancybox();
+    $("#cbx4GraphsTrigger").fancybox();
+    $("#tox3ViableTrigger").fancybox();
+    $("#tox3HisTrigger").fancybox();
+    $("#rsph9ViableTrigger").fancybox();
+    $("#rsph9MriTrigger").fancybox();
+   
+    
+    
 </script>
 
 
