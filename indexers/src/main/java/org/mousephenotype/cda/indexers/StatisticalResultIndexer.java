@@ -1020,16 +1020,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 					OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
 
-					// Add all intermediate terms for this MP ID
-					beanlist.getIntermediates().getIds().forEach(mp -> {
-						OntologyTermBean b = mpOntologyService.getTerm(mp);
-						if (b != null) {
-							ontoTerms.add(b);
-						}
-					});
-
-					// Add all top level terms for this MP ID
-					beanlist.getTopLevels().getIds().forEach(mp -> {
+					// Add all ancestor terms for this MP ID
+					beanlist.getAncestors().getIds().forEach(mp -> {
 						OntologyTermBean b = mpOntologyService.getTerm(mp);
 						if (b != null) {
 							ontoTerms.add(b);
@@ -1157,7 +1149,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		List<String> queries = Arrays.asList(
 			"SELECT CONCAT('unidimensional-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_unidimensional_results s INNER JOIN stat_result_phenotype_call_summary r ON r.unidimensional_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
-			"SELECT CONCAT('categorical-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_categorical_results s INNER JOIN stat_result_phenotype_call_summary r ON r.categorical_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id"
+			"SELECT CONCAT('categorical-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_categorical_results s INNER JOIN stat_result_phenotype_call_summary r ON r.categorical_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
+			"SELECT CONCAT('rrplus-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_rrplus_results s INNER JOIN stat_result_phenotype_call_summary r ON r.rrplus_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id"
 		);
 
 		for (String query : queries) {
