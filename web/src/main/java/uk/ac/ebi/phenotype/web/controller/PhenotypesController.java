@@ -147,7 +147,6 @@ public class PhenotypesController {
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
     	long time = System.currentTimeMillis();
-    	long time2 = System.currentTimeMillis();
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
@@ -227,8 +226,6 @@ public class PhenotypesController {
             mpSiblings = new HashSet<OntologyTerm>();
         }
 
-        System.out.println("Time to 1 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
         
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -238,8 +235,6 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
-        System.out.println("Time to 2 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
  		// other stuff
         model.addAttribute("anatomy", anatomyTerms);
         model.addAttribute("go", goTerms);
@@ -253,8 +248,6 @@ public class PhenotypesController {
 
         processPhenotypes(phenotype_id, "", model, request);
 
-        System.out.println("Time to 3 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
         
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         model.addAttribute("phenotype", mpTerm);
@@ -263,19 +256,11 @@ public class PhenotypesController {
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 
-        time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));
 
-        System.out.println("Time to 4 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
-        
-        time = System.currentTimeMillis();
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
 
-        System.out.println("Time to 5 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
-        
-        System.out.println("Total time " +  (System.currentTimeMillis() - time2) );
+        System.out.println("Total time to return to phenotype page from controller" +  (System.currentTimeMillis() - time) );
         
         return "phenotypes";
     }
@@ -508,15 +493,16 @@ public class PhenotypesController {
         int total = 0;
         int nominator = 0;
 
-        List<String> parameters = new ArrayList<>(mpService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
         nominator = gpService.getGenesBy(phenotype_id, null, false).size();
-        total = srService.getTestedGenes(parameters, null).size();
+        total = srService.getGenesBy(phenotype_id, null).size();
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
         pgs.setTotalGenesTested(total);
-        boolean display = (total > 0 && nominator > 0);
+        boolean display = (total > 0);
         pgs.setDisplay(display);
 
+        System.out.println("Total :: " +  total + " nominator:: " + nominator + " display " + display);
+        
         List<String> genesFemalePhenotype = new ArrayList<String>();
         List<String> genesMalePhenotype = new ArrayList<String>();
         List<String> genesBothPhenotype;
@@ -526,7 +512,7 @@ public class PhenotypesController {
                 genesFemalePhenotype.add((String) g.getGroupValue());
             }
             nominator = genesFemalePhenotype.size();
-            total = srService.getTestedGenes(parameters, SexType.female).size();
+            total = srService.getGenesBy(phenotype_id, SexType.female).size();
             pgs.setFemalePercentage(100 * (float) nominator / (float) total);
             pgs.setFemaleGenesAssociated(nominator);
             pgs.setFemaleGenesTested(total);
@@ -535,7 +521,7 @@ public class PhenotypesController {
                 genesMalePhenotype.add(g.getGroupValue());
             }
             nominator = genesMalePhenotype.size();
-            total = srService.getTestedGenes(parameters, SexType.male).size();
+            total = srService.getGenesBy(phenotype_id, SexType.male).size();
             pgs.setMalePercentage(100 * (float) nominator / (float) total);
             pgs.setMaleGenesAssociated(nominator);
             pgs.setMaleGenesTested(total);
