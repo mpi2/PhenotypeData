@@ -420,7 +420,10 @@
 
 						var tabId = '#' + coreName + 'Tab';
 						var parentContainer = $(tabId).find("div.mpi2-search");
-
+						
+						$(".activeFilter").removeClass("activeFilter");
+						
+						$(tabId).addClass("activeFilter");
 
 						// images cores related
 						if ( coreName.indexOf('images') != -1 ) {
