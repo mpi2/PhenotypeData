@@ -70,8 +70,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
 	Map<String, ResourceBean> resourceMap = new HashMap<>();
 	Map<String, List<String>> sexesMap = new HashMap<>();
+	Set<String> alreadyReported = new HashSet<>();
 
 	Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
+	Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
 
 	public StatisticalResultIndexer() {
 
@@ -99,6 +101,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			populateBiologicalDataMap();
 			populateResourceDataMap();
 			populateSexesMap();
+			populateParameterMpTermMap();
 
 		} catch (SQLException e) {
 			throw new IndexerException(e);
@@ -819,7 +822,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		// Biological details
 		addBiologicalData(doc, doc.getMutantBiologicalModelId());
 
-
 		// MP Terms
 		addMpTermData(r, doc);
 
@@ -1000,6 +1002,64 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
 		//		doc.setAnnotate(parameterMap.get(r.getInt("parameter_id")).isAnnotate());
+
+		// Create field that contains all possible MP terms (including intermediate and top level terms)
+		// that this parameter can produce
+		Set<String> mpIds = parameterMpTermMap.get(doc.getParameterStableId());
+
+		if (mpIds != null) {
+			Set<OntologyTermBean> ontoTerms = new HashSet<>();
+
+			mpIds.forEach(mpId -> {
+
+				OntologyTermBean bean = mpOntologyService.getTerm(mpId);
+
+				if (bean != null) {
+
+					ontoTerms.add(bean);
+
+					OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+
+					// Add all intermediate terms for this MP ID
+					beanlist.getIntermediates().getIds().forEach(mp -> {
+						OntologyTermBean b = mpOntologyService.getTerm(mp);
+						if (b != null) {
+							ontoTerms.add(b);
+						}
+					});
+
+					// Add all top level terms for this MP ID
+					beanlist.getTopLevels().getIds().forEach(mp -> {
+						OntologyTermBean b = mpOntologyService.getTerm(mp);
+						if (b != null) {
+							ontoTerms.add(b);
+						}
+					});
+
+				}
+
+			});
+
+			// Default the term options to empty lists
+			doc.setMpTermIdOptions(new ArrayList<>());
+			doc.setMpTermNameOptions(new ArrayList<>());
+
+			ontoTerms.forEach(term -> {
+				doc.getMpTermIdOptions().add(term.getId());
+				doc.getMpTermNameOptions().add(term.getName());
+			});
+
+
+		} else {
+
+			String p = doc.getParameterStableId();
+			if ( ! alreadyReported.contains(p)) {
+				alreadyReported.add(p);
+				logger.debug("Cannot find MP terms for parameter {}", p);
+			}
+
+		}
+
 	}
 
 
@@ -1114,6 +1174,32 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			}
 		}
 		logger.info(" Added {} sexes data map entries", sexesMap.size());
+	}
+
+	private void populateParameterMpTermMap() throws SQLException {
+
+		String query = "SELECT stable_id, ontology_acc FROM phenotype_parameter p " +
+			"INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
+			"INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " ;
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+
+				String parameter = resultSet.getString("stable_id");
+				String ontologyTerm = resultSet.getString("ontology_acc");
+
+				if( ! parameterMpTermMap.containsKey(parameter)) {
+					parameterMpTermMap.put(parameter, new HashSet<>());
+				}
+				parameterMpTermMap.get(parameter).add(ontologyTerm);
+
+			}
+		}
+		logger.info(" Added {} parameterMpTerm data map entries", parameterMpTermMap.size());
+
 	}
 
 	protected class ResourceBean {

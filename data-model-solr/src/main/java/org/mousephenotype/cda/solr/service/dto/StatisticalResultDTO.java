@@ -31,6 +31,8 @@ public class StatisticalResultDTO {
     public final static String DB_ID = "db_id";
     public final static String DATA_TYPE = "data_type";
 
+	public final static String MP_TERM_ID_OPTIONS = "mp_term_id_options";
+	public final static String MP_TERM_NAME_OPTIONS = "mp_term_name_options";
     public final static String MP_TERM_ID = "mp_term_id";
     public final static String MP_TERM_NAME = "mp_term_name";
     public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
@@ -181,11 +183,17 @@ public class StatisticalResultDTO {
     @Field(DATA_TYPE)
     private String dataType;
 
-    @Field(MP_TERM_ID)
-    private String mpTermId;
+	@Field(MP_TERM_ID_OPTIONS)
+	private List<String> mpTermIdOptions;
 
-    @Field(MP_TERM_NAME)
-    private String mpTermName;
+	@Field(MP_TERM_NAME_OPTIONS)
+	private List<String> mpTermNameOptions;
+
+	@Field(MP_TERM_ID)
+	private String mpTermId;
+
+	@Field(MP_TERM_NAME)
+	private String mpTermName;
 
     @Field(TOP_LEVEL_MP_TERM_ID)
     private List<String> topLevelMpTermId;
@@ -570,8 +578,23 @@ public class StatisticalResultDTO {
         this.dataType = dataType;
     }
 
+	public List<String> getMpTermIdOptions() {
+		return mpTermIdOptions;
+	}
 
-    public String getMpTermId() {
+	public void setMpTermIdOptions(List<String> mpTermIdOptions) {
+		this.mpTermIdOptions = mpTermIdOptions;
+	}
+
+	public List<String> getMpTermNameOptions() {
+		return mpTermNameOptions;
+	}
+
+	public void setMpTermNameOptions(List<String> mpTermNameOptions) {
+		this.mpTermNameOptions = mpTermNameOptions;
+	}
+
+	public String getMpTermId() {
 
         return mpTermId;
     }
