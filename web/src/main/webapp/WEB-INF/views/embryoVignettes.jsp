@@ -533,7 +533,57 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             	
 								</div>
                             </div>
-                        
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                        <%--     <div class="section">
+                        <c:set var="geneId" value="MGI:1928849"></c:set>
+							<h2 class="title" id="${geneId}"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
+							
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Svep1 codes for an uncharacterized protein named after the multiple domains identified in the sequence: Sushi, a domain common in adhesion and complement proteins; von Willebrand factor type A, occurring in extra-cellular matrix and integrin proteins; Epidermal Growth Factor, extra-cellular cysteine-rich repeats promoting protein-protein interactions; pentraxin domain containing 1, reactive with the complement system.<br>
+                         				 No prior targeted mutations for this gene have been reported. Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size (Fig 1). Among other defects, microCT analysis reveals brain defects, lung hypoplasia and absent renal pelvis in the kidney (Fig 2). Phenotypes of heterozygotes include abnormal body composition and abnormal blood chemistry.
+									</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5509058&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Partial preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: NA
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            			</li> 
+                            			<li>
+                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half"><img alt="MicroCT Pax7 embryos and LacZ Staining" src="${baseUrl}/img/vignettes/Pax7.png" >Micro-CT analysis of E15.5 Pax7 embryos and lacZ staining of E12.5 embryos indicating volume changes and staining in the nasal area.
+
+								</div>
+								
+                            	<div class="clear"></div>
+                            	
+								</div>
+                            </div>
+                         --%>
                         
                         
                             
