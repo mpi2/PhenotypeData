@@ -903,10 +903,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 					+ StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
 		}
 		if (mpTermId != null) {
-			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-					+ "\") OR " + StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID
-					+ ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " 
+					+ StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " 
+					+ StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " 
+					+ StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
 					+ StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
 					+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
 					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
