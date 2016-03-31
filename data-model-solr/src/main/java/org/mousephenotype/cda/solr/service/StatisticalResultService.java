@@ -1456,15 +1456,18 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     throws SolrServerException {
 
 		SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
-				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID
-				+ ":\"" + mpId + "\")").setRows(10000);
+				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + 
+				StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":\"" + mpId + "\" OR " + 
+				StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")").setRows(10000);
 		q.set("group.field", "" + StatisticalResultDTO.MARKER_SYMBOL);
 		q.set("group", true);
 		q.set("group.limit", 0);
 
 		if (sex != null) {
-		    q.addFilterQuery(GenotypePhenotypeDTO.SEX + ":" + sex);
+		    q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex.getName() + " OR " + StatisticalResultDTO.SEX + ":" + sex.getName() + ")");
 		}
+		
+		System.out.println("QUERY ON S_R " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}
