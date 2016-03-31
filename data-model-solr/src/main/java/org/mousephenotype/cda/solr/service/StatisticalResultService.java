@@ -95,10 +95,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	@Autowired @Qualifier("statisticalResultCore")
 	HttpSolrServer solr;
 
-
-    Map<String, List<String>> maleParamToGene = null;
-    Map<String, List<String>> femaleParamToGene = null;
-
 	public StatisticalResultService() {
 		super();
 		isPreQc = false;
@@ -1455,95 +1451,23 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		return res;
 	}
-
-	public void addGenesForBothSexes()
-	throws SolrServerException, InterruptedException, ExecutionException {
-
-		String pivotFacet =  StatisticalResultDTO.PARAMETER_STABLE_ID + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
-		SolrQuery q = new SolrQuery().setQuery("-" + ObservationDTO.SEX + ":*");
-		q.setFilterQueries(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\"");
-		q.set("facet.pivot", pivotFacet);
-		q.setFacet(true);
-		q.setRows(1);
-		q.set("facet.limit", -1);
-
-		QueryResponse response = solr.query(q);
-        logger.info("Solr url for getParameterToGeneMap " + solr.getBaseURL() + "/select?" + q);
-
-		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
-			
-			List<String> genes = new ArrayList<>();
-			for (PivotField gene : pivot.getPivot()){
-				genes.add(gene.getValue().toString());
-			}
-			
-			ArrayList<String> mGenes = new  ArrayList<String>(genes);
-			if (maleParamToGene.get(pivot.getValue()) != null){
-				mGenes.addAll(maleParamToGene.get(pivot.getValue()));
-			}
-			
-			ArrayList<String> fGenes = new  ArrayList<String>(genes);
-			if (femaleParamToGene.get(pivot.getValue()) != null){
-				fGenes.addAll(femaleParamToGene.get(pivot.getValue()));
-			}
-			
-			maleParamToGene.put(pivot.getValue().toString(), mGenes);
-			femaleParamToGene.put(pivot.getValue().toString(), fGenes);
-		}
-
-	}
-
-	private void fillMaps() {
-        logger.info("Initializing ParameterToGeneMap. This will take a while...");
-        try {
-    		femaleParamToGene = getParameterToGeneMap(SexType.female);
-    		maleParamToGene = getParameterToGeneMap(SexType.male);
-    		addGenesForBothSexes();
-        } catch (SolrServerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Set<String> getTestedGenes(List<String> parameters, SexType sex) {
-    	
-        HashSet<String> res = new HashSet<>();
-        if (femaleParamToGene == null || maleParamToGene == null) {
-            fillMaps();
-        }
-        if (sex == null || sex.equals(SexType.female)) {
-            for (String p : parameters) {
-                if (femaleParamToGene.containsKey(p)) {
-                    res.addAll(femaleParamToGene.get(p));
-                }
-            }
-        }
-        if (sex == null || sex.equals(SexType.male)) {
-            for (String p : parameters) {
-                if (maleParamToGene.containsKey(p)) {
-                    res.addAll(maleParamToGene.get(p));
-                }
-            }
-        }
-        return res;
-    }
-
-    public List<Group> getGenesBy(String mpId, String sex)
+   
+    public List<Group> getGenesBy(String mpId, SexType sex)
     throws SolrServerException {
 
 		SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
-				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID
-				+ ":\"" + mpId + "\")").setRows(10000);
+				StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " + 
+				StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":\"" + mpId + "\" OR " + 
+				StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")").setRows(10000);
 		q.set("group.field", "" + StatisticalResultDTO.MARKER_SYMBOL);
 		q.set("group", true);
 		q.set("group.limit", 0);
 
 		if (sex != null) {
-		    q.addFilterQuery(GenotypePhenotypeDTO.SEX + ":" + sex);
+		    q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex.getName() + " OR " + StatisticalResultDTO.SEX + ":" + sex.getName() + ")");
 		}
+		
+		System.out.println("QUERY ON S_R " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}

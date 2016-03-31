@@ -15,6 +15,22 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -26,9 +42,13 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
-import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.*;
+import org.mousephenotype.cda.indexers.beans.MPHPBean;
+import org.mousephenotype.cda.indexers.beans.MPStrainBean;
+import org.mousephenotype.cda.indexers.beans.MPTermNodeBean;
+import org.mousephenotype.cda.indexers.beans.MPTopLevelTermBean;
+import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
+import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
@@ -38,15 +58,6 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * @author Matt Pearce
@@ -98,13 +109,6 @@ public class MPIndexer extends AbstractIndexer {
     // Maps of supporting database content
     Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
-    Map<Integer, List<MPTopLevelTermBean>> topLevelTerms;
-    // Intermediate node IDs and terms can also be used for allChildren
-    Map<Integer, List<Integer>> intermediateNodeIds;
- //   Map<Integer, List<Integer>> childNodeIds;
-    // Intermediate terms can also be used for parents
-    Map<Integer, List<MPTermNodeBean>> intermediateTerms;
-    Map<Integer, List<Integer>> parentNodeIds;
     // Use single synonym hash
     Map<String, List<String>> mpTermSynonyms;
     Map<String, List<String>> ontologySubsets;
@@ -189,8 +193,6 @@ public class MPIndexer extends AbstractIndexer {
                 addIntermediateLevelNodes(mp);
                 addChildLevelNodes(mp);
                 addParentLevelNodes(mp);
-                
-                
                 
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
@@ -317,14 +319,6 @@ public class MPIndexer extends AbstractIndexer {
             // Grab all the supporting database content
             mphpBeans = getMPHPBeans();
             termNodeIds = getNodeIds();
-            topLevelTerms = getTopLevelTerms();
-            // Intermediate node terms
-            intermediateNodeIds = getIntermediateNodeIds();
-            // ChildNodeIds is inverse of intermediateNodeIds
-//            childNodeIds = getChildNodeIds();
-            // Intermediate terms can also be used for parents
-            intermediateTerms = getIntermediateTerms();
-            parentNodeIds = getParentNodeIds();
             // Use single synonym hash
             mpTermSynonyms = getMPTermSynonyms();
             ontologySubsets = getOntologySubsets();
@@ -927,7 +921,6 @@ public class MPIndexer extends AbstractIndexer {
 			childSynonyms.addAll(child.getSynonyms());
 		}
 			
-		System.out.println("Indexing  " + mp.getMpId() + " with children " + childTermIds);
 		
 		mp.setChildMpId(childTermIds);
 		mp.setChildMpTerm(childTermNames);
@@ -940,7 +933,6 @@ public class MPIndexer extends AbstractIndexer {
         List<String> parentTermIds = new ArrayList<>();
         List<String> parentTermNames = new ArrayList<>();
         Set<String> parentSynonyms = new HashSet<>();
-
         
         for (OntologyTermBean parent : mpOntologyService.getParents(mp.getMpId())) {
         	parentTermIds.add(parent.getId());
