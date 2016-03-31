@@ -25,7 +25,15 @@
 	    d3.select("#parentDiv").style("width", width + "px");
 	
 	    
- var svgP;
+	    var svgP;
+	    
+	    function shortenLabel(label){	    	
+	    	if (label.length > 33){
+	    		return label.substring(0,27) + "...";
+	    	} else {
+	    		return  label;
+	    	}
+	    }
 	    
 	    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
 	    	
@@ -77,7 +85,7 @@
 		          .attr("y", 3)
 		          .attr("class", "treeLabel")
 		          .style("text-anchor", function(d) { return d.children ? "start" : "end"; })
-		          .text(function(d) { return d.children ? "current page" : d.name; })
+		          .text(function(d) { return d.children ? "current page" : shortenLabel(d.name); })
 		          .attr("transform", function(d) {return d.children ? "rotate(270)" : ""})
 	  		      .style("width", "150px")
 	  		      .on('click', function(d, i) {
@@ -136,7 +144,7 @@
 		          .attr("class", "treeLabel")
 		          .style("text-anchor", function(d) { return d.children ? "start" : "start"; })
 		          .attr("transform", function(d) {return d.children ? "rotate(270) translate (15,0)" : ""})
-		          .text(function(d) { return d.children ? "current page" : d.name; })
+		          .text(function(d) { return d.children ? "current page" : shortenLabel(d.name); })
 	   		      .style("width", "150px")
 	   		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
