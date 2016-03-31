@@ -498,10 +498,10 @@ public class PhenotypesController {
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
         pgs.setTotalGenesTested(total);
-        boolean display = (total > 0 && nominator > 0);
+        boolean display = (total > 0);
         pgs.setDisplay(display);
 
-        System.out.println("Total :: " +  total + " nominator:: " + nominator);
+        System.out.println("Total :: " +  total + " nominator:: " + nominator + " display " + display);
         
         List<String> genesFemalePhenotype = new ArrayList<String>();
         List<String> genesMalePhenotype = new ArrayList<String>();
