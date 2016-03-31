@@ -178,31 +178,31 @@
 										    	<p class="embryo-caption"> Chtop has been shown to recruit the histone-methylating methylosome to genomic regions containing 
 										    		5-Hydroxymethylcytosine, thus affecting gene expression.  Chtop mutants showed complete preweaning lethality with 
 										    		no homozygous pups observed.  High resolution episcopic microscopy (HREM) imaging, revealed decreased number of 
-										    		vertebrae, abnormal joint morphology and edema.  ${vignettesLink}</p>
+										    		vertebrae, abnormal joint morphology and edema. <t:vignetteLink geneId="MGI:1913761"></t:vignetteLink></p>
 										    	<p class="sliderTitle"><t:formatAllele>Chtop<tm1a(EUCOMM)Wtsi></t:formatAllele></p></li>
 										    <li id="item1"> <img src="${baseUrl}/img/vignettes/Kldhc2.png" /> 
-										    	<p class="embryo-caption"> The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) ${vignettesLink}</p> 
+										    	<p class="embryo-caption"> The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) <t:vignetteLink geneId="MGI:1916804"></t:vignetteLink></p> 
 										    	<p class="sliderTitle"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></p></li>
 										    <li id="item2"><img src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png" /> 
-										    	<p class="embryo-caption">Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes. Acvr2a mutants are subviable with most pups dying before postnatal day 7. ${vignettesLink}</p>
+										    	<p class="embryo-caption">Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes. Acvr2a mutants are subviable with most pups dying before postnatal day 7. <t:vignetteLink geneId="MGI:102806"></t:vignetteLink></p>
 										    	<p class="sliderTitle"> <t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
 										    <li id="item3"><img src="${baseUrl}/img/vignettes/cbx4.png" />
-										    	<p class="embryo-caption">Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development ${vignettesLink}</p>	
+										    	<p class="embryo-caption">Chromobox 4 is in the polycomb protein family that are key regulators of transcription and is reported to be upregulated in lung bud formation and required for thymus development <t:vignetteLink geneId="MGI:1195985"></t:vignetteLink></p>	
 										    	<p class="sliderTitle"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></p> </li>
 										    <li id="item4"><img src="${baseUrl}/img/vignettes/tmem100.png" /> 
-										    	<p class="embryo-caption">Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway. Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5. ${vignettesLink}</p> 
+										    	<p class="embryo-caption">Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway. Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5. <t:vignetteLink geneId="MGI:1915138"></t:vignetteLink></p> 
 										    	<p class="sliderTitle"><t:formatAllele>Tmem100<tm1e.1(KOMP)Wtsi></t:formatAllele></p></li>
 										    <li id="item5"> <img src="${baseUrl}/img/vignettes/eye4.png" /> 
-										    	<p class="embryo-caption"> Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety of developmental defects including hearing loss. Eya4 mutants showed complete preweaning lethality with no homozygous pups observed. ${vignettesLink}</p> 
+										    	<p class="embryo-caption"> Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety of developmental defects including hearing loss. Eya4 mutants showed complete preweaning lethality with no homozygous pups observed. <t:vignetteLink geneId="MGI:1337104"></t:vignetteLink></p> 
 										    	<p class="sliderTitle"><t:formatAllele>Eya4<tm1b(KOMP)Wtsi></t:formatAllele></p></li>
 										    <li id="item6"><img src="${baseUrl}/img/vignettes/tox3MRI.png" /> 
-										    	<p class="embryo-caption">Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA. Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7. ${vignettesLink}</p>
+										    	<p class="embryo-caption">Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA. Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7. <t:vignetteLink geneId="MGI:3039593"></t:vignetteLink></p>
 										    	<p class="sliderTitle"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></p></li>
 										    <li id="item7"><img src="${baseUrl}/img/vignettes/Rsph9Slides.png" />
-										    	<p class="embryo-caption">Radial spoke head protein 9 is a component of the radial spoke head in motile cilia and flagella. Rsph9 mutants showed partial pre-weaning lethality but viable to P7. ${vignettesLink}</p>	
+										    	<p class="embryo-caption">Radial spoke head protein 9 is a component of the radial spoke head in motile cilia and flagella. Rsph9 mutants showed partial pre-weaning lethality but viable to P7. <t:vignetteLink geneId="MGI:1922814"></t:vignetteLink></p>	
 										    	<p class="sliderTitle"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></p> </li>
 										    <li id="item8"><img src="${baseUrl}/img/vignettes/Pax7.png" /> 
-										    	<p class="embryo-caption">Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain. It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult.${vignettesLink} </p> 
+										    	<p class="embryo-caption">Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain. It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult. <t:vignetteLink geneId="MGI:97491"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
 										  </ul> 
 									</div>
