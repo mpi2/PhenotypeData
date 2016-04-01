@@ -28,6 +28,8 @@
 
  <script  type="text/javascript" >
  
+ var termId = "${termId}";
+ 
  $('#tree').jstree({
 	  "core" : {
 	    "animation" : 0,
@@ -36,7 +38,7 @@
 	    'data' : {
 	      'url' : function (node) {
 	        return node.id === '#' ?
-	          'ontologyBrowser2?termId=MP:0001926&node=src' : 'ontologyBrowser2?termId=MP:0001926&node=src';
+	          'ontologyBrowser2?termId=' + termId + '&node=src' : 'ontologyBrowser2?termId=' + termId + '&node=src';
 	      },
 	      'data' : function (node) {
 	        return { 'id' : node.id };

@@ -16,6 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,9 +148,10 @@ public class OntologyBrowserController {
                             //if (!thisNode.isLeaf()) {
                             if (!thisNode.getBoolean("leaf")) {
                                 thisNode = fetchChildNodes(helper, thisNode);
+                            	thisNode.accumulate("state", getState(true, false));
+                            } else{
+                            	thisNode.accumulate("state", getState(true, true));
                             }
-                            //echo print_r($thisTerm);
-
                             tn.add(thisNode);
                         }
                     }
@@ -162,6 +164,7 @@ public class OntologyBrowserController {
                     //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
                     JSONObject thisNode = fetchNodeInfo(helper, resultSet);
                     tn.add(thisNode);
+                    thisNode.accumulate("state", getState(true, false));
                 }
             }
         }
@@ -172,6 +175,13 @@ public class OntologyBrowserController {
         return tn;
     }
 
+    private JSONObject getState(boolean opened, boolean selected){
+    	JSONObject state = new JSONObject();
+    	state.accumulate("opened", opened);
+    	state.accumulate("selected", selected);
+    	return state;
+    }
+    
 
     //public TreeNodeObject fetchChildNodes(TreeNodeObject nodeObj) throws SQLException {
     public JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj) throws SQLException {
@@ -185,31 +195,28 @@ public class OntologyBrowserController {
         List<JSONObject> children = new ArrayList<>();
 
         try (Connection conn = komp2DataSource.getConnection();
-             PreparedStatement p = conn.prepareStatement(sql)) {
+        		PreparedStatement p = conn.prepareStatement(sql)) {
 
-            ResultSet resultSet = p.executeQuery();
-            while (resultSet.next()) {
-
-                //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
-
-                if ( helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-
-                    JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-
-                    //System.out.println("3rd Level node id now: " + thisNode.getId());
-                    //System.out.println("3rd Level node id now: " + thisNode.getString("id"));
-
-                    //if ( ! thisNode.isLeaf() ){
-                    if (!thisNode.getBoolean("leaf")) {
-                        thisNode = recursiveFetchChildNodes(helper, thisNode);
-                        //thisNode = fetchChildNodes(thisNode);
-                    }
-
-                    children.add(thisNode);
-                    //nodeObj.setChildren(children);
-                    nodeObj.put("children", children);
-                }
-            }
+	            ResultSet resultSet = p.executeQuery();
+	            while (resultSet.next()) {
+	
+	                //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
+	
+	                if ( helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
+	
+	                    JSONObject thisNode = fetchNodeInfo(helper, resultSet);
+	                    if (!thisNode.getBoolean("leaf")) {
+	                        thisNode = recursiveFetchChildNodes(helper, thisNode);
+	                        //thisNode = fetchChildNodes(thisNode);
+	                    	thisNode.accumulate("state", getState(true, true));
+	                    } else {
+	                    	thisNode.accumulate("state", getState(true, false));
+	                    }
+	                    children.add(thisNode);
+	                }
+	            }
+	
+	            nodeObj.put("children", children);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -219,13 +226,11 @@ public class OntologyBrowserController {
     }
 
     public JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj) throws SQLException {
-        //String parentNodeId = nodeObj.getId();
         String parentNodeId = nodeObj.getString("id");
         String childNodeId = null;
 
         String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
 
-        //List<TreeNodeObject> children = new ArrayList<>();
         List<JSONObject> children = new ArrayList<>();
 
         try (Connection conn = komp2DataSource.getConnection();
@@ -235,20 +240,14 @@ public class OntologyBrowserController {
             while (resultSet.next()) {
 
                 if ( helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-                    //TreeNodeObject thisNode = fetchNodeInfo(resultSet);
                     JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-
-                    //System.out.println("4th Level node id now: " + thisNode.getId());
-                    //System.out.println("4th Level node id now: " + thisNode.getString("id"));
-
-                    //if ( ! thisNode.isLeaf() ){
                     if (!thisNode.getBoolean("leaf")) {
                         thisNode = recursiveFetchChildNodes(helper, thisNode);
-                        //thisNode = fetchChildNodes(thisNode);
+                        thisNode.accumulate("state", getState(true, false));
+                    } else {
+                    	thisNode.accumulate("state", getState(true, true));
                     }
-
                     children.add(thisNode);
-                    //nodeObj.setChildren(children);
                     nodeObj.put("children", children);
                 }
             }
