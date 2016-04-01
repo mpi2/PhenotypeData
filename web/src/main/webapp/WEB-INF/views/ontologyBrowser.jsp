@@ -18,61 +18,62 @@
 		<div class="region region-pinned"></div>
 	</jsp:attribute>
 
-  <jsp:body>
+  	<jsp:body>
 
-  <script type="text/javascript" src='${baseUrl}/js/vendor/jstree.min.js'></script>
+ 	 <script type="text/javascript" src='${baseUrl}/js/vendor/jstree.min.js'></script>
 
   
-  <h1 id="h1tree">IMPC Ontology browser</h1>
-  <div id="tree"></div>
+  	 <h1 id="h1tree">Browse Mammalian Phenotype Ontology</h1>
+  	 <div id="tree"></div>
 
- <script  type="text/javascript" >
- 
- var termId = "${termId}";
- 
- $('#tree').jstree({
-	  "core" : {
-	    "animation" : 0,
-	    "check_callback" : true,
-	    "themes" : { "stripes" : true },
-	    'data' : {
-	      'url' : function (node) {
-	        return node.id === '#' ?
-	          'ontologyBrowser2?termId=' + termId + '&node=src' : 'ontologyBrowser2?termId=' + termId + '&node=src';
-	      },
-	      'data' : function (node) {
-	        return { 'id' : node.id };
-	      }
-	    }
-	  },
-	  "types" : {
-	    "#" : {
-	      "max_children" : 1,
-	      "max_depth" : 4,
-	      "valid_children" : ["root"]
-	    },
-	    "root" : {
-	      "icon" : "/static/3.3.0/assets/images/tree_icon.png",
-	      "valid_children" : ["default"]
-	    },
-	    "default" : {
-	      "valid_children" : ["default","file"]
-	    },
-	    "file" : {
-	      "icon" : "glyphicon glyphicon-file",
-	      "valid_children" : []
-	    }
-	  },
-	  "plugins" : [
-	    "contextmenu", "dnd", "search",
-	    "state", "types", "wholerow"
-	  ]
-	});
+	 <script  type="text/javascript" >
+	 
+		 var termId = "${termId}";
+		 
+		 $('#tree').jstree({
+			  "core" : {
+				    "animation" : 0,
+				    "check_callback" : true,
+				    'data' : {
+				      	'url' : function (node) {
+				        	return node.id === '#' ?
+				          	'ontologyBrowser2?termId=' + termId + '&node=src' : 'ontologyBrowser2?termId=' + termId + '&node=src';
+				      	},
+				      	'data' : function (node) {
+				        	return { 'id' : node.id };
+				      	}
+			  		}
+			  },
+			  "types" : {
+				     "default" : {
+				       "icon" : "img/jstree/jstree-node.png"
+				     },
+				     "demo" : {
+				       "icon" : "glyphicon glyphicon-ok"
+				     },
+				     "default" : {
+				       "icon" : "img/jstree/jstree-node.png"
+				     }
+			},
+			  "plugins" : [
+			    "search", "state", "types"
+			  ]
+			});
+		
+		 	$('.jstree-clicked').removeClass("jstree-clicked"); 
+		 
+		 /*	$('#tree').on("select_node.jstree", function (e, data) { 
+		//		window.location.href = "../phenotypes/"  + data.node.term_id;
+				console.log("____" + data.node.term_id);
+		 	}); 
+		 )*/
+		 	
+		 	$("#tree").delegate("a","click", function(e) {
+				window.location.href = "../phenotypes/"  + data.node.term_id;
+	        });
+	 </script>
 
- 
- </script>
 
-
-  </jsp:body>
+  	</jsp:body>
 </t:genericpage>
 

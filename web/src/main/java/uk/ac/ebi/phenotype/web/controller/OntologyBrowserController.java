@@ -246,6 +246,7 @@ public class OntologyBrowserController {
                         thisNode.accumulate("state", getState(true, false));
                     } else {
                     	thisNode.accumulate("state", getState(true, true));
+                    	thisNode.accumulate("type", "demo");
                     }
                     children.add(thisNode);
                     nodeObj.put("children", children);
