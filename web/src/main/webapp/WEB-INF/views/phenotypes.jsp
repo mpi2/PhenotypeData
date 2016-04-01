@@ -47,7 +47,7 @@
 		<script type="text/javascript">
 			var mp_id = '${phenotype.getMpId()}';
 		</script>
-    	<!-- script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script-->	
+    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 	
 		<div class="region region-pinned">
 	        <div id="flyingnavi" class="block">
@@ -188,7 +188,7 @@
 					</div>
 						
 						
-					<div class="half">
+					<div id="parentChild" class="half">
                             <div class="half" id="parentDiv"></div>
 							<div class="half" id="childDiv"></div>
 					</div>

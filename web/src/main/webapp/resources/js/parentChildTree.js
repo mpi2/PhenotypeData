@@ -1,4 +1,4 @@
-        var width = 260,
+        var width = 222,
         height = 200;
         
 	    var cluster = d3.layout.cluster()
@@ -19,67 +19,29 @@
 	   	    x: function(d) { return d.y * 100 / width; },
 	 	    y: function(d) { return d.x; }
 	    };
+
+	    d3.select("#parentChild").style("width", width*2 + "px");
+	    d3.select("#childDiv").style("width", width + "px");
+	    d3.select("#parentDiv").style("width", width + "px");
+	
 	    
-	
-	    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
-	    	  
-		    var svg = d3.select("#childDiv").append("svg")
-		        .attr("width", width)
-		        .attr("height", height)
-		        .append("g")
-		        .attr("transform", "translate(5,0)");
-	    	
-		     if (error){ 
-		    	  console.log(error);
-		    	  throw error;
-		   	 }
-		
-		     if (root.children.length == 0){
-		    		hasParents = false;
-		    		d3.select("#childDiv").remove();
-		    		d3.selectAll("#parentDiv")
-		    		  .classed("half", false);
-		  	 }
-		     
-		     var nodes = cluster.nodes(root),
-		          links = cluster.links(nodes);
-		
-		     var link = svg.selectAll(".link")
-		          .data(links)
-		          .enter().append("path")
-		          .attr("class", "link")
-		          .attr("d", d3.svg.diagonal().projection(function(d) { return [orientation_right.x(d), orientation_right.y(d)]; }));
-	
-		     var node = svg.selectAll(".node")
-		          .data(nodes)
-		          .enter().append("g")
-		          .attr("class", "node")
-		          .attr("transform", function(d) { return "translate(" +  orientation_right.x(d) + "," + orientation_right.y(d) + ")"; })
-		          
-		     node.append("circle")
-		          .attr("r", 4.5)
-		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
-		
-		     node.append("text")
-		          .attr("x", function(d) { return d.children ? -8 : 8; })
-		          .attr("y", 3)
-		          .attr("class", "treeLabel")
-		          .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-		          .text(function(d) { return d.name; })
-	   		      .style("width", "150px")
-	   		      .on('click', function(d, i) {
-					  window.location.href = "../phenotypes/"  + d.id;
-				   }); // width of the node labels; 
-	    });
-	     
-	     
+	    var svgP;
+	    
+	    function shortenLabel(label){	    	
+	    	if (label.length > 33){
+	    		return label.substring(0,27) + "...";
+	    	} else {
+	    		return  label;
+	    	}
+	    }
+	    
 	    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
 	    	
-	    	 var svgP = d3.select("#parentDiv").append("svg")
+	    	svgP = d3.select("#parentDiv").append("svg")
 		        .attr("width", width)
 		        .attr("height", height)
 		        .append("g")
-		        .attr("transform", "translate(95,0)");
+		        .attr("transform", "translate(120,0)");
 	    	 
 		     var diagonalP = d3.svg.diagonal()
 	        	.projection(function(d) { return [d.y, d.x]; });
@@ -113,24 +75,82 @@
 		
 		     node.append("circle")
 		          .attr("r", 4.5)
-		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; });
+		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; })
+		          .on('click', function(d, i) {
+		        	  window.location.href = "../phenotypes/"  + d.id;
+			 });
 		    
 		     node.append("text")
 		          .attr("x", function(d) { return d.children ?  8 : -8; })
 		          .attr("y", 3)
 		          .attr("class", "treeLabel")
 		          .style("text-anchor", function(d) { return d.children ? "start" : "end"; })
-		          .text(function(d) { return d.name; })
+		          .text(function(d) { return d.children ? "current page" : shortenLabel(d.name); })
+		          .attr("transform", function(d) {return d.children ? "rotate(270)" : ""})
 	  		      .style("width", "150px")
 	  		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
-				   })
-//				  .on("mouseover", function(){return tooltip.style("visibility", "visible");})
-//				  .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-//				  .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-				; // width of the node labels; 
-		     
-		     
+	  		  }) ; // width of the node labels; 
 	    });
+	    
+	    
+	    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
+	    	  
+		    var svg = d3.select("#childDiv").append("svg")
+		        .attr("width", width)
+		        .attr("height", height)
+		        .append("g")
+		        .attr("transform", "translate(5,0)");
+	    	
+		     if (error){ 
+		    	  console.log(error);
+		    	  throw error;
+		   	 }
+		
+		     if (root.children.length == 0){
+		    		hasParents = false;
+		    		d3.select("#childDiv").remove();
+		    		d3.selectAll("#parentDiv")
+		    		  .classed("half", false);
+
+			        svgP.attr("transform", "translate(100,0)");
+		  	 }
+		     
+		     var nodes = cluster.nodes(root),
+		          links = cluster.links(nodes);
+		
+		     var link = svg.selectAll(".link")
+		          .data(links)
+		          .enter().append("path")
+		          .attr("class", "link")
+		          .attr("d", d3.svg.diagonal().projection(function(d) { return [orientation_right.x(d), orientation_right.y(d)]; }));
+	
+		     var node = svg.selectAll(".node")
+		          .data(nodes)
+		          .enter().append("g")
+		          .attr("class", "node")
+		          .attr("transform", function(d) { return "translate(" +  orientation_right.x(d) + "," + orientation_right.y(d) + ")"; })
+		          
+		     node.append("circle")
+		          .attr("r", 4.5)
+		          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; })
+		          .on('click', function(d, i) {
+					  window.location.href = "../phenotypes/"  + d.id;
+				   });
+		
+		     node.append("text")
+		          .attr("x", function(d) { return d.children ? -8 : 8; })
+		          .attr("y", 3)
+		          .attr("class", "treeLabel")
+		          .style("text-anchor", function(d) { return d.children ? "start" : "start"; })
+		          .attr("transform", function(d) {return d.children ? "rotate(270) translate (15,0)" : ""})
+		          .text(function(d) { return d.children ? "current page" : shortenLabel(d.name); })
+	   		      .style("width", "150px")
+	   		      .on('click', function(d, i) {
+					  window.location.href = "../phenotypes/"  + d.id;
+				   }); // width of the node labels; 
+	    });
+	     
+	   
 	    d3.select(self.frameElement).style("height", height + "px");
 	    

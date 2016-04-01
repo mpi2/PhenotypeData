@@ -42,7 +42,6 @@ public class ImpressDTO {
 	public static final String PARAMETER_NAME = ObservationDTO.PARAMETER_NAME;
 
 	public static final String REQUIRED = "required";
-	public static final String MP_TERMS = "mp_terms";
 	public static final String DESCRIPTION = "description";
 	public static final String UNIT = "unit";
 	public static final String INCREMENT = "increment";
@@ -55,7 +54,7 @@ public class ImpressDTO {
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 
 
-	public static final String MP_ID = MpDTO.MP_ID;
+	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms 
 	public static final String MP_TERM = MpDTO.MP_TERM;
 	public static final String MP_TERM_SYNONYM = MpDTO.MP_TERM_SYNONYM;
 	public static final String TOP_LEVEL_MP_ID = MpDTO.TOP_LEVEL_MP_ID;
@@ -130,9 +129,6 @@ public class ImpressDTO {
 
 	@Field(DESCRIPTION)
 	private String description;
-
-	@Field(MP_TERMS)
-	private List<String> mpTerms;
 
 	@Field(OBSERVATION_TYPE)
 	private String observationType;
@@ -391,17 +387,7 @@ public class ImpressDTO {
 		this.catgories = catgories;
 	}
 
-
-	public List<String> getMpTerms() {
-		return mpTerms;
-	}
-
-
-	public void setMpTerms(List<String> mpTerms) {
-		this.mpTerms = mpTerms;
-	}
-
-
+	
 	public String getObservationType() {
 		return observationType;
 	}
@@ -965,7 +951,7 @@ public class ImpressDTO {
 	public String toString() {
 		return "PipelineDTO [unit=" + unit + ", increment=" + increment + ", metadata=" + metadata + ", hasOptions="
 				+ hasOptions + ", derived=" + derived + ", media=" + media + ", required=" + required + ", description="
-				+ description + ", mpTerms=" + mpTerms + ", observationType=" + observationType + ", parameterId="
+				+ description + ", observationType=" + observationType + ", parameterId="
 				+ parameterId + ", parameterStableId=" + parameterStableId + ", parameterName=" + parameterName
 				+ ", parameterStableKey=" + parameterStableKey + ", procedureId=" + procedureId + ", procedureStableId="
 				+ procedureStableId + ", procedureName=" + procedureName + ", procedureStableKey=" + procedureStableKey
@@ -1020,7 +1006,6 @@ public class ImpressDTO {
 		result = prime * result + ((mpId == null) ? 0 : mpId.hashCode());
 		result = prime * result + ((mpTerm == null) ? 0 : mpTerm.hashCode());
 		result = prime * result + ((mpTermSynonym == null) ? 0 : mpTermSynonym.hashCode());
-		result = prime * result + ((mpTerms == null) ? 0 : mpTerms.hashCode());
 		result = prime * result + ((observationType == null) ? 0 : observationType.hashCode());
 		result = prime * result + parameterId;
 		result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());
@@ -1184,11 +1169,6 @@ public class ImpressDTO {
 			if (other.mpTermSynonym != null)
 				return false;
 		} else if (!mpTermSynonym.equals(other.mpTermSynonym))
-			return false;
-		if (mpTerms == null) {
-			if (other.mpTerms != null)
-				return false;
-		} else if (!mpTerms.equals(other.mpTerms))
 			return false;
 		if (observationType == null) {
 			if (other.observationType != null)
