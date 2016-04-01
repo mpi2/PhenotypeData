@@ -74,7 +74,7 @@ public class OntologyBrowserController {
 
 
     //@ResponseBody
-    @RequestMapping(value = "/ontologyBrowser2", method = RequestMethod.POST)
+    @RequestMapping(value = "/ontologyBrowser2", method = RequestMethod.GET)
     public ResponseEntity<String> getTreeJson(
             @RequestParam(value = "node", required = true) String rootId,
             @RequestParam(value = "termId", required = true) String termId,
