@@ -543,7 +543,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             
                             
                             
-                        <%--     <div class="section">
+                      <%--   <div class="section">
                         <c:set var="geneId" value="MGI:1928849"></c:set>
 							<h2 class="title" id="${geneId}"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
 							
@@ -561,13 +561,13 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5509058&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Partial preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                            				Embryo LacZ Expression: NA
                             			</li>
                             			<li>
                             				Embryo Gross Dysmorphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            				3-D Imaging: NA
                             			</li> 
                             			<li>
                             				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
@@ -575,7 +575,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             		</ul>
                             		
                             	</div>
-                            	<div class="half"><img alt="MicroCT Pax7 embryos and LacZ Staining" src="${baseUrl}/img/vignettes/Pax7.png" >Micro-CT analysis of E15.5 Pax7 embryos and lacZ staining of E12.5 embryos indicating volume changes and staining in the nasal area.
+                            	<div class="half"><img alt="MicroCT Pax7 embryos and LacZ Staining" src="${baseUrl}/img/vignettes/Svep1_E18.5_Hom.tif" >
 
 								</div>
 								
@@ -583,7 +583,7 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             	
 								</div>
                             </div>
-                         --%>
+                        --%>
                         
                         
                             
