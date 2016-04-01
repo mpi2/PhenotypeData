@@ -21,7 +21,6 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +33,7 @@ import java.util.Map;
  * components of a search page 'imagesGrid' HTML table common to all Image facet
  * views.
  */
+@Deprecated
 public class SearchImageTable extends SearchFacetTable {
     private SearchImageAnnotationView searchImageAnnotationView = null;
     private SearchImageImageView      searchImageImageView      = null;
@@ -76,16 +76,16 @@ public class SearchImageTable extends SearchFacetTable {
     }
 
     public void setCurrentView(ImagesView view) throws TestException {
-        if (getCurrentView() != view) {
-            SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
-            clickToolbox(SearchPage.WindowState.CLOSED);
-            WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
-            testUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
-            driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
-            updateImageTableAfterChange();
-            if (toolboxState != getToolboxState())
-                clickToolbox(toolboxState);
-        }
+//        if (getCurrentView() != view) {
+//            SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
+//            clickToolbox(SearchPage.WindowState.CLOSED);
+//            WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
+//            testUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
+//            driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
+//            updateImageTableAfterChange();
+//            if (toolboxState != getToolboxState())
+//                clickToolbox(toolboxState);
+//        }
     }
 
     /**

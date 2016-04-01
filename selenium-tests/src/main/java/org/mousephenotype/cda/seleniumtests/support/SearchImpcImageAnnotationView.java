@@ -38,6 +38,7 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'impc_imagesGrid' HTML table (annotation view) for images.
  */
+@Deprecated
 public class SearchImpcImageAnnotationView extends SearchFacetTable {
 
     private final List<ImageRow> bodyRows = new ArrayList();

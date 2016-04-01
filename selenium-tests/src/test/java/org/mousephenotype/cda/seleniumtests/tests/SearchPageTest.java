@@ -92,6 +92,15 @@ public class SearchPageTest {
     private final Map<SearchFacetTable.TableComponent, By> imageMap = new HashMap();
     private final Map<SearchFacetTable.TableComponent, By> impcImageMap = new HashMap();
 
+    Facet[] facets = {
+          Facet.ANATOMY
+        , Facet.DISEASES
+        , Facet.GENES
+        , Facet.IMAGES
+        , Facet.IMPC_IMAGES
+        , Facet.PHENOTYPES
+    };
+
     @NotNull
     @Value("${baseUrl}")
     protected String baseUrl;
@@ -212,66 +221,56 @@ public class SearchPageTest {
      * @return status
      */
     private void downloadTestEngine(String testName, String searchString, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
-        Date start = new Date();
-        RunStatus masterStatus = new RunStatus();
-        int totalNonzeroCount = 0;
-        String message = "";
-
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-
-        if (searchString == null)
-            searchString = "";
-
-        try {
-            // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
-            String target = baseUrl + "/search";
-
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
-            if (! searchString.isEmpty()) {
-                searchPage.submitSearch(searchString + "\n");
-            }
-
-            Facet[] facets = {
-                  Facet.ANATOMY
-                , Facet.DISEASES
-                , Facet.GENES
-                , Facet.IMAGES
-                , Facet.IMPC_IMAGES
-                , Facet.PHENOTYPES
-            };
-
-            for (Facet facet : facets) {
-
-                // Select the correct tab.
-                int facetCount = searchPage.clickTab(facet);
-
-                message = "";
-                if (facetCount == 0) {
-                    System.out.println("\tSKIPPING [" + facet + "] as it has no rows.");
-                    continue;
-                } else {
-                    searchPage.clickFacet(facet);
-                    searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
-                    searchPage.clickPageButton();
-
-                    RunStatus status = searchPage.validateDownload(facet);
-                    String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
-                    System.out.println(statusString + message);
-
-                    masterStatus.add(status);
-                }
-            }
-            totalNonzeroCount++;
-        } catch (Exception e) {
-            System.out.println("FAILED [ " + message + "]\n[" + e.getLocalizedMessage() + "]");
-            e.printStackTrace();
-            masterStatus.addError(message);
-        }
-
-        if ( ! masterStatus.hasErrors())
-            masterStatus.successCount++;
-
-        testUtils.printEpilogue(testName, start, masterStatus, totalNonzeroCount, paramList.size());
+//        Date start = new Date();
+//        RunStatus masterStatus = new RunStatus();
+//        int totalNonzeroCount = 0;
+//        String message = "";
+//
+//        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+//
+//        if (searchString == null)
+//            searchString = "";
+//
+//        try {
+//            // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
+//            String target = baseUrl + "/search";
+//
+//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
+//            if ( ! searchString.isEmpty()) {
+//                searchPage.submitSearch(searchString + "\n");
+//            }
+//
+//            for (Facet facet : facets) {
+//
+//                // Select the correct tab.
+//                int facetCount = searchPage.clickTab(facet);
+//
+//                message = "";
+//                if (facetCount == 0) {
+//                    System.out.println("\tSKIPPING [" + facet + "] as it has no rows.");
+//                    continue;
+//                } else {
+//                    searchPage.setNumEntries(SearchFacetTable.EntriesSelect._25);
+//                    searchPage.clickPageButton();
+//
+//                    RunStatus status = searchPage.validateDownload(facet);
+//                    String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+//                    System.out.println(statusString + message);
+//
+//                    masterStatus.add(status);
+//                }
+//            }
+//            totalNonzeroCount++;
+//        } catch (Exception e) {
+//            System.out.println("FAILED [ " + message + "]\n[" + e.getLocalizedMessage() + "]");
+//            e.printStackTrace();
+//            masterStatus.addError(message);
+//        }
+//
+//        if ( ! masterStatus.hasErrors())
+//            masterStatus.successCount++;
+//
+//        testUtils.printEpilogue(testName, start, masterStatus, totalNonzeroCount, paramList.size());
     }
 
     // Dump the page and db lists.
@@ -294,55 +293,189 @@ public class SearchPageTest {
 
     /**
      * Invokes the facet count engine with no search term.
-     * @param target the page target URL
-     * @param map image map
+     *
+     * @map image map image map required by new searchPage instances.
+     *
      * @return page status
      */
-    private RunStatus facetCountEngine(String target, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
-        return facetCountEngine(target, null, map);
+    private RunStatus facetCountEngine(Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+        return facetCountEngine(null, map);
     }
 
     /**
      * Invokes the facet count engine with the specified, [already escaped if necessary] search term.
-     * @param target the page target URL
-     * @param searchTermGroup the desired search term group
-     * @map image map
+     *
+     * @param searchTermGroup the desired search term group (may be null)
+     * @map image map image map required by new searchPage instances.
+     *
      * @return page status
      */
-    private RunStatus facetCountEngine(String target, SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+    private RunStatus facetCountEngine(SearchTermGroup searchTermGroup, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+        RunStatus masterStatus = new RunStatus();
+        String message;
+
+        // Get each core's solr counts.
+        Map<String, Integer> solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+        if (solrCoreCountMap == null) {
+            message = "FAIL: Unable to get facet count from Solr.";
+            masterStatus.addError(message);
+            logger.error(message);
+            return masterStatus;
+        }
+
+       /**
+        * Get each facet's result count from the page. It is found in more than one place depending on the facet.
+        *
+        * For all facets, the result count is on the page, in the right-hand part of the filter.
+        * For all facets BUT images and impc_images, the same result count is in the footer of the 'dTable' HTML table
+        * containing the results.
+        * For the images and impc_images cores (all views), the same result count is just above the 'dTable' HTML table
+        * containing the results.
+        * For the images and impc_images cores in image view ONLY, the same result count is in the footer of the 'dTable'
+        * HTML table, just like the other cores.
+        */
+        for (Facet facet : facets) {
+            int filterCount;
+            int headerCount;
+            int footerCount;
+            int solrCount = solrCoreCountMap.get(facet.getCoreName());
+
+            String target = baseUrl + "/search/" + facet.getCoreName() + "?kw=" + (searchTermGroup == null ? "*" : searchTermGroup.solrTarget);
+
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facet.getFacetName() + "']//span[@class='fcount']")));
+            filterCount = commonUtils.tryParseInt(element.getText().trim());
+
+            switch (facet) {
+                case ANATOMY:
+                case DISEASES:
+                case GENES:
+                case PHENOTYPES:
+                    footerCount = searchPage.getTabResultCountFooter();
+                    // Compare the result counts.
+                    if ((solrCount != filterCount) && (solrCount != footerCount)) {
+                        masterStatus.addError("Search term facet count MISMATCH for " + facet.getFacetName() + " facet: solrCount: " + solrCount + ". filterCount: " + filterCount + ". footerCount: " + footerCount);
+                    }
+                    break;
+
+//                case IMAGES:
+//                case IMPC_IMAGES:
+//                    headerCount = searchPage.getTabResultCountHeader(facet);
+//
+//                    // Compare the result counts for default Annotation view.
+//                    if ((solrCount != filterCount) && (solrCount != headerCount)) {
+//                        masterStatus.addError("Search term facet count MISMATCH for " + facet.getFacetName() + " facet: solrCount: " + solrCount + ". filterCount: " + filterCount + ". headerCount: " + headerCount);
+//                    }
+//                    searchPage.setImageFacetView(SearchFacetTable.ImagesView.IMAGE_VIEW);
+//                    footerCount = searchPage.getTabResultCountFooter(facet);
+//                    wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facet.getFacetName() + "']//span[@class='fcount']")));
+//                    filterCount = commonUtils.tryParseInt(element.getText().trim());
+//
+//                    // Compare the results for the Image view.
+//                    if ((solrCount != filterCount) && (solrCount != footerCount)) {
+//                        masterStatus.addError("Search term facet count MISMATCH for " + facet.getFacetName() + " facet: solrCount: " + solrCount + ". filterCount: " + filterCount + ". footerCount: " + footerCount);
+//                    }
+//                    break;
+            }
+
+
+
+            SearchPage.FacetFilter facetFilter = searchPage.getFacetFilter();
+            String name = facetFilter.getName();
+            int count = facetFilter.getCount();
+            facetFilter.open();
+            facetFilter.close();
+            name = facetFilter.getName();
+            count = facetFilter.getCount();
+//            facetFilter.getFacetFilterSubfacets();
+            System.out.println();
+
+
+
+       }
+
+        return masterStatus;
+    }
+
+    /**
+     * Validate Filter on left side of search screen by scraping the values and comparing against expected values.
+     *
+     * @param facetFilter A valid <code>FacetFilter</code> instance
+     * @param expectedMinFacetCount The expected minimum facet count (the number to the right of the facet name)
+     * @param expectedMinNumFacetRows The expected number of facet rows for this facet
+     * @param subfacetText The subfacet text you want to match. Set to null if this filter has no subfacets.
+     * @param expectedMinNumSubfacetRows The expected number of subfacet rows for this facet. Ignored if subfacetText is null
+     * @param facetRowText The facet text you want to match
+     * @param expectedMinFacetRowCount The expected facet row count (the number to the right of the facet row)
+     *
+     * @return status
+     */
+    private RunStatus validateFilter(SearchPage.FacetFilter facetFilter, int expectedMinFacetCount, int expectedMinNumFacetRows,
+                                     String subfacetText, int expectedMinNumSubfacetRows,
+                                     String facetRowText, int expectedMinFacetRowCount) {
         RunStatus status = new RunStatus();
         String message;
 
-        // Get the solarUrlCounts.
-        Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
-        if (solrCoreCountMap == null) {
-            message = "FAIL: Unable to get facet count from Solr.";
+        // Check for the minimum number of facet rows.
+        if (facetFilter.getNumFacetRows() < expectedMinNumFacetRows) {
+            message = "Expected at least " + expectedMinNumFacetRows + " facetFilterFacetRows but found " + facetFilter.getNumFacetRows();
             status.addError(message);
-            logger.error(message);
-            return status;
         }
 
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, map);
+        // Check the min facet count.
+        if (facetFilter.getCount() < expectedMinFacetCount) {
+            message = "Expected minimum facet count  " + expectedMinFacetCount + " but found " + facetFilter.getCount();
+            status.addError(message);
+        }
 
-        // Verify that the core counts returned by solr match the facet counts on the page and the page.
-        Facet[] facets = { Facet.ANATOMY, Facet.DISEASES, Facet.GENES, Facet.IMAGES, Facet.IMPC_IMAGES, Facet.PHENOTYPES };
-        for (Facet facet : facets) {
-            searchPage.clickTab(facet);
-            Integer facetCountFromPage = searchPage.getFacetCount(facet);
-            int facetCountFromSolr = (int)solrCoreCountMap.get(facet.getFacetId());
-
-            if (facetCountFromPage == null) {
-                message = "ERROR: the page's facet count is null. URL: " + target;
-                logger.error(message);
+        SearchPage.FacetRow facetRow;
+        if (subfacetText != null) {
+            // Check for the minimum number of subfacet rows.
+            if (facetFilter.getNumSubfacetRows() < expectedMinNumSubfacetRows) {
+                message = "Expected at least " + expectedMinNumSubfacetRows + " subfacet rows but found " + facetFilter.getNumSubfacetRows();
                 status.addError(message);
-                break;                      // The page is broken for all facets. No need to dump out 6 messages.
-            } else {
-                // 26-Mar-2015 (mrelac) Skip the gene core count compare. The rules are fuzzy.
-                if ( ! facet.equals("gene") && (facetCountFromPage != facetCountFromSolr)) {
-                    message = "FAIL: facet count from facet '" + facet + "': " + facetCountFromSolr + ". facetCountFromPage: " + facetCountFromPage + ". URL: " + target;
-                    status.addError(message);
-                    logger.error(message);
-                }
+            }
+            // Make sure subfacet is open.
+            facetFilter.getSubfacet(subfacetText).open();
+            facetRow = facetFilter.getSubfacet(subfacetText).getFacetRow(facetRowText);
+        } else {
+            facetRow = facetFilter.getFacetRow(facetRowText);
+        }
+
+        // Check the selected facet row.
+        if (facetRow == null) {
+            message = "Expected to find '" + facetRowText + "' but it was not found.";
+            status.addError(message);
+        } else {
+            if (facetRow.getCount() < expectedMinFacetRowCount) {
+                message = "Expected at least " + expectedMinFacetRowCount + " genes for '" + facetRowText + "' but found " + facetRow.getCount();
+                status.addError(message);
+            }
+
+            if ( ! facetRow.isEnabled()) {
+                message = "Expected checkbox '" + facetRowText + "' to be enabled but it was not.";
+                status.addError(message);
+            }
+
+            if (facetRow.isChecked()) {
+                message = "Expected checkbox '" + facetRowText + "' to be unchecked but it was checked.";
+                status.addError(message);
+            }
+
+            facetRow.check();
+            if ( ! facetRow.isChecked()) {
+                message = "Expected checkbox '" + facetRowText + "' to be checked but it was unchecked.";
+                status.addError(message);
+            }
+
+            facetRow.uncheck();
+            if (facetFilter.getNumSubfacetRows() > 0) {
+                facetFilter.getSubfacet(subfacetText).open();   // For facets with subfacets, the 'uncheck()' above closes the subfacet. Open it back up first.
+            }
+            if (facetRow.isChecked()) {
+                message = "Expected checkbox '" + facetRowText + "' to be unchecked but it was checked (2).";
+                status.addError(message);
             }
         }
 
@@ -414,7 +547,7 @@ public class SearchPageTest {
 
 
     @Test
-//@Ignore
+@Ignore
     public void testAutosuggestForSpecificKnownGenes() throws TestException {
         String testName = "testAutosuggestForSpecificKnownGenes";
         Date start = new Date();
@@ -462,7 +595,7 @@ public class SearchPageTest {
     }
 
     @Test
-//@Ignore
+@Ignore
     public void testAutosuggestMinCharacters() throws TestException {
         String testName = "testAutosuggestForSpecificKnownGenes";
         Date start = new Date();
@@ -488,34 +621,6 @@ public class SearchPageTest {
          }
          else {
             status.addError("Entered " + geneSymbol + " into search box. Expected matches but found none.");
-         }
-
-        testUtils.printEpilogue(testName, start, status, 1, 1);
-    }
-
-    @Test
-@Ignore
-    // test that there is a dropdown when at least 3 letters with match are entered into the input box
-    public void testAutosuggestMinCharacters_999() throws TestException {
-        String testName = "testAutosuggestMinCharacters";
-        Date start = new Date();
-        RunStatus status = new RunStatus();
-
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-
-        String queryStr = baseUrl + "/search";
-
-        driver.get(queryStr);
-        String testKw = "mas";
-        driver.findElement(By.cssSelector("input#s")).sendKeys(testKw);
-        commonUtils.sleep(2000);            // wait until the dropdown list pops up
-
-         int numTerms = driver.findElements(By.cssSelector("ul.ui-autocomplete li")).size();
-         if ( numTerms > 0) {
-            status.successCount++;
-         }
-         else {
-            status.addError("Entered " + testKw + " into search box. Expected matches but found none.");
          }
 
         testUtils.printEpilogue(testName, start, status, 1, 1);
@@ -557,27 +662,52 @@ public class SearchPageTest {
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        Map<String, Integer> solrCoreCountMap = getSolrCoreCounts(null);
+        status = facetCountEngine(imageMap);
+//        Map<String, Integer> solrCoreCountMap = getSolrCoreCounts(null);
 
-        // Compare solr core count to page result count.
-//        String[] localCores = { "mp", "disease", "ma", "impc_images", "images", "gene" };
-//        for (String core : localCores) {
-        for (String core : cores) {
-            String target = baseUrl + "/search#" + params.get(core) + "&facet=" + core;
-            RunStatus localStatus = facetCountEngine(target, imageMap);
-            status.add(localStatus);
-            if ( ! localStatus.hasErrors()) {
-                SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
-                int facetCountFromSolr = solrCoreCountMap.get(core);
-                int resultCount = searchPage.getTabResultCount();
-
-                if (facetCountFromSolr != resultCount) {
-                    status.addError("Search term facet count MISMATCH: facet count from page: " + resultCount + ". facet count from solr core (" + core + ") = " + facetCountFromSolr + ".");
-                } else {
-                    status.successCount++;
-                }
-            }
-        }
+        /**
+         * Compare solr core result count to page result count.
+         *
+         * For all cores, the result count is in the right-hand part of the filter.
+         * For all cores BUT images and impc_images, the same result count is in the footer of the 'dTable' HTML table
+         * containing the results.
+         * For the images and impc_images cores (all views), the same result count is just above the 'dTable' HTML table
+         * containing the results.
+         * For the images and impc_images cores in image view ONLY, the same result count is in the footer of the 'dTable'
+         * HTML table, just like the other cores.
+         */
+//        for (Facet facet : facets) {
+//            String target = baseUrl + "/search#" + facet.getCoreName() + "&facet=" + facet.getCoreName();
+//
+//            RunStatus localStatus = facetCountEngine(target, imageMap);
+//            status.add(localStatus);
+//            if ( ! localStatus.hasErrors()) {
+//                SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+//                searchPage.clickTab(facet);
+//                int facetCountFromSolr = solrCoreCountMap.get(facet.getCoreName());
+//
+//                int resultCount = 0;
+//                // impc_images and images core totals for annotation view are taken from the top of the 'dTable' HTML table. In Image view they
+//                // are taken from the top of the 'dTable' HTML table and the getTabResultCountFooter() at the bottom.
+//                if ((facet.equals(Facet.IMAGES) || facet.equals(Facet.IMPC_IMAGES))) {
+//                    resultCount = searchPage.getTabResultCountHeader(facet);
+//                    // Switch to Image view.
+//                    searchPage.setImageFacetView(SearchFacetTable.ImagesView.IMAGE_VIEW);
+//                    int footerResultCount = searchPage.getTabResultCountFooter(facet);
+//                    if (footerResultCount != resultCount) {
+//                        status.addError("Search term facet count MISMATCH: header count: " + resultCount + ". footer count: " + footerResultCount);
+//                    }
+//                } else {
+//                    resultCount = searchPage.getTabResultCountFooter();
+//                }
+//
+//                if (facetCountFromSolr != resultCount) {
+//                    status.addError("Search term facet count MISMATCH: facet count from page: " + resultCount + ". facet count from solr core (" + facet.getCoreName() + ") = " + facetCountFromSolr + ".");
+//                } else {
+//                    status.successCount++;
+//                }
+//            }
+//        }
 
         testUtils.printEpilogue(testName, start, status, cores.size(), cores.size());
     }
@@ -641,47 +771,126 @@ public class SearchPageTest {
     @Test
 @Ignore
     public void testFacetCountsSpecialCharacters() throws TestException {
-        String testName = "testFacetCountsSpecialCharacters";
+//        String testName = "testFacetCountsSpecialCharacters";
+//        Date start = new Date();
+//        RunStatus masterStatus = new RunStatus();
+//
+//        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+//
+//        // Create an array of SearchTermGroup from searchTermGroups that expands the original list by 4,
+//        // prepending '*', appending '*', and prepending AND appending '*' to the original searchTermGroups values.
+//        // Example:  "leprot", "leprot" becomes:
+//        //      "leprot",   "leprot"
+//        //      "*leprot",  "*leprot"
+//        //      "leprot*",  "leprot*"
+//        //      "*leprot*", "*leprot*"
+//        List<SearchTermGroup> searchTermGroupListWildcard = new ArrayList();
+//        for (SearchTermGroup staticSearchTermGroup : staticSearchTermGroups) {
+//            searchTermGroupListWildcard.add(new SearchTermGroup(staticSearchTermGroup.pageTarget, staticSearchTermGroup.solrTarget));
+//            searchTermGroupListWildcard.add(new SearchTermGroup("*" + staticSearchTermGroup.pageTarget, "*" + staticSearchTermGroup.solrTarget));
+//            searchTermGroupListWildcard.add(new SearchTermGroup(staticSearchTermGroup.pageTarget + "*", staticSearchTermGroup.solrTarget + "*"));
+//            searchTermGroupListWildcard.add(new SearchTermGroup("*" + staticSearchTermGroup.pageTarget + "*", "*" + staticSearchTermGroup.solrTarget + "*"));
+//        }
+//        SearchTermGroup[] searchTermGroupWildcard = searchTermGroupListWildcard.toArray(new SearchTermGroup[0]);
+//
+//        for (SearchTermGroup searchTermGroup : searchTermGroupWildcard) {
+//            // logging/debugging statements:
+////            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
+////            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
+////            for (Map.Entry<String, Integer> entry : entrySet) {
+////                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
+////            }
+//
+//            // Build the solarUrlCounts.
+//            String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
+//
+//            RunStatus status = facetCountEngine(target, searchTermGroup, imageMap);
+//            if ( ! status.hasErrors())
+//                status.successCount++;
+//
+//            masterStatus.add(status);
+//        }
+
+//        testUtils.printEpilogue(testName, start, masterStatus, searchTermGroupWildcard.length, searchTermGroupWildcard.length);
+    }
+
+    @Test
+//@Ignore
+    public void testFilter() throws TestException {
+        String testName = "testFilter";
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
+        String message;
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        // Create an array of SearchTermGroup from searchTermGroups that expands the original list by 4,
-        // prepending '*', appending '*', and prepending AND appending '*' to the original searchTermGroups values.
-        // Example:  "leprot", "leprot" becomes:
-        //      "leprot",   "leprot"
-        //      "*leprot",  "*leprot"
-        //      "leprot*",  "leprot*"
-        //      "*leprot*", "*leprot*"
-        List<SearchTermGroup> searchTermGroupListWildcard = new ArrayList();
-        for (SearchTermGroup staticSearchTermGroup : staticSearchTermGroups) {
-            searchTermGroupListWildcard.add(new SearchTermGroup(staticSearchTermGroup.pageTarget, staticSearchTermGroup.solrTarget));
-            searchTermGroupListWildcard.add(new SearchTermGroup("*" + staticSearchTermGroup.pageTarget, "*" + staticSearchTermGroup.solrTarget));
-            searchTermGroupListWildcard.add(new SearchTermGroup(staticSearchTermGroup.pageTarget + "*", staticSearchTermGroup.solrTarget + "*"));
-            searchTermGroupListWildcard.add(new SearchTermGroup("*" + staticSearchTermGroup.pageTarget + "*", "*" + staticSearchTermGroup.solrTarget + "*"));
-        }
-        SearchTermGroup[] searchTermGroupWildcard = searchTermGroupListWildcard.toArray(new SearchTermGroup[0]);
+        for (Facet facet : facets) {
+            RunStatus status = new RunStatus();
 
-        for (SearchTermGroup searchTermGroup : searchTermGroupWildcard) {
-            // logging/debugging statements:
-//            Map solrCoreCountMap = getSolrCoreCounts(searchTermGroup);
-//            Set<Map.Entry<String, Integer>> entrySet = solrCoreCountMap.entrySet();
-//            for (Map.Entry<String, Integer> entry : entrySet) {
-//                log.info("Core: " + entry.getKey() + ". Count: " + entry.getValue());
-//            }
+            System.out.println("Testing facet " + facet.getTabName());
 
-            // Build the solarUrlCounts.
-            String target = baseUrl + "/search?q=" + searchTermGroup.pageTarget;
+            String target = baseUrl + "/search/" + facet.getCoreName() + "?kw=*";
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
 
-            RunStatus status = facetCountEngine(target, searchTermGroup, imageMap);
+            SearchPage.FacetFilter facetFilter = searchPage.getFacetFilter();
+            String name = facetFilter.getName();
+            if ( ! name.equals(facet.getTabName())) {
+                message = "Expected tab name '" + facet.getTabName() + "' but actual name was '" + facetFilter.getName() + "'.";
+                status.addError(message);
+            }
+
+            facetFilter.open();
+            if ( ! facetFilter.isOpen())  {
+                message = "Expected facet name '" + facet.getFacetName() + "' to be opened but it was not.";
+                status.addError(message);
+            }
+
+            facetFilter.close();
+            if (facetFilter.isOpen())  {
+                message = "Expected facet name '" + facet.getFacetName() + "' to be closed but it was not.";
+                status.addError(message);
+            }
+            name = facetFilter.getName();
+            if ( ! name.equals(facet.getTabName())) {
+                message = "Closed subfacet: Expected tab name '" + facet.getTabName() + "' but actual name was '" + facetFilter.getName() + "'.";
+                status.addError(message);
+            }
+
+            // Custom test for each facet for min subfacets/rows/names, etc.
+            facetFilter.open();             // Make sure facet is opened.
+            switch (facet) {
+                case ANATOMY:
+                    status = validateFilter(facetFilter, 446, 15, null, 0, "urinary system", 8);                        // No subfacets.
+                    break;
+
+                case DISEASES:
+                    status = validateFilter(facetFilter, 7340, 0, "Classifications", 4,"respiratory", 77);              // Has subfacets.
+                    break;
+
+                case GENES:
+                    status = validateFilter(facetFilter, 23424, 0, "IMPC Mouse Phenotype Center", 6, "RIKEN BRC", 41);  // Has subfacets.
+                    break;
+
+                case IMAGES:
+                    status = validateFilter(facetFilter, 125988, 0, "Gene", 3, "protein coding gene", 115007);          // Has subfacets.
+                    break;
+
+                case IMPC_IMAGES:
+                    status = validateFilter(facetFilter, 188301, 0, "Anatomy", 2, "digestive system", 5462);            // Has subfacets.
+                    break;
+
+                case PHENOTYPES:
+                    status = validateFilter(facetFilter, 1592, 25, null, 0, "immune system", 405);                      // No subfacets.
+                    break;
+            }
+
             if ( ! status.hasErrors())
                 status.successCount++;
 
             masterStatus.add(status);
         }
 
-        testUtils.printEpilogue(testName, start, masterStatus, searchTermGroupWildcard.length, searchTermGroupWildcard.length);
+        testUtils.printEpilogue(testName, start, masterStatus, facets.length, facets.length);
     }
 
     // Test that when Wnt1 is selected, it is at the top of the autosuggest list.
@@ -847,44 +1056,44 @@ public class SearchPageTest {
     @Test
 @Ignore
     public void testImpcImageFacetImageView() throws TestException {
-        String testName = "testImpcImageFacetImageView";
-        String searchString = "";
-        Date start = new Date();
-        RunStatus status = new RunStatus();
-        Facet facet;
-        String message = "";
-
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-        String target = "";
-
-        try {
-            target = baseUrl + "/search";
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
-
-            facet = Facet.IMPC_IMAGES;
-
-            // Select the correct tab.
-            int facetCount = searchPage.clickTab(facet);
-
-            searchPage.clickFacet(facet);
-            searchPage.getImpcImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
-
-            message = "[facet " + facet + "], image view. Search string: '" + searchString + "'. URL: " + target;
-
-            status.add(searchPage.validateDownload(facet));
-
-        } catch (TestException e) {
-            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
-            System.out.println(message);
-            e.printStackTrace();
-            status.addError(message);
-        }
-
-        if ( ! status.hasErrors()) {
-            status.successCount++;
-        }
-
-        testUtils.printEpilogue(testName, start, status, 1, 1);
+//        String testName = "testImpcImageFacetImageView";
+//        String searchString = "";
+//        Date start = new Date();
+//        RunStatus status = new RunStatus();
+//        Facet facet;
+//        String message = "";
+//
+//        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+//        String target = "";
+//
+//        try {
+//            target = baseUrl + "/search";
+//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, impcImageMap);
+//
+//            facet = Facet.IMPC_IMAGES;
+//
+//            // Select the correct tab.
+//            int facetCount = searchPage.clickTab(facet);
+//
+//            searchPage.clickFacet(facet);
+//            searchPage.getImpcImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
+//
+//            message = "[facet " + facet + "], image view. Search string: '" + searchString + "'. URL: " + target;
+//
+//            status.add(searchPage.validateDownload(facet));
+//
+//        } catch (TestException e) {
+//            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
+//            System.out.println(message);
+//            e.printStackTrace();
+//            status.addError(message);
+//        }
+//
+//        if ( ! status.hasErrors()) {
+//            status.successCount++;
+//        }
+//
+//        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
     @Test
@@ -1289,89 +1498,89 @@ public class SearchPageTest {
     @Test
 @Ignore
     public void testTickingFacetFilters() throws TestException {
-        String testName = "testTickingFacetFilters";
-        Date start = new Date();
-        RunStatus masterStatus = new RunStatus();
-        String message = "";
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-
-        String target = baseUrl + "/search";
-        System.out.println("target Page URL: " + target);
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
-
-        // For each core:
-        //   Click the first subfacet.
-        //   Check that it is selected.
-        //   Check that there is a filter matching the selected facet above the Genes facet.
-        //   Click the first subfacet again to unselect it.
-        //   Check that it is unselected.
-        //   Check that there is no filter matching the just-unselected facet above the Genes facet.
-        for (String core :  cores) {
-            String subfacetCheckboxCssSelector = "li#" + core + " li.fcat input[type='checkbox']";
-            String subfacetTextCssSelector = "li#" + core + " li.fcat span.flabel";
-            Facet facet = searchPage.getFacetByCoreName(core);
-            searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
-            WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
-            testUtils.scrollToTop(driver, firstSubfacetElement, -50);           // Scroll first subfacet element into view.
-            firstSubfacetElement.click();                                       // Select the first subfacet.
-
-            searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
-            RunStatus status = new RunStatus();
-            if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
-                message = "Failed to tick input filter. Expected first subfacet filter to be checked, but it wasn't. URL = " + driver.getCurrentUrl();
-                status.addError(message);
-            } else {
-
-                // Check that there is a filter matching the selected facet above the Genes facet.
-                String facetText = driver.findElement(By.cssSelector(subfacetTextCssSelector)).getText();
-                HashMap<Facet, SearchPage.FacetFilter> facetFilterHash = searchPage.getFacetFilter();
-                List<String> facetFilterText = facetFilterHash.get(facet).subfacetTexts;
-                boolean found = false;
-                for (String facetFilter : facetFilterText) {
-                    if (facetFilter.contains(facetText)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if ( ! found) {
-                    message = "Expected subfacet filter for '" + facetText + "' but it was not found. URL: " + driver.getCurrentUrl();
-                    status.addError(message);
-                }
-
-                searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
-                firstSubfacetElement.click();                                       // Deselect the first subfacet.
-
-                searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
-
-                // The page becomes stale after the click() above, so we must re-fetch the WebElement objects.
-                firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
-
-                if (firstSubfacetElement.isSelected()) {                            // Verify that the subfacet is no longer selected.
-                    message = "Expected subfacet checkbox to be unchecked. URL: " + driver.getCurrentUrl();
-                    status.addError(message);
-                }
-
-                // Check that there are no filters.
-                if (searchPage.hasFilters()) {
-                    message = "Expected filters to be cleared. URL: " + driver.getCurrentUrl();
-                    status.addError(message);
-                }
-
-                searchPage.clearFilters();
-            }
-
-            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
-            System.out.println(statusString + message);
-
-            masterStatus.add(status);
-
-            searchPage.closeFacet(facet);                                           // Close the facet.
-        }
-
-        if ( ! masterStatus.hasErrors())
-            masterStatus.successCount++;
-
-        testUtils.printEpilogue(testName, start, masterStatus, 1, 1);
+//        String testName = "testTickingFacetFilters";
+//        Date start = new Date();
+//        RunStatus masterStatus = new RunStatus();
+//        String message = "";
+//        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+//
+//        String target = baseUrl + "/search";
+//        System.out.println("target Page URL: " + target);
+//        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
+//
+//        // For each core:
+//        //   Click the first subfacet.
+//        //   Check that it is selected.
+//        //   Check that there is a filter matching the selected facet above the Genes facet.
+//        //   Click the first subfacet again to unselect it.
+//        //   Check that it is unselected.
+//        //   Check that there is no filter matching the just-unselected facet above the Genes facet.
+//        for (String core :  cores) {
+//            String subfacetCheckboxCssSelector = "li#" + core + " li.fcat input[type='checkbox']";
+//            String subfacetTextCssSelector = "li#" + core + " li.fcat span.flabel";
+//            Facet facet = searchPage.getFacetByCoreName(core);
+//            searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
+//            WebElement firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
+//            testUtils.scrollToTop(driver, firstSubfacetElement, -50);           // Scroll first subfacet element into view.
+//            firstSubfacetElement.click();                                       // Select the first subfacet.
+//
+//            searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
+//            RunStatus status = new RunStatus();
+//            if ( ! firstSubfacetElement.isSelected()) {                         // Verify that the subfacet is selected.
+//                message = "Failed to tick input filter. Expected first subfacet filter to be checked, but it wasn't. URL = " + driver.getCurrentUrl();
+//                status.addError(message);
+//            } else {
+//
+//                // Check that there is a filter matching the selected facet above the Genes facet.
+//                String facetText = driver.findElement(By.cssSelector(subfacetTextCssSelector)).getText();
+//                HashMap<Facet, SearchPage.FacetFilter> facetFilterHash = searchPage.getFacetFilter();
+//                List<String> facetFilterText = facetFilterHash.get(facet).subfacetTexts;
+//                boolean found = false;
+//                for (String facetFilter : facetFilterText) {
+//                    if (facetFilter.contains(facetText)) {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if ( ! found) {
+//                    message = "Expected subfacet filter for '" + facetText + "' but it was not found. URL: " + driver.getCurrentUrl();
+//                    status.addError(message);
+//                }
+//
+//                searchPage.openFacet(facet);                                        // Open facet if it is not alreay opened.
+//                firstSubfacetElement.click();                                       // Deselect the first subfacet.
+//
+//                searchPage.openFacet(facet);                                        // Re-open the facet as, by design, it closed after the click() above.
+//
+//                // The page becomes stale after the click() above, so we must re-fetch the WebElement objects.
+//                firstSubfacetElement = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(subfacetCheckboxCssSelector)));
+//
+//                if (firstSubfacetElement.isSelected()) {                            // Verify that the subfacet is no longer selected.
+//                    message = "Expected subfacet checkbox to be unchecked. URL: " + driver.getCurrentUrl();
+//                    status.addError(message);
+//                }
+//
+//                // Check that there are no filters.
+//                if (searchPage.hasFilters()) {
+//                    message = "Expected filters to be cleared. URL: " + driver.getCurrentUrl();
+//                    status.addError(message);
+//                }
+//
+//                searchPage.clearFilters();
+//            }
+//
+//            String statusString = "\t" + (status.hasErrors() ? "FAILED" : "PASSED") + " [" + facet + "]";
+//            System.out.println(statusString + message);
+//
+//            masterStatus.add(status);
+//
+//            searchPage.closeFacet(facet);                                           // Close the facet.
+//        }
+//
+//        if ( ! masterStatus.hasErrors())
+//            masterStatus.successCount++;
+//
+//        testUtils.printEpilogue(testName, start, masterStatus, 1, 1);
     }
 
     @Test

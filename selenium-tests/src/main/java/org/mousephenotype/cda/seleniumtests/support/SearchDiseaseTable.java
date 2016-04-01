@@ -38,6 +38,7 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'diseaseGrid' HTML table for diseases.
  */
+@Deprecated
 public class SearchDiseaseTable extends SearchFacetTable {
 
     private final List<DiseaseRow> bodyRows = new ArrayList();

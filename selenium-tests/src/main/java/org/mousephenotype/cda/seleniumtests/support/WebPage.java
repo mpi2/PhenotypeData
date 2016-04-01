@@ -22,6 +22,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
  *
  * @author mrelac
  */
+@Deprecated
 public interface WebPage {
     public RunStatus compare(String[][] downloadData, String downloadTarget);
     public String[][] getPhenotypeTableData(Integer maxRows);

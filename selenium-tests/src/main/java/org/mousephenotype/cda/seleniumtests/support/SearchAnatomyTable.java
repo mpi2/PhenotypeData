@@ -36,6 +36,7 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'maGrid' HTML table for anatomy.
  */
+@Deprecated
 public class SearchAnatomyTable extends SearchFacetTable {
 
     private final List<AnatomyRow> bodyRows = new ArrayList();

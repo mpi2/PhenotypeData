@@ -39,6 +39,7 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'geneGrid' HTML table for genes.
  */
+@Deprecated
 public class SearchGeneTable extends SearchFacetTable {
 
     protected GridMap pageData;

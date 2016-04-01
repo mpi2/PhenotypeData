@@ -37,6 +37,7 @@ import java.net.URL;
  * page-specific functionality.
  */
 @Component
+@Deprecated
 public abstract class WebPageImpl implements WebPage {
     protected final String pageTarget;
     protected final WebDriverWait wait;
