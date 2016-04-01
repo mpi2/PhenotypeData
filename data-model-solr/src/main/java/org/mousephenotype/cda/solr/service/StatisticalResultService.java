@@ -903,10 +903,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 					+ StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
 		}
 		if (mpTermId != null) {
-			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-					+ "\") OR " + StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\""
-					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID
-					+ ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+			query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " 
+					+ StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " 
+					+ StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " 
+					+ StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
 					+ StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
 					+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
 					+ StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
@@ -973,7 +973,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	ImpressBaseDTO parameter = new ImpressBaseDTO(null, dto.getParameterStableKey(), dto.getParameterStableId(), dto.getParameterName());
     	ImpressBaseDTO pipeline = new ImpressBaseDTO(null, dto.getPipelineStableKey(), dto.getPipelineStableId(), dto.getPipelineName());
     	ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
-    	ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getStatisticalMethod(),
+    	ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), dto.getStatisticalMethod(),
     			dto.getStatus(), allele, gene, zygosity, 
     			pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
     			dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
