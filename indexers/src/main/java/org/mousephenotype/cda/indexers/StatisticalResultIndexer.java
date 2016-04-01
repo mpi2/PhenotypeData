@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -69,8 +70,10 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
 	Map<String, ResourceBean> resourceMap = new HashMap<>();
 	Map<String, List<String>> sexesMap = new HashMap<>();
+	Set<String> alreadyReported = new HashSet<>();
 
 	Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
+	Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
 
 	public StatisticalResultIndexer() {
 
@@ -98,6 +101,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			populateBiologicalDataMap();
 			populateResourceDataMap();
 			populateSexesMap();
+			populateParameterMpTermMap();
 
 		} catch (SQLException e) {
 			throw new IndexerException(e);
@@ -137,6 +141,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			count += processViabilityResults();
 			count += processFertilityResults();
+			count += processReferenceRangePlusResults();
 			count += processUnidimensionalResults();
 			count += processCategoricalResults();
 			count += processEmbryoViabilityResults();
@@ -256,7 +261,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		String query;
 
 		// Populate viability results
-		query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, " +
+		query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, co.category, " +
 			"'line' AS data_type, db.id AS db_id, " +
 			"zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
 			"parameter.stable_id as dependent_variable, " +
@@ -282,6 +287,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"  WHERE exp2.colony_id=exp.colony_id AND obs2.parameter_stable_id='IMPC_VIA_014_001' limit 1) AS  female_mutants " +
 			"FROM phenotype_parameter parameter " +
 			"INNER JOIN observation obs ON obs.parameter_stable_id=parameter.stable_id AND obs.parameter_stable_id = 'IMPC_VIA_001_001' " +
+			"INNER JOIN categorical_observation co ON co.id=obs.id " +
 			"INNER JOIN experiment_observation eo ON eo.observation_id=obs.id " +
 			"INNER JOIN experiment exp ON eo.experiment_id=exp.id " +
 			"INNER JOIN external_db db ON db.id=obs.db_id " +
@@ -317,7 +323,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
 			+ "  dependent_variable, control_selection_strategy, male_controls, "
 			+ "  male_mutants, female_controls, female_mutants, "
-			+ "  metadata_group, statistical_method, status, "
+			+ "  metadata_group, statistical_method, workflow, status, "
 			+ "  category_a, category_b, "
 			+ "  p_value as categorical_p_value, effect_size AS categorical_effect_size, "
 			+ "  mp_acc, null as male_mp_acc, null as female_mp_acc, "
@@ -344,16 +350,67 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		return count;
 	}
 
-	public int processUnidimensionalResults() throws SQLException, IOException, SolrServerException {
+
+	public int processReferenceRangePlusResults() throws SQLException, IOException, SolrServerException {
 		int count = 0;
-		String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='stats_unidimensional_results' AND TABLE_SCHEMA=(SELECT database())";
-		Set<String> featureFlagMeans = new HashSet<>();
-		try (PreparedStatement p = connection.prepareStatement(featureFlagMeansQuery)) {
+
+		// Populate reference range plus statistic results
+		String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
+			+ "  'unidimensional' AS data_type, "
+			+ "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
+			+ "  external_db_id, organisation_id, "
+			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
+			+ "  dependent_variable, control_selection_strategy, "
+			+ "  male_controls, male_mutants, female_controls, female_mutants, "
+			+ "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, "
+			+ "  metadata_group, statistical_method, workflow, status, "
+			+ "  genotype_parameter_estimate, genotype_effect_pvalue, "
+			+ "  gp1_genotype, gp2_genotype, "
+			+ "  gender_female_ko_estimate, gender_female_ko_pvalue, "
+			+ "  gender_male_ko_estimate, gender_male_ko_pvalue, "
+			+ "  classification_tag, additional_information, "
+			+ "  mp_acc, male_mp_acc, female_mp_acc, "
+			+ "  db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, "
+			+ "  proj.name as project_name, proj.id as project_id, "
+			+ "  org.name as phenotyping_center, org.id as phenotyping_center_id "
+			+ "FROM stats_rrplus_results sr "
+			+ "INNER JOIN external_db db on db.id=sr.external_db_id "
+			+ "INNER JOIN project proj on proj.id=sr.project_id "
+			+ "INNER JOIN organisation org on org.id=sr.organisation_id ";
+
+		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+			p.setFetchSize(Integer.MIN_VALUE);
 			ResultSet r = p.executeQuery();
 			while (r.next()) {
-				featureFlagMeans.add(r.getString("column_name"));
+				StatisticalResultDTO doc = parseReferenceRangeResult(r);
+				documentCount++;
+				statResultCore.addBean(doc, 30000);
+				count++;
 			}
 		}
+		logger.info(" Added {} RR plus documents", count);
+		return count;
+	}
+
+	public Boolean columnInSchema(Connection connection, String tableName, String columnName) throws SQLException {
+
+		Boolean found = Boolean.FALSE;
+		String columnQuery = "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=(SELECT database()) AND TABLE_NAME=? AND column_name=?";
+
+		try (PreparedStatement p = connection.prepareStatement(columnQuery)) {
+			p.setString(1, tableName);
+			p.setString(2, columnName);
+			ResultSet r = p.executeQuery();
+			if (r.next()) {
+				found = Boolean.TRUE;
+			}
+		}
+
+		return found;
+	}
+
+	public int processUnidimensionalResults() throws SQLException, IOException, SolrServerException {
+		int count = 0;
 
 		// Populate unidimensional statistic results
 		String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
@@ -362,13 +419,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			+ "  external_db_id, organisation_id, "
 			+ "  pipeline_id, procedure_id, parameter_id, colony_id, "
 			+ "  dependent_variable, control_selection_strategy, "
-			+ "  male_controls, male_mutants, female_controls, female_mutants, ";
-
-		if (featureFlagMeans.contains("male_control_mean")) {
-			query += "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, ";
-		}
-
-		query += "  metadata_group, statistical_method, status, "
+			+ "  male_controls, male_mutants, female_controls, female_mutants, "
+			+ "  male_control_mean, male_experimental_mean, female_control_mean, female_experimental_mean, "
+			+ "  metadata_group, statistical_method, workflow, status, "
 			+ "  batch_significance, "
 			+ "  variance_significance, null_test_significance, genotype_parameter_estimate, "
 			+ "  genotype_percentage_change, "
@@ -409,6 +462,117 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	private Double nullCheckResult(ResultSet r,  String field) throws SQLException {
 		Double v = r.getDouble(field);
 		return r.wasNull() ? null : v;
+	}
+
+	private StatisticalResultDTO parseReferenceRangeResult(ResultSet r) throws SQLException {
+
+		StatisticalResultDTO doc = parseResultCommonFields(r);
+		if (sexesMap.containsKey("rrplus-" + doc.getDbId())) {
+			doc.setPhenotypeSex(sexesMap.get("rrplus-" + doc.getDbId()));
+		}
+
+		// Index the mean fields
+		doc.setMaleControlMean(r.getDouble("male_control_mean"));
+		doc.setMaleMutantMean(r.getDouble("male_experimental_mean"));
+		doc.setFemaleControlMean(r.getDouble("female_control_mean"));
+		doc.setFemaleMutantMean(r.getDouble("female_experimental_mean"));
+
+		doc.setGroup1Genotype(r.getString("gp1_genotype"));
+		doc.setGroup2Genotype(r.getString("gp2_genotype"));
+
+
+		// Set the overall genotype effect fields
+		String genotypePvalue = r.getString("genotype_effect_pvalue");
+		if (! r.wasNull()) {
+			String [] fields = genotypePvalue.split(",");
+
+			// Low vs normal&high genotype pvalue
+			Double pvalue = Double.parseDouble(fields[0]);
+			doc.setGenotypePvalueLowVsNormalHigh(pvalue);
+
+			// High vs low&normal genotype pvalue
+			pvalue = Double.parseDouble(fields[1]);
+			doc.setGenotypePvalueLowNormalVsHigh(pvalue);
+
+			doc.setNullTestPValue(Math.min(doc.getGenotypePvalueLowNormalVsHigh(), doc.getGenotypePvalueLowVsNormalHigh()));
+			doc.setpValue(doc.getNullTestPValue());
+
+			String genotypeEffectSize = r.getString("genotype_parameter_estimate");
+			if (! r.wasNull()) {
+				fields = genotypeEffectSize.replaceAll("%", "").split(",");
+
+				// Low vs normal&high genotype effect size
+				Double es = Double.parseDouble(fields[0]);
+				doc.setGenotypeEffectSizeLowVsNormalHigh(es);
+
+				// High vs low&normal genotype effect size
+				es = Double.parseDouble(fields[1]);
+				doc.setGenotypeEffectSizeLowNormalVsHigh(es);
+			}
+
+		}
+
+		// Set the female female effect fields
+		genotypePvalue = r.getString("gender_female_ko_pvalue");
+		if (! r.wasNull() && ! genotypePvalue.equals("NA")) {
+			String [] fields = genotypePvalue.split(",");
+
+			// Low vs normal&high female pvalue
+			Double pvalue = Double.parseDouble(fields[0]);
+			doc.setFemalePvalueLowVsNormalHigh(pvalue);
+
+			// High vs low&normal female pvalue
+			pvalue = Double.parseDouble(fields[1]);
+			doc.setFemalePvalueLowNormalVsHigh(pvalue);
+
+			String genotypeEffectSize = r.getString("gender_female_ko_estimate");
+			if (! r.wasNull()) {
+				fields = genotypeEffectSize.replaceAll("%", "").split(",");
+
+				// Low vs normal&high female effect size
+				Double es = Double.parseDouble(fields[0]);
+				doc.setFemaleEffectSizeLowVsNormalHigh(es);
+
+				// High vs low&normal female effect size
+				es = Double.parseDouble(fields[1]);
+				doc.setFemaleEffectSizeLowNormalVsHigh(es);
+			}
+
+		}
+
+		// Set the male effect fields
+		genotypePvalue = r.getString("gender_male_ko_pvalue");
+		if (! r.wasNull() && ! genotypePvalue.equals("NA")) {
+			String [] fields = genotypePvalue.split(",");
+
+			// Low vs normal&high male pvalue
+			Double pvalue = Double.parseDouble(fields[0]);
+			doc.setMalePvalueLowVsNormalHigh(pvalue);
+
+			// High vs low&normal male pvalue
+			pvalue = Double.parseDouble(fields[1]);
+			doc.setMalePvalueLowNormalVsHigh(pvalue);
+
+			String genotypeEffectSize = r.getString("gender_male_ko_estimate");
+			if (! r.wasNull()) {
+				fields = genotypeEffectSize.replaceAll("%", "").split(",");
+
+				// Low vs normal&high male effect size
+				Double es = Double.parseDouble(fields[0]);
+				doc.setMaleEffectSizeLowVsNormalHigh(es);
+
+				// High vs low&normal male effect size
+				es = Double.parseDouble(fields[1]);
+				doc.setMaleEffectSizeLowNormalVsHigh(es);
+			}
+
+		}
+
+
+		doc.setClassificationTag(r.getString("classification_tag"));
+		doc.setAdditionalInformation(r.getString("additional_information"));
+		return doc;
+
 	}
 
 	private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
@@ -550,6 +714,34 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			// do nothing. Result set did not have "category" in it
 		}
 
+		try {
+			r.getString("experimental_zygosity");
+			if (r.wasNull()) {
+				String category = r.getString("category");
+				if (!r.wasNull()) {
+					String[] fields = category.split("-");
+
+					ZygosityType zygosity;
+					switch (fields[0].trim().toLowerCase()) {
+						case "heterozygous":
+							zygosity = ZygosityType.heterozygote;
+							break;
+						case "hemizygous":
+							zygosity = ZygosityType.hemizygote;
+							break;
+						case "homozygous":
+						default:
+							zygosity = ZygosityType.homozygote;
+							break;
+					}
+
+					doc.setZygosity(zygosity.getName());
+				}
+			}
+		} catch (java.sql.SQLException e) {
+			// do nothing. Result set did not have "category" in it
+		}
+
 		String sex = r.getString("sex");
 		if (!r.wasNull()) {
 			doc.setSex(sex);
@@ -608,6 +800,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
 		doc.setStatisticalMethod(r.getString("statistical_method"));
+		doc.setWorkflow(r.getString("workflow"));
 		doc.setMaleControlCount(r.getInt("male_controls"));
 		doc.setFemaleControlCount(r.getInt("female_controls"));
 		doc.setMaleMutantCount(r.getInt("male_mutants"));
@@ -628,7 +821,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		// Biological details
 		addBiologicalData(doc, doc.getMutantBiologicalModelId());
-
 
 		// MP Terms
 		addMpTermData(r, doc);
@@ -810,6 +1002,56 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
 
 		//		doc.setAnnotate(parameterMap.get(r.getInt("parameter_id")).isAnnotate());
+
+		// Create field that contains all possible MP terms (including intermediate and top level terms)
+		// that this parameter can produce
+		Set<String> mpIds = parameterMpTermMap.get(doc.getParameterStableId());
+
+		if (mpIds != null) {
+			Set<OntologyTermBean> ontoTerms = new HashSet<>();
+
+			mpIds.forEach(mpId -> {
+
+				OntologyTermBean bean = mpOntologyService.getTerm(mpId);
+
+				if (bean != null) {
+
+					ontoTerms.add(bean);
+
+					OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+
+					// Add all ancestor terms for this MP ID
+					beanlist.getAncestors().getIds().forEach(mp -> {
+						OntologyTermBean b = mpOntologyService.getTerm(mp);
+						if (b != null) {
+							ontoTerms.add(b);
+						}
+					});
+
+				}
+
+			});
+
+			// Default the term options to empty lists
+			doc.setMpTermIdOptions(new ArrayList<>());
+			doc.setMpTermNameOptions(new ArrayList<>());
+
+			ontoTerms.forEach(term -> {
+				doc.getMpTermIdOptions().add(term.getId());
+				doc.getMpTermNameOptions().add(term.getName());
+			});
+
+
+		} else {
+
+			String p = doc.getParameterStableId();
+			if ( ! alreadyReported.contains(p)) {
+				alreadyReported.add(p);
+				logger.debug("Cannot find MP terms for parameter {}", p);
+			}
+
+		}
+
 	}
 
 
@@ -907,7 +1149,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		List<String> queries = Arrays.asList(
 			"SELECT CONCAT('unidimensional-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_unidimensional_results s INNER JOIN stat_result_phenotype_call_summary r ON r.unidimensional_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
-			"SELECT CONCAT('categorical-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_categorical_results s INNER JOIN stat_result_phenotype_call_summary r ON r.categorical_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id"
+			"SELECT CONCAT('categorical-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_categorical_results s INNER JOIN stat_result_phenotype_call_summary r ON r.categorical_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
+			"SELECT CONCAT('rrplus-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_rrplus_results s INNER JOIN stat_result_phenotype_call_summary r ON r.rrplus_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id"
 		);
 
 		for (String query : queries) {
@@ -924,6 +1167,32 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			}
 		}
 		logger.info(" Added {} sexes data map entries", sexesMap.size());
+	}
+
+	private void populateParameterMpTermMap() throws SQLException {
+
+		String query = "SELECT stable_id, ontology_acc FROM phenotype_parameter p " +
+			"INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
+			"INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " ;
+
+		try (PreparedStatement p = connection.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+
+			while (resultSet.next()) {
+
+				String parameter = resultSet.getString("stable_id");
+				String ontologyTerm = resultSet.getString("ontology_acc");
+
+				if( ! parameterMpTermMap.containsKey(parameter)) {
+					parameterMpTermMap.put(parameter, new HashSet<>());
+				}
+				parameterMpTermMap.get(parameter).add(ontologyTerm);
+
+			}
+		}
+		logger.info(" Added {} parameterMpTerm data map entries", parameterMpTermMap.size());
+
 	}
 
 	protected class ResourceBean {

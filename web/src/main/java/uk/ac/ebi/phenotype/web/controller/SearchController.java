@@ -51,7 +51,6 @@ public class SearchController {
 		return "redirect:/search";
 	}
 
-
 	private String internalSolrUrl;
 
 	@Autowired
@@ -170,7 +169,9 @@ public class SearchController {
 		String facetStr = searchConfig.getFacetFieldsSolrStr(dataType);
 		String flStr = searchConfig.getFieldListSolrStr(dataType);
 		String bqStr = searchConfig.getBqStr(dataType, query);
+		String sortStr = searchConfig.getSortingStr(dataType);
 
+		//String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr + sortStr;
 		String solrParamStr = "wt=json&q=" + query + qfStr + defTypeStr + flStr + facetStr + bqStr;
 
 		if (dataType.equals("ma")) {

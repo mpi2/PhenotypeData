@@ -476,7 +476,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         if (metadataGroup != null) {
             url += "&metadata_group=" + metadataGroup;
         }
-        if (zygosity != null) {
+        if (zygosity != null && !zygosity.equals(ZygosityType.not_applicable)) {
             url += "&zygosity=" + zygosity.name();
         }
         if (parameterStableId != null) {

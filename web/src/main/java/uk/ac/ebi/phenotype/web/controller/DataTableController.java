@@ -784,7 +784,7 @@ public class DataTableController {
     public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) {
 
         RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
-        String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
+        String baseUrl = request.getAttribute("baseUrl").toString();
 
         JSONObject j = new JSONObject();
         j.put("aaData", new Object[0]);
@@ -805,7 +805,7 @@ public class DataTableController {
 
             String mpId = doc.getString("mp_id");
             String mpTerm = doc.getString("mp_term");
-            String mpLink = "<a href='" + baseUrl + mpId + "'>" + mpTerm + "</a>";
+            String mpLink = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + mpTerm + "</a>";
             String mpCol = null;
 
             if (doc.containsKey("mp_term_synonym") || doc.containsKey("hp_term")) {
@@ -882,12 +882,14 @@ public class DataTableController {
             int numCalls = doc.containsKey("pheno_calls") ? doc.getInt("pheno_calls") : 0;
 
 			if (numCalls > 0){
-				rowData.add("<a href='" + baseUrl + mpId + "#hasGeneVariants'>" + numCalls + "</a>");
+				rowData.add("<a href='" + baseUrl + "/phenotypes/" + mpId + "#hasGeneVariants'>" + numCalls + "</a>");
 			}
 			else {
 				rowData.add(Integer.toString(numCalls));
 			}
 
+			// link out to ontology browser page
+			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'>" + mpId + "</a>");
 
             // register of interest
             if (registerInterest.loggedIn()) {
@@ -929,7 +931,8 @@ public class DataTableController {
 
     public String parseJsonforMaDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException {
 
-        String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
+        //String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
+		String baseUrl = request.getAttribute("baseUrl").toString();
 
         JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
         int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -949,7 +952,7 @@ public class DataTableController {
             JSONObject doc = docs.getJSONObject(i);
             String maId = doc.getString("ma_id");
             String maTerm = doc.getString("ma_term");
-            String maLink = "<a href='" + baseUrl + maId + "'>" + maTerm + "</a>";
+            String maLink = "<a href='" + baseUrl + "/anatomy/" + maId + "'>" + maTerm + "</a>";
 
 			// check has expression data
 			Anatomy ma = JSONMAUtils.getMA(maId, config);
@@ -984,7 +987,11 @@ public class DataTableController {
 			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(maId, config, 1);
 			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 
-			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + maId + "#maHasExp" + "'>Yes</a>");
+			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + "/anatomy/" + maId + "#maHasExp" + "'>Yes</a>");
+
+			// link out to ontology browser page
+			// Terry said skip ma ontology browsing for now
+			//rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + maId + "'>" + maId + "</a>");
 
 			// some MP do not have definition
                 /*String mpDef = "not applicable";
@@ -1188,7 +1195,6 @@ public class DataTableController {
 
 			int numAnnots = annots.size();
 
-			System.out.println("NUM ANNOTS: " + numAnnots);
 			JSONObject j = new JSONObject();
             j.put("aaData", new Object[0]);
 			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
@@ -2136,7 +2142,7 @@ public class DataTableController {
             List<String> paperLinksOther = new ArrayList<>();
             List<String> paperLinksPubmed = new ArrayList<>();
             List<String> paperLinksEuroPubmed = new ArrayList<>();
-            String[] urlList = reference.getPaperUrls().toArray(new String[0]);
+            String[] urlList = (reference.getPaperUrls() != null) ? reference.getPaperUrls().toArray(new String[0]) : new String[0];
 
             for (int i = 0; i < urlList.length; i ++) {
                 String[] urls = urlList[i].split(",");

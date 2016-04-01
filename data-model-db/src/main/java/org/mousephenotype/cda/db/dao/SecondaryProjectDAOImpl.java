@@ -27,6 +27,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,8 +62,7 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 		String query = "select * from genes_secondary_project where secondary_project_id="
 			+ "\"" + projectId + "\"";// +" limit 10";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(
-			query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {

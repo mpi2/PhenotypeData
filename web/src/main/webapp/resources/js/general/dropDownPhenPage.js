@@ -49,7 +49,6 @@ $(document).ready(function(){
 		var id = $(this).attr('parameter');
 		var chartUrl = document.URL.split("/phenotypes/")[0];
 		chartUrl += "/overviewCharts/" + mp + "?parameter_id=" + id;
-		console.log("request uri = " + chartUrl);	
 		$.ajax({
 		  url: chartUrl,
 		  cache: false
@@ -171,7 +170,6 @@ $(document).ready(function(){
 	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
 	
 	function createDropdown(multipleSel, emptyText,  allDd){
-		console.log("called phen createDropdown "+ multipleSel);
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");

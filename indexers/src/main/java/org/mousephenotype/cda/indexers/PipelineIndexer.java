@@ -210,7 +210,11 @@ public class PipelineIndexer extends AbstractIndexer {
 						if (param.getDecreasedMpId()!= null){
 							doc.setDecreasedMpId(new ArrayList<String>(param.getDecreasedMpId()));
 							for(String mpId: param.getDecreasedMpId()){
-								doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+								if (mpIdToMp.get(mpId)!=null) {
+									doc.addDecreasedMpTerm(mpIdToMp.get(mpId).getMpTerm());
+								} else {
+									logger.warn("Cannot find MP term for MP ID {}", mpId);
+								}
 							}
 						}
 

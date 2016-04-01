@@ -40,7 +40,7 @@ div.ffilter {
 span.documentation a {
 	float: right;
 }
-div#facetSrchMsg {
+div.facetSrchMsg {
 	margin-top: 10px;
 	width: 75%;
 }
@@ -145,10 +145,10 @@ div#leftSideBar {
 	color: white;
 	font-weight: bold;
 }
-div#mpi2-search {
+div.mpi2-search {
 	margin-top: 30px;
 }
-div#mpi2-search .dataTable td a {
+div.mpi2-search .dataTable td a {
 	margin-right: 5px !important;
 }
 span.status {
@@ -170,7 +170,7 @@ table#imagesGrid th:nth-child(1), table#impc_imagesGrid th:nth-child(1) {
 
 
 /* table tool */
-div#saveTable{
+div.saveTable{
 	font-size: 16px;
 	position: absolute;
 	bottom: -50px;
@@ -181,10 +181,10 @@ div#toolBox a.gridDump {
 	font-size: 12px;
 }
 
-div#saveTable img {
+div.saveTable img {
 	vertical-align: middle !important;
 }
-div#saveTable span {
+div.saveTable span {
 	margin-left: 50px;
 }
 
@@ -418,11 +418,14 @@ input.facetFilterSubmit {
 	font-size: 18px !important;
 }
 
-div#facet {
+div.facet {
 	top: 30px;
 	margin-bottom: 50px;
+	border: 1px solid lightgrey;
+	padding: 20px;
+	border-radius: 5px;
 }
-div#facet > .content {
+div.facet > .content {
 	/*padding-top: 0;*/
 }
 
@@ -445,12 +448,12 @@ div.flist ul > li.fmcat > .flabel, li.fcatsection > .flabel {
 	color: black;
 }
 
-div#filterHint {
+div.filterHint {
 	vertical-align: middle;
 	padding: 8px;
 	font-size: 18px !important;
 }
-a#facetPanel {
+a.facetPanel {
 	position: relative;
 	top: 0px;
 	font-size: 25px;
