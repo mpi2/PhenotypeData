@@ -49,8 +49,8 @@
 				     "demo" : {
 				       "icon" : "glyphicon glyphicon-ok"
 				     },
-				     "default" : {
-				       "icon" : "img/jstree/jstree-node.png"
+				     "selected" : {
+				       "icon" : "img/jstree/jstree-node-selected.png"
 				     }
 			},
 			  "plugins" : [
