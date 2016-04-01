@@ -38,6 +38,7 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'imagesGrid' HTML table (annotation view) for images.
  */
+@Deprecated
 public class SearchImageAnnotationView extends SearchFacetTable {
 
     private final List<ImageRow> bodyRows = new ArrayList();

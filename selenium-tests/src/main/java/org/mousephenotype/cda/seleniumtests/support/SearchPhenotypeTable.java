@@ -35,6 +35,7 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'mpGrid' HTML table for phenotypes.
  */
+@Deprecated
 public class SearchPhenotypeTable extends SearchFacetTable {
 
     private final List<PhenotypeRow> bodyRows = new ArrayList();

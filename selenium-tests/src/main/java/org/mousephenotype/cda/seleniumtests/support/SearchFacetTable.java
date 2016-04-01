@@ -25,7 +25,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +40,7 @@ import java.util.*;
  * all such search page facet tables. Subclasses need only implement <code>
  * validateDownload(String[][] data)</code>.
  */
+@Deprecated
 public abstract class SearchFacetTable {
 
     private Map<TableComponent, By> byMap;
@@ -137,105 +137,63 @@ public abstract class SearchFacetTable {
         return elements.size() + 1;
     }
 
-    /**
-     * Return the number of entries currently showing in the 'entries' drop-down
-     * box.
-     *
-     * @return the number of entries currently showing in the 'entries'
-     * drop-down box.
-     */
-    public int getNumEntries() {
-        Select select = new Select(driver.findElement(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH)));
-        try {
-            return commonUtils.tryParseInt(select.getFirstSelectedOption().getText());
-        } catch (NullPointerException npe) {
-            return 0;
-        }
-    }
-
-    /**
-     * Set the number of entries in the 'entries' drop-down box.
-     *
-     * @param entriesSelect The new value for the number of entries to show.
-     * @deprecated The search page currently is not enabled with a widget to change the page size. Someday it may, so
-     *             we'll leave the code in but just comment it out.
-     */
-    @Deprecated
-    public void setNumEntries(EntriesSelect entriesSelect) {
+//    /**
+//     * Return the number of entries currently showing in the 'entries' drop-down
+//     * box.
+//     *
+//     * @return the number of entries currently showing in the 'entries'
+//     * drop-down box.
+//     */
+//    public int getNumEntries() {
 //        Select select = new Select(driver.findElement(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH)));
-//        select.selectByValue(Integer.toString(entriesSelect.getValue()));
-//        wait.until(ExpectedConditions.textToBePresentInElementLocated(byMap.get(TableComponent.BY_SELECT_GRID_LENGTH), Integer.toString(entriesSelect.getValue())));
-//        commonUtils.sleep(3000);      // trying to stop timing issues.
-    }
-
-    /**
-     *
-     * @return true if this page has a searchFaceTable; false otherwise
-     */
-    public boolean hasTable() {
-        return hasTable;
-    }
-
-    /**
-     *
-     * @return The searchFacetTable <code>WebElement</code>
-     */
-    public WebElement getTable() {
-        return table;
-    }
+//        try {
+//            return commonUtils.tryParseInt(select.getFirstSelectedOption().getText());
+//        } catch (NullPointerException npe) {
+//            return 0;
+//        }
+//    }
+//
+//    /**
+//     *
+//     * @return true if this page has a searchFaceTable; false otherwise
+//     */
+//    public boolean hasTable() {
+//        return hasTable;
+//    }
+//
+//    /**
+//     *
+//     * @return The searchFacetTable <code>WebElement</code>
+//     */
+//    public WebElement getTable() {
+//        return table;
+//    }
 
     /**
      * Set the  <code>WebElement</code> search facet table
      * @param table WebElement New instance to set to
      */
     public final void setTable(WebElement table) {
-        hasTable = false;
-        this.table = table;
-        try {
-            table = driver.findElement(byMap.get(TableComponent.BY_TABLE));
-        } catch (Exception e) {
-            pageHeading = null;
-            this.table = null;
-            return;
-        }
-        hasTable = true;
-
-        // Save the pageHeading values.
-        List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
-        pageHeading = new String[headingElementList.size()];
-        if ( ! headingElementList.isEmpty()) {
-            for (int colIndex = 0; colIndex < headingElementList.size(); colIndex++) {
-                WebElement headingElement = headingElementList.get(colIndex);
-                pageHeading[colIndex] = headingElement.getText();
-            }
-        }
-    }
-
-    /**
-     * Click the toolbox (the download link that shows/hides the download popup)
-     * @param desiredWindowState Open or Close
-     */
-    public void clickToolbox(SearchPage.WindowState desiredWindowState) {
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        switch (desiredWindowState) {
-            case CLOSED:
-                if (style.contains("block;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
-                break;
-
-            case OPEN:
-                if (style.contains("none;"))
-                    driver.findElement(By.xpath("//span[@id='dnld']")).click();
-                break;
-        }
-    }
-
-    /**
-     * @return The window state (open or close)
-     */
-    public SearchPage.WindowState getToolboxState() {
-        String style = driver.findElement(By.xpath("//div[@id='toolBox']")).getAttribute("style");
-        return (style.contains("block;") ? SearchPage.WindowState.OPEN : SearchPage.WindowState.CLOSED);
+//        hasTable = false;
+//        this.table = table;
+//        try {
+//            table = driver.findElement(byMap.get(TableComponent.BY_TABLE));
+//        } catch (Exception e) {
+//            pageHeading = null;
+//            this.table = null;
+//            return;
+//        }
+//        hasTable = true;
+//
+//        // Save the pageHeading values.
+//        List<WebElement> headingElementList = table.findElements(By.cssSelector("thead tr th"));
+//        pageHeading = new String[headingElementList.size()];
+//        if ( ! headingElementList.isEmpty()) {
+//            for (int colIndex = 0; colIndex < headingElementList.size(); colIndex++) {
+//                WebElement headingElement = headingElementList.get(colIndex);
+//                pageHeading[colIndex] = headingElement.getText();
+//            }
+//        }
     }
 
     /**

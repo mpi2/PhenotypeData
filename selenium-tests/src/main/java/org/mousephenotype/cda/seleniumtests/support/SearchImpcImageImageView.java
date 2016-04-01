@@ -36,6 +36,7 @@ import java.util.Map;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page 'impc_imagesGrid' HTML table (image view) for images.
  */
+@Deprecated
 public class SearchImpcImageImageView extends SearchFacetTable {
 
     private final List<ImageRow> bodyRows = new ArrayList();

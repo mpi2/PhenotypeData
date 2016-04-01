@@ -21,7 +21,6 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +33,7 @@ import java.util.Map;
  * components of a search page 'imagesGrid' HTML table common to all Image facet
  * views.
  */
+@Deprecated
 public class SearchImpcImageTable extends SearchFacetTable {
     private SearchImpcImageAnnotationView searchImpcImageAnnotationView = null;
     private SearchImpcImageImageView searchImpcImageImageView = null;
@@ -76,18 +76,18 @@ public class SearchImpcImageTable extends SearchFacetTable {
         return (imgViewSwitcherText.equals(SHOW_IMAGE_VIEW) ? ImagesView.ANNOTATION_VIEW : ImagesView.IMAGE_VIEW);
     }
 
-    public void setCurrentView(ImagesView view) throws TestException {
-        if (getCurrentView() != view) {
-            SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
-            clickToolbox(SearchPage.WindowState.CLOSED);
-            WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
-            testUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
-            driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
-            updateImageTableAfterChange();
-            if (toolboxState != getToolboxState())
-                clickToolbox(toolboxState);
-        }
-    }
+//    public void setCurrentView(ImagesView view) throws TestException {
+//        if (getCurrentView() != view) {
+//            SearchPage.WindowState toolboxState = getToolboxState();            // Save tool box state for later restore.
+//            clickToolbox(SearchPage.WindowState.CLOSED);
+//            WebElement imgViewSwitcherElement = driver.findElement(By.cssSelector("span#imgViewSwitcher"));
+//            testUtils.scrollToTop(driver, imgViewSwitcherElement, -50);         // Scroll 'Show Image View' link into view.
+//            driver.findElement(By.cssSelector("span#imgViewSwitcher")).click();
+//            updateImageTableAfterChange();
+//            if (toolboxState != getToolboxState())
+//                clickToolbox(toolboxState);
+//        }
+//    }
 
     /**
      * This method is meant to be called after any change to the image table,
