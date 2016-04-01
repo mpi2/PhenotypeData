@@ -7,11 +7,9 @@
   <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
-	<jsp:attribute name="header">
-       
+	<jsp:attribute name="header">       
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/ontologyBrowser.css"/>
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
-
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">	
@@ -20,7 +18,7 @@
 
   	<jsp:body>
 
- 	 <script type="text/javascript" src='${baseUrl}/js/vendor/jstree.min.js'></script>
+ 	 <script type="text/javascript" src='${baseUrl}/js/vendor/jstree/jstree.min.js'></script>
 
   
   	 <h1 id="h1tree">Browse Mammalian Phenotype Ontology</h1>
