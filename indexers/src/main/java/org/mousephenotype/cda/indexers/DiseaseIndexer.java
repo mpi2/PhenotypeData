@@ -115,7 +115,7 @@ public class DiseaseIndexer extends AbstractIndexer {
                 disease.setType(phenDisease.getType());
                 disease.setDiseaseId(phenDisease.getDiseaseId());
                 disease.setDiseaseSource(phenDisease.getDiseaseSource());
-                disease.setDiseaseTerm(phenDisease.getDiseaseTerm());
+                disease.setDiseaseTerm(phenDisease.getDiseaseTerm().trim());
                 disease.setDiseaseAlts(phenDisease.getDiseaseAlts());
                 disease.setDiseaseClasses(phenDisease.getDiseaseClasses());
                 disease.setHumanCurated(phenDisease.isHumanCurated());

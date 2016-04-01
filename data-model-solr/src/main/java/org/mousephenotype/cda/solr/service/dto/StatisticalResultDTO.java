@@ -31,6 +31,8 @@ public class StatisticalResultDTO {
     public final static String DB_ID = "db_id";
     public final static String DATA_TYPE = "data_type";
 
+	public final static String MP_TERM_ID_OPTIONS = "mp_term_id_options";
+	public final static String MP_TERM_NAME_OPTIONS = "mp_term_name_options";
     public final static String MP_TERM_ID = "mp_term_id";
     public final static String MP_TERM_NAME = "mp_term_name";
     public final static String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
@@ -101,6 +103,7 @@ public class StatisticalResultDTO {
     public final static String FEMALE_CONTROL_MEAN = "female_control_mean";
     public final static String FEMALE_MUTANT_MEAN = "female_mutant_mean";
 
+	public final static String WORKFLOW = "workflow";
     public final static String STATISTICAL_METHOD = "statistical_method";
     public final static String STATUS = "status";
     public final static String ADDITIONAL_INFORMATION = "additional_information";
@@ -108,7 +111,20 @@ public class StatisticalResultDTO {
     public final static String P_VALUE = "p_value";
     public final static String EFFECT_SIZE = "effect_size";
 
-    public final static String CATEGORIES = "categories";
+	public final static String GENOTYPE_PVALUE_LOW_VS_NORMAL_HIGH = "genotype_pvalue_low_vs_normal_high";
+	public final static String GENOTYPE_PVALUE_LOW_NORMAL_VS_HIGH = "genotype_pvalue_low_normal_vs_high";
+	public final static String GENOTYPE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH = "genotype_effect_size_low_vs_normal_high";
+	public final static String GENOTYPE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH = "genotype_effect_size_low_normal_vs_high";
+	public final static String FEMALE_PVALUE_LOW_VS_NORMAL_HIGH = "female_pvalue_low_vs_normal_high";
+	public final static String FEMALE_PVALUE_LOW_NORMAL_VS_HIGH = "female_pvalue_low_normal_vs_high";
+	public final static String FEMALE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH = "female_effect_size_low_vs_normal_high";
+	public final static String FEMALE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH = "female_effect_size_low_normal_vs_high";
+	public final static String MALE_PVALUE_LOW_VS_NORMAL_HIGH = "male_pvalue_low_vs_normal_high";
+	public final static String MALE_PVALUE_LOW_NORMAL_VS_HIGH = "male_pvalue_low_normal_vs_high";
+	public final static String MALE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH = "male_effect_size_low_vs_normal_high";
+	public final static String MALE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH = "male_effect_size_low_normal_vs_high";
+
+	public final static String CATEGORIES = "categories";
     public final static String CATEGORICAL_P_VALUE = "categorical_p_value";
     public final static String CATEGORICAL_EFFECT_SIZE = "categorical_effect_size";
 
@@ -167,11 +183,17 @@ public class StatisticalResultDTO {
     @Field(DATA_TYPE)
     private String dataType;
 
-    @Field(MP_TERM_ID)
-    private String mpTermId;
+	@Field(MP_TERM_ID_OPTIONS)
+	private List<String> mpTermIdOptions;
 
-    @Field(MP_TERM_NAME)
-    private String mpTermName;
+	@Field(MP_TERM_NAME_OPTIONS)
+	private List<String> mpTermNameOptions;
+
+	@Field(MP_TERM_ID)
+	private String mpTermId;
+
+	@Field(MP_TERM_NAME)
+	private String mpTermName;
 
     @Field(TOP_LEVEL_MP_TERM_ID)
     private List<String> topLevelMpTermId;
@@ -347,7 +369,10 @@ public class StatisticalResultDTO {
     @Field(MALE_CONTROL_MEAN)
     private Double maleControlMean;
 
-    @Field(STATISTICAL_METHOD)
+	@Field(WORKFLOW)
+	private String workflow;
+
+	@Field(STATISTICAL_METHOD)
     private String statisticalMethod;
 
     @Field(STATUS)
@@ -365,7 +390,43 @@ public class StatisticalResultDTO {
     @Field(EFFECT_SIZE)
     private Double effectSize;
 
-    @Field(CATEGORIES)
+	@Field(GENOTYPE_PVALUE_LOW_VS_NORMAL_HIGH)
+	private Double genotypePvalueLowVsNormalHigh;
+
+	@Field(GENOTYPE_PVALUE_LOW_NORMAL_VS_HIGH)
+	private Double genotypePvalueLowNormalVsHigh;
+
+	@Field(GENOTYPE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH)
+	private Double genotypeEffectSizeLowVsNormalHigh;
+
+	@Field(GENOTYPE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH)
+	private Double genotypeEffectSizeLowNormalVsHigh;
+
+	@Field(FEMALE_PVALUE_LOW_VS_NORMAL_HIGH)
+	private Double femalePvalueLowVsNormalHigh;
+
+	@Field(FEMALE_PVALUE_LOW_NORMAL_VS_HIGH)
+	private Double femalePvalueLowNormalVsHigh;
+
+	@Field(FEMALE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH)
+	private Double femaleEffectSizeLowVsNormalHigh;
+
+	@Field(FEMALE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH)
+	private Double femaleEffectSizeLowNormalVsHigh;
+
+	@Field(MALE_PVALUE_LOW_VS_NORMAL_HIGH)
+	private Double malePvalueLowVsNormalHigh;
+
+	@Field(MALE_PVALUE_LOW_NORMAL_VS_HIGH)
+	private Double malePvalueLowNormalVsHigh;
+
+	@Field(MALE_EFFECT_SIZE_LOW_VS_NORMAL_HIGH)
+	private Double maleEffectSizeLowVsNormalHigh;
+
+	@Field(MALE_EFFECT_SIZE_LOW_NORMAL_VS_HIGH)
+	private Double maleEffectSizeLowNormalVsHigh;
+
+	@Field(CATEGORIES)
     private List<String> categories;
 
     @Field(CATEGORICAL_P_VALUE)
@@ -517,8 +578,23 @@ public class StatisticalResultDTO {
         this.dataType = dataType;
     }
 
+	public List<String> getMpTermIdOptions() {
+		return mpTermIdOptions;
+	}
 
-    public String getMpTermId() {
+	public void setMpTermIdOptions(List<String> mpTermIdOptions) {
+		this.mpTermIdOptions = mpTermIdOptions;
+	}
+
+	public List<String> getMpTermNameOptions() {
+		return mpTermNameOptions;
+	}
+
+	public void setMpTermNameOptions(List<String> mpTermNameOptions) {
+		this.mpTermNameOptions = mpTermNameOptions;
+	}
+
+	public String getMpTermId() {
 
         return mpTermId;
     }
@@ -1221,9 +1297,15 @@ public class StatisticalResultDTO {
         this.maleControlMean = maleControlMean;
     }
 
+	public String getWorkflow() {
+		return workflow;
+	}
 
+	public void setWorkflow(String workflow) {
+		this.workflow = workflow;
+	}
 
-    public String getStatisticalMethod() {
+	public String getStatisticalMethod() {
 
         return statisticalMethod;
     }
@@ -1294,8 +1376,103 @@ public class StatisticalResultDTO {
         this.effectSize = effectSize;
     }
 
+	public Double getGenotypePvalueLowVsNormalHigh() {
+		return genotypePvalueLowVsNormalHigh;
+	}
 
-    public List<String> getCategories() {
+	public void setGenotypePvalueLowVsNormalHigh(Double genotypePvalueLowVsNormalHigh) {
+		this.genotypePvalueLowVsNormalHigh = genotypePvalueLowVsNormalHigh;
+	}
+
+	public Double getGenotypePvalueLowNormalVsHigh() {
+		return genotypePvalueLowNormalVsHigh;
+	}
+
+	public void setGenotypePvalueLowNormalVsHigh(Double genotypePvalueLowNormalVsHigh) {
+		this.genotypePvalueLowNormalVsHigh = genotypePvalueLowNormalVsHigh;
+	}
+
+	public Double getGenotypeEffectSizeLowVsNormalHigh() {
+		return genotypeEffectSizeLowVsNormalHigh;
+	}
+
+	public void setGenotypeEffectSizeLowVsNormalHigh(Double genotypeEffectSizeLowVsNormalHigh) {
+		this.genotypeEffectSizeLowVsNormalHigh = genotypeEffectSizeLowVsNormalHigh;
+	}
+
+	public Double getGenotypeEffectSizeLowNormalVsHigh() {
+		return genotypeEffectSizeLowNormalVsHigh;
+	}
+
+	public void setGenotypeEffectSizeLowNormalVsHigh(Double genotypeEffectSizeLowNormalVsHigh) {
+		this.genotypeEffectSizeLowNormalVsHigh = genotypeEffectSizeLowNormalVsHigh;
+	}
+
+	public Double getFemalePvalueLowVsNormalHigh() {
+		return femalePvalueLowVsNormalHigh;
+	}
+
+	public void setFemalePvalueLowVsNormalHigh(Double femalePvalueLowVsNormalHigh) {
+		this.femalePvalueLowVsNormalHigh = femalePvalueLowVsNormalHigh;
+	}
+
+	public Double getFemalePvalueLowNormalVsHigh() {
+		return femalePvalueLowNormalVsHigh;
+	}
+
+	public void setFemalePvalueLowNormalVsHigh(Double femalePvalueLowNormalVsHigh) {
+		this.femalePvalueLowNormalVsHigh = femalePvalueLowNormalVsHigh;
+	}
+
+	public Double getFemaleEffectSizeLowVsNormalHigh() {
+		return femaleEffectSizeLowVsNormalHigh;
+	}
+
+	public void setFemaleEffectSizeLowVsNormalHigh(Double femaleEffectSizeLowVsNormalHigh) {
+		this.femaleEffectSizeLowVsNormalHigh = femaleEffectSizeLowVsNormalHigh;
+	}
+
+	public Double getFemaleEffectSizeLowNormalVsHigh() {
+		return femaleEffectSizeLowNormalVsHigh;
+	}
+
+	public void setFemaleEffectSizeLowNormalVsHigh(Double femaleEffectSizeLowNormalVsHigh) {
+		this.femaleEffectSizeLowNormalVsHigh = femaleEffectSizeLowNormalVsHigh;
+	}
+
+	public Double getMalePvalueLowVsNormalHigh() {
+		return malePvalueLowVsNormalHigh;
+	}
+
+	public void setMalePvalueLowVsNormalHigh(Double malePvalueLowVsNormalHigh) {
+		this.malePvalueLowVsNormalHigh = malePvalueLowVsNormalHigh;
+	}
+
+	public Double getMalePvalueLowNormalVsHigh() {
+		return malePvalueLowNormalVsHigh;
+	}
+
+	public void setMalePvalueLowNormalVsHigh(Double malePvalueLowNormalVsHigh) {
+		this.malePvalueLowNormalVsHigh = malePvalueLowNormalVsHigh;
+	}
+
+	public Double getMaleEffectSizeLowVsNormalHigh() {
+		return maleEffectSizeLowVsNormalHigh;
+	}
+
+	public void setMaleEffectSizeLowVsNormalHigh(Double maleEffectSizeLowVsNormalHigh) {
+		this.maleEffectSizeLowVsNormalHigh = maleEffectSizeLowVsNormalHigh;
+	}
+
+	public Double getMaleEffectSizeLowNormalVsHigh() {
+		return maleEffectSizeLowNormalVsHigh;
+	}
+
+	public void setMaleEffectSizeLowNormalVsHigh(Double maleEffectSizeLowNormalVsHigh) {
+		this.maleEffectSizeLowNormalVsHigh = maleEffectSizeLowNormalVsHigh;
+	}
+
+	public List<String> getCategories() {
 
         return categories;
     }

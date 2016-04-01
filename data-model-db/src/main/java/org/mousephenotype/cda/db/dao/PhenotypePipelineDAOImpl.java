@@ -224,7 +224,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 				.setString("accession", term.getId().getAccession())
 				.list());
 	}
-	
+
 
 	/**
 	 * Return all categorical parameters for which we have data loaded
@@ -238,7 +238,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'categorical' AND bs.sample_group = 'experimental'";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				parameters.add(getParameterById(resultSet.getInt("parameter_id")));
@@ -266,7 +266,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 			+ " INNER JOIN phenotype_parameter_option ppo ON pplo.option_id=ppo.id"
 			+ " WHERE pp.id=?";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 			statement.setInt(1, id);
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
@@ -289,7 +289,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 		String query = "SELECT DISTINCT o.parameter_id FROM observation o JOIN biological_sample bs ON o.biological_sample_id = bs.id WHERE o.observation_type = 'unidimensional' AND bs.sample_group = 'experimental'";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 		    ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				parameters.add(getParameterById(resultSet.getInt("parameter_id")));
@@ -330,7 +330,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		if (isNumeric(category)){
 			String query = "SELECT * FROM phenotype_parameter_lnk_option pplo INNER JOIN phenotype_parameter_option ppo ON ppo.id = pplo.option_id WHERE ppo.name=? AND pplo.parameter_id=?";
 
-			try (PreparedStatement statement = getConnection().prepareStatement(query)){
+			try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
 			       statement.setString(1, category.split(".0")[0]);
 			       statement.setInt(2, parameterId);
 			    ResultSet resultSet = statement.executeQuery();
@@ -354,7 +354,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 		+ "ORDER BY pProc.stable_id ASC "
 		+ "LIMIT 100000;";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)){
+		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)){
 			String procedure = "";
 		    ResultSet resultSet = statement.executeQuery();
 		    HashSet<String> mps = new HashSet<String>();
@@ -383,7 +383,7 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 	public long getWebStatus() throws Exception {
 		int rows = 0;
 		String statusQuery="SELECT count(*) FROM phenotype_procedure";
-		
+
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
 		List<AggregateCountXYBean> results = new ArrayList<AggregateCountXYBean>();
@@ -395,9 +395,9 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 			while (resultSet.next()) {
 
-				
+
 			rows=resultSet.getInt(1);
-						
+
 			}
 			statement.close();
 
@@ -406,8 +406,8 @@ public class PhenotypePipelineDAOImpl extends HibernateDAOImpl implements Phenot
 
 		}
 
-		 
-		 
+
+
 		 return rows;
 	}
 

@@ -17,8 +17,10 @@ package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -118,7 +120,7 @@ public class ImpressService implements WebStatus {
 	
 	
 	
-	public List<ImpressDTO> getProceduresByMpTerm(String mpTermId){
+	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId){
 		
 		try {
 			SolrQuery query = new SolrQuery()
@@ -126,19 +128,18 @@ public class ImpressService implements WebStatus {
 				.addField(ImpressDTO.PROCEDURE_ID)
 				.addField(ImpressDTO.PROCEDURE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
-				.addField(ImpressDTO.PROCEDURE_STABLE_KEY)
-				.addField(ImpressDTO.PIPELINE_ID)
-				.addField(ImpressDTO.PIPELINE_NAME)
-				.addField(ImpressDTO.PIPELINE_STABLE_ID)
-				.addField(ImpressDTO.PIPELINE_STABLE_KEY);
+				.addField(ImpressDTO.PROCEDURE_STABLE_KEY);
 			
 			query.setRows(1000000);
 
-			System.out.println("URL for getProceduresByStableIdRegex " + solr.getBaseURL() + "/select?" + query);
-			
 			QueryResponse response = solr.query(query);
 			
-			return response.getBeans(ImpressDTO.class);
+			HashMap<Integer, ImpressDTO> res = new HashMap<>();
+			for (ImpressDTO bean: response.getBeans(ImpressDTO.class)){
+				res.put(bean.hashCode(), bean);
+			}
+			
+			return new HashSet<>(res.values());
 			
 		} catch (SolrServerException | IndexOutOfBoundsException e) {
 			e.printStackTrace();
@@ -447,7 +448,7 @@ public class ImpressService implements WebStatus {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-	
+		System.out.println("idToAbnormalMaId="+idToAbnormalMaId);
 		return idToAbnormalMaId;
 	}
 	
@@ -471,7 +472,7 @@ public class ImpressService implements WebStatus {
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		}
-	
+		System.out.println("idToAbnormalEmapId="+idToAbnormalEmapId);
 		return idToAbnormalEmapId;
 	}
 	

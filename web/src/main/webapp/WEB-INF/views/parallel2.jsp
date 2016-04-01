@@ -8,9 +8,22 @@
     
     <jsp:attribute name="header">
                     
+        <!-- CSS Local Imports -->
+		<link rel="stylesheet" href="${baseUrl}/css/vendor/slick.grid.css" type="text/css" media="screen"/>
+		<link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" />
+
         <!-- JavaScript Local Imports -->
-		<script type='text/javascript' src="${baseUrl}/js/general/dropDownParallelCoordinatesPage.js?v=${version}"></script> 			
-		  	
+		<script type='text/javascript' src="${baseUrl}/js/general/dropDownParallelCoordinatesPage.js?v=${version}"></script> 	
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
+			 
+		<script src="${baseUrl}/js/vendor/jquery/jquery.event.drag-2.0.min.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.core.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.grid.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.dataview.js"></script>
+		<script src="${baseUrl}/js/vendor/slick/slick.pager.js"></script>
 		<script type="text/javascript">
 			var base_url = '${baseUrl}';
 		</script>		

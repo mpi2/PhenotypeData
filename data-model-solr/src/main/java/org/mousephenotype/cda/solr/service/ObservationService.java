@@ -2193,7 +2193,7 @@ public class ObservationService extends BasicService implements WebStatus {
 	}
 
 
-	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession) throws SolrServerException {
+	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession, String ...fields) throws SolrServerException {
 		SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
                 .setRows(10000)

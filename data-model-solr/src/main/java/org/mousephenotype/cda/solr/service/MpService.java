@@ -51,17 +51,17 @@ public class MpService extends BasicService implements WebStatus{
 	public MpService() {
 	}
 
-	
-	public List<MpDTO> getAllMpWithMaMapping() 
+
+	public List<MpDTO> getAllMpWithMaMapping()
 	throws SolrServerException{
-		
+
 		SolrQuery q = new SolrQuery();
 		q.setRows(Integer.MAX_VALUE);
 		q.setQuery(MpDTO.INFERRED_MA_TERM_ID + ":*");
-		
+
 		q.addField(MpDTO.MP_ID);
 		q.addField(MpDTO.INFERRED_MA_TERM_ID);
-		
+
 		return solr.query(q).getBeans(MpDTO.class);
 	}
 
@@ -87,6 +87,104 @@ public class MpService extends BasicService implements WebStatus{
 		return null;
 	}
 
+
+	/**
+	 * @author ilinca
+	 * @since 2016/03/22
+	 * @param id
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<OntologyBean> getParents(String id) throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+			.setRows(1);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		List<OntologyBean> parents = new ArrayList<>();
+
+		if (mps.size() > 1){
+			throw new Error("More documents in MP core for the same MP id: " + id);
+		}
+
+		if ((mps.get(0).getParentMpId() == null || mps.get(0).getParentMpId().size() == 0)){
+			if (mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
+				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
+					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i),
+						shortenLabel(mps.get(0).getTopLevelMpTerm().get(i))));
+				}
+			}
+			return parents;
+		}
+
+		if (mps.get(0).getParentMpId().size() != mps.get(0).getParentMpTerm().size()){
+			throw new Error("Length of parent id list and parent term list does not match for MP id: " + id);
+		}
+
+		for (int i = 0; i < mps.get(0).getParentMpId().size(); i++){
+			parents.add(new OntologyBean(mps.get(0).getParentMpId().get(i),
+					shortenLabel(mps.get(0).getParentMpTerm().get(i))));
+		}
+
+		return parents;
+	}
+
+
+
+
+	/**
+	 * @author ilinca
+	 * @since 2016/03/22
+	 * @param id
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<OntologyBean> getChildren(String id) throws SolrServerException {
+
+			SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
+				.setRows(1);
+
+			QueryResponse rsp = solr.query(solrQuery);
+			List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+			List<OntologyBean> children = new ArrayList<>();
+
+			if (mps.size() > 1){
+				throw new Error("More documents in MP core for the same MP id: " + id);
+			}
+
+			if (mps.get(0).getChildMpTerm() == null || mps.get(0).getChildMpTerm().size() == 0){
+				return children;
+			}
+
+			if (mps.get(0).getChildMpTerm().size() != mps.get(0).getChildMpId().size()){
+				throw new Error("Length of children id list and children term list does not match for MP id: " + id);
+			}
+
+			for (int i = 0; i < mps.get(0).getChildMpId().size(); i++){
+				children.add(new OntologyBean(mps.get(0).getChildMpId().get(i),
+						shortenLabel(mps.get(0).getChildMpTerm().get(i))));
+			}
+
+			return children;
+	}
+
+	private String shortenLabel(String label){
+
+		String res = label;
+		res = res.replaceAll("abnormal ", "abn. ");
+		res = res.replaceAll("phenotype ", "phen. ");
+		res = res.replaceAll("decreased ", "dec. ");
+		res = res.replaceAll("increased ", "inc. ");
+		res = res.replaceAll("abnormality ", "abn. ");
+		res = res.replaceAll("abnormal$", "abn.");
+		res = res.replaceAll("decreased$", "dec.");
+		res = res.replaceAll("increased$", "inc.");
+		res = res.replaceAll("phenotype$", "phen.");
+		return res;
+	}
 
     /**
      * Return all phenotypes from the mp core.
@@ -123,7 +221,7 @@ public class MpService extends BasicService implements WebStatus{
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
 			for(Count count: ff.getValues()){
-				String mpArray[]=count.getName().split("___");
+				String mpArray[]=count.getName().split("__");
 				BasicBean bean=new BasicBean();
 				bean.setName(mpArray[0]);
 				bean.setId(mpArray[1]);
@@ -175,27 +273,6 @@ public class MpService extends BasicService implements WebStatus{
 
     }
 
-	/**
-	 *
-	 * @param mpTermId
-	 * @return List of all parameters that may lead to associations to the MP
-	 * term or any of it's children (based on the slim only)
-	 */
-	public HashSet<String> getParameterStableIdsByPhenotypeAndChildren(String mpTermId) {
-		HashSet<String> res = new HashSet<>();
-		ArrayList<String> mpIds;
-		try {
-			mpIds = getChildrenFor(mpTermId);
-			res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mpTermId));
-			for (String mp : mpIds) {
-				res.addAll(pipelineDao.getParameterStableIdsByPhenotypeTerm(mp));
-			}
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-		return res;
-	}
-	
 	@Override
 	public long getWebStatus() throws SolrServerException {
 		SolrQuery query = new SolrQuery();

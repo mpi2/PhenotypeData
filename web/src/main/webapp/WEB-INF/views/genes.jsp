@@ -9,7 +9,7 @@
 			href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
 	<jsp:attribute name="bodyTag">
 		<body class="gene-node no-sidebars small-header">
-	
+
 	</jsp:attribute>
 	<jsp:attribute name="addToFooter">
             <!--  start of floating menu for genes page -->
@@ -151,7 +151,7 @@
 				<style>
 					li.showAdultImage {
 						cursor: pointer;
-					} 
+					}
 					div#expDataView, div#toggleWt {
 						font-size: 12px;
 						color: #0978a1;
@@ -455,9 +455,7 @@
 
 												<div id="tabs-1">
 													<!-- Expression in Anatomogram -->
-													<c:if test="${!isLive}">
-														<jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
-													</c:if>
+                                                    <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
 												</div>
 
 													<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
@@ -499,7 +497,7 @@
 
 									<!-- Expression (legacy) -->
 									<c:if test="${not empty expressionFacets}">
-											<h5 class="sectHint">Legacy lacZ Expression Data</h5>
+											<h5 class="sectHint">Secondary lacZ Expression Data</h5>
 
 											<!-- thumbnail scroller markup begin -->
 											<c:forEach var="entry" items="${expressionFacets}" varStatus="status">
@@ -641,9 +639,7 @@
 		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.css?v=${version}">
 
 		<script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-		<c:if test="${!isLive}">
-			<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
-		</c:if>
+		<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
 		<script type="text/javascript">
 			var diseaseTables = [{
 				id: '#orthologous_diseases_table',

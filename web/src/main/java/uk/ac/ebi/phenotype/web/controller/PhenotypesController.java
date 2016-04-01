@@ -51,6 +51,7 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
@@ -74,6 +75,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -144,7 +147,6 @@ public class PhenotypesController {
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
     	long time = System.currentTimeMillis();
-    	long time2 = System.currentTimeMillis();
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
@@ -224,8 +226,6 @@ public class PhenotypesController {
             mpSiblings = new HashSet<OntologyTerm>();
         }
 
-        System.out.println("Time to 1 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
         
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -235,8 +235,6 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
-        System.out.println("Time to 2 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
  		// other stuff
         model.addAttribute("anatomy", anatomyTerms);
         model.addAttribute("go", goTerms);
@@ -250,8 +248,6 @@ public class PhenotypesController {
 
         processPhenotypes(phenotype_id, "", model, request);
 
-        System.out.println("Time to 3 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
         
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         model.addAttribute("phenotype", mpTerm);
@@ -260,19 +256,11 @@ public class PhenotypesController {
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 
-        time = System.currentTimeMillis();
         model.addAttribute("genePercentage", getPercentages(phenotype_id));
 
-        System.out.println("Time to 4 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
-        
-        time = System.currentTimeMillis();
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
 
-        System.out.println("Time to 5 " + (System.currentTimeMillis() - time) );
-        time = System.currentTimeMillis();
-        
-        System.out.println("Total time " +  (System.currentTimeMillis() - time2) );
+        System.out.println("Total time to return to phenotype page from controller" +  (System.currentTimeMillis() - time) );
         
         return "phenotypes";
     }
@@ -436,6 +424,68 @@ public class PhenotypesController {
         return "geneVariantsWithPhenotypeTable";
     }
 
+    @RequestMapping("/mpTree/{mpId}")
+    public String getChildParentTree(
+            @PathVariable String mpId,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) 
+    throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+        
+    	model.addAttribute("mpId", mpId);
+        return "pageTree";
+    }    
+    
+    
+    /**
+     * @author ilinca
+     * @since 2016/03/22
+     * @param mpId
+     * @param type
+     * @param model
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
+    public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
+    throws SolrServerException, IOException, URISyntaxException {
+    	
+    	if (type.equals("parents")){
+    	
+	    	JSONObject data = new JSONObject();
+	    	data.element("id", mpId);
+	    	JSONArray nodes = new JSONArray();
+	    
+	    	for (OntologyBean term : mpService.getParents(mpId)){
+	    		nodes.add(term.toJson());
+	    	}
+
+	    	data.element("children", nodes);
+			return data.toString();
+			
+    	} else if (type.equals("children")){
+    		
+    		JSONObject data = new JSONObject();
+        	data.element("id", mpId);
+        	JSONArray nodes = new JSONArray();
+
+        	for (OntologyBean term : mpService.getChildren(mpId)){
+	    		nodes.add(term.toJson());
+	    	}
+        	
+        	data.element("children", nodes);
+    		return data.toString();
+    	}
+    	return "";
+    }
+        
+    
+    public JSONObject getJsonObj(String name, String type){
+    	return new JSONObject().element("name", name).element(type, true);
+    }
+    
     
     public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException { // <sex, percentage>
         PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
@@ -443,15 +493,16 @@ public class PhenotypesController {
         int total = 0;
         int nominator = 0;
 
-        List<String> parameters = new ArrayList<>(mpService.getParameterStableIdsByPhenotypeAndChildren(phenotype_id));
         nominator = gpService.getGenesBy(phenotype_id, null, false).size();
-        total = srService.getTestedGenes(parameters, null).size();
+        total = srService.getGenesBy(phenotype_id, null).size();
         pgs.setTotalPercentage(100 * (float) nominator / (float) total);
         pgs.setTotalGenesAssociated(nominator);
         pgs.setTotalGenesTested(total);
-        boolean display = (total > 0 && nominator > 0);
+        boolean display = (total > 0);
         pgs.setDisplay(display);
 
+        System.out.println("Total :: " +  total + " nominator:: " + nominator + " display " + display);
+        
         List<String> genesFemalePhenotype = new ArrayList<String>();
         List<String> genesMalePhenotype = new ArrayList<String>();
         List<String> genesBothPhenotype;
@@ -461,7 +512,7 @@ public class PhenotypesController {
                 genesFemalePhenotype.add((String) g.getGroupValue());
             }
             nominator = genesFemalePhenotype.size();
-            total = srService.getTestedGenes(parameters, SexType.female).size();
+            total = srService.getGenesBy(phenotype_id, SexType.female).size();
             pgs.setFemalePercentage(100 * (float) nominator / (float) total);
             pgs.setFemaleGenesAssociated(nominator);
             pgs.setFemaleGenesTested(total);
@@ -470,7 +521,7 @@ public class PhenotypesController {
                 genesMalePhenotype.add(g.getGroupValue());
             }
             nominator = genesMalePhenotype.size();
-            total = srService.getTestedGenes(parameters, SexType.male).size();
+            total = srService.getGenesBy(phenotype_id, SexType.male).size();
             pgs.setMalePercentage(100 * (float) nominator / (float) total);
             pgs.setMaleGenesAssociated(nominator);
             pgs.setMaleGenesTested(total);

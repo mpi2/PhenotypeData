@@ -8,15 +8,10 @@
     <jsp:attribute name="header">
         
         <link href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css" rel="stylesheet" />
-        <link href="${baseUrl}/css/searchPage.css" rel="stylesheet" />
+        <link href="${baseUrl}/css/default.css" rel="stylesheet" />
         
         <style type="text/css">
 
-            div#tableTool {
-                position: relative;
-                top: -70px;
-                right: 0px;
-            }
             div#alleleRef_filter {
             	float: left;
             	clear: right;
@@ -49,15 +44,14 @@
                 font-size: 11px;
                 font-weight: bold;
             }
-            
-            div#saveTable {
-                top: 54px;
-                left: -25px;
+
+            div.saveTable {
+
+                bottom: 50px;
+                float: right;
+                margin-right: 30px;
             }
-            div#toolBox {
-                top: -58px;
-                right: 35px;
-            }
+
         </style>
         
         <script type='text/javascript'>
@@ -94,15 +88,15 @@
                     "processing": true,
                     "paging": false,
                     //"serverSide": false,  // do not want sorting to be processed from server, false by default
-                    "sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
+                    "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
                     "sPaginationType": "bootstrap",
                     "searchHighlight": true,
                     "iDisplayLength": 200,
                     "oLanguage": {
                         "sSearch": "Filter: "
                     },
-                    "columnDefs": [                
-                        { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
+                    "columnDefs": [
+                        { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string
                     ],
                     "aaSorting": [[ 3, "desc" ]],  // default sort column order
                     "aoColumns": [
@@ -116,14 +110,35 @@
                     "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
 
                         // download tool
-                        oConf.externalDbId = 1;
-                        oConf.fileType = '';
-                        oConf.fileName = 'impc_allele_references';
-                        oConf.doAlleleRef = true;
-                        oConf.legacyOnly = false;
-                        oConf.filterStr = $(".dataTables_filter input").val();
 
-                        $.fn.initDataTableDumpControl(oConf);
+                        oConf.fileName = 'impc_allele_references';
+                        oConf.iDisplayStart = 0;
+                        oConf.iDisplayLength = 5000;
+                        oConf.dataType = "alleleRef";
+                        oConf.kw = ""; // default
+
+
+                        var paramStr = "mode=all";
+                        $.each(oConf, function(i, val){
+                            paramStr += "&" + i + "=" + val;
+                        });
+                        console.log(paramStr)
+
+                        var fileTypeTsv = "fileType=tsv";
+                        var fileTypeXls = "fileType=xls";
+
+                        var urltsvA = "${baseUrl}/export2?" + paramStr + "&" + fileTypeTsv;
+                        var urlxlsA = "${baseUrl}/export2?" + paramStr + "&" + fileTypeXls;
+
+                        var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
+                                + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
+                                + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
+                        //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+
+                        $("div.saveTable").html(toolBox);
+
+                        //$.fn.initDataTableDumpControl(oConf);
+
                         $('.alleleToggle').click(function () {
                             console.log("toggle");
                             if (!$(this).hasClass('showMe')) {

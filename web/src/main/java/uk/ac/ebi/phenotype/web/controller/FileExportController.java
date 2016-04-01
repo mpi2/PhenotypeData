@@ -32,6 +32,7 @@ import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.generic.util.Tools;
@@ -259,6 +260,8 @@ public class FileExportController {
 		@RequestParam(value = "iDisplayLength", required = true) Integer iDisplayLength,
 		HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
+
+
 		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
 		Boolean legacyOnly = false;
 		String gridFields = null;
@@ -267,40 +270,49 @@ public class FileExportController {
 
 		List<String> dataRows = new ArrayList<>();
 
-
-		if ( mode.equals("all") ){
-
-			// do query in batch and put together
-
-			int rows = 1000;
-			int cycles = (int) Math.ceil(iDisplayLength/1000.0); // do 1000 per cycle
-			for ( int i=0; i<cycles; i++){
-				iDisplayStart = i*rows;
-				if ( cycles-1 == i ){
-					rows = iDisplayLength - (i*rows);
-				}
-
-				JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
-
-				List<String> dr = new ArrayList<>();
-				dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
-						solrFilters, request, legacyOnly, fqStr);
-
-				if ( i > 0 ){
-					//remove header
-					dr.remove(0);
-				}
-
-				dataRows.addAll(dr);
-			}
+		if ( dataType.equals("alleleRef") ){
+			// query is * by default
+			dataRows = composeAlleleRefExportRows(iDisplayLength, iDisplayStart, query, mode);
 		}
 		else {
-			JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
-			dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
-					solrFilters, request, legacyOnly, fqStr);
 
+			if (mode.equals("all")) {
+
+				// do query in batch and put together
+
+				int rows = 1000;
+				int cycles = (int) Math.ceil(iDisplayLength / 1000.0); // do 1000 per cycle
+
+				for (int i = 0; i < cycles; i++) {
+
+					iDisplayStart = i * rows;
+					if (cycles - 1 == i) {
+						rows = iDisplayLength - (i * rows);
+					}
+
+					JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
+
+					List<String> dr = new ArrayList<>();
+
+					dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
+							solrFilters, request, legacyOnly, fqStr);
+
+					if (i > 0) {
+						//remove header
+						dr.remove(0);
+					}
+
+					dataRows.addAll(dr);
+				}
+			} else {
+				JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, iDisplayLength, showImgView, fqStr, model, request);
+				dataRows = composeDataTableExportRows(query, dataType, json, iDisplayStart, iDisplayLength, showImgView,
+						solrFilters, request, legacyOnly, fqStr);
+
+			}
 		}
 		Workbook wb = null;
+
 		writeOutputFile(response, dataRows, fileType, fileName, wb);
 
 	}
@@ -526,11 +538,9 @@ public class FileExportController {
 		} else if (solrCoreName.equals("pipeline")) {
 			rows = composeProtocolDataTableRows(json, request);
 		} else if (solrCoreName.equals("images")) {
-			rows = composeImageDataTableRows(query, json, iDisplayStart, iDisplayLength, showImgView, solrParams,
-					request);
+			rows = composeImageDataTableRows(query, json, iDisplayStart, iDisplayLength, showImgView, solrParams, request);
 		} else if (solrCoreName.equals("impc_images")) {
-			rows = composeImpcImageDataTableRows(query, json, iDisplayStart, iDisplayLength, showImgView, fqStr,
-					request);
+			rows = composeImpcImageDataTableRows(query, json, iDisplayStart, iDisplayLength, showImgView, fqStr, request);
 		} else if (solrCoreName.equals("disease")) {
 			rows = composeDiseaseDataTableRows(json, request);
 		}
@@ -963,14 +973,14 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeMaDataTableRows(JSONObject json, HttpServletRequest request) {
+	private List<String> composeMaDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 
 		List<String> rowData = new ArrayList();
 		rowData.add(
-				"Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy id link\tMouse adult gross anatomy synonym"); // column
+				"Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy id link\tMouse adult gross anatomy synonym\tLacZ Expression Images"); // column
 																																						// names
 
 		for (int i = 0; i < docs.size(); i++) {
@@ -993,6 +1003,12 @@ public class FileExportController {
 				data.add(NO_INFO_MSG);
 			}
 
+			//get expression only images
+			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(maId, config, 1);
+			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
+			data.add(expressionImageDocs.size() == 0 ? "No" : "Yes");
+
+
 			// will have these cols coming later
 			/*
 			 * if(doc.has("mp_definition")) {
@@ -1014,6 +1030,7 @@ public class FileExportController {
 	private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request, boolean legacyOnly) {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
+
 		List<String> rowData = new ArrayList();
 
 		rowData.add(
@@ -1026,16 +1043,18 @@ public class FileExportController {
 
 			data.add(doc.getString("marker_symbol"));
 
-			if (doc.has("human_gene_symbol")) {
+			if (doc.containsKey("human_gene_symbol")) {
 				List<String> hsynData = new ArrayList();
+
 				JSONArray hs = doc.getJSONArray("human_gene_symbol");
 				for (int s = 0; s < hs.size(); s++) {
 					hsynData.add(hs.getString(s));
 				}
 				data.add(StringUtils.join(hsynData, "|")); // use | as a
-															// multiValue
-															// separator in CSV
-															// output
+				// multiValue
+				// separator in CSV
+				// output
+
 			} else {
 				data.add(NO_INFO_MSG);
 			}
@@ -1074,16 +1093,16 @@ public class FileExportController {
 			String prodStatus = geneService.getProductionStatusForEsCellAndMice(doc, genePageUrl, toExport);
 
 			data.add(prodStatus);
-			
+
 			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
 
-			// don't want legacy for now
-			//Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
-			Integer legacyPhenotypeStatus = null;
+			// made this as null by default: don't want to show this for now
+			//Integer legacyPhenotypeStatus = null;
+			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
 
-
-					Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
+			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
 			String phenotypeStatus = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
+
 
 			if (phenotypeStatus.isEmpty()) {
 				data.add(NO_INFO_MSG);
@@ -1140,13 +1159,13 @@ public class FileExportController {
 
 		List<String> rowData = new ArrayList();
 		// column names
-		rowData.add("Disease id" + "\tDisease id link" + "\tDisease name" + "\tSource"
-				+ "\tCurated genes from human (OMIM, Orphanet)" + "\tCurated genes from mouse (MGI)"
-				+ "\tCurated genes from human data with IMPC prediction"
-				+ "\tCurated genes from human data with MGI prediction" + "\tCandidate genes by phenotype - IMPC data"
-				+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
-				+ "\tCandidate genes by phenotype - MGI data"
-				+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus");
+		rowData.add("Disease id" + "\tDisease id link" + "\tDisease name" + "\tSource");
+//				+ "\tCurated genes from human (OMIM, Orphanet)" + "\tCurated genes from mouse (MGI)"
+//				+ "\tCurated genes from human data with IMPC prediction"
+//				+ "\tCurated genes from human data with MGI prediction" + "\tCandidate genes by phenotype - IMPC data"
+//				+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
+//				+ "\tCandidate genes by phenotype - MGI data"
+//				+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus");
 
 		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList();
@@ -1159,15 +1178,15 @@ public class FileExportController {
 			data.add(doc.getString("disease_term"));
 			data.add(doc.getString("disease_source"));
 
-			data.add(doc.getString("human_curated"));
-			data.add(doc.getString("mouse_curated"));
-			data.add(doc.getString("impc_predicted_known_gene"));
-			data.add(doc.getString("mgi_predicted_known_gene"));
-
-			data.add(doc.getString("impc_predicted"));
-			data.add(doc.getString("impc_novel_predicted_in_locus"));
-			data.add(doc.getString("mgi_predicted"));
-			data.add(doc.getString("mgi_novel_predicted_in_locus"));
+//			data.add(doc.getString("human_curated"));
+//			data.add(doc.getString("mouse_curated"));
+//			data.add(doc.getString("impc_predicted_known_gene"));
+//			data.add(doc.getString("mgi_predicted_known_gene"));
+//
+//			data.add(doc.getString("impc_predicted"));
+//			data.add(doc.getString("impc_novel_predicted_in_locus"));
+//			data.add(doc.getString("mgi_predicted"));
+//			data.add(doc.getString("mgi_novel_predicted_in_locus"));
 
 			rowData.add(StringUtils.join(data, "\t"));
 		}
@@ -1305,8 +1324,7 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch,
-			String dumpMode) throws SQLException {
+	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 		rowData.add(referenceDAO.heading);
 		List<ReferenceDTO> references = referenceDAO.getReferenceRows(sSearch);
@@ -1967,7 +1985,7 @@ public class FileExportController {
 
 				response.setContentType("application/vnd.ms-excel");
 				response.setHeader("Content-disposition", "attachment;filename=" + outfile);
-
+				System.out.println("WBOOK");
 				String sheetName = fileName;
 
 				String[] titles = null;
