@@ -78,6 +78,10 @@ public class DiseaseController {
 
         DiseaseIdentifier diseaseIdentifier = new DiseaseIdentifier(diseaseId);
         Disease disease = phenoDigmDao.getDisease(diseaseIdentifier);
+        if (disease == null) {
+            logger.info("Disease {} is null - returning fileNotFound page", diseaseId);
+            return "fileNotFound";
+        }
         logger.info(String.format("Found disease: %s %s", disease.getDiseaseId(), disease.getTerm()));
         model.addAttribute("disease", disease);
 
