@@ -1615,18 +1615,6 @@ CREATE TABLE stat_result_phenotype_call_summary (
 --
 -- Discrete statistical result schema
 --
-DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
-CREATE TABLE statistical_result_phenotype_call_summary (
-
-	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
-	result_id                 INT(10) UNSIGNED,
-
-	PRIMARY KEY (phenotype_call_summary_id),
-	FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
-
-)
-	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
 
 DROP TABLE IF EXISTS statistical_result;
 CREATE TABLE statistical_result (
@@ -1681,6 +1669,18 @@ CREATE TABLE statistical_result (
 	ENGINE =InnoDB;
 
 
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+CREATE TABLE statistical_result_phenotype_call_summary (
+
+  phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+  result_id                 INT(10) UNSIGNED,
+
+  PRIMARY KEY (phenotype_call_summary_id),
+  FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =InnoDB;
 
 DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (
