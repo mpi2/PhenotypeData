@@ -111,7 +111,7 @@ CREATE TABLE analytics_specimen_load (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Contains information about the loading of experiment files
@@ -137,7 +137,7 @@ CREATE TABLE analytics_experiment_load (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Contains information about the loading of experiment files
@@ -161,7 +161,7 @@ CREATE TABLE analytics_statistics_load (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Contains meta information about the database like
@@ -180,7 +180,7 @@ CREATE TABLE meta_info (
 	UNIQUE KEY key_idx (property_key),
 	KEY value_idx (property_value)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Contains meta information from release to release to keep track of
@@ -196,7 +196,7 @@ CREATE TABLE meta_history (
 	KEY value_idx (property_value),
 	KEY version_idx (data_release_version)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE analytics_mp_calls (
@@ -215,7 +215,7 @@ CREATE TABLE analytics_mp_calls (
 	KEY colony_idx (colony_id),
 	KEY mp_idx (mp_term_id, mp_term_level)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table project
@@ -231,7 +231,7 @@ CREATE TABLE project (
 	PRIMARY KEY (id),
 	UNIQUE KEY name_idx (name)
 
-	) COLLATE=utf8_general_ci ENGINE=InnoDB;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE organisation (
 
@@ -243,7 +243,7 @@ CREATE TABLE organisation (
 	PRIMARY KEY (id),
 	UNIQUE KEY name_idx (name)
 
-	) COLLATE=utf8_general_ci ENGINE=InnoDB;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE participant (
 
@@ -254,7 +254,7 @@ CREATE TABLE participant (
 	KEY project (project_id),
 	KEY organisation (organisation_id)
 
-	) COLLATE=utf8_general_ci ENGINE=InnoDB;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Very mouse specific . What about Zebrafish? ZFIN
@@ -268,7 +268,7 @@ CREATE TABLE ilar (
 
 	PRIMARY KEY (labcode)
 
-	) COLLATE=utf8_general_ci ENGINE=InnoDB;
+	) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * This table holds all the external datasources (MGI, Ensembl)
@@ -286,7 +286,7 @@ CREATE TABLE external_db (
 	PRIMARY   KEY (id),
 	UNIQUE    KEY name_idx (name, version, version_date)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * This table will store the ontological terms we need for controlled vocabulary
@@ -299,7 +299,7 @@ CREATE TABLE ontology_term (
 	is_obsolete                TINYINT(1) DEFAULT 0,
 	PRIMARY KEY (acc, db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE ontology_relationship (
 	a_acc                      VARCHAR(20) NOT NULL,
@@ -311,7 +311,7 @@ CREATE TABLE ontology_relationship (
 	KEY (a_acc, a_db_id),
 	KEY (b_acc, b_db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * The sequence and genomic information goes there.
@@ -333,7 +333,7 @@ CREATE TABLE coord_system (
 	KEY db_idx (db_id),
 	KEY strain_idx (strain_db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE seq_region (
@@ -347,7 +347,7 @@ CREATE TABLE seq_region (
 	UNIQUE KEY name_cs_idx (name, coord_system_id),
 	KEY cs_idx (coord_system_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Genomic feature table
@@ -377,7 +377,7 @@ CREATE TABLE genomic_feature (
 	KEY biotype_idx (biotype_acc, biotype_db_id),
 	KEY subtype_idx (subtype_acc, subtype_db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE synonym (
 
@@ -391,7 +391,7 @@ CREATE TABLE synonym (
 	KEY genomic_feature_acc_idx (acc),
 	KEY synonym_symbol_idx (symbol)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Genomic feature cross-reference from other datasources.
@@ -408,7 +408,7 @@ CREATE TABLE xref (
 	KEY genomic_feature_idx (acc, db_id),
 	KEY xref_idx (xref_acc, xref_db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Allele table
@@ -431,7 +431,7 @@ CREATE TABLE allele (
 	KEY biotype_idx (biotype_acc, biotype_db_id),
 	KEY symbol_idx (symbol)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Strain table
@@ -448,7 +448,7 @@ CREATE TABLE strain (
 	KEY biotype_idx (biotype_acc, biotype_db_id),
 	KEY name_idx (name)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE biological_model (
@@ -463,7 +463,7 @@ CREATE TABLE biological_model (
 	KEY genetic_background_idx (genetic_background),
 	UNIQUE KEY unique_biomodels_idx (db_id, allelic_composition(100), genetic_background(100), zygosity)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE biological_model_allele (
 
@@ -475,7 +475,7 @@ CREATE TABLE biological_model_allele (
 	KEY allele_idx (allele_acc, allele_db_id),
   UNIQUE KEY unique_biomodels_idx (biological_model_id, allele_acc)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE biological_model_strain (
 
@@ -487,7 +487,7 @@ CREATE TABLE biological_model_strain (
 	KEY strain_idx (strain_acc, strain_db_id),
   UNIQUE KEY unique_biomodels_idx (biological_model_id, strain_acc)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * This table is an association table between the
@@ -503,7 +503,7 @@ CREATE TABLE biological_model_phenotype (
 	KEY phenotype_idx (phenotype_acc, phenotype_db_id),
   UNIQUE KEY unique_biomodels_idx (biological_model_id, phenotype_acc)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE biological_model_genomic_feature (
 
@@ -515,7 +515,7 @@ CREATE TABLE biological_model_genomic_feature (
 	KEY genomic_feature_idx (gf_acc, gf_db_id),
   UNIQUE KEY unique_biomodels_idx (biological_model_id, gf_acc)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Links a sample to a biological model
@@ -528,7 +528,7 @@ CREATE TABLE biological_model_sample (
 	KEY biological_model_idx (biological_model_id),
 	KEY biological_sample_idx (biological_sample_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Experimental sample
@@ -557,7 +557,7 @@ CREATE TABLE biological_sample (
 
 	KEY organisation_idx (organisation_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * An animal sample is a type of sample
@@ -580,7 +580,7 @@ CREATE TABLE live_sample (
 	KEY zygosity_idx (zygosity),
 	KEY developmental_stage_idx (developmental_stage_acc, developmental_stage_db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * One sample can refer to another sample
@@ -595,7 +595,7 @@ CREATE TABLE biological_sample_relationship (
 	KEY sample_a_idx (biological_sample_a_id),
 	KEY sample_b_idx (biological_sample_b_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * experiment
@@ -634,7 +634,7 @@ CREATE TABLE experiment (
   KEY biological_model_idx(biological_model_id),
   KEY colony_idx(colony_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * Links multiple observations to experiment
@@ -647,7 +647,7 @@ CREATE TABLE experiment_observation (
 	KEY experiment_idx(experiment_id),
 	KEY observation_idx(observation_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * observation
@@ -681,7 +681,7 @@ CREATE TABLE observation (
 	KEY parameter_stable_idx(parameter_stable_id),
 	KEY population_idx(population_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /**
@@ -696,7 +696,7 @@ CREATE TABLE text_observation (
 	PRIMARY KEY(id),
 	KEY text_idx(text(255))
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * categorical_observation
@@ -711,7 +711,7 @@ CREATE TABLE categorical_observation (
 	PRIMARY KEY(id),
 	KEY category_idx(category)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * unidimensional_observation
@@ -725,7 +725,7 @@ CREATE TABLE unidimensional_observation (
 	PRIMARY KEY(id),
 	KEY data_point_idx(data_point)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * ontology_observation
@@ -741,7 +741,7 @@ CREATE TABLE ontology_observation (
 
 )
 	COLLATE = utf8_general_ci
-	ENGINE = InnoDB;
+	ENGINE = MyISAM;
 
 /**
  * unidimensional_observation
@@ -757,7 +757,7 @@ CREATE TABLE ontology_entity (
 	KEY `idx_ontology_entity_ontology_observation_id` (`ontology_observation_id`)
 )
 	COLLATE = utf8_general_ci
-	ENGINE = InnoDB;
+	ENGINE = MyISAM;
 
 /**
  * multidimensional_observation
@@ -779,7 +779,7 @@ CREATE TABLE multidimensional_observation (
 	KEY data_point_idx(data_point, order_index),
 	KEY dimension_idx(dimension)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * time_series_observation
@@ -796,7 +796,7 @@ CREATE TABLE time_series_observation (
 	PRIMARY KEY(id),
 	KEY data_point_idx(data_point, time_point)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * datetime_observation
@@ -811,7 +811,7 @@ CREATE TABLE datetime_observation (
 	PRIMARY KEY(id),
 	KEY datetime_point_idx(datetime_point)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /**
@@ -828,7 +828,7 @@ CREATE TABLE metadata_observation (
 	PRIMARY KEY(id),
 	KEY property_value_idx(property_value)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /**
@@ -864,7 +864,7 @@ CREATE TABLE phenotype_pipeline (
 	is_deprecated              BOOLEAN,
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_pipeline_procedure
@@ -885,7 +885,7 @@ CREATE TABLE phenotype_pipeline_procedure (
 	KEY procedure_idx (procedure_id),
 	UNIQUE (pipeline_id, procedure_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_procedure
@@ -917,7 +917,7 @@ CREATE TABLE phenotype_procedure (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_procedure_meta_data
@@ -939,7 +939,7 @@ CREATE TABLE phenotype_procedure_meta_data (
 
 	KEY procedure_meta_data_idx (procedure_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
 @table phenotype_procedure_parameter
@@ -960,7 +960,7 @@ CREATE TABLE phenotype_procedure_parameter (
 	KEY parameter_idx (parameter_id),
 	UNIQUE (procedure_id, parameter_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 -- because of IMPReSS we have a different length for stable_id
@@ -995,7 +995,7 @@ CREATE TABLE phenotype_parameter (
 	PRIMARY KEY (id),
 	KEY parameter_stable_id_idx (stable_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_lnk_option (
 
@@ -1005,7 +1005,7 @@ CREATE TABLE phenotype_parameter_lnk_option (
 	KEY parameter_idx (parameter_id),
 	KEY option_idx (option_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_option (
 
@@ -1016,7 +1016,7 @@ CREATE TABLE phenotype_parameter_option (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_lnk_increment (
 
@@ -1026,7 +1026,7 @@ CREATE TABLE phenotype_parameter_lnk_increment (
 	KEY parameter_idx (parameter_id),
 	KEY increment_idx (increment_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 CREATE TABLE phenotype_parameter_increment (
 
@@ -1038,7 +1038,7 @@ CREATE TABLE phenotype_parameter_increment (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 -- truncate table phenotype_parameter; truncate table phenotype_pipeline; truncate table phenotype_procedure; truncate table phenotype_pipeline_procedure; truncate table phenotype_procedure_meta_data; truncate table phenotype_parameter_option; truncate table phenotype_parameter_increment;
 
@@ -1050,7 +1050,7 @@ CREATE TABLE phenotype_parameter_lnk_ontology_annotation (
 	KEY parameter_idx (parameter_id),
 	KEY annotation_idx (annotation_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
  * We compute the significance of the occurence of some observation
@@ -1069,7 +1069,7 @@ CREATE TABLE phenotype_parameter_ontology_annotation (
 	KEY ontology_idx (ontology_acc, ontology_db_id),
 	KEY option_idx (option_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE phenotype_parameter_lnk_eq_annotation (
@@ -1080,7 +1080,7 @@ CREATE TABLE phenotype_parameter_lnk_eq_annotation (
 	KEY parameter_idx (parameter_id),
 	KEY annotation_idx (annotation_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
  * We compute the significance of the occurence of some observation
@@ -1103,7 +1103,7 @@ CREATE TABLE phenotype_parameter_eq_annotation (
 	KEY quality_idx (quality_acc, quality_db_id),
 	KEY option_idx (option_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
  * Phenotype to genotype association when analyzed without weight
@@ -1145,7 +1145,7 @@ CREATE TABLE phenotype_call_summary (
 	KEY allele_idx (allele_acc, allele_db_id),
 	KEY mp_call_idx (mp_acc)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 /*
@@ -1186,7 +1186,7 @@ CREATE TABLE phenotype_call_summary_withWeight (
   KEY allele_idx (allele_acc, allele_db_id),
   KEY mp_call_idx (mp_acc)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 
 CREATE TABLE anatomy_call_summary (
@@ -1222,7 +1222,7 @@ CREATE TABLE anatomy_call_summary (
 	KEY allele_idx (allele_acc, allele_db_id),
 	KEY anatomy_acc_idx (anatomy_acc, anatomy_db_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /*
  * Tables below are for the storage of media/image information
@@ -1246,7 +1246,7 @@ CREATE TABLE `image_record_observation` (
   PRIMARY KEY (`id`),
   KEY `OMERO_ID` (`omero_id`),
   KEY `FULL_RES_FILE_PATH` (`full_resolution_file_path`)
-) COLLATE=utf8_general_ci ENGINE=InnoDB ;
+) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
 CREATE TABLE dimension (
@@ -1260,7 +1260,7 @@ CREATE TABLE dimension (
 
 	PRIMARY KEY (dim_id, parameter_association_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB ;
+) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
 CREATE TABLE parameter_association (
@@ -1274,7 +1274,7 @@ CREATE TABLE parameter_association (
 
 	PRIMARY KEY (id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB ;
+) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
 CREATE TABLE procedure_meta_data (
@@ -1292,7 +1292,7 @@ CREATE TABLE procedure_meta_data (
 	KEY procedure_meta_data_experiment_idx (experiment_id),
 	KEY procedure_meta_data_parameter_idx (parameter_id)
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB ;
+) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
 CREATE TABLE genes_secondary_project (
@@ -1300,7 +1300,7 @@ CREATE TABLE genes_secondary_project (
   acc                        VARCHAR(20) NOT NULL,
   secondary_project_id       VARCHAR(20) NOT NULL
 
-) COLLATE=utf8_general_ci ENGINE=InnoDB;
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 -- -----------------------------------------------------------
 -- Tables to store statistical results
@@ -1352,7 +1352,7 @@ CREATE TABLE stats_categorical_results (
 	KEY pipeline_idx (pipeline_id),
 	KEY parameter_idx (parameter_id)
 
-) COLLATE =utf8_general_ci ENGINE =InnoDB;
+) COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 /*
  * store the result of a PhenStat calculation
@@ -1429,7 +1429,7 @@ CREATE TABLE stats_unidimensional_results (
 	KEY pipeline_idx (pipeline_id),
 	KEY parameter_idx (parameter_id)
 
-) COLLATE =utf8_general_ci ENGINE =InnoDB;
+) COLLATE =utf8_general_ci ENGINE =MyISAM;
 
 
 /*
@@ -1509,7 +1509,7 @@ CREATE TABLE stats_unidimensional_results_withWeight (
 
 )
   COLLATE =utf8_general_ci
-  ENGINE =InnoDB;
+  ENGINE =MyISAM;
 
 
 /*
@@ -1589,7 +1589,7 @@ CREATE TABLE stats_rrplus_results (
 
 )
   COLLATE =utf8_general_ci
-  ENGINE =InnoDB;
+  ENGINE =MyISAM;
 
 
 /*
@@ -1609,7 +1609,7 @@ CREATE TABLE stat_result_phenotype_call_summary (
 
 )
 	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
+	ENGINE =MyISAM;
 
 
 --
@@ -1666,7 +1666,7 @@ CREATE TABLE statistical_result (
 
 )
 	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
+	ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
@@ -1680,7 +1680,7 @@ CREATE TABLE statistical_result_phenotype_call_summary (
 
 )
   COLLATE =utf8_general_ci
-  ENGINE =InnoDB;
+  ENGINE =MyISAM;
 
 DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (
@@ -1693,7 +1693,7 @@ CREATE TABLE statistical_result_additional (
 
 )
 	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
+	ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_phenstat;
@@ -1736,7 +1736,7 @@ CREATE TABLE statistical_result_phenstat (
 
 )
 	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
+	ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_fisher_exact;
@@ -1751,7 +1751,7 @@ CREATE TABLE statistical_result_fisher_exact (
 
 )
 	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
+	ENGINE =MyISAM;
 
 
 DROP TABLE IF EXISTS statistical_result_manual;
@@ -1765,7 +1765,7 @@ CREATE TABLE statistical_result_manual (
 
 )
 	COLLATE =utf8_general_ci
-	ENGINE =InnoDB;
+	ENGINE =MyISAM;
 
 
 --
@@ -1794,7 +1794,7 @@ CREATE TABLE PHN_REQUIRED_OBSERVATION (
   IS_VIEWABLE           INT(10)      DEFAULT 1,
   UNIQUE_NAME           VARCHAR(256),
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS PHN_EXPERIMENT;
@@ -1813,7 +1813,7 @@ CREATE TABLE PHN_EXPERIMENT (
   QC_FAILURE_REASON_ID INT(11) NOT NULL,
   COMMENTS             VARCHAR(256) DEFAULT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS PHN_OBSERVATION;
@@ -1834,7 +1834,7 @@ CREATE TABLE PHN_OBSERVATION (
   QC_FAILED             INT(11)      DEFAULT 0,
   PARENT_OBSERVATION_ID INT(11) NOT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMPC_MOUSE_ALLELE_MV;
@@ -1850,7 +1850,7 @@ CREATE TABLE IMPC_MOUSE_ALLELE_MV (
   GENOTYPE      VARCHAR(256)  DEFAULT NULL,
   FULL_GENOTYPE VARCHAR(256)  DEFAULT NULL,
   PRIMARY KEY (MOUSE_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS ANN_ANNOTATION;
@@ -1869,7 +1869,7 @@ CREATE TABLE ANN_ANNOTATION (
   KEY TERM_ID (TERM_ID),
   KEY ID (ID),
   KEY FOREIGN_KEY_ID (FOREIGN_KEY_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS ANN_ONTOLOGY_DICT;
 CREATE TABLE ANN_ONTOLOGY_DICT (
@@ -1879,7 +1879,7 @@ CREATE TABLE ANN_ONTOLOGY_DICT (
   ACTIVE      TINYINT(4)    DEFAULT NULL,
   ORDER_BY    INT(11)       DEFAULT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_DCF_IMAGE_VW;
@@ -1900,7 +1900,7 @@ CREATE TABLE IMA_DCF_IMAGE_VW (
   KEY DCF_ID (DCF_ID),
   KEY MOUSE_ID (MOUSE_ID),
   KEY EXPERIMENT_ID (EXPERIMENT_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS IMA_EXPERIMENT_DICT;
 CREATE TABLE IMA_EXPERIMENT_DICT (
@@ -1910,7 +1910,7 @@ CREATE TABLE IMA_EXPERIMENT_DICT (
   ORDER_BY    INT(11)       DEFAULT NULL,
   ACTIVE      TINYINT(4)    DEFAULT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS IMA_IMAGE_RECORD;
 CREATE TABLE IMA_IMAGE_RECORD (
@@ -1936,7 +1936,7 @@ CREATE TABLE IMA_IMAGE_RECORD (
   KEY SUBCONTEXT_ID (SUBCONTEXT_ID),
   KEY FOREIGN_TABLE_NAME (FOREIGN_TABLE_NAME),
   KEY organisation (organisation)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS IMA_IMAGE_TAG;
 CREATE TABLE IMA_IMAGE_TAG (
@@ -1955,14 +1955,14 @@ CREATE TABLE IMA_IMAGE_TAG (
   X_END           FLOAT         DEFAULT NULL,
   Y_END           FLOAT         DEFAULT NULL,
   KEY IMAGE_RECORD_ID (IMAGE_RECORD_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS IMA_IMAGE_TAG_TYPE;
 CREATE TABLE IMA_IMAGE_TAG_TYPE (
   NAME VARCHAR(128) DEFAULT NULL,
   ID   INT(11) NOT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMPORT_CONTEXT;
@@ -1970,7 +1970,7 @@ CREATE TABLE IMA_IMPORT_CONTEXT (
   ID   INT(11) NOT NULL,
   NAME VARCHAR(64) DEFAULT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_IMPORT_LOG;
@@ -1982,7 +1982,7 @@ CREATE TABLE IMA_IMPORT_LOG (
   LOG_URL       VARCHAR(4000) DEFAULT NULL,
   ID            INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS IMA_PREDEFINED_TAG;
 CREATE TABLE IMA_PREDEFINED_TAG (
@@ -1993,7 +1993,7 @@ CREATE TABLE IMA_PREDEFINED_TAG (
   ORDER_BY           INT(11)      DEFAULT NULL,
   ALLOW_MULTIPLE     TINYINT(4)   DEFAULT '0',
   ALLOW_IN_ROI       TINYINT(4)   DEFAULT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_PREDEFINED_TAG_VALUE;
@@ -2002,7 +2002,7 @@ CREATE TABLE IMA_PREDEFINED_TAG_VALUE (
   PREDEFINED_TAG_ID INT(11)       DEFAULT NULL,
   TAG_VALUE         VARCHAR(4000) DEFAULT NULL,
   ORDER_BY          INT(11)       DEFAULT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 DROP TABLE IF EXISTS IMA_PUBLISHED_DICT;
 CREATE TABLE IMA_PUBLISHED_DICT (
@@ -2012,7 +2012,7 @@ CREATE TABLE IMA_PUBLISHED_DICT (
   ORDER_BY    INT(11)      DEFAULT NULL,
   ACTIVE      TINYINT(4)   DEFAULT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_QC_DICT;
@@ -2023,7 +2023,7 @@ CREATE TABLE IMA_QC_DICT (
   ORDER_BY    INT(11)      DEFAULT NULL,
   ACTIVE      TINYINT(4)   DEFAULT NULL,
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS IMA_SUBCONTEXT;
@@ -2033,7 +2033,7 @@ CREATE TABLE IMA_SUBCONTEXT (
   EXPERIMENT_DICT_ID INT(11)    DEFAULT NULL,
   IS_DEFAULT         TINYINT(4) DEFAULT '0',
   PRIMARY KEY (ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS MTS_GENOTYPE_DICT;
@@ -2043,7 +2043,7 @@ CREATE TABLE MTS_GENOTYPE_DICT (
   ORDER_BY    INT(11)     NOT NULL,
   DESCRIPTION VARCHAR(25) NOT NULL,
   ACTIVE      INT(11)     NOT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS MTS_MOUSE_ALLELE;
@@ -2054,7 +2054,7 @@ CREATE TABLE MTS_MOUSE_ALLELE (
   GENOTYPE_DICT_ID INT(11) NOT NULL,
   PRIMARY KEY (ID),
   KEY MOUSE_ID (MOUSE_ID, ALLELE_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS PHN_STD_OPERATING_PROCEDURE;
@@ -2073,7 +2073,7 @@ CREATE TABLE PHN_STD_OPERATING_PROCEDURE (
   VIEW_NAME          VARCHAR(30)  DEFAULT NULL,
   PRIMARY KEY (ID),
   KEY PROCEDURE_ID (PROCEDURE_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS ima_image_record_annotation_vw;
@@ -2081,7 +2081,7 @@ CREATE TABLE ima_image_record_annotation_vw (
   IMAGE_RECORD_ID INT(11)      DEFAULT NULL,
   TERM_ID         VARCHAR(128) DEFAULT NULL,
   TERM_NAME       VARCHAR(256) DEFAULT NULL
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
 
 
 DROP TABLE IF EXISTS mts_mouse_allele_mv;
@@ -2089,4 +2089,4 @@ CREATE TABLE mts_mouse_allele_mv (
   MOUSE_ID INT(11)      NOT NULL,
   ALLELE   VARCHAR(250) NOT NULL,
   PRIMARY KEY (MOUSE_ID)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM DEFAULT CHARSET = utf8;
