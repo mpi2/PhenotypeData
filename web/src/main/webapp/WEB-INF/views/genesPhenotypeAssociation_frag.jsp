@@ -61,7 +61,7 @@
         </c:if>
         
         <c:if test="${hasVignette}">
-            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a>
+            <%-- <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a> --%>
         </c:if>
 
         <%----%>
