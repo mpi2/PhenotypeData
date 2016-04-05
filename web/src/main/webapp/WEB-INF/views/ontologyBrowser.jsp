@@ -25,18 +25,19 @@
   	 <div id="tree"></div>
 
 	 <script  type="text/javascript" >
-	 
+
 		 var termId = "${termId}";
+		 var clickToOpen = false; // The tree expands too many nodes at load time. This is a hack to only allow it on mouseclick
 		 
-		 $('#tree').jstree({
+		 var ontologyTree = $('#tree').jstree({
 			  "core" : {
 				    "animation" : 0,
-				    "check_callback" : true,
-				    'data' : {
-				      	'url' : function (node) {
-				        	return node.id === '#' ?
-				          	'ontologyBrowser2?termId=' + termId + '&node=src' : 'ontologyBrowser2?termId=' + termId + '&node=src';
-				      	},
+				    'data' : {	
+				    	'url' : function (node) {
+				    	      return node.id === '#' ?
+				    	    		"ontologyBrowser2?termId=" + termId + "&node=src" :
+				    	    		"ontologyBrowser2?termId=" + termId + "&node=" + node.id;
+				    	    },
 				      	'data' : function (node) {
 				        	return { 'id' : node.id };
 				      	}
@@ -46,29 +47,20 @@
 				     "default" : {
 				       "icon" : "img/jstree/jstree-node.png"
 				     },
-				     "demo" : {
-				       "icon" : "glyphicon glyphicon-ok"
-				     },
 				     "selected" : {
 				       "icon" : "img/jstree/jstree-node-selected.png"
 				     }
 			},
 			  "plugins" : [
-			    "search", "state", "types"
+			  	"types"
 			  ]
-			});
+		});
 		
-		 	$('.jstree-clicked').removeClass("jstree-clicked"); 
-		 
-		 /*	$('#tree').on("select_node.jstree", function (e, data) { 
-		//		window.location.href = "../phenotypes/"  + data.node.term_id;
-				console.log("____" + data.node.term_id);
-		 	}); 
-		 )*/
-		 	
-		 	$("#tree").delegate("a","click", function(e) {
-				window.location.href = "../phenotypes/"  + data.node.term_id;
-	        });
+	
+		$("#tree").delegate("a","click", function(e) {
+			window.location.href = "../phenotypes/"  + data.node.term_id;
+		});
+		
 	 </script>
 
 
