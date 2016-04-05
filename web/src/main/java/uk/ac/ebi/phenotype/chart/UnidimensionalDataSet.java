@@ -17,9 +17,8 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.util.List;
 
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 
 /**
  * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table

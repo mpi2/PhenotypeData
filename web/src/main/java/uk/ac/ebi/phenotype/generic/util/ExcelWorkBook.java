@@ -15,11 +15,16 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.generic.util;
 
+import java.net.URI;
+
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.xssf.usermodel.*;
-
-import java.net.URI;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
+import org.apache.poi.xssf.usermodel.XSSFPrintSetup;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 // XSSF
 
