@@ -146,7 +146,7 @@ public class SearchController {
 
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
 		String url = internalSolrUrl + "/" + dataType + "/select?" + solrParamStr;
-		System.out.println("URL: " + url);
+		//System.out.println("URL: " + url);
 		//JSONObject json = solrIndex.getResults(url);
 
 		String mode = dataType + "Grid";
@@ -184,7 +184,6 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-		System.out.println("PARAMS*****: " + solrParamStr);
 		return solrParamStr;
 	}
 
