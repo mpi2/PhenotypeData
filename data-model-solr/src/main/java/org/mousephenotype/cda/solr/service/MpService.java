@@ -110,7 +110,7 @@ public class MpService extends BasicService implements WebStatus{
 		}
 
 		if ((mps.get(0).getParentMpId() == null || mps.get(0).getParentMpId().size() == 0)){
-			if (mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
+			if (mps.get(0).getTopLevelMpId() != null && mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
 				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
 					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i),
 						shortenLabel(mps.get(0).getTopLevelMpTerm().get(i))));

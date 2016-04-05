@@ -113,9 +113,6 @@
             <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
             <%--var drupalBaseUrl = "${drupalBaseUrl}";--%>
             <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
-            console.log("mediaBaseUrl set="+mediaBaseUrl);
-            console.log("pdfThumbnailUrl set="+pdfThumbnailUrl);
-
         </script>
 
         <%--
