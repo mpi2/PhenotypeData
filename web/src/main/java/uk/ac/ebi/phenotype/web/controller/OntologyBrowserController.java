@@ -58,8 +58,6 @@ import net.sf.json.JSONObject;
 @Controller
 public class OntologyBrowserController {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -129,7 +127,6 @@ public class OntologyBrowserController {
                             break;  // do only once: should have a better way
                         }
                     }
-					
                     String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
                     try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
@@ -143,6 +140,7 @@ public class OntologyBrowserController {
                             } 
                             tn.add(thisNode);
                         }
+                        
                     } catch(Exception e){
                         e.printStackTrace();
                     }
@@ -151,7 +149,6 @@ public class OntologyBrowserController {
                     // just fetch the term of this node
                     JSONObject thisNode = fetchNodeInfo(helper, resultSet);
                     tn.add(thisNode);
-         //           thisNode.accumulate("state", getState(false, false));
                 }
             }
         }
@@ -180,15 +177,13 @@ public class OntologyBrowserController {
 
         try (Connection conn = komp2DataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
-			ResultSet resultSet = p.executeQuery();
-			
+			ResultSet resultSet = p.executeQuery();			
 			while (resultSet.next()) {
 	
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-	
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode);
+						thisNode = recursiveFetchChildNodes(helper, thisNode, conn);
 						thisNode.accumulate("state", getState(true, false));
 					} else {
 						thisNode.accumulate("state", getState(false, false));
@@ -199,27 +194,32 @@ public class OntologyBrowserController {
 	
 			nodeObj.put("children", children);
         }
-		
+
         return nodeObj;
         
     }
 
-	public JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj) 
+	public JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn) 
 	throws SQLException {
 		
 		String parentNodeId = nodeObj.getString("id");
 		String childNodeId = null;
 		String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
 		List<JSONObject> children = new ArrayList<>();
-
-		try (Connection conn = komp2DataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
+		
+		try ( PreparedStatement p = conn.prepareStatement(sql)) {
 
 			ResultSet resultSet = p.executeQuery();
+			
 			while (resultSet.next()) {
+				
+				
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
+					
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
+					
 					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode);
+						thisNode = recursiveFetchChildNodes(helper, thisNode, conn);
 						thisNode.accumulate("state", getState(true, false));
 					} else {
 						thisNode.accumulate("state", getState(false, false));
@@ -236,7 +236,8 @@ public class OntologyBrowserController {
 		return nodeObj;
 	}
 
-    public String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId) throws SQLException {
+    public String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId)
+    		throws SQLException {
 
     	// return a query to get all children of [parentNodeId]
     	
@@ -346,7 +347,7 @@ public class OntologyBrowserController {
         node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
         node.put("href", helper.getPageBaseUrl() + "/" + termId);
         node.put("hrefTarget", "_blank");
-
+        
         return node;
     }
 
