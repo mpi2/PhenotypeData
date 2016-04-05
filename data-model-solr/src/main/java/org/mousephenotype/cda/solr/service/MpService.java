@@ -132,6 +132,27 @@ public class MpService extends BasicService implements WebStatus{
 	}
 
 
+	/**
+	 * @author ilinca
+	 * @since 2016/04/05
+	 * @param mpTermId
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public String getSearchTermJson(String mpTermId) 
+	throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MpDTO.MP_ID + ":\"" + mpTermId + "\"")
+				.setRows(1);
+		solrQuery.addField(MpDTO.SEARCH_TERM_JSON);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		
+		return (mps != null) ? mps.get(0).getSearchTermJson() : "";
+		
+	}
 
 
 	/**
