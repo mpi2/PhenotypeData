@@ -217,6 +217,10 @@ public class MPIndexer extends AbstractIndexer {
 
                 documentCount++;
                 mpCore.addBean(mp, 60000);
+                
+                if (documentCount % 100 == 0){
+                	mpCore.commit();
+                }
             }
 
             // Send a final commit
@@ -489,7 +493,7 @@ public class MPIndexer extends AbstractIndexer {
 		node.put("id", Integer.toString(resultSet.getInt("node_id")));
 		node.put("term_id", resultSet.getString("term_id"));
 		node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
-		node.put("href", helper.getPageBaseUrl() + "/" + termId);
+		node.put("href", "phenotypes/" + termId);
 		node.put("hrefTarget", "_blank");
 
 		return node;
