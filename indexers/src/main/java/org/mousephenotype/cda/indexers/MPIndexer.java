@@ -211,6 +211,8 @@ public class MPIndexer extends AbstractIndexer {
                 TreeHelper helper = getTreeHelper("blahBlahReplaceMe", "mp", termId);
                 List<JSONObject> searchTree = createTreeJson(helper, "0", null, termId);
                 mp.setSearchTermJson(searchTree.toString());
+                List<JSONObject> childrenTree = createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
+                mp.setChildrenJson(childrenTree.toString());
                 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
