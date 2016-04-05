@@ -18,26 +18,14 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,8 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import net.sf.json.JSONObject;
-
 /**
  * Created by ckc on 21/03/2016.
  * @author ilinca //edits
@@ -58,14 +44,6 @@ import net.sf.json.JSONObject;
 @Controller
 public class OntologyBrowserController {
 
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
-
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
-    
-    
     @Autowired
     MpService ms;
     
