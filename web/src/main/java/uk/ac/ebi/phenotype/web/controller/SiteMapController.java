@@ -11,6 +11,15 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.DiseaseService;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -20,18 +29,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemap;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlSitemapIndex;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrl;
 import uk.ac.ebi.phenotype.web.controller.sitemap.XmlUrlSet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

@@ -17,10 +17,8 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 
 /**

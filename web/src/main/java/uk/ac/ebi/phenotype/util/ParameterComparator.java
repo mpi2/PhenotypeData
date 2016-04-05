@@ -15,9 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.util;
 
-import org.mousephenotype.cda.db.pojo.Parameter;
-
 import java.util.Comparator;
+
+import org.mousephenotype.cda.db.pojo.Parameter;
 
 public class ParameterComparator implements Comparator<Parameter> {
 	/**
