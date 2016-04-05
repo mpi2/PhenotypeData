@@ -34,6 +34,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.MpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,9 @@ public class OntologyBrowserController {
     DataSource komp2DataSource;
     
     
+    @Autowired
+    MpService ms;
+    
     @RequestMapping(value = "/ontologyBrowser", method = RequestMethod.GET)
     public String getParams(
 
@@ -87,7 +92,7 @@ public class OntologyBrowserController {
             @RequestParam(value = "expandNodeIds", required = false) List<String> expandNodes,
             HttpServletRequest request,
             Model model)
-            throws IOException, URISyntaxException, SQLException {
+            throws IOException, URISyntaxException, SQLException, SolrServerException {
 
         String ontologyName = null;
         if ( termId.startsWith("MA:") ){
@@ -96,11 +101,13 @@ public class OntologyBrowserController {
             ontologyName = "mp";
         }
         rootId = rootId.equals("src") ? "0" : rootId;
-        TreeHelper helper = getTreeHelper(request, ontologyName, termId, expandNodes);
-        List<JSONObject> tree = createTreeJson(helper, rootId, null, termId, expandNodes);
-
-        return new ResponseEntity<String>(tree.toString(), createResponseHeaders(), HttpStatus.CREATED);
-
+        if (rootId.equalsIgnoreCase("0")){
+        	return new ResponseEntity<String>(ms.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
+        } else {
+        	TreeHelper helper = getTreeHelper(request, ontologyName, termId, expandNodes);
+            List<JSONObject> tree = createTreeJson(helper, rootId, null, termId, expandNodes);
+            return new ResponseEntity<String>(tree.toString(), createResponseHeaders(), HttpStatus.CREATED);
+        }
     }
 
     
