@@ -136,10 +136,10 @@ public class MpService extends BasicService implements WebStatus{
 	 * @author ilinca
 	 * @since 2016/04/05
 	 * @param mpTermId
-	 * @return
+	 * @return JSON in jstree format for ontology browser
 	 * @throws SolrServerException
 	 */
-	public String getSearchTermJson(String mpTermId) 
+	public String getSearchTermJson(String mpTermId)  
 	throws SolrServerException{
 		
 		SolrQuery solrQuery = new SolrQuery()
@@ -151,10 +151,30 @@ public class MpService extends BasicService implements WebStatus{
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 		
 		return (mps != null) ? mps.get(0).getSearchTermJson() : "";
-		
 	}
 
 
+	/**
+	 * @author ilinca
+	 * @since 2016/04/05
+	 * @param mpTermId
+	 * @return JSON in jstree format for ontology browser
+	 * @throws SolrServerException
+	 */
+	public String getChildrenJson(String nodeId) 
+	throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
+				.setRows(1);
+		solrQuery.addField(MpDTO.CHILDREN_JSON);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		
+		return (mps != null) ? mps.get(0).getChildrenJson() : "";
+	}
+	
 	/**
 	 * @author ilinca
 	 * @since 2016/03/22
