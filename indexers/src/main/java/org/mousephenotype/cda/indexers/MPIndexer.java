@@ -208,7 +208,7 @@ public class MPIndexer extends AbstractIndexer {
                 addPhenotype2(mp);
 
 
-                TreeHelper helper = getTreeHelper("blahBlahReplaceMe", "mp", termId);
+                TreeHelper helper = getTreeHelper( "mp", termId);
                 List<JSONObject> searchTree = createTreeJson(helper, "0", null, termId);
                 mp.setSearchTermJson(searchTree.toString());
                 List<JSONObject> childrenTree = createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
@@ -417,7 +417,7 @@ public class MPIndexer extends AbstractIndexer {
         return sql;
     }
 
-	public TreeHelper getTreeHelper(String baseUrl, String ontologyName, String termId) 
+	public TreeHelper getTreeHelper( String ontologyName, String termId) 
 	throws SQLException {
 
 		String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path " + "FROM " + ontologyName
@@ -428,7 +428,7 @@ public class MPIndexer extends AbstractIndexer {
 		nameMap.put("ma", "anatomy");
 		nameMap.put("mp", "phenotypes");
 
-		String pageBaseUrl = baseUrl + "/" + nameMap.get(ontologyName);
+		String pageBaseUrl =  "phenotypes/" + nameMap.get(ontologyName);
 
 		Set<String> pathNodes = new HashSet<>();
 		Set<String> expandNodeIds = new HashSet<>();
