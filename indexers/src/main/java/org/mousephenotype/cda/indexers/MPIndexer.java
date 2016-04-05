@@ -428,7 +428,7 @@ public class MPIndexer extends AbstractIndexer {
 		nameMap.put("ma", "anatomy");
 		nameMap.put("mp", "phenotypes");
 
-		String pageBaseUrl =  "phenotypes/" + nameMap.get(ontologyName);
+		String pageBaseUrl =  nameMap.get(ontologyName);
 
 		Set<String> pathNodes = new HashSet<>();
 		Set<String> expandNodeIds = new HashSet<>();
