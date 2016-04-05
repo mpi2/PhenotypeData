@@ -263,7 +263,7 @@ public class MPIndexer extends AbstractIndexer {
         List<JSONObject> tn = new ArrayList<>();
         String sql = fetchNextLevelChildrenSql(helper, rootId, childNodeId);
 
-        try (Connection conn = komp2DataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
+        try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
             ResultSet resultSet = p.executeQuery();
             
@@ -319,7 +319,7 @@ public class MPIndexer extends AbstractIndexer {
         String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
         List<JSONObject> children = new ArrayList<>();
 
-        try (Connection conn = komp2DataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
+        try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
 			ResultSet resultSet = p.executeQuery();			
 			while (resultSet.next()) {
@@ -388,7 +388,7 @@ public class MPIndexer extends AbstractIndexer {
     }
     
     public String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId)
-    		throws SQLException {
+    throws SQLException {
 
     	// return a query to get all children of [parentNodeId]
     	
@@ -428,7 +428,7 @@ public class MPIndexer extends AbstractIndexer {
 		Set<String> expandNodeIds = new HashSet<>();
 		Map<String, List<Map<String, String>>> preOpenNodes = new HashMap<>();
 		
-		try (Connection conn = komp2DataSource.getConnection(); PreparedStatement p = conn.prepareStatement(query)) {
+		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(query)) {
 
 			p.setString(1, termId);
 			ResultSet resultSet = p.executeQuery();
