@@ -295,7 +295,7 @@ public class MPIndexer extends AbstractIndexer {
                             if (thisNode.getBoolean("children")) {
                                 thisNode = fetchChildNodes(helper, thisNode, termId);
                                 if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                                	thisNode.accumulate("state", getState(false, false));                                	
+                                	thisNode.accumulate("state", getState(false, true));                                	
                                 } else {
                                 	thisNode.accumulate("state", getState(true, false));
                                 }
@@ -338,7 +338,7 @@ public class MPIndexer extends AbstractIndexer {
 					if (thisNode.getBoolean("children")) {
 						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
                         if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                        	thisNode.accumulate("state", getState(false, false));                                	
+                        	thisNode.accumulate("state", getState(false, true));                                	
                         } else {
                         	thisNode.accumulate("state", getState(true, false));
                         }
@@ -378,7 +378,7 @@ public class MPIndexer extends AbstractIndexer {
 					if (thisNode.getBoolean("children")) {
 						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
 						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
-							thisNode.accumulate("state", getState(false, false));
+							thisNode.accumulate("state", getState(false, true));
 						} else {
 							thisNode.accumulate("state", getState(false, false));
 						}
