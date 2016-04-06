@@ -15,9 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 
 
 public class UnidimensionalStatsObject {

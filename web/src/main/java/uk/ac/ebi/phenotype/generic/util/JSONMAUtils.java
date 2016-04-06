@@ -15,14 +15,19 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.generic.util;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.web.dto.Anatomy;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class JSONMAUtils {
 

@@ -149,6 +149,9 @@ public class MpDTO {
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
 
 
+	public static final String SEARCH_TERM_JSON = "search_term_json";
+	public static final String CHILDREN_JSON = "children_json";
+
 	@Field(MP_ID)
 	private String mpId;
 
@@ -163,6 +166,12 @@ public class MpDTO {
 
 	@Field(MP_NODE_ID)
 	private List<Integer> mpNodeId;
+
+	@Field(SEARCH_TERM_JSON)
+	private String searchTermJson;
+	
+	@Field(CHILDREN_JSON)
+	private String childrenJson;
 
 	@Field(ALT_MP_ID)
 	private List<String> altMpId;
@@ -621,6 +630,26 @@ public class MpDTO {
 	public List<String> getChildMpTermSynonym() {
 
 		return childMpTermSynonym;
+	}
+
+
+	public String getSearchTermJson() {
+		return searchTermJson;
+	}
+
+
+	public void setSearchTermJson(String searchTermJson) {
+		this.searchTermJson = searchTermJson;
+	}
+
+
+	public String getChildrenJson() {
+		return childrenJson;
+	}
+
+
+	public void setChildrenJson(String childrenJson) {
+		this.childrenJson = childrenJson;
 	}
 
 

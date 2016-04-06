@@ -32,7 +32,6 @@ import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.springframework.beans.factory.annotation.Autowired;

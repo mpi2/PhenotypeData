@@ -15,12 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.enumerations.ZygosityType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.mousephenotype.cda.enumerations.ZygosityType;
 
 
 public class PieChartCreator {

@@ -292,8 +292,6 @@ public class PhenotypesController {
             phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
         }
 
-        long time = System.currentTimeMillis();
-
         // This is a map because we need to support lookups
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
 
@@ -327,10 +325,6 @@ public class PhenotypesController {
 
         model.addAttribute("phenotypes", list);
 
-        log.info("\tTime loading association table objects: " + (System.currentTimeMillis() - time) + "ms");
-
-        time = System.currentTimeMillis();
-
         // Check the number of document first
         JSONArray docs = solrIndex
                 .getMpData(phenotype_id)
@@ -351,7 +345,6 @@ public class PhenotypesController {
             model.addAttribute("isImpcTerm", false);
         }
         }
-        log.info("\tTime loading phenotype informaition: " + (System.currentTimeMillis() - time) + "ms");
 
     }
 
@@ -467,8 +460,6 @@ public class PhenotypesController {
         boolean display = (total > 0);
         pgs.setDisplay(display);
 
-        System.out.println("Total :: " +  total + " nominator:: " + nominator + " display " + display);
-        
         List<String> genesFemalePhenotype = new ArrayList<String>();
         List<String> genesMalePhenotype = new ArrayList<String>();
         List<String> genesBothPhenotype;

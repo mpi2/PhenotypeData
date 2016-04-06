@@ -667,7 +667,8 @@ CREATE TABLE observation (
 	db_id                      INT(10) UNSIGNED NOT NULL,
 	biological_sample_id       INT(10) UNSIGNED NULL,
 	parameter_id               INT(10) UNSIGNED NOT NULL,
-	parameter_stable_id        VARCHAR(30) NOT NULL,
+  parameter_stable_id        VARCHAR(30) NOT NULL,
+  sequence_id                VARCHAR(30) DEFAULT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
 	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 	missing                    TINYINT(1) DEFAULT 0,
@@ -1614,18 +1615,6 @@ CREATE TABLE stat_result_phenotype_call_summary (
 --
 -- Discrete statistical result schema
 --
-DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
-CREATE TABLE statistical_result_phenotype_call_summary (
-
-	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
-	result_id                 INT(10) UNSIGNED,
-
-	PRIMARY KEY (phenotype_call_summary_id),
-	FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
-
-)
-	COLLATE =utf8_general_ci
-	ENGINE =MyISAM;
 
 DROP TABLE IF EXISTS statistical_result;
 CREATE TABLE statistical_result (
@@ -1680,6 +1669,18 @@ CREATE TABLE statistical_result (
 	ENGINE =MyISAM;
 
 
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+CREATE TABLE statistical_result_phenotype_call_summary (
+
+  phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
+  result_id                 INT(10) UNSIGNED,
+
+  PRIMARY KEY (phenotype_call_summary_id),
+  FOREIGN KEY result_idx (result_id) REFERENCES statistical_result (id)
+
+)
+  COLLATE =utf8_general_ci
+  ENGINE =MyISAM;
 
 DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (

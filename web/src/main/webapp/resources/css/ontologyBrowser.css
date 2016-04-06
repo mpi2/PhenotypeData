@@ -2,6 +2,11 @@ table.x-grid-table tr:nth-child(2) {
 	cursor: default !important;
 }
 
+.jstree-anchor a{
+	color: black;
+	font-size: 12px;
+}
+
 div.breadcrumb {
 	margin-top: -24px;
 	font-size: 12.8px;
