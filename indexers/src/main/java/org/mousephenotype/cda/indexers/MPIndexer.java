@@ -293,8 +293,12 @@ public class MPIndexer extends AbstractIndexer {
 
                             JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
                             if (thisNode.getBoolean("children")) {
-                                thisNode = fetchChildNodes(helper, thisNode);
-                            	thisNode.accumulate("state", getState(true, false));
+                                thisNode = fetchChildNodes(helper, thisNode, termId);
+                                if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
+                                	thisNode.accumulate("state", getState(false, false));                                	
+                                } else {
+                                	thisNode.accumulate("state", getState(true, false));
+                                }
                             } 
                             tn.add(thisNode);
                         }
@@ -309,15 +313,14 @@ public class MPIndexer extends AbstractIndexer {
                     tn.add(thisNode);
                 }
             }
-        }
-        catch (Exception e){
+        }  catch (Exception e){
             e.printStackTrace();
         }
 
         return tn;
     }
 
-    public JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj) 
+    public JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId) 
     throws SQLException {
 
     	String parentNodeId = nodeObj.getString("id");
@@ -333,8 +336,12 @@ public class MPIndexer extends AbstractIndexer {
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode, conn);
-						thisNode.accumulate("state", getState(true, false));
+						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
+                        if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
+                        	thisNode.accumulate("state", getState(false, false));                                	
+                        } else {
+                        	thisNode.accumulate("state", getState(true, false));
+                        }
 					} else {
 						thisNode.accumulate("state", getState(false, false));
 					}
@@ -349,7 +356,7 @@ public class MPIndexer extends AbstractIndexer {
         
     }
 
-	public JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn) 
+	public JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn, String termId) 
 	throws SQLException {
 		
 		String parentNodeId = nodeObj.getString("id");
@@ -369,11 +376,14 @@ public class MPIndexer extends AbstractIndexer {
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 					
 					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode, conn);
-						thisNode.accumulate("state", getState(true, false));
+						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
+						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
+							thisNode.accumulate("state", getState(false, false));
+						} else {
+							thisNode.accumulate("state", getState(false, false));
+						}
 					} else {
 						thisNode.accumulate("state", getState(false, false));
-						thisNode.accumulate("type", "selected");
 					}
 					children.add(thisNode);
 					nodeObj.put("children", children);
