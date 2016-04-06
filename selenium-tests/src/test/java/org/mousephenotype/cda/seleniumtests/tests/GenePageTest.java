@@ -749,6 +749,46 @@ public class GenePageTest {
         testUtils.printEpilogue(testName, start, masterStatus, 1, 1);
     }
 
+    // 06-Apr-2016 On DEV, the Arsk gene has no All Adult Data button, even though there are statistical results for it.
+    // Test to make sure it has an All Adult Data button.
+    @Test
+//@Ignore
+    public void testAllAdultPhenotypes() {
+        String testName = "testAllAdultPhenotypes";
+        RunStatus status = new RunStatus();
+        String message;
+        Date start = new Date();
+
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+
+        String geneId = "MGI:1924291";
+        String target = baseUrl + "/genes/" + geneId;
+        logger.info("URL: " + target);
+        GenePage genePage;
+
+        try {
+            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+
+            List<WebElement> elements = driver.findElements(By.xpath("//div[@id='phenoSumDiv']/a[@class='btn']"));
+            if (elements.isEmpty()) {
+                status.addError("ERROR: Arsk has no 'All Adult Phenotypes' button.");
+            } else {
+                String href = elements.get(0).getAttribute("href");
+                if ( ! elements.get(0).getAttribute("href").contains("/experiments?geneAccession=MGI:1924291")) {
+                    status.addError("ERROR: MGI:109331 has no 'All Adult Phenotypes' button (2).");
+                }
+            }
+
+        } catch (Exception e) {
+            status.addError("ERROR: Failed to load gene page URL: " + target + ". Reason: '" + e.getLocalizedMessage() + "'.");
+        }
+        
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
+    }
+
     @Test
 //@Ignore
     public void testImageThumbnails() throws Exception {
