@@ -16,16 +16,18 @@
 
 package org.mousephenotype.cda.seleniumtests.tests;
 
+ import org.apache.commons.lang3.StringUtils;
  import org.apache.solr.client.solrj.SolrServerException;
  import org.junit.*;
  import org.junit.runner.RunWith;
  import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
- import org.mousephenotype.cda.utilities.RunStatus;
  import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
+ import org.mousephenotype.cda.seleniumtests.support.PhenotypeProcedure;
  import org.mousephenotype.cda.seleniumtests.support.TestUtils;
  import org.mousephenotype.cda.solr.service.MpService;
  import org.mousephenotype.cda.solr.service.PostQcService;
  import org.mousephenotype.cda.utilities.CommonUtils;
+ import org.mousephenotype.cda.utilities.RunStatus;
  import org.openqa.selenium.*;
  import org.openqa.selenium.support.ui.ExpectedConditions;
  import org.openqa.selenium.support.ui.WebDriverWait;
@@ -101,7 +103,8 @@ public class PhenotypePageTest {
         if (commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS")) != null)
             threadWaitInMilliseconds = commonUtils.tryParseInt(System.getProperty("THREAD_WAIT_IN_MILLISECONDS"));
 
-        driver.navigate().refresh();
+        wait = new WebDriverWait(driver, timeoutInSeconds);
+
         try { Thread.sleep(threadWaitInMilliseconds); } catch (Exception e) { }
     }
 
@@ -137,12 +140,8 @@ public class PhenotypePageTest {
     public void testMGI_MPLinksAreValid() throws SolrServerException {
         RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
         String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
 
@@ -159,15 +158,13 @@ public class PhenotypePageTest {
             i++;
 
             WebElement phenotypeLink;
-            boolean found = false;
 
             target = baseUrl + "/phenotypes/" + phenotypeId;
             logger.debug("phenotype[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
-                phenotypeLink = (new WebDriverWait(driver, timeoutInSeconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
+                phenotypeLink = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                 status.addError(message);
@@ -176,32 +173,19 @@ public class PhenotypePageTest {
             }
             try {
                 phenotypeLink.click();
-                String idString = "[" + phenotypeId + "]";
-                List<WebElement> elements = driver.findElements(By.cssSelector("div[id='templateBodyInsert']"));
-                if (elements.isEmpty()) {
-                    message = "Expected valid MGI page for " + phenotypeId + "(" + target + ").";
-                    logger.error(message);
+                WebElement mgiMpIdElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='templateBodyInsert']/table/tbody/tr[1]/td[1]")));
+                if ( ! mgiMpIdElement.getText().contains("MP term:")) {
+                    message = "Expected valid MGI MP page for " + phenotypeId + "(" + target + ").";
                     status.addError(message);
-                } else {
-                    found = elements.get(0).getText().contains(idString);
                 }
+
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
                 status.addError(message);
             }
-
-            if (( ! found) && ( ! status.hasErrors())) {
-                message = "div id 'templateBodyInsert' not found.";
-                status.addError(message);
-            } else {
-                message = "SUCCESS: MGI link OK for " + phenotypeId + ". URL: " + target;
-                successList.add(message);
-            }
-
-            commonUtils.sleep(threadWaitInMilliseconds);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, phenotypeIds.size());
+        testUtils.printEpilogue(testName, start, status, targetCount, phenotypeIds.size());
     }
 
     /**
@@ -219,8 +203,6 @@ public class PhenotypePageTest {
     public void testPageForEveryMPTermId() throws SolrServerException {
         String testName = "testPageForEveryMPTermId";
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-        phenotypeIds.set(0, "MP:0002085");                  // This term causes the test to throw an exception with no info to debug it.
-phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
         phenotypeIdsTestEngine(testName, phenotypeIds);
     }
 
@@ -272,11 +254,7 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
     public void testInvalidMpTermId() throws SolrServerException {
         RunStatus status = new RunStatus();
         String testName = "testInvalidMpTermId";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
         String message;
         Date start = new Date();
         String phenotypeId = "junkBadPhenotype";
@@ -307,81 +285,150 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
         }
 
         if (found && ( ! status.hasErrors())) {
-            message = "SUCCESS: INTERMEDIATE_MP_TERM_ID " + phenotypeId + ". URL: " + target;
-            successList.add(message);
+            status.successCount++;
         } else {
             message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
             status.addError(message);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 
+     // Test the top section: Definition, synonyms, mapped hp terms, procedures, mpId.
 //@Ignore
     @Test
-    public void testDefinitionAndSynonymCount() throws SolrServerException {
-        RunStatus status = new RunStatus();
-        String testName = "testDefinitionAndSynonymCount";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        String target;
-        String[] phenotypeIdArray = {
-            "MP:0005266",
-            "MP:0001307",
-            "MP:0003442"
-        };
-        int[] expectedSynonymCount = {
-            2,
-            3,
-            1
-        };
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
-        String message;
+    public void testTopSection() throws SolrServerException {
+        String testName = "testTopSection";
         Date start = new Date();
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
-        int errorCount = 0;
+        RunStatus masterStatus = new RunStatus();
+        String[] targets = new String[] {
+                  baseUrl + "/phenotypes/MP:0000172"                // 0 synonyms, 0 mapped hp terms, 0 procedures
+                , baseUrl + "/phenotypes/MP:0000022"                // 0 synonyms, 1 mapped hp term,  1 procedure
+                , baseUrl + "/phenotypes/MP:0000120"                // 1 synonym,  0 mapped hp terms, 0 procedures
+                , baseUrl + "/phenotypes/MP:0000013"                // 1 synonym,  1 mapped hp term,  2 procedures
+                , baseUrl + "/phenotypes/MP:0000023"                // 4 synonyms, 3 mapped hp terms, 0 procedures
+                , baseUrl + "/phenotypes/MP:0005202"                // 4 synonyms, 1 mapped hp term,  1 procedure
+        };
 
-        testUtils.logTestStartup(logger, this.getClass(), testName, 3, 3);
+        String[] definitions = new String[] {
+                  "increased or decreased number of cells that make up the core cavities of bones when compared to controls"
+                , "any anomaly in the characteristic surface outline or contour of the external ear"
+                , "perturbations in the normal patterned arrangement of the teeth or alignment of the jaw, resulting in the incorrect position of biting or chewing surfaces of the upper and lower teeth"
+                , "alterations in the normal placement of body fat"
+                , "anomaly in the space between or the placement of the outer ears"
+                , "mild impairment of consciousness resulting in reduced alertness and awareness and/or sluggish behavior or inactivity; can be due to generalized brain dysfunction"
+        };
+        String[][] synonyms = new String[] [] {
+                  null
+                , null
+                , new String[] { "misaligned teeth" }
+                , new String[] { "abnormal fat distribution" }
+                , new String[] { "abnormal ear distance/ position", "abnormal pinnae position", "abnormal pinna position", "abnormal position of pinna" }
+                , new String[] { "listlessness", "torpidity", "torpor", "languor" }
+        };
+        String[][] mappedHpTerms = new String[] [] {
+                  null
+                , new String[] { "Abnormality of the pinna" }
+                , null
+                , new String[] { "Abnormality of adipose tissue" }
+                , new String[] { "Posteriorly rotated ears", "Protruding ear", "Low-set ears" }
+                , new String[] { "Lethargy" }
+        };
+        PhenotypeProcedure[] procedures = new PhenotypeProcedure[] {
+                  null
+                , new PhenotypeProcedure("Dysmorphology", "/impress/impress/displaySOP/1")
+                , null
+                , new PhenotypeProcedure("Dysmorphology", "/impress/impress/displaySOP/1")
+                , null
+                , new PhenotypeProcedure("Combined SHIRPA and Dysmorphology", "/impress/impress/displaySOP/186")
+        };
 
-        for (int i = 0; i < phenotypeIdArray.length; i++) {
-            target = baseUrl + "/phenotypes/" + phenotypeIdArray[i];
-            logger.debug("phenotype[" + i + "] URL: " + target);
+        testUtils.logTestStartup(logger, this.getClass(), testName, targets.length, targets.length);
+
+        for (int i = 0; i < targets.length; i++) {
+            String target = targets[i];
+            System.out.println("phenotype[" + i + "] URL: " + target);
+            RunStatus status = new RunStatus();
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeIdArray[i], phenotypePipelineDAO, baseUrl);
-                phenotypePage.selectPhenotypesLength(100);
-                String definition = phenotypePage.getDefinition();
-                if (definition.isEmpty()) {
-                    message = "ERROR: Expected definition but none was found. URL: " + target;
-                    status.addError(message);
-                    errorCount++;
-                }
+                List<String> synonymList = (synonyms[i] == null ? null : Arrays.asList(synonyms[i]));
+                List<PhenotypeProcedure> procedureList = (procedures[i] == null ? null : Arrays.asList(procedures[i]));
+                List<String> mappedHpTermList = (mappedHpTerms[i] == null ? null : Arrays.asList(mappedHpTerms[i]));
+                status = testTopSectionEngine(target, definitions[i], synonymList, mappedHpTermList, procedureList);
 
-                List<String> synonyms = phenotypePage.getSynonyms();
-                if (synonyms.size() != expectedSynonymCount[i]) {
-                    message = "ERROR: Expected " + expectedSynonymCount + " synonyms but found " + synonyms.size() + ". Values:";
-                    for (int j = 0; j < synonyms.size(); j++) {
-                        String synonym = synonyms.get(j);
-                        if (j > 0)
-                            System.out.print(",\t");
-                        System.out.print("'" + synonym + "'");
-                    }
-                    status.addError(message);
-                }
             } catch (Exception e) {
                 status.addError("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + target);
             }
+
+            if ( ! status.hasErrors()) {
+                status.successCount++;
+            } else {
+                System.out.println(status.toStringErrorMessages());
+            }
+
+            masterStatus.add(status);
         }
 
-        if ((errorCount == 0) && ( ! status.hasErrors())) {
-            successList.add("Test succeeded.");
-        }
-
-        testUtils.printEpilogue(testName, start, status, successList.size(), 1, 1);
+        testUtils.printEpilogue(testName, start, masterStatus, definitions.length, definitions.length);
     }
 
     // PRIVATE METHODS
+
+     /**
+      * Engine to test the top part (first section) of the phenotype page.
+      *
+      * @param target url of mp id to test
+      * @param expectedDefinition Expected definition text. (matches using 'contains')
+      * @param expectedSynonyms list of expected synonyms. May be null or empty.
+      * @param expectedMappedHpTerms list of expected mapped hp terms. May be null or empty.
+      * @param expectedProcedures list of expected procedure groups (internal class in <code>PhenotypePage</code>). May
+      *                           be null or empty.
+      * @return status
+      */
+     private RunStatus testTopSectionEngine(String target, String expectedDefinition, List<String> expectedSynonyms, List<String> expectedMappedHpTerms, List<PhenotypeProcedure> expectedProcedures) {
+         RunStatus status = new RunStatus();
+
+         try {
+             PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypePipelineDAO, baseUrl);
+
+             // Definition
+             String definition = phenotypePage.getDefinition();
+             if ( ! definition.contains(expectedDefinition)) {
+                 status.addError("Expected definition '" + expectedDefinition + "'. but found '" + definition + ".");
+             }
+
+             // Synonyms
+             if ((expectedSynonyms != null) && ( ! expectedSynonyms.isEmpty())) {
+                 List<String> synonyms = phenotypePage.getSynonyms();
+                 synonyms.removeAll(expectedSynonyms);
+                 if ( ! synonyms.isEmpty()) {
+                    status.addError("Unexpected synonyms: '" + StringUtils.join(synonyms, ", ") + "'");
+                 }
+             }
+
+            // Mapped HP terms
+             if ((expectedMappedHpTerms != null) && ( ! expectedMappedHpTerms.isEmpty())) {
+                 List<String> mappedHpTerms = phenotypePage.getMappedHpTerms();
+                 mappedHpTerms.removeAll(expectedMappedHpTerms);
+                 if ( ! mappedHpTerms.isEmpty()) {
+                    status.addError("Unexpected mappedHpTerms: '" + StringUtils.join(mappedHpTerms, ", ") + "'");
+                 }
+             }
+
+             // Procedures
+             if ((expectedProcedures != null) && ( ! expectedProcedures.isEmpty())) {
+                 List<PhenotypeProcedure> procedures = phenotypePage.getProcedures();
+                  procedures.removeAll(expectedProcedures);
+                  if ( ! procedures.isEmpty()) {
+                     status.addError("Unexpected procedures: '" + StringUtils.join(procedures, ", ") + "'");
+                  }
+              }
+
+         } catch (Exception e) {
+             status.addError("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + target);
+         }
+         return status;
+     }
 
 
     private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
@@ -410,9 +457,8 @@ phenotypeIds = Arrays.asList(new String[] { "MP:0002085"});
             System.out.println("phenotype[" + i + "] URL: " + target);
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypeId, phenotypePipelineDAO, baseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypePipelineDAO, baseUrl);
                 if (phenotypePage.hasPhenotypesTable()) {
-                    phenotypePage.selectPhenotypesLength(100);
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
                     RunStatus localStatus = phenotypePage.validate();
                     if (localStatus.hasErrors()) {
