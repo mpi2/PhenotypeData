@@ -306,10 +306,14 @@ public abstract class OntologyDAO {
     	
         Set<OntologyTermBean> beans = new LinkedHashSet();
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
-        if (ancestorGraphsId != null) {
+        if (ancestorGraphsId != null) {        	
             for (List<String> ancestorGraphId : ancestorGraphsId) {
-	            if (ancestorGraphId.size() >= 2){
-	            	beans.add(allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 2)));
+	            if (ancestorGraphId.size() >= 1){
+	            	OntologyTermBean bean = allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 1)); 
+	            	beans.add(bean);
+	            	if (id.equalsIgnoreCase("MP:0001672" )){
+	            		System.out.println("allTermsMap MP:0001672 " + bean.getName() + bean.getId());
+	            	}
 	            }
             }
         }

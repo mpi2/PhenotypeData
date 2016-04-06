@@ -32,11 +32,9 @@
 		    d3.select("#parentDiv").style("width", width + "px");
 	    } else if (hasChildren && !hasParents){
 		    d3.select("#childDiv").style("width", width*2 + "px");
-		    d3.select("#parentDiv").remove();
     		d3.selectAll("#childDiv").classed("half", false);
 	    } else if (!hasChildren && hasParents){
 		    d3.select("#parentDiv").style("width", width*2 + "px");
-		    d3.select("#childDiv").remove();
     		d3.selectAll("#parentDiv").classed("half", false);
 	    }
 	    
