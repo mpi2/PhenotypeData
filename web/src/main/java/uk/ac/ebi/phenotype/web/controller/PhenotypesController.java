@@ -166,7 +166,6 @@ public class PhenotypesController {
 
 	            if (mpData.containsKey("hp_term")) {
 	            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
-	            	System.out.println("---computationalHPTerms " + computationalHPTerms);
 	            }
 
 	            if (mpData.containsKey("sibling_mp_id")) {
