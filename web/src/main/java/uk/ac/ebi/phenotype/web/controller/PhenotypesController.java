@@ -166,6 +166,7 @@ public class PhenotypesController {
 
 	            if (mpData.containsKey("hp_term")) {
 	            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
+	            	System.out.println("---computationalHPTerms " + computationalHPTerms);
 	            }
 
 	            if (mpData.containsKey("sibling_mp_id")) {
@@ -225,6 +226,10 @@ public class PhenotypesController {
 
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
 
+        // Stuff for parent-child display
+        model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
+        model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
+        
         System.out.println("Total time to return to phenotype page from controller" +  (System.currentTimeMillis() - time) );
         
         return "phenotypes";

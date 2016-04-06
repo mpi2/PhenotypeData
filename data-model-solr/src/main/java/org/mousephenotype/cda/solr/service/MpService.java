@@ -309,7 +309,7 @@ public class MpService extends BasicService implements WebStatus{
 
 			computationalHPTerms.put(hpIds.get(i), term);
 		}
-
+  	
 		return new HashSet<SimpleOntoTerm>(computationalHPTerms.values());
 
     }
