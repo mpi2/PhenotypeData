@@ -296,11 +296,13 @@ public class MPIndexer extends AbstractIndexer {
                                 thisNode = fetchChildNodes(helper, thisNode, termId);
                                 if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
                                 	thisNode.accumulate("state", getState(false));    
-        							thisNode.accumulate("type", "selected");                            	
                                 } else {
                                 	thisNode.accumulate("state", getState(true));
                                 }
                             } 
+        					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
+        						thisNode.accumulate("type", "selected");
+        					}
                             tn.add(thisNode);
                         }
                         
@@ -339,13 +341,15 @@ public class MPIndexer extends AbstractIndexer {
 					if (thisNode.getBoolean("children")) {
 						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
                         if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                        	thisNode.accumulate("state", getState(false));  
-							thisNode.accumulate("type", "selected");
+                        	thisNode.accumulate("state", getState(false)); 
                         } else {
                         	thisNode.accumulate("state", getState(true));
                         }
 					} else {
 						thisNode.accumulate("state", getState(false));
+					}
+					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
+						thisNode.accumulate("type", "selected");
 					}
 					children.add(thisNode);
 				}
@@ -381,12 +385,15 @@ public class MPIndexer extends AbstractIndexer {
 						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
 						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
 							thisNode.accumulate("state", getState(false));
-							thisNode.accumulate("type", "selected");
 						} else {
 							thisNode.accumulate("state", getState(true));
 						}
 					} else {
 						thisNode.accumulate("state", getState(false));
+					}
+
+					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
+						thisNode.accumulate("type", "selected");
 					}
 					children.add(thisNode);
 					nodeObj.put("children", children);
