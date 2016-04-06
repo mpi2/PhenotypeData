@@ -295,9 +295,10 @@ public class MPIndexer extends AbstractIndexer {
                             if (thisNode.getBoolean("children")) {
                                 thisNode = fetchChildNodes(helper, thisNode, termId);
                                 if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                                	thisNode.accumulate("state", getState(false, true));                                	
+                                	thisNode.accumulate("state", getState(false));    
+        							thisNode.accumulate("type", "selected");                            	
                                 } else {
-                                	thisNode.accumulate("state", getState(true, false));
+                                	thisNode.accumulate("state", getState(true));
                                 }
                             } 
                             tn.add(thisNode);
@@ -338,12 +339,13 @@ public class MPIndexer extends AbstractIndexer {
 					if (thisNode.getBoolean("children")) {
 						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
                         if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                        	thisNode.accumulate("state", getState(false, true));                                	
+                        	thisNode.accumulate("state", getState(false));  
+							thisNode.accumulate("type", "selected");
                         } else {
-                        	thisNode.accumulate("state", getState(true, false));
+                        	thisNode.accumulate("state", getState(true));
                         }
 					} else {
-						thisNode.accumulate("state", getState(false, false));
+						thisNode.accumulate("state", getState(false));
 					}
 					children.add(thisNode);
 				}
@@ -378,12 +380,13 @@ public class MPIndexer extends AbstractIndexer {
 					if (thisNode.getBoolean("children")) {
 						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
 						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
-							thisNode.accumulate("state", getState(false, true));
+							thisNode.accumulate("state", getState(false));
+							thisNode.accumulate("type", "selected");
 						} else {
-							thisNode.accumulate("state", getState(true, false));
+							thisNode.accumulate("state", getState(true));
 						}
 					} else {
-						thisNode.accumulate("state", getState(false, false));
+						thisNode.accumulate("state", getState(false));
 					}
 					children.add(thisNode);
 					nodeObj.put("children", children);
@@ -396,10 +399,9 @@ public class MPIndexer extends AbstractIndexer {
 		return nodeObj;
 	}
 	
-	private JSONObject getState(boolean opened, boolean selected){
+	private JSONObject getState(boolean opened){
     	JSONObject state = new JSONObject();
     	state.accumulate("opened", opened);
-    	state.accumulate("selected", selected);
     	return state;
     }
     
