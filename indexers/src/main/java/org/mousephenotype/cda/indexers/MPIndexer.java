@@ -380,7 +380,7 @@ public class MPIndexer extends AbstractIndexer {
 						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
 							thisNode.accumulate("state", getState(false, true));
 						} else {
-							thisNode.accumulate("state", getState(false, false));
+							thisNode.accumulate("state", getState(true, false));
 						}
 					} else {
 						thisNode.accumulate("state", getState(false, false));
