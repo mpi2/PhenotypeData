@@ -193,11 +193,10 @@ public class PhenotypesController {
             mpSiblings = new HashSet<OntologyTerm>();
         }
 
-        
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
  		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest);
-
+ 		
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
@@ -226,6 +225,10 @@ public class PhenotypesController {
 
         model.addAttribute("parametersAssociated", getParameters(phenotype_id));
 
+        // Stuff for parent-child display
+        model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
+        model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
+        
         System.out.println("Total time to return to phenotype page from controller" +  (System.currentTimeMillis() - time) );
         
         return "phenotypes";
