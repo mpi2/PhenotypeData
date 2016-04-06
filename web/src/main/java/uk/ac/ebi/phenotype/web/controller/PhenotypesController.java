@@ -229,8 +229,6 @@ public class PhenotypesController {
         model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
         model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
         
-        System.out.println("Total time to return to phenotype page from controller" +  (System.currentTimeMillis() - time) );
-        
         return "phenotypes";
     }
 

@@ -27,17 +27,16 @@
 	    
 	    var svgP;
 
-	    if (hasChildren && hasParents){
+	    if ((hasChildren == true) && (hasParents == true)){
 		    d3.select("#childDiv").style("width", width + "px");
 		    d3.select("#parentDiv").style("width", width + "px");
-	    } else if (hasChildren && !hasParents){
+	    } else if ((hasChildren == true) && (hasParents != true)){
 		    d3.select("#childDiv").style("width", width*2 + "px");
     		d3.selectAll("#childDiv").classed("half", false);
-	    } else if (!hasChildren && hasParents){
+	    } else if ((hasChildren != true) && (hasParents == true)){
 		    d3.select("#parentDiv").style("width", width*2 + "px");
     		d3.selectAll("#parentDiv").classed("half", false);
-	    }
-	    
+	    } 	    
 	    
 	    function shortenLabel(label){	    	
 	    	if (label.length > 33){
@@ -63,13 +62,6 @@
 			    	  console.log(error);
 			    	  throw error;
 			     }
-			     
-			     if (root.children.length == 0){
-			    		hasParents = false;
-			    		d3.select("#parentDiv").remove();
-			    		d3.selectAll("#childDiv")
-			    		  .classed("half", false);
-			  	 }
 			     
 			     var nodes = cluster.nodes(root),
 			          links = cluster.links(nodes);
@@ -104,6 +96,10 @@
 		  		      .on('click', function(d, i) {
 						  window.location.href = "../phenotypes/"  + d.id;
 		  		  }) ; // width of the node labels; 
+			     
+			     if (!hasChildren){
+				        svgP.attr("transform", "translate(100,0)");
+			     }
 		    });
 	    }
 	    
@@ -154,16 +150,7 @@
 		   		      .on('click', function(d, i) {
 						  window.location.href = "../phenotypes/"  + d.id;
 					   }); // width of the node labels; 
-			     
-	
-			     if (root.children.length == 0){
-			    		hasParents = false;
-			    		d3.select("#childDiv").remove();
-			    		d3.selectAll("#parentDiv")
-			    		  .classed("half", false);
-				        svgP.attr("transform", "translate(100,0)");
-			  	 }
-			     
+			     			     
 		    });
 	    }
 	     
