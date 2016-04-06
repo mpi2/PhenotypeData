@@ -26,6 +26,22 @@
 	
 	    
 	    var svgP;
+	    var hasChildren = hasValues("../mpTree/json/" + mp_id + "?type=children");
+	    var hasParents = hasValues("../mpTree/json/" + mp_id + "?type=parents");
+	    
+	    if (hasChildren && hasParents){
+		    d3.select("#childDiv").style("width", width + "px");
+		    d3.select("#parentDiv").style("width", width + "px");
+	    } else if (hasChildren && !hasParents){
+		    d3.select("#childDiv").style("width", width*2 + "px");
+		    d3.select("#parentDiv").remove();
+    		d3.selectAll("#childDiv").classed("half", false);
+	    } else if (!hasChildren && hasParents){
+		    d3.select("#parentDiv").style("width", width*2 + "px");
+		    d3.select("#childDiv").remove();
+    		d3.selectAll("#parentDiv").classed("half", false);
+	    }
+	    
 	    
 	    function shortenLabel(label){	    	
 	    	if (label.length > 33){
@@ -33,6 +49,18 @@
 	    	} else {
 	    		return  label;
 	    	}
+	    }
+	    
+	    function httpGet(url)  {
+	        var xmlHttp = new XMLHttpRequest();
+	        xmlHttp.open( "GET", url, false ); // false for synchronous request
+	        xmlHttp.send( null );
+	        return xmlHttp.responseText;
+	    }
+	    
+	    function hasValues(url){
+	    	var obj = JSON.parse(httpGet(url));
+	    	return (obj.children.size > 0);
 	    }
 	    
 	    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
@@ -94,6 +122,7 @@
 	    });
 	    
 	    
+
 	    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
 	    	  
 		    var svg = d3.select("#childDiv").append("svg")
@@ -106,16 +135,7 @@
 		    	  console.log(error);
 		    	  throw error;
 		   	 }
-		
-		     if (root.children.length == 0){
-		    		hasParents = false;
-		    		d3.select("#childDiv").remove();
-		    		d3.selectAll("#parentDiv")
-		    		  .classed("half", false);
-
-			        svgP.attr("transform", "translate(100,0)");
-		  	 }
-		     
+				     
 		     var nodes = cluster.nodes(root),
 		          links = cluster.links(nodes);
 		
@@ -149,7 +169,18 @@
 	   		      .on('click', function(d, i) {
 					  window.location.href = "../phenotypes/"  + d.id;
 				   }); // width of the node labels; 
+		     
+
+		     if (root.children.length == 0){
+		    		hasParents = false;
+		    		d3.select("#childDiv").remove();
+		    		d3.selectAll("#parentDiv")
+		    		  .classed("half", false);
+			        svgP.attr("transform", "translate(100,0)");
+		  	 }
+		     
 	    });
+	    
 	     
 	   
 	    d3.select(self.frameElement).style("height", height + "px");
