@@ -225,11 +225,10 @@ public class PhenotypesController {
             mpSiblings = new HashSet<OntologyTerm>();
         }
 
-        
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
  		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest);
-
+ 		
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));

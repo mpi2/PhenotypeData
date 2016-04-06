@@ -53,9 +53,12 @@ public class OntologyBrowserController {
             @RequestParam(value = "termId", required = true) String termId,
             HttpServletRequest request,
             Model model)
-            throws IOException, URISyntaxException, SQLException {
+            throws IOException, URISyntaxException, SQLException, SolrServerException {
 
         model.addAttribute("termId", termId);
+        // Stuff for parent-child display
+        model.addAttribute("hasChildren", ms.getChildren(termId).size() > 0 ? true : false);
+        model.addAttribute("hasParents", ms.getParents(termId).size() > 0 ? true : false);
 
         return "ontologyBrowser";
     }

@@ -46,6 +46,8 @@
 	
 		<script type="text/javascript">
 			var mp_id = '${phenotype.getMpId()}';
+			var hasChildren = '${hasChildren}';
+			var hasParents = '${hasParents}';
 		</script>
     	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 	
@@ -189,8 +191,8 @@
 						
 						
 					<div id="parentChild" class="half">
-                            <div class="half" id="parentDiv"></div>
-							<div class="half" id="childDiv"></div>
+                        <div class="half" id="parentDiv"></div>
+						<div class="half" id="childDiv"></div>
 					</div>
 						
 					<div class="clear"></div>

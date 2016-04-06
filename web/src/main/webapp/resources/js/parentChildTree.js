@@ -26,8 +26,6 @@
 	
 	    
 	    var svgP;
-	    var hasChildren = hasValues("../mpTree/json/" + mp_id + "?type=children");
-	    var hasParents = hasValues("../mpTree/json/" + mp_id + "?type=parents");
 	    
 	    if (hasChildren && hasParents){
 		    d3.select("#childDiv").style("width", width + "px");
@@ -50,18 +48,7 @@
 	    		return  label;
 	    	}
 	    }
-	    
-	    function httpGet(url)  {
-	        var xmlHttp = new XMLHttpRequest();
-	        xmlHttp.open( "GET", url, false ); // false for synchronous request
-	        xmlHttp.send( null );
-	        return xmlHttp.responseText;
-	    }
-	    
-	    function hasValues(url){
-	    	var obj = JSON.parse(httpGet(url));
-	    	return (obj.children.size > 0);
-	    }
+
 	    
 	    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
 	    	
