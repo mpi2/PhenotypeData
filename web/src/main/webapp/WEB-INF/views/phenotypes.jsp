@@ -128,10 +128,10 @@
 
 					<div class="half">
 						<c:if test="${not empty phenotype.getMpDefinition()}">
-							<p class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
+							<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 						</c:if>
 						<c:if test="${not empty synonyms}">
-							<p class="with-label"> <span class="label">Synonyms</span>
+							<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
 								<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
 									${synonym.symbol}
 									<c:if test="${!loop.last}">, &nbsp;</c:if>
@@ -139,7 +139,7 @@
 							</p>
 						</c:if>
 						<c:if test="${not empty hpTerms}">
-							<div class="with-label"> <span class="label">Computationally mapped HP term</span>
+							<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
 								<ul>
 									<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
 										<li>${hpTerm.termName}</li>
@@ -151,7 +151,7 @@
 
 
 						<c:if test="${not empty procedures}">
-							<div class="with-label"> <span class="label">Procedure</span>
+							<div id="procedures" class="with-label"> <span class="label">Procedure</span>
 								<ul>
 								<c:set var="count" value="0" scope="page"/>
 									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
@@ -163,16 +163,8 @@
 								</ul>
 							</div>
 						</c:if>
-							<c:if test="${not empty anatomy}">
-							<div class="with-label"> <span class="label">Anatomy</span>
-								<ul>
-									<c:forEach var="term" items="${anatomy}" varStatus="loop">
-										<li><a href="http://informatics.jax.org/searches/AMA.cgi?id=${term.id}">${term.name}</a></li>
-									</c:forEach>
-								</ul>
-							</div>
-						</c:if>
-						<p class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
+
+						<p id="mpId" class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
 						<c:if test="${!hasData}">
 							<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
 						</c:if>
