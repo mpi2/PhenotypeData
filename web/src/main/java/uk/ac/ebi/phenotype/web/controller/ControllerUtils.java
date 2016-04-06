@@ -15,14 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 
 public class ControllerUtils {

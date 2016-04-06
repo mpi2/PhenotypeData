@@ -22,6 +22,8 @@
 
 package uk.ac.ebi.phenotype.api;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.phenotype.web.TestConfig;
 
-import static org.junit.Assert.assertTrue;
+import uk.ac.ebi.phenotype.web.TestConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")

@@ -15,9 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.enumerations.SexType;
-
 import java.util.Date;
+
+import org.mousephenotype.cda.enumerations.SexType;
 
 public class MouseDataPoint {
 	private String mouseId;

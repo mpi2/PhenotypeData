@@ -21,11 +21,11 @@
 
 package uk.ac.ebi.phenotype.stats.strategy;
 
+import java.util.List;
+
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-
-import java.util.List;
 
 /**
  * Implements the concurrent control selection strategy.

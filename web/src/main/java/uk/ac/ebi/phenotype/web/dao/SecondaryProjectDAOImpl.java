@@ -21,6 +21,17 @@
 
 package uk.ac.ebi.phenotype.web.dao;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
@@ -34,13 +45,8 @@ import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.phenotype.web.controller.GeneHeatmapController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import uk.ac.ebi.phenotype.web.controller.GeneHeatmapController;
 
 
 /**

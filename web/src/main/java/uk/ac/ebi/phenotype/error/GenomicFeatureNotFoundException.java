@@ -15,6 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.error;
 
+import uk.ac.ebi.phenotype.web.controller.GenesController;
+
 /**
  * 
  * GenomicFeatureNotFoundException is thrown when a genomic feature can't be
