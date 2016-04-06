@@ -53,7 +53,7 @@ public class OntologyBrowserController {
             @RequestParam(value = "termId", required = true) String termId,
             HttpServletRequest request,
             Model model)
-            throws IOException, URISyntaxException, SQLException {
+            throws IOException, URISyntaxException, SQLException, SolrServerException {
 
         model.addAttribute("termId", termId);
 
