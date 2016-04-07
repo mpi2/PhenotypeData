@@ -60,6 +60,7 @@ public abstract class GraphSection {
     private GraphHeading heading;
     private MoreStatisticsLink moreStatisticsLink;
     private ChartType chartType = null;
+    private boolean statisticsFailed = false;
 
     /**
      * Creates a new <code>GraphSection</code> instance
@@ -131,6 +132,10 @@ public abstract class GraphSection {
 
     public MoreStatisticsLink getMoreStatisticsLink() {
         return moreStatisticsLink;
+    }
+
+    public boolean statisticsFailed() {
+        return this.statisticsFailed;
     }
 
 
@@ -209,6 +214,13 @@ public abstract class GraphSection {
             elements = chartElement.findElements(By.xpath("./table[starts-with(@class, 'globalTest')]"));
             if ( ! elements.isEmpty()) {
                 this.globalTestTable = new GraphGlobalTestTable(graphUrl, elements.get(0));
+            }
+
+            elements = driver.findElements(By.xpath("//div[@class='alert']"));
+            if ( ! elements.isEmpty()) {
+                if (elements.get(0).getText().contains("Statistics Failed")) {
+                    statisticsFailed = true;
+                }
             }
 
         } catch (NoSuchElementException | TimeoutException te ) {
