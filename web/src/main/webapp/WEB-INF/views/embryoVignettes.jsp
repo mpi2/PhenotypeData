@@ -62,11 +62,7 @@
 				            		</ul>
 								</div>
                             	<div class="onethird"><a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology"><img alt="Embryo Dysmorphology Image" src="${baseUrl}/img/vignettes/chtopPink.jpg" >Chtop null embryo</a></div>
-				            		<div class="clear"></div>					
-	                           
-	                       
-	                           
-	                           
+				            	<div class="clear"></div>					
 	                           
                             </div>
                         </div>
@@ -117,7 +113,7 @@
 							<h2 class="title" id="${geneId}"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 							
                             <div id="3" class="inner">
-                            	<div>
+                            	<div class="half">
                          			<p>
                          				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.<br>
 										Acvr2a mutants are subviable with most pups dying before postnatal day 7. Micro-CT analysis at E15.5 revealed variable penetrance of eye and craniofacial abnormalities. Eye phenotypes varied from normal (Embryo 1- (E1)), to underdeveloped (E2), to cyclopic (E3), to absent (E4). Craniofacial phenotypes varied from normal (E1) to narrow snout (E2), to an elongated  snout missing the mandible and tongue (E3, 4) and low set ears (E2, 3, 4).
@@ -151,7 +147,7 @@
                             		</ul>
                             		
                             	</div>
-                            	<div ><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png" >
+                            	<div class="half"><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png" >
 								</div>
 								
                             	<div class="clear"></div>
@@ -356,9 +352,8 @@ BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, 
                             
                             <div class="section">
                             <c:set var="geneId" value="MGI:3039593"></c:set>
+                            <h2 id="${geneId}"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></h2>
                             <div class="inner">
-                            	<h2 id="${geneId}"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></h2></h2>
-                            	
                             	
                             	<div  class="half">
 				            		<p>
@@ -422,20 +417,17 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                         
                             <div class="section">
                             <c:set var="geneId" value="MGI:1922814"></c:set>
+                            <h2 id="${geneId}"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
                             <div class="inner">
-                            	<h2 id="${geneId}"><t:formatAllele>Rsph9
-<tm1.1(KOMP)Vlcg></t:formatAllele></h2></h2>
-                            	
-                            	
-                            	<div  class="half">
+                            	<div class="half">
 				            		<p>
 				            		Radial spoke head protein 9 is a component of the radial spoke head in motile cilia and flagella.
-Rsph9 mutants showed partial pre-weaning lethality but viable to P7.
-Whole brain MRI and H&E staining of coronal sections of the P7 brain revealed severe hydrocephaly of the left and right lateral ventricles of the Rsph9 mutant.
-Coronal section through the nasal region showed that the sinuses of the Rsph9 mutants were filled with pus (asterisks).
-Both hydrocephaly and nasal blockage are phenotypes associated with Primary Ciliary Dyskinesia in humans.
-</p>
-				            		
+									Rsph9 mutants showed partial pre-weaning lethality but viable to P7.
+									Whole brain MRI and H&E staining of coronal sections of the P7 brain revealed severe hydrocephaly of the left and right lateral ventricles of the Rsph9 mutant.
+									Coronal section through the nasal region showed that the sinuses of the Rsph9 mutants were filled with pus (asterisks).
+									Both hydrocephaly and nasal blockage are phenotypes associated with Primary Ciliary Dyskinesia in humans.
+									</p>
+													            		
 				            		<p>Phenotype data links</p>
 				            		<ul>
 				            			<li>
@@ -462,10 +454,12 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            			</li>
 				            		</ul>
 								</div>
+								
                             	<div class="half">
                             		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png" >H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the Rsph9tm1.1/tm1.1 mutant mice. 
 								</div>
-				            		<div class="clear"></div>		
+				            	
+				            	<div class="clear"></div>		
 				            		
 				            		
 				            	<div id="rsph9Viable" style="display: none">
@@ -474,12 +468,12 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            		<img src="${baseUrl}/img/vignettes/Rsph9Table.png">		
 	                           	</div>
 	                           	
-	                       <div id="rsph9Mri" style="display:none">
-	                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
-	                       			<p>
-	                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
-	                       			</p>
-	                       </div>
+		                       <div id="rsph9Mri" style="display:none">
+		                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
+		                       			<p>
+		                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
+		                       			</p>
+		                       </div>
 	                           
 	                           
 	                           
@@ -535,13 +529,62 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             </div>
                             
                             
-                            
-                            
-                            
-                            
-                            
-                            
-                            
+                     <div class="section">
+                        <c:set var="geneId" value="MGI:1928849"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Svep1<tm1b (EUCOMM)Hmgu/J>
+								</t:formatAllele>
+							</h2>
+							
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Svep1 codes for an uncharacterized protein named after the multiple domains identified in the										
+										sequence: Sushi, a domain common in adhesion  and complement proteins; von Willebrand factor 
+										type A, occurring in extra-cellular matrix and integrin proteins; Epidermal Growth Factor, extra-cellular										
+										cysteine-rich repeats promoting protein-protein interactions; pentraxin domain containing 1, reactive										
+										with the complement system. No prior targeted mutations for this gene have been reported. 										
+										Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after 										
+										E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size 										
+										(Fig 1). Among other defects, microCT analysis 	reveals brain defects, lung hypoplasia and absent										
+										renal pelvis in the kidney (Fig 2). Phenotypes of heterozygotes include abnormal body composition										
+										and abnormal blood chemistry.
+									</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
+                            		<ul>
+                            			<li>
+                            				Viability:<a href="${baseUrl}/charts?accession=MGI:1916804&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: NA
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a>
+                            			</li>
+                            			<li>
+                            				3-D Imaging: NA
+                            			</li> 
+                            			<li>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="onethird">
+                            		<img alt="E18.5  Svep1 null embryo" src="${baseUrl}/img/vignettes/Svep1.jpg">
+                            		<div class="clear"></div>
+                            		<img class="quarter" src="${baseUrl}/img/vignettes/SVep1_Kidney_WT_E18.5.jpg">
+                            		<img class="quarter" src="${baseUrl}/img/vignettes/Svep1_Kidney_Hom_E18.5.jpg">
+                            		<img class="quarter" src="${baseUrl}/img/vignettes/SVep1_Lung_WT_E18.5.jpg">
+                            		<img class="quarter" src="${baseUrl}/img/vignettes/Svep1_Lung_Hom_E18.5.jpg">	
+                            	</div>
+								
+                            	<div class="clear"></div>
+                            </div>
+                       	</div>
+                            		                            
                             
                       <%--   <div class="section">
                         <c:set var="geneId" value="MGI:1928849"></c:set>
