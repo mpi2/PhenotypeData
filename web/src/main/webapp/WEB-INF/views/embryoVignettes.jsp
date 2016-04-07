@@ -555,7 +555,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                         			
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: NA
@@ -729,7 +729,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             			</li>
                             			<li>
 				            				Placental histopath: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPM_001_001,IMPC_GPM_002_001,IMPC_GPM_004_001,IMPC_GPM_003_001,IMPC_GPM_005_001">E12.5</a>,
-				            				 				<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPO_006_001,IMPC_GPO_001_001,IMPC_GPO_002_001,IMPC_GPO_004_001,IMPC_GPO_003_001">E14.5</a> images
+				            				 				<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPO_006_001,IMPC_GPO_001_001,IMPC_GPO_002_001,IMPC_GPO_004_001,IMPC_GPO_003_001">E14.5</a>
 				            			</li>
                             			<li>
                             				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
@@ -785,7 +785,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                         			
                             		<ul>
                             			<li>
-                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5463977&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5490495&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: ???
@@ -815,52 +815,6 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             	<div class="clear"></div>
                             </div>
                        	</div>             
-                            
-                      <%--   <div class="section">
-                        <c:set var="geneId" value="MGI:1928849"></c:set>
-							<h2 class="title" id="${geneId}"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
-							
-                            <div class="inner">
-                            	<div class="half">
-                         			<p>
-                         				Svep1 codes for an uncharacterized protein named after the multiple domains identified in the sequence: Sushi, a domain common in adhesion and complement proteins; von Willebrand factor type A, occurring in extra-cellular matrix and integrin proteins; Epidermal Growth Factor, extra-cellular cysteine-rich repeats promoting protein-protein interactions; pentraxin domain containing 1, reactive with the complement system.<br>
-                         				 No prior targeted mutations for this gene have been reported. Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size (Fig 1). Among other defects, microCT analysis reveals brain defects, lung hypoplasia and absent renal pelvis in the kidney (Fig 2). Phenotypes of heterozygotes include abnormal body composition and abnormal blood chemistry.
-									</p>
-                        			
-                        			<p>Phenotype data links</p>
-                        			
-                            		<ul>
-                            			<li>
-                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5509058&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Partial preweaning lethality</a>
-                            			</li>
-                            			<li>
-                            				Embryo LacZ Expression: NA
-                            			</li>
-                            			<li>
-                            				Embryo Gross Dysmorphology: NA
-                            			</li>
-                            			<li>
-                            				3-D Imaging: NA
-                            			</li> 
-                            			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
-                            			</li>
-                            		</ul>
-                            		
-                            	</div>
-                            	<div class="half"><img alt="MicroCT Pax7 embryos and LacZ Staining" src="${baseUrl}/img/vignettes/Svep1_E18.5_Hom.tif" >
-
-								</div>
-								
-                            	<div class="clear"></div>
-                            	
-								</div>
-                            </div>
-                        --%>
-                        
-                        
-                            
-                            
                             
                        	</div>
                        	
