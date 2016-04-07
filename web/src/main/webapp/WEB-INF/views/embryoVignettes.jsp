@@ -567,7 +567,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				3-D Imaging: NA
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
                             			</li>
                             		</ul>
                             		
