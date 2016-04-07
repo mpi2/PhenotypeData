@@ -107,9 +107,14 @@
 					var gene_id = '${acc}';
 
 					$(document).ready(function() {
-						console.log('calling tabs now');
 
-						$("#exptabs").tabs({ active: 0 });
+						var expressionTab = 0;
+						var hash = location.hash;
+						if (hash.indexOf("tabs-") > -1){
+							expressionTab = $('a[href="' + hash + '"]').parent().index();
+						}
+						
+						$("#exptabs").tabs({ active: expressionTab});
 						$("#diseasetabs").tabs({ active: 0 });
 
 						//$("#diseasetabs").find("td[class!='shown']").css('color','#666');
