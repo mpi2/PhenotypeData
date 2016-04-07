@@ -8,7 +8,7 @@
 
 	<jsp:attribute name="title">${phenotype.getMpId()} (${phenotype.getMpTerm()}) | IMPC Phenotype Information</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/mp?kw=*&fq=top_level_mp_term:*">Phenotypes</a> &raquo; ${phenotype.getMpTerm()}</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/mp?kw=*">Phenotypes</a> &raquo; ${phenotype.getMpTerm()}</jsp:attribute>
 
 	<jsp:attribute name="header">
 
