@@ -204,6 +204,9 @@
 										    <li id="item8"><img src="${baseUrl}/img/vignettes/Pax7.png" /> 
 										    	<p class="embryo-caption">Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain. It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult. <t:vignetteLink geneId="MGI:97491"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
+										    <li id="item9"><img src="${baseUrl}/img/vignettes/Svep1.png" /> 
+										    	<p class="embryo-caption">Svep1 .... <t:vignetteLink geneId="MGI:1928849"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu/J></t:formatAllele></p></li>	
 										  </ul> 
 									</div>
 	                           	</div>
@@ -212,13 +215,8 @@
 	                           	lacz expression, and high resolution 3D imaging provide insights into developmental biology. Clicking on an image will provide 
 	                           	more information. </p>
                             </div>
-
                         </div>
 
-                        
-                        
-                        
-                        
                          <div class="section" id="pipeline">
 							<h2 class="title ">IMPC Embryonic Pipeline</h2>
                             <div class="inner">
