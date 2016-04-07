@@ -14,13 +14,6 @@
 <!-- always show phenotype icons -->
 <%--<jsp:include page="phenotype_icons_frag.jsp"/>--%>
 <c:choose>
-  <c:when test="${summaryNumber == 0}">
-    <jsp:include page="phenotype_icons_frag.jsp"/>
-    <div id="phenoSumDiv">
-        <h5 class="sectHint">Phenotype Summary</h5>
-        <p>No significant phenotype found based on IMPC phenotyping calls pipeline.</p>
-    </div>
-  </c:when>
 
   <c:when test="${summaryNumber > 0}">
 
@@ -59,7 +52,7 @@
         <c:if test="${gene.embryoDataAvailable}">
             <a class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
         </c:if>
-        
+
         <c:if test="${hasVignette}">
             <%-- <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}">Embryo Vignette</a> --%>
         </c:if>
@@ -160,11 +153,10 @@
 
       <c:if test="${!attemptRegistered}">
         <div class="alert alert-info">
-          <h5>Phenotype data is undergoing quality control</h5>
+          <h5>Not currently registered for phenotyping</h5>
 
-          <p>Any phenotype assocations appearing below are preliminary and may
-            change. Links are provided to the Pheno-DCC quality control
-            resource.</p>
+          <p>Phenotyping is currently not planned for a knockout strain of this gene.
+          </p>
         </div>
       </c:if>
       <br/>
