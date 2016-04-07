@@ -903,7 +903,7 @@ public class DataTableController {
 			}
 
 			// link out to ontology browser page
-			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'>" + mpId + "</a>");
+			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 
             // register of interest
             if (registerInterest.loggedIn()) {
