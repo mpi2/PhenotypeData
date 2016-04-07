@@ -112,6 +112,7 @@
 						var hash = location.hash;
 						if (hash.indexOf("tabs-") > -1){
 							expressionTab = $('a[href="' + hash + '"]').parent().index();
+							$("#section-expression").focus();
 						}
 						
 						$("#exptabs").tabs({ active: expressionTab});
