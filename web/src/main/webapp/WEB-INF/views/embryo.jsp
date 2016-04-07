@@ -204,9 +204,21 @@
 										    <li id="item8"><img src="${baseUrl}/img/vignettes/Pax7.png" /> 
 										    	<p class="embryo-caption">Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired domain. It is involved in specification of the neural crest and is an upstream regulator of myogenesis during post-natal growth and muscle regeneration in the adult. <t:vignetteLink geneId="MGI:97491"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
-										    <li id="item9"><img src="${baseUrl}/img/vignettes/Svep1.png" /> 
+										    <li id="item9"><img src="${baseUrl}/img/vignettes/Svep1.jpg" /> 
 										    	<p class="embryo-caption">Svep1 .... <t:vignetteLink geneId="MGI:1928849"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu/J></t:formatAllele></p></li>	
+										    <li id="item10"><img src="${baseUrl}/img/vignettes/Strn3.jpg" /> 
+										    	<p class="embryo-caption">Strn3 .... <t:vignetteLink geneId="MGI:2151064"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Strn3<tm1b(KOMP)Wtsi/J></t:formatAllele></p></li>	
+										    <li id="item11"><img src="${baseUrl}/img/vignettes/Rab34.jpg" /> 
+										    	<p class="embryo-caption">Rab34 .... <t:vignetteLink geneId="MGI:104606"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Rab34<tm1b(EUCOMM)Hmgu/J></t:formatAllele></p></li>	
+										    <li id="item12"><img src="${baseUrl}/img/vignettes/Cox7c.jpg" /> 
+										    	<p class="embryo-caption">Cox7c .... <t:vignetteLink geneId="MGI:103226"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Cox7c<tm1b(KOMP)Mbp></t:formatAllele></p></li>	
+										    <li id="item13"><img src="${baseUrl}/img/vignettes/Bloc1s2.jpg" /> 
+										    	<p class="embryo-caption">Bloc1s2 .... <t:vignetteLink geneId="MGI:1920939"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp></t:formatAllele></p></li>	
 										  </ul> 
 									</div>
 	                           	</div>
