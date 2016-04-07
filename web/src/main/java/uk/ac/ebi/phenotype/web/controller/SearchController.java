@@ -15,24 +15,29 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.phenotype.util.SearchConfig;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.*;
+import net.sf.json.JSONObject;
+import uk.ac.ebi.phenotype.util.SearchConfig;
 
 
 @Controller
@@ -146,7 +151,7 @@ public class SearchController {
 
 		String solrParamStr = composeSolrParamStr(query, fqStr, dataType);
 		String url = internalSolrUrl + "/" + dataType + "/select?" + solrParamStr;
-		System.out.println("URL: " + url);
+		//System.out.println("URL: " + url);
 		//JSONObject json = solrIndex.getResults(url);
 
 		String mode = dataType + "Grid";
@@ -184,7 +189,6 @@ public class SearchController {
 		if (fqStr != null) {
 			solrParamStr += "&fq=" + fqStr;
 		}
-		System.out.println("PARAMS*****: " + solrParamStr);
 		return solrParamStr;
 	}
 

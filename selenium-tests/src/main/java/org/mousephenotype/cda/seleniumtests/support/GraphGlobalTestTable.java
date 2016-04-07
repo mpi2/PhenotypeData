@@ -38,6 +38,7 @@ public class GraphGlobalTestTable {
     private Double mpAssociationPvalue = null;
     private final List<String> sexEffectPvalues = new ArrayList();
     private final List<String> sexEffects = new ArrayList();
+    private final boolean statisticsFailed;
     
     /**
      * Creates a new <code>GraphGlobalTestTable</code> instance. Some have a
@@ -66,6 +67,9 @@ public class GraphGlobalTestTable {
         for (WebElement we : weEffects) {
             sexEffects.add(we.getText());
         }
+
+        List<WebElement> elements = globalTestTableElement.findElements(By.xpath("../div[@class='alert']"));
+        statisticsFailed = ((elements != null) && ( ! elements.isEmpty()) && (elements.get(0).getText().contains("Statistics Failed")) ? true : false);
     }
 
     /**
@@ -76,15 +80,16 @@ public class GraphGlobalTestTable {
     public final RunStatus validate() {
         RunStatus status = new RunStatus();
         
-        if ((sexEffectPvalues.isEmpty()) || sexEffectPvalues.size() != sexEffects.size()) {
+        if ( ! statisticsFailed && ((sexEffectPvalues.isEmpty()) || sexEffectPvalues.size() != sexEffects.size())) {
             status.addError("ERROR: pvalue/effect is empty/missing. URL: " + graphUrl);
+            return status;
         }
         
         for (int i = 0; i < sexEffectPvalues.size(); i++) {
             String pvalue = sexEffectPvalues.get(i);
             String effect = sexEffects.get(i);
-            if ((pvalue.isEmpty()) || effect.isEmpty()) {
-                status.addError("ERROR: Expected an Effect and a P Value for every result. URL: " + graphUrl);
+            if ( ! statisticsFailed && ((pvalue.isEmpty()) || effect.isEmpty())) {
+                status.addError("ERROR: pvalue/effect is empty/missing (2). URL: " + graphUrl);
             }
         }
         

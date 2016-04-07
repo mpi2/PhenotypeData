@@ -17,8 +17,6 @@ package uk.ac.ebi.phenotype.util;
 
 import java.util.List;
 
-import org.json.JSONArray;
-
 import uk.ac.ebi.phenotype.chart.ChartColors;
 
 public class PhenotypeGeneSummaryDTO {

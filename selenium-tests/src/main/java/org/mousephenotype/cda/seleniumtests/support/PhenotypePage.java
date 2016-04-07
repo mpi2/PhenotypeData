@@ -20,7 +20,6 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.utilities.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,6 @@ public class PhenotypePage {
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final String target;
-    private final String phenotypeId;
     private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String baseUrl;
     private final PhenotypeTable phenotypeTable;
@@ -63,16 +61,14 @@ public class PhenotypePage {
      * @param driver A valid <code>WebDriver</code> instance
      * @param wait A valid <code>WebDriverWait</code> instance
      * @param target This page's target url
-     * @param phenotypeId This page's phenotype id
      * @param phenotypePipelineDAO a <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, String phenotypeId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
+    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
-        this.phenotypeId = phenotypeId;
         this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
         this.phenotypeTable = new PhenotypeTable(driver, wait, target);
@@ -92,15 +88,35 @@ public class PhenotypePage {
         String definition = "";
 
         try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/p[@class='with-label']")));
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//p[@id='definition']")));
             if ( ! element.getText().isEmpty()) {
                 if (element.findElement(By.cssSelector("span.label")).getText().trim().equals("Definition")) {
-                    definition = element.getText();
+                    definition = element.getText().split("\\n")[1].trim();
                 }
             }
         } catch (Exception e) { }
 
         return definition;
+    }
+
+    /**
+     *
+     * @return A list of mapped hp terms. The list will be empty if there are no mapped hp terms.
+     */
+    public List<String> getMappedHpTerms() {
+        List<String> mappedHpTermList = new ArrayList();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//p[@id='mpId']")));
+
+        try {
+            List<WebElement> mappedHpTermElements = driver.findElements(By.xpath("//div[@id='mappedHpTerms']/ul/li"));
+            for (WebElement mappedHpTermElement : mappedHpTermElements) {
+                mappedHpTermList.add(mappedHpTermElement.getText().trim());
+            }
+
+        } catch (Exception e) { }
+
+        return mappedHpTermList;
     }
 
     /**
@@ -123,10 +139,24 @@ public class PhenotypePage {
     }
 
     /**
-     * @return the phenotype id
+     *
+     * @return A list of procedures. The list will be empty if there are no procedures.
      */
-    public String getPhenotypeId() {
-        return phenotypeId;
+    public List<PhenotypeProcedure> getProcedures() {
+        List<PhenotypeProcedure> procedureList = new ArrayList();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//p[@id='mpId']")));
+
+        try {
+            List<WebElement> procedureElements = driver.findElements(By.xpath("//div[@id='procedures']/ul/li/a"));
+            for (WebElement procedureElement : procedureElements) {
+                PhenotypeProcedure phenotypeProcedure = new PhenotypeProcedure(procedureElement.getText(), procedureElement.getAttribute("href"));
+                procedureList.add(phenotypeProcedure);
+            }
+
+        } catch (Exception e) { }
+
+        return procedureList;
     }
 
     /**
@@ -144,15 +174,16 @@ public class PhenotypePage {
         List<String> synonymList = new ArrayList();
 
         try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='inner']/p[@class='with-label']/following-sibling::p")));
-            if ( ! element.getText().isEmpty()) {
-                if (element.findElement(By.cssSelector("span.label")).getText().trim().equals("Synonyms")) {
-                    String[] synonymArray = element.getText().replace("Synonyms", "").split(",");
-                    for (String synonym : synonymArray) {
-                        synonymList.add(synonym.trim());
-                    }
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//p[@id='mpId']")));
+
+            List<WebElement> synonymElements = driver.findElements(By.xpath("//p[@id='synonyms']"));
+            for (WebElement synonymElement : synonymElements) {
+                String[] synonymArray = synonymElement.getText().replace("Synonyms\n", "").split(",");
+                for (String synonym : synonymArray) {
+                    synonymList.add(synonym.trim());
                 }
             }
+
         } catch (Exception e) { }
 
         return synonymList;
@@ -250,16 +281,6 @@ public class PhenotypePage {
         return status;
     }
 
-    public int getPhenotypesLength() {
-        Select select = new Select(driver.findElement(By.xpath("//select[@name='phenotypes_length']")));
-        return commonUtils.tryParseInt(select.getFirstSelectedOption());
-    }
-
-    public void selectPhenotypesLength(Integer resultCount) {
-        Select select = new Select(driver.findElement(By.xpath("//select[@name='phenotypes_length']")));
-        select.selectByValue(resultCount.toString());
-    }
-
 
     // PRIVATE METHODS
 
@@ -287,7 +308,7 @@ public class PhenotypePage {
 
             data = dataReaderTsv.getData();
         } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + phenotypeId + "(" + target + ") but found none.";
+            String message = "Invalid page: target " + target + ".";
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
@@ -328,7 +349,7 @@ public class PhenotypePage {
 
             data = dataReaderXls.getData();
         } catch (NoSuchElementException | TimeoutException te) {
-            String message = "Expected page for ID " + phenotypeId + "(" + target + ") but found none.";
+            String message = "Invalid page: target " + target + ".";
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();

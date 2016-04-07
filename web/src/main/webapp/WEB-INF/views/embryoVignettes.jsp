@@ -62,11 +62,7 @@
 				            		</ul>
 								</div>
                             	<div class="onethird"><a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology"><img alt="Embryo Dysmorphology Image" src="${baseUrl}/img/vignettes/chtopPink.jpg" >Chtop null embryo</a></div>
-				            		<div class="clear"></div>					
-	                           
-	                       
-	                           
-	                           
+				            	<div class="clear"></div>					
 	                           
                             </div>
                         </div>
@@ -117,7 +113,7 @@
 							<h2 class="title" id="${geneId}"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 							
                             <div id="3" class="inner">
-                            	<div>
+                            	<div class="half">
                          			<p>
                          				Activin receptor IIA is a receptor for activins, which are members of the TGF-beta superfamily involved in diverse biological processes.<br>
 										Acvr2a mutants are subviable with most pups dying before postnatal day 7. Micro-CT analysis at E15.5 revealed variable penetrance of eye and craniofacial abnormalities. Eye phenotypes varied from normal (Embryo 1- (E1)), to underdeveloped (E2), to cyclopic (E3), to absent (E4). Craniofacial phenotypes varied from normal (E1) to narrow snout (E2), to an elongated  snout missing the mandible and tongue (E3, 4) and low set ears (E2, 3, 4).
@@ -151,7 +147,7 @@
                             		</ul>
                             		
                             	</div>
-                            	<div ><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png" >
+                            	<div class="half"><img alt="Micro-CT of E15.5 Acvr2a" src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png" >
 								</div>
 								
                             	<div class="clear"></div>
@@ -356,9 +352,8 @@ BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, 
                             
                             <div class="section">
                             <c:set var="geneId" value="MGI:3039593"></c:set>
+                            <h2 id="${geneId}"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></h2>
                             <div class="inner">
-                            	<h2 id="${geneId}"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></h2></h2>
-                            	
                             	
                             	<div  class="half">
 				            		<p>
@@ -422,20 +417,17 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                         
                             <div class="section">
                             <c:set var="geneId" value="MGI:1922814"></c:set>
+                            <h2 id="${geneId}"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
                             <div class="inner">
-                            	<h2 id="${geneId}"><t:formatAllele>Rsph9
-<tm1.1(KOMP)Vlcg></t:formatAllele></h2></h2>
-                            	
-                            	
-                            	<div  class="half">
+                            	<div class="half">
 				            		<p>
 				            		Radial spoke head protein 9 is a component of the radial spoke head in motile cilia and flagella.
-Rsph9 mutants showed partial pre-weaning lethality but viable to P7.
-Whole brain MRI and H&E staining of coronal sections of the P7 brain revealed severe hydrocephaly of the left and right lateral ventricles of the Rsph9 mutant.
-Coronal section through the nasal region showed that the sinuses of the Rsph9 mutants were filled with pus (asterisks).
-Both hydrocephaly and nasal blockage are phenotypes associated with Primary Ciliary Dyskinesia in humans.
-</p>
-				            		
+									Rsph9 mutants showed partial pre-weaning lethality but viable to P7.
+									Whole brain MRI and H&E staining of coronal sections of the P7 brain revealed severe hydrocephaly of the left and right lateral ventricles of the Rsph9 mutant.
+									Coronal section through the nasal region showed that the sinuses of the Rsph9 mutants were filled with pus (asterisks).
+									Both hydrocephaly and nasal blockage are phenotypes associated with Primary Ciliary Dyskinesia in humans.
+									</p>
+													            		
 				            		<p>Phenotype data links</p>
 				            		<ul>
 				            			<li>
@@ -462,10 +454,12 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            			</li>
 				            		</ul>
 								</div>
+								
                             	<div class="half">
                             		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png" >H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the Rsph9tm1.1/tm1.1 mutant mice. 
 								</div>
-				            		<div class="clear"></div>		
+				            	
+				            	<div class="clear"></div>		
 				            		
 				            		
 				            	<div id="rsph9Viable" style="display: none">
@@ -474,12 +468,12 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
 				            		<img src="${baseUrl}/img/vignettes/Rsph9Table.png">		
 	                           	</div>
 	                           	
-	                       <div id="rsph9Mri" style="display:none">
-	                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
-	                       			<p>
-	                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
-	                       			</p>
-	                       </div>
+		                       <div id="rsph9Mri" style="display:none">
+		                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
+		                       			<p>
+		                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
+		                       			</p>
+		                       </div>
 	                           
 	                           
 	                           
@@ -535,59 +529,292 @@ Both hydrocephaly and nasal blockage are phenotypes associated with Primary Cili
                             </div>
                             
                             
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                      <%--   <div class="section">
+                     <div class="section">
                         <c:set var="geneId" value="MGI:1928849"></c:set>
-							<h2 class="title" id="${geneId}"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Svep1<tm1b (EUCOMM)Hmgu/J>
+								</t:formatAllele>
+							</h2>
 							
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Svep1 codes for an uncharacterized protein named after the multiple domains identified in the sequence: Sushi, a domain common in adhesion and complement proteins; von Willebrand factor type A, occurring in extra-cellular matrix and integrin proteins; Epidermal Growth Factor, extra-cellular cysteine-rich repeats promoting protein-protein interactions; pentraxin domain containing 1, reactive with the complement system.<br>
-                         				 No prior targeted mutations for this gene have been reported. Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size (Fig 1). Among other defects, microCT analysis reveals brain defects, lung hypoplasia and absent renal pelvis in the kidney (Fig 2). Phenotypes of heterozygotes include abnormal body composition and abnormal blood chemistry.
+                         				Svep1 codes for an uncharacterized protein named after the multiple domains identified in the										
+										sequence: Sushi, a domain common in adhesion  and complement proteins; von Willebrand factor 
+										type A, occurring in extra-cellular matrix and integrin proteins; Epidermal Growth Factor, extra-cellular										
+										cysteine-rich repeats promoting protein-protein interactions; pentraxin domain containing 1, reactive										
+										with the complement system. No prior targeted mutations for this gene have been reported. 										
+										Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after 										
+										E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size 										
+										(Fig 1). Among other defects, microCT analysis 	reveals brain defects, lung hypoplasia and absent										
+										renal pelvis in the kidney (Fig 2). Phenotypes of heterozygotes include abnormal body composition										
+										and abnormal blood chemistry.
 									</p>
                         			
                         			<p>Phenotype data links</p>
                         			
                             		<ul>
                             			<li>
-                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5509058&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Partial preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression: NA
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
                             			<li>
                             				3-D Imaging: NA
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
                             	</div>
-                            	<div class="half"><img alt="MicroCT Pax7 embryos and LacZ Staining" src="${baseUrl}/img/vignettes/Svep1_E18.5_Hom.tif" >
-
-								</div>
+                            	<div class="onethird">
+                            		<img alt="E18.5  Svep1 null embryo" title="Fig. 1" src="${baseUrl}/img/vignettes/Svep1.jpg">
+                            		<div class="clear"></div>
+                            		<div title="Fig. 2">
+	                            		<img class="quarter" src="${baseUrl}/img/vignettes/SVep1_Kidney_WT_E18.5.jpg">
+	                            		<img class="quarter" src="${baseUrl}/img/vignettes/Svep1_Kidney_Hom_E18.5.jpg">
+	                            		<img class="quarter" src="${baseUrl}/img/vignettes/SVep1_Lung_WT_E18.5.jpg">
+	                            		<img class="quarter" src="${baseUrl}/img/vignettes/Svep1_Lung_Hom_E18.5.jpg">
+	                            		<div class="clear"></div>
+	                            	</div>	
+                            	</div>
 								
                             	<div class="clear"></div>
-                            	
-								</div>
                             </div>
-                        --%>
+                       	</div>
+                            		                            
                         
-                        
+                        <div class="section">
+                        <c:set var="geneId" value="MGI:2151064"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Strn3<tm1b (KOMP)Wtsi/J>
+								</t:formatAllele>
+							</h2>
+							
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Striatins act as both calcium-dependent signaling proteins and scaffolding proteins, linking 
+										calcium-sensing signaling events with cellular 
+										action. Strn3 homozygous mutants show complete preweaning lethality, with embryonic 
+										lethality occurring around E15.5. Surviving embryos are smaller in size and display both 
+										hemorrhaging and severe edema (Fig 1). MicroCT analyses reveal small, but consistent 
+										septal defects in heart (Fig 2). Multiple phenotypes are observed in heterozygous adult 
+										animals, including abnormal blood chemistry and hematology, impaired glucose tolerance and 
+										abnormal behavior, among others. A Genome-wide association study linking Strn3 with the 
+										canine disease Arrhythmogenic Right Ventricular Cardiomyopathy (ARVC) supports a role in 
+										cardiac function.  
+									</p>
+									<p>
+										<i>The striatin family: a new signaling platform in dendritic spines, Benoist, M, et al, (2006) J. Physiol. Paris; Identification of Striatin deletion in canine ARVC. (2010) Meurs, K. M., et al, Hum. Genet.</i>
+									</p>
+                        			
+                        			<p>Phenotype data links</p>
+                        			
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5468974&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: <a href="${drupalBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_ELZ_064_001">Images</a>
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5 images</a>
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:2151064&pid=203">Images</a>
+                            			</li> 
+                            			<li>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="onethird">
+                            		<img alt="E18.5  Strn3 null embryo"  title="Fig. 1" src="${baseUrl}/img/vignettes/Strn3.jpg">
+                            		<div class="clear"></div>
+                            		<div title="Fig. 2"> 
+                            			<img class="half" src="${baseUrl}/img/vignettes/Strn3_WT.jpg">
+                            			<img class="half" src="${baseUrl}/img/vignettes/Strn3_Hom.jpg">
+                            			<div class="clear"></div>
+                            		</div>
+                            	</div>
+								
+                            	<div class="clear"></div>
+                            </div>
+                       	</div>       
                             
                             
+                            
+                         
+                        <div class="section">
+                        <c:set var="geneId" value="MGI:104606"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Rab34<tm1b (EUCOMM)Hmgu/J>
+								</t:formatAllele>
+							</h2>
+							
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Rab34 is a member of the RAS oncogene family, which are small GTPases
+										involved in intracellular vesicle transport. Rab34 is known to be Golgi-bound, involved lysosomal positioning. Rab34 is a potential target of Gli1 and a possible 
+										component of hedgehog signaling. The Rab34 knockout is the first reported null allele for this gene, resulting in complete preweaning lethality.  Phenotypes 
+										include patterning defects, such as polydactyly and facial clefting, as well as abnormal eye development and severe lung hypoplasia (Fig 1). The mutants are 
+										subviable at E18.5, lethality presumably occurring perinatally.
+									</p>
+									                        			
+                        			<p>Phenotype data links</p>
+                        			
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5520180&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: NA
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
+                            											<a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, 
+                            											<a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
+                            			</li>
+                            			<li>
+                            				3-D Imaging: NA
+                            			</li> 
+                            			<li>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half">
+                            		<img alt="Rab34 null embryo"  title="Fig. 1" src="${baseUrl}/img/vignettes/Rab34.jpg">
+                            	</div>
+								
+                            	<div class="clear"></div>
+                            </div>
+                       	</div>           
+                            
+                            
+                            
+                        <div class="section">
+                        <c:set var="geneId" value="MGI:103226"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Cox7c<tm1b (KOMP)Mbp>
+								</t:formatAllele>
+							</h2>
+							
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Cytochrome c oxidase subunit VIIc (Cox7c) is a nuclear-encoded regulatory component of cytochrome c oxidase. Homozygous mutants 
+                         				show complete preweaning lethality, with embryonic lethality occurring after E15.5. Surviving mutants are smaller (Figure 1B), 
+                         				and have an abnormally small placenta (Figure 1D). Although significant development progresses after E15.5, by E18.5 homozygous 
+                         				embryos die and begin to resorb. 
+									</p>
+									                        			
+                        			<p>Phenotype data links</p>
+                        			
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5463977&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: ???, <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_ELZ_064_001">images</a>
+                            			</li>
+                            			<li>
+				            				Placental histopath: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPM_001_001,IMPC_GPM_002_001,IMPC_GPM_004_001,IMPC_GPM_003_001,IMPC_GPM_005_001">E12.5</a>,
+				            				 				<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPO_006_001,IMPC_GPO_001_001,IMPC_GPO_002_001,IMPC_GPO_004_001,IMPC_GPO_003_001">E14.5</a>
+				            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
+                            											<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, 
+                            											<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${drupalbaseUrl}/http://www.mousephenotype.org/phenoview/?gid=801-61-7&qeid=IMPC_EMO_001_001">Images</a>
+                            			</li> 
+                            			<li>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half">
+                            		<div>
+	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_WT.jpg">
+	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_Hom.jpg">
+                            		</div>
+                            	<div class="clear"></div>
+                            		<div>
+	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_WT_Placenta.jpg">
+	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_Hom_Placenta.jpg">
+                            		</div>
+                            	</div>
+								
+                            	<div class="clear"></div>
+                            </div>
+                       	</div>   
+                       	
+                       	
+                        <div class="section">
+                        <c:set var="geneId" value="MGI:1920939"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp>
+								</t:formatAllele>
+							</h2>
+							
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>
+                         				Biogenesis of lysosomal organelles complex 1, subunit 2 is a component of the BLOC-1 complex, which functions in the 
+                         				formation of lysosome-related organelles, is implicated in synapse function, and is associated with gamma-tubulin and 
+                         				the centrosome.[1] Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring around E15.5. 
+                         				Surviving mutants at E15.5 show edema, hemorrhage, and abnormal cardiovascular development. MicroCT datasets of E15.5 
+                         				embryos also reveal lung hypoplasia, enlarged right atrium, and compromised right ventricle of the heart. 
+                         				Adult heterozygotes show abnormal immunophenotypes. 
+									</p>
+									<p><i>[1] Falcón-Perez et al., BLOC-1, a novel complex containing the pallidin and muted proteins involved in the biogenesis of melanosomes and platelet-dense granules, J Biol Chem 2002</i></p>
+									                        			
+                        			<p>Phenotype data links</p>
+                        			
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5490495&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
+                            			</li>
+                            			<li>
+                            				Embryo LacZ Expression: ???
+                            			</li>
+                            			<li>
+                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=3325-61-7&qeid=IMPC_GEM_049_001">E12.5</a> images
+                            			</li>
+                            			<li>
+                            				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203">Images</a>
+                            			</li> 
+                            			<li>
+                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            			</li>
+                            		</ul>
+                            		
+                            	</div>
+                            	<div class="half">
+                            		<img alt="E15.5 Bloc1s2 embryo"src="${baseUrl}/img/vignettes/Bloc1s2.jpg">
+                            		<div class="clear"></div>
+                            		<div title="MicroCT analysis showing edema and abnormal heart morphology in the knockout">
+	                            		<img class="half" alt="E15.5 WT embryo"src="${baseUrl}/img/vignettes/Bloc1s2_WT_heart.jpg">
+	                            		<img class="half" alt="E15.5 Bloc1s2 embryo"src="${baseUrl}/img/vignettes/Bloc1s2_HOM_heart.jpg">
+                            			<div class="clear"></div>
+                            		</div>
+                            	</div>
+								
+                            	<div class="clear"></div>
+                            </div>
+                       	</div>             
                             
                        	</div>
                        	

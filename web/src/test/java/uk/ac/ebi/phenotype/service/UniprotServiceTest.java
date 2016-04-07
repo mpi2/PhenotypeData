@@ -1,5 +1,9 @@
 package uk.ac.ebi.phenotype.service;
 
+import java.io.IOException;
+
+import javax.xml.bind.JAXBException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +11,8 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.phenotype.web.TestConfig;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
+import uk.ac.ebi.phenotype.web.TestConfig;
 
 
 /**

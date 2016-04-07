@@ -110,7 +110,7 @@ public class MpService extends BasicService implements WebStatus{
 		}
 
 		if ((mps.get(0).getParentMpId() == null || mps.get(0).getParentMpId().size() == 0)){
-			if (mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
+			if (mps.get(0).getTopLevelMpId() != null && mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
 				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
 					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i),
 						shortenLabel(mps.get(0).getTopLevelMpTerm().get(i))));
@@ -132,8 +132,49 @@ public class MpService extends BasicService implements WebStatus{
 	}
 
 
+	/**
+	 * @author ilinca
+	 * @since 2016/04/05
+	 * @param mpTermId
+	 * @return JSON in jstree format for ontology browser
+	 * @throws SolrServerException
+	 */
+	public String getSearchTermJson(String mpTermId)  
+	throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MpDTO.MP_ID + ":\"" + mpTermId + "\"")
+				.setRows(1);
+		solrQuery.addField(MpDTO.SEARCH_TERM_JSON);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		
+		return (mps != null) ? mps.get(0).getSearchTermJson() : "";
+	}
 
 
+	/**
+	 * @author ilinca
+	 * @since 2016/04/05
+	 * @param mpTermId
+	 * @return JSON in jstree format for ontology browser
+	 * @throws SolrServerException
+	 */
+	public String getChildrenJson(String nodeId) 
+	throws SolrServerException{
+		
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
+				.setRows(1);
+		solrQuery.addField(MpDTO.CHILDREN_JSON);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
+		
+		return (mps != null) ? mps.get(0).getChildrenJson() : "";
+	}
+	
 	/**
 	 * @author ilinca
 	 * @since 2016/03/22
@@ -268,7 +309,7 @@ public class MpService extends BasicService implements WebStatus{
 
 			computationalHPTerms.put(hpIds.get(i), term);
 		}
-
+  	
 		return new HashSet<SimpleOntoTerm>(computationalHPTerms.values());
 
     }

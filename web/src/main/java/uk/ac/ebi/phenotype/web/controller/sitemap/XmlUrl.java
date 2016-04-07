@@ -16,14 +16,15 @@
 
 package uk.ac.ebi.phenotype.web.controller.sitemap;
 
-import com.redfin.sitemapgenerator.W3CDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Date;
-import java.util.TimeZone;
+
+import com.redfin.sitemapgenerator.W3CDateFormat;
 
 /**
  *
