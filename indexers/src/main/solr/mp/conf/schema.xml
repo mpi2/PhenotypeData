@@ -324,6 +324,11 @@
   	<field name="diseaseQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	<field name="maQf" type="string" indexed="true" stored="false" multiValued="true"/>
   	
+  	<!-- For ontology browser  -->
+  	
+  	<field name="search_term_json" type="string" indexed="false" stored="true" multiValued="false"/>
+  	<field name="children_json" type="string" indexed="false" stored="true" multiValued="false"/>
+  	
  </fields>
 
 	<uniqueKey>mp_id</uniqueKey>

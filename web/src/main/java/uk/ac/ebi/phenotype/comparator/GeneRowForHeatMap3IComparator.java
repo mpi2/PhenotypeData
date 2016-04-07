@@ -15,11 +15,11 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.comparator;
 
-import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
-
 import java.util.Comparator;
 import java.util.Map;
+
+import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 
 
 public class GeneRowForHeatMap3IComparator implements Comparator<GeneRowForHeatMap> {

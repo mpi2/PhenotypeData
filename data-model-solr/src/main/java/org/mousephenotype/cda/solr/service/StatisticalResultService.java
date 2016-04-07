@@ -1467,7 +1467,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		    q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex.getName() + " OR " + StatisticalResultDTO.SEX + ":" + sex.getName() + ")");
 		}
 		
-		System.out.println("QUERY ON S_R " + solr.getBaseURL() + "/select?" + q);
 		QueryResponse results = solr.query(q);
 		return results.getGroupResponse().getValues().get(0).getValues();
 	}

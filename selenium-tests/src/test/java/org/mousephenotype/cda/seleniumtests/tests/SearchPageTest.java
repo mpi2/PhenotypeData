@@ -827,9 +827,8 @@ public class SearchPageTest {
         for (Facet facet : facets) {
             RunStatus status = new RunStatus();
 
-            System.out.println("Testing facet " + facet.getTabName());
-
             String target = baseUrl + "/search/" + facet.getCoreName() + "?kw=*";
+            System.out.println("Testing facet " + facet.getTabName() + "   " + target);
             SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
 
             SearchPage.FacetFilter facetFilter = searchPage.getFacetFilter();
@@ -876,7 +875,7 @@ public class SearchPageTest {
                     break;
 
                 case IMPC_IMAGES:
-                    status = validateFilter(facetFilter, 188301, 0, "Anatomy", 2, "digestive system", 5462);            // Has subfacets.
+                    status = validateFilter(facetFilter, 188297, 0, "Anatomy", 2, "digestive system", 5462);            // Has subfacets.
                     break;
 
                 case PHENOTYPES:
@@ -884,8 +883,11 @@ public class SearchPageTest {
                     break;
             }
 
-            if ( ! status.hasErrors())
+            if (status.hasErrors()) {
+                System.out.println(status.toStringErrorMessages());
+            } else {
                 status.successCount++;
+            }
 
             masterStatus.add(status);
         }

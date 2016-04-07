@@ -252,26 +252,26 @@ public class GraphPageTest {
         String testName = "testKnownGraphs";
 
         List<String> graphUrls = Arrays.asList(new String[]{
-//                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                // UNIDIMENSIONAL_ABR_PLOT
-//                , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // UNIDIMENSIONAL_ABR_PLOT
-//                , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // UNIDIMENSIONAL_ABR_PLOT
-//                , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // TIME_SERIES_LINE
-//                , baseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // UNIDIMENSIONAL_BOX_PLOT
-//                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // CATEGORICAL_STACKED_COLUMN
-//                , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // CATEGORICAL_STACKED_COLUMN
-//                , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // UNIDIMENSIONAL_BOX_PLOT
-//                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
-//                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // CATEGORICAL_STACKED_COLUMN
-//                , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
-//                , baseUrl + "/charts?accession=MGI:1930948&allele_accession_id=MGI:4432700&zygosity=heterozygote&parameter_stable_id=ESLIM_015_001_006&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"              // UNIDIMENSIONAL_BOX_PLOT with 4 graphs
-                 baseUrl + "/charts?accession=MGI:1920740&allele_accession_id=MGI:5605791&zygosity=homozygote&parameter_stable_id=IMPC_ACS_033_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"                 // UNIDIMENSIONAL_BOX_PLOT Statistics failed, no p-value, Effect Size
+                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                // UNIDIMENSIONAL_ABR_PLOT
+                , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // UNIDIMENSIONAL_ABR_PLOT
+                , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // UNIDIMENSIONAL_ABR_PLOT
+                , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // TIME_SERIES_LINE
+                , baseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // CATEGORICAL_STACKED_COLUMN
+                , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // CATEGORICAL_STACKED_COLUMN
+                , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
+                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // CATEGORICAL_STACKED_COLUMN
+                , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT with failed stats (no p-value/effect size)
+                , baseUrl + "/charts?accession=MGI:1930948&allele_accession_id=MGI:4432700&zygosity=heterozygote&parameter_stable_id=ESLIM_015_001_006&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"              // UNIDIMENSIONAL_BOX_PLOT with 4 graphs
+                , baseUrl + "/charts?accession=MGI:1920740&allele_accession_id=MGI:5605791&zygosity=homozygote&parameter_stable_id=IMPC_ACS_033_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"                 // UNIDIMENSIONAL_BOX_PLOT Statistics failed, no p-value, Effect Size
         });
 
         graphEngine(testName, graphUrls);
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPreQcGraphs() throws TestException {
         String testName = "testPreQcGraphs";
         List<GraphTestDTO> geneGraphs = getGeneGraphs(ChartType.PREQC, 100);
@@ -312,7 +312,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testCategoricalGraphs() throws TestException {
         String testName = "testCategoricalGraphs";
 
@@ -322,7 +322,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testUnidimensionalGraphs() throws TestException {
         String testName = "testUnidimensionalGraphs";
 
@@ -332,7 +332,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testABRGraphs() throws TestException {
         String testName = "testABRGraphs";
 
@@ -342,7 +342,7 @@ public class GraphPageTest {
     }
 
     @Test
-@Ignore
+//@Ignore
     public void testPieGraphs() throws TestException {
         String testName = "testPieGraphs";
 
