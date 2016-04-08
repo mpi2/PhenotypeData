@@ -63,7 +63,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            	<c:if test="${data.result.genderFemaleKoPValue!=null || data.result.genderFemaleKoEstimate!=null || data.result.genderFemaleKoStandardErrorEstimate}">
+                                            	<c:if test="${data.result.genderFemaleKoPValue!=null || data.result.genderFemaleKoEstimate!=null || data.result.genderFemaleKoStandardErrorEstimate!=null}">
 	                                                <tr>
 	                                                    <td>Female</td>
 	                                                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
@@ -106,27 +106,31 @@
         <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod=='Wilcoxon rank sum test with continuity correction'}">
             <table class="globalTest">
                 <thead>
-                <tr>
-                    <th>Sex</th>
-                    <th>P Value</th>
-                    <th>Effect size</th>
-                </tr>
+	                <tr>
+	                    <th>Sex</th>
+	                    <th>P Value</th>
+	                    <th>Effect size</th>
+	                </tr>
                 </thead>
                 <tbody>
-                <tr class="toggle_table_covariate_details">
-                    <td>Female</td>
-                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
-                        <td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
-                    </c:if>
-                    <td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
-                </tr>
-                <tr>
-                    <td>Male</td>
-                    <c:if test="${data.result.genderMaleKoPValue!=null}">
-                        <td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
-                    </c:if>
-                    <td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
-                </tr>
+	                <c:if test="${data.result.genderFemaleKoPValue != null}">
+		                <tr class="toggle_table_covariate_details">
+		                    <td>Female</td>
+		                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
+		                        <td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+		                    </c:if>
+		                    <td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
+		                </tr>
+	                </c:if>
+	                <c:if test="${data.result.genderMaleKoPValue!=null}">
+		                <tr>
+		                    <td>Male</td>
+		                    <c:if test="${data.result.genderMaleKoPValue!=null}">
+		                        <td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+		                    </c:if>
+		                    <td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
+		                </tr>
+		            </c:if>
                 </tbody>
             </table>
         </c:if>
