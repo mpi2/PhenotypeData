@@ -48,17 +48,18 @@
 				            				Embryo Lacz Expression:  NA
 				            			</li>
 				            			<li>
-				            				Embryo Gross Dysmorphology: <a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology">Images</a>
+				            				Embryo Gross Morphology: <a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology">Images</a>
 				            			</li>
 				            			<li>
-				            				3-D imaging: NA (Consider this link: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
+				            				3-D imaging: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
 				            			</li>
 				            			<li>
-				            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1913761#section-associations">Table</a>
+				            				Placental histopathology: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
 				            			</li>
 				            			<li>
-				            				Placental histopath: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
+				            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/MGI:1913761#section-associations">Table</a>
 				            			</li>
+				            			
 				            		</ul>
 								</div>
                             	<div class="onethird"><a href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology"><img alt="Embryo Dysmorphology Image" src="${baseUrl}/img/vignettes/chtopPink.jpg" >Chtop null embryo</a></div>
