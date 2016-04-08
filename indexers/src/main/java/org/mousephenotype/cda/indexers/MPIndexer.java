@@ -208,9 +208,12 @@ public class MPIndexer extends AbstractIndexer {
                 addPhenotype2(mp);
 
 
+                // Ontology browser stuff
                 TreeHelper helper = getTreeHelper( "mp", termId);
                 List<JSONObject> searchTree = createTreeJson(helper, "0", null, termId);
                 mp.setSearchTermJson(searchTree.toString());
+                String scrollNodeId = getScrollTo(searchTree);
+                mp.setScrollNode(scrollNodeId);
                 List<JSONObject> childrenTree = createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
                 
@@ -237,6 +240,16 @@ public class MPIndexer extends AbstractIndexer {
         return runStatus;
     }
 
+    private String getScrollTo(List<JSONObject> tree){
+    	
+    	for (JSONObject topLevel: tree){
+    		if (topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
+    			return topLevel.getString("node_id");
+    		}
+    	}
+    	return "";
+    }
+    
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
     
     	List<SolrServer> ss = new ArrayList<>();
