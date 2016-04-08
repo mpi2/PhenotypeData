@@ -47,7 +47,7 @@
         <p></p>
         <c:if test="${!(empty dataMapList)}">
             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-            <a id="allAdultPhenotypesBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Phenotypes</a>
+            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
         </c:if>
         <c:if test="${gene.embryoDataAvailable}">
             <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
@@ -174,7 +174,7 @@
       <br/>
       <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
       <div class="floatright marginup" style="clear: both">
-        <a class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+        <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
       </div>
         <div class="clear"></div>
     </c:if>
