@@ -18,37 +18,32 @@
  * limitations under the License.
  */
 
-package uk.ac.ebi.phenotype.api;
-
-import static org.junit.Assert.fail;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import uk.ac.ebi.phenotype.web.TestConfig;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author ilinca
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
-@SpringApplicationConfiguration(classes = TestConfig.class)
-public class CoreTests {
+@SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
+@TestPropertySource(locations = {"classpath:test.properties", "file:${user.home}/configfiles/${profile}/test.properties"})
+public class GenotypePhenotypeServiceTest {
 
     @Autowired
 	@Qualifier("postqcService")
@@ -60,23 +55,23 @@ public class CoreTests {
 
     @Autowired
     private ObservationService oService;
-    
+
     @Autowired
     private MpService mpService;
 
     @Test
-    public void testAllGPGenesInGeneCore() 
+    public void testAllGPGenesInGeneCore()
     throws SolrServerException {
     	System.out.println("Test if all genes in genotype-phenotype core are indexed in the gene core.");
 
         Set<String> gpGenes = gpService.getAllGenesWithPhenotypeAssociations();
 
         Set<String> gGenes = gService.getAllGenes();
-        Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.      
+        Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.
         knownToMiss.add("MGI:3688249"); // For bug MPII-1493, Ostes
 //        knownToMiss.add("MGI:1861674"); // For bug https://www.ebi.ac.uk/panda/jira/browse/MPII-1783? Nespas
-        // Don't need this any more as Peter put them in iMits and they should be in now. 
-        
+        // Don't need this any more as Peter put them in iMits and they should be in now.
+
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);
 
@@ -87,17 +82,17 @@ public class CoreTests {
     }
 
     @Test
-    public void testAllExperimentGenesInGeneCore() 
+    public void testAllExperimentGenesInGeneCore()
     throws SolrServerException {
-    	
+
     	System.out.println("Test if all genes in experiment core are indexed in the gene core.");
 
         Set<String> experimentGenes = oService.getAllGeneIdsByResource(null, true);
 
         Set<String> gGenes = gService.getAllGenes();
-        Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.      
-        knownToMiss.add("MGI:3688249"); 
-        
+        Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.
+        knownToMiss.add("MGI:3688249");
+
         Collection res = CollectionUtils.subtract(experimentGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);
 
@@ -106,7 +101,7 @@ public class CoreTests {
         	fail("The following genes are in in the genotype-phenotype core but not in the gene core: " + res);
         }
     }
-    
+
     @Test
     public void testAllGPPhenotypeInMP() throws SolrServerException {
     	System.out.println("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
