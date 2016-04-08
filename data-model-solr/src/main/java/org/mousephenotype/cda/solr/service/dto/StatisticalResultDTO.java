@@ -18,11 +18,14 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
+@SolrDocument(solrCoreName = "statistical-result")
 public class StatisticalResultDTO {
 
 
@@ -170,6 +173,7 @@ public class StatisticalResultDTO {
     public final static String PROJECT_ID = "project_id";
     public final static String PHENOTYPE_SEX = "phenotype_sex";
 
+	@Id
     @Field(DOCUMENT_ID)
     private String docId;
 

@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
         <artifactId>parent</artifactId>
-        <version>0.0.1</version>
+        <version>1.0.0</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -50,25 +50,6 @@
             </exclusions>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.mousephenotype.dcc.exportlibrary.datastructure</groupId>-->
-            <!--<artifactId>exportlibrary.datastructure</artifactId>-->
-            <!--<version>3.8.1</version>-->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>ch.qos.logback</groupId>-->
-                    <!--<artifactId>logback-classic</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>ch.qos.logback</groupId>-->
-                    <!--<artifactId>logback-core</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.slf4j</groupId>-->
-                    <!--<artifactId>log4j-over-slf4j</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>org.mousephenotype.dcc.exportlibrary.xmlserialization</groupId>

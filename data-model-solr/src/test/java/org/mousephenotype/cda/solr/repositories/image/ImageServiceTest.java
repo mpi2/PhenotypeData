@@ -15,17 +15,11 @@
  */
 package org.mousephenotype.cda.solr.repositories.image;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Christoph Strobl
@@ -35,40 +29,40 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes={TestConfigSolr.class})
 @EnableSolrRepositories(basePackages = { "org.mousephenotype.cda.solr.repositories.image" }, multicoreSupport=true)
 public class ImageServiceTest{
-
-    @Autowired
-    private ImageServiceImpl imageService;
-
-
-
-    @Test
-    public void findByIdTest() {
-        String id="22654363";
-        System.out.println("ImageService= " + imageService);
-        System.out.println("querying for one image with " + id);
-
-        Image image = imageService.findById(id);
-        System.out.println("one image found id="+ image.getId()+" maId="+ image.getMaId());
-
-    }
-
-    @Test
-    public void findByMaIdTest() {
-        String maId="MA:0000191";
-        System.out.println("imageService="+imageService);
-        List<Image> imageList=imageService.findByMaId(maId);
-        assertTrue(imageList!=null);
-        assertTrue(imageList.size()>0);
-
-    }
-
-    @Test
-    public void findByMarkerAccessionTest(){
-        String markerAccession="MGI:1342278";
-        List<Image> images=imageService.findByMarkerAccession(markerAccession);
-        assertTrue(images.size()>0);
-    }
-
+//
+//    @Autowired
+//    private ImageServiceImpl imageService;
+//
+//
+//
+//    @Test
+//    public void findByIdTest() {
+//        String id="22654363";
+//        System.out.println("ImageService= " + imageService);
+//        System.out.println("querying for one image with " + id);
+//
+//        Image image = imageService.findById(id);
+//        System.out.println("one image found id="+ image.getId()+" maId="+ image.getMaId());
+//
+//    }
+//
+//    @Test
+//    public void findByMaIdTest() {
+//        String maId="MA:0000191";
+//        System.out.println("imageService="+imageService);
+//        List<Image> imageList=imageService.findByMaId(maId);
+//        assertTrue(imageList!=null);
+//        assertTrue(imageList.size()>0);
+//
+//    }
+//
+//    @Test
+//    public void findByMarkerAccessionTest(){
+//        String markerAccession="MGI:1342278";
+//        List<Image> images=imageService.findByMarkerAccession(markerAccession);
+//        assertTrue(images.size()>0);
+//    }
+//
 
 
 
