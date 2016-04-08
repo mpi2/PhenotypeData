@@ -280,8 +280,6 @@ public class MpService extends BasicService implements WebStatus{
     	solrQuery.setFields(MpDTO.CHILD_MP_ID);
 		QueryResponse rsp = solr.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-
-//		System.out.println("Solr URL to getChildrenFor: " + solr.getBaseURL() + "/select?" + solrQuery);
 		ArrayList<String> children = new ArrayList<String>();
 
         for (SolrDocument doc : res) {
@@ -299,9 +297,8 @@ public class MpService extends BasicService implements WebStatus{
     	// this mapping is computational
     	List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
     	List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));
-
-    	//Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
 		Map<String, SimpleOntoTerm> computationalHPTerms = new HashMap<>();
+		
     	for ( int i=0; i< hpIds.size(); i++  ){
     		SimpleOntoTerm term = new SimpleOntoTerm();
     		term.setTermId(hpIds.get(i));
@@ -315,12 +312,11 @@ public class MpService extends BasicService implements WebStatus{
     }
 
 	@Override
-	public long getWebStatus() throws SolrServerException {
+	public long getWebStatus() 
+	throws SolrServerException {
+
 		SolrQuery query = new SolrQuery();
-
 		query.setQuery("*:*").setRows(0);
-
-		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
 
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();

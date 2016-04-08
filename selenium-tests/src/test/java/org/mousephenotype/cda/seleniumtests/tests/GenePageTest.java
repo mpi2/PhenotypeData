@@ -572,7 +572,7 @@ public class GenePageTest {
         String[] buttonLabelsArray = {
                 "Login to register interest",
                 "Order",
-                "All Adult Phenotypes",
+                "All Adult Data",
                 "KOMP",
                 "EUMMCR",};
         List<String> expectedButtonLabels = Arrays.asList(buttonLabelsArray);
@@ -769,13 +769,12 @@ public class GenePageTest {
         try {
             genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
 
-            List<WebElement> elements = driver.findElements(By.xpath("//div[@id='phenoSumDiv']/a[@class='btn']"));
+            List<WebElement> elements = driver.findElements(By.xpath("//a[@id='allAdultDataBtn']"));
             if (elements.isEmpty()) {
-                status.addError("ERROR: Arsk has no 'All Adult Phenotypes' button.");
+                status.addError("ERROR: Arsk has no 'All Adult Data' button.");
             } else {
-                String href = elements.get(0).getAttribute("href");
                 if ( ! elements.get(0).getAttribute("href").contains("/experiments?geneAccession=MGI:1924291")) {
-                    status.addError("ERROR: MGI:109331 has no 'All Adult Phenotypes' button (2).");
+                    status.addError("ERROR: MGI:109331 has no 'All Adult Data' button (2).");
                 }
             }
 

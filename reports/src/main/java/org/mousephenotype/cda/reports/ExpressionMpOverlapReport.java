@@ -92,7 +92,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        for (ImageDTO doc : impcLacz){
 	        	List<String> maIds = doc.getMaTermId();
 	        	for (String maId : maIds){
-	        		geneMaLaczCombiantions.put(doc.getGeneAccession() + "_" + maId, new Mapping(doc.getGeneAccession(), maId));
+	        		geneMaLaczCombiantions.put(doc.getGeneAccession() + "_" + maId, new Mapping(doc.getGeneAccession(), maId, null));
 	        		maFromLacz.add(maId);
 	        	}
 	        }
@@ -100,7 +100,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        while (i.hasNext()){
 	        	SolrDocument doc = i.next();
 	        	for (Object maId : doc.getFieldValues("ma_id")){
-	        		geneMaLaczCombiantions.put(doc.getFieldValue("accession") + "_" + maId, new Mapping(doc.getFieldValue("accession").toString(), maId.toString()));
+	        		geneMaLaczCombiantions.put(doc.getFieldValue("accession") + "_" + maId, new Mapping(doc.getFieldValue("accession").toString(), maId.toString(), null));
 	        		maFromLacz.add(maId.toString());
 	        	}
 	        }
@@ -118,15 +118,16 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        for (GenotypePhenotypeDTO geneDto: mpCalls){
 	        	if (mpMaMap.containsKey(geneDto.getMpTermId())){
 	        		for (String ma : mpMaMap.get(geneDto.getMpTermId())){
-	        			geneMaFromPhenotypeCombiantions.put(geneDto.getMarkerAccessionId() + "_" + ma, new Mapping(geneDto.getMarkerAccessionId(), ma));
+	        			geneMaFromPhenotypeCombiantions.put(geneDto.getMarkerAccessionId() + "_" + ma, new Mapping(geneDto.getMarkerAccessionId(), ma, geneDto.getMpTermId()));
 	        			maFromMp.add(ma);
 	        		}
 	        	}
 	        }
 	
-	        // Cet common ancestors for geneX-ma1 and geneX-ma2 associations
+	        // Get common ancestors for geneX-ma1 and geneX-ma2 associations
 	        List<String[]> result = new ArrayList<>();
-	        result.add(new String[] { "Gene Id", "Gene Symbol", "Expression MA Id", "Expression MA", "Pthenotype MA Id", "Phenotype MA", "Common MA Id", "Common MA Term", "Level" });
+	        result.add(new String[] { "Gene Id", "Gene Symbol", "Expression MA Id", "Expression MA", "MP Id", "MP Term", "Pthenotype MA Id", 
+	        							"Phenotype MA Term", "Common MA Id", "Common MA Term", "Level" });
 	        for (Mapping m1: geneMaLaczCombiantions.values()){
 	        	for (Mapping m2: geneMaFromPhenotypeCombiantions.values()){
 	        		if (m1.getMgiAccession().equalsIgnoreCase(m2.getMgiAccession())){
@@ -134,7 +135,9 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        			if ( inCommon != null && inCommon.getLevel() >= 0){
 	        				for (MaDTO ancestor: inCommon.getAncestors()){
 	        		        	String geneSymbol = geneService.getGeneById(m1.getMgiAccession(), GeneDTO.MARKER_SYMBOL).getMarkerSymbol();
-	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getMaTerm(), m2.maId, getMa(m2.getMaId()).getMaTerm(), ancestor.getMaId(), ancestor.getMaTerm(), "" + inCommon.getLevel() });
+	        					result.add(new String[] { m1.getMgiAccession(), geneSymbol, m1.maId, getMa(m1.maId).getMaTerm(), 
+	        							(m2.mpId != null) ? m2.mpId : "", (m2.mpId != null) ? mpService.getPhenotype(m2.mpId).getMpTerm() : "",
+	        							m2.maId, getMa(m2.getMaId()).getMaTerm(), ancestor.getMaId(), ancestor.getMaTerm(), "" + inCommon.getLevel() });
 	        				}
 	        			}
 	        		}
@@ -224,10 +227,12 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		
 		String mgiAccession;
 		String maId;
+		String mpId;
 		
-		public Mapping(String mgiAccession, String maId){			
+		public Mapping(String mgiAccession, String maId, String mpId){			
 			this.mgiAccession = mgiAccession;
 			this.maId = maId;
+			this.mpId = mpId;
 		}
 		
 		public String getMgiAccession() {
@@ -241,6 +246,9 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 		}
 		public void setMaId(String maId) {
 			this.maId = maId;
+		}
+		public String getMpId(){
+			return mpId;
 		}
 	}
 

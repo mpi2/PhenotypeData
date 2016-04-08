@@ -242,7 +242,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                         pipeline.getStableId(), phenotypingCenter);
                 evidenceLink.setAlt("Graph");
                 evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-                if (parameter.getStableId().contains("_FER_")){
+                if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")|| parameter.getStableId().contains("IMPC_EVP_001") || 
+                		parameter.getStableId().contains("IMPC_EVO_001_") || parameter.getStableId().contains("IMPC_EVM_001_")){
                 	evidenceLink.setDisplay(false);
                 } else {
                 	evidenceLink.setDisplay(true);
@@ -257,7 +258,8 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             }
             evidenceLink.setAlt("Graph");
             evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-            if (parameter.getStableId().contains("_FER_")){
+            if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")|| parameter.getStableId().contains("IMPC_EVP_001") || 
+            		parameter.getStableId().contains("IMPC_EVO_001_") || parameter.getStableId().contains("IMPC_EVM_001_")){
             	evidenceLink.setDisplay(false);
             } else {
             	evidenceLink.setDisplay(true);
