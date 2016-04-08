@@ -1,12 +1,18 @@
 package org.mousephenotype.cda.solr;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -29,8 +35,29 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
+@EnableAutoConfiguration
 @ComponentScan("org.mousephenotype.cda")
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
 public class TestConfigSolr {
+
+	@Value("http:${solrUrl}")
+	String solrBaseUrl;
+
+	@Bean
+	public SolrServer solrServer() throws Exception
+	{
+		System.out.println("SOLR SERVER: " + solrBaseUrl);
+		HttpSolrServerFactoryBean f = new HttpSolrServerFactoryBean();
+		f.setUrl(solrBaseUrl);
+		f.afterPropertiesSet();
+		return f.getSolrServer();
+	}
+
+	@Bean
+	public SolrTemplate solrTemplate(SolrServer solrServer) throws Exception
+	{
+		return new SolrTemplate(solrServer());
+	}
 
 	@Bean
 	@Primary

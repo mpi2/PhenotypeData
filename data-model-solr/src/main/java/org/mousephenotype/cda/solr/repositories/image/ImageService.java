@@ -15,23 +15,20 @@
  */
 package org.mousephenotype.cda.solr.repositories.image;
 
-import java.util.List;
-
-
 /**
  * @author Christoph Strobl
  */
 public interface ImageService {
 
-	int DEFAULT_PAGE_SIZE = 3;
-
-	//Page<Image> findByDownloadUrl(String searchTerm, Pageable pageable);
-
-	Image findById(String id);
-        
-        List<Image> findByMaId(String maId);
-
-        public List<Image> findByMarkerAccession(String markerAccession);
-	//FacetPage<Image> autocompleteNameFragment(String fragment, Pageable pageable);
+//	int DEFAULT_PAGE_SIZE = 3;
+//
+//	//Page<Image> findByDownloadUrl(String searchTerm, Pageable pageable);
+//
+//	Image findById(String id);
+//
+//        List<Image> findByMaId(String maId);
+//
+//        public List<Image> findByMarkerAccession(String markerAccession);
+//	//FacetPage<Image> autocompleteNameFragment(String fragment, Pageable pageable);
 
 }
