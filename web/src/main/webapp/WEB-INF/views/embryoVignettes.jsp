@@ -97,7 +97,7 @@
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Images</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -139,7 +139,7 @@
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult and Embryo Phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             			<li>
                             				Embryo Histopathology: <a id="acvr2aHistTrigger" class="various" href="#acvr2aHist">Image</a>
@@ -164,7 +164,6 @@
                             		<div class="inner">
                             			<img src="${baseUrl}/img/vignettes/acvr2aP3.png"/>
                             		</div>
-                            		
                             	</div>
                             </div>
                        	</div>
@@ -200,7 +199,7 @@
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             			<li>
                             				3D Volumetric Analysis: <a href="#cbx4Graphs" id="cbx4GraphsTrigger" class="various">Graph</a>
@@ -256,7 +255,7 @@
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
 
@@ -311,7 +310,7 @@
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             			
                             		</ul>
@@ -384,7 +383,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 				            				3-D imaging: NA
 				            			</li>
 				            			<li>
-				            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+				            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
 				            			</li>
 				            			
 				            		</ul>
@@ -448,7 +447,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 				            			</li>
 				          
 				            			<li>
-				            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+				            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
 				            			</li>
 				            			<li>
 				            				Whole Brain MRI: <a href="#rsph9Mri" class="various" id="rsph9MriTrigger">Images</a>
@@ -515,7 +514,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -795,8 +794,6 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                        	</div>             
                             
                        	</div>
-                       	
-                          
                       
                     <!--end of node wrapper should be after all secions  -->
                 </div>
