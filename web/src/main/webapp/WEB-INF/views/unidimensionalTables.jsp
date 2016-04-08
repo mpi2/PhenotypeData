@@ -63,28 +63,32 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>Female</td>
-                                                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
-                                                        <td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
-                                                    </c:if>
-                                                    <td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
-                                                    <c:if
-                                                        test="${data.result.genderFemaleKoStandardErrorEstimate!=null}">
-                                                        <td>&#177;<t:formatScientific>${data.result.genderFemaleKoStandardErrorEstimate }</t:formatScientific></td>
-                                                    </c:if>
-                                                </tr>
-                                                <tr>
-                                                    <td>Male</td>
-                                                    <c:if test="${data.result.genderMaleKoPValue!=null}">
-                                                        <td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
-                                                    </c:if>
-                                                    <td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
-                                                    <c:if
-                                                        test="${data.result.genderMaleKoStandardErrorEstimate!=null}">
-                                                        <td>&#177;<t:formatScientific>${data.result.genderMaleKoStandardErrorEstimate }</t:formatScientific></td>
-                                                    </c:if>
-                                                </tr>
+                                            	<c:if test="${data.result.genderFemaleKoPValue!=null || data.result.genderFemaleKoEstimate!=null || data.result.genderFemaleKoStandardErrorEstimate}">
+	                                                <tr>
+	                                                    <td>Female</td>
+	                                                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
+	                                                        <td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+	                                                    </c:if>
+	                                                    <td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
+	                                                    <c:if
+	                                                        test="${data.result.genderFemaleKoStandardErrorEstimate!=null}">
+	                                                        <td>&#177;<t:formatScientific>${data.result.genderFemaleKoStandardErrorEstimate }</t:formatScientific></td>
+	                                                    </c:if>
+	                                                </tr>
+                                                </c:if>
+                                                <c:if test="${data.result.genderMaleKoPValue!=null || data.result.genderMaleKoEstimate != null || data.result.genderMaleKoStandardErrorEstimate!=null}">
+	                                                <tr>
+	                                                    <td>Male</td>
+	                                                    <c:if test="${data.result.genderMaleKoPValue!=null}">
+	                                                        <td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+	                                                    </c:if>
+	                                                    <td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
+	                                                    <c:if
+	                                                        test="${data.result.genderMaleKoStandardErrorEstimate!=null}">
+	                                                        <td>&#177;<t:formatScientific>${data.result.genderMaleKoStandardErrorEstimate }</t:formatScientific></td>
+	                                                    </c:if>
+	                                                </tr>
+                                                </c:if>
                                             </c:when>
                                         </c:choose>
                                     </tbody>

@@ -36,11 +36,7 @@
                                     }
 
                                 });
-
                     });
-
-
-
                 });
             </script>
 
@@ -73,11 +69,11 @@
 
             </c:forEach>
 
- <c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001'}"><!-- only show downloads if not viability pie charts as we don't have download for line level params yet -->
-            <div class="section">
-                <div id="exportIconsDivGlobal"></div>
-            </div>
-</c:if> 
+			<c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001'}"><!-- only show downloads if not viability pie charts as we don't have download for line level params yet -->
+			            <div class="section">
+			                <div id="exportIconsDivGlobal"></div>
+			            </div>
+			</c:if> 
 
             <script>
 
@@ -85,8 +81,6 @@
                     .ready(function() {
                         //		alert("unidimensional");
                 var background = getBackground();
-                
-                
                 
                         $('div#exportIconsDivGlobal').html("");
                         $('div#exportIconsDivGlobal').html(
@@ -160,9 +154,9 @@
 
                             var exportObj = buildExportUrl(conf);               // Build the export url, page url, and form strings.
                             $('div#exportIconsDivGlobal').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
-// WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
-// THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
-// RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
+							// WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
+							// THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
+							// RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
             
                             $('button.fileIcon').click(function() {
                                 var exportObj = buildExportUrl(conf, $(this).text());                       // Build the export url, page url, and form strings.
