@@ -17,7 +17,6 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
-import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -47,7 +46,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	private Connection connection;
 
-	public static final String RESOURCE_3I = "3i";
+	static final String RESOURCE_3I = "3i";
+	private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -64,16 +64,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	@Autowired
 	MpOntologyDAO mpOntologyService;
 
-	Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
-	Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-	Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
-	Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
-	Map<String, ResourceBean> resourceMap = new HashMap<>();
-	Map<String, List<String>> sexesMap = new HashMap<>();
-	Set<String> alreadyReported = new HashSet<>();
+	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
+	private Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+	private Map<String, ResourceBean> resourceMap = new HashMap<>();
+	private Map<String, List<String>> sexesMap = new HashMap<>();
+	private Set<String> alreadyReported = new HashSet<>();
 
-	Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
-	Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
+	private Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
+	private Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
+	private Map<String, String> embryoSignificantResults = new HashMap<>();
 
 	public StatisticalResultIndexer() {
 
@@ -96,12 +96,12 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
 			parameterMap = IndexerMap.getImpressParameters(connection);
-			organisationMap = IndexerMap.getOrganisationMap(connection);
 
 			populateBiologicalDataMap();
 			populateResourceDataMap();
 			populateSexesMap();
 			populateParameterMpTermMap();
+			populateEmbryoSignificanceMap();
 
 		} catch (SQLException e) {
 			throw new IndexerException(e);
@@ -145,6 +145,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			count += processUnidimensionalResults();
 			count += processCategoricalResults();
 			count += processEmbryoViabilityResults();
+			count += processEmbryoResults();
 
 			logger.info(" Added {} statistical result documents", count);
 
@@ -160,6 +161,63 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		return count;
 	}
 
+	// Populate embryo results
+	public int processEmbryoResults() throws SQLException, IOException, SolrServerException {
+
+		int count = 0;
+
+		String query = "SELECT DISTINCT " +
+			"  CONCAT(parameter.stable_id, '_', ls.colony_id, exp.organisation_id) as doc_id, " +
+			"  'embryo' AS data_type, db.id AS db_id, " +
+			"  bm.zygosity as experimental_zygosity, db.id AS external_db_id, " +
+			"  exp.pipeline_id, exp.procedure_id, obs.parameter_id, ls.colony_id, sex, " +
+			"  parameter.stable_id as dependent_variable, " +
+			"  'Success' as status, bm.id AS biological_model_id, " +
+			"  NULL AS p_value, NULL AS effect_size, " +
+			"  NULL AS mp_acc, NULL AS male_mp_acc, NULL AS female_mp_acc, exp.metadata_group, " +
+			"  db.short_name AS resource_name, db.name AS resource_fullname, db.id AS resource_id, " +
+			"  proj.name AS project_name, proj.id AS project_id, " +
+			"  org.name AS phenotyping_center, org.id AS phenotyping_center_id " +
+			"FROM observation obs " +
+			"  INNER JOIN phenotype_parameter parameter ON parameter.id = obs.parameter_id " +
+			"  INNER JOIN live_sample ls ON ls.id = obs.biological_sample_id " +
+			"  INNER JOIN biological_sample bs ON bs.id = obs.biological_sample_id " +
+			"  INNER JOIN biological_model_sample bms ON bms.biological_sample_id = obs.biological_sample_id " +
+			"  INNER JOIN biological_model bm ON bm.id = bms.biological_model_id " +
+			"  INNER JOIN experiment_observation eo ON eo.observation_id = obs.id " +
+			"  INNER JOIN experiment exp ON exp.id = eo.experiment_id " +
+			"  INNER JOIN external_db db ON db.id = obs.db_id " +
+			"  INNER JOIN project proj ON proj.id = exp.project_id " +
+			"  INNER JOIN organisation org ON org.id = exp.organisation_id " +
+			"WHERE bs.sample_group='experimental' AND obs.parameter_stable_id REGEXP '" + EMBRYO_PROCEDURES + "' ";
+
+		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+			p.setFetchSize(Integer.MIN_VALUE);
+			ResultSet r = p.executeQuery();
+
+			while (r.next()) {
+
+				StatisticalResultDTO doc = parseLineResult(r);
+
+				if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
+
+					addMpTermData(embryoSignificantResults.get(r.getString("doc_id")), doc);
+
+				}
+
+				documentCount++;
+				statResultCore.addBean(doc, 30000);
+				count++;
+			}
+
+		}
+
+		logger.info(" Added {} embryo parameter documents", count);
+		return count;
+	}
+
+
+
 	// Populate embryo viability results
 	public int processEmbryoViabilityResults() throws SQLException, IOException, SolrServerException {
 		int count = 0;
@@ -170,7 +228,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"parameter.id as parameter_id, exp.colony_id, null as sex, " +
 			"parameter.stable_id as dependent_variable, " +
 			"'Success' as status, exp.biological_model_id, " +
-			"0.0 as line_p_value, 1.0 AS line_effect_size, " +
+			"0.0 as p_value, 1.0 AS effect_size, " +
 			"ontology_acc AS mp_acc, null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
 			"db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
 			"proj.name as project_name, proj.id as project_id, " +
@@ -216,7 +274,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
 			"parameter.stable_id as dependent_variable, " +
 			"'Success' as status, exp.biological_model_id, " +
-			"p_value as line_p_value, effect_size AS line_effect_size, " +
+			"p_value as p_value, effect_size AS effect_size, " +
 			"mp_acc, null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
 			"db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
 			"proj.name as project_name, proj.id as project_id, " +
@@ -266,7 +324,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
 			"parameter.stable_id as dependent_variable, " +
 			"'Success' as status, exp.biological_model_id, " +
-			"p_value as line_p_value, effect_size AS line_effect_size, " +
+			"p_value as p_value, effect_size AS effect_size, " +
 			"mp_acc, null as male_mp_acc, null as female_mp_acc, exp.metadata_group, " +
 			"db.short_name as resource_name, db.name as resource_fullname, db.id as resource_id, " +
 			"proj.name as project_name, proj.id as project_id, " +
@@ -747,14 +805,14 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			doc.setSex(sex);
 		}
 
-		Double line_p_value = r.getDouble("line_p_value");
+		Double p_value = r.getDouble("p_value");
 		if (!r.wasNull() && doc.getMpTermId()!=null) {
-			doc.setpValue(line_p_value);
+			doc.setpValue(p_value);
 		}
 
-		Double line_effect_size = r.getDouble("line_effect_size");
+		Double effect_size = r.getDouble("effect_size");
 		if (!r.wasNull() && doc.getMpTermId()!=null) {
-			doc.setEffectSize(line_effect_size);
+			doc.setEffectSize(effect_size);
 		}
 
 
@@ -902,16 +960,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	/**
 	 * Add the appropriate MP term associations to the document
+	 * This is only used for the embryo data for the moment (2016-04-07)
 	 *
-	 * @param r the result set to pull the relevant fields from
+	 * @param mpTerm the mp term accession id
 	 * @param doc the solr document to update
 	 * @throws SQLException if the query fields do not exist
 	 */
-	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
+	private void addMpTermData(String mpTerm, StatisticalResultDTO doc) throws SQLException {
 
 		// Add the appropriate fields for the global MP term
-		String mpTerm = r.getString("mp_acc");
-		if (!r.wasNull()) {
+		if (mpTerm != null) {
 
 			OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
 			if (bean != null) {
@@ -925,25 +983,24 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
 				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
 			}
+		}
+	}
 
-		} else {
+	/**
+	 * Add the appropriate MP term associations to the document
+	 *
+	 * @param r   the result set to pull the relevant fields from
+	 * @param doc the solr document to update
+	 * @throws SQLException if the query fields do not exist
+	 */
+	private void addMpTermData(ResultSet r, StatisticalResultDTO doc) throws SQLException {
 
-			// When there is no p value for IMPC_VIA mp_term, put in the "mortality/aging" MP term
-			if (r.getString("dependent_variable").startsWith("IMPC_VIA") ) {
+		// Add the appropriate fields for the global MP term
+		String mpTerm = r.getString("mp_acc");
+		if (!r.wasNull()) {
 
-				OntologyTermBean bean = mpOntologyService.getTerm("MP:0010768");
-				doc.setMpTermId(bean.getId());
-				doc.setMpTermName(bean.getName());
+			addMpTermData(mpTerm, doc);
 
-				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
-				doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-				doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-
-				doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-
-
-			}
 		}
 
 		// Process the male MP term
@@ -1059,6 +1116,11 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		BiologicalDataBean b = biologicalDataMap.get(biologicalModelId);
 
+		if (b == null) {
+			logger.error("Cannot find genomic information for biological_model_id {}", biologicalModelId);
+			return;
+		}
+
 		doc.setMarkerAccessionId(b.geneAcc);
 		doc.setMarkerSymbol(b.geneSymbol);
 		doc.setAlleleAccessionId(b.alleleAccession);
@@ -1167,6 +1229,35 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			}
 		}
 		logger.info(" Added {} sexes data map entries", sexesMap.size());
+	}
+
+	/**
+	 * The embryo significance map keys are document IDs that should match the embryo documents and the key is the MP
+	 * acc
+	 *
+	 * @throws SQLException
+	 */
+	private void populateEmbryoSignificanceMap() throws SQLException {
+
+		// Populate the significant results map with this query
+		String sigResultsQuery = "SELECT CONCAT(parameter.stable_id, '_', pcs.colony_id, pcs.organisation_id) AS doc_id, mp_acc " +
+			"FROM phenotype_call_summary pcs " +
+			"INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
+			"WHERE parameter.stable_id REGEXP '" + EMBRYO_PROCEDURES + "' ";
+
+		try (PreparedStatement p = connection.prepareStatement(sigResultsQuery, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+			ResultSet r = p.executeQuery();
+			while (r.next()) {
+
+				String docId = r.getString("doc_id");
+				String mpAcc = r.getString("mp_acc");
+
+				embryoSignificantResults.put(docId, mpAcc);
+			}
+		}
+
+		logger.info(" Added {} embryo significant data map entries", embryoSignificantResults.size());
+
 	}
 
 	private void populateParameterMpTermMap() throws SQLException {
