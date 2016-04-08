@@ -547,7 +547,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 										Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after 										
 										E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size 										
 										(Fig 1, left). Among other defects, microCT analysis 	reveals brain defects, lung hypoplasia and absent										
-										renal pelvis in the kidney (Fig 2, right). Phenotypes of heterozygotes include abnormal body composition										
+										renal pelvis in the kidney (Fig 1, middle, right). Phenotypes of heterozygotes include abnormal body composition										
 										and abnormal blood chemistry.
 									</p>
                         			
@@ -590,14 +590,14 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Striatins  act  as  both  calcium­dependent  signaling  proteins  and  scaffolding 
-										proteins,  linking  calcium­sensing  signaling  events  with  cellular  action  [1]. Strn3
+                         				Striatins  act  as  both  calcium­-dependent  signaling  proteins  and  scaffolding 
+										proteins,  linking  calcium­-sensing  signaling  events  with  cellular  action  [1]. Strn3
 										homozygous  mutants  show  complete  preweaning  lethality,  with  embryonic 
 										lethality  occurring  around  E15.5.  Surviving  embryos  are  smaller  in  size  and 
 										display  both  hemorrhaging  and  severe  edema  (Fig  1,  left  panels).  MicroCT 
 										analyses reveal small, but consistent septal defects in heart (Fig 1, right panels).  Multiple  phenotypes  are  observed  in  heterozygous  adult  animals,  including 
 										abnormal  blood  chemistry  and  hematology,  impaired  glucose  tolerance  and 
-										abnormal  behavior,  among  others.  A  Genome­wide  association  study  linking 
+										abnormal  behavior,  among  others.  A  Genome-­wide  association  study  linking 
 										Strn3 with the canine disease Arrhythmogenic Right Ventricular Cardiomyopathy 
 										(ARVC) supports a role in cardiac function [2].  
 									</p>
@@ -648,9 +648,12 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             	<div class="half">
                          			<p>
                          				Rab34 is a member of the RAS oncogene family, which are small GTPases
-										involved in intracellular vesicle transport. Rab34 is known to be Golgi-bound, involved lysosomal positioning. Rab34 is a potential target of Gli1 and a possible 
-										component of hedgehog signaling. The Rab34 knockout is the first reported null allele for this gene, resulting in complete preweaning lethality.  Phenotypes 
-										include patterning defects, such as polydactyly and facial clefting, as well as abnormal eye development and severe lung hypoplasia (Fig  1,  lu =  lung).. The mutants are 
+										involved in intracellular vesicle transport. Rab34 is known to be Golgi-bound, involved in lysosomal positioning. 
+										Rab34 is a potential target of Gli1 and a possible 
+										component of hedgehog signaling. The Rab34 knockout is the first reported null allele for this gene, 
+										resulting in complete preweaning lethality.  Phenotypes 
+										include patterning defects, such as polydactyly and facial clefting, as well as abnormal eye 
+										development and severe lung hypoplasia (Fig  1,  lu = lung). The mutants are 
 										subviable at E18.5, lethality presumably occurring perinatally.
 									</p>
 									                        			
@@ -697,7 +700,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Cytochrome  c  oxidase  subunit  VIIc  (Cox7c)  is  a  nuclear­encoded  regulatory
+                         				Cytochrome  c  oxidase  subunit  VIIc  (Cox7c)  is  a  nuclear­-encoded  regulatory
 										component  of  cytochrome  c  oxidase.  Homozygous  mutants  show  complete 
 										preweaning  lethality,  with  embryonic  lethality  occurring  after  E15.5.  Surviving 
 										mutants  are  smaller  (Figure  1,  top  panels),  and  have  an  abnormally  small 
@@ -753,7 +756,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             	<div class="half">
                          			<p>
                          				Biogenesis of lysosomal organelles complex 1, subunit 2 is a component of the
-										BLOC­1  complex,  which  functions  in  the  formation  of  lysosome­related 
+										BLOC­1  complex,  which  functions  in  the  formation  of  lysosome­-related 
 										organelles,  is  implicated  in  synapse  function,  and  is  associated  with  gamma-
 										tubulin  and  the  centrosome  [1].  Homozygous  mutants  show  complete 
 										preweaning lethality, with embryonic lethality occurring around E15.5. Surviving 
