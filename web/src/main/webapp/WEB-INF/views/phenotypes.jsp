@@ -157,7 +157,8 @@
 									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
  										<c:set var="count" value="${count+1}" />
   										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
-  											${procedure.procedureName} (v${procedure.procedureStableId.substring(11, 12)})
+  											${procedure.procedureName} (${procedure.pipelineName.split(" ")[0]}
+  											v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
   										</a></li>
 	 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
 										<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></c:if>
