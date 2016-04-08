@@ -128,6 +128,7 @@ public class ImpressService implements WebStatus {
 				.addField(ImpressDTO.PROCEDURE_ID)
 				.addField(ImpressDTO.PROCEDURE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
+				.addField(ImpressDTO.PIPELINE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_KEY);
 			
 			query.setRows(1000000);
