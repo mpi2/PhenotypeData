@@ -54,10 +54,10 @@
 				            				3-D imaging: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
 				            			</li>
 				            			<li>
-				            				Placental histopathology: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
+				            				Placental Histopathology: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a>
 				            			</li>
 				            			<li>
-				            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/MGI:1913761#section-associations">Table</a>
+				            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/MGI:1913761#section-associations">Table</a>
 				            			</li>
 				            			
 				            		</ul>
@@ -91,13 +91,13 @@
                             				Embryo LacZ Expression: NA
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Images</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
+                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -133,13 +133,13 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Images</a>
+                            				Embryo Gross Morphology: <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and Embryo Phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
                             			<li>
                             				Embryo Histopathology: <a id="acvr2aHistTrigger" class="various" href="#acvr2aHist">Image</a>
@@ -194,13 +194,13 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
                             			<li>
                             				3D Volumetric Analysis: <a href="#cbx4Graphs" id="cbx4GraphsTrigger" class="various">Graph</a>
@@ -250,13 +250,13 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a id="tmem100EmbGrossTrigger" href="#tmem100EmbGross" class="various" >Images</a>
+                            				Embryo Gross Morphology: <a id="tmem100EmbGrossTrigger" href="#tmem100EmbGross" class="various" >Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
                             		</ul>
 
@@ -302,7 +302,7 @@
                             				Embryo LacZ Expression: <a id="eyaEmbLacZTrigger" href="#eyaEmbLacZ" class="various">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
                             				Embryo Histopathology: <a id="eyaEmbHisTrigger" href="#eyaEmbHis" class="various">Images</a>
@@ -311,7 +311,7 @@
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
                             			
                             		</ul>
@@ -375,7 +375,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 				            				Embryo Lacz Expression:  NA
 				            			</li>
 				            			<li>
-				            				Embryo Gross Dysmorphology: NA
+				            				Embryo Gross Morphology: NA
 				            			</li>
 				            			<li>
 				            				Embryo Histopathology: <a href="#tox3His" id="tox3HisTrigger" class="various">Images</a> 
@@ -384,7 +384,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 				            				3-D imaging: NA
 				            			</li>
 				            			<li>
-				            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+				            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
 				            			</li>
 				            			
 				            		</ul>
@@ -441,14 +441,14 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 				            				Embryo Lacz Expression:  NA
 				            			</li>
 				            			<li>
-				            				Embryo Gross Dysmorphology: NA
+				            				Embryo Gross Morphology: NA
 				            			</li>
 				            			<li>
 				            				3-D imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
 				            			</li>
 				          
 				            			<li>
-				            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+				            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
 				            			</li>
 				            			<li>
 				            				Whole Brain MRI: <a href="#rsph9Mri" class="various" id="rsph9MriTrigger">Images</a>
@@ -509,13 +509,13 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: NA
+                            				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
                             			</li> 
                             			<li>
-                            				Adult het phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
+                            				Adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#section-associations">table</a>
                             			</li>
                             		</ul>
                             		
@@ -562,13 +562,13 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo LacZ Expression: NA
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
+                            				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
                             			<li>
                             				3-D Imaging: NA
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -616,13 +616,13 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo LacZ Expression: <a href="${drupalBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_ELZ_064_001">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5 images</a>
+                            				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5 images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:2151064&pid=203">Images</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -665,7 +665,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo LacZ Expression: NA
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
+                            				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
                             											<a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, 
                             											<a href="${drupalBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
@@ -673,7 +673,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				3-D Imaging: NA
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -717,11 +717,11 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             									<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_ELZ_064_001">images</a>
                             			</li>
                             			<li>
-				            				Placental histopath: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPM_001_001,IMPC_GPM_002_001,IMPC_GPM_004_001,IMPC_GPM_003_001,IMPC_GPM_005_001">E12.5</a>,
+				            				Placental Histopathology: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPM_001_001,IMPC_GPM_002_001,IMPC_GPM_004_001,IMPC_GPM_003_001,IMPC_GPM_005_001">E12.5</a>,
 				            				 				<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPO_006_001,IMPC_GPO_001_001,IMPC_GPO_002_001,IMPC_GPO_004_001,IMPC_GPO_003_001">E14.5</a>
 				            			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
+                            				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEM_049_001">E12.5</a>, 
                             											<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, 
                             											<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
@@ -729,7 +729,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				3-D Imaging: <a href="${drupalbaseUrl}/http://www.mousephenotype.org/phenoview/?gid=801-61-7&qeid=IMPC_EMO_001_001">Images</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
@@ -775,13 +775,13 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#tabs-4">Data</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=3325-61-7&qeid=IMPC_GEM_049_001">E12.5</a> images
+                            				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=3325-61-7&qeid=IMPC_GEM_049_001">E12.5</a> images
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203">Images</a>
                             			</li> 
                             			<li>
-                            				Adult and embryo phenotype data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
                             		</ul>
                             		
