@@ -334,13 +334,16 @@ public class PhenotypePageTest {
                 , new String[] { "Posteriorly rotated ears", "Protruding ear", "Low-set ears" }
                 , new String[] { "Lethargy" }
         };
-        PhenotypeProcedure[] procedures = new PhenotypeProcedure[] {
-                  null
-                , new PhenotypeProcedure("Dysmorphology", "/impress/impress/displaySOP/1")
-                , null
-                , new PhenotypeProcedure("Dysmorphology", "/impress/impress/displaySOP/1")
-                , null
-                , new PhenotypeProcedure("Combined SHIRPA and Dysmorphology", "/impress/impress/displaySOP/186")
+        PhenotypeProcedure[][] procedures = new PhenotypeProcedure[][] {
+                  { null }
+                , { new PhenotypeProcedure("Dysmorphology (ESLIM, v1)", "/impress/impress/displaySOP/1") }
+                , { null }
+                , { new PhenotypeProcedure("Dysmorphology (ESLIM, v1)", "/impress/impress/displaySOP/1"),
+                    new PhenotypeProcedure("Dysmorphology (M-G-P, v1)", "/impress/impress/displaySOP/48") }
+                , { null }
+                , { new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v3)", "/impress/impress/displaySOP/186"),
+                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v1)", "/impress/impress/displaySOP/82"),
+                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (IMPC, v2)", "/impress/impress/displaySOP/155"),}
         };
 
         testUtils.logTestStartup(logger, this.getClass(), testName, targets.length, targets.length);

@@ -445,27 +445,27 @@ public class SearchPageTest {
 
         // Check the selected facet row.
         if (facetRow == null) {
-            message = "Expected to find '" + facetRowText + "' but it was not found.";
+            message = "Subfacet " + subfacetText + ": Expected to find '" + facetRowText + "' but it was not found.";
             status.addError(message);
         } else {
             if (facetRow.getCount() < expectedMinFacetRowCount) {
-                message = "Expected at least " + expectedMinFacetRowCount + " genes for '" + facetRowText + "' but found " + facetRow.getCount();
+                message = "Subfacet " + subfacetText + ": Expected at least " + expectedMinFacetRowCount + " genes for '" + facetRowText + "' but found " + facetRow.getCount();
                 status.addError(message);
             }
 
             if ( ! facetRow.isEnabled()) {
-                message = "Expected checkbox '" + facetRowText + "' to be enabled but it was not.";
+                message = "Subfacet " + subfacetText + ": Expected checkbox '" + facetRowText + "' to be enabled but it was not.";
                 status.addError(message);
             }
 
             if (facetRow.isChecked()) {
-                message = "Expected checkbox '" + facetRowText + "' to be unchecked but it was checked.";
+                message = "Subfacet " + subfacetText + ": Expected checkbox '" + facetRowText + "' to be unchecked but it was checked.";
                 status.addError(message);
             }
 
             facetRow.check();
             if ( ! facetRow.isChecked()) {
-                message = "Expected checkbox '" + facetRowText + "' to be checked but it was unchecked.";
+                message = "Subfacet " + subfacetText + ": Expected checkbox '" + facetRowText + "' to be checked but it was unchecked.";
                 status.addError(message);
             }
 
@@ -474,7 +474,7 @@ public class SearchPageTest {
                 facetFilter.getSubfacet(subfacetText).open();   // For facets with subfacets, the 'uncheck()' above closes the subfacet. Open it back up first.
             }
             if (facetRow.isChecked()) {
-                message = "Expected checkbox '" + facetRowText + "' to be unchecked but it was checked (2).";
+                message = "Subfacet " + subfacetText + ": Expected checkbox '" + facetRowText + "' to be unchecked but it was checked (2).";
                 status.addError(message);
             }
         }
@@ -859,27 +859,27 @@ public class SearchPageTest {
             facetFilter.open();             // Make sure facet is opened.
             switch (facet) {
                 case ANATOMY:
-                    status = validateFilter(facetFilter, 446, 15, null, 0, "urinary system", 8);                        // No subfacets.
+                    status = validateFilter(facetFilter, 400, 15, null, 0, "urinary system", 8);                        // No subfacets.
                     break;
 
                 case DISEASES:
-                    status = validateFilter(facetFilter, 7340, 0, "Classifications", 4,"respiratory", 77);              // Has subfacets.
+                    status = validateFilter(facetFilter, 7300, 0, "Classifications", 4,"respiratory", 77);              // Has subfacets.
                     break;
 
                 case GENES:
-                    status = validateFilter(facetFilter, 23424, 0, "IMPC Mouse Phenotype Center", 6, "RIKEN BRC", 41);  // Has subfacets.
+                    status = validateFilter(facetFilter, 23400, 0, "IMPC Mouse Phenotype Center", 6, "RIKEN BRC", 41);  // Has subfacets.
                     break;
 
                 case IMAGES:
-                    status = validateFilter(facetFilter, 125988, 0, "Gene", 3, "protein coding gene", 115007);          // Has subfacets.
+                    status = validateFilter(facetFilter, 125900, 0, "Gene", 3, "protein coding gene", 115007);          // Has subfacets.
                     break;
 
                 case IMPC_IMAGES:
-                    status = validateFilter(facetFilter, 188297, 0, "Anatomy", 2, "digestive system", 5462);            // Has subfacets.
+                    status = validateFilter(facetFilter, 188200, 0, "Anatomy", 2, "digestive system", 5458);            // Has subfacets.
                     break;
 
                 case PHENOTYPES:
-                    status = validateFilter(facetFilter, 1592, 25, null, 0, "immune system", 405);                      // No subfacets.
+                    status = validateFilter(facetFilter, 1400, 25, null, 0, "immune system", 405);                      // No subfacets.
                     break;
             }
 
