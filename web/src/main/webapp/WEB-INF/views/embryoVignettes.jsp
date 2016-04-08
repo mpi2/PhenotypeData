@@ -546,8 +546,8 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 										with the complement system. No prior targeted mutations for this gene have been reported. 										
 										Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring after 										
 										E18.5. Hemorrhaging is seen in surviving E18.5 mutants, as is severe edema and small embryo size 										
-										(Fig 1). Among other defects, microCT analysis 	reveals brain defects, lung hypoplasia and absent										
-										renal pelvis in the kidney (Fig 2). Phenotypes of heterozygotes include abnormal body composition										
+										(Fig 1, left). Among other defects, microCT analysis 	reveals brain defects, lung hypoplasia and absent										
+										renal pelvis in the kidney (Fig 2, right). Phenotypes of heterozygotes include abnormal body composition										
 										and abnormal blood chemistry.
 									</p>
                         			
@@ -572,19 +572,10 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             		</ul>
                             		
                             	</div>
-                            	<div class="onethird">
-                            		<img alt="E18.5  Svep1 null embryo" title="Fig. 1" src="${baseUrl}/img/vignettes/Svep1.jpg">
-                            		<div class="clear"></div>
-                            		<div title="Fig. 2">
-	                            		<img class="quarter" src="${baseUrl}/img/vignettes/SVep1_Kidney_WT_E18.5.jpg">
-	                            		<img class="quarter" src="${baseUrl}/img/vignettes/Svep1_Kidney_Hom_E18.5.jpg">
-	                            		<img class="quarter" src="${baseUrl}/img/vignettes/SVep1_Lung_WT_E18.5.jpg">
-	                            		<img class="quarter" src="${baseUrl}/img/vignettes/Svep1_Lung_Hom_E18.5.jpg">
-	                            		<div class="clear"></div>
-	                            	</div>	
+                            	<div class="half">
+                            		<img alt="E18.5  Svep1 null embryo" src="${baseUrl}/img/vignettes/Svep1.jpg">
                             	</div>
-								
-                            	<div class="clear"></div>
+								<div class="clear"></div>
                             </div>
                        	</div>
                             		                            
@@ -599,19 +590,19 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Striatins act as both calcium-dependent signaling proteins and scaffolding proteins, linking 
-										calcium-sensing signaling events with cellular 
-										action. Strn3 homozygous mutants show complete preweaning lethality, with embryonic 
-										lethality occurring around E15.5. Surviving embryos are smaller in size and display both 
-										hemorrhaging and severe edema (Fig 1). MicroCT analyses reveal small, but consistent 
-										septal defects in heart (Fig 2). Multiple phenotypes are observed in heterozygous adult 
-										animals, including abnormal blood chemistry and hematology, impaired glucose tolerance and 
-										abnormal behavior, among others. A Genome-wide association study linking Strn3 with the 
-										canine disease Arrhythmogenic Right Ventricular Cardiomyopathy (ARVC) supports a role in 
-										cardiac function.  
+                         				Striatins  act  as  both  calcium­dependent  signaling  proteins  and  scaffolding 
+										proteins,  linking  calcium­sensing  signaling  events  with  cellular  action  [1]. Strn3
+										homozygous  mutants  show  complete  preweaning  lethality,  with  embryonic 
+										lethality  occurring  around  E15.5.  Surviving  embryos  are  smaller  in  size  and 
+										display  both  hemorrhaging  and  severe  edema  (Fig  1,  left  panels).  MicroCT 
+										analyses reveal small, but consistent septal defects in heart (Fig 1, right panels).  Multiple  phenotypes  are  observed  in  heterozygous  adult  animals,  including 
+										abnormal  blood  chemistry  and  hematology,  impaired  glucose  tolerance  and 
+										abnormal  behavior,  among  others.  A  Genome­wide  association  study  linking 
+										Strn3 with the canine disease Arrhythmogenic Right Ventricular Cardiomyopathy 
+										(ARVC) supports a role in cardiac function [2].  
 									</p>
 									<p>
-										<i>The striatin family: a new signaling platform in dendritic spines, Benoist, M, et al, (2006) J. Physiol. Paris; Identification of Striatin deletion in canine ARVC. (2010) Meurs, K. M., et al, Hum. Genet.</i>
+										<i>[1] The  striatin family: a new  signaling platform in dendritic  spines, Benoist, M, et al, (2006)  J. Physiol. Paris; [2] Identification of Striatin deletion in canine ARVC. (2010) Meurs, K. M., et al, Hum. Genet.</i>
 									</p>
                         			
                         			<p>Phenotype data links</p>
@@ -635,14 +626,8 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             		</ul>
                             		
                             	</div>
-                            	<div class="onethird">
-                            		<img alt="E18.5  Strn3 null embryo"  title="Fig. 1" src="${baseUrl}/img/vignettes/Strn3.jpg">
-                            		<div class="clear"></div>
-                            		<div title="Fig. 2"> 
-                            			<img class="half" src="${baseUrl}/img/vignettes/Strn3_WT.jpg">
-                            			<img class="half" src="${baseUrl}/img/vignettes/Strn3_Hom.jpg">
-                            			<div class="clear"></div>
-                            		</div>
+                            	<div class="half">
+                            		<img alt="E18.5  Strn3 null embryo"  src="${baseUrl}/img/vignettes/Strn3.jpg">
                             	</div>
 								
                             	<div class="clear"></div>
@@ -665,7 +650,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                          				Rab34 is a member of the RAS oncogene family, which are small GTPases
 										involved in intracellular vesicle transport. Rab34 is known to be Golgi-bound, involved lysosomal positioning. Rab34 is a potential target of Gli1 and a possible 
 										component of hedgehog signaling. The Rab34 knockout is the first reported null allele for this gene, resulting in complete preweaning lethality.  Phenotypes 
-										include patterning defects, such as polydactyly and facial clefting, as well as abnormal eye development and severe lung hypoplasia (Fig 1). The mutants are 
+										include patterning defects, such as polydactyly and facial clefting, as well as abnormal eye development and severe lung hypoplasia (Fig  1,  lu =  lung).. The mutants are 
 										subviable at E18.5, lethality presumably occurring perinatally.
 									</p>
 									                        			
@@ -712,10 +697,12 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Cytochrome c oxidase subunit VIIc (Cox7c) is a nuclear-encoded regulatory component of cytochrome c oxidase. Homozygous mutants 
-                         				show complete preweaning lethality, with embryonic lethality occurring after E15.5. Surviving mutants are smaller (Figure 1B), 
-                         				and have an abnormally small placenta (Figure 1D). Although significant development progresses after E15.5, by E18.5 homozygous 
-                         				embryos die and begin to resorb. 
+                         				Cytochrome  c  oxidase  subunit  VIIc  (Cox7c)  is  a  nuclear­encoded  regulatory
+										component  of  cytochrome  c  oxidase.  Homozygous  mutants  show  complete 
+										preweaning  lethality,  with  embryonic  lethality  occurring  after  E15.5.  Surviving 
+										mutants  are  smaller  (Figure  1,  top  panels),  and  have  an  abnormally  small 
+										placenta (Figure 1, bottom panels). Although significant development progresses 
+										after E15.5, by E18.5 homozygous embryos die and begin to resorb.
 									</p>
 									                        			
                         			<p>Phenotype data links</p>
@@ -747,15 +734,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             		
                             	</div>
                             	<div class="half">
-                            		<div>
-	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_WT.jpg">
-	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_Hom.jpg">
-                            		</div>
-                            	<div class="clear"></div>
-                            		<div>
-	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_WT_Placenta.jpg">
-	                            		<img class="half" alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c_E15.5_Hom_Placenta.jpg">
-                            		</div>
+                            		<img alt="E15.5 Cox7c embryo"src="${baseUrl}/img/vignettes/Cox7c.jpg">
                             	</div>
 								
                             	<div class="clear"></div>
@@ -773,12 +752,15 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             <div class="inner">
                             	<div class="half">
                          			<p>
-                         				Biogenesis of lysosomal organelles complex 1, subunit 2 is a component of the BLOC-1 complex, which functions in the 
-                         				formation of lysosome-related organelles, is implicated in synapse function, and is associated with gamma-tubulin and 
-                         				the centrosome.[1] Homozygous mutants show complete preweaning lethality, with embryonic lethality occurring around E15.5. 
-                         				Surviving mutants at E15.5 show edema, hemorrhage, and abnormal cardiovascular development. MicroCT datasets of E15.5 
-                         				embryos also reveal lung hypoplasia, enlarged right atrium, and compromised right ventricle of the heart. 
-                         				Adult heterozygotes show abnormal immunophenotypes. 
+                         				Biogenesis of lysosomal organelles complex 1, subunit 2 is a component of the
+										BLOC­1  complex,  which  functions  in  the  formation  of  lysosome­related 
+										organelles,  is  implicated  in  synapse  function,  and  is  associated  with  gamma-
+										tubulin  and  the  centrosome  [1].  Homozygous  mutants  show  complete 
+										preweaning lethality, with embryonic lethality occurring around E15.5. Surviving 
+										mutants  at  E15.5  show  edema,  hemorrhage,  and  abnormal  cardiovascular 
+										development  (Fig  1). MicroCT  datasets  of  E15.5  embryos  also  reveal  lung 
+										hypoplasia,  enlarged right  atrium,  and  compromised right  ventricle  of  the  heart 
+										(Fig.1, arrow). Adult heterozygotes show abnormal immunophenotypes.
 									</p>
 									<p><i>[1] Falcón-Perez et al., BLOC-1, a novel complex containing the pallidin and muted proteins involved in the biogenesis of melanosomes and platelet-dense granules, J Biol Chem 2002</i></p>
 									                        			
@@ -805,12 +787,6 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             	</div>
                             	<div class="half">
                             		<img alt="E15.5 Bloc1s2 embryo"src="${baseUrl}/img/vignettes/Bloc1s2.jpg">
-                            		<div class="clear"></div>
-                            		<div title="MicroCT analysis showing edema and abnormal heart morphology in the knockout">
-	                            		<img class="half" alt="E15.5 WT embryo"src="${baseUrl}/img/vignettes/Bloc1s2_WT_heart.jpg">
-	                            		<img class="half" alt="E15.5 Bloc1s2 embryo"src="${baseUrl}/img/vignettes/Bloc1s2_HOM_heart.jpg">
-                            			<div class="clear"></div>
-                            		</div>
                             	</div>
 								
                             	<div class="clear"></div>
