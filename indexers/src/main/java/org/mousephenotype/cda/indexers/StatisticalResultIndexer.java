@@ -17,7 +17,6 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
-import org.mousephenotype.cda.indexers.beans.OrganisationBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -47,8 +46,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	private Connection connection;
 
-	public static final String RESOURCE_3I = "3i";
-	public static final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
+	static final String RESOURCE_3I = "3i";
+	private final String EMBRYO_PROCEDURES = "IMPC_GPL|IMPC_GEL|IMPC_GPM|IMPC_GEM|IMPC_GPO|IMPC_GEO|IMPC_GPP|IMPC_GEP";
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -65,17 +64,16 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	@Autowired
 	MpOntologyDAO mpOntologyService;
 
-	Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
-	Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-	Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
-	Map<Integer, OrganisationBean> organisationMap = new HashMap<>();
-	Map<String, ResourceBean> resourceMap = new HashMap<>();
-	Map<String, List<String>> sexesMap = new HashMap<>();
-	Set<String> alreadyReported = new HashSet<>();
+	private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+	private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
+	private Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+	private Map<String, ResourceBean> resourceMap = new HashMap<>();
+	private Map<String, List<String>> sexesMap = new HashMap<>();
+	private Set<String> alreadyReported = new HashSet<>();
 
-	Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
-	Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
-	Map<String, String> embryoSignificantResults = new HashMap<>();
+	private Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
+	private Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
+	private Map<String, String> embryoSignificantResults = new HashMap<>();
 
 	public StatisticalResultIndexer() {
 
@@ -98,7 +96,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
 			procedureMap = IndexerMap.getImpressProcedures(connection);
 			parameterMap = IndexerMap.getImpressParameters(connection);
-			organisationMap = IndexerMap.getOrganisationMap(connection);
 
 			populateBiologicalDataMap();
 			populateResourceDataMap();
@@ -1002,18 +999,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		String mpTerm = r.getString("mp_acc");
 		if (!r.wasNull()) {
 
-			OntologyTermBean bean = mpOntologyService.getTerm(mpTerm);
-			if (bean != null) {
-				doc.setMpTermId(bean.getId());
-				doc.setMpTermName(bean.getName());
-
-				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
-				doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
-				doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
-
-				doc.setIntermediateMpTermId(beanlist.getIntermediates().getIds());
-				doc.setIntermediateMpTermName(beanlist.getIntermediates().getNames());
-			}
+			addMpTermData(mpTerm, doc);
 
 		}
 
