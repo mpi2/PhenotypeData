@@ -160,7 +160,7 @@
                         </div>
                         
              <c:set var="vignettesLink" value='<a class="btn" style="float: right" href="${baseUrl}/embryo/vignettes">Full Analysis</a>'/>
-                        <div class="section">
+                        <div class="section" id="vignettes">
                             <h2 class="title"> Vignettes </h2>
                             <div class="inner">
 								<div id="sliderDiv">
