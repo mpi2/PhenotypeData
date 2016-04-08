@@ -298,7 +298,7 @@ public class SearchConfig {
 
     private void setGridColumns(){
         List<String> geneCols = Arrays.asList(new String[]{"Gene", "Production", "Phenotype", "Register"});
-        List<String> mpCols = Arrays.asList(new String[]{"Phenotype", "Definition", "Phenotyping<br>Call(s)", "Browse Ontology", "Register"});
+        List<String> mpCols = Arrays.asList(new String[]{"Phenotype", "Definition", "Phenotyping<br>Call(s)", "Ontology<br/>Tree", "Register"});
 
        // List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source", "Curated Genes", "Candidate Genes<br>by phenotype"});
         List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source"});

@@ -725,7 +725,8 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5463977&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression: ???, <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_ELZ_064_001">images</a>
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#tabs-4">data</a>, 
+                            									<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_ELZ_064_001">images</a>
                             			</li>
                             			<li>
 				            				Placental histopath: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPM_001_001,IMPC_GPM_002_001,IMPC_GPM_004_001,IMPC_GPM_003_001,IMPC_GPM_005_001">E12.5</a>,
@@ -788,7 +789,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5490495&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression: ???
+                            				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#tabs-4">Data</a>
                             			</li>
                             			<li>
                             				Embryo Gross Dysmorphology: <a href="${drupalBaseUrl}/phenoview/?gid=3325-61-7&qeid=IMPC_GEM_049_001">E12.5</a> images
