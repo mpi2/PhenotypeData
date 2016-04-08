@@ -2104,7 +2104,6 @@ public class ObservationService extends BasicService implements WebStatus {
 		// Fill list of EmbryoTableRows so that it's easiest to access from jsp.
 		for (String key: res.keySet()){
 			EmbryoTableRow row = new EmbryoTableRow();
-			System.out.println("row key="+key);
 			row.setCategory(key);
 			row.setCount( new Long(res.get(key).size()));
 			if (key.equalsIgnoreCase("lethal")){
@@ -2115,7 +2114,6 @@ public class ObservationService extends BasicService implements WebStatus {
 				row.setMpId(null);
 			}
 			result.add(row);
-			System.out.println("Added:: " + row);
 		}
 		return result;
 		
