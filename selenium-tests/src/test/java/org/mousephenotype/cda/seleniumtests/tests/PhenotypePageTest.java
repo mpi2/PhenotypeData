@@ -136,7 +136,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testMGI_MPLinksAreValid() throws SolrServerException {
         RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
@@ -199,7 +199,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryMPTermId() throws SolrServerException {
         String testName = "testPageForEveryMPTermId";
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
@@ -217,7 +217,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryTopLevelMPTermId";
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
@@ -236,7 +236,7 @@ public class PhenotypePageTest {
      * @throws SolrServerException
      */
     @Test
-@Ignore
+//@Ignore
     public void testPageForEveryIntermediateLevelMPTermId() throws SolrServerException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
         List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
@@ -249,7 +249,7 @@ public class PhenotypePageTest {
      *
      * @throws SolrServerException
      */
-@Ignore
+//@Ignore
     @Test
     public void testInvalidMpTermId() throws SolrServerException {
         RunStatus status = new RunStatus();
@@ -334,13 +334,16 @@ public class PhenotypePageTest {
                 , new String[] { "Posteriorly rotated ears", "Protruding ear", "Low-set ears" }
                 , new String[] { "Lethargy" }
         };
-        PhenotypeProcedure[] procedures = new PhenotypeProcedure[] {
-                  null
-                , new PhenotypeProcedure("Dysmorphology", "/impress/impress/displaySOP/1")
-                , null
-                , new PhenotypeProcedure("Dysmorphology", "/impress/impress/displaySOP/1")
-                , null
-                , new PhenotypeProcedure("Combined SHIRPA and Dysmorphology", "/impress/impress/displaySOP/186")
+        PhenotypeProcedure[][] procedures = new PhenotypeProcedure[][] {
+                  { null }
+                , { new PhenotypeProcedure("Dysmorphology (EUMODIC, v1)", "/impress/impress/displaySOP/1") }
+                , { null }
+                , { new PhenotypeProcedure("Dysmorphology (EUMODIC, v1)", "/impress/impress/displaySOP/1"),
+                    new PhenotypeProcedure("Dysmorphology (MGP, v1)", "/impress/impress/displaySOP/48") }
+                , { null }
+                , { new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (ICS, v3)", "/impress/impress/displaySOP/186"),
+                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (UCD, v2)", "/impress/impress/displaySOP/155"),
+                    new PhenotypeProcedure("Combined SHIRPA and Dysmorphology (UCD, v1)", "/impress/impress/displaySOP/82"),}
         };
 
         testUtils.logTestStartup(logger, this.getClass(), testName, targets.length, targets.length);
