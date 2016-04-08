@@ -128,8 +128,9 @@ public class ImpressService implements WebStatus {
 				.addField(ImpressDTO.PROCEDURE_ID)
 				.addField(ImpressDTO.PROCEDURE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_ID)
-				.addField(ImpressDTO.PIPELINE_NAME)
 				.addField(ImpressDTO.PROCEDURE_STABLE_KEY);
+			// Adding another field in here such as pipeline will require some code changes to avoid multiple procedures on mp page. 
+			// As it is now (only mp and procedure fields) the equal method will ignore the non existing pipeline id field.
 			
 			query.setRows(1000000);
 
