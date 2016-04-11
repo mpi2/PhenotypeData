@@ -207,23 +207,23 @@
 										    	<p class="sliderTitle"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></p></li>
 										    	
 										    <li id="item9"><img src="${baseUrl}/img/vignettes/Svep1.jpg" /> 
-										    	<p class="embryo-caption">Svep1 .... <t:vignetteLink geneId="MGI:1928849"></t:vignetteLink> </p> 
+										    	<p class="embryo-caption">Svep1 codes for an uncharacterized protein named after the multiple, extra-cellular domains identified in the sequence. Homozygotes fail between  E18.5 and birth. <t:vignetteLink geneId="MGI:1928849"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu/J></t:formatAllele></p></li>	
 										    	
 										    <li id="item10"><img src="${baseUrl}/img/vignettes/Strn3.jpg" /> 
-										    	<p class="embryo-caption">Strn3 .... <t:vignetteLink geneId="MGI:2151064"></t:vignetteLink> </p> 
+										    	<p class="embryo-caption">Striatins act as both calcium-dependent signaling proteins and scaffolding proteins, linking calcium-sensing signaling events with cellular action. Lethality in Strn3 homozygotes occurs around E15.5. <t:vignetteLink geneId="MGI:2151064"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Strn3<tm1b(KOMP)Wtsi/J></t:formatAllele></p></li>	
 										    	
 										    <li id="item11"><img src="${baseUrl}/img/vignettes/Rab34.jpg" /> 
-										    	<p class="embryo-caption">Rab34 .... <t:vignetteLink geneId="MGI:104606"></t:vignetteLink> </p> 
+										    	<p class="embryo-caption">Rab34 is a member of the RAS oncogene family, involved in intracellular vesicle transport. Rab34 homozygotes are subviable at E18.5. <t:vignetteLink geneId="MGI:104606"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Rab34<tm1b(EUCOMM)Hmgu/J></t:formatAllele></p></li>	
 										    	
 										    <li id="item12"><img src="${baseUrl}/img/vignettes/Cox7c.jpg" /> 
-										    	<p class="embryo-caption">Cox7c .... <t:vignetteLink geneId="MGI:103226"></t:vignetteLink> </p> 
+										    	<p class="embryo-caption">Cytochrome c oxidase subunit VIIc (Cox7c) is a nuclear-encoded regulatory component of cytochrome c oxidase. Homozygous mutants do not survive between E15.5 and E18.5. <t:vignetteLink geneId="MGI:103226"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Cox7c<tm1b(KOMP)Mbp></t:formatAllele></p></li>
 										    		
 										    <li id="item13"><img src="${baseUrl}/img/vignettes/Bloc1s2.jpg" /> 
-										    	<p class="embryo-caption">Bloc1s2 .... <t:vignetteLink geneId="MGI:1920939"></t:vignetteLink> </p> 
+										    	<p class="embryo-caption">Bloc1s2  functions in the formation of lysosome-related organelles through the  BLOC-1 complex, with lethality occurring in knockouts around E15.5.<t:vignetteLink geneId="MGI:1920939"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp></t:formatAllele></p></li>	
 										  </ul> 
 									</div>

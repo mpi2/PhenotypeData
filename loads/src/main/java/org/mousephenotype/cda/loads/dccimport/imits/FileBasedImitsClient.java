@@ -61,7 +61,7 @@ public class FileBasedImitsClient implements ImitsClient {
 		}
 
 		String sql = "SELECT DISTINCT COUNT(*) FROM colony";
-		Integer c = jdbc.queryForInt(sql);
+		Integer c = jdbc.queryForObject(sql, Integer.class);
 		logger.debug("Loaded {} lines", c);
 
 	}

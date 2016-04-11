@@ -1171,7 +1171,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				biologicalDataMap.put(resultSet.getInt("id"), b);
 			}
 		}
-		logger.info(" Added {} biological data map entries", biologicalDataMap.size());
+		logger.info(" Mapped {} biological data entries", biologicalDataMap.size());
 
 	}
 
@@ -1198,7 +1198,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				resourceMap.put(resultSet.getString("short_name"), b);
 			}
 		}
-		logger.info(" Added {} resource data map entries", resourceMap.size());
+		logger.info(" Mapped {} resource data entries", resourceMap.size());
 	}
 
 	/**
@@ -1228,7 +1228,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				}
 			}
 		}
-		logger.info(" Added {} sexes data map entries", sexesMap.size());
+		logger.info(" Mapped {} sexes data entries", sexesMap.size());
 	}
 
 	/**
@@ -1256,7 +1256,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			}
 		}
 
-		logger.info(" Added {} embryo significant data map entries", embryoSignificantResults.size());
+		logger.info(" Mapped {} embryo significant data entries", embryoSignificantResults.size());
 
 	}
 
@@ -1282,7 +1282,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			}
 		}
-		logger.info(" Added {} parameterMpTerm data map entries", parameterMpTermMap.size());
+		logger.info(" Mapped {} parameterMpTerm data entries", parameterMpTermMap.size());
 
 	}
 
@@ -1305,18 +1305,14 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	/**
 	 * Internal class to act as Map value DTO for biological data
 	 */
-	protected class BiologicalDataBean {
-		public String alleleAccession;
-		public String alleleSymbol;
-		public String alleleName;
-		public String colonyId;
-		public String externalSampleId;
-		public String geneAcc;
-		public String geneSymbol;
-		public String sex;
-		public String strainAcc;
-		public String strainName;
-		public String geneticBackground;
-		public String zygosity;
+	private class BiologicalDataBean {
+		private String alleleAccession;
+		private String alleleSymbol;
+		private String alleleName;
+		private String geneAcc;
+		private String geneSymbol;
+		private String strainAcc;
+		private String strainName;
+		private String geneticBackground;
 	}
 }
