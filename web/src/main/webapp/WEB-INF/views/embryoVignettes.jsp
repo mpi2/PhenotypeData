@@ -821,7 +821,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             			</li>
                             			<li> Embryonic Viability: <a href="${drupalbaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalbaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
                             			<li>
-                            				Embryo LacZ Expression:	<a href="${baseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> images </a>
+                            				Embryo LacZ Expression:	<a href="${drupalbaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
                             			</li>
                             			<li>
                             				Embryo Gross Morphology: NA
