@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.indexers.utils;
 /*******************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute
  *
