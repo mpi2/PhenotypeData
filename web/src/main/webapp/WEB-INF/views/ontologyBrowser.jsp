@@ -61,9 +61,12 @@
 			window.location.href = "../phenotypes/"  + data.node.term_id;
 		});
 		
-		//TODO add scroll here. Might need to index node id to scroll to?
-		var pos = $('#10484').position(); // id of first JSON object with opened: true
-		$('body').scrollTop(pos.top);
+		
+		$("#tree").bind('ready.jstree', function(e, data) {
+			var pos = $('#${scrollToNode}').position(); // id of first JSON object with opened: true
+			$('body').scrollTop(pos.top);
+	     })
+		
 		
 	 </script>
 
