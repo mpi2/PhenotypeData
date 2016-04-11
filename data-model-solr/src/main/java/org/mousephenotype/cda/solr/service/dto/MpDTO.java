@@ -151,6 +151,7 @@ public class MpDTO {
 
 	public static final String SEARCH_TERM_JSON = "search_term_json";
 	public static final String CHILDREN_JSON = "children_json";
+	public static final String SCROLL_NODE = "scroll_node";
 
 	@Field(MP_ID)
 	private String mpId;
@@ -169,9 +170,12 @@ public class MpDTO {
 
 	@Field(SEARCH_TERM_JSON)
 	private String searchTermJson;
-	
+
 	@Field(CHILDREN_JSON)
 	private String childrenJson;
+	
+	@Field(SCROLL_NODE)
+	private String scrollNode;
 
 	@Field(ALT_MP_ID)
 	private List<String> altMpId;
@@ -540,6 +544,16 @@ public class MpDTO {
 	public void setMpTerm(String mpTerm) {
 
 		this.mpTerm = mpTerm;
+	}
+
+
+	public String getScrollNode() {
+		return scrollNode;
+	}
+
+
+	public void setScrollNode(String scrollNode) {
+		this.scrollNode = scrollNode;
 	}
 
 

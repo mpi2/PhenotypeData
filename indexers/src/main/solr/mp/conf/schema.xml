@@ -328,6 +328,7 @@
   	
   	<field name="search_term_json" type="string" indexed="false" stored="true" multiValued="false"/>
   	<field name="children_json" type="string" indexed="false" stored="true" multiValued="false"/>
+  	<field name="scroll_node" type="string" indexed="false" stored="true" multiValued="false"/>
   	
  </fields>
 
