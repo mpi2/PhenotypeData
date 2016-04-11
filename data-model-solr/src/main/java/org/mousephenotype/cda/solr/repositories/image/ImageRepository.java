@@ -17,13 +17,11 @@ package org.mousephenotype.cda.solr.repositories.image;
 
 import java.util.List;
 
-import org.springframework.data.solr.repository.SolrCrudRepository;
-
 
 /**
  * @author Christoph Strobl
  */
-interface ImageRepository extends SolrCrudRepository<Image, String> {
+interface ImageRepository  { //extends SolrCrudRepository<Image, String> {
 
 //	@Highlight(prefix = "<b>", postfix = "</b>")
 //	@Query(fields = {Image.DOWNLOAD_URL,

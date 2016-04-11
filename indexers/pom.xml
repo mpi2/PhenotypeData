@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.mousephenotype.cda</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.1</version>
+		<version>1.0.0</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -27,7 +27,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- A Java library for parsing command line options - brought in from 
+		<!-- A Java library for parsing command line options - brought in from
 			indexers PA -->
 		<dependency>
 			<groupId>net.sf.jopt-simple</groupId>
@@ -63,12 +63,12 @@
 			<artifactId>commons-dbcp</artifactId>
 		</dependency>
 
-		<!-- for RestTemplate if we use that for getting embryo images, currently 
+		<!-- for RestTemplate if we use that for getting embryo images, currently
 			using httpclient as json structure not standard
 			-->
 		<!--<dependency> <groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId> </dependency> <dependency> <groupId>org.projectlombok</groupId> 
-			<artifactId>lombok</artifactId> <version>1.16.2</version> <scope>provided</scope> 
+			<artifactId>jackson-databind</artifactId> </dependency> <dependency> <groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId> <version>1.16.2</version> <scope>provided</scope>
 			</dependency> -->
 
 		<dependency>
@@ -95,7 +95,7 @@
 			<artifactId>owlapi-apibinding</artifactId>
 			<version>4.0.2</version>
 		</dependency>
-		
+
 	</dependencies>
 
 
