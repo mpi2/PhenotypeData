@@ -242,7 +242,7 @@ public class MPIndexer extends AbstractIndexer {
     private String getScrollTo(List<JSONObject> tree){
     	
     	for (JSONObject topLevel: tree){
-    		if (topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
+    		if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
     			return topLevel.getString("id");
     		}
     	}
