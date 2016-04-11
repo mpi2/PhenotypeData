@@ -243,7 +243,7 @@ public class MPIndexer extends AbstractIndexer {
     	
     	for (JSONObject topLevel: tree){
     		if (topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
-    			return topLevel.getString("node_id");
+    			return topLevel.getString("id");
     		}
     	}
     	return "";
