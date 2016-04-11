@@ -29,7 +29,10 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.seleniumtests.exception.TestException;
-import org.mousephenotype.cda.seleniumtests.support.*;
+import org.mousephenotype.cda.seleniumtests.support.GenePage;
+import org.mousephenotype.cda.seleniumtests.support.GraphPage;
+import org.mousephenotype.cda.seleniumtests.support.GraphValidatorPreqc;
+import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -353,7 +356,7 @@ public class GraphPageTest {
 
     // As of 12-Nov-2015, I can't find any time series graphs so am commenting out the test.
 //    @Test
-////@Ignore
+//@Ignore
 //    public void testTimeSeriesGraphs() throws TestException {
 //        String testName = "testTimeSeriesGraphs";
 //
