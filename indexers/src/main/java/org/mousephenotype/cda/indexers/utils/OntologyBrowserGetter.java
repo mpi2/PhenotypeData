@@ -87,6 +87,16 @@ public class OntologyBrowserGetter {
 
         return tn;
     }
+    
+    public String getScrollTo(List<JSONObject> tree){
+    	
+    	for (JSONObject topLevel: tree){
+    		if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
+    			return topLevel.getString("id");
+    		}
+    	}
+    	return "";
+    }
 
     private JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId) 
     throws SQLException {

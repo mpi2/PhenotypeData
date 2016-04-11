@@ -24,6 +24,8 @@ import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
+import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.MaDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
@@ -34,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+
+import net.sf.json.JSONObject;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -86,18 +90,20 @@ public class MAIndexer extends AbstractIndexer {
 
     @Override
     public RunStatus run() throws IndexerException {
+    	
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
+        OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
 
     	try {
     		logger.info(" Source of images core: " + ((HttpSolrServer) imagesCore).getBaseURL() );
             initialiseSupportingBeans();
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
-
-            // Add all ma terms to the index.
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
+            
+            // Add all ma terms to the index.            
             for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
 
@@ -142,6 +148,15 @@ public class MAIndexer extends AbstractIndexer {
                         ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
                     }
                 }
+                
+                // OntologyBrowser stuff
+                TreeHelper helper = ontologyBrowser.getTreeHelper( "ma", ma.getMaId());
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
+                ma.setSearchTermJson(searchTree.toString());
+                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
+                ma.setScrollNode(scrollNodeId);
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
+                ma.setChildrenJson(childrenTree.toString());
 
                 // also index all UBERON/EFO ids for intermediate MA ids
                 Set<String> all_ae_mapped_uberonIds = new HashSet<>();
