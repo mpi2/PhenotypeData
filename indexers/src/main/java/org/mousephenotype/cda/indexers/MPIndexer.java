@@ -207,7 +207,6 @@ public class MPIndexer extends AbstractIndexer {
                 //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
-
                 // Ontology browser stuff
                 TreeHelper helper = getTreeHelper( "mp", termId);
                 List<JSONObject> searchTree = createTreeJson(helper, "0", null, termId);
