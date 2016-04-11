@@ -16,9 +16,12 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import java.util.List;
 
+@SolrDocument(solrCoreName = "genotype-phenotype")
 public class GenotypePhenotypeDTO {
 
     public static final String ID = "doc_id";
@@ -76,6 +79,7 @@ public class GenotypePhenotypeDTO {
     public static final String LIFE_STAGE_NAME = "life_stage_name";
 
 
+	@Id
     @Field(ID)
     Integer id;
 

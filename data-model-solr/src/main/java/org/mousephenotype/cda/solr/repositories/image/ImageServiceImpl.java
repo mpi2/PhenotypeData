@@ -15,54 +15,48 @@
  */
 package org.mousephenotype.cda.solr.repositories.image;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.regex.Pattern;
 
 /**
  * @author Christoph Strobl
  */
 @Service
 class ImageServiceImpl implements ImageService {
-
-    
-
-    private ImageRepository imageRepository;
-
-    @Override
-    public Image findById(String id) {
-        
-        System.out.println("querying for one image with " + id);
-        Image image = imageRepository.findOne(id);
-        System.out.println("one image found=" + image);
-        return image;
-    }
-
-    @Override
-    public List<Image> findByMaId(String maId) {
-        List<Image> imageList = imageRepository.findByMaId(maId);
-        for (Image image : imageList) {
-            System.out.println("one image found=" + image.getMaId());
-        }
-        return imageList;
-    }
-    
-    @Override
-    public List<Image> findByMarkerAccession(String markerAccession1) {
-        List<Image> imageList = imageRepository.findByMarkerAccession(markerAccession1);
-        for (Image image : imageList) {
-            System.out.println("one image found id=" + image.getId());
-        }
-        return imageList;
-    }
-
-    @Autowired
-    public void setImageRepository(ImageRepository imageRepository) {
-        this.imageRepository = imageRepository;
-    }
+//
+//
+//
+//    private ImageRepository imageRepository;
+//
+//    @Override
+////    public Image findById(String id) {
+//
+////        System.out.println("querying for one image with " + id);
+////        Image image = imageRepository.findOne(id);
+////        System.out.println("one image found=" + image);
+////        return image;
+////    }
+//
+//    @Override
+////    public List<Image> findByMaId(String maId) {
+////        List<Image> imageList = imageRepository.findByMaId(maId);
+////        for (Image image : imageList) {
+////            System.out.println("one image found=" + image.getMaId());
+////        }
+////        return imageList;
+////    }
+//
+////    @Override
+////    public List<Image> findByMarkerAccession(String markerAccession1) {
+////        List<Image> imageList = imageRepository.findByMarkerAccession(markerAccession1);
+////        for (Image image : imageList) {
+////            System.out.println("one image found id=" + image.getId());
+////        }
+////        return imageList;
+////    }
+//
+//    @Autowired
+//    public void setImageRepository(ImageRepository imageRepository) {
+//        this.imageRepository = imageRepository;
+//    }
 
 }
