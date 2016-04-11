@@ -850,7 +850,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             
                         
                       <div class="section">
-                        <c:set var="geneId" value="MGI:1916804"></c:set>
+                        <c:set var="geneId" value="MGI:95698"></c:set>
 							<h2 class="title" id="${geneId}">
 								<t:formatAllele>Gfpt1<tm1b(EUCOMM)Wtsi>
 								</t:formatAllele>
