@@ -118,8 +118,9 @@ public class HistopathService {
 									obs.getParameterName());
 							parameterNames.add(obs.getParameterName());
 							row.addImageParam(parameter, obs.getDownloadFilePath());
-							
-							
+							if(obs.getParameterAssociationSequenceId()!=null){
+								System.out.println("parameterAssociationSequenceId="+obs.getParameterAssociationSequenceId());
+							}
 							
 						}
 					}
@@ -179,7 +180,7 @@ public class HistopathService {
 
 	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
-				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.CATEGORY, ObservationDTO.VALUE , ObservationDTO.DOWNLOAD_FILE_PATH);
+				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.CATEGORY, ObservationDTO.VALUE , ObservationDTO.DOWNLOAD_FILE_PATH, ObservationDTO.PARAMETER_ASSOCIATION_SEQUENCE_ID);
 		return observations;
 	}
 
