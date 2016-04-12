@@ -65,18 +65,17 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+    public void initialise(String[] args) throws IndexerException {
 
-        super.initialise(args, runStatus);
+        super.initialise(args);
 
         printConfiguration();
     }
 
     public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
 
-        RunStatus runStatus = new RunStatus();
         MGIPhenotypeIndexer main = new MGIPhenotypeIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }

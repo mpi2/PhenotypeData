@@ -24,8 +24,8 @@
 				<li id="mpT"><a href="${baseUrl}/search/mp?kw=*">Phenotypes</a></li>
 				<li id="diseaseT"><a href="${baseUrl}/search/disease?kw=*">Diseases</a></li>
 				<li id="maT"><a href="${baseUrl}/search/ma?kw=*">Anatomy</a></li>
-				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">IMPC Images</a></li>
-				<li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li>
+				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">Images</a></li>
+				<!-- li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li-->
 			</ul>
 		</div>
 		<!--<div><div id="resultMsg"></div><div class='saveTable'></div></div>-->

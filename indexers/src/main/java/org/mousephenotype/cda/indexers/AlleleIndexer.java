@@ -1222,9 +1222,8 @@ public class AlleleIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
-        RunStatus runStatus = new RunStatus();
         AlleleIndexer main = new AlleleIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }

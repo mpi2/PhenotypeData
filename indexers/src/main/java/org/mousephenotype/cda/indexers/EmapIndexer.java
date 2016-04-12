@@ -21,7 +21,6 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.indexers.beans.OntologyTermEmapBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -61,7 +60,7 @@ public class EmapIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("genotypePhenotypeReadOnlyIndexing")
     private SolrServer genotypePhenotypeCore;
-    
+
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -72,7 +71,7 @@ public class EmapIndexer extends AbstractIndexer {
 
     @Autowired
     EmapOntologyDAO emapOntologyService;
-    
+
     /**
      * Destination Solr core
      */
@@ -87,13 +86,13 @@ public class EmapIndexer extends AbstractIndexer {
     private static Connection komp2DbConnection;
     private static Connection ontoDbConnection;
 
-   
+
     // Maps of supporting database content
-    
+
     //Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
     Map<Integer, List<OntologyTermBean>> topLevelTerms;
-    
+
     // Intermediate node IDs and terms can also be used for allChildren
     Map<Integer, List<Integer>> intermediateNodeIds;
     Map<Integer, List<Integer>> childNodeIds;
@@ -129,7 +128,7 @@ public class EmapIndexer extends AbstractIndexer {
     //Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
     public EmapIndexer() {
-    
+
     }
 
     @Override
@@ -153,7 +152,7 @@ public class EmapIndexer extends AbstractIndexer {
 
             // Add all emap terms to the index.
             List<OntologyTermBean> beans = emapOntologyService.getAllTerms();
-           
+
             for (OntologyTermBean bean : beans) {
                 EmapDTO emap = new EmapDTO();
 
@@ -162,13 +161,13 @@ public class EmapIndexer extends AbstractIndexer {
                 emap.setDataType("emap");
                 emap.setEmapId(emapTermId);
                 emap.setEmapTerm(bean.getName());
-                
+
                 emap.setEmapNodeId(termNodeIds.get(emapTermId));
                 buildNodes(emap);
-                
+
                 // Set collections.
                 OntologyTermEmapBeanList sourceList = new OntologyTermEmapBeanList(emapOntologyService, bean.getId());
-               
+
                 emap.setEmapTermSynonym(sourceList.getSynonyms());
 
                 emap.setChildEmapId(sourceList.getChildren().getIds());
@@ -276,7 +275,7 @@ public class EmapIndexer extends AbstractIndexer {
      *
      * @throws IndexerException when there's an issue
      */
-    
+
     private void initializeDatabaseConnections() throws IndexerException {
 
         try {
@@ -291,19 +290,19 @@ public class EmapIndexer extends AbstractIndexer {
     private void initialiseSupportingBeans() throws IndexerException {
         try {
             // Grab all the supporting database content
-            
+
             termNodeIds = getNodeIds();
             topLevelTerms = getTopLevelTerms();
-            
+
             // Intermediate node terms can also be used for allChildren
             intermediateNodeIds = getIntermediateNodeIds();
-            
+
             //ChildNodeIds is inverse of intermediateNodeIds
             childNodeIds = getChildNodeIds();
-            
+
             // Intermediate terms can also be used for parents
             intermediateTerms = getIntermediateTerms();
-            
+
             parentNodeIds = getParentNodeIds();
             // Use single synonym hash
             emapTermSynonyms = getEmapTermSynonyms();
@@ -422,7 +421,7 @@ public class EmapIndexer extends AbstractIndexer {
         }
 
     }
-    
+
     private Map<String, List<Integer>> getNodeIds() throws SQLException {
         Map<String, List<Integer>> beans = new HashMap<>();
 
@@ -444,7 +443,7 @@ public class EmapIndexer extends AbstractIndexer {
         return beans;
     }
 
-    
+
     private Map<Integer, List<OntologyTermBean>> getTopLevelTerms() throws SQLException {
         Map<Integer, List<OntologyTermBean>> beans = new HashMap<>();
 
@@ -479,7 +478,7 @@ public class EmapIndexer extends AbstractIndexer {
      * @return the map.
      * @throws SQLException
      */
-    
+
     private Map<Integer, List<Integer>> getIntermediateNodeIds() throws SQLException {
         Map<Integer, List<Integer>> beans = new HashMap<>();
 
@@ -507,7 +506,7 @@ public class EmapIndexer extends AbstractIndexer {
      * @return the map.
      * @throws SQLException
      */
-    
+
     private Map<Integer, List<Integer>> getChildNodeIds() throws SQLException {
         Map<Integer, List<Integer>> beans = new HashMap<>();
 
@@ -529,7 +528,7 @@ public class EmapIndexer extends AbstractIndexer {
         return beans;
     }
 
-    
+
     private Map<Integer, List<OntologyTermBean>> getIntermediateTerms() throws SQLException {
         Map<Integer, List<OntologyTermBean>> beans = new HashMap<>();
 
@@ -556,7 +555,7 @@ public class EmapIndexer extends AbstractIndexer {
         return beans;
     }
 
-    
+
     private Map<Integer, List<Integer>> getParentNodeIds() throws SQLException {
         Map<Integer, List<Integer>> beans = new HashMap<>();
 
@@ -612,7 +611,7 @@ public class EmapIndexer extends AbstractIndexer {
             }
         }
     }
-    
+
 
     private void buildTopLevelNodes(EmapDTO emap, int nodeId) {
         List<OntologyTermBean> topLevelTermBeans = topLevelTerms.get(nodeId);
@@ -742,9 +741,8 @@ public class EmapIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
 
-        RunStatus runStatus = new RunStatus();
         EmapIndexer main = new EmapIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }
