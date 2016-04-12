@@ -16,8 +16,6 @@
 
 package org.mousephenotype.cda.loads.cdaloader;
 
-import javax.sql.DataSource;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
@@ -25,6 +23,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -36,6 +35,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 
 /**
  * Created by mrelac on 12/04/2016.
@@ -51,7 +52,10 @@ public class BatchConfiguration {
     public StepBuilderFactory stepBuilderFactory;
 
     @Autowired
-    public DataSource dataSource;
+    public DataSource komp2Loads;
+
+    @Autowired
+    public SystemCommandTasklet downloadReportsTasklet;
 
     // tag::readerwriterprocessor[]
     @Bean
@@ -79,7 +83,7 @@ public class BatchConfiguration {
         JdbcBatchItemWriter<Person> writer = new JdbcBatchItemWriter<Person>();
         writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Person>());
         writer.setSql("INSERT INTO people (first_name, last_name) VALUES (:firstName, :lastName)");
-        writer.setDataSource(dataSource);
+        writer.setDataSource(komp2Loads);
         return writer;
     }
     // end::readerwriterprocessor[]
@@ -88,7 +92,7 @@ public class BatchConfiguration {
 
     @Bean
     public JobExecutionListener listener() {
-        return new JobCompletionNotificationListener(new JdbcTemplate(dataSource));
+        return new JobCompletionNotificationListener(new JdbcTemplate(komp2Loads));
     }
 
     // end::listener[]
@@ -98,20 +102,28 @@ public class BatchConfiguration {
     public Job importUserJob() {
         return jobBuilderFactory.get("importUserJob")
                 .incrementer(new RunIdIncrementer())
-                .listener(listener())
+//                .listener(listener())
                 .flow(step1())
                 .end()
                 .build();
     }
 
+//    @Bean
+//    public Step step1() {
+//        return stepBuilderFactory.get("step1")
+//                .<Person, Person> chunk(10)
+//                .reader(reader())
+//                .processor(processor())
+//                .writer(writer())
+//                .build();
+//    }
+    // end::jobstep[]
+
+
     @Bean
     public Step step1() {
-        return stepBuilderFactory.get("step1")
-                .<Person, Person> chunk(10)
-                .reader(reader())
-                .processor(processor())
-                .writer(writer())
+        return stepBuilderFactory.get("step2")
+                .tasklet(downloadReportsTasklet)
                 .build();
     }
-    // end::jobstep[]
 }

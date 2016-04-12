@@ -17,20 +17,21 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
-import java.util.Properties;
 
 @Configuration
 @ComponentScan({"org.mousephenotype.cda"})
@@ -41,23 +42,9 @@ import java.util.Properties;
  */
 public class CdaConfig {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    public final long DOWNLOAD_TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
-//    @Value("${datasource.komp2.url}")
-//    private String datasourceKomp2Url;
-//
-//    @Value("${phenodigm.solrserver}")
-//    private String phenodigmSolrserver;
-//
-//    @Value("${solr.host}")
-//    private String solrHost;
-//
-//    @Value("${baseUrl}")
-//    private String baseUrl;
-//
-//    @Value("${internalSolrUrl}")
-//    private String internalSolrUrl;
-
-	@Bean
+	@Bean(name = "komp2Loads")
 	@Primary
     @ConfigurationProperties(prefix = "datasource.komp2Loads")
 	public DataSource komp2LoadsDataSource() {
@@ -65,30 +52,16 @@ public class CdaConfig {
 		return ds;
 	}
 
-    @Bean
-   	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-   		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-   		emf.setDataSource(komp2LoadsDataSource());
-   		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.dao"});
-
-   		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-   		emf.setJpaVendorAdapter(vendorAdapter);
-   		emf.setJpaProperties(buildHibernateProperties());
-
-   		return emf;
-   	}
-
-    protected Properties buildHibernateProperties() {
-   		Properties hibernateProperties = new Properties();
-
-   		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-   		hibernateProperties.setProperty("hibernate.show_sql", "false");
-   		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-   		hibernateProperties.setProperty("hibernate.format_sql", "true");
-   		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-
-   		return hibernateProperties;
-   	}
+	@Bean
+	@Primary
+	@PersistenceContext(name="komp2Context")
+	public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
+		return builder
+			.dataSource(komp2LoadsDataSource())
+			.packages("org.mousephenotype.cda.db")
+			.persistenceUnit("komp2")
+			.build();
+	}
 
 	@Bean(name = "sessionFactory")
 	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf) {
@@ -109,14 +82,14 @@ public class CdaConfig {
 		return DataSourceBuilder.create().build();
 	}
 
+    @Bean(name = "downloadReportsTasklet")
+    @StepScope
+    public SystemCommandTasklet downloadReportsTasklet() {
+        SystemCommandTasklet downloadReportsTasklet = new SystemCommandTasklet();
+        downloadReportsTasklet.setCommand("touch xxx");
+        downloadReportsTasklet.setTimeout(DOWNLOAD_TASKLET_TIMEOUT);
+        downloadReportsTasklet.setWorkingDirectory("/Users/mrelac");
 
-
-
-
-
-
-
-
-	@Bean
-	public String impcXmlFormatSpecimenLoader() { return ""; }
+        return downloadReportsTasklet;
+    }
 }
