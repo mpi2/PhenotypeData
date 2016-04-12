@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.indexers;
 
+import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -37,8 +38,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
-import net.sf.json.JSONObject;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -52,10 +51,10 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 public class MAIndexer extends AbstractIndexer {
     CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-   
+
     @Value("classpath:uberonEfoMa_mappings.txt")
 	Resource resource;
-    
+
     @Autowired
     @Qualifier("ontodbDataSource")
     DataSource ontodbDataSource;
@@ -70,10 +69,10 @@ public class MAIndexer extends AbstractIndexer {
 
     @Autowired
     MaOntologyDAO maOntologyService;
-    
+
     private Map<String, List<SangerImageDTO>> maImagesMap = new HashMap();      // key = term_id.
     private Map<String, Map<String,List<String>>> maUberonEfoMap = new HashMap();      // key = term_id.
-    
+
     public MAIndexer() {
 
     }
@@ -84,13 +83,13 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
-        super.initialise(args, runStatus);
+    public void initialise(String[] args) throws IndexerException {
+        super.initialise(args);
     }
 
     @Override
     public RunStatus run() throws IndexerException {
-    	
+
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -102,8 +101,8 @@ public class MAIndexer extends AbstractIndexer {
 
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
-            
-            // Add all ma terms to the index.            
+
+            // Add all ma terms to the index.
             for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
 
@@ -148,7 +147,7 @@ public class MAIndexer extends AbstractIndexer {
                         ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
                     }
                 }
-                
+
                 // OntologyBrowser stuff
                 TreeHelper helper = ontologyBrowser.getTreeHelper( "ma", ma.getMaId());
                 List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
@@ -266,15 +265,14 @@ public class MAIndexer extends AbstractIndexer {
         if (logger.isDebugEnabled()) {
             IndexerMap.dumpSangerImagesMap(maImagesMap, "Images map:", MAX_ITERATIONS);
         }
-        
+
         maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
     }
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
-        RunStatus runStatus = new RunStatus();
         MAIndexer indexer = new MAIndexer();
-        indexer.initialise(args, runStatus);
+        indexer.initialise(args);
         indexer.run();
         indexer.validateBuild();
     }

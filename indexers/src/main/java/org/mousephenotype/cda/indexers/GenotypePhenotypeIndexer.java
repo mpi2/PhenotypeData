@@ -88,9 +88,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+    public void initialise(String[] args) throws IndexerException {
 
-        super.initialise(args, runStatus);
+        super.initialise(args);
 
         try {
 
@@ -109,9 +109,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SolrServerException, SQLException, IOException {
 
-        RunStatus runStatus = new RunStatus();
         GenotypePhenotypeIndexer main = new GenotypePhenotypeIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }

@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.solr;
+package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,9 +36,9 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @EnableAutoConfiguration
-@ComponentScan("org.mousephenotype.cda")
+@ComponentScan({"org.mousephenotype.cda", "org.mousephenotype.cda.indexers", "org.mousephenotype.cda.solr.service"})
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
-public class TestConfigSolr {
+public class TestConfigIndexers {
 
 	@Value("http:${solrUrl}")
 	String solrBaseUrl;
