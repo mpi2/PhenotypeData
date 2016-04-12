@@ -16,32 +16,26 @@
 
 package uk.ac.ebi.phenotype.web;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.boot.autoconfigure.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
 import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl;
+
+import javax.annotation.PostConstruct;
+import javax.persistence.PersistenceContext;
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class acts as a spring bootstrap. No code requiring spring should be placed in this class, as, at this
@@ -96,7 +90,7 @@ public class TestConfig {
 
     @Bean (name="globalConfiguration")
     public Map <String, String> globalConfiguration(){
-    	
+
     	Map <String, String> gc = new HashMap<>();
     	gc.put("baseUrl", "${baseUrl}");
     	gc.put("drupalBaseUrl", "${drupalBaseUrl}");
@@ -107,10 +101,10 @@ public class TestConfig {
     	gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
     	gc.put("googleAnalytics", "${googleAnalytics}");
     	gc.put("liveSite", "${liveSite}");
-    	
+
     	return gc;
     }
-    
+
 	@Bean
 	@Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
@@ -118,30 +112,34 @@ public class TestConfig {
         DataSource ds = DataSourceBuilder.create().build();
 		return ds;
 	}
-	
+
 	//    <bean id="phenoDigmWebDao" class="uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl" />
 
 	@Bean (name="phenoDigmWebDao")
 	public PhenoDigmWebDao phenoDigm(){
 		return new PhenoDigmWebDaoSolrImpl();
 	}
-	
+
 	@Bean
 	@Primary
 	@PersistenceContext(name="komp2Context")
-	public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
-		return builder
-			.dataSource(komp2DataSource())
-			.packages("org.mousephenotype.cda.db")
-			.persistenceUnit("komp2")
-			.build();
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+		emf.setDataSource(komp2DataSource());
+		emf.setPackagesToScan("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.dao");
+
+		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		emf.setJpaVendorAdapter(vendorAdapter);
+
+		return emf;
 	}
 
 	@Bean(name = "sessionFactory")
-	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf) {
-		HibernateJpaSessionFactoryBean factory = new HibernateJpaSessionFactoryBean();
-		factory.setEntityManagerFactory(emf);
-		return factory;
+	public LocalSessionFactoryBean sessionFactory() {
+		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+		sessionFactory.setDataSource(komp2DataSource());
+		sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
+		return sessionFactory;
 	}
 
 	@Bean(name = "komp2TxManager")

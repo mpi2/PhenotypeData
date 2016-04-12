@@ -20,11 +20,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator-annotation-processor</artifactId>
-            <version>4.1.0.Final</version>
-        </dependency>
-        <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model</artifactId>
         </dependency>

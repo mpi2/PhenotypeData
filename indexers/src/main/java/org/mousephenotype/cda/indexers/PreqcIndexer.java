@@ -788,14 +788,14 @@ public class PreqcIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
-        super.initialise(args, runStatus);
+    public void initialise(String[] args) throws IndexerException {
+        super.initialise(args);
     }
 
     public static void main(String[] args) throws IndexerException {
-        RunStatus runStatus = new RunStatus();
+
         PreqcIndexer main = new PreqcIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }
