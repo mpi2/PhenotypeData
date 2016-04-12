@@ -102,9 +102,9 @@ public class GeneIndexer extends AbstractIndexer {
     }
 
     @Override
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+    public void initialise(String[] args) throws IndexerException {
 
-        super.initialise(args, runStatus);
+        super.initialise(args);
         applicationContext.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
 
         try {
@@ -112,7 +112,6 @@ public class GeneIndexer extends AbstractIndexer {
             komp2DbConnection = komp2DataSource.getConnection();
 
         } catch (SQLException sqle) {
-            runStatus.addError(" Caught SQL Exception initialising database connections: " + sqle.getMessage());
             throw new IndexerException(sqle);
         }
 
@@ -753,9 +752,8 @@ public class GeneIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
-        RunStatus runStatus = new RunStatus();
         GeneIndexer indexer = new GeneIndexer();
-        indexer.initialise(args, runStatus);
+        indexer.initialise(args);
         indexer.run();
         indexer.validateBuild();
     }

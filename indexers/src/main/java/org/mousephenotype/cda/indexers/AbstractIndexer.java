@@ -49,7 +49,7 @@ public abstract class AbstractIndexer {
     protected static final int MINIMUM_DOCUMENT_COUNT = 80;
 
     protected ApplicationContext applicationContext;
-    
+
     // This is used to track the number of documents that were requested to be added by the core.addBeans() call.
     // It is used for later validation by querying the core after the build.
     protected int documentCount = 0;
@@ -69,8 +69,8 @@ public abstract class AbstractIndexer {
         logger.debug("number found = " + numFound);
         return numFound;
     }
-    
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+
+    public void initialise(String[] args) throws IndexerException {
 //        getLogger().info("args = " + StringUtils.join(args));
         OptionSet options = parseCommandLine(args);
         if (options != null) {
@@ -125,7 +125,7 @@ public abstract class AbstractIndexer {
         if (appContext == null) {
             logger.error("Unable to load context '" + context  + "' from file or classpath. Exiting...");
         }
-        
+
         return appContext;
     }
 
