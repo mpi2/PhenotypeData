@@ -122,7 +122,7 @@ public class BatchConfiguration {
 
     @Bean
     public Step step1() {
-        return stepBuilderFactory.get("step2")
+        return stepBuilderFactory.get("step1")
                 .tasklet(downloadReportsTasklet)
                 .build();
     }
