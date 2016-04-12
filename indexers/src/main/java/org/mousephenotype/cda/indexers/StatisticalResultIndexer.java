@@ -85,9 +85,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	}
 
 	@Override
-	public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args, runStatus);
+		super.initialise(args);
 
 		try {
 
@@ -112,9 +112,8 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 	public static void main(String[] args) throws IndexerException {
 
-		RunStatus runStatus = new RunStatus();
 		StatisticalResultIndexer main = new StatisticalResultIndexer();
-		main.initialise(args, runStatus);
+		main.initialise(args);
 		main.run();
 		main.validateBuild();
 	}
