@@ -30,12 +30,13 @@ import org.mousephenotype.cda.indexers.exceptions.InvalidCoreNameException;
 import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentException;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -48,7 +49,9 @@ import static org.junit.Assert.fail;
  * @author mrelac
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-config.xml" })
+@SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
+@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
+@Transactional
 public class IndexerManagerTest {
 
     @Autowired
@@ -940,7 +943,7 @@ public class IndexerManagerTest {
       * Expected results: ma core to be created, built, and deployed.
       */
      @Test
-//@Ignore
+	@Ignore
     public void testStaticBuildAndDeploy() throws IOException, SolrServerException {
         String testName = "testStaticBuildAndDeploy";
         System.out.println("-------------------" + testName + "-------------------");
@@ -971,7 +974,7 @@ public class IndexerManagerTest {
       *
       * Expected results: The specified core to be built.
       */
-//@Ignore
+	@Ignore
      @Test
      public void testStaticBuildSingleCoreNodeps() throws IOException, SolrServerException {
         String testName = "testStaticBuildSingleCoreNodeps";
@@ -996,9 +999,9 @@ public class IndexerManagerTest {
       * Expected results: The specified core to be built.
      * @throws SQLException
       */
-//@Ignore
+	@Ignore
      @Test
-     public void testInstanceBuildSingleCoreNodeps(RunStatus runStatus) throws SQLException {
+     public void testInstanceBuildSingleCoreNodeps() throws SQLException {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
@@ -1018,7 +1021,7 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" }, runStatus);
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
             System.out.println("Command line = " + StringUtils.join(args, ","));
             indexerManager.maIndexer.run();
             indexerManager.maIndexer.validateBuild();
@@ -1032,7 +1035,7 @@ public class IndexerManagerTest {
       *
       * Expected results: The specified cores to be built.
       */
-//@Ignore
+	@Ignore
      @Test
      public void testStaticBuildMultipleCoresNodeps() throws IOException, SolrServerException {
         String testName = "testStaticBuildMultipleCoresNodeps";
@@ -1058,9 +1061,9 @@ public class IndexerManagerTest {
       * Expected results: All of the specified cores built.
      * @throws SQLException
       */
-//@Ignore
+	@Ignore
      @Test
-     public void testInstanceBuildMultipleCoresNodeps(RunStatus runStatus) throws SQLException {
+     public void testInstanceBuildMultipleCoresNodeps() throws SQLException {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
@@ -1080,7 +1083,7 @@ public class IndexerManagerTest {
 
         // Initialise, validate, and build the cores.
         try {
-            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" }, runStatus);
+            indexerManager.maIndexer.initialise(new String[] { "--context=index-config_DEV.xml" });
             indexerManager.maIndexer.run();
             indexerManager.maIndexer.validateBuild();
         } catch (IndexerException ie) {
@@ -1088,7 +1091,7 @@ public class IndexerManagerTest {
         }
      }
 
-//@Ignore
+	@Ignore
      @Test
      public void testGetSolrCoreDocumentCount() throws Exception {
          String querySegment = "/allele/select?q=*:*&rows=0&wt=json";
