@@ -91,6 +91,7 @@ public class ObservationDTOBase {
 	public static final String SUB_TERM_NAME = "sub_term_name";
 	public static final String SUB_TERM_ID = "sub_term_id";
 	public static final String SUB_TERM_DESCRIPTION= "sub_term_description";
+	public static final String SEQUENCE_ID= "sequence_id";
 	
 
 
@@ -277,7 +278,18 @@ public class ObservationDTOBase {
 	private List<String> subTermId;
 	@Field(SUB_TERM_DESCRIPTION)
 	private List<String> subTermDescription;
+	
+	@Field(SEQUENCE_ID)
+	private String sequenceId;
    
+
+	public String getSequenceId() {
+		return sequenceId;
+	}
+
+	public void setSequenceId(String sequenceId) {
+		this.sequenceId = sequenceId;
+	}
 
 	public List<String> getSubTermName() {
 		return subTermName;
