@@ -94,6 +94,12 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>loads</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
