@@ -189,6 +189,11 @@ public class MaDTO {
     public static final String MP_QF = "mpQf";
     public static final String DISEASE_QF = "diseaseQf";
     public static final String MA_QF = "maQf";
+    
+    //OntologyBrowser
+	public static final String SEARCH_TERM_JSON = MpDTO.SEARCH_TERM_JSON;
+	public static final String CHILDREN_JSON = MpDTO.CHILDREN_JSON;
+	public static final String SCROLL_NODE = MpDTO.SCROLL_NODE;
 
 
     @Field(DATA_TYPE)
@@ -196,6 +201,15 @@ public class MaDTO {
 
     @Field(MA_ID)
     private String maId;
+
+	@Field(SEARCH_TERM_JSON)
+	private String searchTermJson;
+
+	@Field(CHILDREN_JSON)
+	private String childrenJson;
+	
+	@Field(SCROLL_NODE)
+	private String scrollNode;
     
     @Field(UBERON_ID)
     private List<String> uberonIds;
@@ -1509,7 +1523,31 @@ public class MaDTO {
         this.maQf = maQf;
     }
 
-    @Override
+    public String getSearchTermJson() {
+		return searchTermJson;
+	}
+
+	public void setSearchTermJson(String searchTermJson) {
+		this.searchTermJson = searchTermJson;
+	}
+
+	public String getChildrenJson() {
+		return childrenJson;
+	}
+
+	public void setChildrenJson(String childrenJson) {
+		this.childrenJson = childrenJson;
+	}
+
+	public String getScrollNode() {
+		return scrollNode;
+	}
+
+	public void setScrollNode(String scrollNode) {
+		this.scrollNode = scrollNode;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

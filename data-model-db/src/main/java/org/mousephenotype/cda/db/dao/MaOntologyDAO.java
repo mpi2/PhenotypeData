@@ -84,6 +84,10 @@ public class MaOntologyDAO extends OntologyDAO {
         }
     }
 
+    public List<Integer> getNodeIds(String maTermId){
+    	return term2NodesMap.get(maTermId);
+    }
+    
     public boolean hasAncestorMapWarnings() {
         return hasAncestorMapWarnings;
     }
