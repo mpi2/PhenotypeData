@@ -33,7 +33,12 @@ public class HistopathServiceTest {
 		String geneAccession="MGI:2449119";
 		try {
 			List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
-			 List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(allObservations);	
+			 
+			for(ObservationDTO obs: allObservations){
+				System.out.println(obs);
+			}
+			
+			List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(allObservations);	
 			 for(HistopathPageTableRow row: filteredObservations){
 				 //System.out.println("row="+row);
 			 }

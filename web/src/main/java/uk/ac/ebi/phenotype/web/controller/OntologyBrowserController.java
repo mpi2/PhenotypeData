@@ -48,26 +48,19 @@ public class OntologyBrowserController {
     MpService ms;
     
     @RequestMapping(value = "/ontologyBrowser", method = RequestMethod.GET)
-    public String getParams(
-
-            @RequestParam(value = "termId", required = true) String termId,
-            HttpServletRequest request,
-            Model model)
-            throws IOException, URISyntaxException, SQLException, SolrServerException {
+    public String getParams( @RequestParam(value = "termId", required = true) String termId, HttpServletRequest request, Model model)
+    throws IOException, URISyntaxException, SQLException, SolrServerException {
 
         model.addAttribute("termId", termId);
-
+        model.addAttribute("scrollToNode", ms.getPhenotype(termId).getScrollNode());
+        
         return "ontologyBrowser";
     }
 
 
     @RequestMapping(value = "/ontologyBrowser2", method = RequestMethod.GET)
-    public ResponseEntity<String> getTreeJson(
-            @RequestParam(value = "node", required = true) String rootId,
-            @RequestParam(value = "termId", required = true) String termId,
-            @RequestParam(value = "expandNodeIds", required = false) List<String> expandNodes,
-            HttpServletRequest request,
-            Model model)
+    public ResponseEntity<String> getTreeJson( @RequestParam(value = "node", required = true) String rootId, @RequestParam(value = "termId", required = true) String termId,
+            @RequestParam(value = "expandNodeIds", required = false) List<String> expandNodes, HttpServletRequest request, Model model)
     throws IOException, URISyntaxException, SQLException, SolrServerException {
 
         if (rootId.equalsIgnoreCase("src")){
@@ -77,9 +70,12 @@ public class OntologyBrowserController {
         }
     }
 
+    
     private HttpHeaders createResponseHeaders() {
+    	
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
+        
         return responseHeaders;
     }
 }
