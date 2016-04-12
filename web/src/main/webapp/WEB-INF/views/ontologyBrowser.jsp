@@ -61,6 +61,13 @@
 			window.location.href = "../phenotypes/"  + data.node.term_id;
 		});
 		
+		
+		$("#tree").bind('ready.jstree', function(e, data) {
+			var pos = $('#${scrollToNode}').position(); // id of first JSON object with opened: true
+			$('body').scrollTop(pos.top);
+	     })
+		
+		
 	 </script>
 
 

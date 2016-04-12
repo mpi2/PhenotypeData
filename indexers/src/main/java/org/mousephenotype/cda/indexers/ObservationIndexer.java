@@ -173,7 +173,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		observationSolrServer.deleteByQuery("*:*");
 
 
-        String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id,\n"
+        String query = "SELECT o.id as id, o.sequence_id as sequence_id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id,\n"
                 + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message,\n"
                 + "o.biological_sample_id,\n"
                 + "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id,\n"
@@ -216,6 +216,9 @@ public class ObservationIndexer extends AbstractIndexer {
 				o.setParameterId(r.getInt("parameter_id"));
 				o.setExperimentId(r.getInt("experiment_id"));
 				o.setExperimentSourceId(r.getString("external_id"));
+				if(r.getString("sequence_id")!=null){
+					o.setSequenceId(r.getString("sequence_id"));
+				}
 
 				ZonedDateTime dateOfExperiment = null;
 				try {
