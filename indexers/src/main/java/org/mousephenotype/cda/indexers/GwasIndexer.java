@@ -50,13 +50,13 @@ public class GwasIndexer extends AbstractIndexer {
 
     @Autowired
 	private GwasDAO gwasDao;
-    
+
     @Autowired
     @Qualifier("gwasIndexing")
     SolrServer gwasCore;
-    
-    private List<GwasDTO> gwasMappings = new ArrayList<>(); 
-    
+
+    private List<GwasDTO> gwasMappings = new ArrayList<>();
+
     public GwasIndexer() {
 
     }
@@ -83,16 +83,16 @@ public class GwasIndexer extends AbstractIndexer {
     }
 
     public Integer getDocCount() throws SQLException {
-    
+
         // rows of impc to GWAS mapping
     	List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
     	int rows = gwasMappings.size();
     	return rows;
     }
-    
+
     @Override
-    public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
-        super.initialise(args, runStatus);
+    public void initialise(String[] args) throws IndexerException {
+        super.initialise(args);
     }
 
     @Override
@@ -111,12 +111,12 @@ public class GwasIndexer extends AbstractIndexer {
 
             // Add all ma terms to the index.
             List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
-            
+
             String mpIdOwlBaseUrl = "";
             for (GwasDTO gw : gwasMappings) {
-            	
+
                 count ++;
-                
+
                 gwasBatch.add(gw);
                 if (gwasBatch.size() == BATCH_SIZE) {
                     // Update the batch, clear the list
@@ -164,9 +164,8 @@ public class GwasIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
-        RunStatus runStatus = new RunStatus();
         GwasIndexer indexer = new GwasIndexer();
-        indexer.initialise(args, runStatus);
+        indexer.initialise(args);
         indexer.run();
         indexer.validateBuild();
     }

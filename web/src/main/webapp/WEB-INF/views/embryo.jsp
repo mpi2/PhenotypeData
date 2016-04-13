@@ -225,6 +225,26 @@
 										    <li id="item13"><img src="${baseUrl}/img/vignettes/Bloc1s2.jpg" /> 
 										    	<p class="embryo-caption">Bloc1s2  functions in the formation of lysosome-related organelles through the  BLOC-1 complex, with lethality occurring in knockouts around E15.5.<t:vignetteLink geneId="MGI:1920939"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp></t:formatAllele></p></li>	
+										    	
+										    <li id="item14"><img src="${baseUrl}/img/vignettes/Slc39a8.png" /> 
+										    	<p class="embryo-caption">???<t:vignetteLink geneId="MGI:1914797"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Slc39a8<tm1b(EUCOMM)Wtsi></t:formatAllele></p></li>	
+										    	
+										    <li id="item15"><img src="${baseUrl}/img/vignettes/Kdm8.png" /> 
+										    	<p class="embryo-caption">???<t:vignetteLink geneId="MGI:19224285"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Kdm8<tm1b(EUCOMM)Wtsi></t:formatAllele></p></li>	
+										    	
+										    <li id="item16"><img src="${baseUrl}/img/vignettes/Atg3.png" /> 
+										    	<p class="embryo-caption">???<t:vignetteLink geneId="MGI:1915091"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Atg3<tm1b(EUCOMM)Hmgu></t:formatAllele></p></li>	
+										    	
+										    <li id="item17"><img src="${baseUrl}/img/vignettes/gfpt1.png" /> 
+										    	<p class="embryo-caption">???<t:vignetteLink geneId="MGI:95698"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Gfpt1<tm1b(EUCOMM)Wtsi></t:formatAllele></p></li>	
+										    	
+										    <li id="item18"><img src="${baseUrl}/img/vignettes/Klhdc2.png" /> 
+										    	<p class="embryo-caption">???<t:vignetteLink geneId="MGI:1916804"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></p></li>	
 										  </ul> 
 									</div>
 	                           	</div>
