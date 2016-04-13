@@ -15,15 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermEmapBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -34,10 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,7 +37,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
-import static org.mousephenotype.cda.indexers.utils.IndexerMap.*;
+import static org.mousephenotype.cda.indexers.utils.IndexerMap.getGeneToAlleles;
 
 
 /**
@@ -497,9 +489,8 @@ public class EmapIndexer2 extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
 
-        RunStatus runStatus = new RunStatus();
         EmapIndexer2 main = new EmapIndexer2();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }

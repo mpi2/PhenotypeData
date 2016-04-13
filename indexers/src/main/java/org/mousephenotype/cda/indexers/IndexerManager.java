@@ -112,7 +112,6 @@ public class IndexerManager {
         , STATSTICAL_RESULT_CORE
 
           // These are built daily.
-        , MGI_PHENOTYPE_CORE
         , PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
@@ -128,8 +127,7 @@ public class IndexerManager {
 
     public static final String[] allDailyCoresArray = new String[] {
           // In dependency order. These are built daily.
-    	MGI_PHENOTYPE_CORE
-        ,  PREQC_CORE
+        PREQC_CORE
         , ALLELE_CORE
         , IMAGES_CORE
         , IMPC_IMAGES_CORE
@@ -156,7 +154,7 @@ public class IndexerManager {
     @Autowired
     MGIPhenotypeIndexer mgiPhenotypeIndexer;
 
-    
+
     @Autowired
     StatisticalResultIndexer statisticalResultIndexer;
 
@@ -266,7 +264,13 @@ public class IndexerManager {
             if (e.getLocalizedMessage() != null) {
                 logger.error(e.getLocalizedMessage());
             }
-            throw new IndexerException(e);
+
+	        // Don't re-wrap the exception if it is already an Indexer Exception
+	        if (e instanceof IndexerException) {
+		        throw e;
+	        } else {
+		        throw new IndexerException(e);
+	        }
         }
     }
 
@@ -291,7 +295,7 @@ public class IndexerManager {
 
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
-                indexerItem.indexer.initialise(indexerArgs, runStatus);
+                indexerItem.indexer.initialise(indexerArgs);
                 runStatus = indexerItem.indexer.run();
                 if (runStatus.hasErrors()) {
                     for (String errorMessage : runStatus.getErrorMessages()) {

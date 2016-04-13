@@ -15,22 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
+import net.sf.json.JSONObject;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -43,14 +28,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.MPHPBean;
-import org.mousephenotype.cda.indexers.beans.MPStrainBean;
-import org.mousephenotype.cda.indexers.beans.MPTermNodeBean;
-import org.mousephenotype.cda.indexers.beans.MPTopLevelTermBean;
-import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
-import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
+import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
+import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter.TreeHelper;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -59,10 +41,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import net.sf.json.JSONObject;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * @author Matt Pearce
+ * @author ilinca
  *
  */
 public class MPIndexer extends AbstractIndexer {
@@ -80,7 +70,7 @@ public class MPIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
     private SolrServer genotypePhenotypeCore;
-    
+
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -92,14 +82,14 @@ public class MPIndexer extends AbstractIndexer {
 
     @Autowired
     MpOntologyDAO mpOntologyService;
-    
+
     /**
      * Destination Solr core
      */
     @Autowired
     @Qualifier("mpIndexing")
     private SolrServer mpCore;
-  
+
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -111,6 +101,7 @@ public class MPIndexer extends AbstractIndexer {
     // Maps of supporting database content
     Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
+
     // Use single synonym hash
     Map<String, List<String>> mpTermSynonyms;
     Map<String, List<String>> ontologySubsets;
@@ -134,14 +125,14 @@ public class MPIndexer extends AbstractIndexer {
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
-    
+
     Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
 
     // number of postqc calls of an MP
     Map<String, Integer> mpCalls = new HashMap<>();
-    
+
     public MPIndexer() {
-    	
+
     }
 
     @Override
@@ -154,6 +145,7 @@ public class MPIndexer extends AbstractIndexer {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
+        OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
 
         initializeSolrCores();
         initializeDatabaseConnections();
@@ -163,7 +155,7 @@ public class MPIndexer extends AbstractIndexer {
 
         	// maps MP to number of phenotyping calls
         	//populateGene2MpCalls();
-        	
+
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
@@ -195,33 +187,33 @@ public class MPIndexer extends AbstractIndexer {
                 addIntermediateLevelNodes(mp);
                 addChildLevelNodes(mp);
                 addParentLevelNodes(mp);
-                
+
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp, runStatus);
-                 
+
                 // this sets the number of postqc/preqc phenotyping calls of this MP
-                mp.setPhenoCalls(sumPhenotypingCalls(termId)); 
+                mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
                 // Ontology browser stuff
-                TreeHelper helper = getTreeHelper( "mp", termId);
-                List<JSONObject> searchTree = createTreeJson(helper, "0", null, termId);
+                TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId);
                 mp.setSearchTermJson(searchTree.toString());
-                String scrollNodeId = getScrollTo(searchTree);
+                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                List<JSONObject> childrenTree = createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
-                
+
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
 
                 documentCount++;
                 mpCore.addBean(mp, 60000);
-                
+
                 if (documentCount % 100 == 0){
                 	mpCore.commit();
                 }
@@ -239,32 +231,23 @@ public class MPIndexer extends AbstractIndexer {
         return runStatus;
     }
 
-    private String getScrollTo(List<JSONObject> tree){
-    	
-    	for (JSONObject topLevel: tree){
-    		if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
-    			return topLevel.getString("id");
-    		}
-    	}
-    	return "";
-    }
-    
+
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
-    
+
     	List<SolrServer> ss = new ArrayList<>();
     	ss.add(preqcCore);
     	ss.add(genotypePhenotypeCore);
-    	
+
     	int calls = 0;
     	for ( int i=0; i<ss.size(); i++ ){
-    		
+
     		SolrServer solrSvr = ss.get(i);
-    
+
 	    	SolrQuery query = new SolrQuery();
 
             query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
 			query.setRows(0);
-			
+
 			QueryResponse response = solrSvr.query(query);
 
             calls += response.getResults().getNumFound();
@@ -273,325 +256,18 @@ public class MPIndexer extends AbstractIndexer {
 
         return calls;
     }
-    
-    
-    public List<JSONObject> createTreeJson(TreeHelper helper, String rootId, String childNodeId, String termId) 
-    throws SQLException {
 
-        List<JSONObject> tn = new ArrayList<>();
-        String sql = fetchNextLevelChildrenSql(helper, rootId, childNodeId);
-
-        try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
-
-            ResultSet resultSet = p.executeQuery();
-            
-            while (resultSet.next()) {
-
-                String nodeId = resultSet.getString("node_id");
-                if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching it children recursively
-                    // the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
-                	String topNodeId = "0";
-					for ( Map<String, String> topEnd : helper.getPreOpenNodes().get(nodeId) ) {
-                        for (String thisTopNodeId : topEnd.keySet()) {
-                            topNodeId = thisTopNodeId;
-                            break;  // do only once: should have a better way
-                        }
-                    }
-                    String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
-                    try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
-
-                        ResultSet resultSet2 = p2.executeQuery();
-                        while (resultSet2.next()) {
-
-                            JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
-                            if (thisNode.getBoolean("children")) {
-                                thisNode = fetchChildNodes(helper, thisNode, termId);
-                                if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                                	thisNode.accumulate("state", getState(false));    
-                                } else {
-                                	thisNode.accumulate("state", getState(true));
-                                }
-                            } 
-        					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
-        						thisNode.accumulate("type", "selected");
-        					}
-                            tn.add(thisNode);
-                        }
-                        
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                else {
-                    // just fetch the term of this node
-                    JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-                    tn.add(thisNode);
-                }
-            }
-        }  catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return tn;
-    }
-
-    public JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId) 
-    throws SQLException {
-
-    	String parentNodeId = nodeObj.getString("id");
-        String childNodeId = null;
-        String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
-        List<JSONObject> children = new ArrayList<>();
-
-        try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
-
-			ResultSet resultSet = p.executeQuery();			
-			while (resultSet.next()) {
-	
-				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
-                        if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                        	thisNode.accumulate("state", getState(false)); 
-                        } else {
-                        	thisNode.accumulate("state", getState(true));
-                        }
-					} else {
-						thisNode.accumulate("state", getState(false));
-					}
-					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
-						thisNode.accumulate("type", "selected");
-					}
-					children.add(thisNode);
-				}
-			}
-	
-			nodeObj.put("children", children);
-        }
-
-        return nodeObj;
-        
-    }
-
-	public JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn, String termId) 
-	throws SQLException {
-		
-		String parentNodeId = nodeObj.getString("id");
-		String childNodeId = null;
-		String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
-		List<JSONObject> children = new ArrayList<>();
-		
-		try ( PreparedStatement p = conn.prepareStatement(sql)) {
-
-			ResultSet resultSet = p.executeQuery();
-			
-			while (resultSet.next()) {
-				
-				
-				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-					
-					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-					
-					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
-						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
-							thisNode.accumulate("state", getState(false));
-						} else {
-							thisNode.accumulate("state", getState(true));
-						}
-					} else {
-						thisNode.accumulate("state", getState(false));
-					}
-
-					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
-						thisNode.accumulate("type", "selected");
-					}
-					children.add(thisNode);
-					nodeObj.put("children", children);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return nodeObj;
-	}
-	
-	private JSONObject getState(boolean opened){
-    	JSONObject state = new JSONObject();
-    	state.accumulate("opened", opened);
-    	return state;
-    }
-    
-    public String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId)
-    throws SQLException {
-
-    	// return a query to get all children of [parentNodeId]
-    	
-        String ontologyName = helper.getOntologyName();
-        String subqry = "SELECT child_node_id "
-                    + "FROM " + ontologyName + "_parent_children "
-                    + "WHERE parent_node_id = " + parentNodeId;
-
-        if ( childNodeId != null ){
-            subqry += " AND child_node_id = " + childNodeId;
-        }
-
-        String sql = "SELECT n.node_id, n.term_id, t.name, nt.node_type "
-                + "FROM " + ontologyName + "_node2term n, " + ontologyName + "_term_infos t, " + ontologyName + "_node_id_type nt "
-                + "WHERE n.term_id=t.term_id "
-                + "AND n.node_id=nt.node_id "
-                + "AND n.node_id IN (" + subqry + ") "
-                + "ORDER BY t.name";
-        
-        return sql;
-    }
-
-	public TreeHelper getTreeHelper( String ontologyName, String termId) 
-	throws SQLException {
-
-		String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path " + "FROM " + ontologyName
-				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
-				+ "_node2term WHERE term_id = ?)";
-
-		Map<String, String> nameMap = new HashMap<>();
-		nameMap.put("ma", "anatomy");
-		nameMap.put("mp", "phenotypes");
-
-		String pageBaseUrl =  nameMap.get(ontologyName);
-
-		Set<String> pathNodes = new HashSet<>();
-		Set<String> expandNodeIds = new HashSet<>();
-		Map<String, List<Map<String, String>>> preOpenNodes = new HashMap<>();
-		
-		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(query)) {
-
-			p.setString(1, termId);
-			ResultSet resultSet = p.executeQuery();
-			int topIndex = 1; // 2nd in the fullpath is the one below the real
-								// root in obo
-
-			while (resultSet.next()) {
-
-				String fullpath = resultSet.getString("path");
-				String[] nodes = fullpath.split(" ");
-
-				pathNodes.addAll(Arrays.asList(nodes));
-
-				String topNodeId = nodes[topIndex]; // 2nd in fullpath
-				String endNodeId = nodes[nodes.length - 1]; // last in fullpath
-
-				expandNodeIds.add(endNodeId);
-
-				if (!preOpenNodes.containsKey(topNodeId)) {
-					preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
-				}
-
-				Map<String, String> nodeStartEnd = new HashMap<>();
-				nodeStartEnd.put(nodes[0], endNodeId);
-				preOpenNodes.get(topNodeId).add(nodeStartEnd);
-
-			}
-		}
-
-		TreeHelper th = new TreeHelper();
-		th.setPathNodes(pathNodes);
-		th.setExpandNodeIds(expandNodeIds);
-		th.setPreOpenNodes(preOpenNodes);
-		th.setPageBaseUrl(pageBaseUrl);
-		th.setOntologyName(ontologyName);
-
-		return th;
-
-	}
-
-	public JSONObject fetchNodeInfo(TreeHelper helper, ResultSet resultSet) throws SQLException {
-
-		JSONObject node = new JSONObject();
-		String nodeId = Integer.toString(resultSet.getInt("node_id"));
-		String termId = resultSet.getString("term_id");
-		String name = resultSet.getString("name");
-		String termDisplayText = null;
-
-		if (helper.getExpandNodeIds().contains(nodeId)) {
-			termDisplayText = "<span class='qryTerm'>" + name + "</span>";
-		} else {
-			termDisplayText = name;
-		}
-
-		String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText
-				+ "</a>";
-		node.put("text", url);
-		node.put("id", Integer.toString(resultSet.getInt("node_id")));
-		node.put("term_id", resultSet.getString("term_id"));
-		node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
-		node.put("href", "phenotypes/" + termId);
-		node.put("hrefTarget", "_blank");
-
-		return node;
-	}
-
-	private class TreeHelper {
-
-		Set<String> pathNodes;
-		Map<String, List<Map<String, String>>> preOpenNodes;
-		Set<String> expandNodeIds;
-		String pageBaseUrl;
-		String ontologyName;
-
-		public Set<String> getPathNodes() {
-			return pathNodes;
-		}
-
-		public void setPathNodes(Set<String> pathNodes) {
-			this.pathNodes = pathNodes;
-		}
-
-		public Map<String, List<Map<String, String>>> getPreOpenNodes() {
-			return preOpenNodes;
-		}
-
-		public void setPreOpenNodes(Map<String, List<Map<String, String>>> preOpenNodes) {
-			this.preOpenNodes = preOpenNodes;
-		}
-
-		public Set<String> getExpandNodeIds() {
-			return expandNodeIds;
-		}
-
-		public void setExpandNodeIds(Set<String> expandNodeIds) {
-			this.expandNodeIds = expandNodeIds;
-		}
-
-		public String getPageBaseUrl() {
-			return pageBaseUrl;
-		}
-
-		public void setPageBaseUrl(String pageBaseUrl) {
-			this.pageBaseUrl = pageBaseUrl;
-		}
-
-		public String getOntologyName() {
-			return ontologyName;
-		}
-
-		public void setOntologyName(String ontologyName) {
-			this.ontologyName = ontologyName;
-		}
-	}
-    
     private void populateGene2MpCalls() throws SQLException {
-    	
+
     	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
-    	
+
     	PreparedStatement ps = komp2DbConnection.prepareStatement(qry);
     	ResultSet rs = ps.executeQuery();
-    	
+
     	while (rs.next()) {
     		String mpAcc = rs.getString("mp_acc");
     		int calls = rs.getInt("calls");
-    	
+
     		mpCalls.put(mpAcc, calls);
     	}
     }
@@ -703,7 +379,7 @@ public class MPIndexer extends AbstractIndexer {
         } catch (SolrServerException e) {
             throw new IndexerException(e);
         }
-        
+
         logger.debug(" Added {} mphp records", count);
 
         return beans;
@@ -1200,19 +876,19 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addTopLevelNodes(MpDTO mp) {
-    	
+
     	List<String> ids = new ArrayList<>();
       	List<String> names = new ArrayList<>();
       	List<String> nameId = new ArrayList<>();
       	Set<String> synonyms = new HashSet<>();
-      	
+
       	for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
 			ids.add(term.getId());
 			names.add(term.getName());
 			synonyms.addAll(term.getSynonyms());
 			nameId.add(term.getTermIdTermName());
 		}
-    	
+
       	if (ids.size() > 0){
             mp.setTopLevelMpId(ids);
             mp.setTopLevelMpTerm(names);
@@ -1222,18 +898,18 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addIntermediateLevelNodes(MpDTO mp) {
-    	
+
 
     	List<String> ids = new ArrayList<>();
       	List<String> names = new ArrayList<>();
       	Set<String> synonyms = new HashSet<>();
-      	
+
       	for (OntologyTermBean term : mpOntologyService.getIntermediates(mp.getMpId())) {
 			ids.add(term.getId());
 			names.add(term.getName());
 			synonyms.addAll(term.getSynonyms());
 		}
-    	
+
       	if (ids.size() > 0){
 	        mp.setIntermediateMpId(ids);
 	        mp.setIntermediateMpTerm(names);
@@ -1252,26 +928,26 @@ public class MPIndexer extends AbstractIndexer {
 			childTermNames.add(child.getName());
 			childSynonyms.addAll(child.getSynonyms());
 		}
-			
-		
+
+
 		mp.setChildMpId(childTermIds);
 		mp.setChildMpTerm(childTermNames);
 		mp.setChildMpTermSynonym(new ArrayList<>(childSynonyms));
-        
+
     }
 
     private void addParentLevelNodes(MpDTO mp) {
-    	
+
         List<String> parentTermIds = new ArrayList<>();
         List<String> parentTermNames = new ArrayList<>();
         Set<String> parentSynonyms = new HashSet<>();
-        
+
         for (OntologyTermBean parent : mpOntologyService.getParents(mp.getMpId())) {
         	parentTermIds.add(parent.getId());
         	parentTermNames.add(parent.getName());
         	parentSynonyms.addAll(parent.getSynonyms());
 		}
-       
+
         mp.setParentMpId(parentTermIds);
         mp.setParentMpTerm(parentTermNames);
         mp.setParentMpTermSynonym(new ArrayList<>(parentSynonyms));
@@ -1576,9 +1252,8 @@ public class MPIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
-        RunStatus runStatus = new RunStatus();
         MPIndexer main = new MPIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }
