@@ -17,8 +17,6 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,7 +40,6 @@ import javax.sql.DataSource;
  */
 public class CdaConfig {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    public final long DOWNLOAD_TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
 	@Bean(name = "komp2Loads")
 	@Primary
@@ -81,15 +78,4 @@ public class CdaConfig {
 	public DataSource admintoolsDataSource() {
 		return DataSourceBuilder.create().build();
 	}
-
-    @Bean(name = "downloadReportsTasklet")
-    @StepScope
-    public SystemCommandTasklet downloadReportsTasklet() {
-        SystemCommandTasklet downloadReportsTasklet = new SystemCommandTasklet();
-        downloadReportsTasklet.setCommand("touch xxx");
-        downloadReportsTasklet.setTimeout(DOWNLOAD_TASKLET_TIMEOUT);
-        downloadReportsTasklet.setWorkingDirectory("/Users/mrelac");
-
-        return downloadReportsTasklet;
-    }
 }

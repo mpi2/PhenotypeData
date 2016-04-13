@@ -18,6 +18,7 @@ package org.mousephenotype.cda.utilities;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class CommonUtils {
 
     private final static double EPSILON = 0.000000001;
+    public final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
 
     /**
@@ -104,6 +106,16 @@ public class CommonUtils {
     }
 
     /**
+     * Returns a String containing the start, stop, and elapsed time, wrapped in parentheses.
+     * @param start start time, in milliseconds
+     * @param stop stop time, in milliseconds
+     * @return a String containing the start, stop, and elapsed time, wrapped in parentheses.
+     */
+    public String getRunstats(long start, long stop) {
+        return "(" + formattedDate(start) + ", " + formattedDate(stop) + ", " + msToHms(stop - start) + ")";
+    }
+
+    /**
      * Performs an approximate match between two doubles. Returns true if
      * the two values are within a difference of 0.000000001; false otherwise
      * @param a first operand
@@ -146,6 +158,25 @@ public class CommonUtils {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds)));
 
         return result;
+    }
+
+    /**
+     * Returns a string containing the date represented by <code>date</code> in the format <i>yyyy/MM/dd HH:mm:ss</i>
+     * @param date The date to be formatted
+     * @return a string containing the formatted date
+     */
+    public String formattedDate(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        return dateFormat.format(date);
+    }
+
+    /**
+     * Returns a string containing the date represented by <code>milliseconds</code> in the format <i>yyyy/MM/dd HH:mm:ss</i>
+     * @param milliseconds The date to be formatted, in milliseconds
+     * @return a string containing the formatted date
+     */
+    public String formattedDate(long milliseconds) {
+        return formattedDate(new Date(milliseconds));
     }
 
     /**
