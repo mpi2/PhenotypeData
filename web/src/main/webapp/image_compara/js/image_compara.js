@@ -74,8 +74,11 @@ if(ids.length!=0){//only search for info related to ids if we have them.
 var thisSolrUrl = solrUrl + '/impc_images/select';
 var joinedIds=ids.join(" OR ");
 var paramStr = 'q=omero_id:(' +joinedIds + ')&wt=json&defType=edismax&qf=auto_suggest&rows=100000';
-if(mediaType[0]==='pdf'){
-	paramStr+='&fq=full_resolution_file_path:*.pdf';
+if(typeof mediaType != 'undefined'){
+	console.log("mediaType defined")
+	if(mediaType[0]==='pdf'){
+		paramStr+='&fq=full_resolution_file_path:*.pdf';
+	}
 }
 var docs;
 var i = 0;
@@ -111,7 +114,7 @@ var len=0;
 	        $('#prev').click(function(){
 	        	//console.log('nextControl clicked');
 	        	var doc=docs[--i % len];
-	        	displayDocAnnotations(doc, frame);
+	        	displayDocAnnotations(doc, frame, mediaType);
 //	        	frame.attr('src', url+doc.omero_id);
 //	        	$('#annotations').html(getAnnoataionsDisplayString(doc));
 	        });
@@ -146,7 +149,8 @@ var len=0;
 	
 function displayDocAnnotations(doc, frame, mediaType){
 	console.log('mediatype in displayDocAnnotations='+mediaType+'|');
-	if(mediaType[0]==='pdf'){
+	
+	if(typeof mediaType != 'undefined' && mediaType[0]==='pdf'){
 		console.log('mediaType is pdf in display annotation='+mediaType+'|');
 		//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/8128
 		var protocol=window.parent.location.protocol;
