@@ -803,12 +803,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 			doc.setSex(sex);
 
-			// Add the sex to the phenotype_sexes field
-			if (doc.getPhenotypeSex() == null) {
-				doc.setPhenotypeSex(new ArrayList<>());
-			}
+			// Do not attempt to add to the phenotye_sex fuield if it has been manually set as it is for
+			// the viability and fertility parameters listed here
+			if ( ! Arrays.asList("IMPC_VIA_001_001", "IMPC_FER_001_001", "IMPC_FER_019_001").contains(doc.getDependentVariable())) {
+				// Add the sex to the phenotype_sexes field
+				if (doc.getPhenotypeSex() == null) {
+					doc.setPhenotypeSex(new ArrayList<>());
+				}
 
-			doc.getPhenotypeSex().add(sex);
+				if (!doc.getPhenotypeSex().contains(sex)) {
+					doc.getPhenotypeSex().add(sex);
+				}
+			}
 
 		}
 
