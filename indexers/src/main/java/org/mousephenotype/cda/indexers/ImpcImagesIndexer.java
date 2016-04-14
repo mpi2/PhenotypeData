@@ -110,9 +110,8 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	public static void main(String[] args) throws IndexerException, SQLException {
 
-		RunStatus runStatus = new RunStatus();
 		ImpcImagesIndexer main = new ImpcImagesIndexer();
-		main.initialise(args, runStatus);
+		main.initialise(args);
 		main.run();
 		main.validateBuild();
 	}
@@ -252,7 +251,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	private void addOntology(RunStatus runStatus, ImageDTO imageDTO, Map<String, String> stableIdToTermIdMap,
 			OntologyDAO ontologyDAO) {
-	
+
 		if (imageDTO.getParameterAssociationStableId() != null
 				&& !imageDTO.getParameterAssociationStableId().isEmpty()) {
 
@@ -313,7 +312,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 			if (ontologyDAO instanceof EmapOntologyDAO) {
 				if (!termIds.isEmpty()) {
 					imageDTO.setEmapTermId(termIds);
-					
+
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
 						String maId = termIds.get(i);
@@ -354,7 +353,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setIntermediateLevelEmapTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
-			
+
 			if (ontologyDAO instanceof MaOntologyDAO) {
 				if (!termIds.isEmpty()) {
 					imageDTO.setMaTermId(termIds);

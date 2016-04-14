@@ -69,7 +69,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     @Autowired
    	private GwasDAO gwasDao;
-    
+
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -77,9 +77,9 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static final long MIN_EXPECTED_ROWS = 218000;
     public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
-    
+
     // Sets used to insure uniqueness when loading core components.
-    
+
     // gene
     Set<String> mgiAccessionIdSet = new HashSet();
     Set<String> mgiAlleleAccessionIdSet = new HashSet();
@@ -87,38 +87,38 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> markerNameSet = new HashSet();
     Set<String> markerSynonymSet = new HashSet();
     Set<String> humanGeneSymbolSet = new HashSet();
-    
+
     // mp
     Set<String> mpIdSet = new HashSet();
     Set<String> mpTermSet = new HashSet();
     Set<String> mpTermSynonymSet = new HashSet();
     Set<String> mpAltIdSet = new HashSet();
-    
+
     // disease
     Set<String> diseaseIdSet = new HashSet();
     Set<String> diseaseTermSet = new HashSet();
     Set<String> diseaseAltsSet = new HashSet();
-    
+
     // ma
     Set<String> maIdSet = new HashSet();
     Set<String> maTermSet = new HashSet();
     Set<String> maTermSynonymSet = new HashSet();
     Set<String> maAltIdSet = new HashSet();
-    
+
     // hp
     Set<String> hpIdSet = new HashSet();
     Set<String> hpTermSet = new HashSet();
     Set<String> hpSynonymSet = new HashSet();
-        
+
     // impcGwas
     // gene
     Set<String> gwasMgiGeneIdSet = new HashSet();
     Set<String> gwasMgiGeneSymbolSet = new HashSet();
-    
+
     // mp
     Set<String> gwasMpIdSet = new HashSet();
     Set<String> gwasMpTermSet = new HashSet();
-    
+
     // gwas
     Set<String> gwasTraitSet = new HashSet();
     Set<String> gwasSnipIdSet = new HashSet();
@@ -126,7 +126,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
     Set<String> gwasMappedGeneSymbolSet = new HashSet();
     Set<String> gwasUpstreamGeneSymbolSet = new HashSet();
     Set<String> gwasDownstreamGeneSymbolSet = new HashSet();
-    
+
     String mapKey;
 
     @Override
@@ -200,7 +200,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<GeneDTO> genes = geneCore.query(query).getBeans(GeneDTO.class);
         for (GeneDTO gene : genes) {
-            
+
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : geneFields) {
 
@@ -284,7 +284,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                 MpDTO.MP_ID, MpDTO.MP_TERM, MpDTO.MP_TERM_SYNONYM, MpDTO.ALT_MP_ID, MpDTO.TOP_LEVEL_MP_ID, MpDTO.TOP_LEVEL_MP_TERM,
                 MpDTO.TOP_LEVEL_MP_TERM_SYNONYM, MpDTO.INTERMEDIATE_MP_ID, MpDTO.INTERMEDIATE_MP_TERM,
                 MpDTO.INTERMEDIATE_MP_TERM_SYNONYM, MpDTO.CHILD_MP_ID, MpDTO.CHILD_MP_TERM, MpDTO.CHILD_MP_TERM_SYNONYM);
-        
+
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(mpFields, ","))
@@ -470,11 +470,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         }
     }
-    
+
     private void populateDiseaseAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> diseaseFields = Arrays.asList(DiseaseDTO.DISEASE_ID, DiseaseDTO.DISEASE_TERM, DiseaseDTO.DISEASE_ALTS);
-            
+
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(diseaseFields, ","))
@@ -482,7 +482,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<DiseaseDTO> diseases = diseaseCore.query(query).getBeans(DiseaseDTO.class);
         for (DiseaseDTO disease : diseases) {
-            
+
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : diseaseFields) {
 
@@ -527,14 +527,14 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         }
     }
-    
+
     private void populateMaAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> maFields = Arrays.asList(
                 MaDTO.MA_ID, MaDTO.MA_TERM, MaDTO.MA_TERM_SYNONYM, MaDTO.ALT_MA_ID, MaDTO.CHILD_MA_ID, MaDTO.CHILD_MA_TERM,
                 MaDTO.CHILD_MA_TERM_SYNONYM, MaDTO.SELECTED_TOP_LEVEL_MA_ID,
                 MaDTO.SELECTED_TOP_LEVEL_MA_TERM, MaDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM);
-            
+
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(maFields, ","))
@@ -542,7 +542,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
         List<MaDTO> mas = maCore.query(query).getBeans(MaDTO.class);
         for (MaDTO ma : mas) {
-            
+
             Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : maFields) {
 
@@ -678,11 +678,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
             }
         }
     }
-    
+
     private void populateGwasAutosuggestTerms() throws SolrServerException, IOException, SQLException {
 
         List<String> gwasFields = Arrays.asList(
-        		GwasDTO.MGI_GENE_ID, 
+        		GwasDTO.MGI_GENE_ID,
         		GwasDTO.MGI_GENE_SYMBOL,
         		GwasDTO.MP_TERM_ID,
         		GwasDTO.MP_TERM_NAME,
@@ -693,11 +693,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
         		GwasDTO.UPSTREAM_GENE,
         		GwasDTO.DOWNSTREAM_GENE
                 );
-       
+
         List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
-        
+
         for (GwasDTO gw : gwasMappings) {
-            
+
         	Set<AutosuggestBean> beans = new HashSet<>();
             for (String field : gwasFields) {
 
@@ -747,7 +747,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                             beans.add(a);
                         }
                         break;
-                    case GwasDTO.REPORTED_GENE:	
+                    case GwasDTO.REPORTED_GENE:
                         if ( !gw.getReportedGene().isEmpty()) {
                         	mapKey = gw.getReportedGene();
                             if (gwasReportedGeneSymbolSet.add(mapKey)) {
@@ -756,7 +756,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
                             }
                         }
                         break;
-                        
+
                     case GwasDTO.MAPPED_GENE:
                     	if ( !gw.getMappedGene().isEmpty()) {
 	                    	mapKey = gw.getMappedGene();
@@ -766,7 +766,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
 	                        }
                     	}
                     	break;
-                       
+
                     case GwasDTO.DOWNSTREAM_GENE:
                     	if ( !gw.getDownstreamGene().isEmpty()) {
 	                    	mapKey = gw.getDownstreamGene();
@@ -794,11 +794,11 @@ public class AutosuggestIndexer extends AbstractIndexer {
             }
         }
     }
-    
+
     private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
 
         List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
-        
+
         SolrQuery query = new SolrQuery()
             .setQuery("*:*")
             .setFields(StringUtils.join(hpFields, ","))
@@ -809,7 +809,7 @@ public class AutosuggestIndexer extends AbstractIndexer {
         List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
 
         for (HpDTO hp : hps) {
-            
+
             Set<AutosuggestBean> beans = new HashSet<>();
 
             if (hp.getHpSynonym() != null) {
@@ -848,9 +848,8 @@ public class AutosuggestIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException, SQLException {
 
-        RunStatus runStatus = new RunStatus();
         AutosuggestIndexer main = new AutosuggestIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
     }
 }

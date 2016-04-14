@@ -15,22 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
+import net.sf.json.JSONObject;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -43,12 +28,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.MPHPBean;
-import org.mousephenotype.cda.indexers.beans.MPStrainBean;
-import org.mousephenotype.cda.indexers.beans.MPTermNodeBean;
-import org.mousephenotype.cda.indexers.beans.MPTopLevelTermBean;
-import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
-import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
+import org.mousephenotype.cda.indexers.beans.*;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
@@ -61,7 +41,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import net.sf.json.JSONObject;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * @author Matt Pearce
@@ -83,7 +70,7 @@ public class MPIndexer extends AbstractIndexer {
     @Autowired
     @Qualifier("genotypePhenotypeIndexing")
     private SolrServer genotypePhenotypeCore;
-    
+
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
@@ -95,14 +82,14 @@ public class MPIndexer extends AbstractIndexer {
 
     @Autowired
     MpOntologyDAO mpOntologyService;
-    
+
     /**
      * Destination Solr core
      */
     @Autowired
     @Qualifier("mpIndexing")
     private SolrServer mpCore;
-  
+
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -114,7 +101,7 @@ public class MPIndexer extends AbstractIndexer {
     // Maps of supporting database content
     Map<String, List<MPHPBean>> mphpBeans;
     Map<String, List<Integer>> termNodeIds;
-    
+
     // Use single synonym hash
     Map<String, List<String>> mpTermSynonyms;
     Map<String, List<String>> ontologySubsets;
@@ -138,14 +125,14 @@ public class MPIndexer extends AbstractIndexer {
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
     Map<String, List<MPStrainBean>> strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
-    
+
     Map<Integer, String> lookupTableByNodeId = new HashMap<>(); // <nodeId, mpOntologyId>
 
     // number of postqc calls of an MP
     Map<String, Integer> mpCalls = new HashMap<>();
-    
+
     public MPIndexer() {
-    	
+
     }
 
     @Override
@@ -159,7 +146,7 @@ public class MPIndexer extends AbstractIndexer {
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
         OntologyBrowserGetter ontologyBrowser = new OntologyBrowserGetter(ontodbDataSource);
-        
+
         initializeSolrCores();
         initializeDatabaseConnections();
         initialiseSupportingBeans();
@@ -168,7 +155,7 @@ public class MPIndexer extends AbstractIndexer {
 
         	// maps MP to number of phenotyping calls
         	//populateGene2MpCalls();
-        	
+
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
@@ -200,15 +187,15 @@ public class MPIndexer extends AbstractIndexer {
                 addIntermediateLevelNodes(mp);
                 addChildLevelNodes(mp);
                 addParentLevelNodes(mp);
-                
+
                 mp.setOntologySubset(ontologySubsets.get(termId));
                 mp.setMpTermSynonym(mpTermSynonyms.get(termId));
                 mp.setGoId(goIds.get(termId));
                 addMaRelationships(mp, termId);
                 addPhenotype1(mp, runStatus);
-                 
+
                 // this sets the number of postqc/preqc phenotyping calls of this MP
-                mp.setPhenoCalls(sumPhenotypingCalls(termId)); 
+                mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 //mp.setPhenoCalls(mpCalls.get(termId));
                 addPhenotype2(mp);
 
@@ -220,13 +207,13 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setScrollNode(scrollNodeId);
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
-                
+
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
 
                 documentCount++;
                 mpCore.addBean(mp, 60000);
-                
+
                 if (documentCount % 100 == 0){
                 	mpCore.commit();
                 }
@@ -244,23 +231,23 @@ public class MPIndexer extends AbstractIndexer {
         return runStatus;
     }
 
-    
+
     private int sumPhenotypingCalls(String mpId) throws SolrServerException {
-    
+
     	List<SolrServer> ss = new ArrayList<>();
     	ss.add(preqcCore);
     	ss.add(genotypePhenotypeCore);
-    	
+
     	int calls = 0;
     	for ( int i=0; i<ss.size(); i++ ){
-    		
+
     		SolrServer solrSvr = ss.get(i);
-    
+
 	    	SolrQuery query = new SolrQuery();
 
             query.setQuery("mp_term_id:\"" + mpId + "\" OR intermediate_mp_term_id:\"" + mpId + "\" OR top_level_mp_term_id:\"" + mpId + "\"");
 			query.setRows(0);
-			
+
 			QueryResponse response = solrSvr.query(query);
 
             calls += response.getResults().getNumFound();
@@ -269,18 +256,18 @@ public class MPIndexer extends AbstractIndexer {
 
         return calls;
     }
-    
+
     private void populateGene2MpCalls() throws SQLException {
-    	
+
     	String qry = "select mp_acc, count(*) as calls from phenotype_call_summary where p_value < 0.0001 group by mp_acc";
-    	
+
     	PreparedStatement ps = komp2DbConnection.prepareStatement(qry);
     	ResultSet rs = ps.executeQuery();
-    	
+
     	while (rs.next()) {
     		String mpAcc = rs.getString("mp_acc");
     		int calls = rs.getInt("calls");
-    	
+
     		mpCalls.put(mpAcc, calls);
     	}
     }
@@ -392,7 +379,7 @@ public class MPIndexer extends AbstractIndexer {
         } catch (SolrServerException e) {
             throw new IndexerException(e);
         }
-        
+
         logger.debug(" Added {} mphp records", count);
 
         return beans;
@@ -889,19 +876,19 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addTopLevelNodes(MpDTO mp) {
-    	
+
     	List<String> ids = new ArrayList<>();
       	List<String> names = new ArrayList<>();
       	List<String> nameId = new ArrayList<>();
       	Set<String> synonyms = new HashSet<>();
-      	
+
       	for (OntologyTermBean term : mpOntologyService.getTopLevel(mp.getMpId())) {
 			ids.add(term.getId());
 			names.add(term.getName());
 			synonyms.addAll(term.getSynonyms());
 			nameId.add(term.getTermIdTermName());
 		}
-    	
+
       	if (ids.size() > 0){
             mp.setTopLevelMpId(ids);
             mp.setTopLevelMpTerm(names);
@@ -911,18 +898,18 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addIntermediateLevelNodes(MpDTO mp) {
-    	
+
 
     	List<String> ids = new ArrayList<>();
       	List<String> names = new ArrayList<>();
       	Set<String> synonyms = new HashSet<>();
-      	
+
       	for (OntologyTermBean term : mpOntologyService.getIntermediates(mp.getMpId())) {
 			ids.add(term.getId());
 			names.add(term.getName());
 			synonyms.addAll(term.getSynonyms());
 		}
-    	
+
       	if (ids.size() > 0){
 	        mp.setIntermediateMpId(ids);
 	        mp.setIntermediateMpTerm(names);
@@ -941,26 +928,26 @@ public class MPIndexer extends AbstractIndexer {
 			childTermNames.add(child.getName());
 			childSynonyms.addAll(child.getSynonyms());
 		}
-			
-		
+
+
 		mp.setChildMpId(childTermIds);
 		mp.setChildMpTerm(childTermNames);
 		mp.setChildMpTermSynonym(new ArrayList<>(childSynonyms));
-        
+
     }
 
     private void addParentLevelNodes(MpDTO mp) {
-    	
+
         List<String> parentTermIds = new ArrayList<>();
         List<String> parentTermNames = new ArrayList<>();
         Set<String> parentSynonyms = new HashSet<>();
-        
+
         for (OntologyTermBean parent : mpOntologyService.getParents(mp.getMpId())) {
         	parentTermIds.add(parent.getId());
         	parentTermNames.add(parent.getName());
         	parentSynonyms.addAll(parent.getSynonyms());
 		}
-       
+
         mp.setParentMpId(parentTermIds);
         mp.setParentMpTerm(parentTermNames);
         mp.setParentMpTermSynonym(new ArrayList<>(parentSynonyms));
@@ -1265,9 +1252,8 @@ public class MPIndexer extends AbstractIndexer {
 
     public static void main(String[] args) throws IndexerException {
 
-        RunStatus runStatus = new RunStatus();
         MPIndexer main = new MPIndexer();
-        main.initialise(args, runStatus);
+        main.initialise(args);
         main.run();
         main.validateBuild();
     }
