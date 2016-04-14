@@ -728,7 +728,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             											<a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_EMO_001_001">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_EMO_001_001">Images</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -780,7 +780,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=3325-61-7&qeid=IMPC_GEM_049_001">E12.5</a> images
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203">Images</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -819,18 +819,18 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             			<li>
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
-                            			<li> Embryonic Viability: <a href="${drupalbaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalbaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
+                            			<li> Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
                             			<li>
-                            				Embryo LacZ Expression:	<a href="${drupalbaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
                             			</li>
                             			<li>
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal gland</a>,
-                            				 <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
-                            				 <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
-                            				 <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal gland</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -872,7 +872,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5637207&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality by E12.5 </a>
                             			</li>
                             			<li>
-                            				Embryonic Viability: <a href="${drupalbaseUrl}/phenoview/?gid=2800-35-4&qeid=IMPC_EVL_001_001">Homozygous viable at E9.5</a>
+                            				Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=2800-35-4&qeid=IMPC_EVL_001_001">Homozygous viable at E9.5</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression:	NA
@@ -881,7 +881,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=202&h=311&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=FGF8-TM1B-IC/15.3i_5864455&wx=63&wy=54&wz=153&wl=0&wu=255&mn=GFPT1-PL-TM1B-IC/18.2e_5761935&mx=63&my=54&mz=153&ml=0&mu=255">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=202&h=311&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=FGF8-TM1B-IC/15.3i_5864455&wx=63&wy=54&wz=153&wl=0&wu=255&mn=GFPT1-PL-TM1B-IC/18.2e_5761935&mx=63&my=54&mz=153&ml=0&mu=255">Images</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -922,7 +922,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548550&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality </a>
                             			</li>
                             			<li>
-                            				Embryonic Viability: <a href="${drupalbaseUrl}/phenoview/?gid=754-35-4&qeid=IMPC_EVO_001_001">Homozygous viable at E14.5</a>
+                            				Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=754-35-4&qeid=IMPC_EVO_001_001">Homozygous viable at E14.5</a>
                             			</li>
                             			<li>
                             				Embryo LacZ Expression:	<a href="${baseUrl}/genes/${geneId}#tabs-4">Table</a>
@@ -931,7 +931,7 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}EmbryoViewerWebApp/?gene_symbol=atg3&pid=203&h=589&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=atg3-pl-tm1b-ic/18.2h_5548936&wx=97&wy=123&wz=172&wl=0&wu=183&mn=atg3-pl-tm1b-ic/18.2d_5548932&mx=81&my=107&mz=145&ml=0&mu=224">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}EmbryoViewerWebApp/?gene_symbol=atg3&pid=203&h=589&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=atg3-pl-tm1b-ic/18.2h_5548936&wx=97&wy=123&wz=172&wl=0&wu=183&mn=atg3-pl-tm1b-ic/18.2d_5548932&mx=81&my=107&mz=145&ml=0&mu=224">Images</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -972,17 +972,17 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548680&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality for both tm1a and tm1b allele </a>
                             			</li>
                             			<li>
-                            				Embryonic Viability: <a href="${drupalbaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_EVL_001_001" ><t:formatAllele>Kdm8<tm1b/tm1b></t:formatAllele> are homozygous viable up to E9.5 </a>
+                            				Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_EVL_001_001" ><t:formatAllele>Kdm8<tm1b/tm1b></t:formatAllele> are homozygous viable up to E9.5 </a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression:	<a href="${drupalbaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_ELZ_064_001">Table</a>,
-                            						<a href="${drupalbaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_ELZ_064_001">images</a>
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_ELZ_064_001">Table</a>,
+                            						<a href="${drupalBaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_ELZ_064_001">images</a>
                             			</li>
                             			<li>
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?gene_symbol=Kdm8&pid=202&h=378&s=off&c=on&a=off&o=vertical&zoom=0&sb=600&wn=GFPT1-PL-TM1B-IC/18.5f_5813512&wx=103&wy=127&wz=143&wl=0&wu=148&mn=JMJD5-TM1B-IC/21.1a_5317800&mx=41&my=30&mz=85&ml=0&mu=185">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?gene_symbol=Kdm8&pid=202&h=378&s=off&c=on&a=off&o=vertical&zoom=0&sb=600&wn=GFPT1-PL-TM1B-IC/18.5f_5813512&wx=103&wy=127&wz=143&wl=0&wu=148&mn=JMJD5-TM1B-IC/21.1a_5317800&mx=41&my=30&mz=85&ml=0&mu=185">Images</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -1020,18 +1020,18 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548544&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li>
-                            				Embryonic Viability: Homozygous viable at  <a href="${drupalbaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_EVO_001_001">E14.5</a> and
-                            				 			<a href="${drupalbaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_EVP_001_001">E18.5</a>
+                            				Embryonic Viability: Homozygous viable at  <a href="${drupalBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_EVO_001_001">E14.5</a> and
+                            				 			<a href="${drupalBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_EVP_001_001">E18.5</a>
                             			</li>
                             			<li>
-                            				Embryo LacZ Expression:	<a href="${drupalbaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_ELZ_064_001">Table</a>,
-                            						<a href="${drupalbaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_ELZ_064_001">images</a>
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_ELZ_064_001">Table</a>,
+                            						<a href="${drupalBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_ELZ_064_001">images</a>
                             			</li>
                             			<li>
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalbaseUrl}/EmbryoViewerWebApp/?gene_symbol=Slc39a8&pid=203&h=435&s=off&c=on&a=on&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5f_5553719&wx=84&wy=89&wz=149&wl=0&wu=183&mn=slc39a8-tm1b-ic/16.2e_5528113&mx=75&my=90&mz=120&ml=0&mu=225">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?gene_symbol=Slc39a8&pid=203&h=435&s=off&c=on&a=on&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5f_5553719&wx=84&wy=89&wz=149&wl=0&wu=183&mn=slc39a8-tm1b-ic/16.2e_5528113&mx=75&my=90&mz=120&ml=0&mu=225">Images</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
