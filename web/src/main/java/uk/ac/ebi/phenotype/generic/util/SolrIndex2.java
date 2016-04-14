@@ -15,31 +15,23 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.generic.util;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.annotation.Resource;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class SolrIndex2 {
@@ -53,7 +45,9 @@ public class SolrIndex2 {
     private static final String NOT_COMPLETE = "placeholder";
     private static final String ALLELE_NAME_FIELD = "allele_name_str";
     private static final String ALLELE_TYPE_FIELD = "allele_type";
-    private static final String IMITS_SOLR_CORE_URL = "http://ikmc.vm.bytemark.co.uk:8983";
+
+	@Value("${imits.solr.host}")
+    private String IMITS_SOLR_CORE_URL;
 
     private static final Map<String, String> phraseMap;
 
@@ -595,12 +589,12 @@ public class SolrIndex2 {
 
         return search_url;
     }
-    
+
     private String getAlleleUrl(Set<String> alleleAccession) {
 
         String target = "type:allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
 
-        String search_url = IMITS_SOLR_CORE_URL + "/solr/allele2" + "/select?q="
+        String search_url = IMITS_SOLR_CORE_URL + "/allele2" + "/select?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
@@ -644,10 +638,10 @@ public class SolrIndex2 {
         String url;
 
         if (pipeline.equals("cre")) {
-            hostUrl = IMITS_SOLR_CORE_URL + "/solr/eucommtoolscre_product";
+            hostUrl = IMITS_SOLR_CORE_URL + "/eucommtoolscre_product";
         }
         else {
-            hostUrl = IMITS_SOLR_CORE_URL + "/solr/product";
+            hostUrl = IMITS_SOLR_CORE_URL + "/product";
         }
 
         url = hostUrl + searchUrl;
@@ -655,9 +649,9 @@ public class SolrIndex2 {
         return url;
     }
 
-    
-  
-    
+
+
+
     private String searchAlleleCore(String pipeline, String searchUrl) throws IOException,
             URISyntaxException {
 
@@ -665,10 +659,10 @@ public class SolrIndex2 {
         String url;
 
         if (pipeline.equals("cre")) {
-            hostUrl = IMITS_SOLR_CORE_URL + "/solr/eucommtoolscre_allele2";
+            hostUrl = IMITS_SOLR_CORE_URL + "/eucommtoolscre_allele2";
         }
         else {
-            hostUrl = IMITS_SOLR_CORE_URL + "/solr/allele2";
+            hostUrl = IMITS_SOLR_CORE_URL + "/allele2";
         }
 
         url = hostUrl + searchUrl;
@@ -684,11 +678,11 @@ public class SolrIndex2 {
 
         return (JSONObject) JSONSerializer.toJSON(content);
     }
-    
-    
-    public Map<String, String> getAlleleImage(Set<String> alleleAccession) 
+
+
+    public Map<String, String> getAlleleImage(Set<String> alleleAccession)
     throws IOException, URISyntaxException{
-    	
+
     	JSONObject res = getResults(getAlleleUrl(alleleAccession));
         JSONArray docs = res.getJSONObject("response").getJSONArray("docs");
         Map<String, String> links = new HashMap<>();
@@ -701,7 +695,7 @@ public class SolrIndex2 {
             JSONObject alleleDoc = (JSONObject) doc;
             links.put(alleleDoc.get("allele_name").toString(), alleleDoc.get("allele_simple_image").toString());
         }
-        
+
         return links;
     }
 
