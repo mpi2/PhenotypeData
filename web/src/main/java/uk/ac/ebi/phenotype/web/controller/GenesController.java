@@ -717,8 +717,10 @@ public class GenesController {
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
 		List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
 		Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
+		Set<String> topLevelMaIds = expressionService.getLacSelectedTopLevelMaIdsForAnatomogram(anatomogramDataBeans);
 		System.out.println("topLevelMaCounts"+topLevelMaCounts);
 		model.addAttribute("topLevelMaCounts", topLevelMaCounts);
+		model.addAttribute("topLevelMaIds", topLevelMaIds);
 		JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
 		model.addAttribute("anatomogram",anatomogram);
 		
