@@ -458,6 +458,24 @@ public class ExpressionService extends BasicService {
 
 		return topLevelMaToCountMap;
 	}
+	
+	/**
+	 * 
+	 * @param anatomogramDataBeans
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public Set<String> getLacSelectedTopLevelMaIdsForAnatomogram(
+			List<AnatomogramDataBean> anatomogramDataBeans) throws SolrServerException {
+		Set<String> topLevelMaToCountMap = new HashSet<>();
+		for (AnatomogramDataBean bean : anatomogramDataBeans) {
+			for (String topMaId : bean.getTopLevelMaIds()) {
+					topLevelMaToCountMap.add(topMaId);
+			}
+		}
+
+		return topLevelMaToCountMap;
+	}
 
 	public List<AnatomogramDataBean> getAnatomogramDataBeans(List<Count> parameterCounts) throws SolrServerException {
 		List<AnatomogramDataBean> anatomogramDataBeans = new ArrayList<>();

@@ -18,7 +18,6 @@
 	<jsp:body>
 
 		<div id="tabs">
-
 			<ul class="tabLabel">
 				<li id="geneT"><a href="${baseUrl}/search/gene?kw=*">Genes</a></li>
 				<li id="mpT"><a href="${baseUrl}/search/mp?kw=*">Phenotypes</a></li>
