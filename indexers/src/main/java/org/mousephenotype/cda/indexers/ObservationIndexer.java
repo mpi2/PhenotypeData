@@ -98,18 +98,17 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	public static void main(String[] args) throws IndexerException {
 
-		RunStatus runStatus = new RunStatus();
 		ObservationIndexer main = new ObservationIndexer();
-		main.initialise(args, runStatus);
+		main.initialise(args);
 		main.run();
 		main.validateBuild();
 
 	}
 
 	@Override
-	public void initialise(String[] args, RunStatus runStatus) throws IndexerException {
+	public void initialise(String[] args) throws IndexerException {
 
-		super.initialise(args, runStatus);
+		super.initialise(args);
 
 		try {
 
@@ -413,12 +412,12 @@ public class ObservationIndexer extends AbstractIndexer {
 				}
 
 				if (ontologyEntityMap.containsKey(o.getId())) {
-					
+
 					List<OntologyBean> subOntBeans = ontologyEntityMap.get(o.getId());
 					for(OntologyBean bean:subOntBeans){
 						o.addSubTermId(bean.getId());
 						o.addSubTermName(bean.getName());
-						o.addSubTermDescription(bean.getDescription());				
+						o.addSubTermDescription(bean.getDescription());
 					}
 				}
 				String file_type = r.getString("file_type");
@@ -694,7 +693,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 					// add .0 onto string as this is what our numerical
 					// categories look in solr!!!!
-					name += ".0";
+//					name += ".0";
 
 					translateCategoryNames.get(stableId).put(name, description);
 				} else {

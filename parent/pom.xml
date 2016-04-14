@@ -45,6 +45,11 @@
         	<version>3.2.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+
     </dependencies>
 
 
@@ -164,7 +169,7 @@
 
             <properties>
                 <java.location>/nfs/web-hx/webadmin/java/jdks/latest_1.8/bin/java</java.location>
-                <java.args>-Dhttp.proxyHost=wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DproxySet=true</java.args>
+                <java.args>-Dhttps.proxyHost=hx-wwwcache.ebi.ac.uk -Dhttps.proxyPort=3128 -Dhttp.proxyHost=hx-wwwcache.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk\|localhost\|127.0.0.1</java.args>
             </properties>
         </profile>
     </profiles>
