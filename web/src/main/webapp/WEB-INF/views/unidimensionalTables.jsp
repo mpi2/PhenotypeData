@@ -33,7 +33,7 @@
                                 <table class="table_covariate_details">
                                     <c:choose>
                                         <c:when
-                                            test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
+                                            test="${data.result.significanceClassification.text == 'If phenotype is significant it is for the one sex tested' || data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
                                             <thead>
                                                 <tr>
                                                     <th>Genotype effect P Value</th>
@@ -53,7 +53,7 @@
                                                     </tr>
                                             </c:when>
                                             <c:when
-                                                test="${data.result.significanceClassification.text == 'If phenotype is significant it is for the one sex tested' || data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different effect size, females greater' || data.result.significanceClassification.text == 'Different effect size, males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
+                                                test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different effect size, females greater' || data.result.significanceClassification.text == 'Different effect size, males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
                                             <thead>
                                                 <tr>
                                                     <th>Sex</th>
