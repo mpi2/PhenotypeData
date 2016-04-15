@@ -120,6 +120,7 @@ public class ImpcImagesController {
 			@PathVariable String parameter_stable_id, Model model, HttpServletRequest request)
 			throws SolrServerException {
 
+		
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
 		System.out.println("calling image picker");
@@ -150,6 +151,9 @@ public class ImpcImagesController {
 			controls.addAll(controlsTemp);
 		}
 		
+		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
+		System.out.println("gene in picker="+gene);
+		model.addAttribute("gene",gene);
 		model.addAttribute("mediaType", mediaType);
 		System.out.println("experimental size=" + experimental.size());
 		model.addAttribute("experimental", experimental);
