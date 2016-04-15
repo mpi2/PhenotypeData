@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -862,6 +863,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setFemaleMutantCount(r.getInt("female_mutants"));
 		doc.setColonyId(r.getString("colony_id"));
 		doc.setStatus(r.getString("status"));
+
+		if (doc.getPhenotypeSex() == null) {
+			doc.setPhenotypeSex(new ArrayList<>());
+		}
+
+		if (doc.getMaleMutantCount()>0) {
+			doc.getPhenotypeSex().add(SexType.male.getName());
+		}
+
+		if (doc.getFemaleMutantCount()>0) {
+			doc.getPhenotypeSex().add(SexType.female.getName());
+		}
 
 		// Always set a metadata group here to allow for simpler searching for
 		// unique results and to maintain parity with the observation index
