@@ -120,9 +120,10 @@ var len=0;
 	        });
 	       // if(doc.gene_accession_id){
 	        backTo='../imagePicker/'+doc.gene_accession_id+'/'+doc.parameter_stable_id;
-	        if(mediaType[0]==='pdf')backTo+='?mediaType=pdf';
+	        if(typeof mediaType != 'undefined' && mediaType[0]==='pdf')backTo+='?mediaType=pdf';
+	        if(doc.biological_sample_group === 'experimental'){//only add to experiment pane otherwise we don't know the gene page to go back to
 	        $("#back").addClass("btn").html("back to image picker");
-	        
+	        }
 	       // }
 	        $('#back').click(function(){
 	        	//console.log('nextControl clicked');
