@@ -13,12 +13,12 @@
         <%-- Display result of a mixed model calculation --%>
 
         <c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
-    
-   
-    
+
+
+
             <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
-            
-             
+
+
                 <table class="globalTest">
                     <thead>
                         <tr>
@@ -53,7 +53,7 @@
                                                     </tr>
                                             </c:when>
                                             <c:when
-                                                test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different effect size, females greater' || data.result.significanceClassification.text == 'Different effect size, males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
+                                                test="${data.result.significanceClass.text == 'If phenotype is significant it is for the one sex tested' || data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different effect size, females greater' || data.result.significanceClassification.text == 'Different effect size, males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
                                             <thead>
                                                 <tr>
                                                     <th>Sex</th>
@@ -264,7 +264,7 @@
                                 <td><t:formatScientific>${data.result.genderFemaleKoPValue}</t:formatScientific></td>
                                 </tr>
                         </c:if>
-                        
+
                         <c:if test="${data.result.genderParameterEstimate!=null}">
                             <tr>
                                 <td>Gender Parameter Estimate</td>
