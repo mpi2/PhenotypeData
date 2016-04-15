@@ -46,9 +46,10 @@
             	</c:otherwise>
             </c:choose>               
         	
-        	<input type="submit" value="Click to display selected images">
-        	 <h1 class="title" id="control">Controls</h1>
+        	<p><input type="submit" value="Click to display selected images"></p>
+        	
 				<div class="section">
+				 <h1 class="title" id="control">Controls</h1>
 					<div class="inner">
 						<select name="ctrImgId" multiple size="2" class="show-html">
   							<c:if test="${not empty controls}">
@@ -81,8 +82,9 @@
   						</select>
   					</div>
   				</div>
-  				<h1 class="title" id="top">Experimental</h1>
+  				
   				<div class="section">
+  				<h1 class="title" id="top">Experimental</h1>
   					<div class="inner">
   						<select name="expImgId" multiple size="2" class="show-html">		
   						<c:if test="${not empty experimental}">
@@ -126,7 +128,9 @@
 						</select>
 					</div>
 				</div>
+				<p>
 				<input type="submit" value="Click to display selected images">
+				</p>
 			</form>
 		
 	</div>
