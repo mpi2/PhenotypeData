@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -50,11 +51,14 @@ import java.util.*;
  */
 public class ObservationIndexer extends AbstractIndexer {
 
-	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
+	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 	private static Connection connection;
 	CommonUtils commonUtils = new CommonUtils();
+
+	@Autowired
+	SqlUtils sqlUtils;
 
 	@Autowired
 	@Qualifier("komp2DataSource")
@@ -171,33 +175,40 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		observationSolrServer.deleteByQuery("*:*");
 
+		Boolean hasSequenceIdColumn = sqlUtils.columnInSchemaMysql(connection, "observation", "sequence_id");
 
-        String query = "SELECT o.id as id, o.sequence_id as sequence_id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id,\n"
-                + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message,\n"
-                + "o.biological_sample_id,\n"
-                + "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id,\n"
-                + "e.date_of_experiment, e.external_id, e.id as experiment_id,\n"
-                + "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group,\n"
-                + "co.category as raw_category,\n"
-                + "uo.data_point as unidimensional_data_point,\n"
-                + "mo.data_point as multidimensional_data_point,\n"
-                + "tso.data_point as time_series_data_point,\n"
-                + "tro.text as text_value,\n"
-                + "mo.order_index,\n"
-                + "mo.dimension,\n"
-                + "tso.time_point,\n"
-                + "tso.discrete_point,\n"
-                + "iro.file_type,\n"
-                + "iro.download_file_path\n"
-                + "FROM observation o\n"
-                + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id\n"
-                + "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id\n"
-                + "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id\n"
-                + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id\n"
-                + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id\n"
-                + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id\n"
-                + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id\n"
-                + "INNER JOIN experiment e on eo.experiment_id=e.id\n"
+
+        String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
+                + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
+                + "o.biological_sample_id, "
+                + "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, "
+                + "e.date_of_experiment, e.external_id, e.id as experiment_id, "
+                + "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, "
+                + "co.category as raw_category, "
+                + "uo.data_point as unidimensional_data_point, "
+                + "mo.data_point as multidimensional_data_point, "
+                + "tso.data_point as time_series_data_point, "
+                + "tro.text as text_value, "
+                + "mo.order_index, "
+                + "mo.dimension, "
+                + "tso.time_point, "
+                + "tso.discrete_point, "
+                + "iro.file_type, "
+                + "iro.download_file_path ";
+
+		if (hasSequenceIdColumn) {
+			query += ", o.sequence_id as sequence_id ";
+		}
+
+		query += "FROM observation o "
+                + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
+                + "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id "
+                + "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id "
+                + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
+                + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
+                + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
+                + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
+                + "INNER JOIN experiment e on eo.experiment_id=e.id "
                 + "WHERE o.missing=0";
 
 
@@ -215,8 +226,11 @@ public class ObservationIndexer extends AbstractIndexer {
 				o.setParameterId(r.getInt("parameter_id"));
 				o.setExperimentId(r.getInt("experiment_id"));
 				o.setExperimentSourceId(r.getString("external_id"));
-				if(r.getString("sequence_id")!=null){
-					o.setSequenceId(r.getString("sequence_id"));
+
+				if (hasSequenceIdColumn) {
+					if (r.getString("sequence_id") != null) {
+						o.setSequenceId(r.getString("sequence_id"));
+					}
 				}
 
 				ZonedDateTime dateOfExperiment = null;
@@ -498,7 +512,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	public void populateBiologicalDataMap() throws SQLException {
+	void populateBiologicalDataMap() throws SQLException {
 
 		String featureFlagMeansQuery = "SELECT column_name FROM information_schema.COLUMNS WHERE TABLE_NAME='biological_sample' AND TABLE_SCHEMA=(SELECT database())";
 		Set<String> featureFlags = new HashSet<>();
@@ -590,7 +604,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	public void populateLineBiologicalDataMap() throws SQLException {
+	void populateLineBiologicalDataMap() throws SQLException {
 
 		String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, "
 				+ "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, "
@@ -667,7 +681,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	public void populateCategoryNamesDataMap() throws SQLException {
+	void populateCategoryNamesDataMap() throws SQLException {
 
 		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp "
 				+ "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id "
@@ -705,7 +719,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		}
 	}
 
-	public void populateParameterAssociationMap() throws SQLException {
+	void populateParameterAssociationMap() throws SQLException {
 
 		Map<String, String> stableIdToNameMap = this.getAllParameters();
 		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association";
@@ -744,7 +758,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * @throws SQLException
 	 *             When a database error occurrs
 	 */
-	public Map<String, String> getAllParameters() throws SQLException {
+	Map<String, String> getAllParameters() throws SQLException {
 		Map<String, String> parameters = new HashMap<>();
 
 		String query = "SELECT stable_id, name FROM komp2.phenotype_parameter";
@@ -759,7 +773,7 @@ public class ObservationIndexer extends AbstractIndexer {
 		return parameters;
 	}
 
-	public void populateDatasourceDataMap() throws SQLException {
+	void populateDatasourceDataMap() throws SQLException {
 
 		List<String> queries = new ArrayList<>();
 		queries.add("SELECT id, short_name as name, 'DATASOURCE' as datasource_type FROM external_db");
@@ -800,7 +814,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 *            the date
 	 * @return the nearest weight bean to the date of the experiment
 	 */
-	public WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
+	WeightBean getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
 
 		WeightBean nearest = null;
 
@@ -840,7 +854,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	 *            the specimen
 	 * @return the nearest weight bean to the date of the experiment
 	 */
-	public WeightBean getNearestIpgttWeight(Integer specimenID) {
+	WeightBean getNearestIpgttWeight(Integer specimenID) {
 
 		WeightBean nearest = null;
 
@@ -857,19 +871,18 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * @exception SQLException
 	 *                When a database error occurs
 	 */
-	public void populateWeightMap() throws SQLException {
+	void populateWeightMap() throws SQLException {
 
 		int count = 0;
 
-		String query = "SELECT\n" + "  o.biological_sample_id, \n" + "  data_point AS weight, \n"
-				+ "  parameter_stable_id, \n" + "  date_of_experiment, \n"
-				+ "  datediff(date_of_experiment, ls.date_of_birth) as days_old, \n" + "  e.organisation_id \n"
-				+ "FROM observation o \n" + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id \n"
-				+ "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id \n"
-				+ "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id \n"
-				+ "  INNER JOIN experiment e ON e.id = eo.experiment_id \n" + "WHERE parameter_stable_id IN ("
-				+ StringUtils.join(Constants.weightParameters, ",") + ") AND data_point > 0"
-				+ "  ORDER BY biological_sample_id, date_of_experiment ASC \n";
+		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id,  date_of_experiment, datediff(date_of_experiment, ls.date_of_birth) as days_old, e.organisation_id " +
+			"FROM observation o " +
+			"  INNER JOIN unidimensional_observation uo ON uo.id = o.id  " +
+			"  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id  " +
+			"  INNER JOIN experiment_observation eo ON o.id = eo.observation_id  " +
+			"  INNER JOIN experiment e ON e.id = eo.experiment_id  " +
+			"WHERE parameter_stable_id IN (" + StringUtils.join(Constants.weightParameters, ",") + ") AND data_point > 0" +
+			"  ORDER BY biological_sample_id, date_of_experiment ASC ";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
@@ -910,15 +923,15 @@ public class ObservationIndexer extends AbstractIndexer {
 	 * @exception SQLException
 	 *                When a database error occurrs
 	 */
-	public void populateIpgttWeightMap() throws SQLException {
+	void populateIpgttWeightMap() throws SQLException {
 
-		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, "
-				+ "date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old "
-				+ "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id "
-				+ "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id "
-				+ "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id "
-				+ "  INNER JOIN experiment e ON e.id = eo.experiment_id " + "WHERE parameter_stable_id = '"
-				+ ipgttWeightParameter + "' ";
+		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old " +
+			"FROM observation o " +
+			"  INNER JOIN unidimensional_observation uo ON uo.id = o.id " +
+			"  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
+			"  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
+			"  INNER JOIN experiment e ON e.id = eo.experiment_id " +
+			"WHERE parameter_stable_id = '" + ipgttWeightParameter + "' ";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
@@ -946,38 +959,38 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	}
 
-	public static Connection getConnection() {
+	public Connection getConnection() {
 		return connection;
 	}
 
-	public Map<String, Map<String, String>> getTranslateCategoryNames() {
+	Map<String, Map<String, String>> getTranslateCategoryNames() {
 		return translateCategoryNames;
 	}
 
-	public Map<String, BiologicalDataBean> getLineBiologicalData() {
+	Map<String, BiologicalDataBean> getLineBiologicalData() {
 		return lineBiologicalData;
 	}
 
-	public Map<String, BiologicalDataBean> getBiologicalData() {
+	Map<String, BiologicalDataBean> getBiologicalData() {
 		return biologicalData;
 	}
 
-	public Map<Integer, DatasourceBean> getDatasourceMap() {
+	Map<Integer, DatasourceBean> getDatasourceMap() {
 		return datasourceMap;
 	}
 
-	public Map<Integer, DatasourceBean> getProjectMap() {
+	Map<Integer, DatasourceBean> getProjectMap() {
 		return projectMap;
 	}
 
-	public Map<Integer, List<WeightBean>> getWeightMap() {
+	Map<Integer, List<WeightBean>> getWeightMap() {
 		return weightMap;
 	}
 
 	/**
 	 * Internal class to act as Map value DTO for biological data
 	 */
-	protected class BiologicalDataBean {
+	class BiologicalDataBean {
 
 		public String alleleAccession;
 		public String alleleSymbol;
@@ -1007,7 +1020,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	/**
 	 * Internal class to act as Map value DTO for weight data
 	 */
-	protected class WeightBean {
+	class WeightBean {
 		public String parameterStableId;
 		public ZonedDateTime date;
 		public Float weight;
@@ -1023,7 +1036,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	/**
 	 * Internal class to act as Map value DTO for datasource data
 	 */
-	protected class DatasourceBean {
+	class DatasourceBean {
 
 		public Integer id;
 		public String name;
@@ -1032,7 +1045,7 @@ public class ObservationIndexer extends AbstractIndexer {
 	/**
 	 * Internal class to act as Map value DTO for datasource data
 	 */
-	protected class ParameterAssociationBean {
+	class ParameterAssociationBean {
 
 		public String parameterAssociationName;
 		public String parameterAssociationValue;

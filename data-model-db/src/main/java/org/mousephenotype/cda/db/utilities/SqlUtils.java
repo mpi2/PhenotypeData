@@ -2,9 +2,7 @@ package org.mousephenotype.cda.db.utilities;
 
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -90,4 +88,32 @@ public class SqlUtils {
 
         return retVal;
     }
+
+
+	/**
+	 * Determine if a column exists in a table specific for a MySQL database
+	 *
+	 * @param connection the connection to use to query the database
+	 * @param tableName the table to
+	 * @param columnName the column in the table
+	 * @return true = column name exists in table, false = column missing from table
+	 * @throws SQLException on db access error
+	 */
+	public Boolean columnInSchemaMysql(Connection connection, String tableName, String columnName) throws SQLException {
+
+		Boolean found = Boolean.FALSE;
+		String columnQuery = "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=(SELECT database()) AND TABLE_NAME=? AND column_name=?";
+
+		try (PreparedStatement p = connection.prepareStatement(columnQuery)) {
+			p.setString(1, tableName);
+			p.setString(2, columnName);
+			ResultSet r = p.executeQuery();
+			if (r.next()) {
+				found = Boolean.TRUE;
+			}
+		}
+
+		return found;
+	}
+
 }
