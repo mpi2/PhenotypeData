@@ -3,14 +3,13 @@
     <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<t:genericpage>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>Image Picker</title>
-
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<t:genericpage>
+<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Image Picker</jsp:attribute>
+
+
+ <jsp:attribute name="title">Image Picker</jsp:attribute>
+<jsp:attribute name="header">
  <!--  <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
   <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css">
   <link rel="stylesheet" type="text/css" href="examples.css">
@@ -30,8 +29,8 @@
   <script src="${baseUrl}/js/vendor/image-picker/image-picker.js" type="text/javascript"></script>
  <script src="${baseUrl}/js/imaging/imagesInteraction.js"></script>
 <!-- http://rvera.github.io/image-picker/ -->
-</head>
-<body>
+</jsp:attribute>
+<jsp:body>
 
 <div class="region region-content">
 	<div class="block">
@@ -137,7 +136,5 @@
  </div>
 </div>
 </div>
-</body>
-
-</html>
+</jsp:body>
 </t:genericpage>
