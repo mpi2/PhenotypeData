@@ -448,22 +448,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		return count;
 	}
 
-	public Boolean columnInSchema(Connection connection, String tableName, String columnName) throws SQLException {
-
-		Boolean found = Boolean.FALSE;
-		String columnQuery = "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=(SELECT database()) AND TABLE_NAME=? AND column_name=?";
-
-		try (PreparedStatement p = connection.prepareStatement(columnQuery)) {
-			p.setString(1, tableName);
-			p.setString(2, columnName);
-			ResultSet r = p.executeQuery();
-			if (r.next()) {
-				found = Boolean.TRUE;
-			}
-		}
-
-		return found;
-	}
 
 	public int processUnidimensionalResults() throws SQLException, IOException, SolrServerException {
 		int count = 0;
