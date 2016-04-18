@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -44,8 +45,10 @@ import java.util.Date;
  *
  */
  @Configuration
- @ComponentScan({"org.mousephenotype.cda"})
- @PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+ @ComponentScan("org.mousephenotype.cda.loads.cdaloader")
+ @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
+ @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
+                 ignoreResourceNotFound=true)
 public class DownloadReports {
 
     @Value("${cdaload.workspace}")
@@ -53,8 +56,7 @@ public class DownloadReports {
 
     CommonUtils commonUtils = new CommonUtils();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public final long DOWNLOAD_TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
+    public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
     @Bean(name = "downloadReportsTasklet")
     @StepScope
@@ -64,38 +66,38 @@ public class DownloadReports {
 
         final String[][] DOWNLOAD_FILES = new String[][] {
                   // imsr
-                  { "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/report.txt" }
-
-                  // mgi reports
-                , { "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt", cdaWorkspace + "/MRK_ENSEMBL.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt", cdaWorkspace + "/MRK_VEGA.rpt" }
-                , { "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt" }
-
-                  // ontologies
-                , { "ftp://ftp.informatics.jax.org/pub/reports/MPheno_OBO.ontology", cdaWorkspace + "/mammalian_phenotype.obo" }
-                , { "http://pato.googlecode.com/svn/trunk/quality.obo", cdaWorkspace + "/quality.obo" }
-                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/anatomy/gross_anatomy/animal_gross_anatomy/mouse/adult_mouse_anatomy.obo", cdaWorkspace + "/adult_mouse_anatomy.obo" }
-                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/chemical/chebi.obo", cdaWorkspace + "/chebi.obo" }
-                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/anatomy/gross_anatomy/animal_gross_anatomy/mouse/EMAP.obo", cdaWorkspace + "/EMAP.obo" }
-                , { "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.obo", cdaWorkspace + "/eco.obo" }
-                , { "http://svn.code.sf.net/p/efo/code/trunk/src/efoinobo/efo.obo", cdaWorkspace + "/efo.obo" }
-                , { "http://mpath.googlecode.com/svn/trunk/mpath.obo", cdaWorkspace + "/mpath.obo" }
+//                  { "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/report.txt" }
+//
+//                  // mgi reports
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt", cdaWorkspace + "/MRK_ENSEMBL.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt", cdaWorkspace + "/MRK_VEGA.rpt" }
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt" }
+//
+//                  // ontologies
+//                , { "ftp://ftp.informatics.jax.org/pub/reports/MPheno_OBO.ontology", cdaWorkspace + "/mammalian_phenotype.obo" }
+//                , { "http://pato.googlecode.com/svn/trunk/quality.obo", cdaWorkspace + "/quality.obo" }
+                  { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/anatomy/gross_anatomy/animal_gross_anatomy/mouse/adult_mouse_anatomy.obo", cdaWorkspace + "/adult_mouse_anatomy.obo" }
+//                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/chemical/chebi.obo", cdaWorkspace + "/chebi.obo" }
+//                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/anatomy/gross_anatomy/animal_gross_anatomy/mouse/EMAP.obo", cdaWorkspace + "/EMAP.obo" }
+//                , { "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.obo", cdaWorkspace + "/eco.obo" }
+//                , { "http://svn.code.sf.net/p/efo/code/trunk/src/efoinobo/efo.obo", cdaWorkspace + "/efo.obo" }
+//                , { "http://mpath.googlecode.com/svn/trunk/mpath.obo", cdaWorkspace + "/mpath.obo" }
         };
 
         downloadReportsTasklet = new SystemCommandTasklet();
@@ -137,7 +139,7 @@ public class DownloadReports {
         // A SystemCommandTasklet needs something to execute or it throws an exception. This is a do-nothing command to satisfy that requirement.
         command = "ls";
         downloadReportsTasklet.setCommand(command);
-        downloadReportsTasklet.setTimeout(DOWNLOAD_TASKLET_TIMEOUT);
+        downloadReportsTasklet.setTimeout(TASKLET_TIMEOUT);
         downloadReportsTasklet.setWorkingDirectory(cdaWorkspace);
 
         logger.info("Total tasklet elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
