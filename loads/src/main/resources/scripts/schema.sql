@@ -16,7 +16,7 @@
 
 -- KOMP2 database definition
 
-ALTER DATABASE komp2 CHARACTER SET utf8 COLLATE utf8_general_ci;
+-- CHARACTER SET utf8 COLLATE utf8_general_ci;
 set NAMES utf8;
 SET collation_connection = utf8_general_ci;
 
@@ -25,6 +25,7 @@ SET collation_connection = utf8_general_ci;
 --
 DROP TABLE IF EXISTS analytics_specimen_load;
 DROP TABLE IF EXISTS analytics_experiment_load;
+DROP TABLE IF EXISTS anatomy_call_summary;
 DROP TABLE IF EXISTS meta_info;
 DROP TABLE IF EXISTS meta_history;
 DROP TABLE IF EXISTS analytics_mp_calls;
@@ -39,6 +40,7 @@ DROP TABLE IF EXISTS biological_sample;
 DROP TABLE IF EXISTS biological_sample_relationship;
 DROP TABLE IF EXISTS categorical_observation;
 DROP TABLE IF EXISTS coord_system;
+DROP TABLE IF EXISTS datetime_observation;
 DROP TABLE IF EXISTS experiment;
 DROP TABLE IF EXISTS experiment_observation;
 DROP TABLE IF EXISTS external_db;
@@ -51,6 +53,8 @@ DROP TABLE IF EXISTS multidimensional_observation;
 DROP TABLE IF EXISTS observation;
 DROP TABLE IF EXISTS observation_population;
 DROP TABLE IF EXISTS population;
+DROP TABLE IF EXISTS ontology_entity;
+DROP TABLE IF EXISTS ontology_observation;
 DROP TABLE IF EXISTS ontology_relationship;
 DROP TABLE IF EXISTS ontology_term;
 DROP TABLE IF EXISTS organisation;
@@ -1605,7 +1609,9 @@ CREATE TABLE stat_result_phenotype_call_summary (
   rrplus_result_id          INT(10) UNSIGNED DEFAULT NULL,
 	phenotype_call_summary_id INT(10) UNSIGNED NOT NULL,
 
-	PRIMARY KEY (phenotype_call_summary_id, categorical_result_id, unidimensional_result_id)
+	PRIMARY KEY (phenotype_call_summary_id),
+	INDEX srpcs_categorical_result_id_idx (categorical_result_id),
+	Index srpcs_unidimensional_result_id_idx (unidimensional_result_id)
 
 )
 	COLLATE =utf8_general_ci
@@ -2137,10 +2143,10 @@ INSERT INTO project(id, name, fullname, description) VALUES(8, 'MGP', 'Wellcome 
 INSERT INTO project(id, name, fullname, description) VALUES(9, 'GMC', 'HMGU GMC pipeline', 'German Mouse Clinic Phenotype Pipeline');
 INSERT INTO project(id, name, fullname, description) VALUES(10, 'BaSH', 'KOMP2 BaSH consortium', 'The BaSH consortium is a cooperative effort between Baylor College of Medicine, the Wellcome Trust Sanger Institute (WTSI) and MRC Harwell Mary Lyon Centre. The BaSH consortium is a member of the International Mouse Phenotyping Consortium (IMPC) where the status of KOMP alleles may be found. Interest may also be registered for specific KOMP alleles.');
 INSERT INTO project(id, name, fullname, description) VALUES(11, 'NorCOMM2', 'North American Conditional Mouse Mutagenesis project 2', 'In NorCOMM2, our Genome Canada-funded project has partnered with MRC Harwell to use the IKMC mouse ES cell resource to generate and phenotype >1,000 mutant mouse lines');
-INSERT INTO project(id, name, fullname, description) VALUES(12, 'DTCC', 'DTCC consortium', 'University of California, Davis (UC Davis), Toronto Centre for Phenogenomics (TCP), Children’s Hospital Oakland Research Institute (CHORI) and Charles River have come together to form the DTCC Consortium for this 5-year research effort.');
+INSERT INTO project(id, name, fullname, description) VALUES(12, 'DTCC', 'DTCC consortium', 'University of California, Davis (UC Davis), Toronto Centre for Phenogenomics (TCP), Children''s Hospital Oakland Research Institute (CHORI) and Charles River have come together to form the DTCC Consortium for this 5-year research effort.');
 INSERT INTO project(id, name, fullname, description) VALUES(13, 'JAX', 'Jackson Laboratory', 'JAXs objective is to phenotype 833 of the KOMP2 strains. To do this, it is using a powerful, efficient, high-throughput phenotyping pipeline that integrates recommendations from the IMPC and includes disease-relevant phenotypes recommended by a panel of internal and external KOMP2 domain experts.');
-INSERT INTO project(id, name, fullname, description) VALUES(14, 'Phenomin', 'Phenomin', "PHENOMIN will participate to the International Mouse Phenotyping Consortium (IMPC) and, owing to its tight connection with the Institut de Génétique et de Biologie Moléculaire et Cellulaire (IGBMC) at Illkirch and the Centre d'Immunologie de Marseille-Luminy, will be able to provide a major contribution to the goals of the IMPC.");
-INSERT INTO project(id, name, fullname, description) VALUES(15, 'Helmholtz GMC', 'Helmholtz German Mouse Clinic', "Characterisation of mouse models for human diseases to understand molecular mechanisms of human disorders and for the development of new therapies.");
+INSERT INTO project(id, name, fullname, description) VALUES(14, 'Phenomin', 'Phenomin', 'PHENOMIN will participate to the International Mouse Phenotyping Consortium (IMPC) and, owing to its tight connection with the Institut de Génétique et de Biologie Moléculaire et Cellulaire (IGBMC) at Illkirch and the Centre d''Immunologie de Marseille-Luminy, will be able to provide a major contribution to the goals of the IMPC.');
+INSERT INTO project(id, name, fullname, description) VALUES(15, 'Helmholtz GMC', 'Helmholtz German Mouse Clinic', "Characterisation of mouse models for human diseases to understand molecular mechanisms of human disorders and for the development of new therapies");
 INSERT INTO project(id, name, fullname, description) VALUES(16, 'MRC', 'MRC project', '-');
 INSERT INTO project(id, name, fullname, description) VALUES(17, 'MARC', 'Model Animal Research Center', 'Nanjing University - Model Animal Research Center');
 INSERT INTO project(id, name, fullname, description) VALUES(18, 'RIKEN BRC', 'RIKEN BioResource Center', 'RIKEN BioResource Center - Japan');
@@ -2156,7 +2162,6 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(1, 'CHORI', "Childr
 INSERT INTO organisation(id, name, fullname, country) VALUES(2, 'UC Davis', 'University of California at Davis School of Veterinary Medicine', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(3, 'WTSI', 'Wellcome Trust Sanger Institute', 'UK');
 INSERT INTO organisation(id, name, fullname, country) VALUES(4, 'Regeneron', 'Regeneron Pharmaceuticals, Inc.', 'USA');
-INSERT INTO organisation(id, name, fullname, country) VALUES(5, 'EBI', 'European Bioinformatics Institute', 'UK');
 INSERT INTO organisation(id, name, fullname, country) VALUES(6, 'JAX', 'Jackson Laboratory', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(7, 'MRC Harwell', 'Medical Research Council centre for mouse genetics', 'UK');
 INSERT INTO organisation(id, name, fullname, country) VALUES(8, 'ICS', 'Institut Clinique de la Souris', 'France');
