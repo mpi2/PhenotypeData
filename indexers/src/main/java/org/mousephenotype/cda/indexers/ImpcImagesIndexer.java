@@ -173,7 +173,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (iBean.image_link != null) {
 						imageDTO.setImageLink(iBean.image_link);
 					}
-					if(iBean.increment!=null && !iBean.increment.equals("")){
+					if(iBean.increment!=null){
 						imageDTO.setIncrement(iBean.increment);
 					}
 					imageDTO.setFullResolutionFilePath(fullResFilePath);
@@ -449,7 +449,13 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				bean.image_link = resultSet.getString(ImageDTO.IMAGE_LINK);
 				String inc=resultSet.getString(ImageDTO.INCREMENT_VALUE);
 				if(inc!=null && !inc.equals("")){
-					bean.increment=resultSet.getString(ImageDTO.INCREMENT_VALUE);
+					if(inc.equals("one")){//over 3304 entries are one not 1, but no twos etc!
+						bean.increment=1;
+					}else{
+						if(isInteger(inc)){
+							bean.increment=Integer.parseInt(inc);
+						}
+					}
 				}
 				imageBeansMap.put(resultSet.getString(ImageDTO.DOWNLOAD_FILE_PATH), bean);
 
@@ -461,9 +467,23 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		return imageBeansMap;
 	}
+	
+	public static boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	    	e.printStackTrace();
+	        return false; 
+	    } catch(NullPointerException e) {
+	    	e.printStackTrace();
+	        return false;
+	    }
+	    // only got here if we didn't return false
+	    return true;
+	}
 
 	private class ImageBean {
-		String increment;
+		Integer increment=0;
 		int omeroId;
 		String fullResFilePath;
 		String image_link;

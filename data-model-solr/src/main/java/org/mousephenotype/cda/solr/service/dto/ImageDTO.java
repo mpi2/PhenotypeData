@@ -266,13 +266,15 @@ public class ImageDTO extends ObservationDTO {
 	private String subtype;
 	
 	@Field(INCREMENT_VALUE)
-	private String increment;
+	private int increment;
 
-	public String getIncrement() {
+	
+
+	public int getIncrement() {
 		return increment;
 	}
 
-	public void setIncrement(String increment) {
+	public void setIncrement(int increment) {
 		this.increment = increment;
 	}
 
