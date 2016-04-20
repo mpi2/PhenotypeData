@@ -96,7 +96,6 @@ public class SearchPageTest {
           Facet.ANATOMY
         , Facet.DISEASES
         , Facet.GENES
-        , Facet.IMAGES
         , Facet.IMPC_IMAGES
         , Facet.PHENOTYPES
     };
@@ -164,7 +163,6 @@ public class SearchPageTest {
         params.put("disease", "fq=*:*");
         params.put("ma", "fq=selected_top_level_ma_term:*");
         params.put("impc_images", "fq=*:*");
-        params.put("images", "fq=*:*");
 
         String commonParam = "qf=auto_suggest&defType=edismax&wt=json&rows=0&q=*:*";
         final String geneParams        = "/gene/select?"        + commonParam + "&" + params.get("gene");
@@ -172,21 +170,18 @@ public class SearchPageTest {
         final String diseaseParams     = "/disease/select?"     + commonParam + "&" + params.get("disease");
         final String maParams          = "/ma/select?"          + commonParam + "&" + params.get("ma");
         final String impc_imagesParams = "/impc_images/select?" + commonParam + "&" + params.get("impc_images");
-        final String imagesParams      = "/images/select?"      + commonParam + "&" + params.get("images");
 
         paramList.add(geneParams);
         paramList.add(mpParams);
         paramList.add(diseaseParams);
         paramList.add(maParams);
         paramList.add(impc_imagesParams);
-        paramList.add(imagesParams);
 
         cores.add("gene");
         cores.add("mp");
         cores.add("disease");
         cores.add("ma");
         cores.add("impc_images");
-        cores.add("images");
     }
 
     @After
@@ -870,10 +865,6 @@ public class SearchPageTest {
                     status = validateFilter(facetFilter, 23400, 0, "IMPC Mouse Phenotype Center", 6, "RIKEN BRC", 41);  // Has subfacets.
                     break;
 
-                case IMAGES:
-                    status = validateFilter(facetFilter, 125900, 0, "Gene", 3, "protein coding gene", 115007);          // Has subfacets.
-                    break;
-
                 case IMPC_IMAGES:
                     status = validateFilter(facetFilter, 188200, 0, "Anatomy", 2, "digestive system", 5458);            // Has subfacets.
                     break;
@@ -960,90 +951,6 @@ public class SearchPageTest {
                     break;
                 }
             }
-        }
-
-        if ( ! status.hasErrors()) {
-            status.successCount++;
-        }
-
-        testUtils.printEpilogue(testName, start, status, 1, 1);
-    }
-
-    // This tes
-    // This tet doesn't use the download test engine as it requires an extra
-    // click to switch to the Image facet's 'Image' view.
-    @Test
-@Ignore
-    public void testImageFacetImageView() throws TestException {
-        String testName = "testImageFacetImageView";
-        String searchString = "";
-        Date start = new Date();
-        RunStatus status = new RunStatus();
-        Facet facet = Facet.IMAGES;
-        String message = "";
-
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-        String target = "";
-
-        try {
-            target = baseUrl + "/search";
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
-            facet = Facet.IMAGES;
-
-            // Select the correct tab.
-            searchPage.clickTab(facet);
-
-            searchPage.clickFacet(facet);
-            searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
-            searchPage.clickPageButton();
-
-            status.add(searchPage.validateDownload(facet));
-
-        } catch (TestException e) {
-            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
-            System.out.println(message);
-            e.printStackTrace();
-            status.addError(message);
-        }
-
-        if ( ! status.hasErrors()) {
-            status.successCount++;
-        }
-
-        testUtils.printEpilogue(testName, start, status, 1, 1);
-    }
-
-    // This test was spawned from testImageFacetImageView() when it came across
-    // a 500 response from the server when the last page was selected.
-    @Test
-@Ignore
-    public void testImageFacetImageViewLastPage() throws TestException {
-        String testName = "testImageFacetImageViewLastPage";
-        String message = "";
-        Date start = new Date();
-        RunStatus status = new RunStatus();
-
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-        String target = "";
-
-        try {
-            target = baseUrl + "/search";
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, baseUrl, imageMap);
-            Facet facet = Facet.IMAGES;
-
-            // Select the correct tab.
-            int facetCount = searchPage.clickTab(facet);
-
-            searchPage.clickFacet(facet);
-            searchPage.getImageTable().setCurrentView(SearchFacetTable.ImagesView.IMAGE_VIEW);
-            searchPage.clickPageButton(SearchPage.PageDirective.LAST);
-            status.add(searchPage.validateDownload(facet));
-
-        } catch (TestException e) {
-            message = "FAILED [" + message + "]. URL: " + target + ". localMessage: " + e.getLocalizedMessage();
-            System.out.println(message);
-            e.printStackTrace();
-            status.addError(message);
         }
 
         if ( ! status.hasErrors()) {
