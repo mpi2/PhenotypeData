@@ -15,6 +15,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -166,32 +167,30 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		int count = 0;
 
 		String query = "SELECT DISTINCT " +
-			"  CONCAT(parameter.stable_id, '_', ls.colony_id, exp.organisation_id) as doc_id, " +
-			"  'embryo' AS data_type, db.id AS db_id, " +
-			"  bm.zygosity as experimental_zygosity, db.id AS external_db_id, " +
-			"  exp.pipeline_id, exp.procedure_id, obs.parameter_id, ls.colony_id, sex, " +
-			"  parameter.stable_id as dependent_variable, " +
-			"  'Success' as status, bm.id AS biological_model_id, " +
-			"  NULL AS p_value, NULL AS effect_size, " +
-			"  NULL AS mp_acc, NULL AS male_mp_acc, NULL AS female_mp_acc, exp.metadata_group, " +
-			"  db.short_name AS resource_name, db.name AS resource_fullname, db.id AS resource_id, " +
-			"  proj.name AS project_name, proj.id AS project_id, " +
-			"  org.name AS phenotyping_center, org.id AS phenotyping_center_id " +
-			"FROM observation obs " +
-			"  INNER JOIN phenotype_parameter parameter ON parameter.id = obs.parameter_id " +
+			"  CONCAT_WS('-', exp.procedure_stable_id, parameter.stable_id, ls.colony_id, bm.zygosity, sex, exp.organisation_id, exp.metadata_group) AS doc_id,  " +
+			"  'embryo' AS data_type, 'Success' AS status, " +
+			"  exp.metadata_group, exp.pipeline_id, exp.procedure_id, obs.parameter_id, parameter.stable_id AS dependent_variable, " +
+			"  bm.id AS biological_model_id, bm.zygosity AS experimental_zygosity, ls.colony_id, sex, " +
+			"  NULL AS p_value, NULL AS effect_size, NULL AS mp_acc, NULL AS male_mp_acc, NULL AS female_mp_acc, " +
+			"  db.short_name AS resource_name, db.name AS resource_fullname, db.id AS db_id, db.id AS resource_id, db.id AS external_db_id,  " +
+			"  proj.name AS project_name, proj.id AS project_id,  " +
+			"  org.name AS phenotyping_center, org.id AS phenotyping_center_id  " +
+			"FROM observation obs INNER JOIN phenotype_parameter parameter ON parameter.id = obs.parameter_id " +
 			"  INNER JOIN live_sample ls ON ls.id = obs.biological_sample_id " +
 			"  INNER JOIN biological_sample bs ON bs.id = obs.biological_sample_id " +
 			"  INNER JOIN biological_model_sample bms ON bms.biological_sample_id = obs.biological_sample_id " +
 			"  INNER JOIN biological_model bm ON bm.id = bms.biological_model_id " +
 			"  INNER JOIN experiment_observation eo ON eo.observation_id = obs.id " +
 			"  INNER JOIN experiment exp ON exp.id = eo.experiment_id " +
+			"  INNER JOIN (SELECT id FROM phenotype_procedure WHERE stable_id REGEXP '" + EMBRYO_PROCEDURES + "') B ON B.id = exp.procedure_id " +
 			"  INNER JOIN external_db db ON db.id = obs.db_id " +
 			"  INNER JOIN project proj ON proj.id = exp.project_id " +
 			"  INNER JOIN organisation org ON org.id = exp.organisation_id " +
-			"WHERE bs.sample_group='experimental' AND obs.parameter_stable_id REGEXP '" + EMBRYO_PROCEDURES + "' ";
+			"WHERE bs.sample_group = 'experimental' " ;
 
 		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 			p.setFetchSize(Integer.MIN_VALUE);
+
 			ResultSet r = p.executeQuery();
 
 			while (r.next()) {
@@ -205,8 +204,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				}
 
 				documentCount++;
-				statResultCore.addBean(doc, 30000);
+				statResultCore.addBean(doc, 5000);
 				count++;
+
 			}
 
 		}
@@ -449,22 +449,6 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		return count;
 	}
 
-	public Boolean columnInSchema(Connection connection, String tableName, String columnName) throws SQLException {
-
-		Boolean found = Boolean.FALSE;
-		String columnQuery = "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=(SELECT database()) AND TABLE_NAME=? AND column_name=?";
-
-		try (PreparedStatement p = connection.prepareStatement(columnQuery)) {
-			p.setString(1, tableName);
-			p.setString(2, columnName);
-			ResultSet r = p.executeQuery();
-			if (r.next()) {
-				found = Boolean.TRUE;
-			}
-		}
-
-		return found;
-	}
 
 	public int processUnidimensionalResults() throws SQLException, IOException, SolrServerException {
 		int count = 0;
@@ -801,7 +785,22 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 		String sex = r.getString("sex");
 		if (!r.wasNull()) {
+
 			doc.setSex(sex);
+
+			// Do not attempt to add to the phenotye_sex fuield if it has been manually set as it is for
+			// the viability and fertility parameters listed here
+			if ( ! Arrays.asList("IMPC_VIA_001_001", "IMPC_FER_001_001", "IMPC_FER_019_001").contains(doc.getDependentVariable())) {
+				// Add the sex to the phenotype_sexes field
+				if (doc.getPhenotypeSex() == null) {
+					doc.setPhenotypeSex(new ArrayList<>());
+				}
+
+				if (!doc.getPhenotypeSex().contains(sex)) {
+					doc.getPhenotypeSex().add(sex);
+				}
+			}
+
 		}
 
 		Double p_value = r.getDouble("p_value");
@@ -864,6 +863,18 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		doc.setFemaleMutantCount(r.getInt("female_mutants"));
 		doc.setColonyId(r.getString("colony_id"));
 		doc.setStatus(r.getString("status"));
+
+		if (doc.getPhenotypeSex() == null) {
+			doc.setPhenotypeSex(new ArrayList<>());
+		}
+
+		if (doc.getMaleMutantCount()>0) {
+			doc.getPhenotypeSex().add(SexType.male.getName());
+		}
+
+		if (doc.getFemaleMutantCount()>0) {
+			doc.getPhenotypeSex().add(SexType.female.getName());
+		}
 
 		// Always set a metadata group here to allow for simpler searching for
 		// unique results and to maintain parity with the observation index
