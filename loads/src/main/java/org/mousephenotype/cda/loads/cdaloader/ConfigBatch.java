@@ -49,7 +49,7 @@ public class ConfigBatch {
     public SystemCommandTasklet downloadReportsTasklet;
 
     @Autowired
-    public SystemCommandTasklet dbCreateTablesTasklet;
+    public SystemCommandTasklet dbRecreateAndLoadTablesTasklet;
 
     // tag::readerwriterprocessor[]
 //    @Bean
@@ -143,7 +143,7 @@ public class ConfigBatch {
     @Bean
     public Step step2() {
         return stepBuilderFactory.get("step2")
-                .tasklet(dbCreateTablesTasklet)
+                .tasklet(dbRecreateAndLoadTablesTasklet)
                 .build();
     }
 }
