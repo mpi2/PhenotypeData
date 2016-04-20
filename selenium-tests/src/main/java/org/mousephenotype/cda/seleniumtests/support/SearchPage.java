@@ -73,7 +73,6 @@ public class SearchPage {
     public static final String DISEASE_TAB_NAME = "Diseases";
     public static final String ANATOMY_TAB_NAME = "Anatomy";
     public static final String IMPC_IMAGES_TAB_NAME = "IMPC Images";
-    public static final String IMAGES_TAB_NAME = "Images";
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -83,8 +82,7 @@ public class SearchPage {
         PHENOTYPES(PHENOTYPE_FACET, PHENOTYPE_TAB_NAME),
         DISEASES(DISEASE_FACET, DISEASE_TAB_NAME),
         ANATOMY(ANATOMY_FACET, ANATOMY_TAB_NAME),
-        IMPC_IMAGES(IMPC_IMAGES_FACET, IMPC_IMAGES_TAB_NAME),
-        IMAGES(IMAGES_FACET, IMAGES_TAB_NAME);
+        IMPC_IMAGES(IMPC_IMAGES_FACET, IMPC_IMAGES_TAB_NAME);
 
         private String facetName;
         private String tabName;
@@ -808,9 +806,6 @@ public class SearchPage {
 
             case "impc_images":
                 return Facet.IMPC_IMAGES;
-
-            case "images":
-                return Facet.IMAGES;
         }
 
         throw new RuntimeException("No matching facet for coreName'" + coreName + "'.");
@@ -837,9 +832,6 @@ public class SearchPage {
 
             case "impc_imagesT":
                 return Facet.IMPC_IMAGES;
-
-            case "imagesT":
-                return Facet.IMAGES;
 
             default:
                 System.out.println("No matching facet for tabName'" + tabId + "'.");
@@ -875,10 +867,6 @@ public class SearchPage {
             case IMPC_IMAGES:
                 id = "impc_images";
                 break;
-
-            case IMAGES:
-                id = "images";
-                break;
         }
 
         return id;
@@ -913,9 +901,6 @@ public class SearchPage {
                 break;
 // FIXME FIXME FIXME
             case IMPC_IMAGES:
-                throw new TestException("Not implemented yet.");
-
-            case IMAGES:
                 throw new TestException("Not implemented yet.");
         }
 
@@ -1540,7 +1525,6 @@ public class SearchPage {
             case DISEASES:      return getDiseaseTable();
             case GENES:         return getGeneTable();
             case IMPC_IMAGES:   return getImpcImageTable();
-            case IMAGES:        return getImageTable();
             case PHENOTYPES:    return getPhenotypeTable();
         }
 
