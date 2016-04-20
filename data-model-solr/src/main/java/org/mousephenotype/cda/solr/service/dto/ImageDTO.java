@@ -266,7 +266,7 @@ public class ImageDTO extends ObservationDTO {
 	private String subtype;
 	
 	@Field(INCREMENT_VALUE)
-	private int increment;
+	private Integer increment;
 
 	
 
