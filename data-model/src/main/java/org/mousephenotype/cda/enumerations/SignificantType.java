@@ -24,7 +24,8 @@ public enum SignificantType {
 	female_greater("Different effect size, females greater"),
 	male_greater("Different effect size, males greater"),
 	different_directions("Female and male different directions"),
-	one_genotype_tested("If phenotype is significant it is for the one genotype tested")
+	one_genotype_tested("If phenotype is significant it is for the one genotype tested"),
+	one_sex_tested("If phenotype is significant it is for the one sex tested")
 	;
 
 	private final String text;
@@ -56,21 +57,40 @@ public enum SignificantType {
 	}
 
 	public static SignificantType getValue(String databaseSignificanceType){
-		switch(databaseSignificanceType){
-		case "If phenotype is significant - both sexes equally":
-			return both_equally;
-		case "If phenotype is significant - different direction for the sexes":
-			return different_directions;
-		case "If phenotype is significant - different size as females greater":
-			return female_greater;
-		case "If phenotype is significant - different size as males greater":
-			return male_greater;
-		case "If phenotype is significant - females only":
-			return female_only;
-		case "If phenotype is significant - males only":
-			return male_only;
-		case "If phenotype is significant it is for the one genotype tested":
-			return one_genotype_tested;
+
+		switch (databaseSignificanceType) {
+
+			case "No significant change":
+				return none;
+
+			case "Both genders equally":
+			case "If phenotype is significant - both sexes equally":
+				return both_equally;
+
+			case "If phenotype is significant - different direction for the sexes":
+			case "Female and male different directions":
+				return different_directions;
+
+			case "If phenotype is significant - different size as females greater":
+				return female_greater;
+
+			case "If phenotype is significant - different size as males greater":
+				return male_greater;
+
+			case "If phenotype is significant - females only":
+			case "Female only":
+				return female_only;
+
+			case "If phenotype is significant - males only":
+			case "Male only":
+				return male_only;
+
+			case "If phenotype is significant it is for the one genotype tested":
+				return one_genotype_tested;
+
+			case "If phenotype is significant it is for the one sex tested":
+				return one_sex_tested;
+
 		}
 
 		return null;
