@@ -173,6 +173,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					if (iBean.image_link != null) {
 						imageDTO.setImageLink(iBean.image_link);
 					}
+					if(iBean.increment!=null && !iBean.increment.equals("")){
+						imageDTO.setIncrement(iBean.increment);
+					}
 					imageDTO.setFullResolutionFilePath(fullResFilePath);
 
 					int omeroId = iBean.omeroId;
@@ -429,6 +432,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		Map<String, ImageBean> imageBeansMap = new HashMap<>();
 		final String getExtraImageInfoSQL = "SELECT " + ImageDTO.OMERO_ID + ", " + ImageDTO.DOWNLOAD_FILE_PATH + ", "
 				+ ImageDTO.IMAGE_LINK + ", " + ImageDTO.FULL_RESOLUTION_FILE_PATH
+				+ ImageDTO.INCREMENT_VALUE
 				+ " FROM image_record_observation WHERE omero_id is not null AND omero_id != 0";
 
 		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(getExtraImageInfoSQL)) {
@@ -440,6 +444,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				bean.omeroId = resultSet.getInt(ImageDTO.OMERO_ID);
 				bean.fullResFilePath = resultSet.getString(ImageDTO.FULL_RESOLUTION_FILE_PATH);
 				bean.image_link = resultSet.getString(ImageDTO.IMAGE_LINK);
+				String inc=resultSet.getString(ImageDTO.INCREMENT_VALUE);
+				if(inc!=null && !inc.equals("")){
+					bean.increment=resultSet.getString(ImageDTO.INCREMENT_VALUE);
+				}
 				imageBeansMap.put(resultSet.getString(ImageDTO.DOWNLOAD_FILE_PATH), bean);
 
 			}
@@ -452,6 +460,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	}
 
 	private class ImageBean {
+		String increment;
 		int omeroId;
 		String fullResFilePath;
 		String image_link;
