@@ -418,7 +418,7 @@
 	<field name="intermediate_emap_term" type="string" indexed="true" stored="true" multiValued="true" />;
 	<field name="intermediate_emap_term_synonym" type="string" indexed="true" stored="true" multiValued="true" />;
 	<field name="sequence_id" type="string" indexed="true" stored="true" multiValued="false"/>
-	<field name="increment_value" type="string" indexed="true" stored="true" multiValued="false"/>
+	<field name="increment_value" type="int" indexed="true" stored="true" multiValued="false"/>
 	
         <!--  for copyFields -->
 
