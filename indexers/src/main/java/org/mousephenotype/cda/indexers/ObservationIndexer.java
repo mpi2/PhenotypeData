@@ -125,7 +125,7 @@ public class ObservationIndexer extends AbstractIndexer {
 			System.out.println("populating parameter map");
 			parameterMap = IndexerMap.getImpressParameters(connection);
 			ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
-			System.out.println("ontology entity map size="+ontologyEntityMap.size());
+			System.out.println("ontology entity map size=" + ontologyEntityMap.size());
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
@@ -177,40 +177,29 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		Boolean hasSequenceIdColumn = sqlUtils.columnInSchemaMysql(connection, "observation", "sequence_id");
 
-
-        String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
-                + "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
-                + "o.biological_sample_id, "
-                + "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, "
-                + "e.date_of_experiment, e.external_id, e.id as experiment_id, "
-                + "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, "
-                + "co.category as raw_category, "
-                + "uo.data_point as unidimensional_data_point, "
-                + "mo.data_point as multidimensional_data_point, "
-                + "tso.data_point as time_series_data_point, "
-                + "tro.text as text_value, "
-                + "mo.order_index, "
-                + "mo.dimension, "
-                + "tso.time_point, "
-                + "tso.discrete_point, "
-                + "iro.file_type, "
-                + "iro.download_file_path ";
+		String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
+				+ "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
+				+ "o.biological_sample_id, "
+				+ "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, "
+				+ "e.date_of_experiment, e.external_id, e.id as experiment_id, "
+				+ "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, "
+				+ "co.category as raw_category, " + "uo.data_point as unidimensional_data_point, "
+				+ "mo.data_point as multidimensional_data_point, " + "tso.data_point as time_series_data_point, "
+				+ "tro.text as text_value, " + "mo.order_index, " + "mo.dimension, " + "tso.time_point, "
+				+ "tso.discrete_point, " + "iro.file_type, " + "iro.download_file_path ";
 
 		if (hasSequenceIdColumn) {
 			query += ", o.sequence_id as sequence_id ";
 		}
 
-		query += "FROM observation o "
-                + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
-                + "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id "
-                + "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id "
-                + "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
-                + "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
-                + "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
-                + "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
-                + "INNER JOIN experiment e on eo.experiment_id=e.id "
-                + "WHERE o.missing=0";
-
+		query += "FROM observation o " + "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
+				+ "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id "
+				+ "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id "
+				+ "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
+				+ "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
+				+ "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
+				+ "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
+				+ "INNER JOIN experiment e on eo.experiment_id=e.id " + "WHERE o.missing=0";
 
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
@@ -229,14 +218,13 @@ public class ObservationIndexer extends AbstractIndexer {
 
 				if (hasSequenceIdColumn) {
 					if (r.getString("sequence_id") != null && !r.getString("sequence_id").equals("")) {
-						if(isInteger(r.getString("sequence_id"))){
-							int seqId=Integer.parseInt(r.getString("sequence_id"));
-								o.setSequenceId(seqId);
-							}
-							
+						if (isInteger(r.getString("sequence_id"))) {
+							Integer seqId = Integer.parseInt(r.getString("sequence_id"));
+							o.setSequenceId(seqId);
 						}
-						
+
 					}
+
 				}
 
 				ZonedDateTime dateOfExperiment = null;
@@ -434,7 +422,7 @@ public class ObservationIndexer extends AbstractIndexer {
 				if (ontologyEntityMap.containsKey(o.getId())) {
 
 					List<OntologyBean> subOntBeans = ontologyEntityMap.get(o.getId());
-					for(OntologyBean bean:subOntBeans){
+					for (OntologyBean bean : subOntBeans) {
 						o.addSubTermId(bean.getId());
 						o.addSubTermName(bean.getName());
 						o.addSubTermDescription(bean.getDescription());
@@ -510,19 +498,19 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		return count;
 	}
-	
+
 	public static boolean isInteger(String s) {
-	    try { 
-	        Integer.parseInt(s); 
-	    } catch(NumberFormatException e) { 
-	    	e.printStackTrace();
-	        return false; 
-	    } catch(NullPointerException e) {
-	    	e.printStackTrace();
-	        return false;
-	    }
-	    // only got here if we didn't return false
-	    return true;
+		try {
+			Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			return false;
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			return false;
+		}
+		// only got here if we didn't return false
+		return true;
 	}
 
 	/**
@@ -727,7 +715,7 @@ public class ObservationIndexer extends AbstractIndexer {
 
 					// add .0 onto string as this is what our numerical
 					// categories look in solr!!!!
-//					name += ".0";
+					// name += ".0";
 
 					translateCategoryNames.get(stableId).put(name, description);
 				} else {
@@ -895,14 +883,13 @@ public class ObservationIndexer extends AbstractIndexer {
 
 		int count = 0;
 
-		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id,  date_of_experiment, datediff(date_of_experiment, ls.date_of_birth) as days_old, e.organisation_id " +
-			"FROM observation o " +
-			"  INNER JOIN unidimensional_observation uo ON uo.id = o.id  " +
-			"  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id  " +
-			"  INNER JOIN experiment_observation eo ON o.id = eo.observation_id  " +
-			"  INNER JOIN experiment e ON e.id = eo.experiment_id  " +
-			"WHERE parameter_stable_id IN (" + StringUtils.join(Constants.weightParameters, ",") + ") AND data_point > 0" +
-			"  ORDER BY biological_sample_id, date_of_experiment ASC ";
+		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id,  date_of_experiment, datediff(date_of_experiment, ls.date_of_birth) as days_old, e.organisation_id "
+				+ "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id  "
+				+ "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id  "
+				+ "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id  "
+				+ "  INNER JOIN experiment e ON e.id = eo.experiment_id  " + "WHERE parameter_stable_id IN ("
+				+ StringUtils.join(Constants.weightParameters, ",") + ") AND data_point > 0"
+				+ "  ORDER BY biological_sample_id, date_of_experiment ASC ";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
@@ -945,13 +932,12 @@ public class ObservationIndexer extends AbstractIndexer {
 	 */
 	void populateIpgttWeightMap() throws SQLException {
 
-		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old " +
-			"FROM observation o " +
-			"  INNER JOIN unidimensional_observation uo ON uo.id = o.id " +
-			"  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id " +
-			"  INNER JOIN experiment_observation eo ON o.id = eo.observation_id " +
-			"  INNER JOIN experiment e ON e.id = eo.experiment_id " +
-			"WHERE parameter_stable_id = '" + ipgttWeightParameter + "' ";
+		String query = "SELECT o.biological_sample_id, data_point AS weight, parameter_stable_id, date_of_experiment, DATEDIFF(date_of_experiment, ls.date_of_birth) AS days_old "
+				+ "FROM observation o " + "  INNER JOIN unidimensional_observation uo ON uo.id = o.id "
+				+ "  INNER JOIN live_sample ls ON ls.id=o.biological_sample_id "
+				+ "  INNER JOIN experiment_observation eo ON o.id = eo.observation_id "
+				+ "  INNER JOIN experiment e ON e.id = eo.experiment_id " + "WHERE parameter_stable_id = '"
+				+ ipgttWeightParameter + "' ";
 
 		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
