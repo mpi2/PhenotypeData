@@ -431,7 +431,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		Map<String, ImageBean> imageBeansMap = new HashMap<>();
 		final String getExtraImageInfoSQL = "SELECT " + ImageDTO.OMERO_ID + ", " + ImageDTO.DOWNLOAD_FILE_PATH + ", "
-				+ ImageDTO.IMAGE_LINK + ", " + ImageDTO.FULL_RESOLUTION_FILE_PATH
+				+ ImageDTO.IMAGE_LINK 
+				+ ", "
+				+ ImageDTO.FULL_RESOLUTION_FILE_PATH
+				+","
 				+ ImageDTO.INCREMENT_VALUE
 				+ " FROM image_record_observation WHERE omero_id is not null AND omero_id != 0";
 
