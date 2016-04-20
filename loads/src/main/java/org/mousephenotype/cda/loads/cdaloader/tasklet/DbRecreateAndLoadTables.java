@@ -43,7 +43,7 @@ import java.util.Date;
 @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
 @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
                 ignoreResourceNotFound=true)
-public class DbCreateTables {
+public class DbRecreateAndLoadTables {
 
     @Value("${cdaload.workspace}")
     private String cdaWorkspace;
@@ -74,8 +74,7 @@ public class DbCreateTables {
 
     public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
-
-    @Bean(name = "dbCreateTablesTasklet")
+    @Bean(name = "dbRecreateAndLoadTablesTasklet")
     @StepScope
     public SystemCommandTasklet recreateDb() throws CdaDownloadException {
         SystemCommandTasklet downloadReportsTasklet;
