@@ -228,8 +228,14 @@ public class ObservationIndexer extends AbstractIndexer {
 				o.setExperimentSourceId(r.getString("external_id"));
 
 				if (hasSequenceIdColumn) {
-					if (r.getString("sequence_id") != null) {
-						o.setSequenceId(r.getString("sequence_id"));
+					if (r.getString("sequence_id") != null && !r.getString("sequence_id").equals("")) {
+						if(isInteger(r.getString("sequence_id"))){
+							int seqId=Integer.parseInt(r.getString("sequence_id"));
+								o.setSequenceId(seqId);
+							}
+							
+						}
+						
 					}
 				}
 
@@ -503,6 +509,20 @@ public class ObservationIndexer extends AbstractIndexer {
 		}
 
 		return count;
+	}
+	
+	public static boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	    	e.printStackTrace();
+	        return false; 
+	    } catch(NullPointerException e) {
+	    	e.printStackTrace();
+	        return false;
+	    }
+	    // only got here if we didn't return false
+	    return true;
 	}
 
 	/**

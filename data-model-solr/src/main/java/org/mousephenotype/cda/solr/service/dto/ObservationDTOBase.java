@@ -280,14 +280,16 @@ public class ObservationDTOBase {
 	private List<String> subTermDescription;
 	
 	@Field(SEQUENCE_ID)
-	private String sequenceId;
+	private Integer sequenceId;
    
 
-	public String getSequenceId() {
+	
+
+	public int getSequenceId() {
 		return sequenceId;
 	}
 
-	public void setSequenceId(String sequenceId) {
+	public void setSequenceId(Integer sequenceId) {
 		this.sequenceId = sequenceId;
 	}
 
