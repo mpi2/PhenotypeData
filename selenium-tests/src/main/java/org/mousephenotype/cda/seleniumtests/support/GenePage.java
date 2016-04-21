@@ -273,7 +273,7 @@ public class GenePage {
      * 'Mice', etc.)
      */
     public List<WebElement> getphenotypingStatusOrderButtons() {
-        return driver.findElements(By.xpath("//a[contains('class', 'phenotypingStatus')]"));
+        return driver.findElements(By.xpath("//a[contains(@class, 'phenotypingStatus')]"));
     }
 
     /**
@@ -284,7 +284,7 @@ public class GenePage {
      * 'Mice', etc.)
      */
     public List<WebElement> getProductionStatusOrderButtons() {
-        return driver.findElements(By.xpath("//a[contains('class', 'productionStatus')]"));
+        return driver.findElements(By.xpath("//a[contains(@class, 'productionStatus')]"));
     }
 
     /**
