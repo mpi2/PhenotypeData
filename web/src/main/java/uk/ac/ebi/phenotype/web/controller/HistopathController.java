@@ -38,7 +38,7 @@ public class HistopathController {
 		
 		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
 		List<ObservationDTO> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
-		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(allObservations);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(extSampleIdToObservations);
 		Set<String> parameterNames=new TreeSet<>();
 		
 		//chop the parameter names so we have just the beginning as we have parameter names like "Brain - Description" and "Brain - MPATH Diagnostic Term" we want to lump all into Brain related

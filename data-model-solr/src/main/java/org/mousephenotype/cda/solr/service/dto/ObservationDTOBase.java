@@ -285,7 +285,7 @@ public class ObservationDTOBase {
 
 	
 
-	public int getSequenceId() {
+	public Integer getSequenceId() {
 		return sequenceId;
 	}
 

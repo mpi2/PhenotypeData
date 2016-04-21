@@ -145,14 +145,14 @@
 									<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
 										
 											
-										
+										<td>
 									<!-- do for each here values-->
 										<c:forEach var="value" items="${parameter.value }">
-											 <td title="${value.description }">
+											 <%-- <td title="${value.description }"> --%>
 													${value.name }
-											</td>
+											<%-- </td> --%>
 										</c:forEach>
-										
+										</td>
 									</c:forEach> 
 									</c:otherwise>
 									</c:choose>
@@ -166,13 +166,13 @@
 									<c:forEach var="parameter" items="${histRow.mpathDiagnosticOntologyBeans }">
 										
 											
-										
+										<td>
 										<c:forEach var="value" items="${parameter.value }">
-										<td title="${value.description }">
+										<%-- <td title="${value.description }"> --%>
 											${value.name }										
-											</td>
+											<%-- </td> --%>
 										</c:forEach>
-										
+										</td>
 									</c:forEach>
 									</c:otherwise>
 									</c:choose> 
@@ -194,10 +194,15 @@
 									</td>
 									
 									<td>
-										<c:forEach var="parameter" items="${histRow.imageList }">
+										<c:forEach var="image" items="${histRow.imageList }">
 										
-										${parameter.textValue }
-										
+										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
+										increment= ${image.increment_value}
+										 <!-- <div id="grid"> -->
+                                           
+												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
+											
+										<!-- </div> -->
 										</c:forEach> 
 									</td>
 									
