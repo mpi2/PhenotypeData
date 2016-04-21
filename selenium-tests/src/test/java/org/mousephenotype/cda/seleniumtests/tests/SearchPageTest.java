@@ -866,7 +866,7 @@ public class SearchPageTest {
                     break;
 
                 case IMPC_IMAGES:
-                    status = validateFilter(facetFilter, 188200, 0, "Anatomy", 2, "digestive system", 5458);            // Has subfacets.
+                    status = validateFilter(facetFilter, 187000, 0, "Anatomy", 2, "digestive system", 5400);            // Has subfacets.
                     break;
 
                 case PHENOTYPES:
