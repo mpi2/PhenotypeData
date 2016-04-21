@@ -324,7 +324,7 @@ public class GeneService extends BasicService implements WebStatus{
 		try {				
 			if ( latestEsCellStatus != null  ){	
 				if ( latestEsCellStatus.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
-					esCellStatus = "<a class='status done' href='" + genePageUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
+					esCellStatus = "<a class='status done productionStatus' href='" + genePageUrl + "#order2" + "' title='"+StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE+"'>"
 									 + " <span>ES Cells</span>"
 									 + "</a>";						
 					exportEsCellStatus += StatusConstants.WEB_ES_CELL_STATUS_PRODUCTION_DONE;
@@ -393,7 +393,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 				if ( statusMap.containsKey("Mice Produced") ){
 
-					miceStatus = "<a class='status done' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
+					miceStatus = "<a class='status done productionStatus' oldtitle='Mice Produced' title='' href='" + geneLink + "#order2'>"
 							   +  "<span>Mice</span>"
 							   +  "</a>";
 						
@@ -457,7 +457,7 @@ public class GeneService extends BasicService implements WebStatus{
 				if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 					
 					if (alleleType != null) {
-						miceStatus += "<a class='status done' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + url + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
+						miceStatus += "<a class='status done productionStatus' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + url + "#order2'><span>Mice<br>" + alleleType + "</span></a>";
 					}
 					
 				} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
@@ -689,7 +689,7 @@ public class GeneService extends BasicService implements WebStatus{
 							
 						if (matcher.find()) {
 							String alleleType = matcher.group(1);						
-							miceStatus += "<a class='status done' oldtitle='" + mouseStatusStr + "' title='' href='#order2'>"
+							miceStatus += "<a class='status done productionStatus' oldtitle='" + mouseStatusStr + "' title='' href='#order2'>"
 									+  "<span>Mice<br>" + alleleType + "</span>"
 									+  "</a>";
 							
