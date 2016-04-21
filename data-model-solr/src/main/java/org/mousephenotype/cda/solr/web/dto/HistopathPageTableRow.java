@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.solr.service.OntologyBean;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 
 /**
@@ -278,18 +280,25 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 		
 	}
 	
-	private List<ParameterValueBean> imageList=new ArrayList<>();
+	private List<SolrDocument> imageList=new ArrayList<>();
+	private Integer sequenceId;
 	
-	public List<ParameterValueBean> getImageList() {
+	public Integer getSequenceId() {
+		return sequenceId;
+	}
+	public List<SolrDocument> getImageList() {
 		return imageList;
 	}
 	
-	public void addImageParam(ImpressBaseDTO parameter, String downloadFilePath) {
+	public void addImage(SolrDocument image) {
 		System.out.println("adding image param");
-			this.imageList.add(new ParameterValueBean(parameter, downloadFilePath));
+			this.imageList.add(image);
 			
 		
 		
+	}
+	public void setSequenceId(Integer sequenceId) {
+		this.sequenceId=sequenceId;
 	}
 	
 	
