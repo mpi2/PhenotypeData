@@ -922,4 +922,24 @@ public class ImageService implements WebStatus{
 		return "impc_images";
 	}
 
+
+	public SolrDocument getImageByDownloadFilePath(String downloadFilePath) throws SolrServerException {
+		SolrQuery query = new SolrQuery();
+
+		query.setQuery(ImageDTO.DOWNLOAD_FILE_PATH+":\""+downloadFilePath+"\"").setRows(1);
+		//query.addField(ImageDTO.OMERO_ID);
+		//query.addField(ImageDTO.INCREMENT_VALUE);
+		//query.addField(ImageDTO.DOWNLOAD_URL);
+		//query.addField(ImageDTO.EXTERNAL_SAMPLE_ID);
+		//System.out.println("SOLR URL WAS " + solr.getBaseURL() + "/select?" + query);
+
+		QueryResponse response = solr.query(query);
+		SolrDocument img = response.getResults().get(0);
+		//ImageDTO image = response.get(0);
+		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
+		return img;
+		
+	}
+	
+
 }

@@ -718,8 +718,10 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
             return SignificantType.none;
         } else {
 
-            if (!getInteractionSignificance()) {
+            if ( ! getInteractionSignificance() && ! (getFemaleMutants()==0 || getMaleMutants()==0)) {
                 return SignificantType.both_equally;
+            } else if (! getInteractionSignificance() && (getFemaleMutants()>0 || getMaleMutants()>0)) {
+	            return SignificantType.one_sex_tested;
             } else if (getGenderFemaleKoPValue() >= PHENOTYPE_THRESHOLD && getGenderMaleKoPValue() >= PHENOTYPE_THRESHOLD) {
                 return SignificantType.cannot_classify;
             } else if (getGenderFemaleKoPValue() < PHENOTYPE_THRESHOLD && getGenderMaleKoPValue() >= PHENOTYPE_THRESHOLD) {

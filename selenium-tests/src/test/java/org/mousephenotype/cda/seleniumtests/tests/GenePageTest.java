@@ -923,9 +923,8 @@ public class GenePageTest {
         }
 
         List<WebElement> buttonElements = genePage.getProductionStatusOrderButtons();
-
-        if (buttonElements.size() != 3) {
-            status.addError("This test expects three order buttons. Number of buttons found: " + buttonElements.size());
+        if (buttonElements.size() != 2) {
+            status.addError("This test expects two production status order buttons. Number of buttons found: " + buttonElements.size());
         } else {
             for (WebElement buttonElement : buttonElements) {
                 buttonElement.click();
@@ -938,6 +937,11 @@ public class GenePageTest {
 
                 driver.navigate().back();
             }
+        }
+
+        buttonElements = genePage.getphenotypingStatusOrderButtons();
+        if (buttonElements.size() != 1) {
+            status.addError("This test expects one phenotyping status order button. Number of buttons found: " + buttonElements.size());
         }
 
         if ( ! status.hasErrors())
