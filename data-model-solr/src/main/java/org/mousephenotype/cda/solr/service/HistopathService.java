@@ -47,7 +47,6 @@ public class HistopathService {
 		downloadToImgMap = new HashMap<String, SolrDocument>();
 		System.out.println("observations for histopath size with normal and abnormal=" + allObservations.size());
 
-		List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
 																								// want
 																								// each
@@ -62,7 +61,7 @@ public class HistopathService {
 																								// to
 																								// Brain
 
-		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(filteredObservations);
+		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
 		for (String sampleId : sampleToObservations.keySet()) {
 
 			// just for images here as no anatomy currently
@@ -166,7 +165,7 @@ public class HistopathService {
 
 				if (parameterNames.size() != 0) {
 					row.setParameterNames(parameterNames);
-					System.out.println("adding row=" + row);
+					//System.out.println("adding row=" + row);
 					rows.add(row);
 				}
 

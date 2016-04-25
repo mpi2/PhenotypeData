@@ -12,6 +12,8 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.junit.Assert.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ public class ObservationServiceTest {
 		String geneAccession="MGI:2449119";
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
+			assertTrue(result.size()>0);
 			for(ObservationDTO obs:result){
 				System.out.println("observations="+obs);
 			}

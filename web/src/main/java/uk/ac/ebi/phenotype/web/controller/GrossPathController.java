@@ -10,6 +10,7 @@ import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.HistopathService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,26 +33,27 @@ public class GrossPathController {
 	
 	
 	@RequestMapping("/grosspath/{acc}")
-	public String histopath(@PathVariable String acc, Model model) throws SolrServerException{
+	public String grossPath(@PathVariable String acc, Model model) throws SolrServerException{
 		//exmple Lpin2 MGI:1891341
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
 		
 		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
+		System.out.println("all observations="+allObservations);
 		List<ObservationDTO> extSampleIdToObservations = grossPathService.screenOutObservationsThatAreNormal(allObservations);
-		List<HistopathPageTableRow> histopathRows = grossPathService.getTableData(extSampleIdToObservations);
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getTableData(extSampleIdToObservations);
 		Set<String> parameterNames=new TreeSet<>();
 		
 		//chop the parameter names so we have just the beginning as we have parameter names like "Brain - Description" and "Brain - MPATH Diagnostic Term" we want to lump all into Brain related
 		
-		for(HistopathPageTableRow row: histopathRows){
+		for(GrossPathPageTableRow row: grossPathRows){
 			parameterNames.addAll(row.getParameterNames());
 			
 			
 		}
 		
 
-		model.addAttribute("histopathRows", histopathRows);
+		model.addAttribute("histopathRows", grossPathRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
 		model.addAttribute("parameterNames", parameterNames);
 		return "grosspath";	
