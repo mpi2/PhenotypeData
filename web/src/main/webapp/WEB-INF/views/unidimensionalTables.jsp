@@ -13,12 +13,12 @@
         <%-- Display result of a mixed model calculation --%>
 
         <c:if test="${data.result.statisticalMethod!=null and  data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction'}">
-    
-   
-    
+
+
+
             <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
-            
-             
+
+
                 <table class="globalTest">
                     <thead>
                         <tr>
@@ -33,7 +33,7 @@
                                 <table class="table_covariate_details">
                                     <c:choose>
                                         <c:when
-                                            test="${data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
+                                            test="${data.result.significanceClassification.text == 'If phenotype is significant it is for the one sex tested' || data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
                                             <thead>
                                                 <tr>
                                                     <th>Genotype effect P Value</th>
@@ -264,7 +264,7 @@
                                 <td><t:formatScientific>${data.result.genderFemaleKoPValue}</t:formatScientific></td>
                                 </tr>
                         </c:if>
-                        
+
                         <c:if test="${data.result.genderParameterEstimate!=null}">
                             <tr>
                                 <td>Gender Parameter Estimate</td>

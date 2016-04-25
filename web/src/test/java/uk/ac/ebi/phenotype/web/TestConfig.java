@@ -46,7 +46,7 @@ import java.util.Map;
 
 /**
  * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
- * resource directory, which must contain a test.properties file.
+ * resource directory, which must contain a test.properties file. e.g. mvn test -Dprofile=dev
  *
  * Examples: /Users/mrelac/configfiles/beta/test.properties,
  *           /Users/mrelac/configfiles/dev/test.properties,
