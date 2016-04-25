@@ -354,10 +354,15 @@ public class Tools {
 			if ( i < defaultOffset.get(corename) ) {
 				checked = "checked";
 				checkedClass = "default";
+				// first two of each dataType are uncheckable, so they are minimum fields (order is important in the mainAttrs above
+				if ( i < 2 ) {
+					checkedClass = "default frozen";
+				}
+
 			}
 
 			String friendlyFieldName = mainAttrs.get(i).replaceAll("_", " ");
-			htmlStr1 += "<input type='checkbox' class=" + checkedClass + " name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + friendlyFieldName;
+			htmlStr1 += "<input type='checkbox' class='" + checkedClass + "' name='" + corename + "' value='" + mainAttrs.get(i) + "'" + checked + ">" + friendlyFieldName;
 			if ( (i+1) % 3 == 0 ){
 				htmlStr1 += "<br>";
 			}
