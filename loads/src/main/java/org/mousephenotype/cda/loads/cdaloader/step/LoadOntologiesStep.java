@@ -26,8 +26,8 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
+import org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper;
 import org.springframework.batch.item.file.transform.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -107,11 +107,10 @@ System.out.println("sourcePath: '" + sourcePath + "'");
                         put("range: *", delimitedLineTokenizer);
                         put("relationship: *", delimitedLineTokenizer);
                         put("synonym: *", delimitedLineTokenizer);
+                        put("*", delimitedLineTokenizer);
                     }});
             }});
-            setFieldSetMapper(new BeanWrapperFieldSetMapper<FieldSet>() {{
-                setTargetType(FieldSet.class);
-            }});
+            setFieldSetMapper(new PassThroughFieldSetMapper());
         }});
         return reader;
     }
@@ -121,6 +120,9 @@ System.out.println("sourcePath: '" + sourcePath + "'");
     public FlatFileItemWriter ontologyWriter() {
         FlatFileItemWriter<FieldSet> writer = new FlatFileItemWriter<>();
         writer.setLineAggregator(new PassThroughLineAggregator());
+        String sourcePath = cdaWorkspace + "/loadOntologies.log";
+        writer.setResource(new FileSystemResource(sourcePath));
+
         return writer;
     }
 
