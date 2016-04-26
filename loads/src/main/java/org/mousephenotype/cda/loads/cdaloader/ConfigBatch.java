@@ -26,8 +26,6 @@ import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.jmx.export.MBeanExporter;
 
 /**
  * Created by mrelac on 12/04/2016.
@@ -46,10 +44,10 @@ public class ConfigBatch {
 //    public DataSource komp2Loads;
 
     @Autowired
-    public SystemCommandTasklet downloadReportsTasklet;
+    public SystemCommandTasklet downloadReports;
 
     @Autowired
-    public SystemCommandTasklet dbRecreateAndLoadTablesTasklet;
+    public SystemCommandTasklet recreateAndLoadTables;
 
     // tag::readerwriterprocessor[]
 //    @Bean
@@ -136,14 +134,14 @@ public class ConfigBatch {
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                .tasklet(downloadReportsTasklet)
+                .tasklet(downloadReports)
                 .build();
     }
 
     @Bean
     public Step step2() {
         return stepBuilderFactory.get("step2")
-                .tasklet(dbRecreateAndLoadTablesTasklet)
+                .tasklet(recreateAndLoadTables)
                 .build();
     }
 }

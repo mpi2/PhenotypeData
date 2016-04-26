@@ -38,7 +38,7 @@ public class BatchConfiguration {
 //    @Bean
 //    public Step step1() {
 //        return stepBuilderFactory.get("step1")
-//                .tasklet(new Tasklet() {
+//                .step(new Tasklet() {
 //                    @Override
 //                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 //                        return null;

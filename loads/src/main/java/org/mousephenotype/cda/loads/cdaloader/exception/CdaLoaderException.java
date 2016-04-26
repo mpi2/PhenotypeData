@@ -22,21 +22,21 @@ package org.mousephenotype.cda.loads.cdaloader.exception;
  *
  * @author mrelac
  */
-public class CdaDownloadException extends Exception {
+public class CdaLoaderException extends Exception {
 
-    public CdaDownloadException() {
+    public CdaLoaderException() {
         super("");
     }
 
-    public CdaDownloadException(String message) {
+    public CdaLoaderException(String message) {
         super(message);
     }
     
-    public CdaDownloadException(Exception e) {
+    public CdaLoaderException(Exception e) {
         super(e);
     }
     
-    public CdaDownloadException(String message, Exception e) {
+    public CdaLoaderException(String message, Exception e) {
         super(message, e);
     }
 }
