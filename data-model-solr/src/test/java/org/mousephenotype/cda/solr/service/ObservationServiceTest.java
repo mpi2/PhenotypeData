@@ -12,13 +12,15 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.junit.Assert.*;
+
 import java.util.List;
 import java.util.Map;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigSolr.class} )
-@TestPropertySource(locations = {"classpath:test.properties", "file:${user.home}/configfiles/${profile}/test.properties"})
+@TestPropertySource("file:${user.home}/configfiles/${profile}/test.properties")
 public class ObservationServiceTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,6 +38,24 @@ public class ObservationServiceTest {
 		String geneAccession="MGI:2449119";
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
+			for(ObservationDTO obs:result){
+				System.out.println("observations="+obs);
+			}
+
+		} catch (SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void getGrossPathObservationByProcedureNameAndGene(){
+
+		String procedureName="Gross Pathology and Tissue Collection";
+		String geneAccession="MGI:2449119";
+		try {
+			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
+			assertTrue(result.size()>0);
 			for(ObservationDTO obs:result){
 				System.out.println("observations="+obs);
 			}

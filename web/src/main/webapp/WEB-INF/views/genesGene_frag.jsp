@@ -39,7 +39,7 @@
 
 <c:if test="${gene.markerName != null}">
   <p class="with-label no-margin">
-    <span class="label">Name</span>
+    <span id="summaryMarkerName" class="label">Name</span>
       ${gene.markerName}
   </p>
 </c:if>
@@ -47,7 +47,7 @@
 <c:if
         test="${!(empty gene.markerSynonym)}">
   <p class="with-label no-margin">
-    <span class="label">Synonyms</span>
+    <span id="summarySynonyms" class="label">Synonyms</span>
     <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
       ${synonym}
       <c:if test="${!loop.last}">, </c:if>
@@ -57,20 +57,20 @@
 </c:if>
 
 <p class="with-label">
-  <span class="label">MGI Id</span>
+  <span id="summaryMgiId" class="label">MGI Id</span>
   <a target="_blank" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
 </p>
 
 <c:if
         test="${!(prodStatusIcons == '')}">
   <p class="with-label">
-    <span class="label">Status</span>
+    <span id="summaryStatus" class="label">Status</span>
       ${prodStatusIcons}
   </p>
 </c:if>
 
 <p class="with-label">
-  <span class="label">Links</span>
+  <span id="summaryLinks" class="label">Links</span>
   <a target="_blank" href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}">Ensembl
     Gene</a>&nbsp;&nbsp;
   <!--    <a href="http://www.ensembl.org/Mus_musculus/Location/View?g=${gene.mgiAccessionId};contigviewbottom=das:http://das.sanger.ac.uk/das/ikmc_products=labels">Location&nbsp;View</a>&nbsp;&nbsp;-->
@@ -82,7 +82,7 @@
 
 <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
   <p class="with-label">
-    <span class="label">Viability</span>
+    <span id="summaryViability" class="label">Viability</span>
     <t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
   </p>
 </c:if>
@@ -92,13 +92,13 @@
 
   <c:if test="${gwasPhenoMapping == 'no mapping' }">
     <p class="with-label">
-    <span class="label">GWAS mapping</span>
+    <span id="summaryGwasNoMapping" class="label">GWAS mapping</span>
     <a target="_blank" href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
     </p>
   </c:if>
   <c:if test="${gwasPhenoMapping == 'indirect' }">
     <p class="with-label">
-    <span class="label">GWAS mapping</span>
+    <span id="summaryGwasIndirectMapping" class="label">GWAS mapping</span>
     <a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
     <a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='indirect'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
 
@@ -106,7 +106,7 @@
   </c:if>
   <c:if test="${gwasPhenoMapping == 'direct' }">
     <p class="with-label">
-    <span class="label">GWAS mapping</span>
+    <span id="summaryGwasMapping" class="label">GWAS mapping</span>
     <a href="http://www.ebi.ac.uk/gwas/search?query=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;GWAS catalog</a>&nbsp;&nbsp;
     <a target="_blank" href="${baseUrl}/phenotype2gwas?mgi_gene_symbol=${gene.markerSymbol}"><i class="fa fa-external-link"></i>&nbsp;<span class='direct'>${gwasPhenoMapping} phenotypic mapping</span></a>&nbsp;&nbsp;
     </p>

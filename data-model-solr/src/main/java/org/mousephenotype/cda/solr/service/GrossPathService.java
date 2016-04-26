@@ -2,7 +2,6 @@ package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,16 +9,15 @@ import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
+import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class HistopathService {
+public class GrossPathService {
 
 	@Autowired
 	ObservationService observationService;
@@ -33,20 +31,21 @@ public class HistopathService {
 
 	private Map<String, SolrDocument> downloadToImgMap;
 
-	public HistopathService(ObservationService observationService) {
+	public GrossPathService(ObservationService observationService) {
 		super();
 		this.observationService = observationService;
 	}
 
-	public HistopathService() {
+	public GrossPathService() {
 
 	}
 
-	public List<HistopathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException {
-		List<HistopathPageTableRow> rows = new ArrayList<>();
+	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations) throws SolrServerException {
+		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		downloadToImgMap = new HashMap<String, SolrDocument>();
-		System.out.println("observations for histopath size with normal and abnormal=" + allObservations.size());
+		System.out.println("observations for GrossPath size with normal and abnormal=" + allObservations.size());
 
+		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Set<String> anatomyNames = this.getAnatomyNamesFromObservations(allObservations);// We
 																								// want
 																								// each
@@ -69,7 +68,7 @@ public class HistopathService {
 			for (String anatomyName : anatomyNames) {
 
 				System.out.println("anatomyName=" + anatomyName);
-				HistopathPageTableRow row = new HistopathPageTableRow();
+				GrossPathPageTableRow row = new GrossPathPageTableRow();
 				row.setAnatomyName(anatomyName);
 				row.setSampleId(sampleId);
 				Set<String> parameterNames = new TreeSet<>();
@@ -80,7 +79,7 @@ public class HistopathService {
 						// System.out.println("sequenceId="+obs.getSequenceId());
 						row.setSequenceId(obs.getSequenceId());
 					} else {
-						System.out.println("sequence_id is null");
+						//System.out.println("sequence_id is null");
 					}
 
 					if (this.getAnatomyStringFromObservation(obs) != null
@@ -89,16 +88,16 @@ public class HistopathService {
 						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
 								obs.getParameterName());
 						parameterNames.add(obs.getParameterName());
-
-						if (obs.getObservationType().equalsIgnoreCase("categorical")) {
-							row.addCategoricalParam(parameter, obs.getCategory());
-							if (parameter.getName().contains("Significance")) {
-								row.addSignficiance(parameter, obs.getCategory());
-							}
-							if (parameter.getName().contains("Severity")) {
-								row.addSeveirty(parameter, obs.getCategory());
-							}
-						}
+						System.out.println("obs.getObservationType()="+obs.getObservationType());
+//						if (obs.getObservationType().equalsIgnoreCase("categorical")) {
+//							row.addCategoricalParam(parameter, obs.getCategory());
+//							if (parameter.getName().contains("Significance")) {
+//								row.addSignficiance(parameter, obs.getCategory());
+//							}
+//							if (parameter.getName().contains("Severity")) {
+//								row.addSeveirty(parameter, obs.getCategory());
+//							}
+//						}
 						if (obs.getObservationType().equalsIgnoreCase("ontological")) {
 
 							if (obs.getSubTermName() != null) {
@@ -110,29 +109,21 @@ public class HistopathService {
 											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
 									// obs.getSubTermDescription().get(i));
 									row.addOntologicalParam(parameter, subOntologyBean);
-									if (parameter.getName().contains("MPATH process term")) {
-										row.addMpathProcessParam(parameter, subOntologyBean);
-									}
-									if (parameter.getName().contains("MPATH diagnostic term")) {
-										row.addMpathDiagnosticParam(parameter, subOntologyBean);
-									}
-									if (parameter.getName().contains("PATO")) {
-										row.addPatoParam(parameter, subOntologyBean);
-									}
+//									if (parameter.getName().contains("MPATH process term")) {
+//										row.addMpathProcessParam(parameter, subOntologyBean);
+//									}
+//									if (parameter.getName().contains("MPATH diagnostic term")) {
+//										row.addMpathDiagnosticParam(parameter, subOntologyBean);
+//									}
+//									if (parameter.getName().contains("PATO")) {
+//										row.addPatoParam(parameter, subOntologyBean);
+//									}
 								}
 							}else{
 								System.out.println("subterms are null for ontological data="+obs);
 							}
 						}
-						if (obs.getObservationType().equalsIgnoreCase("text")) {
-							row.addTextParam(parameter, obs.getTextValue());
-							if (obs.getParameterName().contains("Free text")) {
-								row.addFreeTextParam(parameter, obs.getTextValue());
-							}
-							if (obs.getParameterName().contains("Description")) {
-								row.addDescriptionTextParam(parameter, obs.getTextValue());
-							}
-						}
+						
 
 					} else {
 						// should be image here
@@ -158,6 +149,17 @@ public class HistopathService {
 							// System.out.println("parameterAssociationSequenceId="+obs.getParameterAssociationSequenceId());
 							// }
 
+						}
+						if (obs.getObservationType().equalsIgnoreCase("text")) {
+							ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
+									obs.getParameterName());
+							row.addTextParam(parameter, obs.getTextValue());
+//							if (obs.getParameterName().contains("Free text")) {
+//								row.addFreeTextParam(parameter, obs.getTextValue());
+//							}
+//							if (obs.getParameterName().contains("Description")) {
+//								row.addDescriptionTextParam(parameter, obs.getTextValue());
+//							}
 						}
 					}
 
@@ -189,11 +191,14 @@ public class HistopathService {
 	}
 
 	public Set<String> getAnatomyNamesFromObservations(List<ObservationDTO> observations) {
+		
 		Set<String> anatomyNames = new TreeSet<>();
 		for (ObservationDTO obs : observations) {
+			if(obs.getObservationType().equals("ontological")){//only set anatomy if ontological as simple is bodyweight or text or image
 			String anatomyString = getAnatomyStringFromObservation(obs);
 			if (anatomyString != null) {
 				anatomyNames.add(anatomyString);
+			}
 			}
 		}
 		return anatomyNames;
@@ -202,17 +207,15 @@ public class HistopathService {
 	private String getAnatomyStringFromObservation(ObservationDTO obs) {
 		String anatomyString = null;
 		String paramName = obs.getParameterName();
-		if (paramName.contains(delimeter)) {
-			anatomyString = paramName.substring(0, paramName.indexOf(delimeter));
+		
+		//for Gross path we don't have anatomy names with description etc so lets just trim.
+			anatomyString = paramName.trim();
 			// System.out.println("anatomyString=" + anatomyString);
-		} else {
-			System.out.println("no delimeter found with =" + paramName);
-		}
 		return anatomyString;
 	}
 
-	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException {
-		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
+	public List<ObservationDTO> getObservationsForGrossPathForGene(String acc) throws SolrServerException {
+		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Gross Pathology and Tissue Collection",
 				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE,
 				ObservationDTO.CATEGORY, ObservationDTO.VALUE, ObservationDTO.DOWNLOAD_FILE_PATH,
 				ObservationDTO.PARAMETER_ASSOCIATION_SEQUENCE_ID, ObservationDTO.SEQUENCE_ID);

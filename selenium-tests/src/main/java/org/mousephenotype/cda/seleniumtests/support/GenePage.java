@@ -266,6 +266,17 @@ public class GenePage {
     }
 
     /**
+     * Returns the phenotyping status order button elements (e.g. 'phenotype data available',
+     * 'Mice', etc.)
+     *
+     * @return the phenotyping status order button elements (e.g. 'phenotype data available',
+     * 'Mice', etc.)
+     */
+    public List<WebElement> getphenotypingStatusOrderButtons() {
+        return driver.findElements(By.xpath("//a[contains(@class, 'phenotypingStatus')]"));
+    }
+
+    /**
      * Returns the production status order button elements (e.g. 'ES Cells',
      * 'Mice', etc.)
      *
@@ -273,20 +284,7 @@ public class GenePage {
      * 'Mice', etc.)
      */
     public List<WebElement> getProductionStatusOrderButtons() {
-        List<WebElement> retVal = new ArrayList();
-
-        List<WebElement> elements = driver.findElements(By.xpath("//span[text()='Status']"));
-        if ( ! elements.isEmpty()) {
-            try {
-                elements = elements.get(0).findElements(By.xpath("..//*[@oldtitle]"));
-            } catch (Exception e) { }
-            for (WebElement element : elements) {
-                if (element.getTagName().equals("a"))
-                    retVal.add(element);
-            }
-        }
-
-        return retVal;
+        return driver.findElements(By.xpath("//a[contains(@class, 'productionStatus')]"));
     }
 
     /**
@@ -514,7 +512,7 @@ public class GenePage {
     private void load() throws TestException {
         try {
             driver.get(target);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#main > div.region.region-content > div > div > div")));
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[@id='summaryMgiId']/following-sibling::a")));
             if (isOopsPage()) {
                 throw new TestException("GenePage: Found 'Oops...' page. URL: " + target);
             }

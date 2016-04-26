@@ -132,6 +132,7 @@ public class ImageDTO extends ObservationDTO {
 	public static final String INTERMEDIATE_LEVEL_EMAP_TERM_ID = "intermediate_emap_term_id";
 	public static final String INTERMEDIATE_LEVEL_EMAP_TERM = "intermediate_emap_term";
 	public static final String INTERMEDIATE_LEVEL_EMAP_TERM_SYNONYM = "intermediate_emap_term_synonym";
+	public static final String INCREMENT_VALUE="increment_value";
 
 	@Field(MA_ID)
 	private List<String> maTermId;
@@ -263,6 +264,19 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(SUBTYPE)
 	private String subtype;
+	
+	@Field(INCREMENT_VALUE)
+	private Integer increment;
+
+	
+
+	public int getIncrement() {
+		return increment;
+	}
+
+	public void setIncrement(int increment) {
+		this.increment = increment;
+	}
 
 	@Field(LATEST_PHENOTYPE_STATUS)
 	private List<String> latestPhenotypeStatus;
