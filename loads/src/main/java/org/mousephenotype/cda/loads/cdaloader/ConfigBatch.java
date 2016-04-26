@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.cdaloader;
 
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -23,6 +24,8 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
+import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +48,12 @@ public class ConfigBatch {
 
     @Autowired
     public SystemCommandTasklet downloadReports;
+
+    @Autowired
+    public FlatFileItemReader ontologyReader;
+
+    @Autowired
+    public FlatFileItemWriter ontologyWriter;
 
     @Autowired
     public SystemCommandTasklet recreateAndLoadTables;
@@ -107,6 +116,7 @@ public class ConfigBatch {
 //                .listener(listener())
                 .flow(step1())
                 .next(step2())
+                .next(step3())
                 .end()
                 .build();
     }
@@ -144,4 +154,13 @@ public class ConfigBatch {
                 .tasklet(recreateAndLoadTables)
                 .build();
     }
+
+        @Bean
+        public Step step3() {
+            return stepBuilderFactory.get("step3")
+                    .chunk(10)
+                    .reader(ontologyReader)
+                    .writer(ontologyWriter)
+                    .build();
+        }
 }
