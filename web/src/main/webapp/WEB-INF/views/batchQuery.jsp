@@ -203,6 +203,9 @@
         		color: #0978a1 !important;
         		text-decoration: none;
         	}
+	        span#sample {
+		        color: black;
+	        }
         	          	
         </style>
         
@@ -284,7 +287,7 @@
                 //$('div#fullDump').html("<input type='checkbox' id='fulldata' name='fullDump' value='gene'>Export full IMPC dataset via GENE identifiers");
                 
                 
-                freezeDefaultCheckboxes();
+                freezeDefaultCheckboxes(); // not doing this for now: allow default ones to be selectable
                 //chkboxAllert();  for now, don't want automatic resubmit each time a checkbox is clicked
                 var currDataType  = false;
                 
@@ -336,7 +339,7 @@
 	        	});
             }
             function freezeDefaultCheckboxes(){
-            	$('input.default').click(function(){
+            	$('input.frozen').click(function(){
         			return false;
         		})
             }
@@ -346,7 +349,7 @@
                 	if ( $(this).hasClass('checkAll') ){
                 		$(this).removeClass('checkAll').html('Check all fields');
                 		$("div.fl2").find("input[type='checkbox']").prop('checked', false);
-                		$("div.fl2").find("input[class='default']").prop('checked', true);
+		                $("div.fl2 input.default").prop('checked', true);
                 	}
                 	else {
                 		$(this).addClass('checkAll').html('Reset to default fields')
@@ -392,7 +395,8 @@
             
             function refreshResult(){
             	$('div#infoBlock, div#errBlock, div#bqResult').html(''); // refresh first
-            	$('div#infoBlock').html("Your datatype of search: " + $('input.bq:checked').attr('id').toUpperCase());
+	            var sampleData = "<p><span id='sample'>Showing maximum of 10 records for how your data looks like</span>";
+            	$('div#infoBlock').html("Your datatype of search: " + $('input.bq:checked').attr('id').toUpperCase() + sampleData);
             }
             
             function uploadJqueryForm(){
@@ -534,21 +538,23 @@
             function fetchBatchQueryDataTable(oConf) {
             	
             	// deals with duplicates and take a max of first 10 records to show the users
-            	oConf.idlist = getFirstTenUniqIdsStr(oConf.idlist);
-            	
+            	oConf.idlist = getFirstTenUniqIdsStr(getUniqIdsStr(oConf.idlist));
+	            //oConf.idlist = getUniqIdsStr(oConf.idlist);
+
             	//var aDataTblCols = [0,1,2,3,4,5];
                 var oTable = $('table#batchq').dataTable({
                     "bSort": true, // true is default 
                     "processing": true,
                     "paging": false,
                     //"serverSide": false,  // do not want sorting to be processed from server, false by default
-                    "sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
+                    //"sDom": "<<'#exportSpinner'>l<f><'#tableTool'>r>tip",
+	                "sDom": "<<'#exportSpinner'>l<'#tableTool'>r>tip",
                     "sPaginationType": "bootstrap",
                     "searchHighlight": true,
                     "iDisplayLength": 50,
                     "oLanguage": {
                         "sSearch": "Filter: ",
-                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (10 records maximum, for complete dataset of your search, please use export buttons)"
+                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ genes (for complete dataset of your search, please use export buttons)"
                     },
                    /*  "columnDefs": [                
                         { "type": "alt-string", targets: 3 }   //4th col sorted using alt-string         
@@ -571,7 +577,7 @@
                     	var endPoint = baseUrl + '/bqExport';	
                     	
                     	$('div#tableTool').html("<span id='expoWait'></span><form id='dnld' method='POST' action='" + endPoint + "'>"
-                    		+ "<span class='export2'>Export as</span>"
+                    		+ "<span class='export2'>Export full dataset as</span>"
                         	+ "<input name='coreName' value='' type='hidden' />"
                        		+ "<input name='fileType' value='' type='hidden' />"
                        		+ "<input name='gridFields' value='' type='hidden' />"
