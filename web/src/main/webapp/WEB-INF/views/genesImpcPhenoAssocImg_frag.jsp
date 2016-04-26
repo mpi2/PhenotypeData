@@ -27,7 +27,15 @@
       <div id="impc-images-heading" class="accordion-group">
 
         <div class="accordion-heading">
-            ${doc.parameter_name}(${entry.count})
+           <c:choose>
+           	<c:when test="${doc.parameter_name eq 'Images'}">
+           		${doc.procedure_name}
+           	</c:when>
+           	<c:otherwise>
+            	${doc.parameter_name}
+           	</c:otherwise>
+           </c:choose>
+           (${entry.count})
         </div>
         <div class="accordion-body">
           <ul>
