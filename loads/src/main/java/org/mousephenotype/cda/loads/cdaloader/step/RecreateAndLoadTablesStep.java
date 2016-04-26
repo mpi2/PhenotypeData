@@ -14,10 +14,10 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.tasklet;
+package org.mousephenotype.cda.loads.cdaloader.step;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaDownloadException;
+import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ import java.util.Date;
 @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
 @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
                 ignoreResourceNotFound=true)
-public class DbRecreateAndLoadTables {
+public class RecreateAndLoadTablesStep {
 
     @Value("${cdaload.workspace}")
     private String cdaWorkspace;
@@ -74,9 +74,9 @@ public class DbRecreateAndLoadTables {
 
     public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
-    @Bean(name = "dbRecreateAndLoadTablesTasklet")
+    @Bean(name = "recreateAndLoadTables")
     @StepScope
-    public SystemCommandTasklet recreateDb() throws CdaDownloadException {
+    public SystemCommandTasklet recreateAndLoadTables() throws CdaLoaderException {
         SystemCommandTasklet downloadReportsTasklet;
 
         long startStep = new Date().getTime();
@@ -105,7 +105,7 @@ public class DbRecreateAndLoadTables {
         downloadReportsTasklet.setTimeout(TASKLET_TIMEOUT);
         downloadReportsTasklet.setWorkingDirectory(cdaWorkspace);
 
-        logger.info("Total tasklet elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Total step elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
         return downloadReportsTasklet;
     }

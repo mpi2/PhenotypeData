@@ -14,9 +14,9 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.tasklet;
+package org.mousephenotype.cda.loads.cdaloader.step;
 
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaDownloadException;
+import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ import java.util.Date;
  @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
  @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
                  ignoreResourceNotFound=true)
-public class DownloadReports {
+public class DownloadReportsStep {
 
     @Value("${cdaload.workspace}")
     private String cdaWorkspace;
@@ -58,9 +58,9 @@ public class DownloadReports {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
-    @Bean(name = "downloadReportsTasklet")
+    @Bean(name = "downloadReports")
     @StepScope
-    public SystemCommandTasklet downloadReports() throws CdaDownloadException {
+    public SystemCommandTasklet downloadReports() throws CdaLoaderException {
         String command;
         SystemCommandTasklet downloadReportsTasklet;
 
@@ -142,7 +142,7 @@ public class DownloadReports {
         downloadReportsTasklet.setTimeout(TASKLET_TIMEOUT);
         downloadReportsTasklet.setWorkingDirectory(cdaWorkspace);
 
-        logger.info("Total tasklet elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Total step elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
         return downloadReportsTasklet;
     }
