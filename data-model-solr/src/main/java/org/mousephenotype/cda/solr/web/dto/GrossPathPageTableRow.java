@@ -16,7 +16,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
  * @author jwarren
  *
  */
-public class HistopathPageTableRow {
+public class GrossPathPageTableRow {
 
 	private String sampleId;
 	private String anatomyName;
@@ -38,16 +38,13 @@ public class HistopathPageTableRow {
 	
 	@Override
 	public String toString() {
-		return "HistopathPageTableRow [sampleId=" + sampleId + ", anatomyName=" + anatomyName + ", parameterNames="
+		return "GrossPathPageTableRow [sampleId=" + sampleId + ", anatomyName=" + anatomyName + ", parameterNames="
 				+ parameterNames + ", parameterStableId=" + parameterStableId + ", observationType=" + observationType
-				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans + ", mpathProcessOntologyBeans="
-				+ mpathProcessOntologyBeans + ", mpathDiagnosticOntologyBeans=" + mpathDiagnosticOntologyBeans
-				+ ", patoOntologyBeans=" + patoOntologyBeans + ", descriptionTextParameters="
+				+ ", textValue=" + textValue + ", subOntologyBeans=" + subOntologyBeans +", patoOntologyBeans=" + patoOntologyBeans + ", descriptionTextParameters="
 				+ descriptionTextParameters + ", freeTextParameters=" + freeTextParameters + ", textParameters="
-				+ textParameters + ", significance=" + significance + ", severity=" + severity + ", categoryList="
-				+ categoryList + ", imageList=" + imageList + "]";
+				+ textParameters + ", significance=" + significance + ", severity=" + severity + ", imageList=" + imageList + "]";
 	}
-	public HistopathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
+	public GrossPathPageTableRow(String sampleId, Set<String> parameterNames, String parameterStableId,
 			String observationType, List<ParameterValueBean> category, String textValue, Map<String, List<OntologyBean>> subOntologyBeans) {
 		super();
 		this.sampleId = sampleId;
@@ -57,7 +54,7 @@ public class HistopathPageTableRow {
 		this.textValue = textValue;
 		this.subOntologyBeans = subOntologyBeans;
 	}
-	public HistopathPageTableRow() {
+	public GrossPathPageTableRow() {
 		// TODO Auto-generated constructor stub
 	}
 	public String getSampleId() {
@@ -107,38 +104,6 @@ public class HistopathPageTableRow {
 	}
 	
 	
-	private Map<String, List<OntologyBean>> mpathProcessOntologyBeans=new HashMap<>();
-	
-	public void addMpathProcessParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
-		if(!this.mpathProcessOntologyBeans.containsKey(parameter.getName())){
-			this.mpathProcessOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
-		}
-		this.mpathProcessOntologyBeans.get(parameter.getName()).add(subOntologyBean);
-		
-	}
-	
-private Map<String, List<OntologyBean>> mpathDiagnosticOntologyBeans=new HashMap<>();
-	
-	public Map<String, List<OntologyBean>> getMpathDiagnosticOntologyBeans() {
-	return mpathDiagnosticOntologyBeans;
-}
-public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpathDiagnosticOntologyBeans) {
-	this.mpathDiagnosticOntologyBeans = mpathDiagnosticOntologyBeans;
-}
-	public void addMpathDiagnosticParam(ImpressBaseDTO parameter,OntologyBean subOntologyBean) {
-		if(!this.mpathDiagnosticOntologyBeans.containsKey(parameter.getName())){
-			this.mpathDiagnosticOntologyBeans.put(parameter.getName(), new ArrayList<OntologyBean>());
-		}
-		this.mpathDiagnosticOntologyBeans.get(parameter.getName()).add(subOntologyBean);
-		
-	}
-	
-	public Map<String, List<OntologyBean>> getMpathProcessOntologyBeans() {
-		return mpathProcessOntologyBeans;
-	}
-	public void setMpathProcessOntologyBeans(Map<String, List<OntologyBean>> mpathOntologyBeans) {
-		this.mpathProcessOntologyBeans = mpathOntologyBeans;
-	}
 	public Map<String, List<OntologyBean>> getPatoOntologyBeans() {
 		return patoOntologyBeans;
 	}
@@ -215,23 +180,6 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	
 	public void addSeveirty(ImpressBaseDTO parameter, String category) {
 		this.severity.add(new ParameterValueBean(parameter, category));
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	private List<ParameterValueBean> categoryList=new ArrayList<>();
-	
-	public List<ParameterValueBean> getCategoryList() {
-		return categoryList;
-	}
-	
-	public void addCategoricalParam(ImpressBaseDTO parameter, String category) {
-		this.categoryList.add(new ParameterValueBean(parameter, category));
 		
 	}
 	
