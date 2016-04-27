@@ -321,7 +321,7 @@
   
     <!-- <copyField source="name" dest="text"/>-->
  
-    <copyField source="*" dest="text"/>
+    <!--<copyField source="*" dest="text"/>-->
     <copyField source="ma_id" dest="auto_suggest" />
     <copyField source="ma_term" dest="auto_suggest" />	    
     <copyField source="ma_term_synonym" dest="auto_suggest" />

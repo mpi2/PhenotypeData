@@ -152,13 +152,16 @@ public class MAIndexer extends AbstractIndexer {
                 // TODO put back in after testing. 
                 // Error says: Document contains at least one immense term in field="text" (whose UTF8 encoding is longer than the max length 32766)
                 // Error is on MP:0001600
-//                TreeHelper helper = ontologyBrowser.getTreeHelper( "ma", ma.getMaId());
-//                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
-//                ma.setSearchTermJson(searchTree.toString());
-//                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
-//                ma.setScrollNode(scrollNodeId);
-//                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
-//                ma.setChildrenJson(childrenTree.toString());
+                TreeHelper helper = ontologyBrowser.getTreeHelper( "ma", ma.getMaId());
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, ma.getMaId());
+                ma.setSearchTermJson(searchTree.toString());
+
+                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
+                ma.setScrollNode(scrollNodeId);
+                System.out.println("SCROLL NODE: " + ma.getScrollNode());
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
+                ma.setChildrenJson(childrenTree.toString());
+
 
                 // also index all UBERON/EFO ids for intermediate MA ids
                 Set<String> all_ae_mapped_uberonIds = new HashSet<>();
