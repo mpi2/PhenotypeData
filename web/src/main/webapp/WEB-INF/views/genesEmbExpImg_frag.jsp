@@ -23,7 +23,7 @@
            value="${baseUrl}/impcImages/embryolaczimages/${acc}/${entry.name}"></c:set>
     <ul>
       <t:impcimgdisplay2
-              category="${entry.name}(${entry.count})" href="${href}"
+              category="${fn:replace(entry.name, 'TS20 ','')}(${entry.count})" href="${href}"
               img="${impcEmbryoExpressionFacetToDocs[entry.name][0]}"
               impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
     </ul>

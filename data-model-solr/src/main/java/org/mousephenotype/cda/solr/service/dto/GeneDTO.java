@@ -159,6 +159,7 @@ public class GeneDTO {
 	private static final String VEGA_IDS = "vega_id";
 	private static final String NCBI_IDS = "ncbi_id";
 	private static final String CCDS_IDS = "ccds_id";
+	private static final String EMBRYO_MODALITIES = "embryo_modalities";
 
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;
@@ -641,7 +642,18 @@ public class GeneDTO {
 
 	@Field(EMBRYO_DATA_AVAILABLE)
 	private boolean isEmbryoDataAvailable;
+	
+	@Field(EMBRYO_MODALITIES)
+	private List<String> embryoModalities;
 
+
+	public List<String> getEmbryoModalities() {
+		return embryoModalities;
+	}
+
+	public void setEmbryoModalities(List<String> embryoModalities) {
+		this.embryoModalities = embryoModalities;
+	}
 
 	public boolean isEmbryoDataAvailable() {
 		return this.isEmbryoDataAvailable;
