@@ -74,11 +74,12 @@ if(ids.length!=0){//only search for info related to ids if we have them.
 var thisSolrUrl = solrUrl + '/impc_images/select';
 var joinedIds=ids.join(" OR ");
 var paramStr = 'q=omero_id:(' +joinedIds + ')&wt=json&defType=edismax&qf=auto_suggest&rows=100000';
-if(typeof mediaType != 'undefined'){
-	console.log("mediaType defined")
-	if(mediaType[0]==='pdf'){
+if(typeof mediaType != 'undefined' && mediaType[0]==='pdf'){
+	
 		paramStr+='&fq=full_resolution_file_path:*.pdf';
-	}
+	
+}else{
+		paramStr+='&fq=-full_resolution_file_path:*.pdf';//make sure we don't get pdfs back when we want images
 }
 var docs;
 var i = 0;

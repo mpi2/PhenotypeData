@@ -59,7 +59,10 @@ allele = allele.replaceAll("##", "</sup>");
          		<div class="caption" style="height:150px; overflow:auto;word-wrap: break-word;">
          </c:otherwise>
       </c:choose>
-                                                <c:if test="${not empty img.gene_symbol}"><a href="${baseUrl}/genes/${img.gene_accession_id}">${img.gene_symbol}</a><br/></c:if>
+                                                <c:if test="${empty count}"> 
+                                                <!-- if there is a count then it's from the gene page Phenotype Associations section and then we dont want to display links to the gene page we are already on -->
+                                                	<c:if test="${not empty img.gene_symbol}"><a href="${baseUrl}/genes/${img.gene_accession_id}">${img.gene_symbol}</a><br/></c:if>
+                                                </c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
                                                 <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
                                                 <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
