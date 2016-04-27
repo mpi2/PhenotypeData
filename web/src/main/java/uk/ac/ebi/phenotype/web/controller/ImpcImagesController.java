@@ -76,10 +76,6 @@ public class ImpcImagesController {
 		addGeneToPage(acc, model);
 		boolean overview=false;
 		expressionService.getLacImageDataForGene(acc, null, overview, false, model);
-
-		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
-		System.out.println("gene in picker="+gene);
-		model.addAttribute("gene",gene);
 		return "laczImages";
 	}
 	
