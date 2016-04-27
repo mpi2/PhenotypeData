@@ -76,22 +76,24 @@ public class EmbryoRestGetter {
 
 					List<String> procedureStableKeys = new ArrayList<String>();
 					List<String> parameterStableKeys = new ArrayList<String>();
+					List<String> modalities= new ArrayList<String>();
 
 					JSONArray jProcParam = jsonObject.getJSONArray("procedures_parameters");
 					for( int j=0; j<jProcParam.length(); j++){
 
 						JSONObject jo = (JSONObject) jProcParam.get(j);
-
+						
 						// the procedure_id on the harwell RESTful interface is actually a stable_key
-						String procedure_stable_key = jo.get("procedure_id").toString();
-						String parameter_stable_key = jo.get("parameter_id").toString();
-						//System.out.println(procedure_stable_key + " -- " + parameter_stable_key);
+						String procedure_stable_key = jo.getString("procedure_id");
+						String parameter_stable_key = jo.getString("parameter_id");
+						String modality = jo.getString("modality");
 						procedureStableKeys.add(procedure_stable_key);
 						parameterStableKeys.add(parameter_stable_key);
+						modalities.add(modality);
 					}
 					embryoStrain.setProcedureStableKeys(procedureStableKeys);
 					embryoStrain.setParameterStableKeys(parameterStableKeys);
-
+					embryoStrain.setModalities(modalities);
 					strains.add(embryoStrain);
 			}
 
