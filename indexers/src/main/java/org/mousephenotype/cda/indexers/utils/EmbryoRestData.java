@@ -25,5 +25,7 @@ public class EmbryoRestData {
 	public List<EmbryoStrain> getStrains() {
 		return this.strains;
 	}
+	
+	
 
 }
