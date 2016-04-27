@@ -1,6 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <t:genericpage>
 
@@ -93,7 +94,7 @@
                                         <c:forEach var="entry" items="${impcEmbryoExpressionImageFacets}" varStatus="status">
                                             <div class="accordion-group open">
                                                 <div class="accordion-heading">
-                                                    ${entry.name} (${entry.count})
+                                                    ${fn:replace(entry.name , 'TS20 ','')} (${entry.count})
                                                 </div>
                                                 <div class="accordion-body" style="display: block;">
                                                     <ul>
