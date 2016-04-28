@@ -107,6 +107,7 @@ public class MAIndexer extends AbstractIndexer {
                 MaDTO ma = new MaDTO();
 
                 String maId = bean.getId();
+                System.out.println("WORKING OM: " + maId);
 
                 if ( maId.equals("MA:0001469")) {
                     System.out.println("FOUND IT");
