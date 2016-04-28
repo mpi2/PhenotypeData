@@ -27,6 +27,7 @@ import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -50,7 +51,8 @@ public class ConfigBatch {
     public SystemCommandTasklet downloadReports;
 
     @Autowired
-    public FlatFileItemReader ontologyReader;
+    @Qualifier("oboReader")
+    public FlatFileItemReader<OntologyTerm> ontologyReader;
 
     @Autowired
     public FlatFileItemWriter ontologyWriter;
@@ -74,40 +76,6 @@ public class ConfigBatch {
 //        return reader;
 //    }
 
-    @Bean
-    public PersonItemProcessor processor() {
-        return new PersonItemProcessor();
-    }
-
-//    @Bean
-//    public JdbcBatchItemWriter<Person> writer() {
-//        JdbcBatchItemWriter<Person> writer = new JdbcBatchItemWriter<Person>();
-//        writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Person>());
-//        writer.setSql("INSERT INTO people (first_name, last_name) VALUES (:firstName, :lastName)");
-//        writer.setDataSource(komp2Loads);
-//        return writer;
-//    }
-    // end::readerwriterprocessor[]
-
-    // tag::listener[]
-
-//    @Bean
-//    public JobExecutionListener listener() {
-//        return new JobCompletionNotificationListener(new JdbcTemplate(komp2Loads));
-//    }
-
-    // end::listener[]
-
-    // tag::jobstep[]
-//    @Bean
-//    public Job cdaLoadJob() {
-//        return jobBuilderFactory.get("cdaLoadJob")
-//                .incrementer(new RunIdIncrementer())
-////                .listener(listener())
-//                .flow(step1())
-//                .end()
-//                .build();
-//    }
 
     @Bean
     public Job cdaLoadJob() {
@@ -120,26 +88,6 @@ public class ConfigBatch {
                 .end()
                 .build();
     }
-
-//    @Bean
-//    public Step step1() {
-//        return stepBuilderFactory.get("step1")
-//                .<Person, Person> chunk(10)
-//                .reader(reader())
-//                .processor(processor())
-//                .writer(writer())
-//                .build();
-//    }
-    // end::jobstep[]
-
-//    @Bean
-//    public Job anotherJob() {
-//        return jobBuilderFactory.get("recreateDbJob")
-//                .incrementer(new RunIdIncrementer())
-//                .flow(step2())
-//                .end()
-//                .build();
-//    }
 
     @Bean
     public Step step1() {
@@ -155,12 +103,12 @@ public class ConfigBatch {
                 .build();
     }
 
-        @Bean
-        public Step step3() {
-            return stepBuilderFactory.get("step3")
-                    .chunk(10)
-                    .reader(ontologyReader)
-                    .writer(ontologyWriter)
-                    .build();
-        }
+    @Bean
+    public Step step3() {
+        return stepBuilderFactory.get("step3")
+                .chunk(10)
+                .reader(ontologyReader)
+                .writer(ontologyWriter)
+                .build();
+    }
 }
