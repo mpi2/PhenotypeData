@@ -83,55 +83,46 @@ public class CategoricalChartAndTableProvider {
 	String acc, String numberString, BiologicalModel expBiologicalModel)
 	throws SQLException, IOException, URISyntaxException {
 
-		List<String> categories = this.getCategories(parameter);
-		// loop through all the parameters no just ones with >0
-		// result so use parameter rather than experiment
 		logger.debug("running categorical data");
+		List<String> categories = this.getCategories(parameter);		
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
 		List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment.getResults();
-		// should get one for each sex here if there is a result for each
-		// experimental sex
 		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
-		// make a chart object one for both sexes
+		
+		// make a chart object one for each sex
 		for (SexType sexType : experiment.getSexes()) {
-
 			categoricalResultAndCharts.setStatsResults(statsResults);
-			// chartData.setSexType(sexType);
-			// do control first as requires no zygocity
 			CategoricalSet controlSet = new CategoricalSet();
 			controlSet.setName(WordUtils.capitalize(sexType.name()) + " Control");
 			controlSet.setSexType(sexType);
-
+			
 			for (String category : categories) {
-				if (category.equals("imageOnly"))
-					continue;// ignore image categories as no numbers!
+				if (category.equals("imageOnly")){
+					continue;
+				}
 				CategoricalDataObject controlCatData = new CategoricalDataObject();
 				controlCatData.setName(WordUtils.capitalize(sexType.name()) + " Control");
 				controlCatData.setCategory(ppDAO.getCategoryDescription(parameter.getId(), category));
-
 				long controlCount = 0;
+				
 				for (ObservationDTO control : experiment.getControls()) {
 					// get the attributes of this data point
-					SexType docSexType = SexType.valueOf(control
-					.getSex());
+					SexType docSexType = SexType.valueOf(control.getSex());
 					String categoString = control.getCategory();
-					// System.out.println("category string="+categoString);
 					if (categoString.equals(category) && docSexType.equals(sexType)) {
 						controlCount++;
 					}
 				}
 
 				controlCatData.setCount(controlCount);
-				logger.debug("control=" + sexType.name() + " count="
-				+ controlCount + " category=" + ppDAO.getCategoryDescription(parameter.getId(), category));
+				logger.debug("control=" + sexType.name() + " count=" + controlCount + " category=" + ppDAO.getCategoryDescription(parameter.getId(), category));
 				controlSet.add(controlCatData);
 			}
 			chartData.add(controlSet);
 
 			// now do experimental i.e. zygosities
 			for (ZygosityType zType : experiment.getZygosities()) {
-
 				CategoricalSet zTypeSet = new CategoricalSet();
 				// hold the data for each bar on graph hom, normal, abnormal
 				zTypeSet.setName(WordUtils.capitalize(sexType.name()) + " " + WordUtils.capitalize(zType.name()));
