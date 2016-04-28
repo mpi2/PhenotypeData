@@ -1005,9 +1005,7 @@ public class DataTableController {
 			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + "/anatomy/" + maId + "#maHasExp" + "'>Yes</a>");
 
 			// link out to ontology browser page
-			// Terry said skip ma ontology browsing for now
-			//rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + maId + "'>" + maId + "</a>");
-
+			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + maId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 			// some MP do not have definition
                 /*String mpDef = "not applicable";
              try {
