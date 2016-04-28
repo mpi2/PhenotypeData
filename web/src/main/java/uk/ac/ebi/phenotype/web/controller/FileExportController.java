@@ -16,9 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,6 +41,7 @@ import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -1994,16 +1993,20 @@ public class FileExportController {
 				// causes error)
 
 				PrintWriter output = response.getWriter();
+
 				for (String line : dataRows) {
 
 					line = line.replaceAll("\\t//", "\thttp://");
 					line = line.replaceAll("\\|//", "|http://");
 
 					output.println(line);
+
 				}
 
 				output.flush();
 				output.close();
+
+
 			} else if (fileType.equals("xls")) {
 
 				response.setContentType("application/vnd.ms-excel");
@@ -2030,6 +2033,7 @@ public class FileExportController {
 					log.error("ExcelWorkBook Error: " + ioe.getMessage());
 					ioe.printStackTrace();
 				}
+
 			}
 		} catch (Exception e) {
 			log.error("Error: " + e.getMessage());
