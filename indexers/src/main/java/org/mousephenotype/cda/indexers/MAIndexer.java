@@ -172,10 +172,13 @@ public class MAIndexer extends AbstractIndexer {
                     List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
                     ma.setChildrenJson(childrenTree.toString());
 
-
+                    System.out.println("CHECKPOINT-1... ");
                     // also index all UBERON/EFO ids for intermediate MA ids
                     Set<String> all_ae_mapped_uberonIds = new HashSet<>();
                     Set<String> all_ae_mapped_efoIds = new HashSet<>();
+
+                    System.out.println("CHECKPOINT-2... ");
+
 
                     for (String intermediateMaId : ma.getIntermediateMaId()) {
 
@@ -185,6 +188,8 @@ public class MAIndexer extends AbstractIndexer {
                         if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id")) {
                             all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
                         }
+                        System.out.println("CHECKPOINT-3... ");
+
                     }
 
                     if (ma.getUberonIds() != null) {
@@ -195,7 +200,7 @@ public class MAIndexer extends AbstractIndexer {
                         all_ae_mapped_efoIds.addAll(ma.getEfoIds());
                         ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
                     }
-
+                    System.out.println("CHECKPOINT-4... ");
                     // Image association fields
                     List<SangerImageDTO> sangerImages = maImagesMap.get(bean.getId());
                     if (sangerImages != null) {
@@ -225,10 +230,11 @@ public class MAIndexer extends AbstractIndexer {
                             ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
 
                             ma.setAlleleName(sangerImage.getAlleleName());
-                            System.out.println("DONE WITH ALL FIELDS OF A TERM... ");
-                        }
-                    }
 
+                        }
+                        System.out.println("CHECKPOINT-4... ");
+                    }
+                System.out.println("CHECKPOINT-LAST... ");
                     count++;
                     maBatch.add(ma);
                     if (maBatch.size() == BATCH_SIZE) {
