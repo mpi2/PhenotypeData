@@ -106,6 +106,7 @@ public class MAIndexer extends AbstractIndexer {
             for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
 
+                System.out.println("ABOUT TO EXTRACT ID....");
                 String maId = bean.getId();
                 System.out.println("WORKING OM: " + maId);
 
