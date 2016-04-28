@@ -31,7 +31,7 @@ public class OntologyBrowserGetter {
 
         List<JSONObject> tn = new ArrayList<>();
         String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
-		System.out.println("SQL1: "+ sql);
+		//System.out.println("SQL1: "+ sql);
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
             ResultSet resultSet = p.executeQuery();
@@ -49,7 +49,7 @@ public class OntologyBrowserGetter {
                         }
                     }
                     String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
-					System.out.println("SQL2: "+ thisSql);
+					//System.out.println("SQL2: "+ thisSql);
                     try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
                         ResultSet resultSet2 = p2.executeQuery();
@@ -217,6 +217,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
+		//System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "anatomy");
 		nameMap.put("mp", "phenotypes");
@@ -288,7 +289,7 @@ public class OntologyBrowserGetter {
 		node.put("id", Integer.toString(resultSet.getInt("node_id")));
 		node.put("term_id", resultSet.getString("term_id"));
 		node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
-		node.put("href", "phenotypes/" + termId);
+		node.put("href", helper.getPageBaseUrl() + "/" + termId);
 		node.put("hrefTarget", "_blank");
 
 		return node;
@@ -341,6 +342,7 @@ public class OntologyBrowserGetter {
 		public void setOntologyName(String ontologyName) {
 			this.ontologyName = ontologyName;
 		}
+
 	}
     
 	
