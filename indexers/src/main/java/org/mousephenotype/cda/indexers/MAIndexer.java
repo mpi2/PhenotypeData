@@ -225,6 +225,7 @@ public class MAIndexer extends AbstractIndexer {
                             ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
 
                             ma.setAlleleName(sangerImage.getAlleleName());
+                            System.out.println("DONE WITH ALL FIELDS OF A TERM... ");
                         }
                     }
 
