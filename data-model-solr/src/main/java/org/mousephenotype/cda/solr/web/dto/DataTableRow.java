@@ -16,6 +16,12 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 
+import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -23,12 +29,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 
 
 /**

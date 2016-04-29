@@ -219,8 +219,8 @@ public class OntologyBrowserGetter {
 
 		//System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
-		nameMap.put("ma", "anatomy");
-		nameMap.put("mp", "phenotypes");
+		nameMap.put("ma", "/anatomy");
+		nameMap.put("mp", "/phenotypes");
 
 		String pageBaseUrl =  nameMap.get(ontologyName);
 
