@@ -162,10 +162,10 @@ public class DataTableController {
 		for ( String id : queryIds ) {
 			counter++;
 
-			// do the batch size
-			if ( counter < 11 ){
+			// limit the batch size
+			//if ( counter < 11 ){
 				batchIdList.add(id);
-			}
+			//}
 		}
 		queryIds = batchIdList;
 
@@ -263,8 +263,8 @@ public class DataTableController {
     		results.addAll(solrResponse.getResults());
     	}
     	int totalDocs = results.size();
-    	
-    	Map<String, String> dataTypeId = new HashMap<>();
+
+		Map<String, String> dataTypeId = new HashMap<>();
     	dataTypeId.put("gene", "mgi_accession_id");
     	dataTypeId.put("marker_symbol", "mgi_accession_id");
     	dataTypeId.put("ensembl", "mgi_accession_id");
@@ -434,6 +434,7 @@ public class DataTableController {
 								}
 
 								value = "<a target='_blank' href='" + hostName + baseUrl + "/" + dataTypePath.get(coreName) + "/" + value + "'>" + value + "</a>";
+
 							}
 							else if ( dataTypeName.equals("hp") && dataTypeId.get(dataTypeName).equals(fieldName) ){
 								foundIds.add("\"" + value + "\"");
@@ -1004,9 +1005,7 @@ public class DataTableController {
 			rowData.add(expressionImageDocs.size() == 0 ? "No" : "<a href='" + baseUrl + "/anatomy/" + maId + "#maHasExp" + "'>Yes</a>");
 
 			// link out to ontology browser page
-			// Terry said skip ma ontology browsing for now
-			//rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + maId + "'>" + maId + "</a>");
-
+			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + maId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 			// some MP do not have definition
                 /*String mpDef = "not applicable";
              try {

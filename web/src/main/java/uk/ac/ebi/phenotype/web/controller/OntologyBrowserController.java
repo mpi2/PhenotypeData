@@ -19,11 +19,14 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.MaService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -45,15 +48,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class OntologyBrowserController {
 
     @Autowired
-    MpService ms;
+    MpService mpService;
+    @Autowired
+    MaService maService;
     
     @RequestMapping(value = "/ontologyBrowser", method = RequestMethod.GET)
     public String getParams( @RequestParam(value = "termId", required = true) String termId, HttpServletRequest request, Model model)
     throws IOException, URISyntaxException, SQLException, SolrServerException {
 
+
         model.addAttribute("termId", termId);
-        model.addAttribute("scrollToNode", ms.getPhenotype(termId).getScrollNode());
-        
+        if ( termId.startsWith("MA:")){
+
+            System.out.println("SCROLL_ID: " + maService.getMaTerm(termId).getScrollNode());
+            //model.addAttribute("scrollToNode", maService.getMaTerm(termId).getScrollNode());
+            model.addAttribute("scrollToNode", "1");
+        }
+        else if (termId.startsWith("MP:")) {
+            model.addAttribute("scrollToNode", mpService.getPhenotype(termId).getScrollNode());
+        }
         return "ontologyBrowser";
     }
 
@@ -63,14 +76,34 @@ public class OntologyBrowserController {
             @RequestParam(value = "expandNodeIds", required = false) List<String> expandNodes, HttpServletRequest request, Model model)
     throws IOException, URISyntaxException, SQLException, SolrServerException {
 
-        if (rootId.equalsIgnoreCase("src")){
-        	return new ResponseEntity<String>(ms.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<String>(ms.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
+        ResponseEntity<String> res = null;
+
+        if (rootId.equalsIgnoreCase("src")) {
+
+            if ( termId.startsWith("MA:")) {
+                res = new ResponseEntity<String>(maService.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
+            }
+            else if (termId.startsWith("MP:")) {
+                res = new ResponseEntity<String>(mpService.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
+            }
+
+            return res;
+            //return new ResponseEntity<String>(service.getSearchTermJson(termId), createResponseHeaders(), HttpStatus.CREATED);
+        }
+        else {
+            if (termId.startsWith("MA:")) {
+                res = new ResponseEntity<String>(maService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
+            } else if (termId.startsWith("MP:")) {
+                res = new ResponseEntity<String>(mpService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
+            }
+            return res;
+            //return new ResponseEntity<String>(mpService.getChildrenJson(rootId), createResponseHeaders(), HttpStatus.CREATED);
         }
     }
 
-    
+
+
+
     private HttpHeaders createResponseHeaders() {
     	
         HttpHeaders responseHeaders = new HttpHeaders();

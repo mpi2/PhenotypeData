@@ -1068,6 +1068,7 @@ CREATE TABLE phenotype_parameter_ontology_annotation (
 	option_id                 INT(10) UNSIGNED,
 	ontology_acc              VARCHAR(20),
 	ontology_db_id            INT(10),
+  sex                       VARCHAR(8) DEFAULT '',
 
 	PRIMARY KEY (id),
 	KEY ontology_idx (ontology_acc, ontology_db_id),

@@ -1,12 +1,16 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
 <t:genericpage>
 
 	 <jsp:attribute name="title">${queryTerms} IMPC Images LacZ</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search#fq=annotationTermId:M* OR expName:* OR symbol:* OR annotated_or_inferred_higherLevelMaTermName:* OR annotatedHigherLevelMpTermName:*&core=images">Images</a> &raquo; Results</jsp:attribute>
+		 
+	 <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo;Adult LacZ Images</jsp:attribute>
+	
+	
 	<jsp:attribute name="bodyTag">
 		<body class="chartpage no-sidebars small-header">
 	
@@ -55,7 +59,7 @@
                   <!-- nicolas accordion for images here -->
                             <c:if test="${not empty impcExpressionImageFacets}">
                                 <div class="section">
-                                    <h2 class="title" id="section-images">LacZ images for gene ${symbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-images">LacZ images for gene ${gene.markerSymbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
                                         <c:forEach var="entry" items="${impcExpressionImageFacets}" varStatus="status">
@@ -82,7 +86,7 @@
                             <!--                                         if embryo we need to use another attribute as for gene page embryo data needs to be in a different data structure for display on same page -->
                                        <c:if test="${not empty impcEmbryoExpressionImageFacets}">
                                 <div class="section">
-                                    <h2 class="title" id="section-images">LacZ images for gene ${symbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
+                                    <h2 class="title" id="section-images">LacZ images for gene ${gene.markerSymbol}<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
                                     <!--  <div class="alert alert-info">Work in progress. Images may depict phenotypes not statistically associated with a mouse strain.</div>	 -->
                                     <div class="inner">
                                        
@@ -90,7 +94,7 @@
                                         <c:forEach var="entry" items="${impcEmbryoExpressionImageFacets}" varStatus="status">
                                             <div class="accordion-group open">
                                                 <div class="accordion-heading">
-                                                    ${entry.name} (${entry.count})
+                                                    ${fn:replace(entry.name , 'TS20 ','')} (${entry.count})
                                                 </div>
                                                 <div class="accordion-body" style="display: block;">
                                                     <ul>

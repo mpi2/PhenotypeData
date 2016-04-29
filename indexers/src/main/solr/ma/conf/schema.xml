@@ -141,6 +141,7 @@
         <field name="ma_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
         <field name="ma_term" type="text_general" indexed="true" stored="true" required="true" multiValued="false" />	   
         <field name="ma_term_synonym" type="text_general" indexed="true" stored="true" required="false" multiValued="true" />
+        <field name="ma_node_id" type="int" indexed="true" stored="true" required="true" multiValued="true" />
         <field name="alt_ma_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
         <field name="ontology_subset" type="string" indexed="true" stored="true" required="false" multiValued="true" />
@@ -321,7 +322,7 @@
   
     <!-- <copyField source="name" dest="text"/>-->
  
-    <copyField source="*" dest="text"/>
+    <!--<copyField source="*" dest="text"/>-->
     <copyField source="ma_id" dest="auto_suggest" />
     <copyField source="ma_term" dest="auto_suggest" />	    
     <copyField source="ma_term_synonym" dest="auto_suggest" />

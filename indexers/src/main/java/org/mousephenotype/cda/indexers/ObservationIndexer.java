@@ -713,10 +713,11 @@ public class ObservationIndexer extends AbstractIndexer {
 				String description = resultSet.getString("description");
 				if (name.matches("[0-9]+")) {
 
-					// add .0 onto string as this is what our numerical
-					// categories look in solr!!!!
-					// name += ".0";
+					translateCategoryNames.get(stableId).put(name, description);
 
+					// also add .0 onto string as sometimes this is what our numerical
+					// categories look like in the database!!!!
+					name += ".0";
 					translateCategoryNames.get(stableId).put(name, description);
 				} else {
 					logger.debug(" Not translating non alphabetical category for parameter: " + stableId + ", name: "

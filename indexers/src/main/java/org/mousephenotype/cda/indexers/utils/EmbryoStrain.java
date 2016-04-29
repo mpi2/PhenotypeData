@@ -11,7 +11,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class  EmbryoStrain{
 	@Override
 	public String toString() {
-		return "EmbryoStrain [centre=" + centre + ", mgi=" + mgi + ", url=" + url + ", colonyId=" + colonyId + "]";
+		return "EmbryoStrain [centre=" + centre + ", mgi=" + mgi + ", url=" + url + ", colonyId=" + colonyId
+				+ ", procedureStableKeys=" + procedureStableKeys + ", parameterStableKeys=" + parameterStableKeys
+				+ ", modalities=" + modalities + "]";
 	}
 	String centre;
 	public String getCentre() {
@@ -49,12 +51,22 @@ public class  EmbryoStrain{
 	String colonyId;
 	List<String> procedureStableKeys;
 	List<String> parameterStableKeys;
+	List<String> modalities;
+	
 	
 	public String getColonyId() {
 		return colonyId;
 	}
 	public void setColonyId(String colonyId) {
 		this.colonyId = colonyId;
+	}
+	public void setModalities(List<String> modalities) {
+		this.modalities=modalities;
+		
+	}
+	
+	public List<String> getModalities() {
+		return modalities;
 	}
 	
 	

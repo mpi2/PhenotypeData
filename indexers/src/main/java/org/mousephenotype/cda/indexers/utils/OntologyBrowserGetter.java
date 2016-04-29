@@ -19,8 +19,6 @@ import net.sf.json.JSONObject;
 
 public class OntologyBrowserGetter {
 
-	
-
     DataSource ontodbDataSource;
 
     public OntologyBrowserGetter(DataSource ontodbDataSource){
@@ -28,22 +26,22 @@ public class OntologyBrowserGetter {
     }
 
     
-    public List<JSONObject> createTreeJson(TreeHelper helper, String rootId, String childNodeId, String termId) 
+    public List<JSONObject> createTreeJson(TreeHelper helper, String rootNodeId, String childNodeId, String termId)
     throws SQLException {
 
         List<JSONObject> tn = new ArrayList<>();
-        String sql = fetchNextLevelChildrenSql(helper, rootId, childNodeId);
-
-        try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
+        String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
+		//System.out.println("SQL1: "+ sql);
+		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
             ResultSet resultSet = p.executeQuery();
             
             while (resultSet.next()) {
 
-                String nodeId = resultSet.getString("node_id");
+                String nodeId = resultSet.getString("node_id");  // child_node_id
                 if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching it children recursively
                     // the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
-                	String topNodeId = "0";
+                	String topNodeId = rootNodeId;
 					for ( Map<String, String> topEnd : helper.getPreOpenNodes().get(nodeId) ) {
                         for (String thisTopNodeId : topEnd.keySet()) {
                             topNodeId = thisTopNodeId;
@@ -51,6 +49,7 @@ public class OntologyBrowserGetter {
                         }
                     }
                     String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
+					//System.out.println("SQL2: "+ thisSql);
                     try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
                         ResultSet resultSet2 = p2.executeQuery();
@@ -218,9 +217,10 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
+		//System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
-		nameMap.put("ma", "anatomy");
-		nameMap.put("mp", "phenotypes");
+		nameMap.put("ma", "/anatomy");
+		nameMap.put("mp", "/phenotypes");
 
 		String pageBaseUrl =  nameMap.get(ontologyName);
 
@@ -289,7 +289,7 @@ public class OntologyBrowserGetter {
 		node.put("id", Integer.toString(resultSet.getInt("node_id")));
 		node.put("term_id", resultSet.getString("term_id"));
 		node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
-		node.put("href", "phenotypes/" + termId);
+		node.put("href", helper.getPageBaseUrl() + "/" + termId);
 		node.put("hrefTarget", "_blank");
 
 		return node;
@@ -342,6 +342,7 @@ public class OntologyBrowserGetter {
 		public void setOntologyName(String ontologyName) {
 			this.ontologyName = ontologyName;
 		}
+
 	}
     
 	

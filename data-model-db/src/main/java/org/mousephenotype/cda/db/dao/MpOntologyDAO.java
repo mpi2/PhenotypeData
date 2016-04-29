@@ -16,13 +16,12 @@
 
 package org.mousephenotype.cda.db.dao;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * This class encapsulates the code and data necessary to serve a Mammalian
@@ -72,7 +71,7 @@ public class MpOntologyDAO extends OntologyDAO {
         String query =
             "SELECT\n"
           + "  n2t.term_id               AS termId\n"
-          + ", GROUP_CONCAT(n2t.node_id) AS nodes\n"
+          + ", GROUP_CONCAT(DISTINCT n2t.node_id) AS nodes\n"
           + ", ti.name                   AS termName\n"
           + ", ti.definition             AS termDefinition\n"
           + ", GROUP_CONCAT(DISTINCT alt.alt_id) AS alt_ids\n"
