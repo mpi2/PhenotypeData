@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.indexers;
 
 import net.sf.json.JSONObject;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -106,7 +107,6 @@ public class MAIndexer extends AbstractIndexer {
             for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
 
-                System.out.println("ABOUT TO EXTRACT ID....");
                 String maId = bean.getId();
                 System.out.println("WORKING OM: " + maId);
 
@@ -172,12 +172,9 @@ public class MAIndexer extends AbstractIndexer {
                     List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
                     ma.setChildrenJson(childrenTree.toString());
 
-                    System.out.println("CHECKPOINT-1... ");
                     // also index all UBERON/EFO ids for intermediate MA ids
                     Set<String> all_ae_mapped_uberonIds = new HashSet<>();
                     Set<String> all_ae_mapped_efoIds = new HashSet<>();
-
-                    System.out.println("CHECKPOINT-2... ");
 
 
                     for (String intermediateMaId : ma.getIntermediateMaId()) {
@@ -188,7 +185,6 @@ public class MAIndexer extends AbstractIndexer {
                         if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id")) {
                             all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
                         }
-                        System.out.println("CHECKPOINT-3... ");
 
                     }
 
@@ -200,7 +196,7 @@ public class MAIndexer extends AbstractIndexer {
                         all_ae_mapped_efoIds.addAll(ma.getEfoIds());
                         ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
                     }
-                    System.out.println("CHECKPOINT-4... ");
+
                     // Image association fields
                     List<SangerImageDTO> sangerImages = maImagesMap.get(bean.getId());
                     if (sangerImages != null) {
@@ -232,9 +228,8 @@ public class MAIndexer extends AbstractIndexer {
                             ma.setAlleleName(sangerImage.getAlleleName());
 
                         }
-                        System.out.println("CHECKPOINT-4... ");
                     }
-                System.out.println("CHECKPOINT-LAST... ");
+
                     count++;
                     maBatch.add(ma);
                     if (maBatch.size() == BATCH_SIZE) {
@@ -256,11 +251,22 @@ public class MAIndexer extends AbstractIndexer {
             // Send a final commit
             maCore.commit();
 
+            // debug how many docs get committed
+            Long numFound = 0L;
+            SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
+            try {
+                numFound = maCore.query(query).getResults().getNumFound();
+            } catch (SolrServerException sse) {
+                throw new IndexerException(sse);
+            }
+            logger.info("number found = " + numFound);
+
+
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
-            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
     }
