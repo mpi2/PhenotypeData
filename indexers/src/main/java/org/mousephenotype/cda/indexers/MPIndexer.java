@@ -205,7 +205,6 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
                 mp.setScrollNode(scrollNodeId);
-                System.out.println("SCROLL NODE: " + mp.getScrollNode());
                 List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + mp.getMpNodeId().get(0), null, termId);
                 mp.setChildrenJson(childrenTree.toString());
 
