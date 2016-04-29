@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.indexers;
 
 import net.sf.json.JSONObject;
-import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -108,165 +107,143 @@ public class MAIndexer extends AbstractIndexer {
                 MaDTO ma = new MaDTO();
 
                 String maId = bean.getId();
-                System.out.println("WORKING OM: " + maId);
 
-                if ( maId.equals("MA:0001469")) {
-                    System.out.println("FOUND IT");
+                // Set scalars.
+                ma.setDataType("ma");
+                ma.setMaId(maId);
+                ma.setMaTerm(bean.getName());
+
+                if (bean.getAltIds().size() > 0) {
+                    ma.setAltMaIds(bean.getAltIds());
                 }
 
-                //if ( ! maId.equals("MA:0001469")) {
-                //if (  maId.equals("MA:0002433")) {
-                    // Set scalars.
-                    ma.setDataType("ma");
-                    ma.setMaId(maId);
-                    ma.setMaTerm(bean.getName());
+                // Set collections.
+                OntologyTermMaBeanList sourceList = new OntologyTermMaBeanList(maOntologyService, bean.getId());
+                ma.setOntologySubset(sourceList.getSubsets());
+                ma.setMaTermSynonym(sourceList.getSynonyms());
 
-                    if (bean.getAltIds().size() > 0) {
-                        ma.setAltMaIds(bean.getAltIds());
+                ma.setChildMaId(sourceList.getChildren().getIds());
+                ma.setChildMaIdTerm(sourceList.getChildren().getId_name_concatenations());
+                ma.setChildMaTerm(sourceList.getChildren().getNames());
+                ma.setChildMaTermSynonym(sourceList.getChildren().getSynonyms());
+
+                ma.setParentMaId(sourceList.getParents().getIds());
+                ma.setParentMaTerm(sourceList.getParents().getNames());
+                ma.setParentMaTermSynonym(sourceList.getParents().getSynonyms());
+
+                ma.setIntermediateMaId(sourceList.getIntermediates().getIds());
+                ma.setIntermediateMaTerm(sourceList.getIntermediates().getNames());
+
+                ma.setSelectedTopLevelMaId(sourceList.getTopLevels().getIds());
+                ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
+                ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
+
+                ma.setMaNodeId(bean.getMaNodeIds());
+
+                // index UBERON/EFO id for MA id
+
+                if (maUberonEfoMap.containsKey(maId)) {
+                    if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
+                        ma.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
                     }
-
-                    // Set collections.
-                    OntologyTermMaBeanList sourceList = new OntologyTermMaBeanList(maOntologyService, bean.getId());
-                    ma.setOntologySubset(sourceList.getSubsets());
-                    ma.setMaTermSynonym(sourceList.getSynonyms());
-
-                    ma.setChildMaId(sourceList.getChildren().getIds());
-                    ma.setChildMaIdTerm(sourceList.getChildren().getId_name_concatenations());
-                    ma.setChildMaTerm(sourceList.getChildren().getNames());
-                    ma.setChildMaTermSynonym(sourceList.getChildren().getSynonyms());
-
-                    ma.setParentMaId(sourceList.getParents().getIds());
-                    ma.setParentMaTerm(sourceList.getParents().getNames());
-                    ma.setParentMaTermSynonym(sourceList.getParents().getSynonyms());
-
-                    ma.setIntermediateMaId(sourceList.getIntermediates().getIds());
-                    ma.setIntermediateMaTerm(sourceList.getIntermediates().getNames());
-
-                    ma.setSelectedTopLevelMaId(sourceList.getTopLevels().getIds());
-                    ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
-                    ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
-
-                    // index UBERON/EFO id for MA id
-
-                    if (maUberonEfoMap.containsKey(maId)) {
-                        if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
-                            ma.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
-                        }
-                        if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
-                            ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
-                        }
+                    if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
+                        ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
                     }
+                }
 
-                    // OntologyBrowser stuff
-                    // TODO put back in after testing.
-                    // Error says: Document contains at least one immense term in field="text" (whose UTF8 encoding is longer than the max length 32766)
-                    // Error is on MP:0001600
-                    TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
-                    List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
-                    System.out.println(searchTree);
-                    ma.setSearchTermJson(searchTree.toString());
+                // OntologyBrowser stuff
+                // TODO put back in after testing.
+                // Error says: Document contains at least one immense term in field="text" (whose UTF8 encoding is longer than the max length 32766)
+                // Error is on MP:0001600
+                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
+                ma.setSearchTermJson(searchTree.toString());
 
-                    String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
-                    ma.setScrollNode(scrollNodeId);
-                    System.out.println("SCROLL NODE: " + ma.getScrollNode());
-                    List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
-                    ma.setChildrenJson(childrenTree.toString());
+                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
+                ma.setScrollNode(scrollNodeId);
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
+                ma.setChildrenJson(childrenTree.toString());
 
-                    // also index all UBERON/EFO ids for intermediate MA ids
-                    Set<String> all_ae_mapped_uberonIds = new HashSet<>();
-                    Set<String> all_ae_mapped_efoIds = new HashSet<>();
+                // also index all UBERON/EFO ids for intermediate MA ids
+                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
+                Set<String> all_ae_mapped_efoIds = new HashSet<>();
 
+                for (String intermediateMaId : ma.getIntermediateMaId()) {
 
-                    for (String intermediateMaId : ma.getIntermediateMaId()) {
+                    if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("uberon_id")) {
+                        all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateMaId).get("uberon_id"));
+                    }
+                    if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id")) {
+                        all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
+                    }
+                }
 
-                        if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("uberon_id")) {
-                            all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateMaId).get("uberon_id"));
-                        }
-                        if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id")) {
-                            all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
-                        }
+                if (ma.getUberonIds() != null) {
+                    all_ae_mapped_uberonIds.addAll(ma.getUberonIds());
+                    ma.setAllAeMappedUberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
+                }
+                if (ma.getEfoIds() != null) {
+                    all_ae_mapped_efoIds.addAll(ma.getEfoIds());
+                    ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
+                }
+
+                // Image association fields
+                List<SangerImageDTO> sangerImages = maImagesMap.get(bean.getId());
+                if (sangerImages != null) {
+                    for (SangerImageDTO sangerImage : sangerImages) {
+                        ma.setProcedureName(sangerImage.getProcedureName());
+                        ma.setExpName(sangerImage.getExpName());
+                        ma.setExpNameExp(sangerImage.getExpNameExp());
+                        ma.setSymbolGene(sangerImage.getSymbolGene());
+
+                        ma.setMgiAccessionId(sangerImage.getMgiAccessionId());
+                        ma.setMarkerSymbol(sangerImage.getMarkerSymbol());
+                        ma.setMarkerName(sangerImage.getMarkerName());
+                        ma.setMarkerSynonym(sangerImage.getMarkerSynonym());
+                        ma.setMarkerType(sangerImage.getMarkerType());
+                        ma.setHumanGeneSymbol(sangerImage.getHumanGeneSymbol());
+
+                        ma.setStatus(sangerImage.getStatus());
+
+                        ma.setImitsPhenotypeStarted(sangerImage.getImitsPhenotypeStarted());
+                        ma.setImitsPhenotypeComplete(sangerImage.getImitsPhenotypeComplete());
+                        ma.setImitsPhenotypeStatus(sangerImage.getImitsPhenotypeStatus());
+
+                        ma.setLatestPhenotypeStatus(sangerImage.getLatestPhenotypeStatus());
+                        ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
+
+                        ma.setLatestProductionCentre(sangerImage.getLatestProductionCentre());
+                        ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
+
+                        ma.setAlleleName(sangerImage.getAlleleName());
 
                     }
+                }
 
-                    if (ma.getUberonIds() != null) {
-                        all_ae_mapped_uberonIds.addAll(ma.getUberonIds());
-                        ma.setAllAeMappedUberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
-                    }
-                    if (ma.getEfoIds() != null) {
-                        all_ae_mapped_efoIds.addAll(ma.getEfoIds());
-                        ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
-                    }
-
-                    // Image association fields
-                    List<SangerImageDTO> sangerImages = maImagesMap.get(bean.getId());
-                    if (sangerImages != null) {
-                        for (SangerImageDTO sangerImage : sangerImages) {
-                            ma.setProcedureName(sangerImage.getProcedureName());
-                            ma.setExpName(sangerImage.getExpName());
-                            ma.setExpNameExp(sangerImage.getExpNameExp());
-                            ma.setSymbolGene(sangerImage.getSymbolGene());
-
-                            ma.setMgiAccessionId(sangerImage.getMgiAccessionId());
-                            ma.setMarkerSymbol(sangerImage.getMarkerSymbol());
-                            ma.setMarkerName(sangerImage.getMarkerName());
-                            ma.setMarkerSynonym(sangerImage.getMarkerSynonym());
-                            ma.setMarkerType(sangerImage.getMarkerType());
-                            ma.setHumanGeneSymbol(sangerImage.getHumanGeneSymbol());
-
-                            ma.setStatus(sangerImage.getStatus());
-
-                            ma.setImitsPhenotypeStarted(sangerImage.getImitsPhenotypeStarted());
-                            ma.setImitsPhenotypeComplete(sangerImage.getImitsPhenotypeComplete());
-                            ma.setImitsPhenotypeStatus(sangerImage.getImitsPhenotypeStatus());
-
-                            ma.setLatestPhenotypeStatus(sangerImage.getLatestPhenotypeStatus());
-                            ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
-
-                            ma.setLatestProductionCentre(sangerImage.getLatestProductionCentre());
-                            ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
-
-                            ma.setAlleleName(sangerImage.getAlleleName());
-
-                        }
-                    }
-
-                    count++;
-                    maBatch.add(ma);
-                    if (maBatch.size() == BATCH_SIZE) {
-                        // Update the batch, clear the list
-                        documentCount += maBatch.size();
-                        maCore.addBeans(maBatch, 60000);
-                        maBatch.clear();
-                    }
-                //}
+                count++;
+                maBatch.add(ma);
+                if (maBatch.size() == BATCH_SIZE) {
+                    // Update the batch, clear the list
+                    documentCount += maBatch.size();
+                    maCore.addBeans(maBatch, 60000);
+                    maBatch.clear();
+                }
             }
 
             // Make sure the last batch is indexed
             if (maBatch.size() > 0) {
                 documentCount += maBatch.size();
                 maCore.addBeans(maBatch, 60000);
-                count += maBatch.size();
             }
 
             // Send a final commit
             maCore.commit();
 
-            // debug how many docs get committed
-            Long numFound = 0L;
-            SolrQuery query = new SolrQuery().setQuery("*:*").setRows(0);
-            try {
-                numFound = maCore.query(query).getResults().getNumFound();
-            } catch (SolrServerException sse) {
-                throw new IndexerException(sse);
-            }
-            logger.info("number found = " + numFound);
-
-
         } catch (SQLException | SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+            logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
     }
