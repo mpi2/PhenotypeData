@@ -28,7 +28,7 @@
   <xsl:template name="last">
   	<xsl:param name="wholeLine" />
   	<xsl:for-each select="arr/lst">
-		<xsl:value-of select="$wholeLine"/>,"<xsl:value-of select="str[@name='value']"/>",<xsl:value-of select="normalize-space(int)"/><xsl:text>&#xD;</xsl:text>
+		<xsl:value-of select="$wholeLine"/>"<xsl:value-of select="str[@name='value']"/>",<xsl:value-of select="normalize-space(int)"/><xsl:text>&#xD;</xsl:text>
   	</xsl:for-each>
   </xsl:template>
   
@@ -36,7 +36,7 @@
   <xsl:template name="inner">
     <xsl:param name="line" />  
   	<xsl:for-each select="arr/lst">
-		<xsl:variable name="currentLine" select="concat($line, concat(concat('&quot;',str[@name='value']), '&quot;'))"/>
+		<xsl:variable name="currentLine" select="concat($line, concat(concat('&quot;',str[@name='value']), '&quot;,'))"/>
 		<xsl:if test="arr/lst/arr/lst">
   			<xsl:call-template name="inner">
   				<xsl:with-param name="line" select="$currentLine" />  			
