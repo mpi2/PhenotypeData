@@ -90,7 +90,7 @@ public class MaService extends BasicService implements WebStatus {
 	 */
 	public List<MaDTO> getAllMaTerms() throws SolrServerException {
 
-		System.out.println("SOLR: " + solr.getBaseURL());
+		//System.out.println("SOLR: " + solr.getBaseURL());
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(MaDTO.MA_ID + ":*");
 		// solrQuery.setFields(MpDTO.MA_ID);
@@ -201,6 +201,35 @@ public class MaService extends BasicService implements WebStatus {
 	@Override
 	public String getServiceName() {
 		return "MA Service";
+	}
+
+
+	public String getSearchTermJson(String maTermId)
+			throws SolrServerException{
+
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MaDTO.MA_ID + ":\"" + maTermId + "\"")
+				.setRows(1);
+		solrQuery.addField(MaDTO.SEARCH_TERM_JSON);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MaDTO> mas = rsp.getBeans(MaDTO.class);
+
+		return (mas != null) ? mas.get(0).getSearchTermJson() : "";
+	}
+
+	public String getChildrenJson(String nodeId)
+			throws SolrServerException{
+
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MaDTO.MA_NODE_ID + ":" + nodeId)
+				.setRows(1);
+		solrQuery.addField(MaDTO.CHILDREN_JSON);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MaDTO> mas = rsp.getBeans(MaDTO.class);
+
+		return (mas != null) ? mas.get(0).getChildrenJson() : "";
 	}
 
 }

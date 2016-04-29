@@ -86,9 +86,6 @@ public class GeneIndexer extends AbstractIndexer {
     private Map<String, List<MpDTO>> mgiAccessionToMP = new HashMap<>();
     Map<String, List<EmbryoStrain>> embryoRestData=null;
 
-
-    EmbryoRestGetter embryoGetter;
-
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
 
@@ -211,8 +208,13 @@ public class GeneIndexer extends AbstractIndexer {
                 	//for the moment lets just set an embryo data available flag!
                 	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
                 		gene.setEmbryoDataAvailable(true);
+                		List<String> embryoModalitiesForGene=new ArrayList<String>();
 
                 		for( EmbryoStrain strain : embryoStrainsForGene){
+                			
+                			if(strain.getModalities()!=null && strain.getModalities().size()>0){
+                				embryoModalitiesForGene.addAll(strain.getModalities());
+                			}
                 			for ( String procedureStableKey : strain .getProcedureStableKeys() ){
                                 Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);
 
@@ -232,6 +234,7 @@ public class GeneIndexer extends AbstractIndexer {
                 				}
                 			}
                 		}
+                		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
 
                 }

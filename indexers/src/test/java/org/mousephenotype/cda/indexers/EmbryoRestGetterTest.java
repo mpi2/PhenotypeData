@@ -17,7 +17,7 @@ public class EmbryoRestGetterTest {
 
 	@Test
 	public void getEmbryDataTest(){
-		System.out.println("in getEmbryoDataTest");
+		System.out.println("in getEmbryoDataTest blah");
 		EmbryoRestGetter embryoRest=new EmbryoRestGetter("http://dev.mousephenotype.org/EmbryoViewerWebApp/rest/ready");
 		EmbryoRestData embryoDataSet = embryoRest.getEmbryoRestData();
 		System.out.println(embryoDataSet);

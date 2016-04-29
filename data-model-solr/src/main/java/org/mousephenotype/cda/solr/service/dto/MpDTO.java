@@ -148,7 +148,6 @@ public class MpDTO {
 	public static final String PARAMETER_STABLE_ID = "parameter_stable_id";
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
 
-
 	public static final String SEARCH_TERM_JSON = "search_term_json";
 	public static final String CHILDREN_JSON = "children_json";
 	public static final String SCROLL_NODE = "scroll_node";

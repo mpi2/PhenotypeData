@@ -302,7 +302,7 @@ public class SearchConfig {
 
        // List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source", "Curated Genes", "Candidate Genes<br>by phenotype"});
         List<String> diseaseCols = Arrays.asList(new String[]{"Disease", "Source"});
-        List<String> maCols = Arrays.asList(new String[]{"Anatomy", "LacZ Expression Data"});
+        List<String> maCols = Arrays.asList(new String[]{"Anatomy", "LacZ Expression Data","Ontology<br/>Tree"});
 
         List<String> impc_imagesCols = Arrays.asList(new String[]{"Name", "Images"});
         List<String> imagesCols = Arrays.asList(new String[]{"Name", "Image(s)"});

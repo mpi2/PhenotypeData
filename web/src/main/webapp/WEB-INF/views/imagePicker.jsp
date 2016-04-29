@@ -83,7 +83,7 @@
   				</div>
   				
   				<div class="section">
-  				<h1 class="title" id="top">Experimental</h1>
+  				<h1 class="title" id="top">Mutants</h1>
   					<div class="inner">
   						<select name="expImgId" multiple size="2" class="show-html">		
   						<c:if test="${not empty experimental}">

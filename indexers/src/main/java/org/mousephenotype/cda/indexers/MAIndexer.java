@@ -107,12 +107,13 @@ public class MAIndexer extends AbstractIndexer {
                 MaDTO ma = new MaDTO();
 
                 String maId = bean.getId();
+
                 // Set scalars.
                 ma.setDataType("ma");
                 ma.setMaId(maId);
                 ma.setMaTerm(bean.getName());
 
-                if ( bean.getAltIds().size() > 0) {
+                if (bean.getAltIds().size() > 0) {
                     ma.setAltMaIds(bean.getAltIds());
                 }
 
@@ -137,48 +138,51 @@ public class MAIndexer extends AbstractIndexer {
                 ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
                 ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
 
+                ma.setMaNodeId(bean.getMaNodeIds());
+
                 // index UBERON/EFO id for MA id
 
-                if ( maUberonEfoMap.containsKey(maId) ){
+                if (maUberonEfoMap.containsKey(maId)) {
                     if (maUberonEfoMap.get(maId).containsKey("uberon_id")) {
                         ma.setUberonIds(maUberonEfoMap.get(maId).get("uberon_id"));
                     }
-                    if ( maUberonEfoMap.get(maId).containsKey("efo_id") ){
+                    if (maUberonEfoMap.get(maId).containsKey("efo_id")) {
                         ma.setEfoIds(maUberonEfoMap.get(maId).get("efo_id"));
                     }
                 }
 
                 // OntologyBrowser stuff
-                // TODO put back in after testing. 
+                // TODO put back in after testing.
                 // Error says: Document contains at least one immense term in field="text" (whose UTF8 encoding is longer than the max length 32766)
                 // Error is on MP:0001600
-//                TreeHelper helper = ontologyBrowser.getTreeHelper( "ma", ma.getMaId());
-//                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
-//                ma.setSearchTermJson(searchTree.toString());
-//                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
-//                ma.setScrollNode(scrollNodeId);
-//                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
-//                ma.setChildrenJson(childrenTree.toString());
+                TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
+                ma.setSearchTermJson(searchTree.toString());
+
+                String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
+                ma.setScrollNode(scrollNodeId);
+                List<JSONObject> childrenTree = ontologyBrowser.createTreeJson(helper, "" + maOntologyService.getNodeIds(ma.getMaId()).get(0), null, ma.getMaId());
+                ma.setChildrenJson(childrenTree.toString());
 
                 // also index all UBERON/EFO ids for intermediate MA ids
                 Set<String> all_ae_mapped_uberonIds = new HashSet<>();
                 Set<String> all_ae_mapped_efoIds = new HashSet<>();
 
-                for ( String intermediateMaId : ma.getIntermediateMaId() ) {
+                for (String intermediateMaId : ma.getIntermediateMaId()) {
 
-                    if ( maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("uberon_id") ) {
+                    if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("uberon_id")) {
                         all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateMaId).get("uberon_id"));
                     }
-                    if ( maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id") ) {
+                    if (maUberonEfoMap.containsKey(intermediateMaId) && maUberonEfoMap.get(intermediateMaId).containsKey("efo_id")) {
                         all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateMaId).get("efo_id"));
                     }
                 }
 
-                if ( ma.getUberonIds() != null ) {
+                if (ma.getUberonIds() != null) {
                     all_ae_mapped_uberonIds.addAll(ma.getUberonIds());
                     ma.setAllAeMappedUberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
                 }
-                if ( ma.getEfoIds() != null ) {
+                if (ma.getEfoIds() != null) {
                     all_ae_mapped_efoIds.addAll(ma.getEfoIds());
                     ma.setAllAeMappedEfoIds(new ArrayList<String>(all_ae_mapped_efoIds));
                 }
@@ -212,10 +216,11 @@ public class MAIndexer extends AbstractIndexer {
                         ma.setLatestPhenotypingCentre(sangerImage.getLatestPhenotypingCentre());
 
                         ma.setAlleleName(sangerImage.getAlleleName());
+
                     }
                 }
 
-                count ++;
+                count++;
                 maBatch.add(ma);
                 if (maBatch.size() == BATCH_SIZE) {
                     // Update the batch, clear the list
@@ -229,7 +234,6 @@ public class MAIndexer extends AbstractIndexer {
             if (maBatch.size() > 0) {
                 documentCount += maBatch.size();
                 maCore.addBeans(maBatch, 60000);
-                count += maBatch.size();
             }
 
             // Send a final commit

@@ -64,20 +64,18 @@ public class ImpcImagesController {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling laczImages web page");
-		addGeneSymbolToPage(acc, model);
+		addGeneToPage(acc, model);
 		boolean overview=false;
 		expressionService.getLacImageDataForGene(acc, topLevelMa,overview, false, model);
-
 		return "laczImages";
 	}
 
 	@RequestMapping("/impcImages/laczimages/{acc}")
 	public String laczImages(@PathVariable String acc, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
-		addGeneSymbolToPage(acc, model);
+		addGeneToPage(acc, model);
 		boolean overview=false;
 		expressionService.getLacImageDataForGene(acc, null, overview, false, model);
-
 		return "laczImages";
 	}
 	
@@ -88,7 +86,7 @@ public class ImpcImagesController {
 		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling embryolaczImages web page with specific term="+topLevelEmap);
-		addGeneSymbolToPage(acc, model);
+		addGeneToPage(acc, model);
 		boolean overview=false;
 		boolean embryoOnly=true;
 		expressionService.getLacImageDataForGene(acc, topLevelEmap,overview, embryoOnly, model);
@@ -100,7 +98,7 @@ public class ImpcImagesController {
 	public String embryoLaczImages(@PathVariable String acc, Model model)
 			throws SolrServerException, IOException, URISyntaxException {
 		System.out.println("calling embryolaczImages web page");
-		addGeneSymbolToPage(acc, model);
+		addGeneToPage(acc, model);
 		boolean overview=false;
 		boolean embryoOnly=true;
 		expressionService.getLacImageDataForGene(acc, null, overview, embryoOnly, model);
@@ -108,10 +106,11 @@ public class ImpcImagesController {
 		return "laczImages";
 	}
 
-	private void addGeneSymbolToPage(String acc, Model model)
+	private void addGeneToPage(String acc, Model model)
 			throws SolrServerException {
-		GeneDTO gene = geneService.getGeneById(acc);
-		model.addAttribute("symbol", gene.getMarkerSymbol());
+		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
+		System.out.println("gene in picker="+gene);
+		model.addAttribute("gene",gene);
 	}
 
 
@@ -151,9 +150,7 @@ public class ImpcImagesController {
 			controls.addAll(controlsTemp);
 		}
 		
-		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
-		System.out.println("gene in picker="+gene);
-		model.addAttribute("gene",gene);
+		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
 		System.out.println("experimental size=" + experimental.size());
 		model.addAttribute("experimental", experimental);

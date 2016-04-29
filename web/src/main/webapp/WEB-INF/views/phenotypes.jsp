@@ -28,14 +28,11 @@
 		</script>
 		
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
-
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-       	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-    	
+       	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>    	
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>		
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
-
 
 	</jsp:attribute>
 

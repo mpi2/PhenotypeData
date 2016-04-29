@@ -182,6 +182,12 @@ public class ObservationIndexerTest {
         Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("2").equals("Immediate movement"));
         logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Immediate movement'");
 
+	    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_005").get("1").equals("Eyes Closed"));
+	    logger.info("M-G-P_008_001_005 correctly mapped '1' to 'Eyes Closed'");
+
+	    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_005").get("0").equals("Eyes Open"));
+	    logger.info("M-G-P_008_001_005 correctly mapped '0' to 'Eyes Open'");
+
     }
 
 	@Test

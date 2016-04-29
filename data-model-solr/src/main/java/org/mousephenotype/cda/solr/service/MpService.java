@@ -77,6 +77,7 @@ public class MpService extends BasicService implements WebStatus{
 			.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
 			.setRows(1);
 
+		System.out.println(solrQuery.toString());
 		QueryResponse rsp = solr.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 
@@ -161,7 +162,7 @@ public class MpService extends BasicService implements WebStatus{
 	 * @return JSON in jstree format for ontology browser
 	 * @throws SolrServerException
 	 */
-	public String getChildrenJson(String nodeId) 
+	public String getChildrenJson(String nodeId)
 	throws SolrServerException{
 		
 		SolrQuery solrQuery = new SolrQuery()
