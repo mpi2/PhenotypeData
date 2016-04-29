@@ -5,7 +5,7 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">Histopath Information for ${gene.markerName}</jsp:attribute>
+	<jsp:attribute name="title">Histopath Summary for ${gene.markerName}</jsp:attribute>
 
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
 			href="${baseUrl}/search/genes?kw=*">Genes</a> &raquo; Results</jsp:attribute>
@@ -56,7 +56,7 @@
 							
 							<thead>
 							<tr>
-							<th>Sample Id</th>
+							
 							
 							
 							
@@ -65,9 +65,6 @@
 							</th>
 							<th>
 							Significance
-							</th>
-							<th>
-							Severity
 							</th>
 							<th>
 							PATO
@@ -96,9 +93,6 @@
 								
 								<tr>
 									<td>
-										${histRow.sampleId}
-									</td>
-									<td>
 										${histRow.anatomyName}
 									</td>
 									<td>
@@ -108,13 +102,13 @@
 										
 									</c:forEach>
 									</td>
-									<td>
+									<%-- <td>
 									<c:forEach var="parameter" items="${histRow.severity }">
 										
 											${parameter.textValue }
 										
 									</c:forEach> 
-									</td>
+									</td> --%>
 									
 									<c:choose>
 									<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">

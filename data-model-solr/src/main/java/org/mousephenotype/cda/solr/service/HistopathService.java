@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.hibernate.sql.ordering.antlr.CollationSpecification;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -257,6 +258,24 @@ public class HistopathService {
 	public Map<String, List<ObservationDTO>> getObservations() {
 		return this.extSampleIdToObservations;
 
+	}
+
+	public List<HistopathPageTableRow> collapseHistopathTableRows(List<HistopathPageTableRow> histopathRows) {
+		List<HistopathPageTableRow> collapsedRows=new ArrayList<HistopathPageTableRow>();
+		Map<String, HistopathPageTableRow> anatomyToRowMap=new HashMap<>();
+		for(HistopathPageTableRow row: histopathRows){
+			String anatomy=row.getAnatomyName();
+			if(!anatomyToRowMap.containsKey(anatomy)){
+				anatomyToRowMap.put(anatomy, row);
+			}
+			HistopathPageTableRow anatomyRow=anatomyToRowMap.get(anatomy);
+			anatomyRow.getSignificance().addAll(row.getSignificance());
+			anatomyRow.getSeverity().addAll(row.getSeverity());
+		}
+		for(String anatomy: anatomyToRowMap.keySet()){
+			collapsedRows.add(anatomyToRowMap.get(anatomy));
+		}
+		return collapsedRows;
 	}
 
 }
