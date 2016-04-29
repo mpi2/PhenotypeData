@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigLoaders.class} )
 @TestPropertySource(locations = {"file:${user.home}/configfiles/${profile}/test.properties"})
-@Transactional
 public class OntologyParserTest {
 
     private OntologyParser ontologyParser;
