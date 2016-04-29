@@ -71,7 +71,7 @@ public abstract class OntologyDAO {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final int MAX_ROWS = 1000000;
-    public static final int BATCH_SIZE = 50;
+    public static final int BATCH_SIZE = 2000;
 
     @Autowired
     @Qualifier("ontodbDataSource")
@@ -476,9 +476,17 @@ public abstract class OntologyDAO {
                     bean.setAltIds(Arrays.asList(alt_ids.split(",")));
                 }
 
-                map.put(mapKey, bean);            
-                id2nodesMap.put(mapKey, Arrays.asList(resultSet.getString("nodes").split(",")));
+                // list of node IDs
+                List<Integer> nodeIds = new ArrayList<>();
+                List<String> maNodeIds = Arrays.asList(resultSet.getString("nodes").split(","));
+                List<Integer> iMaNodeIds = new ArrayList<>();
+                for (String sMaNodeId : maNodeIds) {
+                    iMaNodeIds.add(Integer.parseInt(sMaNodeId));
+                }
+                bean.setMaNodeIds(iMaNodeIds);
 
+                map.put(mapKey, bean);            
+                id2nodesMap.put(mapKey, maNodeIds);
             }
             
             ps.close();

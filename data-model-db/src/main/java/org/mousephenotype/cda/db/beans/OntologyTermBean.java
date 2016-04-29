@@ -16,12 +16,12 @@
 
 package org.mousephenotype.cda.db.beans;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulates an ontology termId, name, termId & name concatenated, and a list
@@ -35,7 +35,24 @@ public class OntologyTermBean {
     private String definition;
     private List<String> synonyms = new ArrayList<>();
     private String topLevelTermId;
-    private List<String> altMaIds = new ArrayList<>();;
+    private List<String> altMaIds = new ArrayList<>();
+    private List<Integer>  maNodeIds = new ArrayList<>();
+
+    public List<Integer> getMaNodeIds() {
+        return maNodeIds;
+    }
+
+    public void setMaNodeIds(List<Integer> maNodeIds) {
+        this.maNodeIds = maNodeIds;
+    }
+
+    public List<String> getAltMaIds() {
+        return altMaIds;
+    }
+
+    public void setAltMaIds(List<String> altMaIds) {
+        this.altMaIds = altMaIds;
+    }
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -51,7 +68,7 @@ public class OntologyTermBean {
 	}
 
 	/**
-	 * @param topLevelMPTermId the topLevelMPTermId to set
+	 * @param topLevelTermId the topLevelTermId to set
 	 */
 	public void setTopLevelTermId(String topLevelTermId) {
 		this.topLevelTermId = topLevelTermId;
