@@ -1,19 +1,19 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.OntologyParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigLoaders.class} )
@@ -24,10 +24,14 @@ public class OntologyParserTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NotNull
+    @Value("${owlPath}")
+    protected String owlPath;
+
     @Before
     public void setUp() throws Exception {
     	
-    	String path = "/Users/ilinca/Documents/ontologies/mp.owl";
+    	String path = owlPath + "/mp.owl";
     	String prefix = "MA";
     	ontologyParser = new OntologyParser(path, prefix);
     }
@@ -39,5 +43,4 @@ public class OntologyParserTest {
     	Assert.assertTrue(terms.size() > 1000);
 
     }
-
 }
