@@ -1,8 +1,6 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -16,10 +14,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableAutoConfiguration
-@ComponentScan({"org.mousephenotype.loads", "org.mousephenotype.cda.loads", "org.mousephenotype.cda.loads.cdaloader"})
+//@ComponentScan({"org.mousephenotype.loads", "org.mousephenotype.cda.loads", "org.mousephenotype.cda.loads.cdaloader"})
 public class TestConfigLoaders {
 
-	@Value("http:${solrUrl}")
-	String solrBaseUrl;
+//	@Value("http:${solrUrl}")
+//	String solrBaseUrl;
 
 }
