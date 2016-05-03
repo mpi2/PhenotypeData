@@ -21,6 +21,7 @@
   			<xsl:with-param name="wholeLine" select="$v1" />  			
   		</xsl:call-template>
 	</xsl:if>
+	<xsl:text>&#xD;</xsl:text> 
   </xsl:template>
   
   
