@@ -9,6 +9,12 @@
     <logger name="org.hibernate"                                                level="${log.level:-WARN}" />
     <logger name="org.springframework"                                          level="WARN" />
 
+    <!-- ONTOLOGY PARSING - loads-> org.mousephenotype.cda.loads.cdaloader -->
+    <logger name="org.semanticweb.owlapi.rdf.rdfxml.parser"                     level="WARN" />
+    <logger name="org.semanticweb.owlapi.util.SAXParsers"                       level="WARN" />
+    <logger name="org.semanticweb.owlapi.io.AbstractOWLParser"                  level="WARN" />
+
+
 
     <!-- PHENOTYPE ARCHIVE -->
     <logger name="org.mousephenotype"                                           level="INFO"/>
