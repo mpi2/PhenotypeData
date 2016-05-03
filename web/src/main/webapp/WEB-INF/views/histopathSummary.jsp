@@ -64,7 +64,8 @@
 							Anatomy
 							</th>
 							<th>
-							Significance
+							Significant
+							/Non Sig
 							</th>
 							<th>
 							PATO
@@ -96,12 +97,10 @@
 										${histRow.anatomyName}
 									</td>
 									<td>
-									<c:forEach var="parameter" items="${histRow.significance }">
-										
-											${parameter.textValue }
-										
-									</c:forEach>
+											${histRow.significantCount } / ${histRow.nonSignificantCount }
+									
 									</td>
+							
 									<%-- <td>
 									<c:forEach var="parameter" items="${histRow.severity }">
 										
@@ -188,16 +187,15 @@
 									</td>
 									
 									<td>
-										<c:forEach var="image" items="${histRow.imageList }">
-										
-										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
-										<%-- increment= ${image.increment_value} --%>
-										 <!-- <div id="grid"> -->
-                                           
-												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
-											
-										<!-- </div> -->
-										</c:forEach> 
+										<c:choose>
+										<c:when test="${histRow.hasImages}">
+										Yes
+										</c:when>
+										<c:otherwise>
+										No
+										</c:otherwise>
+							
+										</c:choose>
 									</td>
 									
 									
