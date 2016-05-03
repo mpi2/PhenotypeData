@@ -22,9 +22,6 @@ public class HistopathPageTableRow {
 	private String anatomyName;
 	
 	
-	//System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue="+obs.getTermValue());
-	
-	
 	
 	public String getAnatomyName() {
 		return anatomyName;
@@ -269,7 +266,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 		
 		public ParameterValueBean(ImpressBaseDTO parameter, String textValue){
 			this.parameter=parameter;
-			this.textValue=textValue;
+			this.textValue=textValue.trim();
 		}
 		
 		
