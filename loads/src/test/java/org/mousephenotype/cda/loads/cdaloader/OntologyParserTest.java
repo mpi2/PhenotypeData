@@ -43,4 +43,5 @@ public class OntologyParserTest {
     	Assert.assertTrue(terms.size() > 1000);
 
     }
+    
 }
