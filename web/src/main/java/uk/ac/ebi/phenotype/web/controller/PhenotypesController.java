@@ -392,7 +392,7 @@ public class PhenotypesController {
             RedirectAttributes attributes) 
     throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
-    	model.addAttribute("mpId", mpId);
+    	model.addAttribute("ontId", mpId);
         return "pageTree";
     }    
     

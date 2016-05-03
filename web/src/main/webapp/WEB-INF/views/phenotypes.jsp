@@ -42,7 +42,8 @@
 	<jsp:attribute name="addToFooter">
 	
 		<script type="text/javascript">
-			var mp_id = '${phenotype.getMpId()}';
+			var ont_id = '${phenotype.getMpId()}';
+			var ontPrefix = "mp";
 			var hasChildren = ${hasChildren};
 			var hasParents = ${hasParents};
 		</script>
@@ -123,79 +124,79 @@
 					<div class="section">
 						<div class="inner">
 
-					<div class="half">
-						<c:if test="${not empty phenotype.getMpDefinition()}">
-							<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
-						</c:if>
-						<c:if test="${not empty synonyms}">
-							<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
-								<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
-									${synonym.symbol}
-									<c:if test="${!loop.last}">, &nbsp;</c:if>
-								</c:forEach>
-							</p>
-						</c:if>
-						<c:if test="${not empty hpTerms}">
-							<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
-								<ul>
-									<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
-										<li>${hpTerm.termName}</li>
-										<c:if test="${loop.last}">&nbsp;</c:if>
-									</c:forEach>
-								</ul>
+							<div class="half">
+								<c:if test="${not empty phenotype.getMpDefinition()}">
+									<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
+								</c:if>
+								<c:if test="${not empty synonyms}">
+									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
+										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
+											${synonym.symbol}
+											<c:if test="${!loop.last}">, &nbsp;</c:if>
+										</c:forEach>
+									</p>
+								</c:if>
+								<c:if test="${not empty hpTerms}">
+									<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
+										<ul>
+											<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
+												<li>${hpTerm.termName}</li>
+												<c:if test="${loop.last}">&nbsp;</c:if>
+											</c:forEach>
+										</ul>
+									</div>
+								</c:if>
+		
+		
+								<c:if test="${not empty procedures}">
+									<div id="procedures" class="with-label"> <span class="label">Procedure</span>
+										<ul>
+										<c:set var="count" value="0" scope="page"/>
+											<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
+		 										<c:set var="count" value="${count+1}" />
+		  										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
+		  											${procedure.procedureName} (${procedure.procedureStableId.split("_")[0]},
+		  											v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
+		  										</a></li>
+			 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
+												<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></c:if>
+											</c:forEach>
+										</ul>
+									</div>
+								</c:if>
+		
+								<p id="mpId" class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
+								<c:if test="${!hasData}">
+									<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
+								</c:if>
+								<c:choose>
+		                        	<c:when test="${registerButtonAnchor!=''}">
+		                            	<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+		                            </c:when>
+			                        <c:otherwise>
+			                            <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
+			                        </c:otherwise>
+		                        </c:choose>
+		                        <c:if test="${orderPossible}">
+		                          	<p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
+		                        </c:if>
 							</div>
-						</c:if>
 
-
-						<c:if test="${not empty procedures}">
-							<div id="procedures" class="with-label"> <span class="label">Procedure</span>
-								<ul>
-								<c:set var="count" value="0" scope="page"/>
-									<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
- 										<c:set var="count" value="${count+1}" />
-  										<li><a href="${drupalBaseUrl}/impress/impress/displaySOP/${procedure.procedureStableKey}">
-  											${procedure.procedureName} (${procedure.procedureStableId.split("_")[0]},
-  											v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
-  										</a></li>
-	 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i> more procedures</a></p> <div id="other_procedures"></c:if>
-										<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></c:if>
-									</c:forEach>
-								</ul>
+							<div id="parentChild" class="half">
+									<c:if test="${hasChildren && hasParents}">
+		                            	<div class="half" id="parentDiv"></div>
+										<div class="half" id="childDiv"></div>
+									</c:if>
+									<c:if test="${hasChildren && !hasParents}">
+										<div id="childDiv"></div>
+									</c:if>
+									<c:if test="${!hasChildren && hasParents}">
+		                            	<div id="parentDiv"></div>
+									</c:if>
 							</div>
-						</c:if>
-
-						<p id="mpId" class="with-label"><span class="label">MGI MP browser</span><a href="http://www.informatics.jax.org/searches/Phat.cgi?id=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
-						<c:if test="${!hasData}">
-							<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
-						</c:if>
-						<c:choose>
-                        	<c:when test="${registerButtonAnchor!=''}">
-                            	<p> <a class="btn" href='${registerButtonAnchor}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
-                            </c:when>
-	                        <c:otherwise>
-	                            <p> <a class="btn interest" id='${registerButtonId}'><i class="fa fa-sign-in"></i>${registerInterestButtonString}</a></p>
-	                        </c:otherwise>
-                        </c:choose>
-                        <c:if test="${orderPossible}">
-                          	<p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
-                        </c:if>
-					</div>
-
-					<div id="parentChild" class="half">
-							<c:if test="${hasChildren && hasParents}">
-                            	<div class="half" id="parentDiv"></div>
-								<div class="half" id="childDiv"></div>
-							</c:if>
-							<c:if test="${hasChildren && !hasParents}">
-								<div id="childDiv"></div>
-							</c:if>
-							<c:if test="${!hasChildren && hasParents}">
-                            	<div id="parentDiv"></div>
-							</c:if>
-					</div>
-						
-					<div class="clear"></div>
-				</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
+								
+							<div class="clear"></div>
+						</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
 				</div>
 
 
