@@ -16,6 +16,7 @@ import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
+import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -266,14 +267,50 @@ public class HistopathService {
 		for(HistopathPageTableRow row: histopathRows){
 			String anatomy=row.getAnatomyName();
 			if(!anatomyToRowMap.containsKey(anatomy)){
-				anatomyToRowMap.put(anatomy, row);
+				anatomyToRowMap.put(anatomy, new HistopathPageTableRow());
 			}
 			HistopathPageTableRow anatomyRow=anatomyToRowMap.get(anatomy);
-			anatomyRow.getSignificance().addAll(row.getSignificance());
-			anatomyRow.getSeverity().addAll(row.getSeverity());
+			anatomyRow.setAnatomyName(anatomy);
+			//anatomyRow.getSignificance().addAll(row.getSignificance());
+			//anatomyRow.getSeverity().addAll(row.getSeverity());
+			boolean significant=false;
+			boolean images=false;
+			for(ParameterValueBean sign:row.getSignificance()){
+				String text=sign.getTextValue();
+				//System.out.println("text="+text+"|");
+				if(text.equals("Significant")){
+					System.out.println("significant!!!!!!!!!!!!");
+					anatomyRow.setSignificantCount(anatomyRow.getSignificantCount()+1);
+					significant=true;
+					//if significant then set the text and parameters of the row that is significant to the row we are collapsing so we display the most appropriate info
+					//anatomyRow.setDescriptionTextParameters(anatomyRow.getDescriptionTextParameters().addAll(row.get));
+					//anatomyRow.setFreeTextParameters(row.get);
+					
+				}else{//assume non significant if not significant
+					anatomyRow.setNonSignificantCount(anatomyRow.getNonSignificantCount()+1);
+				}
+				if(anatomyRow.getImageList().size()>0){
+					images=true;
+				}
+			}
+			if(significant){
+				//if significant lets copy the main attributes so that we have a summary for that significant hit.
+				anatomyRow.setMpathProcessOntologyBeans(row.getMpathProcessOntologyBeans());
+				anatomyRow.setMpathDiagnosticOntologyBeans(row.getMpathDiagnosticOntologyBeans());
+				anatomyRow.setDescriptionTextParameters(row.getDescriptionTextParameters());
+				anatomyRow.setFreeTextParameters(row.getFreeTextParameters());
+				anatomyRow.setPatoOntologyBeans(row.getPatoOntologyBeans());
+			}
+			
+			
+			
+			//anatomyRow.setSignificanceCount(anatomyRow.getSignificanceCount()+ row.getSignificance().size());
+			//anatomyRow.getSeverity().addAll(row.getSeverity());
 		}
 		for(String anatomy: anatomyToRowMap.keySet()){
+			if(anatomyToRowMap.get(anatomy).getSignificantCount()>0){
 			collapsedRows.add(anatomyToRowMap.get(anatomy));
+			}
 		}
 		return collapsedRows;
 	}

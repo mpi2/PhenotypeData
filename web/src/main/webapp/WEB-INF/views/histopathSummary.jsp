@@ -64,7 +64,8 @@
 							Anatomy
 							</th>
 							<th>
-							Significance
+							Significant
+							/Non Sig
 							</th>
 							<th>
 							PATO
@@ -96,12 +97,10 @@
 										${histRow.anatomyName}
 									</td>
 									<td>
-									<c:forEach var="parameter" items="${histRow.significance }">
-										
-											${parameter.textValue }
-										
-									</c:forEach>
+											${histRow.significantCount } / ${histRow.nonSignificantCount }
+									
 									</td>
+							
 									<%-- <td>
 									<c:forEach var="parameter" items="${histRow.severity }">
 										
