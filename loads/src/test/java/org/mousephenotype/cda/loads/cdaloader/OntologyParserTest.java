@@ -31,8 +31,8 @@ public class OntologyParserTest {
     @Before
     public void setUp() throws Exception {
     	
-    	String path = owlPath + "/ma.owl";
-    	String prefix = "MA";
+    	String path = owlPath + "/mp.owl";
+    	String prefix = "MP";
     	ontologyParser = new OntologyParser(path, prefix);
     }
 

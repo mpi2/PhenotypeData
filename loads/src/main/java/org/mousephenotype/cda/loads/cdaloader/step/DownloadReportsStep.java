@@ -90,15 +90,15 @@ public class DownloadReportsStep {
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt" }
 //
                 // OWL ontologies
-                  { "http://purl.obolibrary.org/obo/mp.owl", cdaWorkspace + "/mp.owl" }                                 // mammalian_phenotype.obo
-                , { "http://purl.obolibrary.org/obo/pato.owl", cdaWorkspace + "/pato.owl" }                             // quality.obo
-                , { "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl" }                                 // adult_mouse_anatomy.obo
-                , { "http://purl.obolibrary.org/obo/chebi.owl", cdaWorkspace + "/chebi.owl" }                           // chebi.obo
-                , { "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl" }                             // EMAP.obo
-//                , { "http://purl.obolibrary.org/obo/emapa.owl", cdaWorkspace + "/emapa.owl" }                           // new
-                , { "http://purl.obolibrary.org/obo/eco.owl", cdaWorkspace + "/eco.owl" }                               // eco.obo
-                , { "http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl" }                                     // efo.obo
-                , { "http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl" }                           // mpath.obo
+                  { "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl" }                                              // mammalian_phenotype.obo
+                , { "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl" }                        // quality.obo
+                , { "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl" }                                                         // adult_mouse_anatomy.obo
+                , { "http://purl.obolibrary.org/obo/chebi.owl", cdaWorkspace + "/chebi.owl" }                                                   // chebi.obo
+                , { "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl" }                                                     // EMAP.obo
+//                , { "http://purl.obolibrary.org/obo/emapa.owl", cdaWorkspace + "/emapa.owl" }                                                 // new
+                , { "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl" }           // eco.obo
+                , { "http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl" }                                                             // efo.obo
+                , { "http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl" }                                                   // mpath.obo
 
                 // OBO ontologies (old)
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/MPheno_OBO.ontology", cdaWorkspace + "/mammalian_phenotype.obo" }
