@@ -1,6 +1,5 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +12,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -25,22 +27,48 @@ public class OntologyParserTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @NotNull
-    @Value("${owlPath}")
-    protected String owlPath;
+    @Value("${owlpath}")
+    protected String owlpath;
 
     @Before
     public void setUp() throws Exception {
-    	
-    	String path = owlPath + "/mp.owl";
-    	String prefix = "MP";
-    	ontologyParser = new OntologyParser(path, prefix);
+
     }
 
     @Test
-    public void testgetTerms() {
+    public void testOwlOntologyDownloads() throws Exception {
+        String message;
+        List<Exception> exceptions = new ArrayList();
+        File owlpathFile = new File(owlpath);
+        File[] owlFiles = owlpathFile.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".owl");
+            }
+        });
 
-    	List<OntologyTerm> terms = ontologyParser.getTerms();
-    	Assert.assertTrue(terms.size() > 1000);
+        String prefix;
+        for (File file : owlFiles) {
+            prefix = file.getName().replace(".owl", "").toUpperCase();
+            try {
+                ontologyParser = new OntologyParser(file.getPath(), prefix);
+            } catch (Exception e) {
+                message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
+                exceptions.add(e);
+                System.out.println(message + "\n");
+                continue;
+            }
+            List<OntologyTerm> terms = ontologyParser.getTerms();
+            if (terms.size() > 700) {
+                System.out.println("[PASS - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
+            } else {
+                System.out.println("[FAIL - " + prefix + "] - " + file.getPath() + ". Size: " + terms.size());
+            }
+            System.out.println();
+        }
 
+        if (! exceptions.isEmpty()) {
+            throw exceptions.get(0);            // Just throw the first one.
+        }
     }
 }
