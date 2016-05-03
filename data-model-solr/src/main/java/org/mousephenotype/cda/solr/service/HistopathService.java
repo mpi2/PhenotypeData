@@ -17,6 +17,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueBean;
+import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -263,13 +264,13 @@ public class HistopathService {
 
 	public List<HistopathPageTableRow> collapseHistopathTableRows(List<HistopathPageTableRow> histopathRows) {
 		List<HistopathPageTableRow> collapsedRows=new ArrayList<HistopathPageTableRow>();
-		Map<String, HistopathPageTableRow> anatomyToRowMap=new HashMap<>();
+		Map<String, HistopathSumPageTableRow> anatomyToRowMap=new HashMap<>();
 		for(HistopathPageTableRow row: histopathRows){
 			String anatomy=row.getAnatomyName();
 			if(!anatomyToRowMap.containsKey(anatomy)){
-				anatomyToRowMap.put(anatomy, new HistopathPageTableRow());
+				anatomyToRowMap.put(anatomy, new HistopathSumPageTableRow());
 			}
-			HistopathPageTableRow anatomyRow=anatomyToRowMap.get(anatomy);
+			HistopathSumPageTableRow anatomyRow=anatomyToRowMap.get(anatomy);
 			anatomyRow.setAnatomyName(anatomy);
 			//anatomyRow.getSignificance().addAll(row.getSignificance());
 			//anatomyRow.getSeverity().addAll(row.getSeverity());
@@ -300,6 +301,11 @@ public class HistopathService {
 				anatomyRow.setDescriptionTextParameters(row.getDescriptionTextParameters());
 				anatomyRow.setFreeTextParameters(row.getFreeTextParameters());
 				anatomyRow.setPatoOntologyBeans(row.getPatoOntologyBeans());
+				if(!row.getImageList().isEmpty()){
+					anatomyRow.setHasImages(true);
+				}
+				
+				
 			}
 			
 			
