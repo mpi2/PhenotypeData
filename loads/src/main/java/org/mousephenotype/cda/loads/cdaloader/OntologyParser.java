@@ -43,7 +43,7 @@ public class OntologyParser {
 		
 	    Set<OWLClass> allClasses = ontology.getClassesInSignature();
 	    for (OWLClass cls : allClasses){
-	    	if (prefix == null || getIdentifierShortForm(cls).startsWith(prefix)){
+	    	if (prefix == null || getIdentifierShortForm(cls).startsWith(prefix + ":")){
 	    		OntologyTerm term = new OntologyTerm();
 	    		DatasourceEntityId id = new DatasourceEntityId();
 	    		id.setAccession(getIdentifierShortForm(cls)); // i.e. MA:0100084
@@ -112,7 +112,14 @@ public class OntologyParser {
 	 * @return term name (class label)
 	 */
 	private String getLabel (OWLClass cls){
-		return ((OWLLiteral)EntitySearcher.getAnnotations(cls,ontology, LABEL_ANNOTATION).iterator().next().getValue()).getLiteral();
+		if (EntitySearcher.getAnnotations(cls,ontology, LABEL_ANNOTATION) != null && !EntitySearcher.getAnnotations(cls,ontology, LABEL_ANNOTATION).isEmpty()){
+			OWLLiteral label = ((OWLLiteral)EntitySearcher.getAnnotations(cls,ontology, LABEL_ANNOTATION).iterator().next().getValue());
+			if (label != null){
+				return label.getLiteral();
+			}
+		} 
+		return "";
+		
 	}
 	
 	
