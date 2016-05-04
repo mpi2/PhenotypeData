@@ -296,6 +296,7 @@ public class HistopathService {
 			}
 			if(significant){
 				//if significant lets copy the main attributes so that we have a summary for that significant hit.
+				anatomyRow.setSampleId(row.getSampleId());
 				anatomyRow.setMpathProcessOntologyBeans(row.getMpathProcessOntologyBeans());
 				anatomyRow.setMpathDiagnosticOntologyBeans(row.getMpathDiagnosticOntologyBeans());
 				anatomyRow.setDescriptionTextParameters(row.getDescriptionTextParameters());
