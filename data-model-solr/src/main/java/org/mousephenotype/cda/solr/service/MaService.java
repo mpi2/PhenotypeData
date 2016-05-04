@@ -101,7 +101,90 @@ public class MaService extends BasicService implements WebStatus {
 
 		return mas;
 	}
+	
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/05/03
+	 * @param id
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<OntologyBean> getParents(String id) 
+	throws SolrServerException {
 
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(MaDTO.MA_ID + ":\"" + id + "\"")
+			.setRows(1);
+
+		QueryResponse rsp = solr.query(solrQuery);
+		List<MaDTO> mps = rsp.getBeans(MaDTO.class);
+		List<OntologyBean> parents = new ArrayList<>();
+
+		if (mps.size() > 1){
+			throw new Error("More documents in MP core for the same MP id: " + id);
+		}
+
+		if ((mps.get(0).getParentMaId() == null || mps.get(0).getParentMaId().size() == 0)){
+			if (mps.get(0).getTopLevelMpId() != null && mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
+				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
+					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i), mps.get(0).getTopLevelMpTerm().get(i)));
+				}
+			}
+			return parents;
+		}
+
+		if (mps.get(0).getParentMaId().size() != mps.get(0).getParentMaTerm().size()){
+			throw new Error("Length of parent id list and parent term list does not match for MP id: " + id);
+		}
+
+		for (int i = 0; i < mps.get(0).getParentMaId().size(); i++){
+			parents.add(new OntologyBean(mps.get(0).getParentMaId().get(i),	mps.get(0).getParentMaTerm().get(i)));
+		}
+
+		return parents;
+	}
+	
+
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/05/03
+	 * @param id
+	 * @return
+	 * @throws SolrServerException
+	 */
+	public List<OntologyBean> getChildren(String id) 
+	throws SolrServerException {
+
+			SolrQuery solrQuery = new SolrQuery()
+				.setQuery(MaDTO.MA_ID + ":\"" + id + "\"")
+				.setRows(1);
+
+			QueryResponse rsp = solr.query(solrQuery);
+			List<MaDTO> mps = rsp.getBeans(MaDTO.class);
+			List<OntologyBean> children = new ArrayList<>();
+
+			if (mps.size() > 1){
+				throw new Error("More documents in MP core for the same MP id: " + id);
+			}
+
+			if (mps.get(0).getChildMaId() == null || mps.get(0).getChildMaId().size() == 0){
+				return children;
+			}
+
+			if (mps.get(0).getChildMaTerm().size() != mps.get(0).getChildMaId().size()){
+				throw new Error("Length of children id list and children term list does not match for MP id: " + id);
+			}
+
+			for (int i = 0; i < mps.get(0).getChildMaId().size(); i++){
+				children.add(new OntologyBean(mps.get(0).getChildMaId().get(i), mps.get(0).getChildMaTerm().get(i)));
+			}
+
+			return children;
+	}
+	
+	
 	public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException {
 
 		SolrQuery solrQuery = new SolrQuery();

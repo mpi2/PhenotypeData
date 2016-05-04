@@ -25,13 +25,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
-import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.MaService;
+import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.web.dto.Anatomy;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
@@ -45,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -58,23 +56,11 @@ public class AnatomyController {
 	private final Logger log = LoggerFactory.getLogger(AnatomyController.class);
 
 	@Autowired
-	private OntologyTermDAO ontoTermDao;
-
-	@Autowired
 	ImageService is;
 
 	@Autowired
-	private PhenotypeCallSummarySolr phenoDAO;
-
-	@Autowired
-	private SolrIndex solrIndex;
-
-	@Autowired
-	private PhenotypePipelineDAO pipelineDao;
-
-	@Autowired
-	private ImagesSolrDao imagesSolrDao;
-
+	MaService maService;
+	
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
@@ -100,8 +86,6 @@ public class AnatomyController {
 	public String loadMaPage(@PathVariable String anatomy_id, Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		// http://www.informatics.jax.org/searches/AMA.cgi?id=MA:0002950
-		// right eye
 		Anatomy ma = JSONMAUtils.getMA(anatomy_id, config);
 
 		//get expression only images
@@ -113,9 +97,61 @@ public class AnatomyController {
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
-		return "anatomy";
+		
+        // Stuff for parent-child display
+        model.addAttribute("hasChildren", maService.getChildren(anatomy_id).size() > 0 ? true : false);
+        model.addAttribute("hasParents", maService.getParents(anatomy_id).size() > 0 ? true : false);
+        
+        System.out.println(" --- " + maService.getChildren(anatomy_id) + " " + maService.getParents(anatomy_id));
+        
+        return "anatomy";
+		
 	}
 
+	 /**
+     * @author ilinca
+     * @since 2016/05/03
+     * @param mpId
+     * @param type
+     * @param model
+     * @return
+     * @throws SolrServerException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @RequestMapping(value="/maTree/json/{maId}", method=RequestMethod.GET)	
+    public @ResponseBody String getParentChildren( @PathVariable String maId, @RequestParam(value = "type", required = true) String type, Model model) 
+    throws SolrServerException, IOException, URISyntaxException {
+    	
+    	if (type.equals("parents")){
+    	
+	    	JSONObject data = new JSONObject();
+	    	data.element("id", maId);
+	    	JSONArray nodes = new JSONArray();
+	    
+	    	for (OntologyBean term : maService.getParents(maId)){
+	    		nodes.add(term.toJson());
+	    	}
+
+	    	data.element("children", nodes);
+			return data.toString();
+			
+    	} else if (type.equals("children")){
+    		
+    		JSONObject data = new JSONObject();
+        	data.element("id", maId);
+        	JSONArray nodes = new JSONArray();
+
+        	for (OntologyBean term : maService.getChildren(maId)){
+	    		nodes.add(term.toJson());
+	    	}
+        	
+        	data.element("children", nodes);
+    		return data.toString();
+    	}
+    	return "";
+    }
+	
 
     @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
 	public String loadMaTable(	@PathVariable String anatomy_id,
