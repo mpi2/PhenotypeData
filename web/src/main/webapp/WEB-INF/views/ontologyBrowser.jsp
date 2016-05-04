@@ -5,7 +5,7 @@
 <t:genericpage>
 
     <jsp:attribute name="title">IMPC Search</jsp:attribute>
-  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a>Ontology browser</jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">       
@@ -41,7 +41,6 @@
 				    "animation" : 0,
 				    'data' : {	
 				    	'url' : function (node) {
-						    console.log(node)
 				    	      return node.id === '#' ?
 				    	    		"ontologyBrowser2?termId=" + termId + "&node=src" :
 				    	    		"ontologyBrowser2?termId=" + termId + "&node=" + node.id;
