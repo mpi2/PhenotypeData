@@ -312,7 +312,8 @@ public class OntologyBrowserGetter {
 
 		String nodeId = Integer.toString(resultSet.getInt("node_id"));
 
-		if ( !helper.getExcludedNodeIds().contains(nodeId) ) {
+		// for MP, helper.getExcludedNodeIds() will be null
+		if ( helper.getExcludedNodeIds() == null || !helper.getExcludedNodeIds().contains(nodeId) ) {
 
 			String termId = resultSet.getString("term_id");
 			String name = resultSet.getString("name");
