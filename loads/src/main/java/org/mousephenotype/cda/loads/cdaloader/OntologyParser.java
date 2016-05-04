@@ -60,6 +60,10 @@ public class OntologyParser {
 	    			synonyms.add(s);
 	    		}
 	    		term.setSynonyms(synonyms);
+	    		term.setIsObsolete(isObsolete(cls));
+	    		if (term.getIsObsolete() && getReplacementId(cls) != null){
+	    			term.setReplacementId(getReplacementId(cls));
+	    		}
 	    		terms.add(term);
 	    	}
 	    }   

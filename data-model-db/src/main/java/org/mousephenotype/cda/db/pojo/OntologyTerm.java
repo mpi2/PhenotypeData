@@ -55,7 +55,8 @@ public class OntologyTerm {
 	@Column(name = "is_obsolete")
 	private Boolean isObsolete;
 
-
+	private String replacementId;
+	
 	@ElementCollection
 	@CollectionTable(
 		name="synonym",
@@ -98,6 +99,15 @@ public class OntologyTerm {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+		
+	public String getReplacementId() {
+		return replacementId;
+	}
+
+	public void setReplacementId(String replacementId) {
+		this.replacementId = replacementId;
 	}
 
 	/**

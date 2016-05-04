@@ -51,7 +51,7 @@ public class OntologyParserTest {
 
         String prefix;
         for (File file : owlFiles) {
-            prefix = file.getName().replace(".owl", "").toUpperCase();
+            prefix = file.getName().replace(".owl", ":").toUpperCase();
             try {
                 ontologyParser = new OntologyParser(file.getPath(), prefix);
             } catch (Exception e) {
@@ -76,16 +76,28 @@ public class OntologyParserTest {
     
     @Test 
     public void testDeprecated() 
-    throws OWLOntologyCreationException{
-    	
-        ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
-        //	 --> replaced by MP:0008996
+    throws Exception{
+
+        List<Exception> exceptions = new ArrayList();
+       // ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
+        ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
         List<OntologyTerm> terms = ontologyParser.getTerms();
         for (OntologyTerm term : terms){
         	if (term.getId().getAccession().equals("MP:0006374")){
-        		//AssertTrue(term.isDeprecated());
-        		// 
+        		if(!term.getIsObsolete()){
+        			 String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " is not marked as deprecated)";
+        			 exceptions.add(new Exception(message));
+        		}
+        		if (term.getReplacementId() == null || !term.getReplacementId().equals("MP:0008996")){
+        			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have the correct replacement term)";
+        			exceptions.add(new Exception(message));
+        		}
+        		break;
         	}
+        }
+        
+        if ( ! exceptions.isEmpty()){
+        	throw exceptions.get(0);            // Just throw the first one because Mike does so
         }
     	
     }
