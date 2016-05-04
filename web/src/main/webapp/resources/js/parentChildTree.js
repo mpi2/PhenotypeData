@@ -47,7 +47,7 @@
 	    }
 
 	    if (hasParents){
-		    d3.json("../mpTree/json/" + mp_id + "?type=parents", function(error, root) {
+		    d3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=parents", function(error, root) {
 		    	
 		    	svgP = d3.select("#parentDiv").append("svg")
 			        .attr("width", width)
@@ -116,7 +116,7 @@
 	    }
 	    
 	    if (hasChildren){
-		    d3.json("../mpTree/json/" + mp_id + "?type=children", function(error, root) {
+		    d3.json("../" + ontPrefix + "Tree/json/" + ont_id + "?type=children", function(error, root) {
 		    	  
 			    var svg = d3.select("#childDiv").append("svg")
 			        .attr("width", width)

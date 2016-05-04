@@ -6,10 +6,24 @@
 <t:genericpage>
 
 	<jsp:attribute name="title">${anatomy.accession} (${anatomy.term}) | IMPC anatomy Information</jsp:attribute>
-	 <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/ma?kw=*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
-<jsp:attribute name="header">
-</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/ma?kw=*">anatomy</a> &raquo; ${anatomy.term}</jsp:attribute>
+	<jsp:attribute name="header">
+        <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
+	</jsp:attribute>
+	
     <jsp:attribute name="addToFooter">
+    	
+    	<script type="text/javascript">
+			var ont_id = '${anatomy.accession}';
+			var ontPrefix = "ma";
+			var hasChildren = ${hasChildren};
+			var hasParents = ${hasParents};
+		</script>
+		   	
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>		
+		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>	
+		<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
+		
 		<div class="region region-pinned">
             
         <div id="flyingnavi" class="block">
@@ -41,53 +55,69 @@
 			<div class="block block-system">
 				<div class="content">
 					<div class="node node-gene">						
-						<h1 class="title" id="top">Anatomy Term: ${anatomy.term}</h1>
+						<h1 class="title" id="top">${anatomy.term}</h1>
 						
 							<div class="section">
-								<div class="inner">									
-									<c:if test="${fn:length(anatomy.synonyms) > 0 }">			
-										<p class="with-label"> <span class="label">Synonyms </span>
-											<c:forEach items="${anatomy.synonyms}" var="synonym" varStatus="synonymLoop">
-												<a href="${baseUrl}/anatomy/${anatomy.synonyms[synonymLoop.index]}">${synonym}</a> <c:if test="${!synonymLoop.last}">, &nbsp;</c:if>	
-											</c:forEach>
-										</p>	
-									</c:if>
-									<c:if test="${fn:length(anatomy.childTerms) > 0 }">								
-										<p class="with-label"> <span class="label">Child Terms </span>
-											<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
-												<a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${childTerm}</a> <c:if test="${!childStatus.last}">, &nbsp;</c:if>	
-											</c:forEach>
-										</p>
-								</c:if>	
+								<div class="inner">		
+									<div class="half">							
+										<c:if test="${fn:length(anatomy.synonyms) > 0 }">			
+											<p class="with-label"> <span class="label">Synonyms </span>
+												<c:forEach items="${anatomy.synonyms}" var="synonym" varStatus="synonymLoop">
+													<a href="${baseUrl}/anatomy/${anatomy.synonyms[synonymLoop.index]}">${synonym}</a> <c:if test="${!synonymLoop.last}">, &nbsp;</c:if>	
+												</c:forEach>
+											</p>	
+										</c:if>
+										<c:if test="${fn:length(anatomy.childTerms) > 0 }">								
+											<p class="with-label"> <span class="label">Child Terms </span>
+												<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
+													<a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${childTerm}</a> <c:if test="${!childStatus.last}">, &nbsp;</c:if>	
+												</c:forEach>
+											</p>
+										</c:if>	
+									</div>
 						
-							</div>					
+									<div id="parentChild" class="half">
+											<c:if test="${hasChildren && hasParents}">
+				                            	<div class="half" id="parentDiv"></div>
+												<div class="half" id="childDiv"></div>
+											</c:if>
+											<c:if test="${hasChildren && !hasParents}">
+												<div id="childDiv"></div>
+											</c:if>
+											<c:if test="${!hasChildren && hasParents}">
+				                            	<div id="parentDiv"></div>
+											</c:if>
+									</div>
+										
+									<div class="clear"></div>
+								</div>					
+							</div>
 						</div>
-
 				<div class="section"> 
 					<h2 class="title"><a name="maHasExp">Genes with reporter expression table</a></h2>
 						<div class="inner">
-							 <div class="container span12">
-									<div id="filterParams" >
-                     <c:forEach var="filterParameters" items="${paramValues.fq}">
-                         ${filterParameters}
-                     </c:forEach>
-                  </div> 
-                  <c:if test="${not empty phenoFacets}">
-                     <form class="tablefiltering no-style" id="target" action="destination.html">
-                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
-                                  <c:forEach var="facet" items="${phenoFacet.value}">
-                                       <option>${facet.key}</option>
-                                  </c:forEach>
-                             </select> 
-                        </c:forEach>
-                        <div class="clear"></div>
-                     </form>
-                 </c:if>
-                 <jsp:include page="anatomyFrag.jsp"></jsp:include>						 
-							</div>
-				    </div>
-				 </div>	
+							<div class="container span12">
+							  <div id="filterParams" >
+				                     <c:forEach var="filterParameters" items="${paramValues.fq}">
+				                         ${filterParameters}
+				                     </c:forEach>
+		                      </div> 
+			                  <c:if test="${not empty phenoFacets}">
+			                     <form class="tablefiltering no-style" id="target" action="destination.html">
+			                        <c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
+			                             <select id="${phenoFacet.key}" class="impcdropdown" multiple="multiple" title="Filter on ${phenoFacet.key}">
+			                                  <c:forEach var="facet" items="${phenoFacet.value}">
+			                                       <option>${facet.key}</option>
+			                                  </c:forEach>
+			                             </select> 
+			                        </c:forEach>
+			                        <div class="clear"></div>
+			                     </form>
+			                 </c:if>
+		                 	<jsp:include page="anatomyFrag.jsp"></jsp:include>						 
+						</div>
+			    	</div>
+				</div>	
 				 
 				 
 					<div class="section">
@@ -99,18 +129,18 @@
 						
 							<c:if test="${not empty expressionImages && fn:length(expressionImages) !=0}">
 								<div class="accordion-group">
-	              	<div class="accordion-heading">Expression Associated Images</div>
+	              					<div class="accordion-heading">Expression Associated Images</div>
 									<div class="accordion-body">
-			    					<ul>                                    
-			    						<c:forEach var="doc" items="${expressionImages}">
-	                   		<li class="span2">
+					    				<ul>                                    
+					    					<c:forEach var="doc" items="${expressionImages}">
+	                   							<li class="span2">
 													<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-	                      </li>
-	                    </c:forEach>                              
+	                      						</li>
+	                   						 </c:forEach>                              
 										</ul>
-										
+									
 										<c:if test="${numberExpressionImagesFound>5}">
-	                   	<p class="textright">
+	                   						<p class="textright">
 												<a href='${baseUrl}/images?anatomy_id=${anatomy.accession}&fq=expName:Wholemount Expression'><i class="fa fa-caret-right"></i>show all ${numberExpressionImagesFound} images</a>
 											</p>
 										</c:if>
@@ -123,7 +153,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+
 		
 	<script>
 	$(document).ready(function(){						
