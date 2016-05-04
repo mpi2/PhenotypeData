@@ -63,25 +63,6 @@
             <version>2.3</version>
         </dependency>
 
-        <!--Phenodigm disease pages dependencies -->
-        <dependency>
-            <groupId>uk.ac.sanger</groupId>
-            <artifactId>phenodigm2-core</artifactId>
-            <version>1.5.0</version>
-            <exclusions>
-                <!-- Exclude el-api as it's provided by tomcat -->
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-jdbc</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>

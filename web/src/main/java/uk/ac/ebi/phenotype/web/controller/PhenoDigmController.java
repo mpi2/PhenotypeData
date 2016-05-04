@@ -33,11 +33,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
-import uk.ac.sanger.phenodigm2.model.DiseaseModelAssociation;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
+import uk.ac.ebi.phenodigm.model.DiseaseModelAssociation;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.web.DiseaseGeneAssociationDetail;
 
 /**
  * Controller for producing the disease-gene phenotype association details from 
