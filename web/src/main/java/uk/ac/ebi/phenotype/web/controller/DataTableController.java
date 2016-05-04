@@ -77,10 +77,10 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import uk.ac.ebi.phenotype.generic.util.JSONMAUtils;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.web.AssociationSummary;
-import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.web.AssociationSummary;
+import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 
 
 @Controller
