@@ -184,7 +184,7 @@ public class MaOntologyDAO extends OntologyDAO {
             while (resultSet.next()) {
                 Integer nodeId = resultSet.getInt("node_id");
                 String fullpath = resultSet.getString("fullpath");
-                fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
+                //fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
                 
                 backtraceMap.put(nodeId, fullpath);
             }
@@ -247,7 +247,7 @@ public class MaOntologyDAO extends OntologyDAO {
                 List<Integer> fullpathNodeList = new ArrayList();
                 for (String sNode : fullpath) {
                     int node = Integer.parseInt(sNode);
-                    if (node > 0) {
+                    if (node > 0 ) {
                         fullpathNodeList.add(node);
                     }
                 }
@@ -260,6 +260,7 @@ public class MaOntologyDAO extends OntologyDAO {
                         // New top level was found in fullpath (i.e. entry.getValue()).
                         fullpathNodeList.subList(0, newTopNodeIndex).clear();
                         String newFullpath = "";
+
                         for (Integer node : fullpathNodeList) {
                             if ( ! newFullpath.isEmpty())
                                 newFullpath += " ";
