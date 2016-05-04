@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -70,6 +72,22 @@ public class OntologyParserTest {
         if (! exceptions.isEmpty()) {
             throw exceptions.get(0);            // Just throw the first one.
         }
+    }
+    
+    @Test 
+    public void testDeprecated() 
+    throws OWLOntologyCreationException{
+    	
+        ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
+        //	 --> replaced by MP:0008996
+        List<OntologyTerm> terms = ontologyParser.getTerms();
+        for (OntologyTerm term : terms){
+        	if (term.getId().getAccession().equals("MP:0006374")){
+        		//AssertTrue(term.isDeprecated());
+        		// 
+        	}
+        }
+    	
     }
     
 }

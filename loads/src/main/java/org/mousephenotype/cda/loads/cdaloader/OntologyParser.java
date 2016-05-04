@@ -2,6 +2,7 @@ package org.mousephenotype.cda.loads.cdaloader;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,8 @@ public class OntologyParser {
 	OWLAnnotationProperty LABEL_ANNOTATION;
 	OWLAnnotationProperty ALT_ID;	
 	OWLAnnotationProperty X_REF;
+	ArrayList<OWLAnnotationProperty> IS_OBSOLETE;
+	OWLAnnotationProperty REPLACEMENT;
 	ArrayList<OWLAnnotationProperty> SYNONYM_ANNOTATION;
 	ArrayList<OWLAnnotationProperty> DEFINITION_ANNOTATION;
 	
@@ -88,8 +91,15 @@ public class OntologyParser {
 		
 		DEFINITION_ANNOTATION = new ArrayList<>();
 		DEFINITION_ANNOTATION.add(factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0000115")));
-				
+		
+		IS_OBSOLETE = new ArrayList<>();
+		IS_OBSOLETE.add(factory.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#isObsolete")));
+		IS_OBSOLETE.add(factory.getOWLAnnotationProperty(IRI.create("http://www.w3.org/2002/07/owl#deprecated")));
+		
+		REPLACEMENT = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
+		
 		ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+		
 	}
 
 	
@@ -160,7 +170,31 @@ public class OntologyParser {
 		}
 		
 		return synonyms;
+	}
+	
+	
+	private boolean isObsolete(OWLClass cls){
+		for (OWLAnnotationProperty synonym: SYNONYM_ANNOTATION){
+			if (EntitySearcher.getAnnotations(cls,ontology, synonym).size() > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	private String getReplacementId(OWLClass cls){
 		
+		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, REPLACEMENT); 
+		if (res.size() > 0){
+			if (res.size() > 1){
+				System.out.println("WARNING: more than 1 replacement terms for deprecated class " + getIdentifierShortForm(cls));
+			}
+			if (res.iterator().next().getValue() instanceof OWLLiteral) {
+				return ((OWLLiteral) res.iterator().next().getValue()).getLiteral();
+			}
+		}
+		return null;
 	}
 	
 }
