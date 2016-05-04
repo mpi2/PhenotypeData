@@ -94,7 +94,7 @@
 								
 								<tr>
 									<td>
-										${histRow.anatomyName}
+										<a href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'>${histRow.anatomyName}</a>
 									</td>
 									<td>
 											${histRow.significantCount } / ${histRow.nonSignificantCount }
