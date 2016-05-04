@@ -95,7 +95,7 @@
 								<c:forEach var="histRow" items="${histopathRows}">
 								
 								<tr>
-									<td>
+									<td id="${histRow.sampleId}_${histRow.anatomyName}">
 										${histRow.sampleId}
 									</td>
 									<td>
