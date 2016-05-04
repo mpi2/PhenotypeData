@@ -28,8 +28,8 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDaoSolrImpl;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDaoSolrImpl;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.PersistenceContext;

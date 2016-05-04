@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.Disease;
-import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
-import uk.ac.sanger.phenodigm2.model.DiseaseModelAssociation;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.model.MouseModel;
-import uk.ac.sanger.phenodigm2.model.PhenotypeTerm;
-import uk.ac.sanger.phenodigm2.web.DiseaseGeneAssociationDetail;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.Disease;
+import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
+import uk.ac.ebi.phenodigm.model.DiseaseModelAssociation;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.model.MouseModel;
+import uk.ac.ebi.phenodigm.model.PhenotypeTerm;
+import uk.ac.ebi.phenodigm.web.DiseaseGeneAssociationDetail;
 
 /**
  * @author Jules Jacobsen <jules.jacobsen@sanger.ac.uk>
@@ -109,7 +109,7 @@ public class PhenogridController {
     }
 
     private List<PhenotypeTerm> makeIdOnlyPhenotypes(List<PhenotypeTerm> phenotypeTerms) {
-        return phenotypeTerms.stream().map(phenotypeTerm -> {PhenotypeTerm term = new PhenotypeTerm(); term.setId(phenotypeTerm.getId()); return term;}).collect(toList());
+        return phenotypeTerms.stream().map(phenotypeTerm -> new PhenotypeTerm(phenotypeTerm.getId(), "")).collect(toList());
     }
 
     private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel, double phenodigmScore, String baseUrl) {
