@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -171,13 +172,14 @@ public class HistopathService {
 					//System.out.println("adding row=" + row);
 					rows.add(row);
 				}
-
+				
 			}
 		}
-
 		return rows;
 
 	}
+
+	
 
 	public Map<String, List<ObservationDTO>> getSampleToObservationMap(List<ObservationDTO> observations) {
 		Map<String, List<ObservationDTO>> map = new HashMap<>();
