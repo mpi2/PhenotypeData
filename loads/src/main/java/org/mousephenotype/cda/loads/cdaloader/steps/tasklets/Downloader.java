@@ -31,7 +31,6 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
@@ -82,9 +81,7 @@ public class Downloader extends SystemCommandTasklet {
         String targetTemp;
         URL url;
 
-        startStep = new Date().getTime();
         try {
-            Path path = Paths.get(filename);
             Files.createDirectories(Paths.get(filename).getParent());
         } catch (IOException e) {
             logger.error("Create cda directory '" + filename + "' failed. Reason: " + e.getLocalizedMessage());
@@ -107,6 +104,5 @@ public class Downloader extends SystemCommandTasklet {
         }
 
         return null;
-
     }
 }
