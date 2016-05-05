@@ -79,8 +79,8 @@ public class OntologyParserTest {
     throws Exception{
 
         List<Exception> exceptions = new ArrayList();
-       // ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
-        ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
+        ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
+       // ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
         List<OntologyTerm> terms = ontologyParser.getTerms();
         for (OntologyTerm term : terms){
         	if (term.getId().getAccession().equals("MP:0006374")){
@@ -93,6 +93,18 @@ public class OntologyParserTest {
         			exceptions.add(new Exception(message));
         		}
         		break;
+        	}
+        	if (term.getId().getAccession().equals("MP:0002954")){
+        		if (term.getConsiderIds().size() == 0){
+        			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have any consider terms )";
+        			exceptions.add(new Exception(message));
+        		} else {
+        			if (!term.getConsiderIds().contains("MP:0010951") || !term.getConsiderIds().contains("MP:0010954") || !term.getConsiderIds().contains("MP:0010959") ){
+        				String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not contain the consider terms expected )";
+            			exceptions.add(new Exception(message));
+        			}
+        		}
+        		
         	}
         }
         
