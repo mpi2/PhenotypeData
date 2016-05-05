@@ -14,21 +14,16 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.config;
+package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.ResourceFile;
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.step.DownloadResourceFiles;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.support.ResourceFile;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
-import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -44,8 +39,8 @@ public class ConfigBatch {
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
+//    @Autowired
+//    public StepBuilderFactory stepBuilderFactory;
 
 //    @Autowired
 //    public DataSource komp2Loads;
@@ -58,20 +53,20 @@ public class ConfigBatch {
 //    public FlatFileItemReader<OntologyTerm> ontologyReader;
 
     @Autowired
-    public FlatFileItemWriter ontologyWriter;
+    public ItemWriter<OntologyTerm> ontologyWriter;
 
 
-    @Autowired
-    @Qualifier("downloadResourceFiles")
-    public DownloadResourceFiles downloadResourceFiles;
+//    @Autowired
+//    @Qualifier("downloadResourceFiles")
+//    public DownloadResourceFiles downloadResourceFiles;
 
 //    @Autowired
 //    @Qualifier("recreateAndLoadDbTables")
 //    public SystemCommandTasklet recreateAndLoadDbTables;
 
-//    @Autowired
-//    @Qualifier("resourceFileOntologyMa")
-//    public ResourceFile resourceFileOntologyMa;
+    @Autowired
+    @Qualifier("resourceFileOntologyMa")
+    public ResourceFile resourceFileOntologyMa;
 
     // tag::readerwriterprocessor[]
 //    @Bean
@@ -90,24 +85,35 @@ public class ConfigBatch {
 //    }
 
 
+//    @Bean
+//    public Job cdaLoadJob() throws CdaLoaderException {
+//        return jobBuilderFactory.get("cdaLoadJob")
+//                .incrementer(new RunIdIncrementer())
+////                .listener(listener())
+//
+//                .flow(resourceFileOntologyMa.getDownloadStep())
+//                .next(resourceFileOntologyMa.getLoadStep())
+////                .next(recreateAndLoadDbTablesStep())
+////                .next(loadOntologyMaStep())
+////                .flow(loadOntologyMaStep())
+//                .end()
+//                .build();
+//    }
+
     @Bean
     public Job cdaLoadJob() throws CdaLoaderException {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
-//                .listener(listener())
-                .flow(downloadResourceFilesStep())
-//                .next(recreateAndLoadDbTablesStep())
-//                .next(loadOntologyMaStep())
-//                .flow(loadOntologyMaStep())
+                .flow(resourceFileOntologyMa.getLoadStep())
                 .end()
                 .build();
     }
 
-    public Step downloadResourceFilesStep() {
-        return stepBuilderFactory.get("downloadResourceFiles")
-                .tasklet(downloadResourceFiles)
-                .build();
-    }
+//    public Step downloadResourceFilesStep() {
+//        return stepBuilderFactory.get("downloadResourceFiles")
+//                .tasklet(downloadResourceFiles)
+//                .build();
+//    }
 
 //    public Step recreateAndLoadDbTablesStep() {
 //        return stepBuilderFactory.get("recreateAndLoadDbTablesStep")

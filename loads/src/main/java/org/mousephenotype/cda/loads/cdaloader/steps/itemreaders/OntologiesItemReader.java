@@ -14,10 +14,11 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader;
+package org.mousephenotype.cda.loads.cdaloader.steps.itemreaders;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.OntologyParser;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.springframework.batch.item.adapter.ItemReaderAdapter;
 
@@ -26,22 +27,31 @@ import java.util.List;
 /**
  * Created by mrelac on 03/05/16.
  */
-public class OwlItemReader extends ItemReaderAdapter<OntologyTerm> {
+public class OntologiesItemReader extends ItemReaderAdapter<OntologyTerm> {
 
-    private String sourceFile;
+    private String filename;
     private int dbId;
     private String prefix;
     private List<OntologyTerm> terms = null;
 
     private int index = 0;
 
-    public void initialise(String sourceFile, int dbId, String prefix) throws CdaLoaderException {
-        this.sourceFile = sourceFile;
+
+    /**
+     * Initialise a new <code>OntologiesItemReader</code> instance
+     * @param filename the fully qualified filename where the resource will be downloaded to and from which the <code>
+     *                 ItemReader</code> will read
+     * @param dbId the ontology identifier (from the komp2 table 'external_db')
+     * @param prefix the <code>OntologyParser</code> OWL prefix (e.g. PATO, MA, MP, etc.)
+     */
+    public void initialise(String filename, int dbId, String prefix) throws CdaLoaderException {
+        this.filename = filename;
         this.dbId = dbId;
         this.prefix = prefix;
 
         try {
-            terms = new OntologyParser(sourceFile, prefix).getTerms();
+            terms = new OntologyParser(filename, prefix).getTerms();
+System.out.println("TERMS COUNT: " + terms.size());
 
         } catch (OWLOntologyCreationException e) {
             throw new CdaLoaderException(e);
@@ -66,17 +76,17 @@ public class OwlItemReader extends ItemReaderAdapter<OntologyTerm> {
      *
      * @return the fully-qualified OWL source file name
      */
-    public String getSourceFile() {
-        return sourceFile;
+    public String getFilename() {
+        return filename;
     }
 
     /**
      * Set the fully-qualified OWL source file name
      *
-     * @param sourceFile the fully-qualified OWL source file name
+     * @param filename the fully-qualified OWL source file name
      */
-    public void setSourceFile(String sourceFile) {
-        this.sourceFile = sourceFile;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     /**

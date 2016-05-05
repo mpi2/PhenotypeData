@@ -14,10 +14,14 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader;
+package org.mousephenotype.cda.loads.cdaloader.support;
 
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.Downloader;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * This class encapsulates the code and data necessary to represent a resource file, identified by a URL, containing
@@ -30,39 +34,34 @@ import org.springframework.batch.item.ItemReader;
  */
 public abstract class ResourceFile {
 
-    protected String sourceFile;
-    protected int dbId;
+    private String filename;
+    private String sourceUrl;
+
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
 
     /**
      * Return an <code>ItemReader</code> instance of the specified type <code>T</code>.
      *
      * @return an <code>ItemReader</code> instance of the specified type <code>T</code>.
      */
-    public abstract ItemReader<?> getItemReader() throws CdaLoaderException;
+    public abstract Step getLoadStep() throws CdaLoaderException;
 
+    public Step getDownloadStep() {
+        Downloader downloader = new Downloader();
+        downloader.initialise(this.sourceUrl, this.filename);
+        return stepBuilderFactory.get("downloadStep")
+                .tasklet(downloader)
+                .build();
+    }
     /**
-     * Download the resource file set by <code>setResourceFile</code>
+     * Initialise a new <code>ResourceFile</code> instance
+     * @param sourceUrl the resource source url
+     * @param filename the fully qualified filename where the resource will be downloaded to and from which the <code>
+     *                 ItemReader</code> will read
      */
-    public abstract void download();
-
-    public void initialise(String sourceFile, int dbId) {
-        this.sourceFile = sourceFile;
-        this.dbId = dbId;
-    }
-
-    public int getDbId() {
-        return dbId;
-    }
-
-    public void setDbId(int dbId) {
-        this.dbId = dbId;
-    }
-
-    public String getSourceFile() {
-        return sourceFile;
-    }
-
-    public void setSourceFile(String sourceFile) {
-        this.sourceFile = sourceFile;
+    protected void initialise(String sourceUrl, String filename) {
+        this.sourceUrl = sourceUrl;
+        this.filename = filename;
     }
 }

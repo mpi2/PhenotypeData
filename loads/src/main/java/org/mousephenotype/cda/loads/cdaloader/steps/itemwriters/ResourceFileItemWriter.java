@@ -14,17 +14,14 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.step;
+package org.mousephenotype.cda.loads.cdaloader.steps.itemwriters;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.file.transform.FieldSet;
 import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import java.util.List;
@@ -32,12 +29,7 @@ import java.util.List;
 /**
  * Created by mrelac on 26/04/16.
  */
-@Configuration
-//@ComponentScan("org.mousephenotype.cda.loads.cdaloader")
-//@PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
-//@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
-//                ignoreResourceNotFound=true)
-public class LoadOntologiesStep implements ItemWriter<OntologyTerm> {
+public class ResourceFileItemWriter implements ItemWriter<OntologyTerm> {
 
 //    CommonUtils commonUtils = new CommonUtils();
 //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -70,9 +62,6 @@ public class LoadOntologiesStep implements ItemWriter<OntologyTerm> {
 //    @Value("${cdaload.dbport}")
 //    private String dbport;
 
-
-    @Bean(name = "ontologyWriter")
-    @StepScope
     public FlatFileItemWriter ontologyWriter() {
         FlatFileItemWriter<FieldSet> writer = new FlatFileItemWriter<>();
         writer.setLineAggregator(new PassThroughLineAggregator());
@@ -82,7 +71,6 @@ public class LoadOntologiesStep implements ItemWriter<OntologyTerm> {
         return writer;
     }
 
-    @Bean
     public DelimitedLineTokenizer delimitedLineTokenizer() {
         return new DelimitedLineTokenizer();
     }

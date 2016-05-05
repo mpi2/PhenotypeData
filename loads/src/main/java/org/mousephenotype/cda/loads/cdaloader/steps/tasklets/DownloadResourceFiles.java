@@ -14,15 +14,15 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.step;
+package org.mousephenotype.cda.loads.cdaloader.steps.tasklets;
 
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -39,7 +39,7 @@ import java.util.Date;
  * Created by mrelac on 13/04/2016.
  *
  */
-@Component
+@Deprecated
 public class DownloadResourceFiles extends SystemCommandTasklet {
 
     @Value("${cdaload.workspace}")
@@ -52,7 +52,8 @@ public class DownloadResourceFiles extends SystemCommandTasklet {
 //    @Bean(name = "downloadReports")
 //    @StepScope
 //    public SystemCommandTasklet downloadReports() throws CdaLoaderException {
-    public DownloadResourceFiles() {
+    @PostConstruct
+    public void initialise() {
         String command;
         SystemCommandTasklet downloadReportsTasklet;
 
@@ -137,13 +138,13 @@ public class DownloadResourceFiles extends SystemCommandTasklet {
             }
         }
 
-        // A SystemCommandTasklet needs something to execute or it throws an exception. This is a do-nothing command to satisfy that requirement.
+        // A SystemCommandTasklet needs something to execute or it throws an exceptions. This is a do-nothing command to satisfy that requirement.
         command = "ls";
         setCommand(command);
         setTimeout(TASKLET_TIMEOUT);
         setWorkingDirectory(cdaWorkspace);
 
-        logger.info("Total step elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
 //        return this;
     }
