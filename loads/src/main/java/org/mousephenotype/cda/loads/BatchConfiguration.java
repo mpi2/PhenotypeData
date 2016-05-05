@@ -36,8 +36,8 @@ public class BatchConfiguration {
 //    private StepBuilderFactory stepBuilderFactory;
 //
 //    @Bean
-//    public Step step1() {
-//        return stepBuilderFactory.get("step1")
+//    public Step downloadGenomicFeaturesStep() {
+//        return stepBuilderFactory.get("downloadGenomicFeaturesStep")
 //                .step(new Tasklet() {
 //                    @Override
 //                    public RepeatStatus execute(StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
@@ -47,10 +47,10 @@ public class BatchConfiguration {
 //    }
 //
 //    @Bean
-//    public Job job(Step step1) throws Exception {
+//    public Job job(Step downloadGenomicFeaturesStep) throws Exception {
 //        return jobBuilderFactory.get("job1")
 //                .incrementer(new RunIdIncrementer())
-//                .start(step1)
+//                .start(downloadGenomicFeaturesStep)
 //                .build();
 //    }
 }
