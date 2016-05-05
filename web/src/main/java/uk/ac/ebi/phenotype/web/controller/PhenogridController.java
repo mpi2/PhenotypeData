@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
-import uk.ac.ebi.phenodigm.model.Disease;
 import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
 import uk.ac.ebi.phenodigm.model.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
@@ -36,6 +35,8 @@ import uk.ac.ebi.phenodigm.web.DiseaseGeneAssociationDetail;
 public class PhenogridController {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenogridController.class);
+    private static final Comparator<DiseaseModelAssociation> GENE_TO_DISEASE_SCORE_COMPARATOR = DiseaseModelAssociation.GeneToDiseaseScoreComparator;
+    private static final Comparator<DiseaseModelAssociation> DISEASE_TO_GENE_SCORE_COMPARATOR = DiseaseModelAssociation.DiseaseToGeneScoreComparator;
 
     @Autowired
     private PhenoDigmWebDao phenoDigmDao;
@@ -44,49 +45,49 @@ public class PhenogridController {
     public PhenoGrid getPhenogrid(@RequestParam String requestPageType, @RequestParam String diseaseId, @RequestParam String geneId, HttpServletRequest request) {
         logger.info(String.format("Making phenogrid for %s %s from %s page", diseaseId, geneId, requestPageType));
 
-	    String baseUrl = (String) request.getAttribute("baseUrl");
-
         DiseaseGeneAssociationDetail diseaseGeneAssociationDetail = phenoDigmDao.getDiseaseGeneAssociationDetail(new DiseaseIdentifier(diseaseId), new GeneIdentifier(geneId, geneId));
 
         List<DiseaseModelAssociation> diseaseAssociations = diseaseGeneAssociationDetail.getDiseaseAssociations();
 
-        Map<Boolean, List<DiseaseModelAssociation>> diseaseModelAssociations = diseaseAssociations.stream()
+        Map<Boolean, List<DiseaseModelAssociation>> diseaseModelAssociationsWithLiteratureEvidence = diseaseAssociations.stream()
                 .collect(Collectors.partitioningBy(DiseaseModelAssociation::hasLiteratureEvidence));
 
-        List<DiseaseModelAssociation> literatureAssociations = diseaseModelAssociations.get(true);
-        List<DiseaseModelAssociation> phenotypicAssociations = diseaseModelAssociations.get(false);
+        List<DiseaseModelAssociation> literatureAssociations = diseaseModelAssociationsWithLiteratureEvidence.get(true);
+        List<DiseaseModelAssociation> phenotypicAssociations = diseaseModelAssociationsWithLiteratureEvidence.get(false);
 
-        //The lists need sorting according to the view in which they will be appearing
-        //we'll assume that the default is going to be a disease page
-        //but it could be a gene page
-        Comparator<DiseaseModelAssociation> pageComparator = makePageComparator(requestPageType);
-
-        //sort the lists according to the view in which they will be appearing
-        Collections.sort(literatureAssociations, pageComparator);
-        Collections.sort(phenotypicAssociations, pageComparator);
-
-        List<DiseaseModelAssociation> sortedAssociations = new ArrayList<>(literatureAssociations);
-        sortedAssociations.addAll(phenotypicAssociations);
-
-        String title = String.format("%s - %s disease-model phenotype matches", diseaseId, geneId, requestPageType);
-        List<PhenoGridEntity> xAxis = makeMouseModelEntities(sortedAssociations, requestPageType, baseUrl);
-        List<PhenoGridEntity> yAxis = Collections.singletonList(makeDiseaseEntity(diseaseGeneAssociationDetail));
-        return new PhenoGrid(null, xAxis, yAxis);
+        String title = " "; //use a space instead of null or empty string to prevent the phenogrid from displaying an unwanted default title
+        List<PhenoGridGroup> xAxisGroups = makePhenoGridGroups(requestPageType, (String) request.getAttribute("baseUrl"), literatureAssociations, phenotypicAssociations);
+        List<PhenotypeTerm> diseasePhenotypes = diseaseGeneAssociationDetail.getDiseasePhenotypes();
+        return new PhenoGrid(title, xAxisGroups, diseasePhenotypes);
     }
 
-    private PhenoGridEntity makeDiseaseEntity(DiseaseGeneAssociationDetail diseaseGeneAssociationDetail) {
-        DiseaseIdentifier diseaseId = diseaseGeneAssociationDetail.getDiseaseId();
-        Disease disease = phenoDigmDao.getDisease(diseaseId);
-        String id = disease.getDiseaseId();
-        String label = disease.getTerm();
-        List<PhenotypeTerm> phenotypes = diseaseGeneAssociationDetail.getDiseasePhenotypes();
-        return new PhenoGridEntity(id, label, phenotypes, null, new ArrayList<>());
+    private List<PhenoGridGroup> makePhenoGridGroups(String requestPageType, String baseUrl, List<DiseaseModelAssociation> literatureAssociations, List<DiseaseModelAssociation> phenotypicAssociations) {
+        List<PhenoGridGroup> xAxisGroups = new ArrayList<>();
+        if (!literatureAssociations.isEmpty()) {
+            Collections.sort(literatureAssociations, comparatorForPageType(requestPageType));
+            xAxisGroups.add(new PhenoGridGroup("lit", "Lit. Associated", makeMouseModelEntities(literatureAssociations, requestPageType, baseUrl)));
+        }
+        if (!phenotypicAssociations.isEmpty()) {
+            Collections.sort(phenotypicAssociations, comparatorForPageType(requestPageType));
+            xAxisGroups.add(new PhenoGridGroup("pheno", "Phenotype Associated", makeMouseModelEntities(phenotypicAssociations, requestPageType, baseUrl)));
+        }
+        return xAxisGroups;
+    }
+
+    /*
+     * The lists need sorting according to the view in which they will be appearing. We'll assume that the default is
+     * going to be a disease page, but it could be a gene page
+     */
+    private Comparator<DiseaseModelAssociation> comparatorForPageType(String requestPageType) {
+        switch (requestPageType) {
+            case "gene":
+                return GENE_TO_DISEASE_SCORE_COMPARATOR;
+            default:
+                return DISEASE_TO_GENE_SCORE_COMPARATOR;
+        }
     }
 
     private List<PhenoGridEntity> makeMouseModelEntities(List<DiseaseModelAssociation> diseaseAssociations, String requestPageType, String baseUrl) {
-        //TODO: need to make two groups of models:  literature associated and Phenodigm predicted - groupId: groupLabel [PhenoGridEntity]
-//        diseaseModelAssociation.hasLiteratureEvidence()
-
         List<PhenoGridEntity> mouseEntities = new ArrayList<>(diseaseAssociations.size());
         for (int i = 0; i < diseaseAssociations.size(); i++) {
             PhenoGridEntity mouseEntity = makeMouseModelEntityForPage(diseaseAssociations.get(i), i, requestPageType, baseUrl);
@@ -110,6 +111,15 @@ public class PhenogridController {
 
     private List<PhenotypeTerm> makeIdOnlyPhenotypes(List<PhenotypeTerm> phenotypeTerms) {
         return phenotypeTerms.stream().map(phenotypeTerm -> new PhenotypeTerm(phenotypeTerm.getId(), "")).collect(toList());
+    }
+
+    private double makeScoreForPageType(String requestPageType, DiseaseModelAssociation diseaseModelAssociation){
+        switch (requestPageType) {
+            case "gene":
+                return diseaseModelAssociation.getModelToDiseaseScore();
+            default:
+                return diseaseModelAssociation.getDiseaseToModelScore();
+        }
     }
 
     private List<EntityInfo> makeMouseModelInfo(MouseModel mouseModel, double phenodigmScore, String baseUrl) {
@@ -185,31 +195,13 @@ public class PhenogridController {
         return "<sup>" + string + "</sup>";
     }
 
-    private double makeScoreForPageType(String requestPageType, DiseaseModelAssociation diseaseModelAssociation){
-        if (requestPageType.equals("disease")) {
-            return diseaseModelAssociation.getDiseaseToModelScore();
-        }
-        return diseaseModelAssociation.getModelToDiseaseScore();
-    }
-
-    private Comparator<DiseaseModelAssociation> makePageComparator(String requestPageType) {
-        if (requestPageType.equals("gene")) {
-            logger.info("Sorting DiseaseAssociations according to m2d score for Gene page");
-            return DiseaseModelAssociation.GeneToDiseaseScoreComparator;
-        }
-        else {
-            logger.info("Sorting DiseaseAssociations according to d2m score for Disease page");
-            return DiseaseModelAssociation.DiseaseToGeneScoreComparator;
-        }
-    }
-
     private class PhenoGrid {
 
         private final String title;
-        private final List<PhenoGridEntity> xAxis;
-        private final List<PhenoGridEntity> yAxis;
+        private final List<PhenoGridGroup> xAxis;
+        private final List<PhenotypeTerm> yAxis;
 
-        public PhenoGrid(String title, List<PhenoGridEntity> xAxis, List<PhenoGridEntity> yAxis) {
+        public PhenoGrid(String title, List<PhenoGridGroup> xAxis, List<PhenotypeTerm> yAxis) {
             this.title = title;
             this.xAxis = xAxis;
             this.yAxis = yAxis;
@@ -219,12 +211,36 @@ public class PhenogridController {
             return title;
         }
 
-        public List<PhenoGridEntity> getxAxis() {
+        public List<PhenoGridGroup> getxAxis() {
             return xAxis;
         }
 
-        public List<PhenoGridEntity> getyAxis() {
+        public List<PhenotypeTerm> getyAxis() {
             return yAxis;
+        }
+    }
+
+    private class PhenoGridGroup {
+        private final String groupId;
+        private final String groupName;
+        private final List<PhenoGridEntity> entities;
+
+        public PhenoGridGroup(String groupId, String groupName, List<PhenoGridEntity> entities) {
+            this.groupId = groupId;
+            this.groupName = groupName;
+            this.entities = entities;
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public List<PhenoGridEntity> getEntities() {
+            return entities;
         }
     }
 
@@ -311,30 +327,4 @@ public class PhenogridController {
         }
     }
 
-//            "info": {
-//        "fields": [
-//        {
-//            "id": "Genotype",
-//                "value": "Fgfr2<sup>tm2.3Dsn</sup>/Fgfr2<sup>+</sup>"
-//        },
-//        {
-//            "id": "Background",
-//                "value": "involves: 129 * C57BL/6 * FVB/N"
-//        },
-//        {
-//            "id": "Source",
-//                "value": "MGI"
-//        },
-//        {
-//            "id": "MGI allele",
-//                "value": "Fgfr2<sup>tm2.3Dsn</sup>",
-//                "href": "http://informatics.jax.org/accession/MGI:2153817"
-//        },
-//        {
-//            "id": "IMPC gene",
-//                "value": "MGI:95523",
-//                "href": "http://www.mousephenotype.org/data/genes/MGI:95523"
-//        }
-//        ]
-//    }
 }

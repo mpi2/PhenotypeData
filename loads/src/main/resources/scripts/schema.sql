@@ -177,7 +177,7 @@ CREATE TABLE analytics_statistics_load (
 CREATE TABLE meta_info (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	property_key             VARCHAR(255) NOT NULL DEFAULT '',
-	property_value           VARCHAR(255) NOT NULL DEFAULT '',
+	property_value           VARCHAR(2000) NOT NULL DEFAULT '',
 	description              TEXT,
 
 	PRIMARY KEY (id),
@@ -193,7 +193,7 @@ CREATE TABLE meta_info (
 CREATE TABLE meta_history (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	property_key             VARCHAR(255) NOT NULL DEFAULT '',
-	property_value           VARCHAR(255) NOT NULL DEFAULT '',
+	property_value           VARCHAR(2000) NOT NULL DEFAULT '',
 	data_release_version     VARCHAR(10) NOT NULL,
 
 	PRIMARY KEY (id),

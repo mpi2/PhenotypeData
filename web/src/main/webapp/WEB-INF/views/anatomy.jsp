@@ -14,8 +14,10 @@
     <jsp:attribute name="addToFooter">
     	
     	<script type="text/javascript">
+			// Stuff dor parent-child. Will be used in parentChildTree.js.
 			var ont_id = '${anatomy.accession}';
 			var ontPrefix = "ma";
+			var page = "anatomy";
 			var hasChildren = ${hasChildren};
 			var hasParents = ${hasParents};
 		</script>

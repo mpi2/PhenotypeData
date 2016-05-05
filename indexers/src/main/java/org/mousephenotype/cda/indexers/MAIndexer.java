@@ -141,7 +141,7 @@ public class MAIndexer extends AbstractIndexer {
                 ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
                 ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
 
-                ma.setMaNodeId(bean.getMaNodeIds());
+                ma.setMaNodeId(bean.getNodeIds());
 
                 // index UBERON/EFO id for MA id
 
