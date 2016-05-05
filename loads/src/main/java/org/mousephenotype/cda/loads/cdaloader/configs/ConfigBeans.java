@@ -14,12 +14,12 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.config;
+package org.mousephenotype.cda.loads.cdaloader.configs;
 
-import org.mousephenotype.cda.loads.cdaloader.ResourceFileOntology;
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.step.DownloadResourceFiles;
-import org.mousephenotype.cda.loads.cdaloader.step.RecreateAndLoadDbTables;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileItemWriter;
+import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
+import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,12 +37,6 @@ public class ConfigBeans {
     @Value("${owlpath}")
     protected String owlpath;
 
-    @Bean(name = "downloadResourceFiles")
-//    @StepScope
-    public DownloadResourceFiles downloadResourceFiles() {
-        return new DownloadResourceFiles();
-    }
-
     @Bean(name = "recreateAndLoadDbTables")
     @StepScope
     public RecreateAndLoadDbTables recreateAndLoadDbTables() {
@@ -53,11 +47,18 @@ public class ConfigBeans {
 //    @StepScope
     public ResourceFileOntology resourceFileOntologyMa() throws CdaLoaderException {
         ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
-        String sourceFile = owlpath + "/ma.owl";
+        String sourceUrl = "http://purl.obolibrary.org/obo/ma.owl";
+        String filename = owlpath + "/ma.owl";
         int dbId = 8;
         String prefix = "MA:";
-        resourceFileOntology.initialise(sourceFile, dbId, prefix);
+        resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
 
         return resourceFileOntology;
+    }
+
+    @Bean(name = "resourceFileItemWriter")
+    @StepScope
+    public ResourceFileItemWriter resourceFileItemWriter() {
+        return new ResourceFileItemWriter();
     }
 }

@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.config;
+package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.hibernate.SessionFactory;
 import org.slf4j.LoggerFactory;

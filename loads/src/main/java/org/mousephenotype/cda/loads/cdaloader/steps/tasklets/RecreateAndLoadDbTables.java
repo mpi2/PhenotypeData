@@ -14,10 +14,10 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.step;
+package org.mousephenotype.cda.loads.cdaloader.steps.tasklets;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,13 +89,13 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
             System.out.println("FAIL: " + e.getLocalizedMessage());
         }
 
-        // A SystemCommandTasklet needs something to execute or it throws an exception. This is a do-nothing command to satisfy that requirement.
+        // A SystemCommandTasklet needs something to execute or it throws an exceptions. This is a do-nothing command to satisfy that requirement.
         String command = "ls";
         downloadReportsTasklet.setCommand(command);
         downloadReportsTasklet.setTimeout(TASKLET_TIMEOUT);
         downloadReportsTasklet.setWorkingDirectory(cdaWorkspace);
 
-        logger.info("Total step elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
+        logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
         return downloadReportsTasklet;
     }

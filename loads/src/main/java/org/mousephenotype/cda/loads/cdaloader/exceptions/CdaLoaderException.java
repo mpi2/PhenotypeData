@@ -16,7 +16,7 @@
 
 
 
-package org.mousephenotype.cda.loads.cdaloader.exception;
+package org.mousephenotype.cda.loads.cdaloader.exceptions;
 
 /**
  *
