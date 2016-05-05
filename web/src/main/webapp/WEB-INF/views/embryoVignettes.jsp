@@ -75,30 +75,45 @@
 							<h2 class="title" id="${geneId}"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
                             <div id="2" class="inner">
                             	<div class="twothird">
+									<p>Kelch domain-containing protein 2 functions as a transcriptional corepressor through its inhibitory interaction with LZIP.
+									</p>
+ 									<p> Klhdc2 mutants showed complete preweaning lethality with no homozygous pups observed, but remain viable up to E18.5. 
+ 										Micro-computed tomography (microCT) imaging revealed mutants display posterior polydactyly and edema. In addition to this, 
+ 										sections of microCT showed a smaller tongue, ventral septum defect (VSD), abnormal intestines and displaced kidneys.
+									</p>
                          			<p>
-                         				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM).<br>
-                         				The gene is expressed in <a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> (expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and
-                         				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal â€‹embryos may have a heart defect.
+                         				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads 
+                         				to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3; OMIM).<br>
+                         				The gene is expressed in 
+                         				<a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> 
+                         				(expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and
+                         				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while 
+                         				the lethal €‹embryos may have a heart defect.
                         			</p>
 
                         			<p>Phenotype data links</p>
 
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=MGI:1916804&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
+                            			<li> Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
                             			<li>
-                            				Embryo LacZ Expression: NA
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
                             			</li>
                             			<li>
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal gland</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
                             			</li>
                             			<li>
-                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
+                            		</ul>
                             		</ul>
 
                             	</div>
@@ -795,57 +810,6 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             	<div class="clear"></div>
                             </div>
                        	</div>
-
-
-
-                      <div class="section">
-                        <c:set var="geneId" value="MGI:1916804"></c:set>
-							<h2 class="title" id="${geneId}">
-								<t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu>
-								</t:formatAllele>
-							</h2>
-
-                            <div class="inner">
-                            	<div class="half">
-                         			<p>	Kelch domain-containing protein 2 functions as a transcriptional corepressor through its inhibitory interaction with LZIP.</p>
-									<p> Klhdc2 mutants showed complete preweaning lethality with no homozygous pups observed, but remain viable up to E18.5.
-									Micro-computed tomography (microCT) imaging revealed mutants display posterior polydactyly and edema. In addition to this,
-									sections of microCT showed a smaller tongue, ventral septum defect (VSD), abnormal intestines and displaced kidneys.
-									</p>
-
-                        			<p>Phenotype data links</p>
-
-                            		<ul>
-                            			<li>
-                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
-                            			</li>
-                            			<li> Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
-                            			<li>
-                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
-                            			</li>
-                            			<li>
-                            				Embryo Gross Morphology: NA
-                            			</li>
-                            			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal gland</a>,
-                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
-                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
-                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
-                            			</li>
-                            			<li>
-                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
-                            			</li>
-                            		</ul>
-
-                            	</div>
-                            	<div class="half">
-                            		<img alt="Hind foot polydactyly in E18.5 Klhdc2-null mutants" src="${baseUrl}/img/vignettes/Klhdc2.png"> Hind foot polydactyly in E18.5 Klhdc2-null mutants.
-                            	</div>
-
-                            	<div class="clear"></div>
-                            </div>
-                       	</div>
-
 
 
 
