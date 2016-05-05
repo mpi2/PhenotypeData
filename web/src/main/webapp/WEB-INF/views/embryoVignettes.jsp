@@ -331,8 +331,10 @@
                             		</ul>
 
                             	</div>
-                            	<div class="half"><img alt=Automated MRI analysis of E15.5 Eya4tm1b/tm1b mutants" src="${baseUrl}/img/vignettes/eye4.png" >Automated MRI analysis of E15.5 Eya4tm1b/tm1b mutants showed that mutant embryos had a statistically smaller volumes of the cochlea and other tissues compared to Eya4+/+ wildtype embryos as highlighted in blue in transverse, coronal, and sagittal sections (false discovery rate (FDR) threshold of 5%).
-
+                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Eya4<tm1b/tm1b> mutants" src="${baseUrl}/img/vignettes/eye4.png">
+                            		Automated MRI analysis of E15.5 Eya4tm1b/tm1b mutants showed that mutant embryos had a statistically smaller 
+                            		volumes of the cochlea and other tissues compared to <t:formatAllele>Eya4<+/+></t:formatAllele> wildtype 
+                            		embryos as highlighted in blue in transverse, coronal, and sagittal sections (false discovery rate (FDR) threshold of 5%).
 								</div>
 
                             	<div class="clear"></div>
@@ -348,12 +350,16 @@
 
 								</div>
 
-
 								<div id="eyaEmbHis" style="display: none">
                             	<img src="${baseUrl}/img/vignettes/eya4LacSlides.png"/>
-                            	<p>
-                            	H&E stained sagittal section through the right cochlea of an <t:formatAllele>Eya4<+/+></t:formatAllele> wildtype embryo compared to an <t:formatAllele>Eya4<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant embryo had a hypoplastic cochlea. Higher magnification of the region (indicated by the white box) showed abnormal perilymphatic (periotic) mesenchyme (PM) in the mutant embryo compared to the wildtype embryo. In the wildtype embryo the perilymphatic mesenchyme (PM) was rarefied and had multifocal vacuolation (arrow) suggesting normal perilymph development. In the mutant embryo the perilymphatic mesenchyme (PM) did not show rarefaction and had reduced vacuolation (arrow) suggesting the cochlear hypoplasia was due to delayed perilymph development.
-BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, ML-Membranous Labyrinth, EN-Endolymph
+                            	<p>	H&E stained sagittal section through the right cochlea of an <t:formatAllele>Eya4<+/+></t:formatAllele> 
+                            		wildtype embryo compared to an <t:formatAllele>Eya4<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant 
+                            		embryo had a hypoplastic cochlea. Higher magnification of the region (indicated by the white box) showed abnormal 
+                            		perilymphatic (periotic) mesenchyme (PM) in the mutant embryo compared to the wildtype embryo. In the wildtype embryo 
+                            		the perilymphatic mesenchyme (PM) was rarefied and had multifocal vacuolation (arrow) suggesting normal perilymph 
+                            		development. In the mutant embryo the perilymphatic mesenchyme (PM) did not show rarefaction and had reduced vacuolation 
+                            		(arrow) suggesting the cochlear hypoplasia was due to delayed perilymph development.
+									BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, ML-Membranous Labyrinth, EN-Endolymph
                             	</p>
 
                             	</div>
@@ -371,11 +377,11 @@ BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, 
                             <div class="inner">
 
                             	<div  class="half">
-				            		<p>
-				            		Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA.
-Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.<br>
-Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutants had a much smaller cerebellum and pontine nucleus (blue) compared to the <t:formatAllele>Tox<3+/+></t:formatAllele> wildtype mice and larger amygdala, thalamus, pons, respectively (red).
-</p>
+				            		<p>	Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA.
+										Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.
+										Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutants had a much smaller cerebellum (blue) compared to the <t:formatAllele>Tox3<+/+></t:formatAllele>
+										wildtype mice (as seen in coronal, sagittal, and axial section) and a relatively larger amygdala, thalamus, pons (red)
+									</p>
 
 				            		Phenotype data links
 				            		<ul>
@@ -403,10 +409,13 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 
 				            		</ul>
 								</div>
-                            	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/tox3MRI.png" >Caudal to rostral coronal sections of whole brain MRI with automated volume analysis revealed P7 Tox3tm1b/tm1b mutant mice had smaller (blue) and larger (red) tissues compared to the Tox3+/+ wildtype average.
-</div>
-				            		<div class="clear"></div>
-
+                            	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/Tox3MRI.png">                            	
+                            		Caudal to rostral coronal sections of whole brain MRI with automated volume analysis revealed P7 
+                            		<t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant mice had smaller (blue) and larger (red) tissues compared 
+                            		to the <t:formatAllele>Tox3<+/+></t:formatAllele> wildtype average.
+                            	</div>
+				            	
+				            	<div class="clear"></div>
 
 				            	<div id="tox3Viable" style="display: none">
 				            		<h3>P3/P7 viability test Tox3</h3>
@@ -415,22 +424,22 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 	                           	</div>
 
 	                       <div id="tox3His" style="display: none">
-	                       		<img src="${baseUrl}/img/vignettes/Tox3Sections.png">
+	                       		<img src="${baseUrl}/img/vignettes/Tox3HIST.png">
 	                       		<p>
-	                       			H&E stained coronal section through the brain of a Tox3+/+ wildtype embryo compared to a Tox3tm1b/tm1b mutant embryo indicated that the mutant embryo had a hypoplastic and dysplastic cerebellum (CE) with markedly reduced fissure formation. Higher magnification revealed that the transient external granular layer was absent in the Tox3tm1b/tm1b mutant  mice and the subjacent molecular layer was hypotrophic and irregular in thickness (arrow).
+	                       			H&E stained coronal section through the brain of a <t:formatAllele>Tox3<+/+></t:formatAllele> wildtype embryo 
+	                       			compared to a <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant embryo had a 
+	                       			hypoplastic and dysplastic cerebellum (CE) with markedly reduced fissure formation. Higher magnification revealed 
+	                       			that the transient external granular layer was absent in the <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant 
+	                       			mice and the subjacent molecular layer was hypotrophic and irregular in thickness (arrow).
 	                       		</p>
 	                       </div>
-
-
-
-                            </div>
-                        </div>
-
+						</div>
+					</div>
 
 
 
 
-                            <div class="section">
+						<div class="section">
                             <c:set var="geneId" value="MGI:1922814"></c:set>
                             <h2 id="${geneId}"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
                             <div class="inner">
@@ -471,7 +480,9 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 								</div>
 
                             	<div class="half">
-                            		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png" >H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the Rsph9tm1.1/tm1.1 mutant mice.
+                            		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png">
+                            		H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the 
+                            		<t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.
 								</div>
 
 				            	<div class="clear"></div>
@@ -485,9 +496,10 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 
 		                       <div id="rsph9Mri" style="display:none">
 		                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
-		                       			<p>
-		                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
-		                       			</p>
+		                       		<p> Coronal and axial sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele>
+		                       			mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) 
+		                       			when compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> WT average.
+		                       		</p>
 		                       </div>
 
 
