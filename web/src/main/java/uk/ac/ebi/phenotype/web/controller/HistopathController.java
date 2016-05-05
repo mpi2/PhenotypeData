@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -49,6 +50,7 @@ public class HistopathController {
 			
 		}
 		
+		//Collections.sort(histopathRows, new HistopathAnatomyComparator());
 
 		model.addAttribute("histopathRows", histopathRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);

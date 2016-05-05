@@ -19,7 +19,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermEmapBeanList;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.EmapDTO;
@@ -166,7 +166,7 @@ public class EmapIndexer extends AbstractIndexer {
                 buildNodes(emap);
 
                 // Set collections.
-                OntologyTermEmapBeanList sourceList = new OntologyTermEmapBeanList(emapOntologyService, bean.getId());
+                OntologyTermHelperEmap sourceList = new OntologyTermHelperEmap(emapOntologyService, bean.getId());
 
                 emap.setEmapTermSynonym(sourceList.getSynonyms());
 
