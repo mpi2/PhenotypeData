@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.util.Date;
 /**
  * Created by mrelac on 13/04/2016.
  */
-@Component
 public class RecreateAndLoadDbTables extends SystemCommandTasklet {
 
     @Value("${cdaload.workspace}")

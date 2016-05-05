@@ -52,7 +52,7 @@ public class ConfigBeans {
         String sourceUrl = "http://purl.obolibrary.org/obo/ma.owl";
         String filename = owlpath + "/ma.owl";
         int dbId = 8;
-        String prefix = "MA:";
+        String prefix = "MA";
         resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
 
         return resourceFileOntology;

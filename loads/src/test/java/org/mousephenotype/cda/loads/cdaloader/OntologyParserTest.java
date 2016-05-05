@@ -38,7 +38,7 @@ public class OntologyParserTest {
     @Test
     public void testOwlOntologyDownloads() throws Exception {
         String message;
-        List<Exception> exceptions = new ArrayList();
+        List<Exception> exception = new ArrayList();
         File owlpathFile = new File(owlpath);
         File[] owlFiles = owlpathFile.listFiles(new FilenameFilter() {
             @Override
@@ -49,12 +49,12 @@ public class OntologyParserTest {
 
         String prefix;
         for (File file : owlFiles) {
-            prefix = file.getName().replace(".owl", ":").toUpperCase();
+            prefix = file.getName().replace(".owl", "").toUpperCase();
             try {
                 ontologyParser = new OntologyParser(file.getPath(), prefix);
             } catch (Exception e) {
                 message = "[FAIL - " + prefix + "] Exception in " + file.getPath() + "(" + prefix + "): " + e.getLocalizedMessage();
-                exceptions.add(e);
+                exception.add(e);
                 System.out.println(message + "\n");
                 continue;
             }
@@ -67,8 +67,8 @@ public class OntologyParserTest {
             System.out.println();
         }
 
-        if (! exceptions.isEmpty()) {
-            throw exceptions.get(0);            // Just throw the first one.
+        if (! exception.isEmpty()) {
+            throw exception.get(0);            // Just throw the first one.
         }
     }
     
@@ -76,38 +76,41 @@ public class OntologyParserTest {
     public void testDeprecated() 
     throws Exception{
 
-        List<Exception> exceptions = new ArrayList();
-        ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
+        List<Exception> exception = new ArrayList();
+        ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP");
        // ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
         List<OntologyTerm> terms = ontologyParser.getTerms();
+        if (terms.isEmpty())
+            throw new Exception("testDeprecated: term list is empty!");
+
         for (OntologyTerm term : terms){
         	if (term.getId().getAccession().equals("MP:0006374")){
         		if(!term.getIsObsolete()){
         			 String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " is not marked as deprecated)";
-        			 exceptions.add(new Exception(message));
+        			 exception.add(new Exception(message));
         		}
         		if (term.getReplacementAcc() == null || !term.getReplacementAcc().equals("MP:0008996")){
         			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have the correct replacement term)";
-        			exceptions.add(new Exception(message));
+        			exception.add(new Exception(message));
         		}
         		break;
         	}
         	if (term.getId().getAccession().equals("MP:0002954")){
         		if (term.getConsiderIds().size() == 0){
         			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have any consider terms )";
-        			exceptions.add(new Exception(message));
+        			exception.add(new Exception(message));
         		} else {
         			if (!term.getConsiderIds().contains("MP:0010951") || !term.getConsiderIds().contains("MP:0010954") || !term.getConsiderIds().contains("MP:0010959") ){
         				String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not contain the consider terms expected )";
-            			exceptions.add(new Exception(message));
+            			exception.add(new Exception(message));
         			}
         		}
         		
         	}
         }
         
-        if ( ! exceptions.isEmpty()){
-        	throw exceptions.get(0);            // Just throw the first one because Mike does so
+        if ( ! exception.isEmpty()){
+        	throw exception.get(0);            // Just throw the first one because Mike does so
         }
     	
     }
