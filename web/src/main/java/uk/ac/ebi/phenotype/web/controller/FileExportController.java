@@ -98,10 +98,10 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.web.AssociationSummary;
-import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.web.AssociationSummary;
+import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 
 @Controller
 public class FileExportController {

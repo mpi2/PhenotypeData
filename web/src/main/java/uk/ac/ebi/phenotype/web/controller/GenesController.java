@@ -92,11 +92,11 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.Gene;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.web.AssociationSummary;
-import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.Gene;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.web.AssociationSummary;
+import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
 
 @Controller
 public class GenesController {
