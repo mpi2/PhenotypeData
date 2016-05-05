@@ -46,7 +46,7 @@ function insertPhenogrid(clicked) {
     var requestPageType = $(clicked).attr("requestPageType");
 
     var gridColumnWidth = 25;
-    var gridRowHeight= 20;
+    var gridRowHeight= 50;
 
     getPhenoGridSkeleton(geneId, diseaseId, requestPageType).done(function (result) {
         Phenogrid.createPhenogridForElement(targetRow, {
@@ -55,7 +55,6 @@ function insertPhenogrid(clicked) {
             selectedSort: "Frequency and Rarity", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
             gridSkeletonDataVendor: 'IMPC',
             gridSkeletonData: result,
-            gridSkeletonTargetGroup: {name: "Mus musculus", taxon: "10090"},
             singleTargetModeTargetLengthLimit: gridColumnWidth,
             sourceLengthLimit: gridRowHeight
         });
