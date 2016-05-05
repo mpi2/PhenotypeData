@@ -1215,41 +1215,6 @@ public class FileExportController {
 				res.add(pr.toTabbedString("gene"));
 			}
 
-		} else {
-			if (pageName.equalsIgnoreCase("phenotype")) {
-
-				phenotypeList = new ArrayList();
-
-				try {
-					phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), filters);
-					phenotypeList = phenoResult.getPhenotypeCallSummaries();
-				} catch (HibernateException | JSONException e) {
-					log.error("ERROR GETTING PHENOTYPE LIST");
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-
-				ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
-				//res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
-				res.add("Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
-
-				for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-					PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config, false);
-
-					if (pr.getParameter() != null && pr.getProcedure() != null) {
-						phenotypes.add(pr);
-					}
-				}
-				Collections.sort(phenotypes); // sort in same order as phenotype
-				// page.
-
-				for (DataTableRow pr : phenotypes) {
-					res.add(pr.toTabbedString("phenotype"));
-				}
-			}
 		}
 		return res;
 	}
