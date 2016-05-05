@@ -39,6 +39,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
@@ -55,9 +56,12 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -384,6 +388,42 @@ public class PhenotypesController {
         return "geneVariantsWithPhenotypeTable";
     }
 
+    @RequestMapping("/phenotypes/export/{acc}")
+    public void export(
+            @PathVariable String acc,
+			@RequestParam(required = true, value = "fileType") String fileType,
+			@RequestParam(required = true, value = "fileName") String fileName,
+            Model model,
+            HttpServletRequest request,
+			HttpServletResponse response,
+            RedirectAttributes attributes) 
+    throws IOException, URISyntaxException, SolrServerException {
+            
+    	String queryString = request.getQueryString();
+        processPhenotypes(acc, queryString, model, request);
+        
+
+        PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(acc, queryString);
+        List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
+        List<PhenotypePageTableRow> phenotypes = new ArrayList<PhenotypePageTableRow>();
+
+        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+            List<String> sex = new ArrayList<String>();
+            sex.add(pcs.getSex().toString());
+            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, false);
+            phenotypes.add(pr);
+        } 
+        
+        List<String> dataRows = new ArrayList<>();
+		dataRows.add(PhenotypePageTableRow.getTabbedHeader());
+		for (PhenotypePageTableRow row : phenotypes) {
+			dataRows.add(row.toTabbedString());
+		}
+		
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+    }
+    
     @RequestMapping("/mpTree/{mpId}")
     public String getChildParentTree(
             @PathVariable String mpId,

@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.web.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.servlet.ServletOutputStream;
@@ -27,7 +28,7 @@ public class FileExportUtils {
 	
 	
 	public static void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName) 
-	throws Exception {
+	throws IOException, URISyntaxException {
 
 		Workbook wb;
 		response.setHeader("Pragma", "no-cache");

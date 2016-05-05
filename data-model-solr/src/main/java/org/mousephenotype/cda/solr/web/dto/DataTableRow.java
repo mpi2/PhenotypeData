@@ -456,19 +456,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
                     + getPrValueAsString() + "\t"
                     + getEvidenceLink().getUrl();
-        } else if (targetPage.equalsIgnoreCase("phenotype")) {
-            res = getGene().getSymbol() + "\t"
-                    + getAllele().getSymbol() + "\t"
-                    + getZygosity() + "\t"
-                    + getSexes().get(0) + "\t"
-                    + getLifeStageName() + "\t"
-                    + getPhenotypeTerm().getName() + "\t"
-                    + getProcedure().getName() + " | " + getParameter().getName() + "\t"
-                    + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
-                    + getPrValueAsString() + "\t"
-                    + getEvidenceLink().getUrl();
-        }
+        } 
+        
         return res;
+        
     }
 
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, String metadataGroup, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
