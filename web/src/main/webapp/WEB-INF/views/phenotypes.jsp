@@ -42,8 +42,10 @@
 	<jsp:attribute name="addToFooter">
 	
 		<script type="text/javascript">
+			// Stuff dor parent-child. Will be used in parentChildTree.js.
 			var ont_id = '${phenotype.getMpId()}';
 			var ontPrefix = "mp";
+			var page = "phenotypes";
 			var hasChildren = ${hasChildren};
 			var hasParents = ${hasParents};
 		</script>
@@ -131,8 +133,7 @@
 								<c:if test="${not empty synonyms}">
 									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
 										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
-											${synonym.symbol}
-											<c:if test="${!loop.last}">, &nbsp;</c:if>
+											${synonym.symbol}<c:if test="${!loop.last}">,&nbsp;</c:if>
 										</c:forEach>
 									</p>
 								</c:if>

@@ -7,8 +7,7 @@
 
 	<jsp:attribute name="title">Histopath Summary for ${gene.markerName}</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search/genes?kw=*">Genes</a> &raquo; Results</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Histopath</jsp:attribute>
 
 	<jsp:attribute name="header">
 
@@ -19,24 +18,6 @@
 	<jsp:attribute name="addToFooter">
    
 
-        <%-- <div class="region region-pinned">
-
-            <div id="flyingnavi" class="block">
-
-                <a href="#top"><i class="fa fa-chevron-up"
-					title="scroll to top"></i></a>
-
-                <ul>
-                    <c:if test="${imageCount ne 0}">
-                        <li><a href="#top">Images</a></li>
-                        </c:if>
-                </ul>
-
-                <div class="clear"></div>
-
-            </div>
-
-        </div> --%>
     </jsp:attribute>
 
 	<jsp:body>
@@ -94,7 +75,7 @@
 								
 								<tr>
 									<td>
-										<a href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'>${histRow.anatomyName}</a>
+										<a title='Click for detailed view' href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'>${histRow.anatomyName}</a>
 									</td>
 									<td>
 											${histRow.significantCount } / ${histRow.nonSignificantCount }
@@ -211,60 +192,7 @@
 							</div>
 						
 					</div>
-                    
-                    
-                    
-                    
-          <%--           <div class="section">
-								<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
-								<div class="inner">
-
-									
-
-                     
-                     <table>
-                     
-                      <c:forEach var="obs"
-										items="${extSampleIdToObservations}">
-                      
-                      	<tr>
-                      		<td>
-                      			${obs.externalSampleId }
-                      		</td>
-                      		<td>
-                      			${obs.observationType }
-                      		</td>
-                      		<td>
-                      			${obs.parameterName }
-                      		</td>
-                      		<td>
-                      			${obs.category }
-                      		</td>
-                      		<td>
-                      			${obs.textValue }
-                      		</td>
-                      		<td>
-                      			${obs.subTermId }
-                      		</td>
-                      		<td>
-                      			name: ${obs.subTermName }
-                      		</td>
-                      		<td>
-                      			${obs.subTermDescription }
-                      		</td>
-                      	</tr>
-                      	
-                      </c:forEach>
-                      
-                      </table>
-                      
-                      
-                     
-							</div>
-						</div> --%>
-						
-						
-						
+				
 						
                     </div>
                 </div>

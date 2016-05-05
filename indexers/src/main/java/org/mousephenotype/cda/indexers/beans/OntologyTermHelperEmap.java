@@ -31,9 +31,9 @@ import org.mousephenotype.cda.db.dao.MaOntologyDAO;
  * 
  * @author mrelac
  */
-public class OntologyTermEmapBeanList extends OntologyTermBeanList {
+public class OntologyTermHelperEmap extends OntologyTermHelper {
     
-    public OntologyTermEmapBeanList(EmapOntologyDAO emapOntologyService, String id) {
+    public OntologyTermHelperEmap(EmapOntologyDAO emapOntologyService, String id) {
         super(emapOntologyService, id);
     }
 
