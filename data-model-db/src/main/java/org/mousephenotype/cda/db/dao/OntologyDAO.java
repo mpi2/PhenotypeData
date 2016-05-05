@@ -484,7 +484,7 @@ public abstract class OntologyDAO {
                 for (String sMaNodeId : maNodeIds) {
                     iMaNodeIds.add(Integer.parseInt(sMaNodeId));
                 }
-                bean.setMaNodeIds(iMaNodeIds);
+                bean.setNodeIds(iMaNodeIds);
 
                 map.put(mapKey, bean);            
                 id2nodesMap.put(mapKey, maNodeIds);
