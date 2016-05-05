@@ -31,7 +31,6 @@ import org.mousephenotype.cda.db.dao.OntologyDAO;
  * @author mrelac
  */
 public class OntologyTermHelper {
-	
     protected final String id;
     
     protected OntologyDAO ontologyService;

@@ -18,7 +18,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -163,7 +163,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
+                    OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, mpId);
 
                     doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
                     doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
