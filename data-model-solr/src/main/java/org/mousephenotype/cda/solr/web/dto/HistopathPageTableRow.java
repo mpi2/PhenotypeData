@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.solr.web.dto;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +17,10 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
  * @author jwarren
  *
  */
-public class HistopathPageTableRow {
+public class HistopathPageTableRow{
 
 	private String sampleId;
 	private String anatomyName;
-	
-	
-	//System.out.println(sampleId+" "+ obs.getParameterName()+" "+obs.getParameterStableId()+" "+obs.getObservationType()+" categoryt=" +obs.getCategory()+ " text="+obs.getTextValue()+"ontologyTermValue="+obs.getTermValue());
 	
 	
 	
@@ -269,7 +267,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 		
 		public ParameterValueBean(ImpressBaseDTO parameter, String textValue){
 			this.parameter=parameter;
-			this.textValue=textValue;
+			this.textValue=textValue.trim();
 		}
 		
 		
@@ -300,6 +298,8 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	public void setSequenceId(Integer sequenceId) {
 		this.sequenceId=sequenceId;
 	}
+	
+	
 	
 	
 

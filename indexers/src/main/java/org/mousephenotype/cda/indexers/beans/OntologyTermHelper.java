@@ -30,12 +30,12 @@ import org.mousephenotype.cda.db.dao.OntologyDAO;
  * 
  * @author mrelac
  */
-public class OntologyTermBeanList {
+public class OntologyTermHelper {
     protected final String id;
     
     protected OntologyDAO ontologyService;
     
-    public OntologyTermBeanList(OntologyDAO ontologyService, String id) {
+    public OntologyTermHelper(OntologyDAO ontologyService, String id) {
         this.ontologyService = ontologyService;
         this.id = id;
     }

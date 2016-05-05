@@ -5,7 +5,7 @@
 <t:genericpage>
 
     <jsp:attribute name="title">IMPC Search</jsp:attribute>
-  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a> &raquo; ${searchQuery}</jsp:attribute>
+  <jsp:attribute name="breadcrumb">&nbsp;&raquo;&nbsp;<a href="${baseUrl}/search/${dataType}?kw=*">${dataTypeLabel}</a>Ontology browser</jsp:attribute>
   <jsp:attribute name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
 	<jsp:attribute name="header">       
@@ -41,7 +41,6 @@
 				    "animation" : 0,
 				    'data' : {	
 				    	'url' : function (node) {
-						    console.log(node)
 				    	      return node.id === '#' ?
 				    	    		"ontologyBrowser2?termId=" + termId + "&node=src" :
 				    	    		"ontologyBrowser2?termId=" + termId + "&node=" + node.id;
@@ -63,18 +62,26 @@
 			  	"types"
 			  ]
 		});
-		
+
 	
-		$("#tree").delegate("a","click", function(e) {
-			//console.log("../phenotypes/"  + data.node.term_id);
-			console.log(e.target.href)
-			//window.location.href = "../phenotypes/"  + data.node.term_id; // how does this work when data is null?
-			window.location.href = e.target.href;
-		});
-		
+		<%--$("#tree").delegate("a","click", function(e) {--%>
+			<%--//window.location.href = "../phenotypes/"  + data.node.term_id; // how does this work when data is null?--%>
+		<%--});--%>
+
+
+		 $('#tree')
+			 // listen for event
+			 .on('changed.jstree', function (e, data) {
+				 var i, j, r = [];
+				 for(i = 0, j = data.selected.length; i < j; i++) {
+					 r.push(data.instance.get_node(data.selected[i]).text);
+				 }
+				 var nodeHref = data.node.original.href;
+				 window.location.href = "${baseUrl}" + nodeHref;
+			 }).jstree();
+
 		
 		$("#tree").bind('ready.jstree', function(e, data) {
-				console.log(${scrollToNode});
 			var pos = $('#${scrollToNode}').position(); // id of first JSON object with opened: true
 			$('body').scrollTop(pos.top);
 	     })

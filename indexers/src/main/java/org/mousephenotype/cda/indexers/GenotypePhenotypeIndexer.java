@@ -20,7 +20,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -314,7 +314,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     doc.setMpTermId(mpId);
                     doc.setMpTermName(r.getString("ontology_term_name"));
 
-                    OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, mpId);
+                    OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, mpId);
 
                     // Alternative MP Term ID - not working yet
 //                    if ( beanlist.getAltTermIds() != null && beanlist.getAltTermIds().size() > 0 ) {
