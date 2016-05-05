@@ -14,9 +14,12 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader;
+package org.mousephenotype.cda.loads.cdaloader.config;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.loads.cdaloader.ResourceFile;
+import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.step.DownloadResourceFiles;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -46,19 +49,29 @@ public class ConfigBatch {
 
 //    @Autowired
 //    public DataSource komp2Loads;
+//
+//    @Autowired
+//    public SystemCommandTasklet downloadReports;
 
-    @Autowired
-    public SystemCommandTasklet downloadReports;
-
-    @Autowired
-    @Qualifier("oboReader")
-    public FlatFileItemReader<OntologyTerm> ontologyReader;
+//    @Autowired
+//    @Qualifier("oboReader")
+//    public FlatFileItemReader<OntologyTerm> ontologyReader;
 
     @Autowired
     public FlatFileItemWriter ontologyWriter;
 
+
     @Autowired
-    public SystemCommandTasklet recreateAndLoadTables;
+    @Qualifier("downloadResourceFiles")
+    public DownloadResourceFiles downloadResourceFiles;
+
+//    @Autowired
+//    @Qualifier("recreateAndLoadDbTables")
+//    public SystemCommandTasklet recreateAndLoadDbTables;
+
+//    @Autowired
+//    @Qualifier("resourceFileOntologyMa")
+//    public ResourceFile resourceFileOntologyMa;
 
     // tag::readerwriterprocessor[]
 //    @Bean
@@ -78,37 +91,36 @@ public class ConfigBatch {
 
 
     @Bean
-    public Job cdaLoadJob() {
+    public Job cdaLoadJob() throws CdaLoaderException {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
 //                .listener(listener())
-                .flow(step1())
-                .next(step2())
-                .next(step3())
+                .flow(downloadResourceFilesStep())
+//                .next(recreateAndLoadDbTablesStep())
+//                .next(loadOntologyMaStep())
+//                .flow(loadOntologyMaStep())
                 .end()
                 .build();
     }
 
-    @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("step1")
-                .tasklet(downloadReports)
+    public Step downloadResourceFilesStep() {
+        return stepBuilderFactory.get("downloadResourceFiles")
+                .tasklet(downloadResourceFiles)
                 .build();
     }
 
-    @Bean
-    public Step step2() {
-        return stepBuilderFactory.get("step2")
-                .tasklet(recreateAndLoadTables)
-                .build();
-    }
+//    public Step recreateAndLoadDbTablesStep() {
+//        return stepBuilderFactory.get("recreateAndLoadDbTablesStep")
+//                .tasklet(recreateAndLoadDbTables)
+//                .build();
+//    }
 
-    @Bean
-    public Step step3() {
-        return stepBuilderFactory.get("step3")
-                .chunk(10)
-                .reader(ontologyReader)
-                .writer(ontologyWriter)
-                .build();
-    }
+//    public Step loadOntologyMaStep() throws CdaLoaderException{
+//
+//        return stepBuilderFactory.get("loadOntologyMaStep")
+//                .chunk(10)
+//                .reader(resourceFileOntologyMa.getItemReader())
+//                .writer(ontologyWriter)
+//                .build();
+//    }
 }

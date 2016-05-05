@@ -16,17 +16,12 @@
 
 package org.mousephenotype.cda.loads.cdaloader.step;
 
-import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,12 +39,8 @@ import java.util.Date;
  * Created by mrelac on 13/04/2016.
  *
  */
- @Configuration
- @ComponentScan("org.mousephenotype.cda.loads.cdaloader")
- @PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
- @PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
-                 ignoreResourceNotFound=true)
-public class DownloadReportsStep {
+@Component
+public class DownloadResourceFiles extends SystemCommandTasklet {
 
     @Value("${cdaload.workspace}")
     private String cdaWorkspace;
@@ -58,9 +49,10 @@ public class DownloadReportsStep {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
-    @Bean(name = "downloadReports")
-    @StepScope
-    public SystemCommandTasklet downloadReports() throws CdaLoaderException {
+//    @Bean(name = "downloadReports")
+//    @StepScope
+//    public SystemCommandTasklet downloadReports() throws CdaLoaderException {
+    public DownloadResourceFiles() {
         String command;
         SystemCommandTasklet downloadReportsTasklet;
 
@@ -74,7 +66,7 @@ public class DownloadReportsStep {
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt" }
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt" }
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt" }
-//                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt" }
+                  { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt" }
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff" }
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt" }
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt" }
@@ -90,7 +82,7 @@ public class DownloadReportsStep {
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt" }
 //
                 // OWL ontologies
-                  { "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl" }                                              // mammalian_phenotype.obo
+                , { "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl" }                                              // mammalian_phenotype.obo
                 , { "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl" }                        // quality.obo
                 , { "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl" }                                                         // adult_mouse_anatomy.obo
                 , { "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl" }                                                     // EMAP.obo
@@ -109,7 +101,7 @@ public class DownloadReportsStep {
 //                , { "http://mpath.googlecode.com/svn/trunk/mpath.obo", cdaWorkspace + "/mpath.obo" }
         };
 
-        downloadReportsTasklet = new SystemCommandTasklet();
+//        downloadReportsTasklet = new SystemCommandTasklet();
         FileOutputStream fos;
         ReadableByteChannel rbc;
         final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -147,12 +139,12 @@ public class DownloadReportsStep {
 
         // A SystemCommandTasklet needs something to execute or it throws an exception. This is a do-nothing command to satisfy that requirement.
         command = "ls";
-        downloadReportsTasklet.setCommand(command);
-        downloadReportsTasklet.setTimeout(TASKLET_TIMEOUT);
-        downloadReportsTasklet.setWorkingDirectory(cdaWorkspace);
+        setCommand(command);
+        setTimeout(TASKLET_TIMEOUT);
+        setWorkingDirectory(cdaWorkspace);
 
         logger.info("Total step elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
-        return downloadReportsTasklet;
+//        return this;
     }
 }
