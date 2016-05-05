@@ -213,20 +213,6 @@ public class MpService extends BasicService implements WebStatus{
 			return children;
 	}
 
-	private String shortenLabel(String label){
-
-		String res = label;
-		res = res.replaceAll("abnormal ", "abn. ");
-		res = res.replaceAll("phenotype ", "phen. ");
-		res = res.replaceAll("decreased ", "dec. ");
-		res = res.replaceAll("increased ", "inc. ");
-		res = res.replaceAll("abnormality ", "abn. ");
-		res = res.replaceAll("abnormal$", "abn.");
-		res = res.replaceAll("decreased$", "dec.");
-		res = res.replaceAll("increased$", "inc.");
-		res = res.replaceAll("phenotype$", "phen.");
-		return res;
-	}
 
     /**
      * Return all phenotypes from the mp core.

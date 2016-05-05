@@ -19,7 +19,7 @@
     
     <jsp:attribute name="addToFooter">
         <script type="text/javascript">
-        	var mp_id = '${mpId}';
+        	var ont_id = '${ontId}';
     	</script>
     	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>	
 

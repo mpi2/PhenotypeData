@@ -230,7 +230,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                 evidenceLink.setAlt("Images");
                 evidenceLink.setIconType(EvidenceLink.IconType.IMAGE);
             	if (hasImage){
-	                url = baseUrl + "/histopath/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+	                url = baseUrl + "/histopathsum/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
 	                evidenceLink.setDisplay(true);
             	} else {
             		url = "";
