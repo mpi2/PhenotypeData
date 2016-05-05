@@ -58,6 +58,8 @@ public class OntologyTerm {
     @Column(name = "replacement_acc")
 	private String replacementAcc;
 	
+	private List<String> considerIds;
+	
 	@ElementCollection
 	@CollectionTable(
 		name="synonym",
@@ -72,6 +74,14 @@ public class OntologyTerm {
 
 	public OntologyTerm() {
 		super();
+	}
+
+	public List<String> getConsiderIds() {
+		return considerIds;
+	}
+
+	public void setConsiderIds(List<String> considerIds) {
+		this.considerIds = considerIds;
 	}
 
 	/**

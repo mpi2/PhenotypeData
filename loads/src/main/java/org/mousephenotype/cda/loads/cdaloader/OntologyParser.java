@@ -10,6 +10,7 @@ import org.semanticweb.owlapi.search.EntitySearcher;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -24,8 +25,9 @@ public class OntologyParser {
 	OWLAnnotationProperty LABEL_ANNOTATION;
 	OWLAnnotationProperty ALT_ID;	
 	OWLAnnotationProperty X_REF;
-	ArrayList<OWLAnnotationProperty> IS_OBSOLETE;
 	OWLAnnotationProperty REPLACEMENT;
+	OWLAnnotationProperty CONSIDER;
+	ArrayList<OWLAnnotationProperty> IS_OBSOLETE;
 	ArrayList<OWLAnnotationProperty> SYNONYM_ANNOTATION;
 	ArrayList<OWLAnnotationProperty> DEFINITION_ANNOTATION;
 	
@@ -54,8 +56,10 @@ public class OntologyParser {
 	    		term.setSynonyms(synonyms);
 	    		term.setIsObsolete(isObsolete(cls));
 	    		if (term.getIsObsolete() && getReplacementId(cls) != null){
+	    			term.setConsiderIds(getConsiderIds(cls));
 	    			term.setReplacementAcc(getReplacementId(cls));
 	    		}
+	    		
 	    		terms.add(term);
 	    	}
 	    }   
@@ -94,6 +98,8 @@ public class OntologyParser {
 		
 		REPLACEMENT = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 		
+		CONSIDER = factory.getOWLAnnotationProperty(IRI.create("http://www.geneontology.org/formats/oboInOwl#consider"));
+		
 		ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
 		
 	}
@@ -127,6 +133,9 @@ public class OntologyParser {
 		return "";
 		
 	}
+	
+	
+	
 	
 	
 	/**
@@ -170,6 +179,7 @@ public class OntologyParser {
 	
 	
 	private boolean isObsolete(OWLClass cls){
+		
 		for (OWLAnnotationProperty synonym: SYNONYM_ANNOTATION){
 			if (EntitySearcher.getAnnotations(cls,ontology, synonym).size() > 0) {
 				return true;
@@ -179,6 +189,11 @@ public class OntologyParser {
 	}
 	
 	
+	/**
+	 * 
+	 * @param cls
+	 * @return ID of replacement class for an obsolete one. It
+	 */
 	private String getReplacementId(OWLClass cls){
 		
 		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, REPLACEMENT); 
@@ -191,6 +206,32 @@ public class OntologyParser {
 			}
 		}
 		return null;
+		
 	}
+	
+	
+	/**
+	 * 
+	 * @param cls
+	 * @return IDs of classes to consider using instead of an obsolete term. There can be multiple ids for each obsolete term. 
+	 */
+	private List<String> getConsiderIds(OWLClass cls){
+		
+		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, CONSIDER); 
+		List<String> ids = new ArrayList<>();
+		
+		if (res.size() > 0){
+			Iterator<OWLAnnotation> i = res.iterator();
+			while (i.hasNext()){
+				if (res.iterator().next().getValue() instanceof OWLLiteral) {
+					ids.add(((OWLLiteral) i.next().getValue()).getLiteral());
+				}
+			}
+		}
+		return ids;
+		
+	}
+	
+	
 	
 }
