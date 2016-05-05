@@ -55,7 +55,8 @@ public class OntologyTerm {
 	@Column(name = "is_obsolete")
 	private Boolean isObsolete;
 
-	private String replacementId;
+    @Column(name = "replacement_acc")
+	private String replacementAcc;
 	
 	private List<String> considerIds;
 	
@@ -112,12 +113,12 @@ public class OntologyTerm {
 	}
 
 		
-	public String getReplacementId() {
-		return replacementId;
+	public String getReplacementAcc() {
+		return replacementAcc;
 	}
 
-	public void setReplacementId(String replacementId) {
-		this.replacementId = replacementId;
+	public void setReplacementAcc(String replacementAcc) {
+		this.replacementAcc = replacementAcc;
 	}
 
 	/**

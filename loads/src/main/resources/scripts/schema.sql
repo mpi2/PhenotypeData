@@ -301,6 +301,7 @@ CREATE TABLE ontology_term (
 	name                       TEXT NOT NULL,
 	description                TEXT,
 	is_obsolete                TINYINT(1) DEFAULT 0,
+	replacement_acc            VARCHAR(20) DEFAULT NULL,
 	PRIMARY KEY (acc, db_id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
