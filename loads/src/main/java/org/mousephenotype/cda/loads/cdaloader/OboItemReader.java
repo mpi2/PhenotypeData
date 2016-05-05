@@ -28,7 +28,6 @@ import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.batch.item.file.transform.PatternMatchingCompositeLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.Assert;
 
@@ -37,7 +36,7 @@ import java.util.HashMap;
 /**
  * Created by mrelac on 28/04/16.
  */
-@Configuration
+//@Configuration
 //@ComponentScan("org.mousephenotype.cda.loads.cdaloader")
 //@PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
 //@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",

@@ -21,9 +21,11 @@ import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileItem
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
 import javax.validation.constraints.NotNull;
 
@@ -44,7 +46,7 @@ public class ConfigBeans {
     }
 
     @Bean(name = "resourceFileOntologyMa")
-//    @StepScope
+    @StepScope
     public ResourceFileOntology resourceFileOntologyMa() throws CdaLoaderException {
         ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
         String sourceUrl = "http://purl.obolibrary.org/obo/ma.owl";
@@ -59,6 +61,11 @@ public class ConfigBeans {
     @Bean(name = "resourceFileItemWriter")
     @StepScope
     public ResourceFileItemWriter resourceFileItemWriter() {
-        return new ResourceFileItemWriter();
+        ResourceFileItemWriter writer = new ResourceFileItemWriter();
+        writer.setLineAggregator(new PassThroughLineAggregator<>());
+        String sourcePath = "/tmp/loadOntologies.log";
+        writer.setResource(new FileSystemResource(sourcePath));
+
+        return writer;
     }
 }
