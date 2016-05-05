@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +11,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -88,7 +86,7 @@ public class OntologyParserTest {
         			 String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " is not marked as deprecated)";
         			 exceptions.add(new Exception(message));
         		}
-        		if (term.getReplacementId() == null || !term.getReplacementId().equals("MP:0008996")){
+        		if (term.getReplacementAcc() == null || !term.getReplacementAcc().equals("MP:0008996")){
         			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have the correct replacement term)";
         			exceptions.add(new Exception(message));
         		}
