@@ -188,7 +188,7 @@ public class EmapOntologyDAO extends OntologyDAO {
 
                 Integer nodeId = resultSet.getInt("node_id");
                 String fullpath = resultSet.getString("fullpath");
-                fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
+                //fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
 
                backtraceMap.put(nodeId, fullpath);
 
