@@ -268,7 +268,7 @@ AxisGroup.prototype = {
 		} else if (by === 'Frequency and Rarity') {
 			//this.items.sort(function(a,b) {
 			temp.sort(function(a,b) {				
-				return b.sum-a.sum;
+				return b.sum - a.sum;
 			});
 		} else if (by === 'Alphabetic') {
 			//this.items.sort(function(a,b) {
@@ -301,7 +301,7 @@ AxisGroup.prototype = {
 		var values = this.keys();
 		var scale = d3.scale.ordinal()
 					.domain(values)
-					.rangeRoundBands([0,values.length]);
+					.rangeRoundBands([0, values.length]);
 		return scale;
     }
 };
@@ -336,7 +336,7 @@ var DataLoader = function(serverURL, simSearchQuery, limit) {
 	this.serverURL = serverURL;	
     this.simSearchQuery = simSearchQuery; // object
 	this.qryString = '';
-    this.speciesNoMatch = []; // contains species names that don't have simsearch matches
+    this.groupsNoMatch = []; // contains group names that don't have simsearch matches
 	this.limit = limit;
 	this.owlsimsData = [];
 	this.origSourceList = [];
@@ -346,7 +346,7 @@ var DataLoader = function(serverURL, simSearchQuery, limit) {
 	this.cellData = {};
 	this.ontologyCacheLabels = [];
 	this.ontologyCache = [];
-    this.loadedGenotypes = {}; // named array, no need to specify species since each gene ID is unique
+    this.loadedNewTargetGroupItems = {}; // named array, no need to specify group since each gene ID is unique
 	this.postDataLoadCallback = '';
 };
 
@@ -419,8 +419,8 @@ DataLoader.prototype = {
             
             // sometimes the compare api doesn't find any matches, we need to stop here - Joe
             if (typeof (data.b) === 'undefined') {
-                // Add the 'compare' name to the speciesNoMatch array
-                self.speciesNoMatch.push(targetGroup);
+                // Add the 'compare' name to the groupsNoMatch array
+                self.groupsNoMatch.push(targetGroup);
             } else {
                 // use 'compare' as the key of the named array
                 self.transform(targetGroup, data);  
@@ -434,60 +434,81 @@ DataLoader.prototype = {
         });
 	},
     
-    
-    /*
-		Function: loadCompareDataForVendor
-
-			fetch and load data from the monarch compare api
-
-		Parameters:	
-			vendorData - JSON data from vendor
-            targetGroup - targetGroup name
-            qrySourceList - list of source items to query
-			multipleTargetEntities - combined list of mouse genes, list of lists
-			asyncDataLoadingCallback - callback
-	*/
-    loadCompareDataForVendor: function(vendorData, targetGroup, qrySourceList, multipleTargetEntities, asyncDataLoadingCallback) {
-		this.postDataLoadCallback = asyncDataLoadingCallback;
-        
-        // save the original source listing
+    // In progress 03/09/2016
+	loadCompareDataForVendor: function(qrySourceList, targetGroupList, asyncDataLoadingCallback, multiTargetsModeTargetLengthLimit) {
+		// save the original source listing
         // The qrySourceList has already had all duplicated IDs removed in _parseQuerySourceList() of phenogrid.js - Joe
 		this.origSourceList = qrySourceList;
 
-        // example: monarchinitiative.org/compare/HP:0000726+HP:0000746+HP:0001300/MP+MP+MP,MP+MP,MP+MP+MP+MP...
-	    this.qryString = this.serverURL + this.simSearchQuery.URL + '/' + qrySourceList.join("+") + '/' + multipleTargetEntities;
+        // use the default comma to separate each list into each genotype profile
+	    // example: monarchinitiative.org/compare/HP:0000726+HP:0000746+HP:0001300/MP+MP+MP,MP+MP,MP+MP+MP+MP...
+	    this.qryString = this.serverURL + this.simSearchQuery.URL + '/' + qrySourceList.join("+") + '/';
 
-        var self = this;
+		this.postDataLoadCallback = asyncDataLoadingCallback;
 
-        // Separate the ajax request with callbacks
-        var jqxhr = $.ajax({
-            url: this.qryString,
-            method: 'GET', 
-            async : true,
-            dataType : 'json'
-        });
-        
-        jqxhr.done(function(data) {
-            console.log('IMPC compare data loaded:');
-            //console.log(data);
+		// begin processing
+		this.processDataForVendor(targetGroupList, this.qryString, multiTargetsModeTargetLengthLimit);
+	},
+
+    processDataForVendor: function(targetGrpList, qryString, multiTargetsModeTargetLengthLimit) {
+		if (targetGrpList.length > 0) {
+			var target = targetGrpList[0];  // pull off the first to start processing
+			targetGrpList = targetGrpList.slice(1);
+	    	
             
-            // sometimes the compare api doesn't find any matches, we need to stop here - Joe
-            if (typeof (data.b) === 'undefined') {
-                // Add the 'compare' name to the speciesNoMatch array
-                self.speciesNoMatch.push(targetGroup); 
-            } else {
-                // use targetGroup (For IMPC, it's 'Mus musculus') as the key of the named array
-                self.transformDataForVendor(vendorData, targetGroup, data);  // Hard coded
+            var listOfListsPerTargetGroup = [];
+            for (var j = 0; j < target.entities.length; j++) {
+                var eachList = [];
+                for (var k = 0; k < target.entities[j].phenotypes.length; k++) {
+                    eachList.push(target.entities[j].phenotypes[k].id);
+                }
+                // add new property
+                target.entities[j].combinedList = eachList.join('+');
+                
+                // default separator of array.join(separator) is comma
+                // join all the MP inside each MP list with plus sign, and join each list with default comma
+                listOfListsPerTargetGroup.push(target.entities[j].combinedList);
             }
             
-            self.postDataLoadCallback(); 
-        });
-        
-        jqxhr.fail(function () { 
-            console.log('Ajax error - loadCompareDataForVendor()')
-        });
+            
+            // use the default comma to separate each list into each genotype profile
+	        // example: monarchinitiative.org/compare/HP:0000726+HP:0000746+HP:0001300/MP+MP+MP,MP+MP,MP+MP+MP+MP...
+	        var qryStringPerTargetGroup = qryString + listOfListsPerTargetGroup.join();
+
+            var self = this;
+            
+            // Separate the ajax request with callbacks
+            var jqxhr = $.ajax({
+                url: qryStringPerTargetGroup,
+                method: 'GET', 
+                async : true,
+                dataType : 'json'
+            });
+            
+            jqxhr.done(function(data) {
+                //console.log('compare data loaded:');
+                //console.log(data);
+                
+                // sometimes the compare api doesn't find any matches, we need to stop here - Joe
+                if (typeof (data.b) === 'undefined') {
+                    // Add the target.groupName to the groupsNoMatch array
+                    self.groupsNoMatch.push(target.groupName);
+                } else {
+                    // Will use target.groupName as the key of the named array
+                    self.transformDataForVendor(target, data, multiTargetsModeTargetLengthLimit);  
+                }
+                
+                // iterative back to process to make sure we processed all the targetGrpList
+		        self.processDataForVendor(targetGrpList, self.qryString, multiTargetsModeTargetLengthLimit);
+            });
+            
+            jqxhr.fail(function () { 
+                console.log('Ajax error - processDataForVendor()')
+            });
+		} else {
+			this.postDataLoadCallback();  // make a call back to post data init function
+		}
 	},
-    
     
 	/*
 		Function: process
@@ -495,7 +516,7 @@ DataLoader.prototype = {
 			process routine being async query to load data from external source (i.e., owlsims)
 
 		Parameters:	
-			targetGrpList - list of target Group items (i.e., species)
+			targetGrpList - list of target Group items (i.e., group)
 			qryString - query list url parameters, which includes list of sources
 	*/
 	process: function(targetGrpList, qryString) {
@@ -503,8 +524,8 @@ DataLoader.prototype = {
 			var target = targetGrpList[0];  // pull off the first to start processing
 			targetGrpList = targetGrpList.slice(1);
 	    	
-	    	// need to add on target targetGroup id
-	    	var postData = qryString + this.simSearchQuery.targetSpeciesString + target.taxon;
+	    	// need to add on target targetGroup groupId
+	    	var postData = qryString + this.simSearchQuery.targetSpeciesString + target.groupId;
 
 	    	var postFetchCallback = this.postSimsFetchCb;
 
@@ -558,13 +579,13 @@ DataLoader.prototype = {
 		if (data !== null || typeof(data) !== 'undefined') {
 		    // data.b contains all the matches, if not present, then no matches - Joe
             if (typeof(data.b) === 'undefined') {
-                // Add the species name to the speciesNoMatch array
-                self.speciesNoMatch.push(target.name);
+                // Add the group name to the groupsNoMatch array
+                self.groupsNoMatch.push(target.groupName);
             } else {
-                // save the original owlsim data
-                self.owlsimsData[target.name] = data;
+                // save the original raw owlsim data
+                self.owlsimsData[target.groupName] = data;
                 // now transform data to there basic data structures
-                self.transform(target.name, data);  
+                self.transform(target.groupName, data);  
             }
 		}
 		// iterative back to process to make sure we processed all the targetGrpList
@@ -586,7 +607,7 @@ DataLoader.prototype = {
 	*/
 	transform: function(targetGroup, data) {      		
 		if (typeof(data) !== 'undefined' && typeof (data.b) !== 'undefined') {
-			console.log("transforming...");
+			console.log("Transforming simsearch data of group: " + targetGroup);
 
             // sometimes the 'metadata' field might be missing from the JSON - Joe
 			// extract the maxIC score; ugh!
@@ -598,7 +619,7 @@ DataLoader.prototype = {
             
             // Here we don't reset the cellData, targetData, and sourceData every time,
             // because we want to append the genotype expansion data - Joe
-            // No need to redefine this in genotypeTransform() - Joe   
+            // No need to redefine this in transformNewTargetGroupItems() - Joe   
 			if (typeof(this.cellData[targetGroup]) === 'undefined') {
                 this.cellData[targetGroup] = {};
             }
@@ -609,7 +630,6 @@ DataLoader.prototype = {
                 this.sourceData[targetGroup] = {};
             }
 
-
 			for (var idx in data.b) {
 				var item = data.b[idx];
 				var targetID = Utils.getConceptId(item.id);
@@ -618,8 +638,8 @@ DataLoader.prototype = {
 				var targetVal = {
                     "id":targetID, 
                     "label": item.label, 
-                    "targetGroup": item.taxon.label, 
-                    "taxon": item.taxon.id, 
+                    //"targetGroup": item.taxon.label, 
+                    "targetGroup": targetGroup, // sometimes item.taxon.label is missing from result, use targetGroup instead - Joe
                     "type": item.type, 
                     "rank": parseInt(idx)+1,  // start with 1 not zero
                     "score": item.score.score
@@ -675,7 +695,7 @@ DataLoader.prototype = {
 						dataVals = {
                             "source_id": sourceID_a, 
                             "target_id": targetID, 
-                            "targetGroup": item.taxon.label,									
+                            "targetGroup": targetGroup,									
                             "value": lcs, 
                             "a_IC" : curr_row.a.IC,  
                             "a_label" : curr_row.a.label,
@@ -689,16 +709,16 @@ DataLoader.prototype = {
                         };
 							 
                         // we need to define this before adding the data to named array, otherwise will get 'cannot set property of undefined' error   
-                        // No need to redefine this in genotypeTransform() - Joe                     
+                        // No need to redefine this in transformNewTargetGroupItems() - Joe                     
 					    if (typeof(this.cellData[targetGroup][sourceID_a]) === 'undefined') {
 							this.cellData[targetGroup][sourceID_a] = {};
 					    }
 
 					 	this.cellData[targetGroup][sourceID_a][targetID] = dataVals;
 					}
-				}  //if
-			} // for
-		} // if
+				}
+			}
+		}
 	}, 
     
 
@@ -712,14 +732,17 @@ DataLoader.prototype = {
 		 	
 	 	Parameters:
 
-            vendorData - vendor-specific data, used to modify the final dataset
-	 		targetGroup - targetGroup name
+            target - target group data
 	 		data - owlsims structured data
+            multiTargetsModeTargetLengthLimit - default target length limit per group
 	*/
-    transformDataForVendor: function(vendorData, targetGroup, data) {      		
+    transformDataForVendor: function(target, data, multiTargetsModeTargetLengthLimit) {      		
 		if (typeof(data) !== 'undefined' && typeof (data.b) !== 'undefined') {
-			console.log("IMPC transforming...");
+			console.log("Vendor Data transforming...");
 
+            var targetGroupId = target.groupId;
+            var targetGroup = target.groupName;
+            
             // sometimes the 'metadata' field might be missing from the JSON - Joe
 			// extract the maxIC score; ugh!
 			if (typeof (data.metadata) !== 'undefined') {
@@ -727,18 +750,18 @@ DataLoader.prototype = {
 			}
 			
             // just initialize the specific targetGroup
-            
             // Here we don't reset the cellData, targetData, and sourceData every time,
             // because we want to append the genotype expansion data - Joe
-            // No need to redefine this in genotypeTransform() - Joe   
-			if (typeof(this.cellData[targetGroup]) === 'undefined') {
-                this.cellData[targetGroup] = {};
-            }
+            // No need to redefine this in transformNewTargetGroupItems() - Joe   
+			
             if (typeof(this.targetData[targetGroup]) === 'undefined') {
                 this.targetData[targetGroup] = {};
             }
             if (typeof(this.sourceData[targetGroup]) === 'undefined') {
                 this.sourceData[targetGroup] = {};
+            }
+            if (typeof(this.cellData[targetGroup]) === 'undefined') {
+                this.cellData[targetGroup] = {};
             }
 
             // Modify the resulting JSON
@@ -746,16 +769,16 @@ DataLoader.prototype = {
             // we'll need to use the genotype id (IMPC internal) from input data as the new ID
             // Keep in mind that some lists may not have any simsearch matches, so the order of results don't always match the input impc JSON
             for (var i in data.b) {
-                for (var j in vendorData.xAxis) {
-                    if (data.b[i].id === vendorData.xAxis[j].combinedList) {
+                for (var j in target.entities) {
+                    if (data.b[i].id === target.entities[j].combinedList) {
                         // add new id
-                        data.b[i].newid = vendorData.xAxis[j].id;
+                        data.b[i].newid = target.entities[j].id;
                         // add label with genotype label
-                        data.b[i].label = vendorData.xAxis[j].label;
+                        data.b[i].label = target.entities[j].label;
                         // add phenodigm score
-                        data.b[i].phenodigmScore = vendorData.xAxis[j].score;
+                        data.b[i].phenodigmScore = target.entities[j].score;
                         // add info for tooltip rendering
-                        data.b[i].info = vendorData.xAxis[j].info;
+                        data.b[i].info = target.entities[j].info;
                         
                         break;
                     }
@@ -766,15 +789,15 @@ DataLoader.prototype = {
 				var item = data.b[idx];
 				// In this case, the id is a list of MP ids, e.g., MP:0000074+MP:0000081+MP:0000097+MP:0000189
                 // we'll need to use the genotype id (IMPC internal) as the new ID
-                var targetID = 'IMPC:' + item.newid; // IMPC internal id
+                // Add prefix of groupId, otherwise may have javascript array ordering issues - Joe
+                var targetID = target.groupId + item.newid;
 
 				// build the target list
 				var targetVal = {
                     "id": targetID, 
                     "label": item.label, 
                     "targetGroup": targetGroup, // Mouse
-                    "taxon": "10090", // Mouse taxon
-                    "type": "genotype", 
+                    "type": "genotype", // Needs to be dynamic instead of hard coded - Joe
                     "info": item.info, // for tooltip rendering
                     "rank": parseInt(idx)+1,  // start with 1 not zero
                     "score": Math.round(item.phenodigmScore.score) // rounded to the nearest integer, used in _createTextScores() in phenogrid.js
@@ -844,20 +867,20 @@ DataLoader.prototype = {
                         };
 							 
                         // we need to define this before adding the data to named array, otherwise will get 'cannot set property of undefined' error   
-                        // No need to redefine this in genotypeTransform() - Joe                     
+                        // No need to redefine this in transformNewTargetGroupItems() - Joe                     
 					    if (typeof(this.cellData[targetGroup][sourceID_a]) === 'undefined') {
 							this.cellData[targetGroup][sourceID_a] = {};
 					    }
 
 					 	this.cellData[targetGroup][sourceID_a][targetID] = dataVals;
 					}
-				}  //if
-			} // for
-		} // if
+				} 
+			} 
+		} 
 	},  
     
     /*
-		Function: genotypeTransform
+		Function: transformNewTargetGroupItems
 
 			transforms data from raw owlsims into simplified format
 
@@ -870,7 +893,7 @@ DataLoader.prototype = {
 	 		data - owlsims structured data
             parentGeneID - the parent gene ID that these genotypes are associated with
 	*/
-    genotypeTransform: function(targetGroup, data, parentGeneID) {      		
+    transformNewTargetGroupItems: function(targetGroup, data, parentGeneID) {      		
 		if (typeof(data) !== 'undefined' && typeof (data.b) !== 'undefined') {
 			
             console.log("transforming genotype data...");
@@ -892,7 +915,6 @@ DataLoader.prototype = {
                     "label": item.label, 
                     "targetGroup": item.taxon.label, // item.taxon.label is 'Not Specified' for fish sometimes
                     //"targetGroup": targetGroup, // we use the provided targetGroup as a quick fix - Joe
-                    "taxon": item.taxon.id,  // item.taxon.id is also missing in the returned compare json - Joe
                     "type": item.type, 
                     'parentGeneID': parentGeneID, // added this for each added genotype so it knows which gene to be associated with - Joe
                     "rank": parseInt(idx)+1,  // start with 1 not zero
@@ -986,7 +1008,7 @@ DataLoader.prototype = {
 			freshes the data 
 	
 	 	Parameters:
-			targetGroup - list of targetGroup (aka species) to fetch
+			targetGroup - list of targetGroup (aka group) to fetch
 	 		lazy - performs a lazy load of the data checking for existing data
 	*/
 	refresh: function(targetGroup, lazy) {
@@ -1057,7 +1079,7 @@ DataLoader.prototype = {
 	},
 
     /*
-		Function: getGenotypes
+		Function: getNewTargetGroupItems
             get genotypes of a specific gene 
 	
 	 	Parameters:
@@ -1065,17 +1087,17 @@ DataLoader.prototype = {
 	 		finalCallback - final callback name
 	 		parent - phenogrid.js global this
 	*/
-    getGenotypes: function(id, finalCallback, parent) {
+    getNewTargetGroupItems: function(id, finalCallback, parent) {
         var self = this;
         // http://monarchinitiative.org/gene/MGI:98297/genotype_list.json
         var url = this.serverURL + "/gene/" + id.replace('_', ':') + "/genotype_list.json";
-        var cb = this.getGenotypesCb;
+        var cb = this.getNewTargetGroupItemsCb;
         // ajax get all the genotypes of this gene id
         this.getFetch(self, url, id, cb, finalCallback, parent);
     },
     
     /*
-		Function: getGenotypesCb
+		Function: getNewTargetGroupItemsCb
             send the compare request to get all the matches data
 	
 	 	Parameters:
@@ -1085,7 +1107,7 @@ DataLoader.prototype = {
 	 		finalCallback - final callback function
 	 		parent - top level parent
 	*/
-    getGenotypesCb: function(self, id, results, finalCallback, parent) {
+    getNewTargetGroupItemsCb: function(self, id, results, finalCallback, parent) {
 		// get the first 5 genotypes
         // it's an array of genotype objects - [{id: MGI:4838785, label: MGI:4838785}, {}, ...]
         // some genes may don't have associated genotypes
@@ -1095,7 +1117,7 @@ DataLoader.prototype = {
                 // First filter out genotype IDs with unstable prefix
                 // https://github.com/monarch-initiative/monarch-app/issues/1024#issuecomment-163733837
                 // According to Kent, IDs starting with an underscore or prefixed with MONARCH: do not persist across different scigraph loads
-                var unstablePrefix = parent.state.unstableGenotypePrefix;
+                var unstablePrefix = parent.state.unstableTargetGroupItemPrefix;
                 for (var i in results.genotype_list) {
                     for (var k in unstablePrefix) {
                         if (results.genotype_list[i].id.indexOf(unstablePrefix[k]) === 0) {
@@ -1105,8 +1127,8 @@ DataLoader.prototype = {
                     }  
                 }
                 
-                // Now only get the first parent.state.genotypeExpandLimit genotypes in the list
-                var genotype_list = results.genotype_list.slice(0, parent.state.genotypeExpandLimit);
+                // Now only get the first parent.state.targetGroupItemExpandLimit genotypes in the list
+                var genotype_list = results.genotype_list.slice(0, parent.state.targetGroupItemExpandLimit);
                 var phenotype_id_list = self.origSourceList.join("+");
                 var genotype_id_list = ''; 
                 for (var i in genotype_list) {
@@ -1119,7 +1141,7 @@ DataLoader.prototype = {
                 // /compare/:id1+:id2/:id3+:id4+...idN (JSON only)
                 var compare_url = self.serverURL +  parent.state.compareQuery.URL + '/' + phenotype_id_list + "/" + genotype_id_list;
                 // Now we need to get all the matches data
-                var cb = self.getGenotypesCbCb;
+                var cb = self.getNewTargetGroupItemsCbCb;
                 self.getFetch(self, compare_url, id, cb, finalCallback, parent);
             } else {
                 var simsearchResults = {};
@@ -1131,7 +1153,7 @@ DataLoader.prototype = {
 	},
     
     /*
-		Function: getGenotypesCb
+		Function: getNewTargetGroupItemsCb
             return results(matches data) back to final callback (_fetchGenotypesCb() in phenogrid.js)
 	
 	 	Parameters:
@@ -1141,7 +1163,7 @@ DataLoader.prototype = {
 	 		finalCallback - final callback function
 	 		parent - top level parent
 	*/
-    getGenotypesCbCb: function(self, id, results, finalCallback, parent) {
+    getNewTargetGroupItemsCbCb: function(self, id, results, finalCallback, parent) {
         // don't encode labels into html entities here, otherwise the tooltip content is good, 
         // but genotype labels on x axis will have the encoded characters
         // we just need to encode the labels for tooltip use - Joe
@@ -1156,7 +1178,7 @@ DataLoader.prototype = {
             }
 
             // for reactivation
-            self.loadedGenotypes[id] = genotype_id_list;
+            self.loadedNewTargetGroupItems[id] = genotype_id_list;
             
             // this `results` is the simsearch resulting JSON
             finalCallback(results, id, parent);
@@ -1254,7 +1276,7 @@ DataLoader.prototype = {
 	/*
 		Function: dataExists
 
-			convenient function to check the cell data for a given target group (i.e., species)
+			convenient function to check the cell data for a given target group (i.e., group)
 	
 	 	Parameters:
 	 		targetGroup - target Group label
@@ -1317,13 +1339,13 @@ var DataManager = function(dataLoader) {
 	// this is rebuilt every time grid needs re-rendered, cached here for quick lookup
 	this.matrix = [];
     
-    // genotype expansion, named arrays of each single species
+    // genotype expansion, named arrays of each single group
     // these two arrays are referenced to the underlying data in dataLoader, not actual clone
     // so changes made to the underlying data array will populate to these two - Joe
     this.reorderedTargetEntriesNamedArray = {};
     this.reorderedTargetEntriesIndexArray = {};
     
-    this.expandedGenotypeList = {}; // named array, no need to specify species since each gene ID is unique
+    this.expandedItemList = {}; // named array, no need to specify group since each gene ID is unique
 };
 
 DataManager.prototype = {
@@ -1345,19 +1367,19 @@ DataManager.prototype = {
 	},
     
     /*
-		Function: appendNewGenotypesToOrderedTargetList
-			each single species (fish/mouse) has its own ordered target list
+		Function: appendNewItemsToOrderedTargetList
+			each single group (fish/mouse) has its own ordered target list
 
 		Parameters:
-			targetGroup - species name
+			targetGroup - group name
             data - newly added genotypes data
 
 		Returns:
 			reordered index array
 	*/
-    appendNewGenotypesToOrderedTargetList: function(targetGroup, data) {
+    appendNewItemsToOrderedTargetList: function(targetGroup, data) {
         // can't slice the object this.target[targetGroup]
-        var newlyAdded = {}; // named array, species name is the key
+        var newlyAdded = {}; // named array, group name is the key
         for (var i = 0; i < data.length; i++) {
             var id = Utils.getConceptId(data[i].id);
             
@@ -1365,7 +1387,7 @@ DataManager.prototype = {
                 newlyAdded[targetGroup] = []; // index array
             }
             
-            // value of each species name is an index array
+            // value of each group name is an index array
             newlyAdded[targetGroup].push(this.target[targetGroup][id]);
         }
         
@@ -1379,16 +1401,16 @@ DataManager.prototype = {
     
     /*
 		Function: updateTargetList
-			each single species (fish/mouse) has its own ordered target list
+			each single group (fish/mouse) has its own ordered target list
 
 		Parameters:
 			genotypesData - defined in _fetchGenotypesCb() of phenogrid.js
 	*/
     updateTargetList: function(genotypesData) {
-		var targetEntries = genotypesData.targetEntries; // unordered target entries of current active single species 
+		var targetEntries = genotypesData.targetEntries; // unordered target entries of current active single group 
         var genotypes = genotypesData.genotypes; // an array of genotype objects derived from genotypesData.parentGeneID
         var parentGeneID = genotypesData.parentGeneID;
-        var species = genotypesData.species;
+        var group = genotypesData.group;
 
         var gene_position;
         var first_genotype_position;
@@ -1419,8 +1441,8 @@ DataManager.prototype = {
         // no we have the new target entries in the desired order
         var reorderedTargetEntriesIndexArray = header.concat(footer, body);
         
-        // Format 1 - sorted index numeric array for each target species 
-        this.reorderedTargetEntriesIndexArray[species] = reorderedTargetEntriesIndexArray;
+        // Format 1 - sorted index numeric array for each target group 
+        this.reorderedTargetEntriesIndexArray[group] = reorderedTargetEntriesIndexArray;
         
         // Format into named associative array
         // same return format as getData()
@@ -1433,21 +1455,21 @@ DataManager.prototype = {
             reorderedTargetEntriesNamedArray[reorderedTargetEntriesIndexArray[k].id] = reorderedTargetEntriesIndexArray[k];
         }
         
-        // Format 2 - sorted associative/named array for each target species 
-        this.reorderedTargetEntriesNamedArray[species] = reorderedTargetEntriesNamedArray;
+        // Format 2 - sorted associative/named array for each target group 
+        this.reorderedTargetEntriesNamedArray[group] = reorderedTargetEntriesNamedArray;
 	},
     
-    getReorderedTargetEntriesNamedArray: function(species) {
-        //this.reorderedTargetEntriesIndexArray[species] and this.reorderedTargetEntriesNamedArray[species] 
+    getReorderedTargetEntriesNamedArray: function(group) {
+        //this.reorderedTargetEntriesIndexArray[group] and this.reorderedTargetEntriesNamedArray[group] 
         // have the same order and number of elements, just two different formats
         var t = []
-        for (var i = 0; i < this.reorderedTargetEntriesIndexArray[species].length; i++) {
+        for (var i = 0; i < this.reorderedTargetEntriesIndexArray[group].length; i++) {
             // only added genotypes have that 'visible' property
-            if (typeof(this.reorderedTargetEntriesIndexArray[species][i].visible) === 'undefined') {
-                t.push(this.reorderedTargetEntriesIndexArray[species][i]);
+            if (typeof(this.reorderedTargetEntriesIndexArray[group][i].visible) === 'undefined') {
+                t.push(this.reorderedTargetEntriesIndexArray[group][i]);
             } else {
-                if (this.reorderedTargetEntriesIndexArray[species][i].visible === true) {
-                    t.push(this.reorderedTargetEntriesIndexArray[species][i]);
+                if (this.reorderedTargetEntriesIndexArray[group][i].visible === true) {
+                    t.push(this.reorderedTargetEntriesIndexArray[group][i]);
                 }
             }
         }
@@ -1502,13 +1524,13 @@ DataManager.prototype = {
 	     var rec;
 	     if (typeof(this.cellData[targetGroup]) !== 'undefined') {
              if (typeof(this.cellData[targetGroup][key1]) !== 'undefined') {
-                 if (typeof (this.cellData[targetGroup][key1][key2]) !== 'undefined') {
-                 rec = this.cellData[targetGroup][key1][key2];
-                 }
+                if (typeof (this.cellData[targetGroup][key1][key2]) !== 'undefined') {
+                    rec = this.cellData[targetGroup][key1][key2];
+                }
              } else if (typeof(this.cellData[targetGroup][key2]) !== 'undefined') {
-                 if (typeof(this.cellData[targetGroup][key2][key1]) !== 'undefined') {
-                 rec = this.cellData[targetGroup][key2][key1];
-                 }
+                if (typeof(this.cellData[targetGroup][key2][key1]) !== 'undefined') {
+                    rec = this.cellData[targetGroup][key2][key1];
+                }
              }
 	     }
 	     return rec;
@@ -1657,7 +1679,7 @@ DataManager.prototype = {
 	    	this.matrix = []; 
 	    }
 
-	    for (var y=0; y < yvalues.length; y++ ) {
+	    for (var y = 0; y < yvalues.length; y++ ) {
     		var list = [];
 			for (var x = 0; x < xvalues.length; x++ ) {
                 // when owlSimFunction === 'compare', we use 'compare' as the targetGroup name - Joe
@@ -1684,7 +1706,6 @@ DataManager.prototype = {
 						} else {  // else, just create an array of arrays, grid likes this format
 							list.push(rec);	
 						}
-						
 					}
 				}
 			}
@@ -1704,7 +1725,7 @@ DataManager.prototype = {
 
 		for (var i in this.matrix) {
 			var r = this.matrix[i];
-			for (var j=0; j < r.length; j++) {
+			for (var j = 0; j < r.length; j++) {
 				if (r[j].ypos == matchpos && !highlightSources) {
 					matchedPositions.push(r[j]);
 				} else if (r[j].xpos == matchpos && highlightSources) {
@@ -1767,7 +1788,7 @@ DataManager.prototype = {
 		// loop thru for the number of comparisons
 
 		for (var k in targetGroupList) {
-			var data = this.getData("target", targetGroupList[k].name);
+			var data = this.getData("target", targetGroupList[k].groupName);
 			if (typeof(data) !== 'undefined') {
 				var i=0;
 				for (var idx in data) {
@@ -1796,7 +1817,7 @@ DataManager.prototype = {
 		// loop thru for the number of comparisons and build a combined list
 		// also build the frequency and sum for the subset
 		for (var k in targetGroupList) {
-			var srcs = this.getData("source", targetGroupList[k].name);
+			var srcs = this.getData("source", targetGroupList[k].groupName);
 
 			if (typeof(srcs) !== 'undefined') {
 				for (var idx in srcs) {
@@ -1819,7 +1840,7 @@ DataManager.prototype = {
 
 			for (var t in targetGroupList) {
 				// get all the cell data
-				var cellData = this.getData("cellData", targetGroupList[t].name);
+				var cellData = this.getData("cellData", targetGroupList[t].groupName);
 				for (var cd in cellData) {
 
 				var cells = cellData[cd];
@@ -1848,7 +1869,7 @@ DataManager.prototype = {
 	 		id - gene id to check
 	*/
 	isExpanded: function(id) {
-        if (typeof(this.expandedGenotypeList[id]) === 'undefined') {
+        if (typeof(this.expandedItemList[id]) === 'undefined') {
             return false;
         } else {
             return true;
@@ -1856,23 +1877,23 @@ DataManager.prototype = {
 	},
     
     /*
-		Function: checkGenotypesLoaded
+		Function: checkExpandedItemsLoaded
 
 			check if the genotypes data of that specific gene id has been loaded
 	
 	 	Parameters:
-	 		species - species name
+	 		group - group name
             id - gene id to check
 	*/
-    checkGenotypesLoaded: function(species, id) {
-		if (typeof(this.reorderedTargetEntriesIndexArray[species]) === 'undefined') {
-            this.reorderedTargetEntriesIndexArray[species] = []; // index array
+    checkExpandedItemsLoaded: function(group, id) {
+		if (typeof(this.reorderedTargetEntriesIndexArray[group]) === 'undefined') {
+            this.reorderedTargetEntriesIndexArray[group] = []; // index array
         }
     
-        for (var i = 0; i < this.reorderedTargetEntriesIndexArray[species].length; i++) {
+        for (var i = 0; i < this.reorderedTargetEntriesIndexArray[group].length; i++) {
             // only added genotypes have 'parentGeneID' property
-            if (typeof(this.reorderedTargetEntriesIndexArray[species][i].parentGeneID) !== 'undefined') {
-                if (this.reorderedTargetEntriesIndexArray[species][i].parentGeneID === id) {
+            if (typeof(this.reorderedTargetEntriesIndexArray[group][i].parentGeneID) !== 'undefined') {
+                if (this.reorderedTargetEntriesIndexArray[group][i].parentGeneID === id) {
                     return true;
                 }
             }  
@@ -1908,31 +1929,8 @@ module.exports={
  * Phenogrid is implemented as a jQuery UI widget. The phenogrid widget uses semantic similarity calculations provided
  * by OWLSim (www.owlsim.org),  as provided through APIs from the Monarch Initiative (www.monarchinitiative.org).
  *
- * Phenogrid widget can be instantiated on a jquery-enabled web page with a call of the form
+ * https://github.com/monarch-initiative/phenogrid
  *
- * window.onload = function() {
- *     Phenogrid.createPhenogridForElement(document.getElementById('phenogrid_container'), {
- *         serverURL : "http://monarchinitiative.org",
- *         phenotypeData: phenotypes,
- *         targetGroupList: [
- *           {"name": "Homo sapiens", "taxon": "9606","crossComparisonView": true, "active": true},
- *           {"name": "Mus musculus", "taxon": "10090", "crossComparisonView": true, "active": true},
- *           {"name": "Danio rerio", "taxon": "7955", "crossComparisonView": true, "active": true}
- *         ]
- *     });
- * }
- *
- * 'phenogrid_container' is the id of the div that will contain the phenogrid widget
- *	phenotypes is a Javascript array of objects listing the phenotypes to be rendered in the widget, it takes one of two forms:
- *
- *	1. A list of hashes
- *		[{"id": "HP:12345", "observed":"positive"}, {"id: "HP:23451", "observed": "negative"}, ...]
- *	2. A list of phenotype ids
- *		["HP:12345", "HP:23451"]
- *
- *	Given an input list of phenotypes and parameters indicating
- *	desired source of matching models (humans, model organisms, etc.),
- *	the Phenogrid will call the Monarch API to get OWLSim results. These results will then be rendered in the Phenogrid
  */
 
 
@@ -1992,39 +1990,19 @@ var images = require('./images.json');
 	$.widget("ui.phenogrid", {
 	    // Public API, can be overwritten in Phenogrid constructor
         config: {		
-            phenotypeData: [],
-            serverURL: "http://monarchinitiative.org", // will be overwritten by phenogrid_config.js, and Phenogrid constructor
+            serverURL: "https://monarchinitiative.org", // will be overwritten by phenogrid_config.js, and Phenogrid constructor
+            gridSkeletonData: {},
             selectedCalculation: 0, // index 0 is Similarity by default. (0 - Similarity, 1 - Ratio (q), 2 - Uniqueness, 3- Ratio (t))
             selectedSort: "Frequency", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency" 
-            // this default targetGroupList config will be used if it's not specified 
-            // in either the phenogrid_config.js or phenogrid constructor
-            // There are two parameters which allow you to control whether a target group is displayed 
-            // as a default in the multi-target comparison view, crossComparisonView and whether it should be active, active = true, 
-            // and thus fully visible within phenogrid. If crossComparisonView = true, for example, 
-            // the target group will be visible as a default within the multi-target comparison view.
-            // The active parameter can override other parameters, but activating or deactivating a target group. 
-            // For example, if the active = false, then the target group is not active within phenogrid and is not shown in comparison 
-            // nor is it a selectable option from the menu. This is useful, if you not longer want that target group to be 
-            // displayed within phenogrid and would like to retain the target group reference within the list. - MD
-            // taxon is used by dataLoader to specify 'target_species' in query URL - Joe
-            targetGroupList: [
-                {name: "Homo sapiens", taxon: "9606", crossComparisonView: true, active: true},
-                {name: "Mus musculus", taxon: "10090", crossComparisonView: true, active: true},
-                {name: "Danio rerio", taxon: "7955", crossComparisonView: true, active: true},
-                {name: "Drosophila melanogaster", taxon: "7227", crossComparisonView: false, active: false},
-                {name: "Caenorhabditis elegans", taxon: "6239", crossComparisonView: false, active: false},
-                {name: "UDPICS", taxon: "UDPICS", crossComparisonView: false, active: false} // Undiagnosed Diseases Program Integrated Collaboration System(UDPICS)
-            ],
             messaging: {
-                misconfig: 'Please fix your config to enable at least one species.',
+                misconfig: 'Please fix your config to have at least one target group.',
+                gridSkeletonDataError: 'No phenotypes to compare.',
                 noAssociatedGenotype: 'This gene has no associated genotypes.',
                 noSimSearchMatchForExpandedGenotype: 'No matches found between the provided phenotypes and expanded genotypes.',
-                noSimSearchMatch: 'No simsearch matches found for {%speciesName%} based on the provided phenotypes.' // {%speciesName%} is placeholder
+                noSimSearchMatch: 'No simsearch matches found for {%groupName%} based on the provided phenotypes.' // {%groupName%} is placeholder
             },
-            // For IMPC integration
+            // For Vendor data integration
             gridSkeletonDataVendor: '', // Use 'IMPC' in constructor
-            gridSkeletonData: {}, //  skeleton json structure: https://github.com/monarch-initiative/phenogrid/blob/impc-integration/js/impc.json
-            gridSkeletonTargetGroup: {}, // E.g., {name: "Mus musculus", taxon: "10090"}
             // hooks to the monarch app's Analyze/phenotypes page - Joe
             owlSimFunction: '', // 'compare', 'search'
             targetSpecies: '', // quoted 'taxon number' or 'all'
@@ -2051,26 +2029,16 @@ var images = require('./images.json');
             gridTitle: 'Phenotype Similarity Comparison',       
             singleTargetModeTargetLengthLimit: 30, //  defines the limit of the number of targets to display
             sourceLengthLimit: 30, //  defines the limit of the number of sources to display
-            crossCompareModeTargetLengthLimit: 10,    // the number of visible targets per species to be displayed in cross compare mode  
-            targetLabelCharLimit : 27,
+            multiTargetsModeTargetLengthLimit: 10,    // the number of visible targets per group to be displayed in cross compare mode  
+            targetLabelCharLimit : 23,
             ontologyDepth: 10,	// Numerical value that determines how far to go up the tree in relations.
             ontologyDirection: "OUTGOING",	// String that determines what direction to go in relations.  Default is "out".
             ontologyRelationship: "subClassOf",
             ontologyQuery: "/neighborhood/", // Keep the slashes
             ontologyTreeAmounts: 1,	// Allows you to decide how many HPO Trees to render.  Once a tree hits the high-level parent, it will count it as a complete tree.  Additional branchs or seperate trees count as seperate items
                                 // [vaa12] DO NOT CHANGE UNTIL THE DISPLAY HPOTREE FUNCTIONS HAVE BEEN CHANGED. WILL WORK ON SEPERATE TREES, BUT BRANCHES MAY BE INACCURATE
-            genotypeExpandLimit: 5, // sets the limit for the number of genotype expanded on grid 
-            // Genotype expansion flags - named/associative array
-            // flag used for switching between single species and multi-species mode
-            // add new species names here once needed - Joe
-            // Add new species here when needed, human disease doesn't have genotype expansion - Joe
-            genotypeExpansionSpeciesFlag: {
-                "Mus musculus": false,
-                "Danio rerio": false,
-                "Drosophila melanogaster": false,
-                "Caenorhabditis elegans": false
-            },
-            unstableGenotypePrefix: ['MONARCH:', '_:'], //https://github.com/monarch-initiative/monarch-app/issues/1024#issuecomment-163733837
+            targetGroupItemExpandLimit: 5, // sets the limit for the number of genotype expanded on grid 
+            unstableTargetGroupItemPrefix: ['MONARCH:', '_:'], //https://github.com/monarch-initiative/monarch-app/issues/1024#issuecomment-163733837
             colorDomains: [0, 0.2, 0.4, 0.6, 0.8, 1],
             colorRanges: [ // each color sets the stop color based on the stop points in colorDomains - Joe
                 'rgb(237,248,177)',
@@ -2082,9 +2050,9 @@ var images = require('./images.json');
             ], // stop colors for corresponding stop points - Joe
             minimap: {
                 x:112, 
-                y: 65, 
-                width:110, // the actual width will be calculated based on the number of x count - Joe
-                height:110, // the actual height will be calculated based on the number of y count - Joe
+                y: 75, 
+                width:100, // the actual width will be calculated based on the number of x count - Joe
+                height:100, // the actual height will be calculated based on the number of y count - Joe
                 bgColor: '#fff',
                 borderColor: '#666',
                 borderThickness:2, // 2 works best, any other number will cause imperfect display - Joe
@@ -2102,7 +2070,7 @@ var images = require('./images.json');
             targetGroupDividerLine: {
                 color: "#EA763B",
                 thickness: 1,
-                rotatedDividerLength: 110 // the length of the divider line for the rotated labels
+                rotatedDividerLength: 150 // the length of the divider line for the rotated labels
             },
             gridRegion: {
                 x:240, 
@@ -2156,202 +2124,199 @@ var images = require('./images.json');
             // this.options overwrites this.configoptions overwrites this.config overwrites this.internalOptions
             this.state = $.extend({}, this.internalOptions, this.config, this.configoptions, this.options);
 
+            // taxon is used by dataLoader to specify 'target_species' in query URL - Joe
+            this.state.targetGroupList = [];
+            
             // Create new arrays for later use
             // initialTargetGroupLoadList is used for loading the simsearch data for the first time
             this.state.initialTargetGroupLoadList = [];
             
-            // selectedCompareTargetGroup is used to control what species are loaded
-            // it's possible that a species is in initialTargetGroupLoadList but there's no simsearch data returned - Joe
+            // selectedCompareTargetGroup is used to control what group are loaded
+            // it's possible that a group is in initialTargetGroupLoadList but there's no simsearch data returned - Joe
             this.state.selectedCompareTargetGroup = [];
 
-            // NOTE: without using jquery's extend(), all the new flags are referenced 
-            // to the config object, not actual copy - Joe
-            this.state.expandedGenotypes = $.extend({}, this.state.genotypeExpansionSpeciesFlag);
-            
-            // genotype flags to mark every genotype expansion on/off in each species
-            this.state.newGenotypes = $.extend({}, this.state.genotypeExpansionSpeciesFlag);
-            
-            this.state.removedGenotypes = $.extend({}, this.state.genotypeExpansionSpeciesFlag);
-            
-            // flag to mark if hidden genotypes need to be reactivated
-            this.state.reactivateGenotypes = $.extend({}, this.state.genotypeExpansionSpeciesFlag);
-            
             // create the Phenogrid div
             this._createPhenogridContainer();
             
             // show loading spinner - Joe
-            this._showLoadingSpinner();		
+            this._showLoadingSpinner();
 
-            // IMPC integration, IMPC returns its own list of mouse phenotypes
-            if (this.state.gridSkeletonDataVendor === 'IMPC') {
-                this._initGridSkeleton();
-            } else {
-                // Remove duplicated source IDs - Joe
-                this.state.querySourceList = this._parseQuerySourceList(this.state.phenotypeData);
-
+            // We need some basic data validation here to make sure 
+            // there are at least two phenotypes (one from each axis) to send off to the compare API before trying
+            if (this.state.gridSkeletonData.xAxis.length > 0 && this.state.gridSkeletonData.yAxis.length > 0) { 
+                // Use provided grid title if there's one, otherwise use default
+                if (typeof(this.state.gridSkeletonData.title) !== 'undefined' && this.state.gridSkeletonData.title !== '' && this.state.gridSkeletonData.title !== null) {
+                    this.state.gridTitle = this.state.gridSkeletonData.title;
+                }
+                
+                // Parse to get unique source phenotype ID list
+                this._parseGridSourceList();
+                
+                // Specify the final data loading callback to create all the display components
                 var self = this;
                 // no change to the callback - Joe
                 this.state.asyncDataLoadingCallback = function() {
                     self._asyncDataLoadingCB(self); 
                 };
-
-                // Load data from compare API for geneList
-                // in compare mode, there's no crossComparisonView - Joe
-                if (this.state.owlSimFunction === 'compare' && this.state.geneList.length !== 0) {
-                    this._initCompare();
-                } else if (this.state.owlSimFunction === 'search' && this.state.targetSpecies !== '') {
-                    this._initSearch();
+                    
+                // Vendor data integration
+                if (this.state.gridSkeletonDataVendor === 'IMPC') {
+                    this._initGridSkeletonDataForVendor();
                 } else {
-                    this._initDefault();
+                    // Load data from compare API for geneList
+                    if (this.state.owlSimFunction === 'compare' && this.state.geneList.length !== 0) {
+                        this._initCompare();
+                    } else if (this.state.owlSimFunction === 'search' && this.state.targetSpecies !== '') {
+                        this._initSearch();
+                    } else {
+                        this._initGridSkeletonData();
+                    }
                 }
+            } else {
+                // No need to compose the compare API call 
+                this._showGridSkeletonDataErrorMsg();
             }
         },
 
-        _initDefault: function() {
-            // when not work with monarch's analyze/phenotypes page
-            // this can be single species mode or cross comparison mode depends on the config
-            // load the default selected target targetGroup list based on the active flag in config, 
-            // has nothing to do with the monarch's analyze phenotypes page - Joe
-            this._parseTargetGroupList(false);
-            
+        // use the human phenotypes from the input JSON
+        _parseGridSourceList: function() {
+            // gridSourceList is an array of phenotype ids
+            var gridSourceList = [];
+            for (var i = 0; i < this.state.gridSkeletonData.yAxis.length; i++) {
+                gridSourceList.push(this.state.gridSkeletonData.yAxis[i].id);
+            }
+
+            // Remove duplicated source IDs and add this gridSourceList to the global state variable - Joe
+            this.state.gridSourceList = this._removeDuplicatedSourceId(gridSourceList);
+        },
+        
+        // Monarch use case
+        _initGridSkeletonData: function() {
+            // Compose the target group list based on gridSkeletonData.xAxis
+            for (var j = 0; j < this.state.gridSkeletonData.xAxis.length; j++) {
+                // E.g., {groupName: "Homo sapiens", groupId: "9606"}
+                this.state.targetGroupList.push(this.state.gridSkeletonData.xAxis[j]);
+            }
+
+            // load the target targetGroup list
+            this._parseTargetGroupList();
+     
             // initialize data processing class for simsearch query
             this.state.dataLoader = new DataLoader(this.state.serverURL, this.state.simSearchQuery);
             
             // starting loading the data from simsearch
             //optional parm: this.limit
-            this.state.dataLoader.load(this.state.querySourceList, this.state.initialTargetGroupLoadList, this.state.asyncDataLoadingCallback);
+            this.state.dataLoader.load(this.state.gridSourceList, this.state.initialTargetGroupLoadList, this.state.asyncDataLoadingCallback);
         },
         
+        // Monarch analyze/phenotype compare use case
         _initCompare: function() {
             // overwrite the this.state.targetGroupList with only 'compare'
             // this 'compare' is used in dataLoader.loadCompareData() and dataManager.buildMatrix() too - Joe
+            var compare = "compare";
             this.state.targetGroupList = [
-                {name: "compare", taxon: "compare", crossComparisonView: true, active: true}
+                {groupName: compare, groupId: compare}
             ];
             
-            // load the target targetGroup list based on the active flag
-            this._parseTargetGroupList(false);	
+            // load the target targetGroup list
+            this._parseTargetGroupList();	
 
             // initialize data processing class for compare query
             this.state.dataLoader = new DataLoader(this.state.serverURL, this.state.compareQuery);
 
             // starting loading the data from compare api
             // NOTE: the owlsim data returned form the ajax GET may be empty (no matches), we'll handle this in the callback - Joe
-            this.state.dataLoader.loadCompareData(this.state.targetGroupList[0].name, this.state.querySourceList, this.state.geneList, this.state.asyncDataLoadingCallback);
+            this.state.dataLoader.loadCompareData(this.state.targetGroupList[0].groupName, this.state.gridSourceList, this.state.geneList, this.state.asyncDataLoadingCallback);
         },
 
+        // Monarch analyze/phenotype search use case
         _initSearch: function() {
             // targetSpecies is used by monarch-app's Analyze page, the dropdown menu under "Search" section - Joe
             if (this.state.targetSpecies === 'all') {
-                // overwrite the this.state.targetGroupList by enabling Homo sapiens, Mus musculus, and Danio rerio - Joe
-                this.state.targetGroupList = [
-                    // Because only the three species are supported in monarch analyze/phenotypes page at this point - Joe
-                    {name: "Homo sapiens", taxon: "9606", crossComparisonView: true, active: true},
-                    {name: "Mus musculus", taxon: "10090", crossComparisonView: true, active: true},
-                    {name: "Danio rerio", taxon: "7955", crossComparisonView: true, active: true},
-                    // Disabled species
-                    {name: "Drosophila melanogaster", taxon: "7227", crossComparisonView: false, active: false},
-                    {name: "Caenorhabditis elegans", taxon: "6239", crossComparisonView: false, active: false},
-                    {name: "UDPICS", taxon: "UDPICS", crossComparisonView: false, active: false}
-                ];
-                
-                // load the target targetGroup list based on the active flag
-                this._parseTargetGroupList(false);
+                this.state.targetGroupList = this.state.gridSkeletonData.xAxis;
+
+                // load the target targetGroup list
+                this._parseTargetGroupList();
             } else { 
-                // when single species is selected (taxon is passed in via this.state.targetSpecies)
+                // when single group is selected (taxon is passed in via this.state.targetSpecies)
                 // load just the one selected from the dropdown menu - Joe
-                if (this.state.targetGroupList[idx].taxon === this.state.targetSpecies) {
-                    this._parseTargetGroupList(true);	
-                }	
+                for (var i = 0; i < this.state.gridSkeletonData.xAxis.length; i++) {
+                    if (this.state.gridSkeletonData.xAxis[i].groupId === this.state.targetSpecies) {
+                        this.state.targetGroupList.push(this.state.gridSkeletonData.xAxis[i]);
+                        this._parseTargetGroupList();	
+                        break;
+                    }	
+                }
             }
             
             // initialize data processing class for simsearch query
             this.state.dataLoader = new DataLoader(this.state.serverURL, this.state.simSearchQuery);
             
             // starting loading the data from simsearch
-            this.state.dataLoader.load(this.state.querySourceList, this.state.initialTargetGroupLoadList, this.state.asyncDataLoadingCallback, this.state.searchResultLimit);
+            this.state.dataLoader.load(this.state.gridSourceList, this.state.initialTargetGroupLoadList, this.state.asyncDataLoadingCallback, this.state.searchResultLimit);
         },
 
-        _initGridSkeleton: function() {
-            // Use provided grid title if there's one, otherwise set as empty
-            if (typeof(this.state.gridSkeletonData.title) !== 'undefined' && this.state.gridSkeletonData.title !== '') {
-                this.state.gridTitle = this.state.gridSkeletonData.title;
-            } else {
-                this.state.gridTitle = '';
-            }
-            
-            // use the human phenotypes from the input JSON
-            for (var i in this.state.gridSkeletonData.yAxis[0].phenotypes) {
-                this.state.phenotypeData.push(this.state.gridSkeletonData.yAxis[0].phenotypes[i].id);
+        // Vendor (E.g., IMPC) use case or similar
+        _initGridSkeletonDataForVendor: function() {
+            // Compose the target group list based on gridSkeletonData.xAxis
+            for (var j = 0; j < this.state.gridSkeletonData.xAxis.length; j++) {
+                // E.g., {groupName: "Homo sapiens", groupId: "9606"}
+                this.state.targetGroupList.push(this.state.gridSkeletonData.xAxis[j]);
             }
 
-             // Remove duplicated source IDs - Joe
-            var querySourceList = this._parseQuerySourceList(this.state.phenotypeData);
-            
-            // no change to the callback - Joe
-            var self = this;
-            var asyncDataLoadingCallback = function() {
-                self._asyncDataLoadingCB(self); 
-            };
-            
-            // For only single species
-            // If multi species needed as target groups, we'll need to change the skelton structure
-            // Merge the provided this.state.gridSkeletonTargetGroup properties with {crossComparisonView: true, active: true}
-            // so the new object is in the desired format
-            var normalizedTargetGroup = $.extend({}, this.state.gridSkeletonTargetGroup, {crossComparisonView: true, active: true});
-            this.state.targetGroupList = [
-                normalizedTargetGroup
-            ];
-            
-            // load the target targetGroup list based on the active flag
-            this._parseTargetGroupList(true);
-     
-            var listOfLists = [];
-            for (var idx in this.state.gridSkeletonData.xAxis) {
-                var eachList = [];
-                for (var i in this.state.gridSkeletonData.xAxis[idx].phenotypes) {
-                    eachList.push(this.state.gridSkeletonData.xAxis[idx].phenotypes[i].id);
-                }
-                // add new property
-                this.state.gridSkeletonData.xAxis[idx].combinedList = eachList.join('+');
-                // default separator of array.join(separator) is comma
-                // join all the MP inside each MP list with plus sign, and join each list with default comma
-                listOfLists.push(this.state.gridSkeletonData.xAxis[idx].combinedList);
-            }
-            
-            // use the default comma to separate each list into each genotype profile
-            var multipleTargetEntities = listOfLists.join();
+            // load the target targetGroup list
+            this._parseTargetGroupList();
 
             // initialize data processing class for compare query
             this.state.dataLoader = new DataLoader(this.state.serverURL, this.state.compareQuery);
 
             // starting loading the owlsim data from compare api for this vendor
-            this.state.dataLoader.loadCompareDataForVendor(this.state.gridSkeletonData, this.state.gridSkeletonTargetGroup.name, querySourceList, multipleTargetEntities, asyncDataLoadingCallback);
+            if (this._isCrossComparisonView()) {
+                this.state.dataLoader.loadCompareDataForVendor(this.state.gridSourceList, this.state.initialTargetGroupLoadList, this.state.asyncDataLoadingCallback, this.state.multiTargetsModeTargetLengthLimit);
+            } else {
+                this.state.dataLoader.loadCompareDataForVendor(this.state.gridSourceList, this.state.initialTargetGroupLoadList, this.state.asyncDataLoadingCallback);
+            }
+        },
+        
+        _showGridSkeletonDataErrorMsg: function() {
+            this.state.pgContainer.html(this.state.messaging.gridSkeletonDataError);
         },
         
         // when not work with monarch's analyze/phenotypes page
-        // this can be single species mode or cross comparison mode depends on the config
-        // load the default selected target targetGroup list based on the active flag in config, 
-        // has nothing to do with the monarch's analyze phenotypes page - Joe
-        _parseTargetGroupList: function(forSingleTargetGroup) {
+        _parseTargetGroupList: function() {
             for (var idx in this.state.targetGroupList) {
-                if (forSingleTargetGroup === true) {
-                    this.state.initialTargetGroupLoadList.push(this.state.targetGroupList[idx]);	
-                    this.state.selectedCompareTargetGroup.push(this.state.targetGroupList[idx]);	
-                } else {
-                    // for active targetGroup pre-load them
-                    if (this.state.targetGroupList[idx].active) {
-                        this.state.initialTargetGroupLoadList.push(this.state.targetGroupList[idx]);	
-                    }	
-                    // should they be shown in the comparison view
-                    // crossComparisonView matters only when active = true - Joe
-                    if (this.state.targetGroupList[idx].active && this.state.targetGroupList[idx].crossComparisonView) {
-                        this.state.selectedCompareTargetGroup.push(this.state.targetGroupList[idx]);	
-                    }
-                }
+                this.state.initialTargetGroupLoadList.push(this.state.targetGroupList[idx]);		
+                this.state.selectedCompareTargetGroup.push(this.state.targetGroupList[idx]);
             } 
+            
+            // Then we init the flag obj for group target item (genotype) expansion
+            this._createTargetGroupItemExpansionFlag();
         },
 
+        _createTargetGroupItemExpansionFlag: function() {
+            // Genotype expansion flags - named/associative array
+            // flag used for switching between single group and multi-group mode
+            var targetGroupItemExpansionFlag = {};
+            // Add new group here, human disease doesn't have genotype expansion, 
+            // but we still have that group in the flag obj - Joe
+            for (var i = 0; i < this.state.initialTargetGroupLoadList.length; i++) {
+                // Add all group names as properties on this flag obj
+                targetGroupItemExpansionFlag[this.state.initialTargetGroupLoadList[i].groupName] = false;
+            }
+
+            // NOTE: without using jquery's extend(), all the new flags are referenced 
+            // to the config object, not actual copy - Joe
+            this.state.expandedTargetGroupItems = $.extend({}, this.state.targetGroupItemExpansionFlag);
+            
+            // genotype flags to mark every genotype expansion on/off in each group
+            this.state.newTargetGroupItems = $.extend({}, this.state.targetGroupItemExpansionFlag);
+            
+            this.state.removedTargetGroupItems = $.extend({}, this.state.targetGroupItemExpansionFlag);
+            
+            // flag to mark if hidden genotypes need to be reactivated
+            this.state.reactivateTargetGroupItems = $.extend({}, this.state.targetGroupItemExpansionFlag);
+        },
+        
         // Phenogrid container div
         _createPhenogridContainer: function() {
             // ID of base containing div of each instance
@@ -2378,14 +2343,14 @@ var images = require('./images.json');
                 // need to update the selectedCompareTargetGroup list depending on if we loaded all the data
                 self._updateSelectedCompareTargetGroup();
             }
-            
+          
             // This removes the loading spinner, otherwise the spinner will be always there - Joe
             self.state.pgContainer.html('');
 
             // check owlsim data integrity - Joe
             if (self.state.owlSimFunction === 'compare') {
-                if (this.state.dataLoader.speciesNoMatch.length > 0) {
-                    self._showSpeciesNoMatch();
+                if (this.state.dataLoader.groupsNoMatch.length > 0) {
+                    self._showGroupsNoMatch();
                 } else {
                     // Create all UI components
                     // create the display as usual if there's 'b' and 'metadata' fields found - Joe
@@ -2400,37 +2365,36 @@ var images = require('./images.json');
         // If owlSimFunction === 'compare', we do not have comparison mode
         _updateSelectedCompareTargetGroup: function() {
             // loop through to make sure we have data to display
-            for (var idx in this.state.selectedCompareTargetGroup) {
-                var r = this.state.selectedCompareTargetGroup[idx];
-
-                var len = this.state.dataManager.length("target", r.name);
-                if (typeof(len) === 'undefined'  || len < 1) {
+            for (var i = 0; i < this.state.selectedCompareTargetGroup.length; i++) {
+                var len = this.state.dataManager.length("target", this.state.selectedCompareTargetGroup[i].groupName);
+                if (typeof(len) === 'undefined' || len < 1) {
                     // remove the target that has no data
                     // use splice() not slice() - Joe
                     // splice() modifies the array in place and returns a new array containing the elements that have been removed.
-                    this.state.selectedCompareTargetGroup.splice(idx, 1);
+                    this.state.selectedCompareTargetGroup.splice(i, 1);
+                    i--; // Need to go back to the first element of updated array
                 }
             }
         }, 
 
 
         // for genotype expansion, we need to update the target list 
-        // for each species if they have added genotypes - Joe
-        _updateTargetAxisRenderingGroup: function(species_name) {
+        // for each group if they have added genotypes - Joe
+        _updateTargetAxisRenderingGroup: function(group_name) {
             var targetList = [];
 
-            // get targetList based on the newGenotypes flag
-            if (this.state.newGenotypes[species_name]) {
+            // get targetList based on the newTargetGroupItems flag
+            if (this.state.newTargetGroupItems[group_name]) {
                 // get the reordered target list in the format of a named array, has all added genotype data
-                targetList = this.state.dataManager.reorderedTargetEntriesNamedArray[species_name];
-            } else if (this.state.removedGenotypes[species_name]) {
+                targetList = this.state.dataManager.reorderedTargetEntriesNamedArray[group_name];
+            } else if (this.state.removedTargetGroupItems[group_name]) {
                 // get the reordered target list in the format of a named array, has all added genotype data
-                targetList = this.state.dataManager.getReorderedTargetEntriesNamedArray(species_name); 
-            } else if (this.state.reactivateGenotypes[species_name]) {
-                targetList = this.state.dataManager.getReorderedTargetEntriesNamedArray(species_name); 
+                targetList = this.state.dataManager.getReorderedTargetEntriesNamedArray(group_name); 
+            } else if (this.state.reactivateTargetGroupItems[group_name]) {
+                targetList = this.state.dataManager.getReorderedTargetEntriesNamedArray(group_name); 
             } else {
                 // unordered target list in the format of a named array, has all added genotype data
-                targetList = this.state.dataManager.getData("target", species_name);
+                targetList = this.state.dataManager.getData("target", group_name);
             }	  
       
             // update target axis group
@@ -2451,31 +2415,55 @@ var images = require('./images.json');
 
             if (this._isCrossComparisonView()) {  
                 // create a combined list of targets
-                sourceList = this.state.dataManager.createCombinedSourceList(this.state.selectedCompareTargetGroup, this.state.crossCompareModeTargetLengthLimit);	
+                sourceList = this.state.dataManager.createCombinedSourceList(this.state.selectedCompareTargetGroup);	
 
                 // get the length of the sourceList, this sets that limit since we are in comparison mode
-                // only the crossCompareModeTargetLengthLimit is set, which provides the overall display limit
+                // only the multiTargetsModeTargetLengthLimit is set, which provides the overall display limit
                 this.state.sourceDisplayLimit = Object.keys(sourceList).length;
 
                 // create a combined list of targets
-                targetList = this.state.dataManager.createCombinedTargetList(this.state.selectedCompareTargetGroup, this.state.crossCompareModeTargetLengthLimit);	
+                // show as many columns as possible within the multiTargetsModeTargetLengthLimit
+                // only show multiTargetsModeTargetLengthLimit columns if there are more columns
+                var targetLengthPerGroup = []; 
+                for (var i = 0; i < this.state.selectedCompareTargetGroup.length; i++) {
+                    // This targetDataPerGroup is an Object, not an array
+                    var targetDataPerGroup = this.state.dataManager.getData('target', this.state.selectedCompareTargetGroup[i].groupName);
+                    var groupTargetLength = {};
+                    if (Object.keys(targetDataPerGroup).length <= this.state.multiTargetsModeTargetLengthLimit) {
+                        groupTargetLength = {
+                            groupName: this.state.selectedCompareTargetGroup[i].groupName,
+                            targetLength: Object.keys(targetDataPerGroup).length
+                        };
+                    } else {
+                        groupTargetLength = {
+                            groupName: this.state.selectedCompareTargetGroup[i].groupName,
+                            targetLength: this.state.multiTargetsModeTargetLengthLimit
+                        };
+                    }
+                    targetLengthPerGroup.push(groupTargetLength);
+                }
+                
+                // Also make it available in the global scope
+                // to be used when creating divider lines
+                this.state.targetLengthPerGroup = targetLengthPerGroup;
+                
+                targetList = this.state.dataManager.createCombinedTargetList(this.state.selectedCompareTargetGroup, this.state.multiTargetsModeTargetLengthLimit);	
 
                 // get the length of the targetlist, this sets that limit since we are in comparison mode
-                // only the crossCompareModeTargetLengthLimit is set, which provides the overall display limit
                 this.state.targetDisplayLimit = Object.keys(targetList).length;
             } else if (this.state.selectedCompareTargetGroup.length === 1) {
                 // just get the target group name 
                 // in analyze/phenotypes compare mode, the singleTargetGroupName will be 'compare' - Joe
-                var singleTargetGroupName = this.state.selectedCompareTargetGroup[0].name;
+                var singleTargetGroupName = this.state.selectedCompareTargetGroup[0].groupName;
                 
                 sourceList = this.state.dataManager.getData("source", singleTargetGroupName);
 
                 // set default display limits based on displaying sourceLengthLimit
                 this.state.sourceDisplayLimit = this.state.dataManager.length("source", singleTargetGroupName);
         
-                // display all the expanded genotypes when we switch back from multi-species mode to single-species mode
-                // at this point, this.state.expandedGenotypes is true, and this.state.newGenotypes is false - Joe
-                if (this.state.expandedGenotypes[singleTargetGroupName]) {
+                // display all the expanded genotypes when we switch back from multi-group mode to single-group mode
+                // at this point, this.state.expandedTargetGroupItems is true, and this.state.newTargetGroupItems is false - Joe
+                if (this.state.expandedTargetGroupItems[singleTargetGroupName]) {
                     //targetList = this.state.dataManager.reorderedTargetEntriesNamedArray[singleTargetGroupName];
                     targetList = this.state.dataManager.getReorderedTargetEntriesNamedArray(singleTargetGroupName); 
                 } else {
@@ -2483,17 +2471,18 @@ var images = require('./images.json');
                     targetList = this.state.dataManager.getData("target", singleTargetGroupName);
                 }
                 
-                this.state.targetDisplayLimit = this.state.dataManager.length("target", singleTargetGroupName);			
+                this.state.targetDisplayLimit = this.state.dataManager.length("target", singleTargetGroupName);	
+
+                // In single target mode, use singleTargetModeTargetLengthLimit if more than that
+                if (this.state.targetDisplayLimit > this.state.singleTargetModeTargetLengthLimit) {
+                    this.state.targetDisplayLimit = this.state.singleTargetModeTargetLengthLimit;
+                }                 
             }
 
             // check to make sure the display limits are not over the default display limits
             if (this.state.sourceDisplayLimit > this.state.sourceLengthLimit) {
                 this.state.sourceDisplayLimit = this.state.sourceLengthLimit;  // adjust the display limit within default limit
             }
-
-            if (this.state.targetDisplayLimit > this.state.singleTargetModeTargetLengthLimit) {
-                this.state.targetDisplayLimit = this.state.singleTargetModeTargetLengthLimit;
-            } 
 
             // creates AxisGroup with full source and target lists with default rendering range
             this.state.sourceAxis = new AxisGroup(0, this.state.sourceDisplayLimit, sourceList);
@@ -2521,29 +2510,29 @@ var images = require('./images.json');
         // Being called only for the first time the widget is being loaded
         _createDisplay: function() {
             if (this.state.initialTargetGroupLoadList.length === 1) {
-                // in this case, speciesNoMatch.length can only be 1 or 0
-                if (this.state.dataLoader.speciesNoMatch.length === 0) {
+                // in this case, groupsNoMatch.length can only be 1 or 0
+                if (this.state.dataLoader.groupsNoMatch.length === 0) {
                     // create UI components
                     this._createDisplayComponents();
                 } else {
                     // no need to show other SVG UI elements if no matched data
-                    this._showSpeciesNoMatch();
+                    this._showGroupsNoMatch();
                 }
             } else if (this.state.initialTargetGroupLoadList.length > 1) {
-                if (this.state.dataLoader.speciesNoMatch.length > 0) {
-                    if (this.state.dataLoader.speciesNoMatch.length === this.state.initialTargetGroupLoadList.length) {
-                        // in this case all species have no matches
-                        this._showSpeciesNoMatch();
+                if (this.state.dataLoader.groupsNoMatch.length > 0) {
+                    if (this.state.dataLoader.groupsNoMatch.length === this.state.initialTargetGroupLoadList.length) {
+                        // in this case all group have no matches
+                        this._showGroupsNoMatch();
                     } else {
-                        // show error message and display grid for the rest of the species
-                        this._showSpeciesNoMatch();
+                        // show error message and display grid for the rest of the group
+                        this._showGroupsNoMatch();
                         this._createDisplayComponents();
                     }
                 } else {
                     this._createDisplayComponents();
                 }
             } else {
-                // no active species in config
+                // no active group in config
                 this._showConfigErrorMsg();
             }
         },
@@ -2581,6 +2570,11 @@ var images = require('./images.json');
             this._positionPhenogridControls();
             this._togglePhenogridControls();
             
+            // Must after calling this._createPhenogridControls()
+            // since it uses the control options width to 
+            // calculate the gridWidth of the final group grid width - Joe
+            this._scalableCutoffGroupLabel();
+            
             this._setSvgSize();
         },
         
@@ -2592,6 +2586,10 @@ var images = require('./images.json');
         
             this._createSvgComponents();
 
+            // Recalculate the button padding
+            // whitespace size between left boundry to unmatched button, same as the options button to right boundry
+            this.state.btnPadding = this.state.gridRegion.x - $('#' + this.state.pgInstanceId + '_unmatched_btn').width() - this.state.gridRegion.rowLabelOffset;
+            
             // Reposition HTML sections
             this._positionUnmatchedSources();
             this._positionPhenogridControls();
@@ -2601,8 +2599,7 @@ var images = require('./images.json');
 
         _createSvgComponents: function() {
             this._createSvgContainer();
-            
-            this._createOverviewTargetGroupLabels();
+            this._createTargetGroupLabels();
             this._createNavigation();
             this._createGrid();
             this._createScoresTipIcon();
@@ -2625,12 +2622,12 @@ var images = require('./images.json');
                 .style("font-family", "Verdana, Geneva, sans-serif");
         },
         
-        // if no owlsim data returned for that species
-        _showSpeciesNoMatch: function() {
+        // if no owlsim data returned for that group
+        _showGroupsNoMatch: function() {
             var output = '';
-            for (var i = 0; i < this.state.dataLoader.speciesNoMatch.length; i++) {
-                // replace the placeholder with species name
-                output +=  this.state.messaging.noSimSearchMatch.replace(/{%speciesName%}/, this.state.dataLoader.speciesNoMatch[i]) + '<br>';
+            for (var i = 0; i < this.state.dataLoader.groupsNoMatch.length; i++) {
+                // replace the placeholder with group name
+                output +=  this.state.messaging.noSimSearchMatch.replace(/{%groupName%}/, this.state.dataLoader.groupsNoMatch[i]) + '<br>';
             }
             this.state.pgContainer.append(output);
         },
@@ -2655,63 +2652,114 @@ var images = require('./images.json');
                 });
         },
         
-        _createOverviewTargetGroupLabels: function () {
-            // No target group labels for IMPC
-            if (this.state.gridSkeletonDataVendor !== 'IMPC') {
-                if (this.state.owlSimFunction !== 'compare') {
-                    var self = this;
-                    // targetGroupList is an array that contains all the selected targetGroup names
-                    var targetGroupList = self.state.selectedCompareTargetGroup.map(function(d){return d.name;}); 
+        _createTargetGroupLabels: function () {
+            if (this.state.owlSimFunction !== 'compare') {
+                var self = this;
+                // targetGroupList is an array that contains all the selected targetGroup names
+                var targetGroupList = this.state.selectedCompareTargetGroup.map(function(d){return d.groupName;}); 
 
-                    // Inverted and multi targetGroup
-                    if (self.state.invertAxis) { 
-                        var heightPerTargetGroup = self._gridHeight()/targetGroupList.length;
+                var titleXPerGroup = [];
+                var titleYPerGroup = [];
+                
+                if (this._isCrossComparisonView()) {
+                    var totalColumns = 0;
+                    var columnsCounter = [];
+                    for (var i = 0; i < this.state.targetLengthPerGroup.length; i++) {
+                        // Get the target length (number of columns) per group
+                        // and add them up
+                        totalColumns += this.state.targetLengthPerGroup[i].targetLength;
+                        columnsCounter.push(totalColumns);
 
-                        this.state.svg.selectAll(".pg_targetGroup_name")
-                            .data(targetGroupList)
-                            .enter()
-                            .append("text")
-                            .attr("x", self.state.gridRegion.x + self._gridWidth() + 25) // 25 is margin - Joe
-                            .attr("y", function(d, i) { 
-                                    return self.state.gridRegion.y + ((i + 1/2 ) * heightPerTargetGroup);
-                                })
-                            .attr('transform', function(d, i) {
-                                var currX = self.state.gridRegion.x + self._gridWidth() + 25;
-                                var currY = self.state.gridRegion.y + ((i + 1/2 ) * heightPerTargetGroup);
-                                return 'rotate(90 ' + currX + ' ' + currY + ')';
-                            }) // rotate by 90 degrees 
-                            .attr("class", "pg_targetGroup_name") // Need to use id instead of class - Joe
-                            .text(function (d, i){
-                                return targetGroupList[i];
-                            })
-                            .attr("text-anchor", "middle"); // Keep labels aligned in middle vertically
-                    } else {
-                        var widthPerTargetGroup = self._gridWidth()/targetGroupList.length;
-
-                        this.state.svg.selectAll(".pg_targetGroup_name")
-                            .data(targetGroupList)
-                            .enter()
-                            .append("text")
-                            .attr("x", function(d, i){ 
-                                    return self.state.gridRegion.x + ((i + 1/2 ) * widthPerTargetGroup);
-                                })
-                            .attr("y", self.state.gridRegion.y - 110) // based on the grid region y, margin-top -110 - Joe
-                            .attr("class", "pg_targetGroup_name") // Need to use id instead of class - Joe
-                            .text(function(d, i){return targetGroupList[i];})
-                            .attr("text-anchor", function() {
-                                if (self._isCrossComparisonView()) {
-                                    return 'start'; // Try to align with the rotated divider lines for cross-target comparison
-                                } else {
-                                    return 'middle'; // Position the label in middle for single species
-                                }
-                            }); 
+                        if (i === 0) {
+                            // Center the first label based on the corresponding grid width + the X projection of angled divider line
+                            var x = this.state.gridRegion.x + (this.state.gridRegion.cellPad*columnsCounter[i] + (this.state.targetGroupDividerLine.rotatedDividerLength)*Math.sin(Math.PI/4) - (this.state.gridRegion.cellPad - this.state.gridRegion.cellSize)/2 )/2;
+                        } else {
+                            // calculate the x coordinate of the point where the angled red diving will hit the horizontal line containing the labels. Start the label there.
+                            // add 30 to rotatedDividerLength
+                            var x = this.state.gridRegion.x + this.state.gridRegion.cellPad*(columnsCounter[i] - this.state.targetLengthPerGroup[i].targetLength) + (this.state.targetGroupDividerLine.rotatedDividerLength)*Math.sin(Math.PI/4) - (this.state.gridRegion.cellPad - this.state.gridRegion.cellSize)/2;
+                        }
+                        
+                        var y = this.state.gridRegion.y + this.state.gridRegion.cellPad*(columnsCounter[i] - this.state.targetLengthPerGroup[i].targetLength/2);
+                        titleXPerGroup.push(x);
+                        titleYPerGroup.push(y);
                     }
-                } 
+                } else {
+                    var x = this.state.gridRegion.x + this._gridWidth()/2;
+                    var y = this.state.gridRegion.y + this._gridHeight()/2;
+                    titleXPerGroup.push(x);
+                    titleYPerGroup.push(y);
+                }
+                    
+                // No group labels after inverting axis
+                if ( ! this.state.invertAxis) { 
+                    this.state.svg.selectAll(".pg_targetGroup_name")
+                        .data(targetGroupList)
+                        .enter()
+                        .append("text")
+                        .attr("x", function(d, i){ 
+                            return titleXPerGroup[i];
+                        })
+                        .attr("y", function(d, i) {
+                            // Stagger up every other group label
+                            if (i%2 === 0) {
+                                return self.state.gridRegion.y - 135
+                            } else {
+                                return self.state.gridRegion.y - 135 - 12; // Move up 12px
+                            }
+                        })
+                        .attr("class", "pg_targetGroup_name") 
+                        .attr("id", function(d, i) {
+                            return self.state.pgInstanceId + "_groupName_" + (i + 1);
+                        }) 
+                        .text(function(d, i){
+                            return targetGroupList[i];
+                        })
+                        .style("font-size", '11px')    
+                        .attr("text-anchor", function(d, i) {
+                            if (i === 0) {
+                                return 'middle';
+                            } else {
+                                return 'start';
+                            }
+                        });
+                }
+            } 
+        },
+        
+        // Use a scalable cutoff for group label length based on the group size
+        // Adjust the group name length once it's rendered
+        // Only applied to the multi group mode
+        _scalableCutoffGroupLabel: function() {
+            if (this._isCrossComparisonView()) {
+                for (var i = 0; i < this.state.selectedCompareTargetGroup.length; i++) {
+                    var groupNameWidth = $('#' + this.state.pgInstanceId + ' .pg_targetGroup_name')[i].getBoundingClientRect().width;
+                    
+                    // For the first group, scale the label based on the grid width and the divider line's projection on X coordinate.
+                    if (i === 0) {
+                        var groupGridWidth = this.state.targetLengthPerGroup[i].targetLength * this.state.gridRegion.cellPad - (this.state.gridRegion.cellPad - this.state.gridRegion.cellSize)/2 + (this.state.targetGroupDividerLine.rotatedDividerLength)*Math.sin(Math.PI/4);
+                    } else if (i === this.state.selectedCompareTargetGroup.length -1) {
+                        var groupGridWidth = this.state.targetLengthPerGroup[i].targetLength * this.state.gridRegion.cellPad - (this.state.gridRegion.cellPad - this.state.gridRegion.cellSize)/2 - (this.state.targetGroupDividerLine.rotatedDividerLength)*Math.sin(Math.PI/4) + $('#' + this.state.pgInstanceId + '_controls_options').outerWidth();
+                    } else {
+                        var groupGridWidth = this.state.targetLengthPerGroup[i].targetLength * this.state.gridRegion.cellPad - (this.state.gridRegion.cellPad - this.state.gridRegion.cellSize)/2;
+                    }
+
+                    // No change when group name is within the group grid width
+                    if (groupNameWidth > groupGridWidth) {
+                        var newCharCount = Math.floor(this.state.selectedCompareTargetGroup[i].groupName.length * (groupGridWidth/groupNameWidth));
+                        $('#' + this.state.pgInstanceId + '_groupName_' + (i + 1)).text(this.state.selectedCompareTargetGroup[i].groupName.substring(0, newCharCount));
+                    } else {
+                        if (i === 0) {
+                            // Just center the 1st group label based on the mid point of the grid width
+                            // when it's not longer than the grid width
+                            $('#' + this.state.pgInstanceId + '_groupName_' + (i + 1)).attr("x", this.state.gridRegion.x + (this.state.targetLengthPerGroup[i].targetLength * this.state.gridRegion.cellPad - (this.state.gridRegion.cellPad - this.state.gridRegion.cellSize)/2)/2);
+                        }
+                    }
+                }
             }
         },
 
         // Create minimap and scrollbars based on needs
-        // In single species mode, only show mini map 
+        // In single group mode, only show mini map 
         // when there are more sources than the default limit or more targets than default limit
         // In cross comparison mode, only show mini map 
         // when there are more sources than the default limit
@@ -2752,7 +2800,7 @@ var images = require('./images.json');
                         // No need to create the mini map if both xCount and yCount are within the default limit
                     }
                 } else {
-                    // No need to check xCount since the max x limit per species is set to 10 in multi comparison mode
+                    // No need to check xCount since the max x limit per group is set to multiTargetsModeTargetLengthLimit
                     if (yCount > this.state.sourceLengthLimit) {  
                         // just use the default mini map width and height
                         this._createMinimap(width, height);
@@ -2830,7 +2878,7 @@ var images = require('./images.json');
             //console.log(JSON.stringify(xvalues));
             var yvalues = this.state.yAxisRender.groupEntries();	
 
-            // in compare mode, the targetGroup will be 'compare' instead of actual species name - Joe
+            // in compare mode, the targetGroup will be 'compare' instead of actual group name - Joe
             // each element in data contains source_id, targetGroup, target_id, type ('cell'), xpos, and ypos
             if (this.state.owlSimFunction === 'compare') {
                 var data = this.state.dataManager.buildMatrix(xvalues, yvalues, true, this.state.owlSimFunction);
@@ -3082,14 +3130,12 @@ var images = require('./images.json');
             if (vertical === true) {
                 var verticalScrollbarGrp = this.state.svg.append("g")
                     .attr("id", this.state.pgInstanceId + "_vertical_scrollbar_group");
-                
+
                 // scrollbar rect
                 verticalScrollbarGrp.append("line")
-                    //.attr("x1", this.state.gridRegion.x + this._gridWidth() + barToGridMargin)
-                    .attr("x1", this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad + barToGridMargin)
+                    .attr("x1", this._positionVerticalScrollbarLine(sliderThickness, barToGridMargin))
                     .attr("y1", this.state.gridRegion.y)
-                    //.attr("x2", this.state.gridRegion.x + this._gridWidth() + barToGridMargin)
-                    .attr("x2", this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad + barToGridMargin)
+                    .attr("x2", this._positionVerticalScrollbarLine(sliderThickness, barToGridMargin))
                     .attr("y2", this.state.gridRegion.y + this._gridHeight())
                     .attr("id", this.state.pgInstanceId + "_vertical_scrollbar")
                     .style("stroke", barColor)
@@ -3097,8 +3143,7 @@ var images = require('./images.json');
 
                 // slider rect
                 verticalScrollbarGrp.append("rect")
-                    //.attr("x", this.state.gridRegion.x + this._gridWidth() + barToGridMargin - sliderThickness/2) 
-                    .attr("x", this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad + barToGridMargin - sliderThickness/2) 
+                    .attr("x", this._positionVerticalScrollbarRect(sliderThickness, barToGridMargin)) 
                     .attr("y", defaultY + sliderRectY) // sets the slider to the desired position after inverting axis - Joe
                     .attr("id", this.state.pgInstanceId + "_vertical_scrollbar_slider")
                     .attr("height", sliderHeight)
@@ -3152,6 +3197,30 @@ var images = require('./images.json');
             }
         },
         
+        _positionVerticalScrollbarLine: function(sliderThickness, barToGridMargin) {
+            var x;
+            
+            if (this._isCrossComparisonView()) {
+                x = this.state.gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*this.state.gridRegion.cellPad - sliderThickness/2 + barToGridMargin
+            } else {
+                x = this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad - sliderThickness/2 + barToGridMargin;
+            }
+            
+            return x;
+        },
+        
+        _positionVerticalScrollbarRect: function(sliderThickness, barToGridMargin) {
+            var x;
+            
+            if (this._isCrossComparisonView()) {
+                x = this.state.gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*this.state.gridRegion.cellPad + barToGridMargin - sliderThickness;
+            } else {
+                x = this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad + barToGridMargin - sliderThickness;
+            }
+            
+            return x;
+        },
+        
         // for scrollbars
         _createScrollbarScales: function(width, height) {
             // create list of all item ids within each axis
@@ -3173,7 +3242,13 @@ var images = require('./images.json');
         
         _setSvgSize: function() {
             // Update the width and height of #pg_svg
-            var svgWidth = this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad + this.state.gridRegion.rowLabelOffset + $('#' + this.state.pgInstanceId + '_slide_btn').width() + this.state.btnPadding;
+            var svgWidth;
+            
+            if (this._isCrossComparisonView()) {
+                svgWidth = this.state.gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*this.state.gridRegion.cellPad + this.state.gridRegion.rowLabelOffset + $('#' + this.state.pgInstanceId + '_slide_btn').width() + this.state.btnPadding;
+            } else {
+                svgWidth = this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad + this.state.gridRegion.rowLabelOffset + $('#' + this.state.pgInstanceId + '_slide_btn').width() + this.state.btnPadding;
+            }
             
             d3.select('#' + this.state.pgInstanceId + '_svg')
                 .attr('width', svgWidth)
@@ -3541,10 +3616,6 @@ var images = require('./images.json');
             }
         },
 
-        
-
-        
-
         // add a tooltip div stub, this is used to dynamically set a tooltip info 
         _createTooltipStub: function() {
             var pg_tooltip = $("<div>")
@@ -3661,11 +3732,18 @@ var images = require('./images.json');
         // Grid main top title
         _addGridTitle: function() {
             if (this.state.gridTitle !== '') {
+                var self = this;
                 // Add the top main title to pg_svg_group
                 this.state.svg.append("svg:text")
                     .attr("id", this.state.pgInstanceId + "_toptitle")
-                    .attr("x", this.state.gridRegion.x + this.state.singleTargetModeTargetLengthLimit*this.state.gridRegion.cellPad/2) // Calculated based on the singleTargetModeTargetLengthLimit - Joe
-                    .attr("y", 40) // Fixed y position - Joe
+                    .attr("x", function() {
+                        if (self._isCrossComparisonView()) {
+                            return self.state.gridRegion.x + self.state.multiTargetsModeTargetLengthLimit*self.state.selectedCompareTargetGroup.length*self.state.gridRegion.cellPad/2
+                        } else {
+                            return self.state.gridRegion.x + self.state.singleTargetModeTargetLengthLimit*self.state.gridRegion.cellPad/2;
+                        }
+                    }) // Calculated based on the singleTargetModeTargetLengthLimit - Joe
+                    .attr("y", 25) // Fixed y position - Joe
                     .style('text-anchor', 'middle') // Center the main title - Joe
                     .style('font-size', '1.4em')
                     .style('font-weight', 'bold')
@@ -3714,14 +3792,14 @@ var images = require('./images.json');
                 var insert = $('#' + this.state.pgInstanceId + '_insert_genotypes_' + id);
                 this._on(insert, {
                     "click": function(event) {
-                        this._insertGenotypes(id);
+                        this._insertExpandedItems(id);
                     }
                 });
                 
                 var remove = $('#' + this.state.pgInstanceId + '_remove_genotypes_' + id);
                 this._on(remove, {
                     "click": function(event) {
-                        this._removeGenotypes(id);
+                        this._removeExpandedItems(id);
                     }
                 });
             }
@@ -3846,17 +3924,17 @@ var images = require('./images.json');
             var tooltipType = (typeof(data.type) !== 'undefined' ? "<strong>" + Utils.capitalizeString(data.type) + ": </strong> " + this._encodeTooltipHref(data.type, id, data.label) + "<br>" : "");
             var rank = (typeof(data.rank) !== 'undefined' ? "<strong>Rank:</strong> " + data.rank+"<br>" : "");
             var score = (typeof(data.score) !== 'undefined' ? "<strong>Score:</strong> " + data.score+"<br>" : "");	
-            var species = (typeof(data.targetGroup) !== 'undefined' ? "<strong>Species:</strong> " + data.targetGroup+"<br>" : "");
+            var group = (typeof(data.targetGroup) !== 'undefined' ? "<strong>Species:</strong> " + data.targetGroup+"<br>" : "");
 
-            htmlContent = tooltipType + rank + score + species;
+            htmlContent = tooltipType + rank + score + group;
             
             // Add genotype expansion link to genes
             // genotype expansion won't work with owlSimFunction === 'compare' since we use
-            // 'compare' as the key of the named array, while the added genotypes are named based on their species - Joe
+            // 'compare' as the key of the named array, while the added genotypes are named based on their group - Joe
             if (data.type === 'gene') {
                 // ENABLED for now, just comment to DISABLE genotype expansion - Joe
-                // for gene and single species mode only, add genotype expansion link
-                if (this.state.selectedCompareTargetGroup.length === 1 && this.state.selectedCompareTargetGroup[0].name !== 'compare') {
+                // for gene and single group mode only, add genotype expansion link
+                if (this.state.selectedCompareTargetGroup.length === 1 && this.state.selectedCompareTargetGroup[0].groupName !== 'compare') {
                     var expanded = this.state.dataManager.isExpanded(id); // gene id
 
                     if (expanded){
@@ -3879,7 +3957,7 @@ var images = require('./images.json');
                 htmlContent = this._phenotypeTooltip(id, data);	
             } else if (data.type === 'cell') {
                 htmlContent = this._cellTooltip(id, data);	
-            } else if (data.type === 'genotype' && this.state.gridSkeletonDataVendor === 'IMPC') {
+            } else if (this.state.gridSkeletonDataVendor === 'IMPC') {
                 htmlContent = this._vendorTooltip(id, data);	
             } else {
                 htmlContent = this._defaultTooltip(id, data);	
@@ -3951,13 +4029,23 @@ var images = require('./images.json');
         _createTargetGroupDividerLines: function() {
             var gridRegion = this.state.gridRegion;
 
+            // Only create divider lines in multi-group mode
             if (this._isCrossComparisonView()) {
-                var numOfTargetGroup = this.state.selectedCompareTargetGroup.length; 
-
-                for (var i = 1; i < numOfTargetGroup; i++) {
+                
+                var totalColumns = 0;
+                var columnsCounter = [];
+                // No need to get the last group length
+                for (var i = 0; i < this.state.targetLengthPerGroup.length - 1; i++) {
+                    // Get the target length (number of columns) per group
+                    // and add them up
+                    totalColumns += this.state.targetLengthPerGroup[i].targetLength;
+                    columnsCounter.push(totalColumns);
+                }
+                
+                for (var i = 1; i < this.state.selectedCompareTargetGroup.length; i++) {
                     if (this.state.invertAxis) {
                         // gridRegion.colLabelOffset: offset the line to reach the labels
-                        var y = gridRegion.y + gridRegion.cellPad * i * this.state.crossCompareModeTargetLengthLimit - (gridRegion.cellPad - gridRegion.cellSize)/2;		
+                        var y = gridRegion.y + gridRegion.cellPad * columnsCounter[i-1] - (gridRegion.cellPad - gridRegion.cellSize)/2;		
 
                         // render horizontal divider line
                         this.state.svg.append("line")				
@@ -3971,7 +4059,7 @@ var images = require('./images.json');
                             .style("shape-rendering", "crispEdges");
                     } else {
                         // Perfectly center the first divider line between the 10th and 11th cell, same rule for the second line ...
-                        var x = gridRegion.x + gridRegion.cellPad * i * this.state.crossCompareModeTargetLengthLimit - (gridRegion.cellPad - gridRegion.cellSize)/2;		
+                        var x = gridRegion.x + gridRegion.cellPad * columnsCounter[i-1] - (gridRegion.cellPad - gridRegion.cellSize)/2;		
 
                         // render vertical divider line
                         this.state.svg.append("line")				
@@ -4003,8 +4091,7 @@ var images = require('./images.json');
             }
         },
 
-
-            // create the grid
+        // create the grid
         _createGrid: function() {
             var self = this;
             // xvalues and yvalues are index arrays that contain the current x and y items, not all of them
@@ -4022,7 +4109,7 @@ var images = require('./images.json');
             } else {
                 var matrix = this.state.dataManager.buildMatrix(xvalues, yvalues, false);
             }
-
+  
             // create column labels first, so the added genotype cells will overwrite the background color - Joe
             // create columns using the xvalues (targets)
             var column = this.state.svg.selectAll(".column")
@@ -4070,8 +4157,8 @@ var images = require('./images.json');
                 });
         
             // grey background for added genotype columns - Joe
-            // no need to add this grey background for multi species or owlSimFunction === 'compare' - Joe
-            if (this.state.selectedCompareTargetGroup.length === 1 && this.state.selectedCompareTargetGroup[0].name !== 'compare') {
+            // no need to add this grey background for multi group or owlSimFunction === 'compare' - Joe
+            if (this.state.selectedCompareTargetGroup.length === 1 && this.state.selectedCompareTargetGroup[0].groupName !== 'compare') {
                 column.append("rect")
                     .attr("y", xScale.rangeBand() - 1 + gridRegion.colLabelOffset)
                     .attr('width', gridRegion.cellSize)
@@ -4147,8 +4234,8 @@ var images = require('./images.json');
                     self._mouseout();		  		
                 });
 
-            // no need to add this grey background for multi species or owlSimFunction === 'compare' - Joe
-            if (this.state.selectedCompareTargetGroup.length === 1 && this.state.selectedCompareTargetGroup[0].name !== 'compare') {
+            // no need to add this grey background for multi groups or owlSimFunction === 'compare' - Joe
+            if (this.state.selectedCompareTargetGroup.length === 1 && this.state.selectedCompareTargetGroup[0].groupName !== 'compare') {
                 row.append("rect")
                     .attr('width', self._gridWidth())
                     .attr('height', gridRegion.cellSize)
@@ -4193,7 +4280,8 @@ var images = require('./images.json');
                         // this passed to _mouseover refers to the current element
                         // _mouseover() highlights and matching x/y labels, and creates crosshairs on current grid cell
                         // _mouseover() also triggers the tooltip popup as well as the tooltip mouseover/mouseleave - Joe
-                        self._mouseover(this, d, self);})							
+                        self._mouseover(this, d, self);	
+                    })
                     .on("mouseout", function() {
                         // _mouseout() removes the matching highlighting as well as the crosshairs - Joe
                         self._mouseout();
@@ -4201,7 +4289,7 @@ var images = require('./images.json');
             }
         },
 
-        
+    
         /*
          * Change the list of phenotypes and filter the models accordingly.
          */
@@ -4295,8 +4383,12 @@ var images = require('./images.json');
         _createGradientLegend: function(){
             var gridRegion = this.state.gridRegion;
             
-            var x = gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad/2;
-            
+            if (this._isCrossComparisonView()) {
+                var x = gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*gridRegion.cellPad/2;
+            } else {
+                var x = gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad/2;
+            }
+
             // Create a group for gradient bar and legend texts - Joe
             var gradientGrp = this.state.svg.append("g")
                 .attr('id', this.state.pgInstanceId + '_gradient_legend');
@@ -4401,22 +4493,22 @@ var images = require('./images.json');
 
                 $('#' + this.state.pgInstanceId + '_unmatched_list').hide(); // Hide by default
                 
-                // IMPC input data ships will all HP labels, no need to grab via ajax - Joe
+                // Vendor data ships will all HP labels, no need to grab via ajax - Joe
                 if (this.state.gridSkeletonDataVendor === 'IMPC') {
-                    var impcUnmatchedSources = [];
-                    for (var i=0; i< this.state.unmatchedSources.length; i++) {
-                        for (var idx in this.state.gridSkeletonData.yAxis[0].phenotypes) {
-                            if (this.state.gridSkeletonData.yAxis[0].phenotypes[idx].id === this.state.unmatchedSources[i]) {
+                    var vendorDataUnmatchedSources = [];
+                    for (var i = 0; i< this.state.unmatchedSources.length; i++) {
+                        for (var idx in this.state.gridSkeletonData.yAxis) {
+                            if (this.state.gridSkeletonData.yAxis[idx].id === this.state.unmatchedSources[i]) {
                                 // use "label" instead of "term" here
-                                var item = {id: this.state.gridSkeletonData.yAxis[0].phenotypes[idx].id, label: this.state.gridSkeletonData.yAxis[0].phenotypes[idx].term};
-                                impcUnmatchedSources.push(item);
+                                var item = {id: this.state.gridSkeletonData.yAxis[idx].id, label: this.state.gridSkeletonData.yAxis[idx].term};
+                                vendorDataUnmatchedSources.push(item);
                                 break;
                             }
                         }
                     }
                     // Now we have all the unmatched source labels to render
-                    for (var j=0; j< impcUnmatchedSources.length; j++) {
-                        var pg_unmatched_list_item = '<div class="pg_unmatched_list_item"><a href="' + this.state.serverURL + '/phenotype/' + impcUnmatchedSources[j].id + '" target="_blank">' + impcUnmatchedSources[j].label + '</a></div>';
+                    for (var j = 0; j< vendorDataUnmatchedSources.length; j++) {
+                        var pg_unmatched_list_item = '<div class="pg_unmatched_list_item"><a href="' + this.state.serverURL + '/phenotype/' + vendorDataUnmatchedSources[j].id + '" target="_blank">' + vendorDataUnmatchedSources[j].label + '</a></div>';
                         $('#' + this.state.pgInstanceId + '_unmatched_list_data').append(pg_unmatched_list_item);
                     }
                 } else {
@@ -4450,8 +4542,8 @@ var images = require('./images.json');
             
             // only show the Organism(s) option when we have at least two speices
             if (this.state.initialTargetGroupLoadList.length > 1) {
-                var orgSel = this._createOrganismSelection();
-                options.append(orgSel);
+                var targetGroupSelection = this._createTargetGroupSelection();
+                options.append(targetGroupSelection);
             }
 
             var sortSel = this._createSortPhenotypeSelection();
@@ -4476,8 +4568,8 @@ var images = require('./images.json');
             $('#' + this.state.pgInstanceId + '_controls_options').hide(); 
             
             // add the handler for the checkboxes control
-            $('#' + this.state.pgInstanceId + '_organism').change(function(d) {
-                var items = this.childNodes; // this refers to $("#pg_organism") object - Joe
+            $('#' + this.state.pgInstanceId + '_targetGroup').change(function(d) {
+                var items = this.childNodes; // this refers to $("#pg_targetGroup") object - Joe
                 var temp = [];
                 for (var idx = 0; idx < items.length; idx++) {
                     if (items[idx].childNodes[0].checked) {
@@ -4489,19 +4581,19 @@ var images = require('./images.json');
                 if (temp.length > 0) {
                     self.state.selectedCompareTargetGroup = temp;				
                 } else {
-                    alert("You must have at least 1 species selected.");
+                    alert("You must have at least 1 target group selected.");
                 }
 
                 self._createAxisRenderingGroups();
 
-                self._updateDisplay();
-                
-                // Update unmatched sources due to changes of species
+                // Update unmatched sources due to changes of group
                 // No need to call this for other control actions - Joe
                 // Unmatched sources
                 // Remove the HTML if created from the former load
                 $('#' + self.state.pgInstanceId + '_unmatched').remove();
                 self._createUnmatchedSources();
+                
+                self._updateDisplay();
             });
 
             $('#' + this.state.pgInstanceId + '_calculation').change(function(d) {
@@ -4518,10 +4610,11 @@ var images = require('./images.json');
                 } else {
                     self.state.yAxisRender.sort(self.state.selectedSort); 
                 }
+                
                 self._updateDisplay();
             });
 
-            $("#" + this.state.pgInstanceId + "_axisflip").click(function() {	
+            $("#" + this.state.pgInstanceId + "_invert_axis").click(function() {	
                 var $this = $(this);
                 // $this will contain a reference to the checkbox 
                 if ($this.is(':checked')) {
@@ -4529,6 +4622,7 @@ var images = require('./images.json');
                 } else {
                     self.state.invertAxis = false;
                 }
+                
                 self._setAxisRenderers();
                 self._updateDisplay();
             });
@@ -4567,8 +4661,12 @@ var images = require('./images.json');
         _createMonarchInitiativeRecognition: function() {
             var gridRegion = this.state.gridRegion;
             
-            var x = gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad/2;
-            
+            if (this._isCrossComparisonView()) {
+                var x = gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*gridRegion.cellPad/2;
+            } else {
+                var x = gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad/2;
+            }
+
             // Create a group for text and logo
             var recognitionGrp = this.state.svg.append("g")
                 .attr('id', this.state.pgInstanceId + '_recognition');  
@@ -4608,23 +4706,28 @@ var images = require('./images.json');
             var marginTop = 17; // Create some whitespace between the button and the y labels 
             $('#' + this.state.pgInstanceId + '_slide_btn').css('top', gridRegion.y + this._gridHeight() + marginTop);
             
-            // Place the options button to the right of the default limit of columns
-            $('#' + this.state.pgInstanceId + '_slide_btn').css('left', gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad + gridRegion.rowLabelOffset);
-            
             // The height of .pg_controls_options defined in phenogrid.css - Joe
             var pg_ctrl_options = $('#' + this.state.pgInstanceId + '_controls_options');
-            // shrink the height when we don't show the species selection
+            // shrink the height when we don't show the group selection
             if (this.state.initialTargetGroupLoadList.length === 1) {
-                pg_ctrl_options.css('height', 280);
+                pg_ctrl_options.css('height', 310);
             }
             // options div has an down arrow, -10 to create some space between the down arrow and the button - Joe
             pg_ctrl_options.css('top', gridRegion.y + this._gridHeight() - pg_ctrl_options.outerHeight() - 10 + marginTop);
-            pg_ctrl_options.css('left', gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad + gridRegion.rowLabelOffset); 
+            
+            // Place the options button to the right of the default limit of columns
+            if (this._isCrossComparisonView()) {
+                pg_ctrl_options.css('left', gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*gridRegion.cellPad + gridRegion.rowLabelOffset); 
+                $('#' + this.state.pgInstanceId + '_slide_btn').css('left', gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*gridRegion.cellPad + gridRegion.rowLabelOffset);
+            } else {
+                pg_ctrl_options.css('left', gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad + gridRegion.rowLabelOffset); 
+                $('#' + this.state.pgInstanceId + '_slide_btn').css('left', gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad + gridRegion.rowLabelOffset);
+            }
         },	
         
-        _createOrganismSelection: function() {
-            var optionhtml = "<div class='pg_ctrl_label'>Organism(s)</div>" + 
-                "<div id='" + this.state.pgInstanceId + "_organism'>";
+        _createTargetGroupSelection: function() {
+            var optionhtml = "<div class='pg_ctrl_label'>Target Group(s)</div>" + 
+                "<div id='" + this.state.pgInstanceId + "_targetGroup'>";
             for (var idx in this.state.targetGroupList) {
                 if ( ! this.state.targetGroupList.hasOwnProperty(idx)) {
                     break;
@@ -4632,20 +4735,19 @@ var images = require('./images.json');
                 var checked = "";
                 var disabled = "";
                 var linethrough = "";
-                if (this.state.targetGroupList[idx].active) { 
-                    if (this._isTargetGroupSelected(this, this.state.targetGroupList[idx].name)) {
-                        checked = "checked";
-                    }
-                    // If there is no data for a given species, even if it's set as active in config, 
-                    // it should not be shown in the species selector - Joe
-                    if (this.state.dataManager.length('target', this.state.targetGroupList[idx].name) === 0) {
-                        disabled = "disabled";
-                        linethrough = "pg_linethrough";
-                    }
 
-                    optionhtml += "<div class='pg_select_item " + linethrough + "'><input type='checkbox' value=\"" + this.state.targetGroupList[idx].name +
-                    "\" " + checked + disabled + ">" + this.state.targetGroupList[idx].name + '</div>';
+                if (this._isTargetGroupSelected(this, this.state.targetGroupList[idx].groupName)) {
+                    checked = "checked";
                 }
+                // If there is no data for a given group, even if it's set as active in config, 
+                // it should not be shown in the group selector - Joe
+                if (this.state.dataManager.length('target', this.state.targetGroupList[idx].groupName) === 0) {
+                    disabled = "disabled";
+                    linethrough = "pg_linethrough";
+                }
+
+                optionhtml += "<div class='pg_select_item " + linethrough + "'><input type='checkbox' value=\"" + this.state.targetGroupList[idx].groupName +
+                "\" " + checked + disabled + ">" + this.state.targetGroupList[idx].groupName + '</div>';
             }
             optionhtml += "</div><div class='pg_hr'></div>";
 
@@ -4701,7 +4803,7 @@ var images = require('./images.json');
             if (this.state.invertAxis) {
                 checked = "checked";
             }
-            var optionhtml = '<div class="pg_select_item"><input type="checkbox" id="' + this.state.pgInstanceId + '_axisflip"' + checked + '>Invert Axis</div><div class="pg_hr"></div>'; 
+            var optionhtml = '<div class="pg_select_item"><input type="checkbox" id="' + this.state.pgInstanceId + '_invert_axis"' + checked + '>Invert Axis</div><div class="pg_hr"></div>'; 
             return $(optionhtml);
         },
 
@@ -4750,7 +4852,12 @@ var images = require('./images.json');
             $('#' + this.state.pgInstanceId + '_unmatched_btn').css('top', gridRegion.y + this._gridHeight() + 17); // 17 is top margin
             $('#' + this.state.pgInstanceId + '_unmatched_btn').css('left', this.state.btnPadding);
             $('#' + this.state.pgInstanceId + '_unmatched_list').css('top', gridRegion.y + this._gridHeight() + $('#' + this.state.pgInstanceId + '_unmatched_btn').outerHeight() + + 17 + 10);
-            $('#' + this.state.pgInstanceId + '_unmatched_list').css('width', gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad - 20); 
+            
+            if (this._isCrossComparisonView()) {
+                $('#' + this.state.pgInstanceId + '_unmatched_list').css('width', gridRegion.x + this.state.multiTargetsModeTargetLengthLimit*this.state.selectedCompareTargetGroup.length*gridRegion.cellPad - 20); 
+            } else {
+                $('#' + this.state.pgInstanceId + '_unmatched_list').css('width', gridRegion.x + this.state.singleTargetModeTargetLengthLimit*gridRegion.cellPad - 20); 
+            }
         },	
         
         // ajax callback
@@ -4807,23 +4914,17 @@ var images = require('./images.json');
 
       
         /*
-         * given an array of phenotype objects edit the object array.
-         * items are either ontology ids as strings, in which case they are handled as is,
-         * or they are objects of the form { "id": <id>, "observed": <obs>}.
-         * in that case take id if "observed" is "positive"
-         * refactor: _filterPhenotypeResults
+         * Given an array of phenotype objects edit the object array.
+         * items are objects of the form { "id": "HP:0000174", "term": "Abnormality of the palate"}
          */
-        _parseQuerySourceList: function(phenotypelist) {
+        _removeDuplicatedSourceId: function(gridSourceList) {
             var filteredList = {};
             var newlist = [];
             var pheno;
-            for (var i in phenotypelist) {
-                pheno = phenotypelist[i];
+            for (var i in gridSourceList) {
+                pheno = gridSourceList[i];
                 if (typeof pheno === 'string') {
                     newlist.push(pheno);
-                }
-                if (pheno.observed === "positive") {
-                    newlist.push(pheno.id);
                 }
             }
 
@@ -4876,24 +4977,24 @@ var images = require('./images.json');
             $('#' + parent.state.pgInstanceId + '_tooltip_inner').html(ontologyData);
         },
 
-        // Genotypes expansion for gene (single species mode) - Joe
-        _insertGenotypes: function(id) {
+        // Genotypes expansion for gene (single group mode) - Joe
+        _insertExpandedItems: function(id) {
             // change the plus icon to spinner to indicate the loading
             $('.pg_expand_genotype_icon').removeClass('fa-plus-circle');
             $('.pg_expand_genotype_icon').addClass('fa-spinner fa-pulse');
             
-            // When we can expand a gene, we must be in the single species mode,
-            // and there must be only one species in this.state.selectedCompareTargetGroup - Joe
-            var species_name = this.state.selectedCompareTargetGroup[0].name;
+            // When we can expand a gene, we must be in the single group mode,
+            // and there must be only one group in this.state.selectedCompareTargetGroup - Joe
+            var group_name = this.state.selectedCompareTargetGroup[0].groupName;
 
-            var loaded = this.state.dataManager.checkGenotypesLoaded(species_name, id);
+            var loaded = this.state.dataManager.checkExpandedItemsLoaded(group_name, id);
 
             // when we can see the insert genotypes link in tooltip, 
             // the genotypes are either haven't been loaded or have already been loaded but then removed(invisible)
             if (loaded) {
                 // change those associated genotypes to 'visible' and render them
                 // array of genotype id list
-                var associated_genotype_ids = this.state.dataLoader.loadedGenotypes[id];
+                var associated_genotype_ids = this.state.dataLoader.loadedNewTargetGroupItems[id];
                 
                 // reactivating by changing 'visible' to true
                 for (var i = 0; i < associated_genotype_ids.length; i++) {
@@ -4902,14 +5003,14 @@ var images = require('./images.json');
                     // update the underlying data (not ordered) in dataLoader
                     // In dataManager, reorderedTargetEntriesNamedArray and reorderedTargetEntriesIndexArray are also updated once we update the 
                     // underlying data in dataLoader, because variable reference in javascript, not actual copy/clone - Joe 
-                    this.state.dataLoader.targetData[species_name][genotype_id].visible = true; 
+                    this.state.dataLoader.targetData[group_name][genotype_id].visible = true; 
                 }
                 
-                this.state.reactivateGenotypes[species_name] = true;
+                this.state.reactivateTargetGroupItems[group_name] = true;
                 
-                this._updateTargetAxisRenderingGroup(species_name);
+                this._updateTargetAxisRenderingGroup(group_name);
                 
-                this.state.reactivateGenotypes[species_name] = false;
+                this.state.reactivateTargetGroupItems[group_name] = false;
                 
                 this._updateDisplay();
                 
@@ -4918,81 +5019,81 @@ var images = require('./images.json');
                 $('.pg_expand_genotype_icon').addClass('fa-plus-circle');
                 
                 // Tell dataManager that the loaded genotypes of this gene have been expanded
-                this.state.dataManager.expandedGenotypeList[id] = this.state.dataLoader.loadedGenotypes[id];
+                this.state.dataManager.expandedItemList[id] = this.state.dataLoader.loadedNewTargetGroupItems[id];
             } else {
                 // Load the genotypes only once
-                var cb = this._insertGenotypesCb;
+                var cb = this._insertExpandedItemsCb;
                 // Pass `this` to dataLoader as parent for callback use - Joe
-                this.state.dataLoader.getGenotypes(id, cb, this);
+                this.state.dataLoader.getNewTargetGroupItems(id, cb, this);
             }
         },
         
         // this cb has all the matches info returned from the compare
         // e.g., http://monarchinitiative.org/compare/:id1+:id2/:id3,:id4,...idN
         // parent refers to the global `this` and we have to pass it
-        _insertGenotypesCb: function(results, id, parent, errorMsg) {
+        _insertExpandedItemsCb: function(results, id, parent, errorMsg) {
             console.log(results);
 
             // When there's an error message specified, simsearch results must be empty - Joe
             if (typeof(errorMsg) === 'undefined') {
                 // add genotypes to data, and update target axis
                 if (results.b.length > 0) {
-                    // When we can expand a gene, we must be in the single species mode,
-                    // and there must be only one species in this.state.selectedCompareTargetGroup - Joe
-                    var species_name = parent.state.selectedCompareTargetGroup[0].name;
+                    // When we can expand a gene, we must be in the single group mode,
+                    // and there must be only one group in this.state.selectedCompareTargetGroup - Joe
+                    var group_name = parent.state.selectedCompareTargetGroup[0].groupName;
 
                     // transform raw owlsims into simplified format
                     // append the genotype matches data to targetData[targetGroup]/sourceData[targetGroup]/cellData[targetGroup]
-                    parent.state.dataLoader.genotypeTransform(species_name, results, id); 
+                    parent.state.dataLoader.transformNewTargetGroupItems(group_name, results, id); 
      
                     // call this before reordering the target list
                     // to update this.state.targetAxis so it has the newly added genotype data in the format of named array
                     // when we call parent.state.targetAxis.groupEntries()
-                    parent._updateTargetAxisRenderingGroup(species_name);
+                    parent._updateTargetAxisRenderingGroup(group_name);
                     
-                    if (typeof(parent.state.dataManager.reorderedTargetEntriesIndexArray[species_name]) === 'undefined') {
-                        parent.state.dataManager.reorderedTargetEntriesIndexArray[species_name] = [];
+                    if (typeof(parent.state.dataManager.reorderedTargetEntriesIndexArray[group_name]) === 'undefined') {
+                        parent.state.dataManager.reorderedTargetEntriesIndexArray[group_name] = [];
                     }
                     
                     // for the first time, just get the unordered groupEntries()
                     // starting from second time, append the genotype data of following expansions to the already ordered target list
-                    if (parent.state.dataManager.reorderedTargetEntriesIndexArray[species_name].length === 0) {
+                    if (parent.state.dataManager.reorderedTargetEntriesIndexArray[group_name].length === 0) {
                         var updatedTargetEntries = parent.state.targetAxis.groupEntries(); // numeric index array
                     } else {
-                        var updatedTargetEntries = parent.state.dataManager.appendNewGenotypesToOrderedTargetList(species_name, results.b);
+                        var updatedTargetEntries = parent.state.dataManager.appendNewItemsToOrderedTargetList(group_name, results.b);
                     }
                     
                     // Now we update the target list in dataManager
                     // and place those genotypes right after their parent gene
-                    var genotypesData = {
+                    var newItemsData = {
                             targetEntries: updatedTargetEntries, 
                             genotypes: results.b, 
                             parentGeneID: id,
-                            species: species_name
+                            group: group_name
                         };
                         
                     // this will give us a reordered target list in two formats.
                     // one is associative/named array(reorderedTargetEntriesNamedArray), the other is number indexed array(reorderedTargetEntriesIndexArray)
-                    parent.state.dataManager.updateTargetList(genotypesData);
+                    parent.state.dataManager.updateTargetList(newItemsData);
 
                     // we set the genotype flag before calling _updateTargetAxisRenderingGroup() again
                     // _updateTargetAxisRenderingGroup() uses this flag for creating this.state.targetAxis
-                    parent.state.newGenotypes[species_name] = true;
+                    parent.state.newTargetGroupItems[group_name] = true;
                     
                     // call this again after the target list gets updated
                     // so this.state.targetAxis gets updated with the reordered target list (reorderedTargetEntriesNamedArray)
                     // as well as the new start position and end position
-                    parent._updateTargetAxisRenderingGroup(species_name);
+                    parent._updateTargetAxisRenderingGroup(group_name);
                     
                     // then reset the flag to false so it can still grab the newly added genotypes of another gene
                     // and add them to the unordered target list.
                     // without resetting this flag, we'll just get reorderedTargetEntriesNamedArray from dataManager and 
                     // reorderedTargetEntriesNamedArray hasn't been updated with the genotypes of the new expansion            
-                    parent.state.newGenotypes[species_name] = false;
+                    parent.state.newTargetGroupItems[group_name] = false;
                     
-                    // flag, indicates that we have expanded genotypes for this species, 
-                    // so they show up when we switch from multi-species mode back to single species mode
-                    parent.state.expandedGenotypes[species_name] = true;
+                    // flag, indicates that we have expanded genotypes for this group, 
+                    // so they show up when we switch from multi-group mode back to single group mode
+                    parent.state.expandedTargetGroupItems[group_name] = true;
 
                     parent._updateDisplay();
                     
@@ -5001,7 +5102,7 @@ var images = require('./images.json');
                     $('.pg_expand_genotype_icon').addClass('fa-plus-circle');
                     
                     // Tell dataManager that the loaded genotypes of this gene have been expanded
-                    parent.state.dataManager.expandedGenotypeList[id] = parent.state.dataLoader.loadedGenotypes[id];
+                    parent.state.dataManager.expandedItemList[id] = parent.state.dataLoader.loadedNewTargetGroupItems[id];
                 }
             } else {
                 // pop up the error message in dialog
@@ -5009,15 +5110,15 @@ var images = require('./images.json');
             }
         },
 
-        // Genotypes expansion for gene (single species mode)
+        // Genotypes expansion for gene (single group mode)
         // hide expanded genotypes
-        _removeGenotypes: function(id) {
-            // When we can expand a gene, we must be in the single species mode,
-            // and there must be only one species in this.state.selectedCompareTargetGroup - Joe
-            var species_name = this.state.selectedCompareTargetGroup[0].name;
+        _removeExpandedItems: function(id) {
+            // When we can expand a gene, we must be in the single group mode,
+            // and there must be only one group in this.state.selectedCompareTargetGroup - Joe
+            var group_name = this.state.selectedCompareTargetGroup[0].groupName;
             
             // array of genotype id list
-            var associated_genotype_ids = this.state.dataLoader.loadedGenotypes[id];
+            var associated_genotype_ids = this.state.dataLoader.loadedNewTargetGroupItems[id];
             
             // change 'visible' to false 
             for (var i = 0; i < associated_genotype_ids.length; i++) {
@@ -5025,20 +5126,20 @@ var images = require('./images.json');
                 // update the underlying data
                 // In dataManager, reorderedTargetEntriesNamedArray and reorderedTargetEntriesIndexArray are also updated once we update the 
                 // underlying data in dataLoader, because variable reference in javascript, not actual copy/clone - Joe 
-                this.state.dataLoader.targetData[species_name][genotype_id].visible = false; 
+                this.state.dataLoader.targetData[group_name][genotype_id].visible = false; 
             }
             
             // Tell dataManager that the loaded genotypes of this gene have been collapsed from display 
-            delete this.state.dataManager.expandedGenotypeList[id];
+            delete this.state.dataManager.expandedItemList[id];
             
             // set the flag
-            this.state.removedGenotypes[species_name] = true;
+            this.state.removedTargetGroupItems[group_name] = true;
             
             // update the target list for axis render
-            this._updateTargetAxisRenderingGroup(species_name);
+            this._updateTargetAxisRenderingGroup(group_name);
 
             // reset flag
-            this.state.removedGenotypes[species_name] = false;
+            this.state.removedTargetGroupItems[group_name] = false;
             
             // update display
             this._updateDisplay();
@@ -5046,7 +5147,7 @@ var images = require('./images.json');
         
         _isTargetGroupSelected: function(self, name) {
             for (var i in self.state.selectedCompareTargetGroup) {
-                if (self.state.selectedCompareTargetGroup[i].name === name) {
+                if (self.state.selectedCompareTargetGroup[i].groupName === name) {
                     return true;
                 }
             }
@@ -5055,7 +5156,7 @@ var images = require('./images.json');
 
         _getTargetGroupInfo: function(self, name) {
             for (var i in self.state.targetGroupList) {
-                if (self.state.targetGroupList[i].name === name) {
+                if (self.state.targetGroupList[i].groupName === name) {
                     return self.state.targetGroupList[i];
                 }
             }
@@ -30003,7 +30104,7 @@ $.widget( "ui.tooltip", {
 
 },{"jquery":11}],11:[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v2.2.1
+ * jQuery JavaScript Library v2.2.3
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -30013,7 +30114,7 @@ $.widget( "ui.tooltip", {
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-02-22T19:11Z
+ * Date: 2016-04-05T19:26Z
  */
 
 (function( global, factory ) {
@@ -30069,7 +30170,7 @@ var support = {};
 
 
 var
-	version = "2.2.1",
+	version = "2.2.3",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -30280,6 +30381,7 @@ jQuery.extend( {
 	},
 
 	isPlainObject: function( obj ) {
+		var key;
 
 		// Not plain objects:
 		// - Any object or value whose internal [[Class]] property is not "[object Object]"
@@ -30289,14 +30391,18 @@ jQuery.extend( {
 			return false;
 		}
 
+		// Not own constructor property must be Object
 		if ( obj.constructor &&
-				!hasOwn.call( obj.constructor.prototype, "isPrototypeOf" ) ) {
+				!hasOwn.call( obj, "constructor" ) &&
+				!hasOwn.call( obj.constructor.prototype || {}, "isPrototypeOf" ) ) {
 			return false;
 		}
 
-		// If the function hasn't returned already, we're confident that
-		// |obj| is a plain object, created by {} or constructed with new Object
-		return true;
+		// Own properties are enumerated firstly, so to speed up,
+		// if last one is own, then all properties are own
+		for ( key in obj ) {}
+
+		return key === undefined || hasOwn.call( obj, key );
 	},
 
 	isEmptyObject: function( obj ) {
@@ -37329,6 +37435,12 @@ jQuery.extend( {
 	}
 } );
 
+// Support: IE <=11 only
+// Accessing the selectedIndex property
+// forces the browser to respect setting selected
+// on the option
+// The getter ensures a default option is selected
+// when in an optgroup
 if ( !support.optSelected ) {
 	jQuery.propHooks.selected = {
 		get: function( elem ) {
@@ -37337,6 +37449,16 @@ if ( !support.optSelected ) {
 				parent.parentNode.selectedIndex;
 			}
 			return null;
+		},
+		set: function( elem ) {
+			var parent = elem.parentNode;
+			if ( parent ) {
+				parent.selectedIndex;
+
+				if ( parent.parentNode ) {
+					parent.parentNode.selectedIndex;
+				}
+			}
 		}
 	};
 }
@@ -37531,7 +37653,8 @@ jQuery.fn.extend( {
 
 
 
-var rreturn = /\r/g;
+var rreturn = /\r/g,
+	rspaces = /[\x20\t\r\n\f]+/g;
 
 jQuery.fn.extend( {
 	val: function( value ) {
@@ -37607,9 +37730,15 @@ jQuery.extend( {
 		option: {
 			get: function( elem ) {
 
-				// Support: IE<11
-				// option.value not trimmed (#14858)
-				return jQuery.trim( elem.value );
+				var val = jQuery.find.attr( elem, "value" );
+				return val != null ?
+					val :
+
+					// Support: IE10-11+
+					// option.text throws exceptions (#14686, #14858)
+					// Strip and collapse whitespace
+					// https://html.spec.whatwg.org/#strip-and-collapse-whitespace
+					jQuery.trim( jQuery.text( elem ) ).replace( rspaces, " " );
 			}
 		},
 		select: {
@@ -37662,7 +37791,7 @@ jQuery.extend( {
 				while ( i-- ) {
 					option = options[ i ];
 					if ( option.selected =
-							jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
+						jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
 					) {
 						optionSet = true;
 					}
@@ -39357,18 +39486,6 @@ jQuery.ajaxPrefilter( "json jsonp", function( s, originalSettings, jqXHR ) {
 
 
 
-// Support: Safari 8+
-// In Safari 8 documents created via document.implementation.createHTMLDocument
-// collapse sibling forms: the second one becomes a child of the first one.
-// Because of that, this security measure has to be disabled in Safari 8.
-// https://bugs.webkit.org/show_bug.cgi?id=137337
-support.createHTMLDocument = ( function() {
-	var body = document.implementation.createHTMLDocument( "" ).body;
-	body.innerHTML = "<form></form><form></form>";
-	return body.childNodes.length === 2;
-} )();
-
-
 // Argument "data" should be string of html
 // context (optional): If specified, the fragment will be created in this context,
 // defaults to document
@@ -39381,12 +39498,7 @@ jQuery.parseHTML = function( data, context, keepScripts ) {
 		keepScripts = context;
 		context = false;
 	}
-
-	// Stop scripts or inline event handlers from being executed immediately
-	// by using document.implementation
-	context = context || ( support.createHTMLDocument ?
-		document.implementation.createHTMLDocument( "" ) :
-		document );
+	context = context || document;
 
 	var parsed = rsingleTag.exec( data ),
 		scripts = !keepScripts && [];
@@ -39468,7 +39580,7 @@ jQuery.fn.load = function( url, params, callback ) {
 		// If it fails, this function gets "jqXHR", "status", "error"
 		} ).always( callback && function( jqXHR, status ) {
 			self.each( function() {
-				callback.apply( self, response || [ jqXHR.responseText, status, jqXHR ] );
+				callback.apply( this, response || [ jqXHR.responseText, status, jqXHR ] );
 			} );
 		} );
 	}
