@@ -23,7 +23,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.FileOutputStream;
@@ -43,7 +42,6 @@ import java.util.Date;
  * Created by mrelac on 13/04/2016.
  *
  */
-@Component
 public class Downloader extends SystemCommandTasklet {
 
     private String sourceUrl;
