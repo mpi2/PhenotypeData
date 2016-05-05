@@ -29,8 +29,8 @@ import java.util.List;
  */
 public class OntologiesItemReader extends ItemReaderAdapter<OntologyTerm> {
 
-    private String filename;
     private int dbId;
+    private String filename;
     private String prefix;
     private List<OntologyTerm> terms = null;
 
@@ -51,6 +51,8 @@ public class OntologiesItemReader extends ItemReaderAdapter<OntologyTerm> {
 
         try {
             terms = new OntologyParser(filename, prefix).getTerms();
+System.out.println("FILENAME: " + filename);
+System.out.println("PREFIX: " + prefix);
 System.out.println("TERMS COUNT: " + terms.size());
 
         } catch (OWLOntologyCreationException e) {
@@ -70,6 +72,24 @@ System.out.println("TERMS COUNT: " + terms.size());
         return term;
     }
 
+
+    /**
+     * Return the db id for this ontology (e.g. PATO = db id 7)
+     *
+     * @return the db id for this ontology (e.g. PATO = db id 7)
+     */
+    public int getDbId() {
+        return dbId;
+    }
+
+    /**
+     * Set the db id for this ontology (e.g. PATO = db id 7)
+     *
+     * @param dbId Return the db id for this ontology (e.g. PATO = db id 7)
+     */
+    public void setDbId(int dbId) {
+        this.dbId = dbId;
+    }
 
     /**
      * Return the fully-qualified OWL source file name
@@ -105,23 +125,5 @@ System.out.println("TERMS COUNT: " + terms.size());
      */
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-    }
-
-    /**
-     * Return the db id for this ontology (e.g. PATO = db id 7)
-     *
-     * @return the db id for this ontology (e.g. PATO = db id 7)
-     */
-    public int getDbId() {
-        return dbId;
-    }
-
-    /**
-     * Set the db id for this ontology (e.g. PATO = db id 7)
-     *
-     * @param dbId Return the db id for this ontology (e.g. PATO = db id 7)
-     */
-    public void setDbId(int dbId) {
-        this.dbId = dbId;
     }
 }
