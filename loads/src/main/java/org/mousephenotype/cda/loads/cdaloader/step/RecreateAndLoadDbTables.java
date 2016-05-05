@@ -21,14 +21,10 @@ import org.mousephenotype.cda.loads.cdaloader.exception.CdaLoaderException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -36,14 +32,9 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 13/04/2016.
- *,ignoreResourceNotFound=true
  */
-@Configuration
-@ComponentScan("org.mousephenotype.cda.loads.cdaloader")
-@PropertySource(value="file:${user.home}/configfiles/${profile}/application.properties")
-@PropertySource(value="file:${user.home}/configfiles/${profile}/cdaload.properties",
-                ignoreResourceNotFound=true)
-public class RecreateAndLoadTablesStep {
+@Component
+public class RecreateAndLoadDbTables extends SystemCommandTasklet {
 
     @Value("${cdaload.workspace}")
     private String cdaWorkspace;
@@ -74,9 +65,8 @@ public class RecreateAndLoadTablesStep {
 
     public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
-    @Bean(name = "recreateAndLoadTables")
-    @StepScope
-    public SystemCommandTasklet recreateAndLoadTables() throws CdaLoaderException {
+
+    public SystemCommandTasklet recreateAndLoadDbTables() throws CdaLoaderException {
         SystemCommandTasklet downloadReportsTasklet;
 
         long startStep = new Date().getTime();
