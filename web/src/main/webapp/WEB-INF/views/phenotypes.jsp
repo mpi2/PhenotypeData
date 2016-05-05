@@ -133,8 +133,7 @@
 								<c:if test="${not empty synonyms}">
 									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
 										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
-											${synonym.symbol}
-											<c:if test="${!loop.last}">, &nbsp;</c:if>
+											${synonym.symbol}<c:if test="${!loop.last}">,&nbsp;</c:if>
 										</c:forEach>
 									</p>
 								</c:if>
