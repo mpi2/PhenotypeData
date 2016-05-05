@@ -75,30 +75,45 @@
 							<h2 class="title" id="${geneId}"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></h2>
                             <div id="2" class="inner">
                             	<div class="twothird">
+									<p>Kelch domain-containing protein 2 functions as a transcriptional corepressor through its inhibitory interaction with LZIP.
+									</p>
+ 									<p> Klhdc2 mutants showed complete preweaning lethality with no homozygous pups observed, but remain viable up to E18.5. 
+ 										Micro-computed tomography (microCT) imaging revealed mutants display posterior polydactyly and edema. In addition to this, 
+ 										sections of microCT showed a smaller tongue, ventral septum defect (VSD), abnormal intestines and displaced kidneys.
+									</p>
                          			<p>
-                         				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3 ; OMIM).<br>
-                         				The gene is expressed in <a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> (expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and
-                         				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while the lethal â€‹embryos may have a heart defect.
+                         				The Kldhc2 gene is located within a locus linked to an automsomal dominant disease that leads 
+                         				to fibro-fatty replacement of right ventricle myocardium leading to arrythmias (ARVD3; OMIM).<br>
+                         				The gene is expressed in 
+                         				<a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> 
+                         				(expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and
+                         				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while 
+                         				the lethal €‹embryos may have a heart defect.
                         			</p>
 
                         			<p>Phenotype data links</p>
 
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=MGI:1916804&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
+                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
+                            			<li> Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
                             			<li>
-                            				Embryo LacZ Expression: NA
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
                             			</li>
                             			<li>
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804">Images</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal gland</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
+                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
                             			</li>
                             			<li>
-                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/MGI:1916804">Table</a>
+                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
                             			</li>
+                            		</ul>
                             		</ul>
 
                             	</div>
@@ -316,8 +331,10 @@
                             		</ul>
 
                             	</div>
-                            	<div class="half"><img alt=Automated MRI analysis of E15.5 Eya4tm1b/tm1b mutants" src="${baseUrl}/img/vignettes/eye4.png" >Automated MRI analysis of E15.5 Eya4tm1b/tm1b mutants showed that mutant embryos had a statistically smaller volumes of the cochlea and other tissues compared to Eya4+/+ wildtype embryos as highlighted in blue in transverse, coronal, and sagittal sections (false discovery rate (FDR) threshold of 5%).
-
+                            	<div class="half"><img alt="Automated MRI analysis of E15.5 Eya4<tm1b/tm1b> mutants" src="${baseUrl}/img/vignettes/eye4.png">
+                            		Automated MRI analysis of E15.5 Eya4tm1b/tm1b mutants showed that mutant embryos had a statistically smaller 
+                            		volumes of the cochlea and other tissues compared to <t:formatAllele>Eya4<+/+></t:formatAllele> wildtype 
+                            		embryos as highlighted in blue in transverse, coronal, and sagittal sections (false discovery rate (FDR) threshold of 5%).
 								</div>
 
                             	<div class="clear"></div>
@@ -333,12 +350,16 @@
 
 								</div>
 
-
 								<div id="eyaEmbHis" style="display: none">
                             	<img src="${baseUrl}/img/vignettes/eya4LacSlides.png"/>
-                            	<p>
-                            	H&E stained sagittal section through the right cochlea of an <t:formatAllele>Eya4<+/+></t:formatAllele> wildtype embryo compared to an <t:formatAllele>Eya4<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant embryo had a hypoplastic cochlea. Higher magnification of the region (indicated by the white box) showed abnormal perilymphatic (periotic) mesenchyme (PM) in the mutant embryo compared to the wildtype embryo. In the wildtype embryo the perilymphatic mesenchyme (PM) was rarefied and had multifocal vacuolation (arrow) suggesting normal perilymph development. In the mutant embryo the perilymphatic mesenchyme (PM) did not show rarefaction and had reduced vacuolation (arrow) suggesting the cochlear hypoplasia was due to delayed perilymph development.
-BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, ML-Membranous Labyrinth, EN-Endolymph
+                            	<p>	H&E stained sagittal section through the right cochlea of an <t:formatAllele>Eya4<+/+></t:formatAllele> 
+                            		wildtype embryo compared to an <t:formatAllele>Eya4<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant 
+                            		embryo had a hypoplastic cochlea. Higher magnification of the region (indicated by the white box) showed abnormal 
+                            		perilymphatic (periotic) mesenchyme (PM) in the mutant embryo compared to the wildtype embryo. In the wildtype embryo 
+                            		the perilymphatic mesenchyme (PM) was rarefied and had multifocal vacuolation (arrow) suggesting normal perilymph 
+                            		development. In the mutant embryo the perilymphatic mesenchyme (PM) did not show rarefaction and had reduced vacuolation 
+                            		(arrow) suggesting the cochlear hypoplasia was due to delayed perilymph development.
+									BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, ML-Membranous Labyrinth, EN-Endolymph
                             	</p>
 
                             	</div>
@@ -356,11 +377,11 @@ BL-Bony Labyrinth (cartilage at E15.5), PM-Perilymphatic (periotic) mesenchyme, 
                             <div class="inner">
 
                             	<div  class="half">
-				            		<p>
-				            		Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA.
-Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.<br>
-Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutants had a much smaller cerebellum and pontine nucleus (blue) compared to the <t:formatAllele>Tox<3+/+></t:formatAllele> wildtype mice and larger amygdala, thalamus, pons, respectively (red).
-</p>
+				            		<p>	Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved in bending and unwinding DNA.
+										Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.
+										Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutants had a much smaller cerebellum (blue) compared to the <t:formatAllele>Tox3<+/+></t:formatAllele>
+										wildtype mice (as seen in coronal, sagittal, and axial section) and a relatively larger amygdala, thalamus, pons (red)
+									</p>
 
 				            		Phenotype data links
 				            		<ul>
@@ -388,10 +409,13 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 
 				            		</ul>
 								</div>
-                            	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/tox3MRI.png" >Caudal to rostral coronal sections of whole brain MRI with automated volume analysis revealed P7 Tox3tm1b/tm1b mutant mice had smaller (blue) and larger (red) tissues compared to the Tox3+/+ wildtype average.
-</div>
-				            		<div class="clear"></div>
-
+                            	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/Tox3MRI.png">                            	
+                            		Caudal to rostral coronal sections of whole brain MRI with automated volume analysis revealed P7 
+                            		<t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant mice had smaller (blue) and larger (red) tissues compared 
+                            		to the <t:formatAllele>Tox3<+/+></t:formatAllele> wildtype average.
+                            	</div>
+				            	
+				            	<div class="clear"></div>
 
 				            	<div id="tox3Viable" style="display: none">
 				            		<h3>P3/P7 viability test Tox3</h3>
@@ -400,22 +424,22 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 	                           	</div>
 
 	                       <div id="tox3His" style="display: none">
-	                       		<img src="${baseUrl}/img/vignettes/Tox3Sections.png">
+	                       		<img src="${baseUrl}/img/vignettes/Tox3HIST.png">
 	                       		<p>
-	                       			H&E stained coronal section through the brain of a Tox3+/+ wildtype embryo compared to a Tox3tm1b/tm1b mutant embryo indicated that the mutant embryo had a hypoplastic and dysplastic cerebellum (CE) with markedly reduced fissure formation. Higher magnification revealed that the transient external granular layer was absent in the Tox3tm1b/tm1b mutant  mice and the subjacent molecular layer was hypotrophic and irregular in thickness (arrow).
+	                       			H&E stained coronal section through the brain of a <t:formatAllele>Tox3<+/+></t:formatAllele> wildtype embryo 
+	                       			compared to a <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant embryo indicated that the mutant embryo had a 
+	                       			hypoplastic and dysplastic cerebellum (CE) with markedly reduced fissure formation. Higher magnification revealed 
+	                       			that the transient external granular layer was absent in the <t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant 
+	                       			mice and the subjacent molecular layer was hypotrophic and irregular in thickness (arrow).
 	                       		</p>
 	                       </div>
-
-
-
-                            </div>
-                        </div>
-
+						</div>
+					</div>
 
 
 
 
-                            <div class="section">
+						<div class="section">
                             <c:set var="geneId" value="MGI:1922814"></c:set>
                             <h2 id="${geneId}"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
                             <div class="inner">
@@ -456,7 +480,9 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 								</div>
 
                             	<div class="half">
-                            		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png" >H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the Rsph9tm1.1/tm1.1 mutant mice.
+                            		<img alt="H&E stained Rsph9" src="${baseUrl}/img/vignettes/Rsph9Slides.png">
+                            		H&E stained coronal sections of P7 mice revealed enlarged ventricles and blocked sinuses in the 
+                            		<t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.
 								</div>
 
 				            	<div class="clear"></div>
@@ -470,9 +496,10 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
 
 		                       <div id="rsph9Mri" style="display:none">
 		                       		<img src="${baseUrl}/img/vignettes/Rsph9MRI.png">
-		                       			<p>
-		                       			Coronal sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) when sectioned virtually from rostral to caudal and compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> wildtype average.
-		                       			</p>
+		                       		<p> Coronal and axial sections of whole brain MRI showed enlarged ventricles in P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele>
+		                       			mutant mice.  P7 <t:formatAllele>Rsph9<tm1.1/tm1.1></t:formatAllele> mice brains had enlarged left and right lateral ventricles (arrows) 
+		                       			when compared to the <t:formatAllele>Rsph9<+/+></t:formatAllele> WT average.
+		                       		</p>
 		                       </div>
 
 
@@ -795,57 +822,6 @@ Whole brain MRI at P7 revealed that <t:formatAllele>Tox3<tm1b/tm1b></t:formatAll
                             	<div class="clear"></div>
                             </div>
                        	</div>
-
-
-
-                      <div class="section">
-                        <c:set var="geneId" value="MGI:1916804"></c:set>
-							<h2 class="title" id="${geneId}">
-								<t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu>
-								</t:formatAllele>
-							</h2>
-
-                            <div class="inner">
-                            	<div class="half">
-                         			<p>	Kelch domain-containing protein 2 functions as a transcriptional corepressor through its inhibitory interaction with LZIP.</p>
-									<p> Klhdc2 mutants showed complete preweaning lethality with no homozygous pups observed, but remain viable up to E18.5.
-									Micro-computed tomography (microCT) imaging revealed mutants display posterior polydactyly and edema. In addition to this,
-									sections of microCT showed a smaller tongue, ventral septum defect (VSD), abnormal intestines and displaced kidneys.
-									</p>
-
-                        			<p>Phenotype data links</p>
-
-                            		<ul>
-                            			<li>
-                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
-                            			</li>
-                            			<li> Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
-                            			<li>
-                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001"> Images </a>
-                            			</li>
-                            			<li>
-                            				Embryo Gross Morphology: NA
-                            			</li>
-                            			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal gland</a>,
-                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
-                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
-                            				 <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
-                            			</li>
-                            			<li>
-                            				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
-                            			</li>
-                            		</ul>
-
-                            	</div>
-                            	<div class="half">
-                            		<img alt="Hind foot polydactyly in E18.5 Klhdc2-null mutants" src="${baseUrl}/img/vignettes/Klhdc2.png"> Hind foot polydactyly in E18.5 Klhdc2-null mutants.
-                            	</div>
-
-                            	<div class="clear"></div>
-                            </div>
-                       	</div>
-
 
 
 
