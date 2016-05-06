@@ -70,6 +70,10 @@ public class ConfigBatch {
     public ResourceFile resourceFileOntologyMa;
 
     @Autowired
+    @Qualifier("resourceFileOntologyMp")
+    public ResourceFile resourceFileOntologyMp;
+
+    @Autowired
     @Qualifier("recreateAndLoadDbTables")
     public RecreateAndLoadDbTables recreateAndLoadDbTables;
 
@@ -111,8 +115,8 @@ public class ConfigBatch {
     public Job cdaLoadJob() throws CdaLoaderException {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(resourceFileOntologyMa.getDownloadStep())
-                .next(resourceFileOntologyMa.getLoadStep())
+                .flow(resourceFileOntologyMp.getDownloadStep())
+                .next(resourceFileOntologyMp.getLoadStep())
                 .next(recreateAndLoadDbTables.getStep())
                 .end()
                 .build();
