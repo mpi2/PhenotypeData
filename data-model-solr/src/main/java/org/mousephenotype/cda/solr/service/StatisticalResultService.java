@@ -877,6 +877,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	return res;
     }
 
+    
+    
     public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
     throws NumberFormatException, SolrServerException, UnsupportedEncodingException {
 
@@ -884,15 +886,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*");
-//		addField(StatisticalResultDTO.P_VALUE).addField(StatisticalResultDTO.EFFECT_SIZE)
-//				.addField(StatisticalResultDTO.STATUS).addField(StatisticalResultDTO.STATISTICAL_METHOD)
-//				.addField(StatisticalResultDTO.ZYGOSITY).addField(StatisticalResultDTO.MALE_CONTROL_COUNT)
-//				.addField(StatisticalResultDTO.MALE_MUTANT_COUNT).addField(StatisticalResultDTO.FEMALE_CONTROL_COUNT)
-//				.addField(StatisticalResultDTO.FEMALE_MUTANT_COUNT).addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-//				.addField(StatisticalResultDTO.PARAMETER_NAME).addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-//				.addField(StatisticalResultDTO.PHENOTYPING_CENTER).addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
-//				.addField(StatisticalResultDTO.ALLELE_SYMBOL).addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-//				.addField(StatisticalResultDTO.PROCEDURE_NAME).addField(StatisticalResultDTO.METADATA_GROUP)
 		query.setRows(Integer.MAX_VALUE).set("sort", StatisticalResultDTO.P_VALUE + " asc");
 
 		if (geneAccession != null) {

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -46,6 +47,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 
 @Controller
@@ -134,6 +136,60 @@ public class ExperimentsController {
 
 		return "experiments";
 	}
+	
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/05/05
+	 * @param fileType
+	 * @param fileName
+	 * @param geneAccession
+	 * @param alleleSymbol
+	 * @param phenotypingCenter
+	 * @param pipelineName
+	 * @param procedureStableId
+	 * @param mpTermId
+	 * @param resource
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param attributes
+	 * @throws Exception
+	 */
+	@RequestMapping("/experiments/export")
+	public void downloadBasicInfo(
+			@RequestParam(required = true, value = "fileType") String fileType,
+			@RequestParam(required = true, value = "fileName") String fileName,
+			@RequestParam(required = true, value = "geneAccession") String geneAccession,
+			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
+			Model model,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			RedirectAttributes attributes)
+	throws Exception {
+
+		List<ExperimentsDataTableRow> experimentList = new ArrayList();
+		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		
+		for (List<ExperimentsDataTableRow> list : srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl).values()){
+			experimentList.addAll(list);
+		}
+
+		List<String> dataRows = new ArrayList<>();
+		dataRows.add(ExperimentsDataTableRow.getTabbedHeader());
+		for (ExperimentsDataTableRow row : experimentList) {
+			dataRows.add(row.toTabbedString());
+		}
+		
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+		
+	}
+	
 	
 	/**
 	 * Error handler for gene not found
