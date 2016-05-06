@@ -227,15 +227,16 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     	
         if (!isPreQc){
             if ( procedure.getName().startsWith("Histopathology") ){
-                evidenceLink.setAlt("Images");
-                evidenceLink.setIconType(EvidenceLink.IconType.IMAGE);
-            	if (hasImage){
-	                url = baseUrl + "/histopathsum/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+                evidenceLink.setAlt("Table");
+                evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
+	            url = baseUrl + "/histopathsum/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+	            evidenceLink.setDisplay(true);
+            	
+            }else if ( procedure.getName().startsWith("Gross Pathology and Tissue Collection") ){
+                evidenceLink.setAlt("Table");
+                evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
+	                url = baseUrl + "/grosspath/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
 	                evidenceLink.setDisplay(true);
-            	} else {
-            		url = "";
-	                evidenceLink.setDisplay(false);
-            	}
             }
             else {
                 url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), allele.getAccessionId(), null, zygosity, parameter.getStableId(),

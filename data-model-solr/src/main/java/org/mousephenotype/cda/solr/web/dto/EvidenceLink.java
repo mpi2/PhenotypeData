@@ -34,6 +34,6 @@ public class EvidenceLink {
 
     
     enum IconType{
-    	IMAGE, GRAPH;
+    	IMAGE, GRAPH, TABLE;
     }
 }

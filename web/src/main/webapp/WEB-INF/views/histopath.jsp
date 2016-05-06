@@ -222,58 +222,7 @@
 					</div>
                     
                     
-                    
-                    
-          <%--           <div class="section">
-								<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
-								<div class="inner">
-
-									
-
-                     
-                     <table>
-                     
-                      <c:forEach var="obs"
-										items="${extSampleIdToObservations}">
-                      
-                      	<tr>
-                      		<td>
-                      			${obs.externalSampleId }
-                      		</td>
-                      		<td>
-                      			${obs.observationType }
-                      		</td>
-                      		<td>
-                      			${obs.parameterName }
-                      		</td>
-                      		<td>
-                      			${obs.category }
-                      		</td>
-                      		<td>
-                      			${obs.textValue }
-                      		</td>
-                      		<td>
-                      			${obs.subTermId }
-                      		</td>
-                      		<td>
-                      			name: ${obs.subTermName }
-                      		</td>
-                      		<td>
-                      			${obs.subTermDescription }
-                      		</td>
-                      	</tr>
-                      	
-                      </c:forEach>
-                      
-                      </table>
-                      
-                      
-                     
-							</div>
-						</div> --%>
-						
-						
-						
+		
 						
                     </div>
                 </div>
