@@ -308,11 +308,17 @@
 										<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
 									</jsp:include>
 									<br/>
-									<div id="exportIconsDiv"></div>
+									<div id="export">
+										<p class="textright"> 
+											Download data as: 
+											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">TSV</a> 
+											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">XLS</a>
+										</p>
+									</div>
 							</c:if>
 							</div>
 							<c:if test="${empty phenotypes}">
-								<div class="alert alert-info">Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
+								<div class="alert alert-info"> Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
 							</c:if>
 						</div>
 					</div>
