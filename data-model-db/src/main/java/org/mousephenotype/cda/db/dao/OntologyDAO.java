@@ -306,11 +306,12 @@ public abstract class OntologyDAO {
     	
         Set<OntologyTermBean> beans = new LinkedHashSet();
         List<List<String>> ancestorGraphsId = ancestorGraphsMap.get(id);
+
         if (ancestorGraphsId != null) {        	
             for (List<String> ancestorGraphId : ancestorGraphsId) {
 	            if (ancestorGraphId.size() >= 1){
-	            	OntologyTermBean bean = allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 1)); 
-	            	beans.add(bean);
+	            	OntologyTermBean bean = allTermsMap.get(ancestorGraphId.get(ancestorGraphId.size() - 1));
+                    beans.add(bean);
 	            }
             }
         }
@@ -478,15 +479,15 @@ public abstract class OntologyDAO {
 
                 // list of node IDs
                 List<Integer> nodeIds = new ArrayList<>();
-                List<String> maNodeIds = Arrays.asList(resultSet.getString("nodes").split(","));
-                List<Integer> iMaNodeIds = new ArrayList<>();
-                for (String sMaNodeId : maNodeIds) {
-                    iMaNodeIds.add(Integer.parseInt(sMaNodeId));
+                List<String> ancestorPathNodeIds = Arrays.asList(resultSet.getString("nodes").split(","));
+                List<Integer> iNodeIds = new ArrayList<>();
+                for (String sNodeId : ancestorPathNodeIds) {
+                    iNodeIds.add(Integer.parseInt(sNodeId));
                 }
-                bean.setMaNodeIds(iMaNodeIds);
+                bean.setNodeIds(iNodeIds);
 
                 map.put(mapKey, bean);            
-                id2nodesMap.put(mapKey, maNodeIds);
+                id2nodesMap.put(mapKey, ancestorPathNodeIds);
             }
             
             ps.close();

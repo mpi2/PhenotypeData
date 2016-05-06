@@ -63,6 +63,40 @@ public class ExperimentsDataTableRow extends DataTableRow{
 		setPhenotypingCenter(phenotypingCenter);
 		
 	}
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/05/05
+	 * @return Header for columns of export table.
+	 * ! Keep it in synch with toTabbedString !
+	 */
+	public static String getTabbedHeader(){
+		return "allele\t" + "phenotypingCenter\t" + "procedure\t" + "parameter\t" +
+			"zygosity\t" + "femaleMutantCount\t" + "maleMutantCount\t" +
+			"statisticalMethod\t" + "pValue\t" + "status\t" + "graph";
+	}
+	
+	
+	/**
+	 * @author ilinca
+	 * @since 2016/05/05
+	 * @return string with tabbed values, ready for file export
+	 * ! Keep it in synch with getTabbedHeader !
+	 */
+	public String toTabbedString(){
+		
+		return allele.getSymbol() + "\t" +
+				phenotypingCenter + "\t" +
+				procedure.getName() + "\t" +
+				parameter.getName() + "\t" +
+				zygosity.getName() + "\t" +
+				femaleMutantCount + "\t" +
+				maleMutantCount + "\t" +
+				statisticalMethod + "\t" +
+				pValue + "\t" +
+				status + "\t" +
+				getEvidenceLink().getUrl();
+	}
 
 
 	public String getStatisticalMethod() {

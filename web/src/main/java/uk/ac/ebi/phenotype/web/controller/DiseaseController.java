@@ -32,11 +32,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.Disease;
-import uk.ac.sanger.phenodigm2.model.DiseaseIdentifier;
-import uk.ac.sanger.phenodigm2.web.AssociationSummary;
-import uk.ac.sanger.phenodigm2.web.GeneAssociationSummary;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.Disease;
+import uk.ac.ebi.phenodigm.model.DiseaseIdentifier;
+import uk.ac.ebi.phenodigm.web.AssociationSummary;
+import uk.ac.ebi.phenodigm.web.GeneAssociationSummary;
 
 /**
  *

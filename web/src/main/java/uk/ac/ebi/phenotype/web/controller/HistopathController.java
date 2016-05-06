@@ -1,5 +1,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -49,10 +50,41 @@ public class HistopathController {
 			
 		}
 		
+		//Collections.sort(histopathRows, new HistopathAnatomyComparator());
 
 		model.addAttribute("histopathRows", histopathRows);
 		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
 		model.addAttribute("parameterNames", parameterNames);
 		return "histopath";	
+	}
+	
+	@RequestMapping("/histopathsum/{acc}")
+	public String histopathSummary(@PathVariable String acc, Model model) throws SolrServerException{
+		//exmple Lpin2 MGI:1891341
+		GeneDTO gene = geneService.getGeneById(acc);
+		model.addAttribute("gene", gene);
+		
+		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
+		List<ObservationDTO> extSampleIdToObservations = histopathService.screenOutObservationsThatAreNormal(allObservations);
+		List<HistopathPageTableRow> histopathRows = histopathService.getTableData(extSampleIdToObservations);
+		//for the summary we add an extra method to count the significant scores and collapse rows based on Anatomy
+		List<HistopathPageTableRow> collapsedRows = histopathService.collapseHistopathTableRows(histopathRows);
+		
+		
+		Set<String> parameterNames=new TreeSet<>();
+		
+		//chop the parameter names so we have just the beginning as we have parameter names like "Brain - Description" and "Brain - MPATH Diagnostic Term" we want to lump all into Brain related
+		
+		for(HistopathPageTableRow row: histopathRows){
+			parameterNames.addAll(row.getParameterNames());
+			
+			
+		}
+		
+
+		model.addAttribute("histopathRows", collapsedRows);
+		model.addAttribute("extSampleIdToObservations", extSampleIdToObservations);
+		model.addAttribute("parameterNames", parameterNames);
+		return "histopathSummary";	
 	}
 }

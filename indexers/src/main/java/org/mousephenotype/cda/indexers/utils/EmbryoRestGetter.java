@@ -89,7 +89,8 @@ public class EmbryoRestGetter {
 						String modality = jo.getString("modality");
 						procedureStableKeys.add(procedure_stable_key);
 						parameterStableKeys.add(parameter_stable_key);
-						modalities.add(modality);
+						
+						modalities.add(modality.replace("&#956", "micro"));
 					}
 					embryoStrain.setProcedureStableKeys(procedureStableKeys);
 					embryoStrain.setParameterStableKeys(parameterStableKeys);

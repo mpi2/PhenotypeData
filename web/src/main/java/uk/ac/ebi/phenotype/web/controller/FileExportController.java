@@ -16,7 +16,8 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,14 +35,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -97,11 +96,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import uk.ac.ebi.phenotype.generic.util.ExcelWorkBook;
-import uk.ac.sanger.phenodigm2.dao.PhenoDigmWebDao;
-import uk.ac.sanger.phenodigm2.model.GeneIdentifier;
-import uk.ac.sanger.phenodigm2.web.AssociationSummary;
-import uk.ac.sanger.phenodigm2.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
+import uk.ac.ebi.phenodigm.model.GeneIdentifier;
+import uk.ac.ebi.phenodigm.web.AssociationSummary;
+import uk.ac.ebi.phenodigm.web.DiseaseAssociationSummary;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 @Controller
 public class FileExportController {
@@ -333,9 +332,8 @@ public class FileExportController {
 
 			}
 		}
-		Workbook wb = null;
 
-		writeOutputFile(response, dataRows, fileType, fileName, wb);
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
 
 	}
 
@@ -365,27 +363,12 @@ public class FileExportController {
 			@RequestParam(value = "mpId", required = false) String mpId,
 			@RequestParam(value = "mpTerm", required = false) String mpTerm,
 			@RequestParam(value = "mgiGeneId", required = false) String[] mgiGeneId,
-			@RequestParam(value = "parameterStableId", required = false) String[] parameterStableId, // should
-																										// be
-																										// filled
-																										// for
-																										// graph
-																										// data
-																										// export
-			@RequestParam(value = "zygosity", required = false) String[] zygosities, // should
-																						// be
-																						// filled
-																						// for
-																						// graph
-																						// data
-																						// export
-			@RequestParam(value = "strains", required = false) String[] strains, // should
-																					// be
-																					// filled
-																					// for
-																					// graph
-																					// data
-																					// export
+			// parameterStableId should be filled for graph data export
+			@RequestParam(value = "parameterStableId", required = false) String[] parameterStableId,
+			// zygosities should be filled for graph data export
+			@RequestParam(value = "zygosity", required = false) String[] zygosities,
+			// strains should be filled for graph data export
+			@RequestParam(value = "strains", required = false) String[] strains, 
 			@RequestParam(value = "geneSymbol", required = false) String geneSymbol,
 			@RequestParam(value = "solrCoreName", required = false) String solrCoreName,
 			@RequestParam(value = "params", required = false) String solrFilters,
@@ -401,10 +384,10 @@ public class FileExportController {
 			@RequestParam(value = "gene2pfam", required = false, defaultValue = "false") Boolean gene2pfam,
 			@RequestParam(value = "doAlleleRef", required = false, defaultValue = "false") Boolean doAlleleRef,
 			@RequestParam(value = "filterStr", required = false) String filterStr, HttpSession session,
-			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+			HttpServletRequest request, HttpServletResponse response, Model model)
+		throws Exception {
 
 		hostName = request.getAttribute("mappedHostname").toString().replace("https:", "http:");
-		System.out.println("------------\nEXPORT \n---------");
 
 		String query = "*:*"; // default
 		String fqStr = null;
@@ -425,12 +408,10 @@ public class FileExportController {
 				e.printStackTrace();
 			}
 		}
-
-		Workbook wb = null;
+		
 		List<String> dataRows = new ArrayList<String>();
 		// Default to exporting 10 rows
 		length = length != null ? length : 10;
-
 		panelName = panelName == null ? "" : panelName;
 
 		if (!solrCoreName.isEmpty()) {
@@ -445,8 +426,7 @@ public class FileExportController {
 				ArrayList<Integer> phenotypingCenterIds = new ArrayList<Integer>();
 				try {
 					for (int i = 0; i < phenotypingCenter.length; i++) {
-						phenotypingCenterIds.add(organisationDao
-								.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
+						phenotypingCenterIds.add(organisationDao.getOrganisationByName(phenotypingCenter[i].replaceAll("%20", " ")).getId());
 					}
 				} catch (NullPointerException e) {
 					log.error("Cannot find organisation ID for org with name " + phenotypingCenter);
@@ -483,7 +463,7 @@ public class FileExportController {
 			}
 		}
 
-		writeOutputFile(response, dataRows, fileType, fileName, wb);
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
 
 	}
 	
@@ -569,6 +549,7 @@ public class FileExportController {
 
 		return rows;
 	}
+	
 
 	private List<String> composeProtocolDataTableRows(JSONObject json, HttpServletRequest request) {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
@@ -1030,20 +1011,6 @@ public class FileExportController {
 			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 			data.add(expressionImageDocs.size() == 0 ? "No" : "Yes");
 
-
-			// will have these cols coming later
-			/*
-			 * if(doc.has("mp_definition")) {
-			 * data.add(doc.getString("mp_definition")); } else {
-			 * data.add(NO_INFO_MSG); }
-			 *
-			 * if(doc.has("top_level_mp_term")) { List<String> tops = new
-			 * ArrayList<String>(); JSONArray top =
-			 * doc.getJSONArray("top_level_mp_term"); for(int t=0;
-			 * t<top.size();t++) { tops.add(top.getString(t)); }
-			 * data.add(StringUtils.join(tops, "|")); } else {
-			 * data.add(NO_INFO_MSG); }
-			 */
 			rowData.add(StringUtils.join(data, "\t"));
 		}
 		return rowData;
@@ -1215,8 +1182,9 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters,
-			HttpServletRequest request) throws SolrServerException, UnsupportedEncodingException {
+	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters, HttpServletRequest request) 
+	throws SolrServerException, UnsupportedEncodingException {
+		
 		List<String> res = new ArrayList<>();
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList();
 		PhenotypeFacetResult phenoResult;
@@ -1242,47 +1210,11 @@ public class FileExportController {
 			}
 			Collections.sort(phenotypes); // sort in same order as gene page.
 
-			//res.add("Phenotype\tAllele\tZygosity\tSex\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
 			res.add("Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
 			for (DataTableRow pr : phenotypes) {
 				res.add(pr.toTabbedString("gene"));
 			}
 
-		} else {
-			if (pageName.equalsIgnoreCase("phenotype")) {
-
-				phenotypeList = new ArrayList();
-
-				try {
-					phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(id.replaceAll("\"", ""), filters);
-					phenotypeList = phenoResult.getPhenotypeCallSummaries();
-				} catch (HibernateException | JSONException e) {
-					log.error("ERROR GETTING PHENOTYPE LIST");
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-
-				ArrayList<PhenotypePageTableRow> phenotypes = new ArrayList();
-				//res.add("Gene\tAllele\tZygosity\tSex\tPhenotype\tProcedure | Parameter\tPhenotyping Center\tSource\tP Value\tGraph");
-				res.add("Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
-
-				for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-					PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, targetGraphUrl, config, false);
-
-					if (pr.getParameter() != null && pr.getProcedure() != null) {
-						phenotypes.add(pr);
-					}
-				}
-				Collections.sort(phenotypes); // sort in same order as phenotype
-				// page.
-
-				for (DataTableRow pr : phenotypes) {
-					res.add(pr.toTabbedString("phenotype"));
-				}
-			}
 		}
 		return res;
 	}
@@ -1583,9 +1515,8 @@ public class FileExportController {
 			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
 		List<String> dataRows = fetchImpc2GwasMappingData(request, mgiGeneSymbol, gridFields, currentTraitName);
-		Workbook wb = null;
 		String fileName = "impc_to_Gwas_mapping_dataset";
-		writeOutputFile(response, dataRows, fileType, fileName, wb);
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
 	}
 
 	private List<String> fetchImpc2GwasMappingData(HttpServletRequest request, String mgiGeneSymbol, String gridFields,
@@ -1685,9 +1616,8 @@ public class FileExportController {
 
 		List<String> dataRows = composeBatchQueryDataTableRows(solrResponses, dataTypeName, gridFields, request, queryIds);
 
-		Workbook wb = null;
 		String fileName = "batch_query_dataset";
-		writeOutputFile(response, dataRows, fileType, fileName, wb);
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
 	}
 
 	private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName,
@@ -1969,75 +1899,4 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private void writeOutputFile(HttpServletResponse response, List<String> dataRows, String fileType, String fileName,
-			Workbook wb) {
-
-		response.setHeader("Pragma", "no-cache");
-		response.setHeader("Expires", "0");
-		String outfile = fileName + "." + fileType;
-
-		try {
-
-			if (fileType.equals("tsv")) {
-
-				response.setContentType("text/tsv; charset=utf-8");
-				response.setHeader("Content-disposition", "attachment; filename=" + outfile);
-
-				// ServletOutputStream output = response.getOutputStream();
-				// ckc note: switch to use getWriter() so that we don't get
-				// error like
-				// java.io.CharConversionException: Not an ISO 8859-1 character
-				// and if we do, the error will cause the dump to end
-				// prematurely
-				// and we may not get the full rows (depending on which row
-				// causes error)
-
-				PrintWriter output = response.getWriter();
-
-				for (String line : dataRows) {
-
-					line = line.replaceAll("\\t//", "\thttp://");
-					line = line.replaceAll("\\|//", "|http://");
-
-					output.println(line);
-
-				}
-
-				output.flush();
-				output.close();
-
-
-			} else if (fileType.equals("xls")) {
-
-				response.setContentType("application/vnd.ms-excel");
-				response.setHeader("Content-disposition", "attachment;filename=" + outfile);
-				System.out.println("WBOOK");
-				String sheetName = fileName;
-
-				String[] titles = null;
-				String[][] tableData = new String[0][0];
-				if (!dataRows.isEmpty()) {
-
-					// titles = dataRows.remove(0).split("\t");
-					titles = dataRows.get(0).split("\t");
-					tableData = Tools.composeXlsTableData(dataRows);
-				}
-
-				wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
-
-				ServletOutputStream output = response.getOutputStream();
-				try {
-					wb.write(output);
-					output.close();
-				} catch (IOException ioe) {
-					log.error("ExcelWorkBook Error: " + ioe.getMessage());
-					ioe.printStackTrace();
-				}
-
-			}
-		} catch (Exception e) {
-			log.error("Error: " + e.getMessage());
-			e.printStackTrace();
-		}
-	}
 }

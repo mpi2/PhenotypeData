@@ -272,12 +272,15 @@
 			subTypeSect.append(subTypeUlContainer);
 			$('div.flist li#gene > ul').append(subTypeSect);
 
-			// embryo view data availabe
+			// subfacet: Embryo image viewer
 			var embryoViewerSect = $("<li class='fcatsection embryo_viewer'></li>");
 			embryoViewerSect.append($('<span></span>').attr({'class':'flabel'}).text('Embryo Image Viewer'));
 
 			var embview_facets = json.facet_fields['embryo_data_available'];
 			foundMatch.embryo_viewer = embview_facets.length;
+
+			var embview_modalities_facets = json.facet_fields['embryo_modalities'];
+
 
 			var viewerUlContainer = $("<ul></ul>");
 
@@ -300,6 +303,27 @@
 
 					viewerUlContainer.append(liContainer);
 				}
+			}
+
+			for ( var i=0; i<embview_modalities_facets.length; i+=2 ){
+				var modality = embview_modalities_facets[i];
+
+				var liContainer = $("<li></li>").attr({'class':'fcat embryo_modalities'});
+
+				var type_label = modality;
+				var count = embview_modalities_facets[i+1];
+				var coreField = 'gene|embryo_modalities|';
+				var isGrayout = count == 0 ? 'grayout' : '';
+				liContainer.removeClass('grayout').addClass(isGrayout);
+
+				var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + modality + '|' + count + '|embryo_modalities'});
+				var flabel = $('<span></span>').attr({'class':'flabel'}).text(type_label);
+				var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+
+				liContainer.append(chkbox, flabel, fcount);
+
+				viewerUlContainer.append(liContainer);
+
 			}
 
 			embryoViewerSect.append(viewerUlContainer);
