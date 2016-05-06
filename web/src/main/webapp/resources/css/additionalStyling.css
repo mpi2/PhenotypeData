@@ -2,10 +2,10 @@
 
 .quarter {
 	width:25%;
-	float: left; 
+	float: left;
 }
 .float-left {
-	float: left; 
+	float: left;
 }
 .node text.treeLabel{
 	font-size: 12px;
@@ -32,7 +32,7 @@
 	font-size:12px;
 }
 #pfam{
-	overflow-x:auto;	
+	overflow-x:auto;
 	width:100%;
 	height:3.5em;
 }
@@ -105,7 +105,7 @@ form.no-style{
 	padding:none;
 }
 .filtersMoreLikeNicolas.open{
-	display: block; 
+	display: block;
 	max-height:18em;
 }
 .filtertype_add{
@@ -114,23 +114,23 @@ form.no-style{
 .filtertype_add.open{
 	background:white;
 }
-.tablefilter_add{ 
-	width: 21%;	
+.tablefilter_add{
+	width: 21%;
 	text-wrap:none;
 }
-.filtertype:before { 
-	margin-right: 0.5em; 
+.filtertype:before {
+	margin-right: 0.5em;
 	}
-.filtersMoreLikeNicolas { 
-	margin-left: -2px; 
-	padding: 0.5em; 
-	border: #eee 1px solid; 
-	border-top: none; 
-	border-radius: 0 3px 3px 3px; 
-	-webkit-border-radius: 0 3px 3px 3px; 
-	-moz-border-radius: 0 3px 3px 3px; 
-	-ms-border-radius: 0 3px 3px 3px; 
-	-o-border-radius: 0 3px 3px 3px; 
+.filtersMoreLikeNicolas {
+	margin-left: -2px;
+	padding: 0.5em;
+	border: #eee 1px solid;
+	border-top: none;
+	border-radius: 0 3px 3px 3px;
+	-webkit-border-radius: 0 3px 3px 3px;
+	-moz-border-radius: 0 3px 3px 3px;
+	-ms-border-radius: 0 3px 3px 3px;
+	-o-border-radius: 0 3px 3px 3px;
 	overflow: auto;
 	display: none;
 	background: white;
@@ -145,13 +145,13 @@ form.no-style{
 .ui-dropdownchecklist-item label {
 	cursor: pointer;
 	}
-.ui-dropdownchecklist-item input[type="checkbox"] { 
-	margin-right: 0.5em; 
-	} 
+.ui-dropdownchecklist-item input[type="checkbox"] {
+	margin-right: 0.5em;
+	}
 #other_procedures{
  	display:none;
  }
- 
+
 button.gridDump {
 	font-size: 11px;
 	background: none;
@@ -232,7 +232,7 @@ button.exportButton{
 	color:#aaa;
 }
 .overviewSelect{
-	max-width: 100%;	
+	max-width: 100%;
 }
 
 .onethirdForPie               { float: left; width: 33%; }
@@ -246,3 +246,5 @@ color:#0978a1
 }
 
 .embryo-caption		{ text-align: justify;  font-size: 0.8em;}
+
+.pad10px {padding: 10px;}

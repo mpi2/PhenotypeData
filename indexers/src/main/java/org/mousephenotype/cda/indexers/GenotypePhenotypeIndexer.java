@@ -18,7 +18,10 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.dao.DatasourceDAO;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -48,6 +51,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private Integer EFO_DB_ID = 15; // default as of 2016-05-06
+
     public final static Set<String> source3iProcedurePrefixes = new HashSet<>(Arrays.asList(
         "MGP_BCI", "MGP_PBI", "MGP_ANA", "MGP_CTL", "MGP_EEI", "MGP_BMI"
     ));
@@ -74,7 +79,13 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     @Autowired
     MpOntologyDAO mpOntologyService;
 
-    Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
+	@Autowired
+	OntologyTermDAO ontologyTermDAO;
+
+	@Autowired
+	DatasourceDAO dsDAO;
+
+	Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
     Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
     Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
     Map<String, DevelopmentalStage> liveStageMap = new HashMap<>();
@@ -99,6 +110,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
+
+	        // Override the EFO db_id with the current term from the database
+	        EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -357,25 +371,12 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
-                // set life stage by looking up a combination key of
-                // 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
-                // The value is developmental_stage_acc
-                List<String> fields = new ArrayList<String>();
-                fields.add(colonyId);
-                fields.add(pipelineStableId);
-                fields.add(procedureStableId);
 
-                String key = StringUtils.join(fields, "_");
-                String developmentalStageAcc = "";
-                String developmentalStageName = "";
-
-                if ( liveStageMap.containsKey(key) ) {
-                    DevelopmentalStage stage = liveStageMap.get(key);
-                    developmentalStageAcc = stage.getAccession();
-	                developmentalStageName = stage.getName();
-                }
-                doc.setLifeStageAcc(developmentalStageAcc);
-                doc.setLifeStageName(developmentalStageName);
+	            DevelopmentalStage stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
+	           if (stage != null) {
+		           doc.setLifeStageAcc(stage.getAccession());
+		           doc.setLifeStageName(stage.getName());
+	           }
 
                 documentCount++;
                 gpSolrServer.addBean(doc, 30000);
@@ -392,6 +393,62 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
         return count;
     }
+
+	private DevelopmentalStage getDevelopmentalStage(String pipelineStableId, String procedureStableId, String colonyId) {
+
+		DevelopmentalStage stage = null;
+
+		Map<String, DevelopmentalStage> stages = new HashMap<>();
+
+		Arrays.asList("postnatal", "embryonic day 9.5", "embryonic day 12.5", "embryonic day 14.5", "embryonic day 18.5" ).forEach( x -> {
+			OntologyTerm t = ontologyTermDAO.getOntologyTermByNameAndDatabaseId(x, EFO_DB_ID);
+			stages.put(x, new DevelopmentalStage(t.getId().getAccession(), t.getName()));
+		});
+
+		// set life stage by looking up a combination key of
+		// 3 fields ( colony_id, pipeline_stable_id, procedure_stable_id)
+		// The value is cooresponding developmental stage object
+		String key = StringUtils.join(Arrays.asList(colonyId, pipelineStableId,  procedureStableId), "_");
+
+		if ( liveStageMap.containsKey(key) ) {
+
+			stage = liveStageMap.get(key);
+
+		}
+
+		// Procedure prefix is the first two strings of the parameter after splitting on underscore
+		// i.e. IMPC_BWT_001_001 => IMPC_BWT
+		String procedurePrefix = StringUtils.join(Arrays.asList(procedureStableId.split("_")).subList(0, 2), "_");
+
+		DevelopmentalStage stg = null;
+		switch (procedurePrefix) {
+			case "IMPC_VIA":
+				stage = new DevelopmentalStage("n/a", "n/a");
+				break;
+			case "IMPC_FER":
+				stg = stages.get("postnatal");
+				stage = new DevelopmentalStage(stg.getAccession(), stg.getName());
+				break;
+			case "IMPC_EVL":
+				stg = stages.get("embryonic day 9.5");
+				stage = new DevelopmentalStage(stg.getAccession(), stg.getName());
+				break;
+			case "IMPC_EVM":
+				stg = stages.get("embryonic day 12.5");
+				stage = new DevelopmentalStage(stg.getAccession(), stg.getName());
+				break;
+			case "IMPC_EVO":
+				stg = stages.get("embryonic day 14.5");
+				stage = new DevelopmentalStage(stg.getAccession(), stg.getName());
+				break;
+			case "IMPC_EVP":
+				stg = stages.get("embryonic day 18.5");
+				stage = new DevelopmentalStage(stg.getAccession(), stg.getName());
+				break;
+		}
+
+		return stage;
+	}
 
 	class DevelopmentalStage {
 		String accession;
