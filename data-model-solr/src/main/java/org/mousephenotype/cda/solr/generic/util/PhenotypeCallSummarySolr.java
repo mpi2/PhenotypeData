@@ -51,7 +51,7 @@ public class PhenotypeCallSummarySolr {
 
 
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException, SolrServerException {
-		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, "");
+		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, null, null);
 	}
 
 	
@@ -67,13 +67,13 @@ public class PhenotypeCallSummarySolr {
 	}
 
 
-	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException, SolrServerException {
-		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, filterString);
+	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname) throws IOException, URISyntaxException, SolrServerException {
+		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
 	}
 
 
-	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, String filterString) throws IOException, URISyntaxException, SolrServerException {
-		return preqcService.getMPByGeneAccessionAndFilter(accId, filterString);
+	public PhenotypeFacetResult getPreQcPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname) throws IOException, URISyntaxException, SolrServerException {
+		return preqcService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
 	}
 
 
