@@ -83,8 +83,11 @@ public class OntologyParserTest {
         if (terms.isEmpty())
             throw new Exception("testDeprecated: term list is empty!");
 
+        boolean found0006374 = false;
+        boolean found0002954 = false;
         for (OntologyTerm term : terms){
         	if (term.getId().getAccession().equals("MP:0006374")){
+                found0006374 = true;
         		if(!term.getIsObsolete()){
         			 String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " is not marked as deprecated)";
         			 exception.add(new Exception(message));
@@ -96,6 +99,7 @@ public class OntologyParserTest {
         		break;
         	}
         	if (term.getId().getAccession().equals("MP:0002954")){
+                found0002954 = true;
         		if (term.getConsiderIds().size() == 0){
         			String message = "[FAIL] Exception in testDeprecated (" +term.getId().getAccession() + " does not have any consider terms )";
         			exception.add(new Exception(message));
@@ -107,6 +111,16 @@ public class OntologyParserTest {
         		}
         		
         	}
+        }
+
+        if (found0006374) {
+            String message = "[FAIL] Expected to find class MP:0006374 but it was not found.";
+            exception.add(new Exception(message));
+        }
+
+        if (found0002954) {
+            String message = "[FAIL] Expected to find class MP:0002954 but it was not found.";
+            exception.add(new Exception(message));
         }
         
         if ( ! exception.isEmpty()){
