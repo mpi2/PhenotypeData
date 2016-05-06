@@ -58,8 +58,18 @@ public class OntologyTerm {
 
     @Column(name = "replacement_acc")
 	private String replacementAcc;
-	
-	private List<String> considerIds;
+
+    @ElementCollection
+   	@CollectionTable(
+   		name="consider_id",
+        joinColumns= {
+            @JoinColumn(name="acc"),
+            @JoinColumn(name="db_id"),
+        }
+   	)
+   	@LazyCollection(LazyCollectionOption.FALSE)
+   	@Fetch(FetchMode.SELECT)
+	private List<String> considerIds = new ArrayList<>();
 	
 	@ElementCollection
 	@CollectionTable(
@@ -167,15 +177,15 @@ public class OntologyTerm {
 		this.isObsolete = isObsolete;
 	}
 
-	@Override
+    @Override
 	public String toString() {
 		return "OntologyTerm{" +
 				"id={" + id.getAccession() + "," + id.getDatabaseId() + "}" +
 				", description='" + description + '\'' +
 				", name='" + name + '\'' +
 				", isObsolete=" + isObsolete +
-				", replacementAcc='" + replacementAcc + '\'' +
-				", considerIds=" + ((considerIds == null) || considerIds.isEmpty() ? "null" : StringUtils.join(considerIds, ",")) +
+				", replacementAcc=" + replacementAcc +
+				", considerIds=" + ((considerIds == null) || considerIds.isEmpty() ? "null" : "String [" + StringUtils.join(considerIds, ", ") + "]") +
 				", synonyms=" + ((synonyms == null) || synonyms.isEmpty() ? "null" : StringUtils.join(synonyms, ",")) +
 				'}';
 	}

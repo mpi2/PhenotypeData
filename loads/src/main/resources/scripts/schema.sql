@@ -39,6 +39,7 @@ DROP TABLE IF EXISTS biological_model_sample;
 DROP TABLE IF EXISTS biological_sample;
 DROP TABLE IF EXISTS biological_sample_relationship;
 DROP TABLE IF EXISTS categorical_observation;
+DROP TABLE IF EXISTS consider_id;
 DROP TABLE IF EXISTS coord_system;
 DROP TABLE IF EXISTS datetime_observation;
 DROP TABLE IF EXISTS experiment;
@@ -715,6 +716,23 @@ CREATE TABLE categorical_observation (
 
 	PRIMARY KEY(id),
 	KEY category_idx(category)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
+ * This table will store the ontology 'consider id's.
+ */
+CREATE TABLE consider_id (
+
+	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	acc                        VARCHAR(20) NOT NULL,
+	db_id                      INT(10) NOT NULL,
+  ontologyTerm_pk            INT(10) UNSIGNED NOT NULL,
+
+	PRIMARY KEY (id),
+	KEY ontology_term_idx (acc, db_id),
+	KEY ontology_term_acc_idx (acc),
+  FOREIGN KEY ontology_term_pk (ontologyTerm_pk) REFERENCES ontology_term (id)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 

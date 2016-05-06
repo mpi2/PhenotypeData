@@ -58,6 +58,19 @@ public class ConfigBeans {
         return resourceFileOntology;
     }
 
+    @Bean(name = "resourceFileOntologyMp")
+//    @StepScope
+    public ResourceFileOntology resourceFileOntologyMp() throws CdaLoaderException {
+        ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
+        String sourceUrl = "ftp://ftp.informatics.jax.org/pub/reports/mp.owl";
+        String filename = owlpath + "/mp.owl";
+        int dbId = 5;
+        String prefix = "MP";
+        resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
+
+        return resourceFileOntology;
+    }
+
     @Bean(name = "resourceFileItemWriter")
     @StepScope
     public ResourceFileItemWriter resourceFileItemWriter() {
