@@ -180,7 +180,7 @@ public class OntologyParser {
 	
 	private boolean isObsolete(OWLClass cls){
 		
-		for (OWLAnnotationProperty synonym: SYNONYM_ANNOTATION){
+		for (OWLAnnotationProperty synonym: IS_OBSOLETE){
 			if (EntitySearcher.getAnnotations(cls,ontology, synonym).size() > 0) {
 				return true;
 			}
