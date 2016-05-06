@@ -90,24 +90,6 @@
 
 		<!--  OWL Depenencies -->
 		<dependency>
-	   		<groupId>org.bbop</groupId>
-	   		<artifactId>OWLTools-Core</artifactId>
-	   		<version>0.3.0-SNAPSHOT</version>
-	   		<exclusions>
-	   			<exclusion>
-	   				<artifactId>owlapi-distribution</artifactId>
-	   				<groupId>net.sourceforge.owlapi</groupId>
-	   			</exclusion>
-	   		</exclusions>
-		</dependency>
-		
-		<dependency>
-		   	<groupId>org.bbop</groupId>
-		   	<artifactId>OWLTools-Oort</artifactId>
-			<version>0.3.0-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
 		    <groupId>net.sourceforge.owlapi</groupId>
 		    <artifactId>owlapi-api</artifactId>
 		    <version>4.1.4</version>

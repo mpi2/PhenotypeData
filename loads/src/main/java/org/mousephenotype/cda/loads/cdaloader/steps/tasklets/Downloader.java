@@ -23,7 +23,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.FileOutputStream;
@@ -32,7 +31,6 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
@@ -43,7 +41,6 @@ import java.util.Date;
  * Created by mrelac on 13/04/2016.
  *
  */
-@Component
 public class Downloader extends SystemCommandTasklet {
 
     private String sourceUrl;
@@ -84,9 +81,7 @@ public class Downloader extends SystemCommandTasklet {
         String targetTemp;
         URL url;
 
-        startStep = new Date().getTime();
         try {
-            Path path = Paths.get(filename);
             Files.createDirectories(Paths.get(filename).getParent());
         } catch (IOException e) {
             logger.error("Create cda directory '" + filename + "' failed. Reason: " + e.getLocalizedMessage());
@@ -109,6 +104,5 @@ public class Downloader extends SystemCommandTasklet {
         }
 
         return null;
-
     }
 }

@@ -17,15 +17,20 @@
 package org.mousephenotype.cda.loads.cdaloader.steps.tasklets;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Date;
@@ -33,8 +38,10 @@ import java.util.Date;
 /**
  * Created by mrelac on 13/04/2016.
  */
-@Component
 public class RecreateAndLoadDbTables extends SystemCommandTasklet {
+
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
 
     @Value("${cdaload.workspace}")
     private String cdaWorkspace;
@@ -66,12 +73,17 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
     public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
 
 
-    public SystemCommandTasklet recreateAndLoadDbTables() throws CdaLoaderException {
-        SystemCommandTasklet downloadReportsTasklet;
+    @PostConstruct
+    public void systemCommandTaskletInitialisation() {
+        // A SystemCommandTasklet needs something to execute or it throws an exception. This is a do-nothing command to satisfy that requirement.
+        setCommand("ls");
+        setTimeout(TASKLET_TIMEOUT);
+    }
+
+    @Override
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         long startStep = new Date().getTime();
-
-        downloadReportsTasklet = new SystemCommandTasklet();
 
         ClassLoader classloader = getClass().getClassLoader();
         String filename = classloader.getResource("scripts/schema.sql").getPath();
@@ -89,14 +101,14 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
             System.out.println("FAIL: " + e.getLocalizedMessage());
         }
 
-        // A SystemCommandTasklet needs something to execute or it throws an exceptions. This is a do-nothing command to satisfy that requirement.
-        String command = "ls";
-        downloadReportsTasklet.setCommand(command);
-        downloadReportsTasklet.setTimeout(TASKLET_TIMEOUT);
-        downloadReportsTasklet.setWorkingDirectory(cdaWorkspace);
-
         logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
 
-        return downloadReportsTasklet;
+        return null;
+    }
+
+    public Step getStep() {
+        return stepBuilderFactory.get("recreateAndLoadDbTablesStep")
+                .tasklet(this)
+                .build();
     }
 }

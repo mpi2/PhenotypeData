@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFile;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -68,6 +69,12 @@ public class ConfigBatch {
     @Qualifier("resourceFileOntologyMa")
     public ResourceFile resourceFileOntologyMa;
 
+    @Autowired
+    @Qualifier("recreateAndLoadDbTables")
+    public RecreateAndLoadDbTables recreateAndLoadDbTables;
+
+
+
     // tag::readerwriterprocessor[]
 //    @Bean
 //    public FlatFileItemReader<Person> reader() {
@@ -104,7 +111,9 @@ public class ConfigBatch {
     public Job cdaLoadJob() throws CdaLoaderException {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(resourceFileOntologyMa.getLoadStep())
+                .flow(resourceFileOntologyMa.getDownloadStep())
+                .next(resourceFileOntologyMa.getLoadStep())
+                .next(recreateAndLoadDbTables.getStep())
                 .end()
                 .build();
     }
