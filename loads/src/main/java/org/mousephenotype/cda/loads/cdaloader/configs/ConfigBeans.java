@@ -40,19 +40,19 @@ public class ConfigBeans {
     protected String owlpath;
 
     @Bean(name = "recreateAndLoadDbTables")
-    @StepScope
+//    @StepScope
     public RecreateAndLoadDbTables recreateAndLoadDbTables() {
         return new RecreateAndLoadDbTables();
     }
 
     @Bean(name = "resourceFileOntologyMa")
-    @StepScope
+//    @StepScope
     public ResourceFileOntology resourceFileOntologyMa() throws CdaLoaderException {
         ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
         String sourceUrl = "http://purl.obolibrary.org/obo/ma.owl";
         String filename = owlpath + "/ma.owl";
         int dbId = 8;
-        String prefix = "MA:";
+        String prefix = "MA";
         resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
 
         return resourceFileOntology;

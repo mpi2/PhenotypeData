@@ -19,15 +19,9 @@ package org.mousephenotype.cda.loads.cdaloader.steps.itemwriters;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 
-import java.util.List;
-
 /**
  * Created by mrelac on 26/04/16.
  */
 public class ResourceFileItemWriter extends FlatFileItemWriter<OntologyTerm> {
 
-    @Override
-    public void write(List<? extends OntologyTerm> list) throws Exception {
-
-    }
 }
