@@ -78,7 +78,7 @@ public class OntologyParserTest {
 
         List<Exception> exceptions = new ArrayList();
         ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP:");
-       // ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
+     //   ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP");
         List<OntologyTerm> terms = ontologyParser.getTerms();
         for (OntologyTerm term : terms){
         	if (term.getId().getAccession().equals("MP:0006374")){
@@ -111,5 +111,5 @@ public class OntologyParserTest {
         }
     	
     }
-    
+        
 }
