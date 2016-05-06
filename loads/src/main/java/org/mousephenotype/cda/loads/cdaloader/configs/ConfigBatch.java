@@ -111,7 +111,8 @@ public class ConfigBatch {
     public Job cdaLoadJob() throws CdaLoaderException {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(resourceFileOntologyMa.getLoadStep())
+                .flow(resourceFileOntologyMa.getDownloadStep())
+                .next(resourceFileOntologyMa.getLoadStep())
                 .next(recreateAndLoadDbTables.getStep())
                 .end()
                 .build();
