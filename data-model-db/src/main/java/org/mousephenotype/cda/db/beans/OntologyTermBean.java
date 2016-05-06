@@ -30,28 +30,21 @@ import java.util.Objects;
  * @author mrelac
  */
 public class OntologyTermBean {
+	
     private String id;
     private String name;
     private String definition;
     private List<String> synonyms = new ArrayList<>();
     private String topLevelTermId;
-    private List<String> altMaIds = new ArrayList<>();
-    private List<Integer>  maNodeIds = new ArrayList<>();
+    private List<String> altIds = new ArrayList<>();
+    private List<Integer>  nodeIds = new ArrayList<>();
 
-    public List<Integer> getMaNodeIds() {
-        return maNodeIds;
+    public List<Integer> getNodeIds() {
+        return nodeIds;
     }
 
-    public void setMaNodeIds(List<Integer> maNodeIds) {
-        this.maNodeIds = maNodeIds;
-    }
-
-    public List<String> getAltMaIds() {
-        return altMaIds;
-    }
-
-    public void setAltMaIds(List<String> altMaIds) {
-        this.altMaIds = altMaIds;
+    public void setNodeIds(List<Integer> nodeIds) {
+        this.nodeIds = nodeIds;
     }
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -107,11 +100,11 @@ public class OntologyTermBean {
     }
 
     public List<String> getAltIds() {
-        return altMaIds;
+        return altIds;
     }
 
-    public void setAltIds(List<String> altMaIds) {
-        this.altMaIds = altMaIds;
+    public void setAltIds(List<String> altIds) {
+        this.altIds = altIds;
     }
 
     // AUXILIARY METHODS

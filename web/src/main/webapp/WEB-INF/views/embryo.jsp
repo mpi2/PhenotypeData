@@ -242,9 +242,6 @@
 										    	<p class="embryo-caption">Glutamine:fructose-6-phosphate amidotransferase 1 (Gfpt1) mutants show developmental delay and fail to turn at E9.5.<t:vignetteLink geneId="MGI:95698"></t:vignetteLink> </p> 
 										    	<p class="sliderTitle"><t:formatAllele>Gfpt1<tm1b(EUCOMM)Wtsi></t:formatAllele></p></li>	
 										    	
-										    <li id="item18"><img src="${baseUrl}/img/vignettes/Klhdc2.png" /> 
-										    	<p class="embryo-caption">Kelch domain-containing protein 2 functions as a transcriptional corepressor through its inhibitory interaction with LZIP. Klhdc2 mutants show a range of developmental phenotypes including posterior polydactyly, edema, ventral septum defect (VSD), abnormal intestines and displaced kidneys.<t:vignetteLink geneId="MGI:1916804"></t:vignetteLink> </p> 
-										    	<p class="sliderTitle"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></p></li>	
 										  </ul> 
 									</div>
 	                           	</div>

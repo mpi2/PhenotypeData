@@ -7,8 +7,8 @@
 
 	<jsp:attribute name="title">Histopath Information for ${gene.markerName}</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-			href="${baseUrl}/search/genes?kw=*">Genes</a> &raquo; Results</jsp:attribute>
+<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Histopathology Detailed View</jsp:attribute>
+
 
 	<jsp:attribute name="header">
 
@@ -56,13 +56,12 @@
 							
 							<thead>
 							<tr>
-							<th>Sample Id</th>
 							
-							
-							
+
 							<th class="headerSort">
 							Anatomy
 							</th>
+							<th>Sample Id</th>
 							<th>
 							Significance
 							</th>
@@ -95,11 +94,13 @@
 								<c:forEach var="histRow" items="${histopathRows}">
 								
 								<tr>
-									<td id="${histRow.sampleId}_${histRow.anatomyName}">
-										${histRow.sampleId}
-									</td>
+									
 									<td>
 										${histRow.anatomyName}
+									</td>
+									
+									<td id="${histRow.sampleId}_${histRow.anatomyName}">
+										${histRow.sampleId}
 									</td>
 									<td>
 									<c:forEach var="parameter" items="${histRow.significance }">
@@ -221,58 +222,7 @@
 					</div>
                     
                     
-                    
-                    
-          <%--           <div class="section">
-								<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>
-								<div class="inner">
-
-									
-
-                     
-                     <table>
-                     
-                      <c:forEach var="obs"
-										items="${extSampleIdToObservations}">
-                      
-                      	<tr>
-                      		<td>
-                      			${obs.externalSampleId }
-                      		</td>
-                      		<td>
-                      			${obs.observationType }
-                      		</td>
-                      		<td>
-                      			${obs.parameterName }
-                      		</td>
-                      		<td>
-                      			${obs.category }
-                      		</td>
-                      		<td>
-                      			${obs.textValue }
-                      		</td>
-                      		<td>
-                      			${obs.subTermId }
-                      		</td>
-                      		<td>
-                      			name: ${obs.subTermName }
-                      		</td>
-                      		<td>
-                      			${obs.subTermDescription }
-                      		</td>
-                      	</tr>
-                      	
-                      </c:forEach>
-                      
-                      </table>
-                      
-                      
-                     
-							</div>
-						</div> --%>
-						
-						
-						
+		
 						
                     </div>
                 </div>

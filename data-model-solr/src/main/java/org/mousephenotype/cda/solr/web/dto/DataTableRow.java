@@ -227,15 +227,16 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     	
         if (!isPreQc){
             if ( procedure.getName().startsWith("Histopathology") ){
-                evidenceLink.setAlt("Images");
-                evidenceLink.setIconType(EvidenceLink.IconType.IMAGE);
-            	if (hasImage){
-	                url = baseUrl + "/histopathsum/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+                evidenceLink.setAlt("Table");
+                evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
+	            url = baseUrl + "/histopathsum/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
+	            evidenceLink.setDisplay(true);
+            	
+            }else if ( procedure.getName().startsWith("Gross Pathology and Tissue Collection") ){
+                evidenceLink.setAlt("Table");
+                evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
+	                url = baseUrl + "/grosspath/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
 	                evidenceLink.setDisplay(true);
-            	} else {
-            		url = "";
-	                evidenceLink.setDisplay(false);
-            	}
             }
             else {
                 url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), allele.getAccessionId(), null, zygosity, parameter.getStableId(),
@@ -456,19 +457,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                     + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
                     + getPrValueAsString() + "\t"
                     + getEvidenceLink().getUrl();
-        } else if (targetPage.equalsIgnoreCase("phenotype")) {
-            res = getGene().getSymbol() + "\t"
-                    + getAllele().getSymbol() + "\t"
-                    + getZygosity() + "\t"
-                    + getSexes().get(0) + "\t"
-                    + getLifeStageName() + "\t"
-                    + getPhenotypeTerm().getName() + "\t"
-                    + getProcedure().getName() + " | " + getParameter().getName() + "\t"
-                    + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
-                    + getPrValueAsString() + "\t"
-                    + getEvidenceLink().getUrl();
-        }
+        } 
+        
         return res;
+        
     }
 
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, String metadataGroup, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
