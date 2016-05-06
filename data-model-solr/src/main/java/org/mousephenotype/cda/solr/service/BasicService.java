@@ -87,6 +87,26 @@ public class BasicService {
 
 	
     /**
+     * @author ilinca
+     * @param label
+     * @return shortened labels for parent-child views on anatomy/phenotype pages, i.e. "abn." instead of "abnormal"
+     */
+	protected String shortenLabel(String label){
+
+		String res = label;
+		res = res.replaceAll("abnormal ", "abn. ");
+		res = res.replaceAll("phenotype ", "phen. ");
+		res = res.replaceAll("decreased ", "dec. ");
+		res = res.replaceAll("increased ", "inc. ");
+		res = res.replaceAll("abnormality ", "abn. ");
+		res = res.replaceAll("abnormal$", "abn.");
+		res = res.replaceAll("decreased$", "dec.");
+		res = res.replaceAll("increased$", "inc.");
+		res = res.replaceAll("phenotype$", "phen.");
+		return res;
+	}
+    
+    /**
      * Unwrap results from a facet pivot solr query and return the flattened
      * list of maps of results
      * 

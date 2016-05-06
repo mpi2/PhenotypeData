@@ -287,6 +287,7 @@
 					/*div.ui-dropdownchecklist-dropcontainer-wrapper.ui-widget.filtersMoreLikeNicolas.open {*/
 						/*border: 1px solid gray;*/
 					/*}*/
+
 					div.ui-dropdownchecklist-selector {
 						background: none;
 						background-color: lightgray;
@@ -303,6 +304,7 @@
 						font-weight: normal;
 						padding: 5px 10px;
 					}
+
 					div#genes_wrapper th, div#diseasetabs th, div#exptabs th, div#allele2 th,
 					div#genes_wrapper td, div#diseasetabs td, div#exptabs td, div#allele2 td {
 						color: #666;
@@ -641,11 +643,16 @@
 		</div> <!-- end of region content -->
 
 		<script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
-		<script type="text/javascript" src="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.js?v=${version}"></script>
-		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.css?v=${version}">
+		<script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
+		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
-		<script type="text/javascript" src="${baseUrl}/js/vendor.bundle.js?v=${version}"></script>
-		<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle.js?v=${version}"></script>
+		<%--<script type="text/javascript" src="${baseUrl}/js/vendor.bundle-not-used.js?v=${version}"></script>--%>
+		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle-not-used.js?v=${version}"></script>--%>
+		<script language="JavaScript" type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>
+		<script language="JavaScript" type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>
+
+
+
 		<script type="text/javascript">
 			var diseaseTables = [{
 				id: '#orthologous_diseases_table',
@@ -713,19 +720,36 @@
 					//console.log("profile: ");
 					//console.log(profileRows);
 
-					var EventEmitter = window.exposed.EventEmitter;
-					var eventEmitter = new EventEmitter();
+//					var EventEmitter = window.exposed.EventEmitter;
+//					var eventEmitter = new EventEmitter();
 
-					var AnatomogramBuilder = window.exposed.AnatomogramBuilder;
+					var eventEmitter = expressionAtlasAnatomogram.eventEmitter;
 
-					AnatomogramBuilder(
+					expressionAtlasAnatomogram.render(
 							document.getElementById("anatomogramContainer"),
 							anatomogramData,
 							profileRows,
-							// make color the same to disguise mouseover highlight
-							"blue",  // all tissues being tested
-							"red",  // tissue color when mouseover
-							eventEmitter);
+							"grey",
+							"blue"
+							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
+					);
+
+					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
+					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
+
+
+
+
+//					var AnatomogramBuilder = window.exposed.AnatomogramBuilder;
+
+//					AnatomogramBuilder(
+//							document.getElementById("anatomogramContainer"),
+//							anatomogramData,
+//							profileRows,
+//							// make color the same to disguise mouseover highlight
+//							"blue",  // all tissues being tested
+//							"red",  // tissue color when mouseover
+//							eventEmitter);
 				}
 
 				$("img.ui-button").each(function () {

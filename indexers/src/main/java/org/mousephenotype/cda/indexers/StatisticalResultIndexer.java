@@ -17,7 +17,7 @@ import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.indexers.beans.OntologyTermBeanList;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelper;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
@@ -986,7 +986,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				doc.setMpTermId(bean.getId());
 				doc.setMpTermName(bean.getName());
 
-				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+				OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
 				doc.setTopLevelMpTermId(beanlist.getTopLevels().getIds());
 				doc.setTopLevelMpTermName(beanlist.getTopLevels().getNames());
 
@@ -1022,7 +1022,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				doc.setMaleMpTermId(bean.getId());
 				doc.setMaleMpTermName(bean.getName());
 
-				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+				OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
 				doc.setMaleTopLevelMpTermId(beanlist.getTopLevels().getIds());
 				doc.setMaleTopLevelMpTermName(beanlist.getTopLevels().getNames());
 
@@ -1040,7 +1040,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				doc.setFemaleMpTermId(bean.getId());
 				doc.setFemaleMpTermName(bean.getName());
 
-				OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+				OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
 				doc.setFemaleTopLevelMpTermId(beanlist.getTopLevels().getIds());
 				doc.setFemaleTopLevelMpTermName(beanlist.getTopLevels().getNames());
 
@@ -1085,7 +1085,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 					ontoTerms.add(bean);
 
-					OntologyTermBeanList beanlist = new OntologyTermBeanList(mpOntologyService, bean.getId());
+					OntologyTermHelper beanlist = new OntologyTermHelper(mpOntologyService, bean.getId());
 
 					// Add all ancestor terms for this MP ID
 					beanlist.getAncestors().getIds().forEach(mp -> {

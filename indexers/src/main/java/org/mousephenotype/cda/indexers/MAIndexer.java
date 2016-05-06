@@ -22,7 +22,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
-import org.mousephenotype.cda.indexers.beans.OntologyTermMaBeanList;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.OntologyBrowserGetter;
@@ -102,6 +102,9 @@ public class MAIndexer extends AbstractIndexer {
             List<MaDTO> maBatch = new ArrayList(BATCH_SIZE);
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
 
+            // fetch list of excludedNodeIds (do not want to display this part of tree for MA)
+            List<String> excludedNodeIds = ontologyBrowser.getExcludedNodeIds();
+
             // Add all ma terms to the index.
             for (OntologyTermBean bean : beans) {
                 MaDTO ma = new MaDTO();
@@ -118,7 +121,7 @@ public class MAIndexer extends AbstractIndexer {
                 }
 
                 // Set collections.
-                OntologyTermMaBeanList sourceList = new OntologyTermMaBeanList(maOntologyService, bean.getId());
+                OntologyTermHelperMa sourceList = new OntologyTermHelperMa(maOntologyService, bean.getId());
                 ma.setOntologySubset(sourceList.getSubsets());
                 ma.setMaTermSynonym(sourceList.getSynonyms());
 
@@ -138,7 +141,7 @@ public class MAIndexer extends AbstractIndexer {
                 ma.setSelectedTopLevelMaTerm(sourceList.getTopLevels().getNames());
                 ma.setSelectedTopLevelMaTermSynonym(sourceList.getTopLevels().getSynonyms());
 
-                ma.setMaNodeId(bean.getMaNodeIds());
+                ma.setMaNodeId(bean.getNodeIds());
 
                 // index UBERON/EFO id for MA id
 
@@ -156,6 +159,8 @@ public class MAIndexer extends AbstractIndexer {
                 // Error says: Document contains at least one immense term in field="text" (whose UTF8 encoding is longer than the max length 32766)
                 // Error is on MP:0001600
                 TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
+                helper.setExcludedNodeIds(excludedNodeIds);
+
                 List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
                 ma.setSearchTermJson(searchTree.toString());
 

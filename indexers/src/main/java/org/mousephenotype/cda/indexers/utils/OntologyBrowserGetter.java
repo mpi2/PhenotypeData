@@ -48,6 +48,7 @@ public class OntologyBrowserGetter {
                             break;  // do only once: should have a better way
                         }
                     }
+
                     String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
 					//System.out.println("SQL2: "+ thisSql);
                     try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
@@ -56,18 +57,21 @@ public class OntologyBrowserGetter {
                         while (resultSet2.next()) {
 
                             JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
-                            if (thisNode.getBoolean("children")) {
-                                thisNode = fetchChildNodes(helper, thisNode, termId);
-                                if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                                	thisNode.accumulate("state", getState(false));    
-                                } else {
-                                	thisNode.accumulate("state", getState(true));
-                                }
-                            } 
-        					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
-        						thisNode.accumulate("type", "selected");
-        					}
-                            tn.add(thisNode);
+
+							if ( thisNode != null ) {
+								if (thisNode.getBoolean("children")) {
+									thisNode = fetchChildNodes(helper, thisNode, termId);
+									if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
+										thisNode.accumulate("state", getState(false));
+									} else {
+										thisNode.accumulate("state", getState(true));
+									}
+								}
+								if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
+									thisNode.accumulate("type", "selected");
+								}
+								tn.add(thisNode);
+							}
                         }
                         
                     } catch(Exception e){
@@ -77,7 +81,9 @@ public class OntologyBrowserGetter {
                 else {
                     // just fetch the term of this node
                     JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-                    tn.add(thisNode);
+					if ( thisNode != null ) {
+						tn.add(thisNode);
+					}
                 }
             }
         }  catch (Exception e){
@@ -112,20 +118,23 @@ public class OntologyBrowserGetter {
 	
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
-                        if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){
-                        	thisNode.accumulate("state", getState(false)); 
-                        } else {
-                        	thisNode.accumulate("state", getState(true));
-                        }
-					} else {
-						thisNode.accumulate("state", getState(false));
+
+					if (thisNode != null ) {
+						if (thisNode.getBoolean("children")) {
+							thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
+							if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
+								thisNode.accumulate("state", getState(false));
+							} else {
+								thisNode.accumulate("state", getState(true));
+							}
+						} else {
+							thisNode.accumulate("state", getState(false));
+						}
+						if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
+							thisNode.accumulate("type", "selected");
+						}
+						children.add(thisNode);
 					}
-					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
-						thisNode.accumulate("type", "selected");
-					}
-					children.add(thisNode);
 				}
 			}
 	
@@ -154,23 +163,25 @@ public class OntologyBrowserGetter {
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
 					
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
-					
-					if (thisNode.getBoolean("children")) {
-						thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
-						if (thisNode.getString("term_id").equalsIgnoreCase(termId)){
-							thisNode.accumulate("state", getState(false));
-						} else {
-							thisNode.accumulate("state", getState(true));
-						}
-					} else {
-						thisNode.accumulate("state", getState(false));
-					}
 
-					if (termId.equalsIgnoreCase(thisNode.getString("term_id"))){ 
-						thisNode.accumulate("type", "selected");
+					if ( thisNode != null ) {
+						if (thisNode.getBoolean("children")) {
+							thisNode = recursiveFetchChildNodes(helper, thisNode, conn, termId);
+							if (thisNode.getString("term_id").equalsIgnoreCase(termId)) {
+								thisNode.accumulate("state", getState(false));
+							} else {
+								thisNode.accumulate("state", getState(true));
+							}
+						} else {
+							thisNode.accumulate("state", getState(false));
+						}
+
+						if (termId.equalsIgnoreCase(thisNode.getString("term_id"))) {
+							thisNode.accumulate("type", "selected");
+						}
+						children.add(thisNode);
+						nodeObj.put("children", children);
 					}
-					children.add(thisNode);
-					nodeObj.put("children", children);
 				}
 			}
 		} catch (Exception e) {
@@ -227,8 +238,11 @@ public class OntologyBrowserGetter {
 		Set<String> pathNodes = new HashSet<>();
 		Set<String> expandNodeIds = new HashSet<>();
 		Map<String, List<Map<String, String>>> preOpenNodes = new HashMap<>();
-		
-		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(query)) {
+
+
+
+		try ( Connection conn = ontodbDataSource.getConnection();
+			  PreparedStatement p = conn.prepareStatement(query)) {
 
 			p.setString(1, termId);
 			ResultSet resultSet = p.executeQuery();
@@ -258,6 +272,7 @@ public class OntologyBrowserGetter {
 			}
 		}
 
+
 		TreeHelper th = new TreeHelper();
 		th.setPathNodes(pathNodes);
 		th.setExpandNodeIds(expandNodeIds);
@@ -269,29 +284,59 @@ public class OntologyBrowserGetter {
 
 	}
 
+	public List<String> getExcludedNodeIds() throws SQLException {
+
+		List<String> excludedNodeIds = new ArrayList<>();
+
+		String query = "SELECT node_id FROM ma_node2term nt, ma_term_infos t "
+				+ "WHERE nt.term_id=t.term_id "
+				+ "AND t.name != \"organ system\" "
+				+ "AND nt.node_id IN "
+				+ "(SELECT child_node_id FROM ma_parent_children WHERE parent_node_id = 1)";
+
+		try (Connection conn = ontodbDataSource.getConnection();
+			 PreparedStatement p = conn.prepareStatement(query)) {
+
+			ResultSet resultSet = p.executeQuery();
+			while (resultSet.next()) {
+				excludedNodeIds.add(Integer.toString(resultSet.getInt("node_id")));
+			}
+		}
+
+		return excludedNodeIds;
+	}
+
 	private JSONObject fetchNodeInfo(TreeHelper helper, ResultSet resultSet) throws SQLException {
 
 		JSONObject node = new JSONObject();
+
 		String nodeId = Integer.toString(resultSet.getInt("node_id"));
-		String termId = resultSet.getString("term_id");
-		String name = resultSet.getString("name");
-		String termDisplayText = null;
 
-		if (helper.getExpandNodeIds().contains(nodeId)) {
-			termDisplayText = "<span class='qryTerm'>" + name + "</span>";
-		} else {
-			termDisplayText = name;
+		// for MP, helper.getExcludedNodeIds() will be null
+		if ( helper.getExcludedNodeIds() == null || !helper.getExcludedNodeIds().contains(nodeId) ) {
+
+			String termId = resultSet.getString("term_id");
+			String name = resultSet.getString("name");
+			String termDisplayText = null;
+
+			if (helper.getExpandNodeIds().contains(nodeId)) {
+				termDisplayText = "<span class='qryTerm'>" + name + "</span>";
+			} else {
+				termDisplayText = name;
+			}
+
+			String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText
+					+ "</a>";
+			node.put("text", url);
+			node.put("id", Integer.toString(resultSet.getInt("node_id")));
+			node.put("term_id", resultSet.getString("term_id"));
+			node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
+			node.put("href", helper.getPageBaseUrl() + "/" + termId);
+			node.put("hrefTarget", "_blank");
 		}
-
-		String url = "<a target='_blank' href='" + helper.getPageBaseUrl() + "/" + termId + "'>" + termDisplayText
-				+ "</a>";
-		node.put("text", url);
-		node.put("id", Integer.toString(resultSet.getInt("node_id")));
-		node.put("term_id", resultSet.getString("term_id"));
-		node.put("children", resultSet.getString("node_type").equals("folder") ? true : false);
-		node.put("href", helper.getPageBaseUrl() + "/" + termId);
-		node.put("hrefTarget", "_blank");
-
+		else {
+			return null;
+		}
 		return node;
 	}
 
@@ -302,6 +347,7 @@ public class OntologyBrowserGetter {
 		Set<String> expandNodeIds;
 		String pageBaseUrl;
 		String ontologyName;
+		List<String> excludedNodeIds;
 
 		public Set<String> getPathNodes() {
 			return pathNodes;
@@ -341,6 +387,14 @@ public class OntologyBrowserGetter {
 
 		public void setOntologyName(String ontologyName) {
 			this.ontologyName = ontologyName;
+		}
+
+		public List<String> getExcludedNodeIds() {
+			return excludedNodeIds;
+		}
+
+		public void setExcludedNodeIds(List<String> excludedNodeIds) {
+			this.excludedNodeIds = excludedNodeIds;
 		}
 
 	}

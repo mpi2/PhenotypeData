@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,11 +11,14 @@ import java.util.TreeSet;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.hibernate.sql.ordering.antlr.CollationSpecification;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
+import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueBean;
+import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -168,13 +172,14 @@ public class HistopathService {
 					//System.out.println("adding row=" + row);
 					rows.add(row);
 				}
-
+				
 			}
 		}
-
 		return rows;
 
 	}
+
+	
 
 	public Map<String, List<ObservationDTO>> getSampleToObservationMap(List<ObservationDTO> observations) {
 		Map<String, List<ObservationDTO>> map = new HashMap<>();
@@ -257,6 +262,66 @@ public class HistopathService {
 	public Map<String, List<ObservationDTO>> getObservations() {
 		return this.extSampleIdToObservations;
 
+	}
+
+	public List<HistopathPageTableRow> collapseHistopathTableRows(List<HistopathPageTableRow> histopathRows) {
+		List<HistopathPageTableRow> collapsedRows=new ArrayList<HistopathPageTableRow>();
+		Map<String, HistopathSumPageTableRow> anatomyToRowMap=new HashMap<>();
+		for(HistopathPageTableRow row: histopathRows){
+			String anatomy=row.getAnatomyName();
+			if(!anatomyToRowMap.containsKey(anatomy)){
+				anatomyToRowMap.put(anatomy, new HistopathSumPageTableRow());
+			}
+			HistopathSumPageTableRow anatomyRow=anatomyToRowMap.get(anatomy);
+			anatomyRow.setAnatomyName(anatomy);
+			//anatomyRow.getSignificance().addAll(row.getSignificance());
+			//anatomyRow.getSeverity().addAll(row.getSeverity());
+			boolean significant=false;
+			boolean images=false;
+			for(ParameterValueBean sign:row.getSignificance()){
+				String text=sign.getTextValue();
+				//System.out.println("text="+text+"|");
+				if(text.equals("Significant")){
+					System.out.println("significant!!!!!!!!!!!!");
+					anatomyRow.setSignificantCount(anatomyRow.getSignificantCount()+1);
+					significant=true;
+					//if significant then set the text and parameters of the row that is significant to the row we are collapsing so we display the most appropriate info
+					//anatomyRow.setDescriptionTextParameters(anatomyRow.getDescriptionTextParameters().addAll(row.get));
+					//anatomyRow.setFreeTextParameters(row.get);
+					
+				}else{//assume non significant if not significant
+					anatomyRow.setNonSignificantCount(anatomyRow.getNonSignificantCount()+1);
+				}
+				if(anatomyRow.getImageList().size()>0){
+					images=true;
+				}
+			}
+			if(significant){
+				//if significant lets copy the main attributes so that we have a summary for that significant hit.
+				anatomyRow.setSampleId(row.getSampleId());
+				anatomyRow.setMpathProcessOntologyBeans(row.getMpathProcessOntologyBeans());
+				anatomyRow.setMpathDiagnosticOntologyBeans(row.getMpathDiagnosticOntologyBeans());
+				anatomyRow.setDescriptionTextParameters(row.getDescriptionTextParameters());
+				anatomyRow.setFreeTextParameters(row.getFreeTextParameters());
+				anatomyRow.setPatoOntologyBeans(row.getPatoOntologyBeans());
+				if(!row.getImageList().isEmpty()){
+					anatomyRow.setHasImages(true);
+				}
+				
+				
+			}
+			
+			
+			
+			//anatomyRow.setSignificanceCount(anatomyRow.getSignificanceCount()+ row.getSignificance().size());
+			//anatomyRow.getSeverity().addAll(row.getSeverity());
+		}
+		for(String anatomy: anatomyToRowMap.keySet()){
+			if(anatomyToRowMap.get(anatomy).getSignificantCount()>0){
+			collapsedRows.add(anatomyToRowMap.get(anatomy));
+			}
+		}
+		return collapsedRows;
 	}
 
 }
