@@ -215,7 +215,7 @@ public class PhenotypesController {
         model.addAttribute("numberFound", response.getResults().getNumFound());
         model.addAttribute("images", response.getResults());
 
-        processPhenotypes(phenotype_id, "", model, request);
+        processPhenotypes(phenotype_id, null, null, null, model, request);
 
         
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
@@ -254,7 +254,7 @@ public class PhenotypesController {
      * @throws URISyntaxException
      * @throws SolrServerException 
      */
-    private void processPhenotypes(String phenotype_id, String filter, Model model, HttpServletRequest request) 
+    private void processPhenotypes(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName, Model model, HttpServletRequest request) 
     throws IOException, URISyntaxException, SolrServerException {
     	
         
@@ -262,8 +262,9 @@ public class PhenotypesController {
         Set<String> errorCodes = new HashSet();
         
         try {
-            PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
-            PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id, filter);
+        	
+            PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
+            PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
 
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
             phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
@@ -374,36 +375,43 @@ public class PhenotypesController {
         return mv;
     }
 
-    @RequestMapping("/geneVariantsWithPhenotypeTable/{acc}")
+    @RequestMapping("/geneVariantsWithPhenotypeTable/{acc}") // Keep params in synch with export()
     public String geneVariantsWithPhenotypeTable(
             @PathVariable String acc,
+			@RequestParam(required = false, value = "procedure_name")  List<String> procedureName,
+			@RequestParam(required = false, value = "marker_symbol")  List<String> markerSymbol,
+			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,			
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
-    	//just pass on any query string after the ? to the solr requesting object for now        
-    	String queryString = request.getQueryString();
-        processPhenotypes(acc, queryString, model, request);
-
+        processPhenotypes(acc, procedureName, markerSymbol, mpTermName, model, request);
         return "geneVariantsWithPhenotypeTable";
     }
 
-    @RequestMapping("/phenotypes/export/{acc}")
+    
+    /**
+     * @author ilinca
+     * @since 2016/05/05
+     * @throws IOException
+     * @throws URISyntaxException
+     * @throws SolrServerException
+     */
+    @RequestMapping("/phenotypes/export/{acc}") // Keep params in synch with geneVariantsWithPhenotypeTable()
     public void export(
             @PathVariable String acc,
 			@RequestParam(required = true, value = "fileType") String fileType,
 			@RequestParam(required = true, value = "fileName") String fileName,
+			@RequestParam(required = false, value = "procedure_name")  List<String> procedureName,
+			@RequestParam(required = false, value = "marker_symbol")  List<String> markerSymbol,
+			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,			
             Model model,
             HttpServletRequest request,
 			HttpServletResponse response,
             RedirectAttributes attributes) 
     throws IOException, URISyntaxException, SolrServerException {
             
-    	String queryString = request.getQueryString();
-        processPhenotypes(acc, queryString, model, request);
-        
-
-        PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(acc, queryString);
+        PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
         List<PhenotypePageTableRow> phenotypes = new ArrayList<PhenotypePageTableRow>();
 
