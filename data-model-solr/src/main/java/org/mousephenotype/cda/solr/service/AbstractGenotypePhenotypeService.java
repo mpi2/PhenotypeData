@@ -705,7 +705,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
     }
 
-    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, String queryString)
+    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
         throws IOException, URISyntaxException, SolrServerException {
 
         String url = solr.getBaseURL() + "/select/?";
@@ -733,13 +733,19 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         		GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.EFFECT_SIZE, GenotypePhenotypeDTO.PROCEDURE_STABLE_ID,
         		GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PIPELINE_NAME);
        
+        if (procedureName != null){
+           	q.addFilterQuery(GenotypePhenotypeDTO.PROCEDURE_NAME + ":(\"" + StringUtils.join(procedureName, "\" OR \"") + "\")");
+        }
+        if (markerSymbol != null){
+          	q.addFilterQuery(GenotypePhenotypeDTO.MARKER_SYMBOL + ":(\"" + StringUtils.join(markerSymbol, "\" OR \"") + "\")");
+        }            
+        if (mpTermName != null){
+          	q.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermName, "\" OR \"") + "\")");
+        }
+        
         url += q;
         
-        if (queryString.startsWith("&")) {
-        	url += queryString;
-        } else {
-        	url += "&" + queryString;
-        }
+        System.out.println("SOLR URL ___  " + url);
 
         return createPhenotypeResultFromSolrResponse(url, isPreQc);
 

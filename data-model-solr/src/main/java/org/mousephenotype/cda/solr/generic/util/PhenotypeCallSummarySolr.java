@@ -55,13 +55,15 @@ public class PhenotypeCallSummarySolr {
 	}
 
 	
-	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException, SolrServerException {
-		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
+	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName) 
+	throws IOException, URISyntaxException, SolrServerException {
+		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
 	}
 
 
-	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(String phenotype_id, String queryString) throws IOException, URISyntaxException, SolrServerException {
-		return preqcService.getMPCallByMPAccessionAndFilter(phenotype_id, queryString);
+	public PhenotypeFacetResult getPreQcPhenotypeCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName) 
+	throws IOException, URISyntaxException, SolrServerException {
+		return preqcService.getMPCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
 	}
 
 
