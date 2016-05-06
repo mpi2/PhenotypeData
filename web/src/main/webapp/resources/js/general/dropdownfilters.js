@@ -85,78 +85,7 @@ $(document).ready(function(){
 	
 	//$('[rel=tooltip]').tooltip();
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-	
-	$('div#exportIconsDiv').append($.fn.loadFileExporterUI({
-		label: 'Export table as:',
-		textPos : "textright",
-		formatSelector: {
-			TSV: 'tsv_phenoAssoc',
-			XLS: 'xls_phenoAssoc'	    			 					
-		},
-		class: 'fileIcon exportButton'
-	}));
-
-	var mgiGeneId = window.location.href.split("/")[window.location.href.split("/").length-1];
-	mgiGeneId = mgiGeneId.split("#")[0];
-	var windowLocation = window.location;
-
-	initFileExporter();                                                     // Initialize the exportUrl. the fileType parameter will be empty.
-        
-	function initFileExporter(){
 		
-            var conf = {
-               mgiGeneId: mgiGeneId,
-               externalDbId: 3,
-               fileName: 'phenotype_associations_for_'+mgiGeneId.replace(/:/g,'_'),
-               solrCoreName: 'genotype-phenotype',
-               dumpMode: 'all',
-               baseUrl: windowLocation,
-               page:"gene",
-               params: "" // need this to eventually add selected filters
-            };
-            
-            var exportObj = buildExportUrl(conf);                                   // Build the export url, page url, and form strings.
-            $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
-            // WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
-            // THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
-            // RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
-            
-            $('button.fileIcon').click(function() {
-                var exportObj = buildExportUrl(conf, $(this).text());                       // Build the export url, page url, and form strings.
-                $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);        // Update the url in case the filters changed.
-                _doDataExport(exportObj.url, exportObj.form);
-            }); 
-	}
-        
-    function buildExportUrl(conf, fileType) {
-        if (fileType === undefined){
-            fileType = '';
-        }
-        var url = baseUrl + '/export';	 
-        var sInputs = '';
-        for ( var k in conf ){
-            if (k === "params"){
-                    sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
-                }
-            else {
-                   sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
-            }
-        }
-        sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-        var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");
-        var exportUrl = url + '?' + $(form).serialize();
-           
-        var retVal = new Object();
-        retVal.url = url;
-        retVal.form = form;
-        retVal.exportUrl = exportUrl;
-        return retVal;
-    }
-
-	function _doDataExport(url, form){
-		$(form).appendTo('body').submit();
-	}
-
 	function refreshPhenoTable(newUrl){
 		$.ajax({
 			url: newUrl,

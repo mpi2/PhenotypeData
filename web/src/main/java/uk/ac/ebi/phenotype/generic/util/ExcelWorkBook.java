@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.generic.util;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.poi.common.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -49,7 +50,7 @@ public class ExcelWorkBook {
 
 	XSSFWorkbook wb = null;
 	// use XSSF as HSSF excel(2003) cannot handle > 65536 rows 
-	public ExcelWorkBook(String[] titles, Object[][] tableData, String sheetTitle) throws Exception {
+	public ExcelWorkBook(String[] titles, Object[][] tableData, String sheetTitle) throws URISyntaxException {
 		
 		this.wb = new XSSFWorkbook(); 
 		CreationHelper createHelper = wb.getCreationHelper();

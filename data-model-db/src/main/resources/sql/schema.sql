@@ -173,7 +173,7 @@ CREATE TABLE analytics_statistics_load (
 CREATE TABLE meta_info (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	property_key             VARCHAR(255) NOT NULL DEFAULT '',
-	property_value           VARCHAR(255) NOT NULL DEFAULT '',
+	property_value           VARCHAR(2000) NOT NULL DEFAULT '',
 	description              TEXT,
 
 	PRIMARY KEY (id),
@@ -189,7 +189,7 @@ CREATE TABLE meta_info (
 CREATE TABLE meta_history (
 	id                       INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	property_key             VARCHAR(255) NOT NULL DEFAULT '',
-	property_value           VARCHAR(255) NOT NULL DEFAULT '',
+	property_value           VARCHAR(2000) NOT NULL DEFAULT '',
 	data_release_version     VARCHAR(10) NOT NULL,
 
 	PRIMARY KEY (id),
@@ -2179,7 +2179,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(23, 'CMHD', 'Centre
 INSERT INTO organisation(id, name, fullname, country) VALUES(24, 'CIPHE', "Centre d'ImmunoPhenomique", 'France');
 INSERT INTO organisation(id, name, fullname, country) VALUES(25, 'BCM', 'Baylor College of Medicine', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(26, 'RBRC', 'RIKEN BioResource Center', 'Japan');
-INSERT INTO organisation(id, name, fullname, country) VALUES(27, 'TCP', 'Toronto Centre for Phenogenomics', 'Canada');
+INSERT INTO organisation(id, name, fullname, country) VALUES(27, 'TCP', 'The Centre for Phenogenomics', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(28, 'NING', 'Nanjing University Model Animal Research Center', 'China');
 INSERT INTO organisation(id, name, fullname, country) VALUES(29, 'CDTA', 'Institut de Transgenose (CDTA Orleans)', 'France');
 INSERT INTO organisation(id, name, fullname, country) VALUES(30, 'IMG', 'Institute of Molecular Genetics of the ASCR, v. v. i.', 'Czech Republic');

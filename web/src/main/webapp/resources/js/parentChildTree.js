@@ -82,7 +82,7 @@
 			          .attr("r", 4.5)
 			          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; })
 			          .on('click', function(d, i) {
-			        	  window.location.href = "../phenotypes/"  + d.id;
+			        	  window.location.href = "../" + page + "/"  + d.id;
 			          });
 
 			     node.append("text")
@@ -94,7 +94,7 @@
 			          .attr("transform", function(d) {return d.children ? "rotate(270)" : ""})
 		  		      .style("width", "150px")
 		  		      .on('click', function(d, i) {
-						  window.location.href = "../phenotypes/"  + d.id;
+						  window.location.href = "../" + page + "/"  + d.id;
 		  		      })
 			          .on("mouseover", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "visible");})
 			          .on("mouseout", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "hidden");});
@@ -148,7 +148,7 @@
 			          .attr("r", 4.5)
 			          .style("fill", function(d) { return d.children ? "lightsteelblue" : "#fff"; })
 			          .on('click', function(d, i) {
-						  window.location.href = "../phenotypes/"  + d.id;
+						  window.location.href = "../" + page + "/"  + d.id;
 					   });
 			
 			     node.append("text")
@@ -160,7 +160,7 @@
 			          .text(function(d) { return d.children ? "current page" : shortenLabel(d.name); })
 		   		      .style("width", "150px")
 		   		      .on('click', function(d, i) {
-						  window.location.href = "../phenotypes/"  + d.id;
+						  window.location.href = "../" + page + "/"  + d.id;
 					   })
 				      .on("mouseover", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "visible");})
 				      .on("mouseout", function(){return d3.select(this.parentNode).select('text.tooltip').style("visibility", "hidden");}); // width of the node labels; 
