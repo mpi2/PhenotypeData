@@ -82,6 +82,10 @@
                                 <a href="${phenotype.getEvidenceLink().getUrl() }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
                             	</a>
                         	</c:if>
+                        	 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
+                                <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
+                                </a>
+                            </c:if>
                         </c:if>
 
                     	<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
