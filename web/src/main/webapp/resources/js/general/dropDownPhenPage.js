@@ -193,7 +193,7 @@ $(document).ready(function(){
 		}
 
 		if (!$("#xlsDownload").attr('baseDownloadLink')){
-			$("#xlsDownload").attr('baseDownloadLink', $("#tsvDownload").attr('href'));
+			$("#xlsDownload").attr('baseDownloadLink', $("#xlsDownload").attr('href'));
 		}
 		
 		var link = $("#tsvDownload").attr('baseDownloadLink');
