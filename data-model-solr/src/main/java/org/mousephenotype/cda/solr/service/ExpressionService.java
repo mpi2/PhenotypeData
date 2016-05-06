@@ -367,9 +367,6 @@ public class ExpressionService extends BasicService {
 		// annotation
 		Map<String, SolrDocumentList> expFacetToDocs = new HashMap<>();
 		expFacetToDocs.put(noTopTermId, new SolrDocumentList());
-		
-
-		
 
 
 		for (SolrDocument doc : imagesResponse) {
@@ -425,9 +422,11 @@ public class ExpressionService extends BasicService {
 		ImageServiceUtil.sortHigherLevelTermCountsAlphabetically(filteredTopLevelMaTerms);
 		ImageServiceUtil.sortDocsByExpressionAlphabetically(expFacetToDocs);
 
+		System.out.println("Check Top level MA terms: " + filteredTopLevelMaTerms);
 		if (embryoOnly) {
 			model.addAttribute("impcEmbryoExpressionImageFacets", filteredTopLevelMaTerms);
 			model.addAttribute("impcEmbryoExpressionFacetToDocs", expFacetToDocs);
+
 		} else {
 			model.addAttribute("impcExpressionImageFacets", filteredTopLevelMaTerms);
 			model.addAttribute("impcExpressionFacetToDocs", expFacetToDocs);
@@ -514,30 +513,72 @@ public class ExpressionService extends BasicService {
 		JSONArray noExpList = new JSONArray();
 		JSONArray allPaths = new JSONArray();
 
+		Map<String, Set<String>>maId2Uberon = new HashMap<>();
+		Map<String, Set<String>>uberon2MaId = new HashMap<>();
+		Map<String, Set<String>>topLevelName2maId = new HashMap<>();
+		Map<String, List<String>>maId2topLevelName = new HashMap<>();
+
 		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
 			if (dataBean.getMaId() != null && dataBean.getUberonIds() != null) {
 
 				List<String> uberonIds = dataBean.getUberonIds();
-				addAnatomogramSpecialIds(expList, allPaths, uberonIds);
+
+				addAnatomogramSpecialIds(dataBean, expList, allPaths, uberonIds, maId2Uberon, uberon2MaId, maId2topLevelName, topLevelName2maId);
 				if (dataBean.getEfoIds() != null) {
 					List<String> efoIds = dataBean.getEfoIds();
-					addAnatomogramSpecialIds(expList, allPaths, efoIds);
+					addAnatomogramSpecialIds(dataBean, expList, allPaths, efoIds, maId2Uberon, uberon2MaId, maId2topLevelName, topLevelName2maId);
 				}
-
 			}
 		}
 
 		anatomogram.put("expression", expList);
 		anatomogram.put("noExpression", noExpList);
 		anatomogram.put("allPaths", allPaths);
+
+		anatomogram.put("topLevelName2maIdMap", topLevelName2maId);
+		anatomogram.put("maId2UberonMap", maId2Uberon);
+
+		anatomogram.put("uberon2MaIdMap", uberon2MaId);
+		anatomogram.put("maId2topLevelNameMap", maId2topLevelName);
+
+
+		//System.out.println("ANATOMOGRAM: " + anatomogram);
 		return anatomogram;
 	}
 
-	private void addAnatomogramSpecialIds(JSONArray expList, JSONArray allPaths, List<String> uberonOrEfoIds) {
+	private void addAnatomogramSpecialIds(AnatomogramDataBean dataBean, JSONArray expList, JSONArray allPaths, List<String> uberonOrEfoIds,
+				  Map<String, Set<String>> maId2Uberon,
+				  Map<String, Set<String>> uberon2MaId,
+				  Map<String, List<String>> maId2topLevelName,
+				  Map<String, Set<String>> topLevelName2maId ) {
+
+		String maTermId = dataBean.getMaId();
+		List<String> maTopLevelNames = dataBean.getTopLevelMaNames();
+
+		maId2topLevelName.put(maTermId, maTopLevelNames);
+
+		for (String toplevelname : maTopLevelNames ){
+			if (!topLevelName2maId.containsKey(toplevelname)) {
+				topLevelName2maId.put(toplevelname, new HashSet<>());
+			}
+			topLevelName2maId.get(toplevelname).add(maTermId);
+		}
+
+
 		for (String id : uberonOrEfoIds) {
+
+			if (!uberon2MaId.containsKey(id)) {
+				uberon2MaId.put(id, new HashSet<>());
+			}
+			uberon2MaId.get(id).add(maTermId);
+
+			if (!maId2Uberon.containsKey(maTermId)) {
+				maId2Uberon.put(maTermId, new HashSet<>());
+			}
+			maId2Uberon.get(maTermId).add(id);
+
 			JSONObject exp = new JSONObject();
-			// exp.put("factorName", ""); // not
-			// required
+			exp.put("factorName", maTermId); // used as a note to say what this id is, blank if unknown
 			exp.put("value", "1");
 			exp.put("svgPathId", id);
 			if (!expList.contains(exp)) {
@@ -546,7 +587,6 @@ public class ExpressionService extends BasicService {
 			if (!allPaths.contains(id)) {
 				allPaths.add(id);
 			}
-
 		}
 	}
 

@@ -2179,7 +2179,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(23, 'CMHD', 'Centre
 INSERT INTO organisation(id, name, fullname, country) VALUES(24, 'CIPHE', "Centre d'ImmunoPhenomique", 'France');
 INSERT INTO organisation(id, name, fullname, country) VALUES(25, 'BCM', 'Baylor College of Medicine', 'USA');
 INSERT INTO organisation(id, name, fullname, country) VALUES(26, 'RBRC', 'RIKEN BioResource Center', 'Japan');
-INSERT INTO organisation(id, name, fullname, country) VALUES(27, 'TCP', 'Toronto Centre for Phenogenomics', 'Canada');
+INSERT INTO organisation(id, name, fullname, country) VALUES(27, 'TCP', 'The Centre for Phenogenomics', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(28, 'NING', 'Nanjing University Model Animal Research Center', 'China');
 INSERT INTO organisation(id, name, fullname, country) VALUES(29, 'CDTA', 'Institut de Transgenose (CDTA Orleans)', 'France');
 INSERT INTO organisation(id, name, fullname, country) VALUES(30, 'IMG', 'Institute of Molecular Genetics of the ASCR, v. v. i.', 'Czech Republic');
