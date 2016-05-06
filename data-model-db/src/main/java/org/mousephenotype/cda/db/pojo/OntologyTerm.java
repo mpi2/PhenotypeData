@@ -24,6 +24,7 @@ package org.mousephenotype.cda.db.pojo;
  * @see Synonym
  */
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
@@ -55,6 +56,10 @@ public class OntologyTerm {
 	@Column(name = "is_obsolete")
 	private Boolean isObsolete;
 
+    @Column(name = "replacement_acc")
+	private String replacementAcc;
+
+	private List<String> considerIds;
 
 	@ElementCollection
 	@CollectionTable(
@@ -70,6 +75,14 @@ public class OntologyTerm {
 
 	public OntologyTerm() {
 		super();
+	}
+
+	public List<String> getConsiderIds() {
+		return considerIds;
+	}
+
+	public void setConsiderIds(List<String> considerIds) {
+		this.considerIds = considerIds;
 	}
 
 	/**
@@ -98,6 +111,15 @@ public class OntologyTerm {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+
+	public String getReplacementAcc() {
+		return replacementAcc;
+	}
+
+	public void setReplacementAcc(String replacementAcc) {
+		this.replacementAcc = replacementAcc;
 	}
 
 	/**
@@ -145,58 +167,46 @@ public class OntologyTerm {
 		this.isObsolete = isObsolete;
 	}
 
-
-	/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
 	@Override
 	public String toString() {
-		return "OntologyTerm [id=" + id + ", name=" + name + "]";
+		return "OntologyTerm{" +
+				"id={" + id.getAccession() + "," + id.getDatabaseId() + "}" +
+				", description='" + description + '\'' +
+				", name='" + name + '\'' +
+				", isObsolete=" + isObsolete +
+				", replacementAcc='" + replacementAcc + '\'' +
+				", considerIds=" + ((considerIds == null) || considerIds.isEmpty() ? "null" : StringUtils.join(considerIds, ",")) +
+				", synonyms=" + ((synonyms == null) || synonyms.isEmpty() ? "null" : StringUtils.join(synonyms, ",")) +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		OntologyTerm that = (OntologyTerm) o;
+
+		if (!id.equals(that.id)) return false;
+		if (description != null ? !description.equals(that.description) : that.description != null) return false;
+		if (!name.equals(that.name)) return false;
+		if (!isObsolete.equals(that.isObsolete)) return false;
+		if (replacementAcc != null ? !replacementAcc.equals(that.replacementAcc) : that.replacementAcc != null)
+			return false;
+		if (considerIds != null ? !considerIds.equals(that.considerIds) : that.considerIds != null) return false;
+		return synonyms != null ? synonyms.equals(that.synonyms) : that.synonyms == null;
+
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((synonyms == null) ? 0 : synonyms.hashCode());
+		int result = id.hashCode();
+		result = 31 * result + (description != null ? description.hashCode() : 0);
+		result = 31 * result + name.hashCode();
+		result = 31 * result + isObsolete.hashCode();
+		result = 31 * result + (replacementAcc != null ? replacementAcc.hashCode() : 0);
+		result = 31 * result + (considerIds != null ? considerIds.hashCode() : 0);
+		result = 31 * result + (synonyms != null ? synonyms.hashCode() : 0);
 		return result;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OntologyTerm other = (OntologyTerm) obj;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (synonyms == null) {
-			if (other.synonyms != null)
-				return false;
-		} else if (!synonyms.equals(other.synonyms))
-			return false;
-		return true;
-	}
-
 }
