@@ -649,8 +649,8 @@
 		</div> <!-- end of region content -->
 
 		<script type="text/javascript" src="${baseUrl}/js/phenodigm/diseasetableutils.js?v=${version}"></script>
-		<script type="text/javascript" src="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.js?v=${version}"></script>
-		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-impc/dist/phenogrid-bundle.css?v=${version}">
+		<script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
+		<link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
 
 		<%--<script type="text/javascript" src="${baseUrl}/js/vendor.bundle-not-used.js?v=${version}"></script>--%>
 		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle-not-used.js?v=${version}"></script>--%>
