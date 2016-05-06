@@ -56,13 +56,10 @@
 							
 							<thead>
 							<tr>
-							<th>Sample Id</th>
-							
-							
-							
-							<th class="headerSort">
+							<th>
 							Anatomy
 							</th>
+							<th>Sample Id</th>
 							<th>
 							OntologyTerm
 							</th>
@@ -80,15 +77,12 @@
 								<c:forEach var="histRow" items="${histopathRows}">
 								
 								<tr>
+									<td id="${histRow.sampleId}_${histRow.anatomyName}">
+										${histRow.anatomyName}
+									</td>
 									<td>
 										${histRow.sampleId}
 									</td>
-									<td>
-										${histRow.anatomyName}
-									</td>
-									
-								
-									
 									<c:choose>
 									<c:when test="${fn:length(histRow.subOntologyBeans) == 0}">
 										<td>
@@ -107,10 +101,6 @@
 									</c:forEach>
 									</c:otherwise>
 									</c:choose> 
-									
-								
-									
-									
 									
 									
 									<td>
@@ -136,58 +126,7 @@
 										<!-- </div> -->
 										</c:forEach> 
 									</td>
-									
-									<%-- <c:forEach var="parameter" items="${histRow.categoryList }">
-										<td>
-											category= ${parameter }
-										</td>
-									</c:forEach> 
-
-									<c:forEach var="parameter" items="${histRow.subOntologyBeans }">
-										<td>
-											ont= ${parameter }
-										</td>
-									</c:forEach>  --%>
-									
-									
-									<%--  <td>
-									 <div style="height: 100px; overflow:auto">
-										<c:forEach var="entry" items="${histRow.subOntologyBeans}">
-									
-											<c:if test="${entry.key eq parameterName }">
-												<c:forEach var="subOntology" items="${ entry.value}">													
-														${subOntology.id } : ${subOntology.name } description= ${subOntology.description}	
-												</c:forEach>
-										
-											</c:if>
-										</c:forEach>
-									
-									
-										<c:forEach var="category" items="${histRow.categoryList}">
-										<c:if test="${category.parameter.name eq parameterName }">
-										
-											 Parameter:${category.parameter.name} experim  ${category.textValue }
-										
-										</c:if>
-										</c:forEach>
-									
-									
-									
-									
-									
-										<c:forEach var="textParam" items="${histRow.textParameters}">
-										<c:if test="${textParam.parameter.name eq parameterName }">
-										
-											 Parameter:${textParam.parameter.name} Text: ${textParam.textValue }
-										
-										</c:if>
-										
-										</c:forEach>
-									</div>
-									</td> --%>
-									<%-- </c:forEach> --%>
-									
-									
+	
 								</tr>
 								
 								</c:forEach>
@@ -203,53 +142,7 @@
                     
                     
                     
-                    <div class="section">
-								<%--<a href='' id='detailsPanel' class="fa fa-question-circle pull-right"></a>--%>
-								<div class="inner">
-
-									
-
-                     
-                     <table>
-                     
-                      <c:forEach var="obs"
-										items="${extSampleIdToObservations}">
-                      
-                      	<tr>
-                      		<td>
-                      			${obs.externalSampleId }
-                      		</td>
-                      		<td>
-                      			${obs.observationType }
-                      		</td>
-                      		<td>
-                      			${obs.parameterName }
-                      		</td>
-                      		<td>
-                      			${obs.category }
-                      		</td>
-                      		<td>
-                      			${obs.textValue }
-                      		</td>
-                      		<td>
-                      			${obs.subTermId }
-                      		</td>
-                      		<td>
-                      			name: ${obs.subTermName }
-                      		</td>
-                      		<td>
-                      			${obs.subTermDescription }
-                      		</td>
-                      	</tr>
-                      	
-                      </c:forEach>
-                      
-                      </table>
-                      
-                      
-                     
-							</div>
-						</div>
+                
 						
 						
 						
@@ -261,7 +154,7 @@
       <script> 
         $(document).ready(function() {
     $('#histopath').DataTable(
-    		{"paging":   false, "searching": false});
+    		{"paging":   false, "searching": false, "order": [[ 2, "desc" ]]});
 } );
         </script> 
     </jsp:body>
