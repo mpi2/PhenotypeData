@@ -76,6 +76,13 @@ public class OntologyParserTest {
     public void testDeprecated() 
     throws Exception{
 
+        // FIXME FIXME FIXME TEST ALL COMPONENT PIECES!!!
+
+
+
+
+
+
         List<Exception> exception = new ArrayList();
         ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP");
        // ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
