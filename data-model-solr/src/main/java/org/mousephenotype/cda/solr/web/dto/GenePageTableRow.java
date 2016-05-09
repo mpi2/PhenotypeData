@@ -114,6 +114,7 @@ public class GenePageTableRow extends DataTableRow {
                 + getProcedure().getName() + "\t"
                 + getParameter().getName() + "\t"
                 + getPhenotypingCenter() + "\t"
+                + getDataSourceName() + "\t"
                 + getPrValueAsString() + "\t"
                 + getEvidenceLink().getUrl();
     }
