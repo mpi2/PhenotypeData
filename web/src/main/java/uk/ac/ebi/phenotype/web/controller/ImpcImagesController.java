@@ -298,13 +298,13 @@ public class ImpcImagesController {
 															// the :
 				}
 				newQueryString += "&" + key + "=" + value;
-				System.out.println("CHK: " + key + " vs " + value );
+				//System.out.println("CHK: " + key + " vs " + value );
 				// If the same key has multiple values (check boxes)
 				String[] valueArray = request.getParameterValues(key);
 
-				for (int i = 0; i > valueArray.length; i++) {
-					System.out.println("VALUE ARRAY" + valueArray[i]);
-				}
+//				for (int i = 0; i > valueArray.length; i++) {
+//					System.out.println("VALUE ARRAY" + valueArray[i]);
+//				}
 			}
 			if (key.equals("q")) {
 
@@ -344,7 +344,7 @@ public class ImpcImagesController {
 		newQueryString+="&sort=parameter_name asc";
 		newQueryString = URLDecoder.decode(newQueryString, "UTF-8");  // before it gets passed to SOLR
 		
-		System.out.println("new query str: " + newQueryString);
+		//System.out.println("new query str: " + newQueryString);
 		QueryResponse imageResponse = imageService
 				.getResponseForSolrQuery(newQueryString);
 		if (imageResponse.getResults() != null) {
