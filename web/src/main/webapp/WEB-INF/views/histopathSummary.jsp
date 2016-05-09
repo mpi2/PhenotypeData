@@ -49,7 +49,7 @@
 							</th>
 							
 							<th>
-							Phenotype
+							Diagnostic
 							</th>
 							<th>
 							Description
@@ -81,6 +81,7 @@
 											</c:when>
 										<c:otherwise>
 											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+											,
 												<c:forEach var="value" items="${parameter.value }">
 													${value.name }											
 												</c:forEach>
