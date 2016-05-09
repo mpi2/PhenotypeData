@@ -8,11 +8,12 @@
       <xsl:apply-templates select="response//lst[@name = 'facet_pivot']/arr/lst" />
   </xsl:template>
   
-  <xsl:variable name="v1" select="concat(concat('&quot;',response//lst[@name = 'facet_pivot']/arr/lst/str[@name='value']), '&quot;,')"/>
   
   <xsl:template match="lst[@name = 'facet_pivot']/arr"><xsl:apply-templates select="@name"/>,count<xsl:text>&#xD;</xsl:text></xsl:template> <!-- header -->
   
+  
   <xsl:template match="lst[@name = 'facet_pivot']/arr/lst">
+  	<xsl:variable name="v1" select="concat(concat('&quot;',str[@name='value']), '&quot;,')"/>
   	<xsl:if test="arr/lst/arr/lst">
   		<xsl:call-template name="inner">
   			<xsl:with-param name="line" select="$v1" />
