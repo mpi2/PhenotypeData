@@ -284,26 +284,27 @@
 
 			var viewerUlContainer = $("<ul></ul>");
 
-			for ( var i=0; i<embview_facets.length; i+=2 ){
-				var type = embview_facets[i];
-				if ( type == 'true' ){
-					var liContainer = $("<li></li>").attr({'class':'fcat embryo_data_available'});
-
-					var type_label = 'available';
-					var count = embview_facets[i+1];
-					var coreField = 'gene|embryo_data_available|';
-					var isGrayout = count == 0 ? 'grayout' : '';
-					liContainer.removeClass('grayout').addClass(isGrayout);
-
-					var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|embryo_data_available'});
-					var flabel = $('<span></span>').attr({'class':'flabel'}).text(type_label);
-					var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
-
-					liContainer.append(chkbox, flabel, fcount);
-
-					viewerUlContainer.append(liContainer);
-				}
-			}
+			// no need to show this as this is now split into modalities
+			//for ( var i=0; i<embview_facets.length; i+=2 ){
+			//	var type = embview_facets[i];
+			//	if ( type == 'true' ){
+			//		var liContainer = $("<li></li>").attr({'class':'fcat embryo_data_available'});
+            //
+			//		var type_label = 'available';
+			//		var count = embview_facets[i+1];
+			//		var coreField = 'gene|embryo_data_available|';
+			//		var isGrayout = count == 0 ? 'grayout' : '';
+			//		liContainer.removeClass('grayout').addClass(isGrayout);
+            //
+			//		var chkbox = $('<input></input>').attr({'type': 'checkbox', 'rel': coreField + type + '|' + count + '|embryo_data_available'});
+			//		var flabel = $('<span></span>').attr({'class':'flabel'}).text(type_label);
+			//		var fcount = $('<span></span>').attr({'class':'fcount'}).text(count);
+            //
+			//		liContainer.append(chkbox, flabel, fcount);
+            //
+			//		viewerUlContainer.append(liContainer);
+			//	}
+			//}
 
 			for ( var i=0; i<embview_modalities_facets.length; i+=2 ){
 				var modality = embview_modalities_facets[i];
