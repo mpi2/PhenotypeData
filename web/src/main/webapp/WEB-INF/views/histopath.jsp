@@ -71,7 +71,7 @@
 							</th>
 					
 							<th>
-							Phenotype
+							Diagnostic
 							</th>
 							<th>
 							Description
@@ -82,7 +82,7 @@
 							<th>
 							Images
 							</th>
-							<th>Sample Id</th>
+							<%-- <th>Sample Id</th> --%>
 						
 							
 							
@@ -100,6 +100,7 @@
 										
 											</c:when>
 										<c:otherwise>
+										,
 											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
 												<c:forEach var="value" items="${parameter.value }">
 													${value.name }											
@@ -208,9 +209,9 @@
 										<!-- </div> -->
 										</c:forEach> 
 									</td>
-									<td id="${histRow.sampleId}_${histRow.anatomyName}">
+									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
 										${histRow.sampleId}
-									</td>
+									</td> --%>
 									
 									
 									
