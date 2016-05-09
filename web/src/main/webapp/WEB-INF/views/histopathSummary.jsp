@@ -45,11 +45,11 @@
 							
 							
 							<th class="headerSort">
-							Anatomy
+							Histopathology
 							</th>
 							
 							<th>
-							Diagnostic
+							Phenotype
 							</th>
 							<th>
 							Description
@@ -58,8 +58,8 @@
 							Free Text
 							</th>
 							<th>
-							Significant
-							/Non Sig
+							Observed
+							/Non Obs
 							</th>
 							<th>
 							Data
@@ -73,7 +73,7 @@
 								
 								<tr>
 									<td>
-										<a title='Click for detailed view' href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'>${histRow.anatomyName}
+										${histRow.anatomyName}
 												
 										<c:choose>
 											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
@@ -111,7 +111,7 @@
 									
 										
 										
-										</a>
+										
 									</td>
 									
 						
@@ -157,7 +157,7 @@
 									</td>
 									
 									<td>
-									 <a  href='${baseUrl}/histopath/${gene.mgiAccessionId}' title='All Histopath Data for this Gene'><i class="fa fa-table" alt="All Histopath Data"></i>
+									 <a  href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}' title='All Histopath Data for this Gene'><i class="fa fa-table" alt="All Histopath Data"></i>
 									 </a>
 										<%-- <c:choose>
 										<c:when test="${histRow.hasImages}">
