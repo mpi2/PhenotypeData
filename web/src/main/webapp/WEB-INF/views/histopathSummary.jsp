@@ -26,12 +26,15 @@
                 <div class="content">
                     <div class="node node-gene">
                     
-                    
-                    
+                     <h2 class="title "
+									id="section-associations"> Abnormal Histopathology Summary for ${gene.markerSymbol}<%-- : ${gene.markerName} --%></h2>
+                     
                     
                     <div class="section">
+                    
+                   
 							<div class="inner">
-							 ${gene.markerSymbol}: ${gene.markerName}
+							
 							 
 							 <table id="histopath" class="table tableSorter">
 							
@@ -44,16 +47,7 @@
 							<th class="headerSort">
 							Anatomy
 							</th>
-							<th>
-							Significant
-							/Non Sig
-							</th>
-							<th>
-							PATO
-							</th>
-							<th>
-							Process
-							</th>
+							
 							<th>
 							Diagnostic
 							</th>
@@ -64,7 +58,11 @@
 							Free Text
 							</th>
 							<th>
-							Images
+							Significant
+							/Non Sig
+							</th>
+							<th>
+							Data
 							</th>
 						
 							
@@ -75,61 +73,48 @@
 								
 								<tr>
 									<td>
-										<a title='Click for detailed view' href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'>${histRow.anatomyName}</a>
+										<a title='Click for detailed view' href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'>${histRow.anatomyName}
+												
+										<c:choose>
+											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
+										
+											</c:when>
+										<c:otherwise>
+											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+												<c:forEach var="value" items="${parameter.value }">
+													${value.name }											
+												</c:forEach>
+											</c:forEach>
+										</c:otherwise>
+										</c:choose> 
+									
+									
+										<c:choose>
+											<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
+										
+											</c:when>
+											<c:otherwise>
+												<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
+													<!-- do for each here values-->
+													<c:forEach var="value" items="${parameter.value }">
+											 		<%-- <td title="${value.description }"> --%>
+														${value.name }
+													<%-- </td> --%>
+													</c:forEach>
+										
+												</c:forEach> 
+											</c:otherwise>
+										</c:choose>
+										
+										
+										
+									
+										
+										
+										</a>
 									</td>
-									<td>
-											${histRow.significantCount } / ${histRow.nonSignificantCount }
 									
-									</td>
-							
-									<%-- <td>
-									<c:forEach var="parameter" items="${histRow.severity }">
-										
-											${parameter.textValue }
-										
-									</c:forEach> 
-									</td> --%>
-									
-									<c:choose>
-									<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
-										<td>
-										</td>
-									</c:when>
-									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
-										<td title="${value.description }">
-											
-										
-										<c:forEach var="value" items="${parameter.value }">
-											${value.name }											
-											
-										</c:forEach>
-										</td>
-									</c:forEach>
-									</c:otherwise>
-									</c:choose> 
-									
-									
-									<c:choose>
-									<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
-										<td>
-										</td>
-									</c:when>
-									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
-										
-											
-										<td>
-									<!-- do for each here values-->
-										<c:forEach var="value" items="${parameter.value }">
-											 <%-- <td title="${value.description }"> --%>
-													${value.name }
-											<%-- </td> --%>
-										</c:forEach>
-										</td>
-									</c:forEach> 
-									</c:otherwise>
-									</c:choose>
+						
 									
 									<c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
@@ -166,9 +151,15 @@
 										
 										</c:forEach> 
 									</td>
+									<td>
+											${histRow.significantCount } / ${histRow.nonSignificantCount }
+									
+									</td>
 									
 									<td>
-										<c:choose>
+									 <a  href='${baseUrl}/histopath/${gene.mgiAccessionId}' title='All Histopath Data for this Gene'><i class="fa fa-table" alt="All Histopath Data"></i>
+									 </a>
+										<%-- <c:choose>
 										<c:when test="${histRow.hasImages}">
 										Yes
 										</c:when>
@@ -176,7 +167,7 @@
 										No
 										</c:otherwise>
 							
-										</c:choose>
+										</c:choose> --%>
 									</td>
 									
 									
