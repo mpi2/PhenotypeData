@@ -45,7 +45,6 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -690,23 +689,36 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         return this.createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
     }
 
-    public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, String queryString)
-        throws IOException, URISyntaxException, SolrServerException {
+    public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
+    throws IOException, URISyntaxException, SolrServerException {
 
-        String solrUrl = solr.getBaseURL() + "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accId + "\""
-            + "&rows=10000000&version=2.2&start=0&indent=on&wt=json&facet.mincount=1&facet=true&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "";
-        if (queryString.startsWith("&")) {
-            solrUrl += queryString;
-        } else {// add an ampersand parameter splitter if not one as we need
-            // one to add to the already present solr query string
-            solrUrl += "&" + queryString;
+        String solrUrl = solr.getBaseURL() + "/select?";
+        SolrQuery q = new SolrQuery();
+        
+        q.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accId + "\"");
+        q.setRows(10000000);
+        q.setFacet(true);
+        q.setFacetMinCount(1);
+        q.setFacetLimit(-1);
+        q.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+        q.addFacetField(GenotypePhenotypeDTO.RESOURCE_FULLNAME);
+        q.set("wt", "json");
+        q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
+                 
+        if (topLevelMpTermName != null){
+           	q.addFilterQuery(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"" + StringUtils.join(topLevelMpTermName, "\" OR \"") + "\")");
         }
-        solrUrl += "&sort=p_value%20asc";
+        if (resourceFullname != null){
+          	q.addFilterQuery(GenotypePhenotypeDTO.RESOURCE_FULLNAME + ":(\"" + StringUtils.join(resourceFullname, "\" OR \"") + "\")");
+        } 
+        
+        solrUrl += q;
+        
         return createPhenotypeResultFromSolrResponse(solrUrl, isPreQc);
     }
 
-    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, String queryString)
-        throws IOException, URISyntaxException, SolrServerException {
+    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
+    throws IOException, URISyntaxException, SolrServerException {
 
         String url = solr.getBaseURL() + "/select/?";
         SolrQuery q = new SolrQuery();
@@ -733,13 +745,19 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         		GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.EFFECT_SIZE, GenotypePhenotypeDTO.PROCEDURE_STABLE_ID,
         		GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PIPELINE_NAME);
        
+        if (procedureName != null){
+           	q.addFilterQuery(GenotypePhenotypeDTO.PROCEDURE_NAME + ":(\"" + StringUtils.join(procedureName, "\" OR \"") + "\")");
+        }
+        if (markerSymbol != null){
+          	q.addFilterQuery(GenotypePhenotypeDTO.MARKER_SYMBOL + ":(\"" + StringUtils.join(markerSymbol, "\" OR \"") + "\")");
+        }            
+        if (mpTermName != null){
+          	q.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermName, "\" OR \"") + "\")");
+        }
+        
         url += q;
         
-        if (queryString.startsWith("&")) {
-        	url += queryString;
-        } else {
-        	url += "&" + queryString;
-        }
+        System.out.println("SOLR URL ___  " + url);
 
         return createPhenotypeResultFromSolrResponse(url, isPreQc);
 

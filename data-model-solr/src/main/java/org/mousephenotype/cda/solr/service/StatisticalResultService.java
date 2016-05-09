@@ -175,9 +175,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
     	QueryResponse response = solr.query(q);
 
     	for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
-    		String value = facet.getName();
-    		long count = facet.getCount();
-    		res.put(value,count);
+    		res.put(facet.getName(), facet.getCount());
     	}
     	return res;
 
