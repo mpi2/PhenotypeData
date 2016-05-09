@@ -741,8 +741,8 @@
 							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
 					);
 
-					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
-					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
+//					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
+//					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
 
 //					$("ul#expList li a").on("mouseover", function() {
 //						var topname = $(this).text();
@@ -770,30 +770,30 @@
 //					});
 
 					// anatomogram tissue talks to MA list
-					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
-						//console.log(e)
-
-						var maIds = uberon2MaIdMap[e];
-						var topLevelNames = [];
-						for( var i=0; i<maIds.length; i++) {
-							var tops = maId2topLevelNameMap[maIds[i]];
-							for (var j=0; j<tops.length; j++){
-								topLevelNames.push(tops[j]);
-							}
-						}
-
-						topLevelNames = $.fn.getUnique(topLevelNames);
-
-						$('ul#expList li a').each(function () {
-							if ($.fn.inArray($(this).text(), topLevelNames)) {
-								$(this).addClass("mahighlight");
-							}
-						});
-
-					});
-					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
-						$('ul#expList li a').removeClass("mahighlight");
-					});
+//					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
+//						//console.log(e)
+//
+//						var maIds = uberon2MaIdMap[e];
+//						var topLevelNames = [];
+//						for( var i=0; i<maIds.length; i++) {
+//							var tops = maId2topLevelNameMap[maIds[i]];
+//							for (var j=0; j<tops.length; j++){
+//								topLevelNames.push(tops[j]);
+//							}
+//						}
+//
+//						topLevelNames = $.fn.getUnique(topLevelNames);
+//
+//						$('ul#expList li a').each(function () {
+//							if ($.fn.inArray($(this).text(), topLevelNames)) {
+//								$(this).addClass("mahighlight");
+//							}
+//						});
+//
+//					});
+//					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
+//						$('ul#expList li a').removeClass("mahighlight");
+//					});
 				}
 
 				$("img.ui-button").each(function () {

@@ -409,8 +409,8 @@ public class SolrIndex {
         String queryUrl = qryBaseUrl + maxNum;
         String queryUrlCount = qryBaseUrl + "0";
 
-
-		List<String> imgPath = new ArrayList<String>();
+		List<String> imgs = new ArrayList<String>();
+		//List<String> imgPath = new ArrayList<String>();
 
         JSONObject imgCountJson = getResults(queryUrlCount);
         JSONObject thumbnailJson = getResults(queryUrl);
@@ -423,7 +423,8 @@ public class SolrIndex {
         for (int i = 0; i < dataLen; i ++) {
             JSONObject doc = docs.getJSONObject(i);
 
-            String link = null;
+            //String link = null;
+			String img = null;
 
             if (doc.containsKey("omero_id")) {
                 String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
@@ -432,20 +433,23 @@ public class SolrIndex {
                 String thumbnailPath = fullSizePath.replace("render_image", "render_thumbnail");
                 String smallThumbNailPath = thumbnailPath + "/200/";
                 String largeThumbNailPath = thumbnailPath + "/800/";
-                String img = "<img src='" + smallThumbNailPath + "'/>";
+                img = "<img src='" + smallThumbNailPath + "'/>";
                 if(downloadUrl.contains("/annotation/")){
                 	img="<img style='width: 200px' src='" + pdfThumbnailUrl + "'/>";
-                	link = "<a href='" + downloadUrl +"'>" + img + "</a>";
+                	//link = "<a href='" + downloadUrl +"'>" + img + "</a>";
                 }else{
-                link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
+                	//link = "<a rel='nofollow' class='fancybox' fullRes='" + fullSizePath + "' original='"+downloadUrl+"' href='" + largeThumbNailPath +"'>" + img + "</a>";
                 }
             } else {
-                link = IMG_NOT_FOUND;
+                //link = IMG_NOT_FOUND;
+				img = IMG_NOT_FOUND;
             }
-            imgPath.add(link);
+            //imgPath.add(link);
+			imgs.add(img);
         }
 
-        pathAndCount.add(StringUtils.join(imgPath, ""));
+        //pathAndCount.add(StringUtils.join(imgPath, ""));
+		pathAndCount.add(StringUtils.join(imgs, ""));
         pathAndCount.add(imgCount);
 
         return pathAndCount;
