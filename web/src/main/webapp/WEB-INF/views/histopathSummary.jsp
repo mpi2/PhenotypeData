@@ -27,7 +27,7 @@
                     <div class="node node-gene">
                     
                      <h2 class="title "
-									id="section-associations"> Abnormal Histopathology Summary for ${gene.markerSymbol}: ${gene.markerName}</h2>
+									id="section-associations"> Abnormal Histopathology Summary for ${gene.markerSymbol}<%-- : ${gene.markerName} --%></h2>
                      
                     
                     <div class="section">
