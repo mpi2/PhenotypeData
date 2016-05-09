@@ -45,7 +45,9 @@
                 <div class="content">
                     <div class="node node-gene">
                     
-                    
+                     <h2 class="title "
+									id="section-associations">Histopathology for ${gene.markerSymbol}<%-- : ${gene.markerName} --%></h2>
+                     
                     
                     
                     <div class="section">
@@ -59,15 +61,15 @@
 							
 
 							<th class="headerSort">
-							Anatomy
-							</th>
-							<th>Sample Id</th>
-							<th>
-							Significance
+							Histopathology
 							</th>
 							<th>
 							Severity
 							</th>
+							<th>
+							Observation
+							</th>
+					
 							<th>
 							Diagnostic
 							</th>
@@ -80,6 +82,7 @@
 							<th>
 							Images
 							</th>
+							<%-- <th>Sample Id</th> --%>
 						
 							
 							
@@ -97,6 +100,7 @@
 										
 											</c:when>
 										<c:otherwise>
+										,
 											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
 												<c:forEach var="value" items="${parameter.value }">
 													${value.name }											
@@ -127,16 +131,6 @@
 										
 									</td>
 									
-									<td id="${histRow.sampleId}_${histRow.anatomyName}">
-										${histRow.sampleId}
-									</td>
-									<td>
-									<c:forEach var="parameter" items="${histRow.significance }">
-										
-											${parameter.textValue }
-										
-									</c:forEach>
-									</td>
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
 										
@@ -144,6 +138,26 @@
 										
 									</c:forEach> 
 									</td>
+									
+									
+									<td>
+									
+									<c:if test="${fn:length(histRow.significance) ==0 }">
+									Normal
+									</c:if>
+									<c:forEach var="parameter" items="${histRow.significance }">
+										<c:choose>
+											<c:when test="${parameter.textValue eq 'Significant'}">
+											Abnormal
+											</c:when>
+											<c:otherwise>
+											Normal
+											</c:otherwise>
+											</c:choose>
+										
+									</c:forEach>
+									</td>
+									
 									
 									
 									
@@ -195,6 +209,9 @@
 										<!-- </div> -->
 										</c:forEach> 
 									</td>
+									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
+										${histRow.sampleId}
+									</td> --%>
 									
 									
 									
