@@ -174,6 +174,7 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setMpTerm(rs.getString("name"));
                 mp.setMpDefinition(rs.getString("definition"));
 
+                System.out.println(termId + " -- "+ mp.getMpTerm());
                 // alternative MP ID
                 String alt_ids = rs.getString("alt_ids");
                 if ( !rs.wasNull() ) {
@@ -201,6 +202,8 @@ public class MPIndexer extends AbstractIndexer {
 
                 // Ontology browser stuff
                 TreeHelper helper = ontologyBrowser.getTreeHelper( "mp", termId);
+
+                // for MP the root node id is 0 (MA is 1)
                 List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, termId);
                 mp.setSearchTermJson(searchTree.toString());
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);

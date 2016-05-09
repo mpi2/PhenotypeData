@@ -654,8 +654,8 @@
 
 		<%--<script type="text/javascript" src="${baseUrl}/js/vendor.bundle-not-used.js?v=${version}"></script>--%>
 		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle-not-used.js?v=${version}"></script>--%>
-		<script language="JavaScript" type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>
-		<script language="JavaScript" type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>
+		<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>
+		<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>
 
 
 
@@ -728,7 +728,7 @@
 						}
 					];
 
-					console.log(profileRows);
+					//console.log(profileRows);
 
 					var eventEmitter = expressionAtlasAnatomogram.eventEmitter;
 
