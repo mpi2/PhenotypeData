@@ -1261,8 +1261,9 @@ public class DataTableController {
 					imgSubSetLink = "<a rel='nofollow' href='" + thisImgUrl + "'>" + imgCount + " " + unit + "</a>";
 
 					rowData.add("<span class='annotType'>" + displayAnnotName + "</span>: " + valLink + " (" + imgSubSetLink + ")");
-					rowData.add(pathAndImgCount.get(0).toString());
 
+					rowData.add("<a rel='nofollow' href='" + thisImgUrl + "'>" + pathAndImgCount.get(0) + "</a>");
+					//rowData.add(pathAndImgCount.get(0).toString());  // link to this image only
 					j.getJSONArray("aaData").add(rowData);
 				}
 
