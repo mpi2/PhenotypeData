@@ -438,13 +438,6 @@ public class FileExportController {
 				String s = (sex.equalsIgnoreCase("null")) ? null : sex;
 				dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s,
 						phenotypingCenterIds, zygList, strains, pipelineStableId);
-			} else if (solrCoreName.equalsIgnoreCase("genotype-phenotype")) {
-				if (mgiGeneId != null) {
-					dataRows = composeDataRowGeneOrPhenPage(mgiGeneId[0], request.getParameter("page"), solrFilters,
-							request);
-				} else if (mpId != null) {
-					dataRows = composeDataRowGeneOrPhenPage(mpId, request.getParameter("page"), solrFilters, request);
-				}
 			} else if (dogoterm) {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -1182,42 +1175,6 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeDataRowGeneOrPhenPage(String id, String pageName, String filters, HttpServletRequest request) 
-	throws SolrServerException, UnsupportedEncodingException {
-		
-		List<String> res = new ArrayList<>();
-		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList();
-		PhenotypeFacetResult phenoResult;
-		String targetGraphUrl = (String) request.getAttribute("mappedHostname") + request.getAttribute("baseUrl");
-
-		if (pageName.equalsIgnoreCase("gene")) {
-
-			try {
-				phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(id, filters);
-				phenotypeList = phenoResult.getPhenotypeCallSummaries();
-			} catch (HibernateException | JSONException e) {
-				log.error("ERROR GETTING PHENOTYPE LIST");
-				e.printStackTrace();
-				phenotypeList = new ArrayList();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			ArrayList<GenePageTableRow> phenotypes = new ArrayList();
-			for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-				GenePageTableRow pr = new GenePageTableRow(pcs, targetGraphUrl, config, imageService.hasImages(pcs.getGene().getAccessionId(), 
-						pcs.getProcedure().getName(), pcs.getColonyId()));
-				phenotypes.add(pr);
-			}
-			Collections.sort(phenotypes); // sort in same order as gene page.
-
-			res.add("Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph");
-			for (DataTableRow pr : phenotypes) {
-				res.add(pr.toTabbedString("gene"));
-			}
-
-		}
-		return res;
-	}
 
 	private List<String> composeGene2PfamClansDataRows(JSONObject json, HttpServletRequest request) {
 

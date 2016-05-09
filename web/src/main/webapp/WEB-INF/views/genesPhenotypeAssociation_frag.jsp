@@ -260,5 +260,13 @@
       </div>
     </div>
   </div>
+  
+  <div id="export">
+	<p class="textright"> 
+		Download data as: 
+		<a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a> 
+		<a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a>
+	</p>
+ </div>
 
 </c:if>

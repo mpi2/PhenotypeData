@@ -443,26 +443,6 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     }
 
 
-    public String toTabbedString(String targetPage) {
-
-        String res = "";
-
-        if (targetPage.equalsIgnoreCase("gene")) {
-            res = getPhenotypeTerm().getName() + "\t"
-                    + getAllele().getSymbol() + "\t"
-                    + getZygosity() + "\t"
-                    + getSexes().get(0) + "\t"
-                    + getLifeStageName() + "\t"
-                    + getProcedure().getName() + " | " + getParameter().getName() + "\t"
-                    + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
-                    + getPrValueAsString() + "\t"
-                    + getEvidenceLink().getUrl();
-        } 
-        
-        return res;
-        
-    }
-
     public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, String metadataGroup, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
         String url = baseUrl;
         url += "/charts?accession=" + geneAcc;

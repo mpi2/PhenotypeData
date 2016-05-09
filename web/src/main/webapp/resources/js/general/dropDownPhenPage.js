@@ -6,6 +6,9 @@ $(document).ready(function(){
 		'tip': 'top right',
 		'corner' : 'right top'
 	});
+	
+	var selectedFilters = "";
+	var dropdownsList = new Array();
 
     initPhenoDataTable();
 	removeFilterSelects();
@@ -66,92 +69,16 @@ $(document).ready(function(){
 		 });
 	});
 	
-	//function to fire off a refresh of a table and it's dropdown filters
-	var selectedFilters = "";
-	var dropdownsList = new Array();
-	// use jquery DataTable for table searching/sorting/pagination
-	
-	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
-	$('div#exportIconsDiv').html($.fn.loadFileExporterUI({
-		label: 'Export table as:',
-		textPos : "textright",
-		formatSelector: {
-			TSV: 'tsv_phenoAssoc',
-			XLS: 'xls_phenoAssoc'	    			 					
-		},
-		class: 'fileIcon exportButton'
-	}));
-
-	var mpId = window.location.href.split("/")[window.location.href.split("/").length-1];
-	mpId = mpId.split("#")[0];
-	var windowLocation = window.location; 
-        
-	initFileExporter();
-
-	function initFileExporter() {
-		var conf = {
-			mpId: "\"" + mpId+ "\"",
-			externalDbId: 3,
-			fileName: 'gene_variants_with_phen_'+mpId.replace(/:/g,'_'),
-			solrCoreName: 'genotype-phenotype',
-			dumpMode: 'all',
-			baseUrl: windowLocation,
-			page:"phenotype",
-			params: ""
-           };
-            
-            var exportObj = buildExportUrl(conf);                                   // Build the export url, page url, and form strings.
-            $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);    // Initialize the url.
-            // WARNING NOTE: FILTER CHANGES DO NOT UPDATE data-exporturl; THUS, THE data-exporturl VALUE WILL BE OUT-OF-SYNC SHOULD
-            // THE USER CHANGE FILTERS. THIS WILL LIKELY RESULT IN A HARD-TO-FIND BUG.
-            // RECOMMENDATION: ANY FILTER CHANGES SHOULD TRIGGER AN UPDATE OF THE data-exporturl.
-            
-            $('button.fileIcon').click(function() {
-                var exportObj = buildExportUrl(conf, $(this).text());                       // Build the export url, page url, and form strings.
-                $('div#exportIconsDiv').attr("data-exporturl", exportObj.exportUrl);        // Update the url in case the filters changed.
-                _doDataExport(exportObj.url, exportObj.form);
-            }); 
-	}
-        
-    function buildExportUrl(conf, fileType) {
-       if (fileType === undefined){
-            fileType = '';
-       }
-       var url = baseUrl + '/export';	 
-       var sInputs = '';
-       for ( var k in conf ){
-            if (k === "params"){
-                 sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + selectedFilters + "'>";
-            }
-            else {
-                 sInputs += "<input type='text' name='" + k + "' value='" + conf[k] + "'>";
-            }
-       }
-       sInputs += "<input type='text' name='fileType' value='" + fileType.toLowerCase() + "'>";
-       var form = $("<form action='"+ url + "' method=get>" + sInputs + "</form>");	
-       var exportUrl = url + '?' + $(form).serialize();
-            
-       var retVal = new Object();
-       retVal.url = url;
-       retVal.form = form;
-       retVal.exportUrl = exportUrl;
-       return retVal;
-   }
-
-    function _doDataExport(url, form){	
-    	console.log("STARTED");
-		$(form).appendTo('body').submit().remove();
-		console.log("FINISHED");
-	}
+	        
 	function refreshPhenoTable(newUrl){
-		//alert(newUrl);
+
 		$.ajax({
 			url: newUrl,
 			cache: false
 		}).done(function( html ) {
-                    console.log('refreshPhenotable called');
 			$("#phenotypes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
 			initPhenoDataTable();
+			addParamsToURL();
 		});
 	}
 	//http://stackoverflow.com/questions/5990386/datatables-search-box-outside-datatable
@@ -173,8 +100,6 @@ $(document).ready(function(){
 		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
 			minWidth: 150, onItemClick: function(checkbox, selector){
 				var justChecked = checkbox.prop("checked");
-//				console.log("justChecked="+justChecked);
-//				console.log("checked="+ checkbox.val());
 				var values = [];
 				for(var  i=0; i < selector.options.length; i++ ) {
 					if (selector.options[i].selected && (selector.options[i].value != "")) {
@@ -189,7 +114,6 @@ $(document).ready(function(){
 					values.splice(index, 1);
 				}  
 				
-				console.log("values="+values );
 				// add current one and create drop down object 
 				dd1 = new Object();
 				dd1.name = multipleSel.attr('id'); 
@@ -200,15 +124,14 @@ $(document).ready(function(){
 				var ddI  = 1; 
 				for (var ii=0; ii<allDd.length; ii++) { 
 					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-//						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
 						dd = new Object();
 						dd.name = allDd[ii].attr('id'); 
 						dd.array = allDd[ii].val() || []; 
 						dropdownsList[ddI++] = dd;
 					}
 				}
-//				console.log("call with " + dropdownsList.length);
 				refreshGenesPhenoFrag(dropdownsList);
+				addParamsToURL();
 			}, textFormatFunction: function(options) {
 				var selectedOptions = options.filter(":selected");
 		        var countOfSelected = selectedOptions.size();
@@ -245,23 +168,43 @@ $(document).ready(function(){
 	var previousParams=$("#filterParams").html();
 	
 	function refreshGenesPhenoFrag(dropdownsList) {
-		var rootUrl=window.location.href;
-		var newUrl=rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
+		var rootUrl = window.location.href;
+		var newUrl = rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
 		var output ='?';
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
-				selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
-			} 
-			if(dropdownsList[it].array.length > 1)	{
-				selectedFilters += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")';
-			}			    			 
+			if (dropdownsList[it].array.length > 0){
+				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
+			}
 		}
-		newUrl+=output + selectedFilters;
+		newUrl += output + selectedFilters;
 		refreshPhenoTable(newUrl);
-        console.log('refresh genes PhenoFrag called woth new url='+newUrl);
 		return false;
 	}
+	
+	
+	/** 
+	 * Add selected filters to URLs for download
+	 */
+	function addParamsToURL(){
+		
+		if (!$("#tsvDownload").attr('baseDownloadLink')){
+			$("#tsvDownload").attr('baseDownloadLink', $("#tsvDownload").attr('href'));
+		}
+
+		if (!$("#xlsDownload").attr('baseDownloadLink')){
+			$("#xlsDownload").attr('baseDownloadLink', $("#xlsDownload").attr('href'));
+		}
+		
+		var link = $("#tsvDownload").attr('baseDownloadLink');
+		link += selectedFilters;
+		$("#tsvDownload").attr('href', link);
+
+		link = $("#xlsDownload").attr('baseDownloadLink');
+		link += selectedFilters;
+		$("#xlsDownload").attr('href', link);
+	}
+	
 });
 
 
@@ -280,7 +223,6 @@ function ajaxToBe(phenotype, parameter){
 	});
 	
 }
-
 
 
 /* new sorting functions */
