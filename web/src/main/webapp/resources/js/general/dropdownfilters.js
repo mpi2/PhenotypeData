@@ -145,6 +145,7 @@ $(document).ready(function(){
 				}
 //				console.log("call with " + dropdownsList.length);
 				refreshGenesPhenoFrag(dropdownsList);
+				addParamsToURL();
 			}, textFormatFunction: function(options) {
 				var selectedOptions = options.filter(":selected");
 		        var countOfSelected = selectedOptions.size();
@@ -189,14 +190,11 @@ $(document).ready(function(){
 		var newUrl=rootUrl.replace("genes", "genesPhenoFrag").split("#")[0];
 		selectedFilters = "";
 		for (var it = 0; it < dropdownsList.length; it++){
-			if(dropdownsList[it].array.length == 1){//if only one entry for this parameter then don't use brackets and or
-				selectedFilters += '&fq=' + dropdownsList[it].name + ':"' + dropdownsList[it].array+'"';
-			} 
-			if(dropdownsList[it].array.length > 1)	{
-				selectedFilters += '&fq='+dropdownsList[it].name+':(\"' + dropdownsList[it].array.join("\"OR\"") + '\")';
-			}			    			 
+			if (dropdownsList[it].array.length > 0){
+				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
+			}
 		}
-		newUrl+= "?" + selectedFilters;
+		newUrl += "?" + selectedFilters;		
 		refreshPhenoTable(newUrl);
 		return false;
 	}
@@ -208,7 +206,6 @@ $(document).ready(function(){
 		
 		var filter=$(this).attr("id").replace("phenIconsBox_", "");
 		var values = filter.split(" or ");
-//		console.log ("filterTrigger" + values);
 		$(allDropdowns[0]).val(values);
 		$(allDropdowns[0]).dropdownchecklist("refresh");
 		$(allDropdowns[1]).val([]);
@@ -227,8 +224,32 @@ $(document).ready(function(){
 		dropdownsList[1] = dd2;
 
 		refreshGenesPhenoFrag(dropdownsList);
+		addParamsToURL();
 	});
 
+	/** 
+	 * Add selected filters to URLs for download
+	 */
+	function addParamsToURL(){
+		
+		if (!$("#tsvDownload").attr('baseDownloadLink')){
+			$("#tsvDownload").attr('baseDownloadLink', $("#tsvDownload").attr('href'));
+		}
+
+		if (!$("#xlsDownload").attr('baseDownloadLink')){
+			$("#xlsDownload").attr('baseDownloadLink', $("#xlsDownload").attr('href'));
+		}
+		
+		var link = $("#tsvDownload").attr('baseDownloadLink');
+		link += selectedFilters;
+		$("#tsvDownload").attr('href', link);
+
+		link = $("#xlsDownload").attr('baseDownloadLink');
+		link += selectedFilters;
+		$("#xlsDownload").attr('href', link);
+		
+	}
+	
 });
 
  /* new sorting functions */

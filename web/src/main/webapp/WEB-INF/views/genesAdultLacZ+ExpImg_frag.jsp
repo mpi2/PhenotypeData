@@ -27,7 +27,8 @@
             <t:impcimgdisplay2
                     category="${entry.name}(${entry.count})" href="${href}"
                     img="${impcExpressionFacetToDocs[entry.name][0]}"
-                    impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimgdisplay2>
+                    impcMediaBaseUrl="${impcMediaBaseUrl}">
+            </t:impcimgdisplay2>
         </ul>
 
     </c:forEach> <!-- solrFacets end -->

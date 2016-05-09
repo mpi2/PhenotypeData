@@ -45,7 +45,9 @@
                 <div class="content">
                     <div class="node node-gene">
                     
-                    
+                     <h2 class="title "
+									id="section-associations">Histopathology for ${gene.markerSymbol}<%-- : ${gene.markerName} --%></h2>
+                     
                     
                     
                     <div class="section">
@@ -59,21 +61,15 @@
 							
 
 							<th class="headerSort">
-							Anatomy
-							</th>
-							<th>Sample Id</th>
-							<th>
-							Significance
+							Histopathology
 							</th>
 							<th>
 							Severity
 							</th>
 							<th>
-							PATO
+							Observation
 							</th>
-							<th>
-							Process
-							</th>
+					
 							<th>
 							Diagnostic
 							</th>
@@ -86,6 +82,7 @@
 							<th>
 							Images
 							</th>
+							<%-- <th>Sample Id</th> --%>
 						
 							
 							
@@ -97,18 +94,43 @@
 									
 									<td>
 										${histRow.anatomyName}
+										
+										<c:choose>
+											<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
+										
+											</c:when>
+										<c:otherwise>
+										,
+											<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+												<c:forEach var="value" items="${parameter.value }">
+													${value.name }											
+												</c:forEach>
+											</c:forEach>
+										</c:otherwise>
+										</c:choose> 
+									
+									
+										<c:choose>
+											<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
+										
+											</c:when>
+											<c:otherwise>
+												<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
+													<!-- do for each here values-->
+													<c:forEach var="value" items="${parameter.value }">
+											 		<%-- <td title="${value.description }"> --%>
+														${value.name }
+													<%-- </td> --%>
+													</c:forEach>
+										
+												</c:forEach> 
+											</c:otherwise>
+										</c:choose>
+										
+										
+										
 									</td>
 									
-									<td id="${histRow.sampleId}_${histRow.anatomyName}">
-										${histRow.sampleId}
-									</td>
-									<td>
-									<c:forEach var="parameter" items="${histRow.significance }">
-										
-											${parameter.textValue }
-										
-									</c:forEach>
-									</td>
 									<td>
 									<c:forEach var="parameter" items="${histRow.severity }">
 										
@@ -117,46 +139,27 @@
 									</c:forEach> 
 									</td>
 									
-									<c:choose>
-									<c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
-										<td>
-										</td>
-									</c:when>
-									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
-										<td title="${value.description }">
-											
+									
+									<td>
+									
+									<c:if test="${fn:length(histRow.significance) ==0 }">
+									Normal
+									</c:if>
+									<c:forEach var="parameter" items="${histRow.significance }">
+										<c:choose>
+											<c:when test="${parameter.textValue eq 'Significant'}">
+											Abnormal
+											</c:when>
+											<c:otherwise>
+											Normal
+											</c:otherwise>
+											</c:choose>
 										
-										<c:forEach var="value" items="${parameter.value }">
-											${value.name }											
-											
-										</c:forEach>
-										</td>
 									</c:forEach>
-									</c:otherwise>
-									</c:choose> 
+									</td>
 									
 									
-									<c:choose>
-									<c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
-										<td>
-										</td>
-									</c:when>
-									<c:otherwise>
-									<c:forEach var="parameter" items="${histRow.mpathProcessOntologyBeans }">
-										
-											
-										<td>
-									<!-- do for each here values-->
-										<c:forEach var="value" items="${parameter.value }">
-											 <%-- <td title="${value.description }"> --%>
-													${value.name }
-											<%-- </td> --%>
-										</c:forEach>
-										</td>
-									</c:forEach> 
-									</c:otherwise>
-									</c:choose>
+									
 									
 									<c:choose>
 									<c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
@@ -206,6 +209,9 @@
 										<!-- </div> -->
 										</c:forEach> 
 									</td>
+									<%-- <td id="${histRow.sampleId}_${histRow.anatomyName}">
+										${histRow.sampleId}
+									</td> --%>
 									
 									
 									
