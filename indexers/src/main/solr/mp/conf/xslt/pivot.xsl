@@ -13,7 +13,7 @@
   
   
   <xsl:template match="lst[@name = 'facet_pivot']/arr/lst">
-  	<xsl:variable name="v1" select="concat(concat('&quot;',response//lst[@name = 'facet_pivot']/arr/lst/str[@name='value']), '&quot;,')"/>
+  	<xsl:variable name="v1" select="concat(concat('&quot;',str[@name='value']), '&quot;,')"/>
   	<xsl:if test="arr/lst/arr/lst">
   		<xsl:call-template name="inner">
   			<xsl:with-param name="line" select="$v1" />
