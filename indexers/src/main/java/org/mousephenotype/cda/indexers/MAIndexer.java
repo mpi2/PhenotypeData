@@ -154,17 +154,13 @@ public class MAIndexer extends AbstractIndexer {
                     }
                 }
 
+                System.out.println("MA ID: "+ ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
                 TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
                 helper.setExcludedNodeIds(excludedNodeIds);
 
-                //System.out.println("MA ID: "+ ma.getMaId() + " --- MA node id: " + ma.getMaNodeId());
-
-                // for MA the root node id is 2 which is organ system (MP is 0)
-                // this may not be guaranteed as the next obo file may change
-                // but the tree will appear wrong - keep an eye on it
-                // However, this has always been the case since years
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "2", null, ma.getMaId());
+                // for MA the root node id is 1 (MA is 0)
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, ma.getMaId());
                 ma.setSearchTermJson(searchTree.toString());
 
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);
