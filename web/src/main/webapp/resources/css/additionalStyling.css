@@ -11,7 +11,7 @@
 	font-size: 12px;
 	cursor: pointer;
 }
-.preQcLink{
+.preQcLink i{
 	text-align:center;color: red; /*#EF7B0B;*/
 }
 .preQcLink a{
