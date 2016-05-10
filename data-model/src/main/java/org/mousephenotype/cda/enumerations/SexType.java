@@ -24,12 +24,18 @@ package org.mousephenotype.cda.enumerations;
  */
 
 public enum SexType {
-	female,
-	hermaphrodite,
-	male,
-	not_applicable,
-	no_data,
-	both;
+	female("female"),
+	hermaphrodite("hermaphrodite"),
+	male("male"),
+	not_applicable("not applicable"),
+	no_data("no data"),
+	both("both");
+
+	private final String name;
+
+	SexType(String name) {
+		this.name = name;
+	}
 
 
 	public String getName(){
