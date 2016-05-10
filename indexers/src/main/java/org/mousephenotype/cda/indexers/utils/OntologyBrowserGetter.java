@@ -19,47 +19,44 @@ import net.sf.json.JSONObject;
 
 public class OntologyBrowserGetter {
 
-    DataSource ontodbDataSource;
+	DataSource ontodbDataSource;
 
-    public OntologyBrowserGetter(DataSource ontodbDataSource){
-    	this.ontodbDataSource = ontodbDataSource;
-    }
+	public OntologyBrowserGetter(DataSource ontodbDataSource){
+		this.ontodbDataSource = ontodbDataSource;
+	}
 
-    
-    public List<JSONObject> createTreeJson(TreeHelper helper, String rootNodeId, String childNodeId, String termId)
-    throws SQLException {
 
-        List<JSONObject> tn = new ArrayList<>();
-        String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
-		System.out.println("SQL1: "+ sql);
+	public List<JSONObject> createTreeJson(TreeHelper helper, String rootNodeId, String childNodeId, String termId)
+			throws SQLException {
+
+		List<JSONObject> tn = new ArrayList<>();
+		String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
+		//System.out.println("SQL1: "+ sql);
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
-            ResultSet resultSet = p.executeQuery();
-            
-            while (resultSet.next()) {
+			ResultSet resultSet = p.executeQuery();
 
-                String nodeId = resultSet.getString("node_id");  // child_node_id
-				System.out.println("(1) *** open: " + helper.getPreOpenNodes() + " node id : " + nodeId);
+			while (resultSet.next()) {
+
+				String nodeId = resultSet.getString("node_id");  // child_node_id
 				if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching it children recursively
-                    // the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
-
-					System.out.println("(2) *** open: " + helper.getPreOpenNodes() + " node id : " + nodeId);
-                	String topNodeId = rootNodeId;
+					// the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
+					String topNodeId = rootNodeId;
 					for ( Map<String, String> topEnd : helper.getPreOpenNodes().get(nodeId) ) {
-                        for (String thisTopNodeId : topEnd.keySet()) {
-                            topNodeId = thisTopNodeId;
-                            break;  // do only once: should have a better way
-                        }
-                    }
+						for (String thisTopNodeId : topEnd.keySet()) {
+							topNodeId = thisTopNodeId;
+							break;  // do only once: should have a better way
+						}
+					}
 
-                    String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
+					String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
 					//System.out.println("SQL2: "+ thisSql);
-                    try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
+					try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
-                        ResultSet resultSet2 = p2.executeQuery();
-                        while (resultSet2.next()) {
+						ResultSet resultSet2 = p2.executeQuery();
+						while (resultSet2.next()) {
 
-                            JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
+							JSONObject thisNode = fetchNodeInfo(helper, resultSet2);
 
 							if ( thisNode != null ) {
 								if (thisNode.getBoolean("children")) {
@@ -75,54 +72,51 @@ public class OntologyBrowserGetter {
 								}
 								tn.add(thisNode);
 							}
-                        }
-                        
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                else {
-                    // just fetch the term of this node
-                    JSONObject thisNode = fetchNodeInfo(helper, resultSet);
+						}
+
+					} catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				else {
+					// just fetch the term of this node
+					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 					if ( thisNode != null ) {
 						tn.add(thisNode);
 					}
-                }
-            }
-        }  catch (Exception e){
-            e.printStackTrace();
-        }
+				}
+			}
+		}  catch (Exception e){
+			e.printStackTrace();
+		}
 
-        return tn;
-    }
-    
-    public String getScrollTo(List<JSONObject> tree){
-    	
-    	for (JSONObject topLevel: tree){
-    		if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
-    			return topLevel.getString("id");
-    		}
-    	}
-    	return "";
-    }
+		return tn;
+	}
 
-    private JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId) 
-    throws SQLException {
+	public String getScrollTo(List<JSONObject> tree){
 
-    	String parentNodeId = nodeObj.getString("id");
-        String childNodeId = null;
-        String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
-        List<JSONObject> children = new ArrayList<>();
+		for (JSONObject topLevel: tree){
+			if (topLevel.containsKey("state") && topLevel.getJSONObject("state").containsKey("opened") && topLevel.getJSONObject("state").getString("opened").equalsIgnoreCase("true")){
+				return topLevel.getString("id");
+			}
+		}
+		return "";
+	}
 
-        try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
+	private JSONObject fetchChildNodes(TreeHelper helper, JSONObject nodeObj, String termId)
+			throws SQLException {
 
-			ResultSet resultSet = p.executeQuery();			
+		String parentNodeId = nodeObj.getString("id");
+		String childNodeId = null;
+		String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
+		List<JSONObject> children = new ArrayList<>();
+
+		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
+
+			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
-				String nodeid = Integer.toString(resultSet.getInt("node_id"));
-				//if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-				if (helper.getPathNodes().contains(nodeid) ){
-					System.out.println("****** " + helper.getPathNodes() + " --- " + nodeid);
 
+				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 
 					if (thisNode != null ) {
@@ -143,31 +137,31 @@ public class OntologyBrowserGetter {
 					}
 				}
 			}
-	
+
 			nodeObj.put("children", children);
-        }
+		}
 
-        return nodeObj;
-        
-    }
+		return nodeObj;
 
-	private JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn, String termId) 
-	throws SQLException {
-		
+	}
+
+	private JSONObject recursiveFetchChildNodes(TreeHelper helper, JSONObject nodeObj, Connection conn, String termId)
+			throws SQLException {
+
 		String parentNodeId = nodeObj.getString("id");
 		String childNodeId = null;
 		String sql = fetchNextLevelChildrenSql(helper, parentNodeId, childNodeId);
 		List<JSONObject> children = new ArrayList<>();
-		
+
 		try ( PreparedStatement p = conn.prepareStatement(sql)) {
 
 			ResultSet resultSet = p.executeQuery();
-			
+
 			while (resultSet.next()) {
-				
-				
+
+
 				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
-					
+
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 
 					if ( thisNode != null ) {
@@ -196,45 +190,45 @@ public class OntologyBrowserGetter {
 
 		return nodeObj;
 	}
-	
+
 	private JSONObject getState(boolean opened){
-    	JSONObject state = new JSONObject();
-    	state.accumulate("opened", opened);
-    	return state;
-    }
-    
-    private String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId)
-    throws SQLException {
+		JSONObject state = new JSONObject();
+		state.accumulate("opened", opened);
+		return state;
+	}
 
-    	// return a query to get all children of [parentNodeId]
-    	
-        String ontologyName = helper.getOntologyName();
-        String subqry = "SELECT child_node_id "
-                    + "FROM " + ontologyName + "_parent_children "
-                    + "WHERE parent_node_id = " + parentNodeId;
+	private String fetchNextLevelChildrenSql(TreeHelper helper, String parentNodeId, String childNodeId)
+			throws SQLException {
 
-        if ( childNodeId != null ){
-            subqry += " AND child_node_id = " + childNodeId;
-        }
+		// return a query to get all children of [parentNodeId]
 
-        String sql = "SELECT n.node_id, n.term_id, t.name, nt.node_type "
-                + "FROM " + ontologyName + "_node2term n, " + ontologyName + "_term_infos t, " + ontologyName + "_node_id_type nt "
-                + "WHERE n.term_id=t.term_id "
-                + "AND n.node_id=nt.node_id "
-                + "AND n.node_id IN (" + subqry + ") "
-                + "ORDER BY t.name";
-        
-        return sql;
-    }
+		String ontologyName = helper.getOntologyName();
+		String subqry = "SELECT child_node_id "
+				+ "FROM " + ontologyName + "_parent_children "
+				+ "WHERE parent_node_id = " + parentNodeId;
 
-	public TreeHelper getTreeHelper( String ontologyName, String termId) 
-	throws SQLException {
+		if ( childNodeId != null ){
+			subqry += " AND child_node_id = " + childNodeId;
+		}
+
+		String sql = "SELECT n.node_id, n.term_id, t.name, nt.node_type "
+				+ "FROM " + ontologyName + "_node2term n, " + ontologyName + "_term_infos t, " + ontologyName + "_node_id_type nt "
+				+ "WHERE n.term_id=t.term_id "
+				+ "AND n.node_id=nt.node_id "
+				+ "AND n.node_id IN (" + subqry + ") "
+				+ "ORDER BY t.name";
+
+		return sql;
+	}
+
+	public TreeHelper getTreeHelper( String ontologyName, String termId)
+			throws SQLException {
 
 		String query = "SELECT CONCAT (fullpath , ' ' , node_id) AS path " + "FROM " + ontologyName
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		System.out.println("HELPER QUERY: "+ query);
+		//System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/anatomy");
 		nameMap.put("mp", "/phenotypes");
@@ -252,42 +246,29 @@ public class OntologyBrowserGetter {
 
 			p.setString(1, termId);
 			ResultSet resultSet = p.executeQuery();
-
-			int topIndex = 0;
-			int minNodeLen = 0;
-			if (ontologyName.equals("ma")){
-				topIndex = 2; // choose from fullpath
-				minNodeLen = 3;
-			}
-			else if (ontologyName.equals("mp")){
-				topIndex = 1;
-				minNodeLen = 2;
-			}
-
+			int topIndex = 1; // 2nd in the fullpath is the one below the real
+			// root in obo
 
 			while (resultSet.next()) {
 
 				String fullpath = resultSet.getString("path");
-				System.out.println("path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
 
 				pathNodes.addAll(Arrays.asList(nodes));
 
-				if (nodes.length >= minNodeLen ) {
-					String topNodeId = nodes[topIndex]; // 2nd in fullpath
-					String endNodeId = nodes[nodes.length - 1]; // last in fullpath
+				String topNodeId = nodes[topIndex]; // 2nd in fullpath
+				String endNodeId = nodes[nodes.length - 1]; // last in fullpath
 
-					expandNodeIds.add(endNodeId);
+				expandNodeIds.add(endNodeId);
 
-					if (!preOpenNodes.containsKey(topNodeId)) {
-						preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
-					}
-
-					Map<String, String> nodeStartEnd = new HashMap<>();
-					//nodeStartEnd.put(nodes[0], endNodeId);
-					nodeStartEnd.put(topNodeId, endNodeId);
-					preOpenNodes.get(topNodeId).add(nodeStartEnd);
+				if (!preOpenNodes.containsKey(topNodeId)) {
+					preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
 				}
+
+				Map<String, String> nodeStartEnd = new HashMap<>();
+				nodeStartEnd.put(nodes[0], endNodeId);
+				preOpenNodes.get(topNodeId).add(nodeStartEnd);
+
 			}
 		}
 
@@ -313,7 +294,6 @@ public class OntologyBrowserGetter {
 				+ "AND nt.node_id IN "
 				+ "(SELECT child_node_id FROM ma_parent_children WHERE parent_node_id = 1)";
 
-		//System.out.println("SQL: "+ query);
 		try (Connection conn = ontodbDataSource.getConnection();
 			 PreparedStatement p = conn.prepareStatement(query)) {
 
@@ -418,6 +398,6 @@ public class OntologyBrowserGetter {
 		}
 
 	}
-    
-	
+
+
 }

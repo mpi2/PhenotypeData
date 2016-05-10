@@ -459,7 +459,6 @@ public abstract class OntologyDAO {
 
         // need to preserve oder of mysql query result so that ontologyBrowser.createTreeJson()
         // would work as it works from top of the tree, which corresponds to the order of the mysql query
-
         Map<String, OntologyTermBean> map = new LinkedHashMap();
 
 
