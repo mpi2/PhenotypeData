@@ -27,11 +27,11 @@
                 });
             });
         </script>
-		
+
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-	
+
 	</jsp:attribute>
 
 	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
@@ -120,15 +120,18 @@
                         <div class="inner">
                             <div id="highlightsDiv">
                                 <div class="container span12">
-                                    <h3>Data release 4.2</h3>
+                                    <h3>Data release ${metaInfo["data_release_version"]}</h3>
 
-                                    <p>Data release 4.2 is a minor release to include more final QCed data and correct genetic background strain for some legacy lines.</p>
-
+                                    <div class="pad10px">
+                                        <strong>Data release ${metaInfo["data_release_version"]} includes:</strong>
+                                        ${metaInfo["data_release_notes"]}
+                                    </div>
                                 </div>
                                 <div class="clear"></div>
                             </div>
                         </div>
                     </div>
+
 
                     <div class="section">
                         <h2 class="title" id="data_reports">Data Reports</h2>
