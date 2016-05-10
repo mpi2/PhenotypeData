@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
@@ -192,11 +193,13 @@ public class GeneTable {
                         AlleleParser ap = new AlleleParser(rawAllele, sup);
                         value = ap.toString();
                     }
-                } else if (sourceColIndex == COL_INDEX_GENES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                } else if (sourceColIndex == COL_INDEX_GENES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', 'both', or 'no data'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
-                    if ( ! sex.isEmpty()) {
+                    if (sex.isEmpty()) {
+                        value = SexType.no_data.toString();
+                    } else {
                         if (sex.size() == 2) {
-                            value = "both";
+                            value = SexType.both.toString();
                         } else {
                             value = sex.get(0).getAttribute("alt").toLowerCase();
                         }
