@@ -151,7 +151,7 @@ public class GenesController {
 	
 	HttpProxy proxy = new HttpProxy();
 	
-	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806" });
+	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806", "MGI:1195985","MGI:1915138", "MGI:1337104", "MGI:3039593","MGI:1922814", "MGI:97491","MGI:1928849","MGI:2151064","MGI:104606","MGI:103226","MGI:1920939","MGI:95698","MGI:1915091","MGI:1924285","MGI:1914797","MGI:1351614","MGI:2147810" });
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
