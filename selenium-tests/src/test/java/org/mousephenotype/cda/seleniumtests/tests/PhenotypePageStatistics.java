@@ -214,6 +214,7 @@ public class PhenotypePageStatistics {
                 }
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                e.printStackTrace();
                 status.addError(message);
             }
 
