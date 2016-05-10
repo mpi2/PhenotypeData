@@ -31,7 +31,7 @@ public class OntologyBrowserGetter {
 
 		List<JSONObject> tn = new ArrayList<>();
 		String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
-		//System.out.println("SQL1: "+ sql);
+		System.out.println("SQL1: "+ sql);
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
 			ResultSet resultSet = p.executeQuery();
@@ -39,7 +39,9 @@ public class OntologyBrowserGetter {
 			while (resultSet.next()) {
 
 				String nodeId = resultSet.getString("node_id");  // child_node_id
-				if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching it children recursively
+				System.out.println("open: " + helper.getPreOpenNodes() + " vs node id --- "+ nodeId);
+
+				if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching its children recursively
 					// the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
 					String topNodeId = rootNodeId;
 					for ( Map<String, String> topEnd : helper.getPreOpenNodes().get(nodeId) ) {
@@ -50,7 +52,7 @@ public class OntologyBrowserGetter {
 					}
 
 					String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
-					//System.out.println("SQL2: "+ thisSql);
+					System.out.println("SQL2: "+ thisSql);
 					try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
 						ResultSet resultSet2 = p2.executeQuery();
@@ -228,7 +230,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		//System.out.println("QUERY: "+ query);
+		System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/anatomy");
 		nameMap.put("mp", "/phenotypes");
@@ -246,29 +248,49 @@ public class OntologyBrowserGetter {
 
 			p.setString(1, termId);
 			ResultSet resultSet = p.executeQuery();
-			int topIndex = 1; // 2nd in the fullpath is the one below the real
-			// root in obo
+
+			int topIndex = 0;
+			int startNodeIndex = 0;
+			int minPathLen = 0;
+
+			if ( ontologyName.equals("ma")){
+				topIndex = 2;
+				startNodeIndex = 1;
+				minPathLen = 3;
+			}
+			else if (ontologyName.equals("mp")){
+				topIndex = 1; // 2nd in the fullpath is the one below the real
+				// root in obo
+				startNodeIndex = 0;
+				minPathLen = 2;
+			}
+
 
 			while (resultSet.next()) {
 
 				String fullpath = resultSet.getString("path");
+				System.out.println("Path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
 
-				pathNodes.addAll(Arrays.asList(nodes));
+				if ( nodes.length >= minPathLen ) {
+					pathNodes.addAll(Arrays.asList(nodes));
 
-				String topNodeId = nodes[topIndex]; // 2nd in fullpath
-				String endNodeId = nodes[nodes.length - 1]; // last in fullpath
+					String topNodeId = nodes[topIndex]; // 2nd in fullpath
+					String endNodeId = nodes[nodes.length - 1]; // last in fullpath
 
-				expandNodeIds.add(endNodeId);
+					expandNodeIds.add(endNodeId);
 
-				if (!preOpenNodes.containsKey(topNodeId)) {
-					preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
+					if (!preOpenNodes.containsKey(topNodeId)) {
+						preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
+					}
+
+					Map<String, String> nodeStartEnd = new HashMap<>();
+
+					//nodeStartEnd.put(nodes[0], endNodeId);
+					nodeStartEnd.put(nodes[startNodeIndex], endNodeId);
+
+					preOpenNodes.get(topNodeId).add(nodeStartEnd);
 				}
-
-				Map<String, String> nodeStartEnd = new HashMap<>();
-				nodeStartEnd.put(nodes[0], endNodeId);
-				preOpenNodes.get(topNodeId).add(nodeStartEnd);
-
 			}
 		}
 
