@@ -39,8 +39,11 @@ public class OntologyBrowserGetter {
             while (resultSet.next()) {
 
                 String nodeId = resultSet.getString("node_id");  // child_node_id
-                if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching it children recursively
+				System.out.println("(1) *** open: " + helper.getPreOpenNodes() + " node id : " + nodeId);
+				if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching it children recursively
                     // the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
+
+					System.out.println("(2) *** open: " + helper.getPreOpenNodes() + " node id : " + nodeId);
                 	String topNodeId = rootNodeId;
 					for ( Map<String, String> topEnd : helper.getPreOpenNodes().get(nodeId) ) {
                         for (String thisTopNodeId : topEnd.keySet()) {
@@ -115,8 +118,11 @@ public class OntologyBrowserGetter {
 
 			ResultSet resultSet = p.executeQuery();			
 			while (resultSet.next()) {
-	
-				if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
+				String nodeid = Integer.toString(resultSet.getInt("node_id"));
+				//if (helper.getPathNodes().contains(Integer.toString(resultSet.getInt("node_id")))) {
+				if (helper.getPathNodes().contains(nodeid) ){
+					System.out.println("****** " + helper.getPathNodes() + " --- " + nodeid);
+
 					JSONObject thisNode = fetchNodeInfo(helper, resultSet);
 
 					if (thisNode != null ) {
@@ -228,7 +234,7 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		//System.out.println("QUERY: "+ query);
+		System.out.println("HELPER QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/anatomy");
 		nameMap.put("mp", "/phenotypes");
@@ -246,29 +252,42 @@ public class OntologyBrowserGetter {
 
 			p.setString(1, termId);
 			ResultSet resultSet = p.executeQuery();
-			int topIndex = 1; // 2nd in the fullpath is the one below the real
-								// root in obo
+
+			int topIndex = 0;
+			int minNodeLen = 0;
+			if (ontologyName.equals("ma")){
+				topIndex = 2; // choose from fullpath
+				minNodeLen = 3;
+			}
+			else if (ontologyName.equals("mp")){
+				topIndex = 1;
+				minNodeLen = 2;
+			}
+
 
 			while (resultSet.next()) {
 
 				String fullpath = resultSet.getString("path");
+				System.out.println("path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
 
 				pathNodes.addAll(Arrays.asList(nodes));
 
-				String topNodeId = nodes[topIndex]; // 2nd in fullpath
-				String endNodeId = nodes[nodes.length - 1]; // last in fullpath
+				if (nodes.length >= minNodeLen ) {
+					String topNodeId = nodes[topIndex]; // 2nd in fullpath
+					String endNodeId = nodes[nodes.length - 1]; // last in fullpath
 
-				expandNodeIds.add(endNodeId);
+					expandNodeIds.add(endNodeId);
 
-				if (!preOpenNodes.containsKey(topNodeId)) {
-					preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
+					if (!preOpenNodes.containsKey(topNodeId)) {
+						preOpenNodes.put(topNodeId, new ArrayList<Map<String, String>>());
+					}
+
+					Map<String, String> nodeStartEnd = new HashMap<>();
+					//nodeStartEnd.put(nodes[0], endNodeId);
+					nodeStartEnd.put(topNodeId, endNodeId);
+					preOpenNodes.get(topNodeId).add(nodeStartEnd);
 				}
-
-				Map<String, String> nodeStartEnd = new HashMap<>();
-				nodeStartEnd.put(nodes[0], endNodeId);
-				preOpenNodes.get(topNodeId).add(nodeStartEnd);
-
 			}
 		}
 
