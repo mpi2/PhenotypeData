@@ -240,7 +240,19 @@
 										    	
 										    <li id="item17"><img src="${baseUrl}/img/vignettes/gfpt1.png" /> 
 										    	<p class="embryo-caption">Glutamine:fructose-6-phosphate amidotransferase 1 (Gfpt1) mutants show developmental delay and fail to turn at E9.5.<t:vignetteLink geneId="MGI:95698"></t:vignetteLink> </p> 
-										    	<p class="sliderTitle"><t:formatAllele>Gfpt1<tm1b(EUCOMM)Wtsi></t:formatAllele></p></li>	
+										    	<p class="sliderTitle"><t:formatAllele>Gfpt1<tm1b(EUCOMM)Wtsi></t:formatAllele></p></li>
+										    <li id="item18"><img src="${baseUrl}/img/vignettes/Gygmutants.png" /> 
+										    	<p class="embryo-caption">Glycogenin is an enzyme that converts glucose to glycogen. Glycogenin catalyzes UDP-alpha-D-glucose + glycogenin &rlhar; UDP + alpha-D-glucosylglycogenin. The enzyme is a homodimer of 37 kDa subunits. 
+                         							Mutations in human GYG1 are associated with Glyocgen Storage Disease XV and Polyglucosan Body Myopathy 2 (<a href="http://www.omim.org/entry/603942">OMIM</a>). Homozygous null Gyg mice die between birth and weaning but were found in normal proportions at E18.5. Mutants were indistinguishable from littermates at E12.5, E15.5 or E18.5 but analysis of microCT images revealed obvious cardiac abnormalities, enlarged thymus and abnormal nervous system morphology. This is the first reported Gyg mouse mutant. 
+													<t:vignetteLink geneId="MGI:1351614"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Gyg<tm1b(KOMP)Wtsi></t:formatAllele></p>
+										    </li>	
+										    <li id="item19"><img src="${baseUrl}/img/vignettes/Tmem132aE15.5 sag.png" /> 
+										    	<p class="embryo-caption">Transmembrane protein132a is transmembrane protein of unknown function.
+                         							Homozygous null mutants were viable at normal proportions at E15.5 and E18.5 but showed obvious and severe defects that were readibly visible by eye. Embryos had abnormal limb morphology with syndactyly, spina bifida, heart abnormalities. Some mutants were smaller than littermates.
+                         						<t:vignetteLink geneId="MGI:2147810"></t:vignetteLink> </p> 
+										    	<p class="sliderTitle"><t:formatAllele>Tmem132a<tm1b(KOMP)Wtsi></t:formatAllele></p>
+										    </li>	
 										    	
 										  </ul> 
 									</div>
