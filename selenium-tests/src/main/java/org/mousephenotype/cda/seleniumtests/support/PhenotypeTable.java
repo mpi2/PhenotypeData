@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -37,6 +38,7 @@ import java.util.List;
  */
 public class PhenotypeTable {
 
+    private CommonUtils commonUtils = new CommonUtils();
     private GridMap data;       // Contains postQc rows only.
     private final WebDriver driver;
     private List<List<String>> postQcList;
@@ -47,16 +49,31 @@ public class PhenotypeTable {
     private final UrlUtils urlUtils = new UrlUtils();
     private final WebDriverWait wait;
 
-    public static final int COL_INDEX_PHENOTYPES_GENE_ALLELE                =  0;
-    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY                   =  1;
-    public static final int COL_INDEX_PHENOTYPES_SEX                        =  2;
-    public static final int COL_INDEX_PHENOTYPES_LIFE_STAGE                 =  3;
-    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE                  =  4;
-    public static final int COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER        =  5;
-    public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER_SOURCE  =  6;
-    public static final int COL_INDEX_PHENOTYPES_P_VALUE                    =  7;
-    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK                 =  8;
+    // These are used to parse the page. Keep them private. Callers should be using the public definitions below this group.
+    private static final int COL_INDEX_PHENOTYPES_PAGE_GENE_ALLELE                =  0;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_ZYGOSITY                   =  1;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_SEX                        =  2;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_LIFE_STAGE                 =  3;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_PHENOTYPE                  =  4;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_PROCEDURE_PARAMETER        =  5;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_PHENOTYPING_CENTER_SOURCE  =  6;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_P_VALUE                    =  7;
+    private static final int COL_INDEX_PHENOTYPES_PAGE_GRAPH_LINK                 =  8;
 
+    // These are used to parse the page. Keep them private. Callers should be using the public definitions below this group.
+    public static final int COL_INDEX_PHENOTYPES_GENE                       =   0;
+    public static final int COL_INDEX_PHENOTYPES_ALLELE                     =   1;
+    public static final int COL_INDEX_PHENOTYPES_ZYGOSITY                   =   2;
+    public static final int COL_INDEX_PHENOTYPES_SEX                        =   3;
+    public static final int COL_INDEX_PHENOTYPES_LIFE_STAGE                 =   4;
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPE                  =   5;
+    public static final int COL_INDEX_PHENOTYPES_PROCEDURE                  =   6;
+    public static final int COL_INDEX_PHENOTYPES_PARAMETER                  =   7;
+    public static final int COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER         =   8;
+    public static final int COL_INDEX_PHENOTYPES_SOURCE                     =   9;
+    public static final int COL_INDEX_PHENOTYPES_P_VALUE                    =  10;
+    public static final int COL_INDEX_PHENOTYPES_GRAPH_LINK                 =  11;
+    
     public static final String COL_PHENOTYPES_GENE_ALLELE                = "Gene / Allele";
     public static final String COL_PHENOTYPES_ZYGOSITY                   = "Zygosity";
     public static final String COL_PHENOTYPES_SEX                        = "Sex";
@@ -66,6 +83,11 @@ public class PhenotypeTable {
     public static final String COL_PHENOTYPES_PHENOTYPING_CENTER_SOURCE  = "Phenotyping Center | Source";
     public static final String COL_PHENOTYPES_P_VALUE                    = "P Value";
     public static final String COL_PHENOTYPES_GRAPH                      = "Graph";
+
+    public static final List<Integer> expandColumnPipeList = new ArrayList<>(
+        Arrays.asList(new Integer[] { COL_INDEX_PHENOTYPES_PAGE_PROCEDURE_PARAMETER, COL_INDEX_PHENOTYPES_PAGE_PHENOTYPING_CENTER_SOURCE }));
+    public static final List<Integer> expandColumnSlashList = new ArrayList<>(
+        Arrays.asList(new Integer[] { COL_INDEX_PHENOTYPES_PAGE_GENE_ALLELE }));
 
     /**
      * Creates a new, empty <code>PhenotypeTablePheno</code> instance. Call <code>
@@ -139,15 +161,13 @@ public class PhenotypeTable {
         // Loop through all of the tr objects for this page, gathering the data.
         int sourceRowIndex = 1;
         for (WebElement row : phenotypesTable.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"))) {
-//            int colIndex = 0;
             List<WebElement> cells = row.findElements(By.cssSelector("td"));
             boolean isPreQcLink = false;
             sourceColIndex = 0;
             boolean skipLink = false;
             for (WebElement cell : cells) {
-//System.out.println("tagName =tagName " + cell.getTagName() +  ". text = " + cell.getText());
-//System.out.println("sourceRowIndex = " + sourceRowIndex + ". colIndex = " + colIndex++);
-                if (sourceColIndex == COL_INDEX_PHENOTYPES_GENE_ALLELE) {
+                value = "";
+                if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_GENE_ALLELE) {
                     String rawAllele = cell.findElement(By.cssSelector("span.smallerAlleleFont")).getText();
                     List<WebElement> alleleElements = cell.findElements(By.cssSelector("sup"));
 
@@ -156,19 +176,20 @@ public class PhenotypeTable {
                     } else {
                         String sup = cell.findElement(By.cssSelector("sup")).getText();
                         AlleleParser ap = new AlleleParser(rawAllele, sup);
-                        value = ap.toString();
+                        value = ap.gene + " / " + ap.toString();
                     }
-                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PHENOTYPE) {
-                    value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
-                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_SEX) {                      // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
-                    value = "";
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
-                    if (sex.size() == 2) {
-                        value = "both";
-                    } else if (sex.size() > 0) {
-                        value = sex.get(0).getAttribute("alt").toLowerCase();
+                    if ( ! sex.isEmpty()) {
+                        if (sex.size() == 2) {
+                            value = "both";
+                        } else {
+                            value = sex.get(0).getAttribute("alt").toLowerCase();
+                        }
                     }
-                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_PHENOTYPE) {
+                    value = cell.findElement(By.cssSelector("a")).getText();    // Get the phenotype text.
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
                     // NOTE: Graph links are disabled if there is no supporting data.
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";
@@ -200,15 +221,23 @@ public class PhenotypeTable {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the postQc list.
                     if (postQcList.size() >= numRows) {                         // Return when we have the number of requested rows.
-                        data = new GridMap(postQcList, target);
-                        return data;
+                        break;                                                  // Return when we have the number of requested rows.
                     }
                 }
             }
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
             sourceRowIndex++;
         }
-//System.out.println("sourceRowIndex: " + sourceRowIndex);
+
+        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnPipeList, "|");
+        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnSlashList, "/");
+        preQcList = commonUtils.expandSexColumn(preQcList, COL_INDEX_PHENOTYPES_SEX);
+        postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnPipeList, "|");
+        postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnSlashList, "/");
+        postQcList = commonUtils.expandSexColumn(postQcList, COL_INDEX_PHENOTYPES_SEX);
+        preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnPipeList, "|");
+        preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnSlashList, "/");
+        preAndPostQcList = commonUtils.expandSexColumn(preAndPostQcList, COL_INDEX_PHENOTYPES_SEX);
         data = new GridMap(postQcList, target);
         return data;
     }
@@ -235,9 +264,7 @@ public class PhenotypeTable {
      */
     private int computeTableRowCount() {
         // Wait for page.
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='exportIconsDiv'][@data-exporturl]")));
-
-        List<WebElement> elements = driver.findElements(By.xpath("//table[@id='phenotypes']/tbody/tr"));
+        List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table[@id='phenotypes']/tbody/tr")));
         return elements.size() + 1;
     }
 }
