@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.seleniumtests.support;
 
 
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
@@ -172,17 +173,19 @@ public class PhenotypeTable {
                     List<WebElement> alleleElements = cell.findElements(By.cssSelector("sup"));
 
                     if (alleleElements.isEmpty()) {
-                        value = rawAllele;                                      // Some genes don't have allele markers. Save the gene symbol.
+                        value = rawAllele + " / " + rawAllele;                                      // Some genes don't have allele markers. Save the gene symbol and use it for the allele symbol.
                     } else {
                         String sup = cell.findElement(By.cssSelector("sup")).getText();
                         AlleleParser ap = new AlleleParser(rawAllele, sup);
                         value = ap.gene + " / " + ap.toString();
                     }
-                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', 'both', or 'no_data'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
-                    if ( ! sex.isEmpty()) {
+                    if (sex.isEmpty()) {
+                        value = SexType.no_data.toString();
+                    } else {
                         if (sex.size() == 2) {
-                            value = "both";
+                            value = SexType.both.toString();
                         } else {
                             value = sex.get(0).getAttribute("alt").toLowerCase();
                         }
