@@ -155,9 +155,11 @@ public class PhenotypeAssociationsTest {
             }
         } catch (NoSuchElementException | TimeoutException te) {
             message = "Expected phenotype associations for MGI_ACCESSION_ID " + geneId + "(page " + target + ") but found none.";
+            te.printStackTrace();
             status.addError(message);
         }  catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
 

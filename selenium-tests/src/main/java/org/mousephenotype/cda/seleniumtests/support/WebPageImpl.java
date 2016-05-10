@@ -138,9 +138,11 @@ public abstract class WebPageImpl implements WebPage {
             }
         } catch (NoSuchElementException | TimeoutException te) {
             String message = "Expected page for ID " + id + "(" + pageTarget + ") but found none.";
+            te.printStackTrace();
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + pageTarget + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
         

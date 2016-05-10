@@ -414,12 +414,13 @@ public class PhenotypesController {
         PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
         List<PhenotypePageTableRow> phenotypes = new ArrayList<PhenotypePageTableRow>();
-
+        String url =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, false);
+            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, config, false);
             phenotypes.add(pr);
         } 
         
