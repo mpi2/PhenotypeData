@@ -21,6 +21,7 @@ package org.mousephenotype.cda.seleniumtests.tests;
  import org.junit.*;
  import org.junit.runner.RunWith;
  import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+ import org.mousephenotype.cda.seleniumtests.exception.TestException;
  import org.mousephenotype.cda.seleniumtests.support.PhenotypePage;
  import org.mousephenotype.cda.seleniumtests.support.PhenotypeProcedure;
  import org.mousephenotype.cda.seleniumtests.support.TestUtils;
@@ -181,6 +182,7 @@ public class PhenotypePageTest {
 
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                e.printStackTrace();
                 status.addError(message);
             }
         }
@@ -200,10 +202,14 @@ public class PhenotypePageTest {
      */
     @Test
 //@Ignore
-    public void testPageForEveryMPTermId() throws SolrServerException {
-        String testName = "testPageForEveryMPTermId";
-        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-        phenotypeIdsTestEngine(testName, phenotypeIds);
+    public void testPageForEveryMPTermId() throws TestException {
+        try {
+            String testName = "testPageForEveryMPTermId";
+            List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
+            phenotypeIdsTestEngine(testName, phenotypeIds);
+        } catch (Exception e) {
+            throw new TestException(e);
+        }
     }
 
     /**
@@ -214,15 +220,19 @@ public class PhenotypePageTest {
      * testIterations.properties with this test's name as the lvalue and the
      * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      *
-     * @throws SolrServerException
+     * @throws TestException
      */
     @Test
 //@Ignore
-    public void testPageForEveryTopLevelMPTermId() throws SolrServerException {
+    public void testPageForEveryTopLevelMPTermId() throws TestException {
         String testName = "testPageForEveryTopLevelMPTermId";
-        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
+        try {
+            List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
 
-        phenotypeIdsTestEngine(testName, phenotypeIds);
+            phenotypeIdsTestEngine(testName, phenotypeIds);
+        } catch (Exception e) {
+            throw new TestException(e);
+        }
     }
 
     /**
@@ -233,15 +243,20 @@ public class PhenotypePageTest {
      * testIterations.properties with this test's name as the lvalue and the
      * number of iterations as the rvalue. -1 means run all iterations.</em></p>
      *
-     * @throws SolrServerException
+     * @throws TestException
      */
     @Test
 //@Ignore
-    public void testPageForEveryIntermediateLevelMPTermId() throws SolrServerException {
+    public void testPageForEveryIntermediateLevelMPTermId() throws TestException {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
-        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
 
-        phenotypeIdsTestEngine(testName, phenotypeIds);
+        try {
+            List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
+
+            phenotypeIdsTestEngine(testName, phenotypeIds);
+        } catch (Exception e) {
+            throw new TestException(e);
+        }
     }
 
     /**
@@ -434,7 +449,7 @@ public class PhenotypePageTest {
      }
 
 
-    private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws SolrServerException {
+    private void phenotypeIdsTestEngine(String testName, List<String> phenotypeIds) throws TestException {
         RunStatus status = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String target;
@@ -476,7 +491,9 @@ public class PhenotypePageTest {
                 }
             } catch (Exception e) {
                 System.out.println("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
+                e.printStackTrace();
                 errorCount++;
+                throw new TestException(e);
             }
 
             if (mpLinkElement == null) {

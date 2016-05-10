@@ -158,14 +158,15 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
                 }
 
             } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + geneId + "("
-                        + target + ") but found none.";
+                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                te.printStackTrace();
                 status.addError(message);
                 commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": "
                         + e.getLocalizedMessage();
+                e.printStackTrace();
                 status.addError(message);
                 commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
