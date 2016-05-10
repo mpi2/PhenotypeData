@@ -100,7 +100,7 @@ public class PhenotypePageTableRow extends DataTableRow {
      * ! Keep in synch with order in getTabbedToString !
      */
     public static String getTabbedHeader(){
-    	return "Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure | Parameter\tPhenotyping Center | Source\tP Value\tGraph";
+    	return "Gene\tAllele\tZygosity\tSex\tLife Stage\tPhenotype\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tGraph";
     }
     
     /**
@@ -109,15 +109,17 @@ public class PhenotypePageTableRow extends DataTableRow {
      */
     public String toTabbedString(){
     	return getGene().getSymbol() + "\t"
-                + getAllele().getSymbol() + "\t"
-                + getZygosity() + "\t"
-                + getSexes().get(0) + "\t"
-                + getLifeStageName() + "\t"
-                + getPhenotypeTerm().getName() + "\t"
-                + getProcedure().getName() + " | " + getParameter().getName() + "\t"
-                + getPhenotypingCenter() + " | " + getDataSourceName() + "\t"
-                + getPrValueAsString() + "\t"
-                + getEvidenceLink().getUrl();
+            + getAllele().getSymbol() + "\t"
+            + getZygosity() + "\t"
+            + getSexes().get(0) + "\t"
+            + getLifeStageName() + "\t"
+            + getPhenotypeTerm().getName() + "\t"
+            + getProcedure().getName() + "\t"
+            + getParameter().getName() + "\t"
+            + getPhenotypingCenter() + "\t"
+            + getDataSourceName() + "\t"
+            + getPrValueAsString() + "\t"
+            + getEvidenceLink().getUrl();
     }
     
 }

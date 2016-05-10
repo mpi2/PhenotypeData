@@ -31,7 +31,7 @@ public class OntologyBrowserGetter {
 
         List<JSONObject> tn = new ArrayList<>();
         String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
-		//System.out.println("SQL1: "+ sql);
+		System.out.println("SQL1: "+ sql);
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
             ResultSet resultSet = p.executeQuery();
@@ -294,6 +294,7 @@ public class OntologyBrowserGetter {
 				+ "AND nt.node_id IN "
 				+ "(SELECT child_node_id FROM ma_parent_children WHERE parent_node_id = 1)";
 
+		//System.out.println("SQL: "+ query);
 		try (Connection conn = ontodbDataSource.getConnection();
 			 PreparedStatement p = conn.prepareStatement(query)) {
 

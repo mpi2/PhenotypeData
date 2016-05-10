@@ -84,37 +84,35 @@
             <td>${phenotype.prValueAsString}</td>
 
             <c:if test="${phenotype.isPreQc()}">
-            	<td class="preQcLink">
+            	<td class="preQcLink"> <span title="This is a preliminary association based on pre QC data." >
             </c:if>
-				<c:if test="${not phenotype.isPreQc()}">
-					<td class="postQcLink">
+			<c:if test="${not phenotype.isPreQc()}">
+				<td class="postQcLink">
+			</c:if>
+			<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
+				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
+					<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i></a>
 				</c:if>
-				<c:if test="${phenotype.getEvidenceLink().getDisplay()}">
-					<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-						<a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
-						</a>
-					</c:if>
-					<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-						<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
-					</c:if>
-					<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                        <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
-                        </a>
-                    </c:if>
+				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
+					<a href="${phenotype.getEvidenceLink().getUrl() }" ><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
 				</c:if>
-
-				<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
-					<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-						<i class="fa fa-image" title="No images available."></i>
-					</c:if>
-					<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-						<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
-					</c:if>
+				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
+                       <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i> </a>
+                   </c:if>
+			</c:if>
+			
+			<c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
+				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
+					<i class="fa fa-image" title="No images available."></i>
 				</c:if>
-				<c:if test="${phenotype.isPreQc()}">
-					<i class="fa fa-exclamation" title="This is a preliminary association based on pre QC data."></i>
+				<c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
+					<i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
 				</c:if>
-				</td>	<!-- This is closing the td from the 2 ifs above -->
+			</c:if>
+			<c:if test="${phenotype.isPreQc()}">
+				<i class="fa fa-exclamation" ></i> </span>
+			</c:if>
+			</td>	<!-- This is closing the td from the 2 ifs above -->
 
 			</tr>
     </c:forEach>
