@@ -292,15 +292,16 @@ public class PhenotypePage {
      */
     private GridMap getDownloadTsv(RunStatus status) {
         String[][] data = new String[0][0];
-        String downloadUrlBase = getDownloadUrlBase();
 
         try {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            int pos = downloadUrlBase.indexOf("/export?");
+            // The downloadTarget is a path of the form 'http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/phenotypes/export/MP:0002102?fileType=tsv&fileName=abnormal%20ear%20morphology.
+            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export' with the baseUrl
+            // and "/phenotypes".
+            String downloadUrlBase = driver.findElement(By.xpath("//a[@id='tsvDownload']")).getAttribute("href");
+            int pos = downloadUrlBase.indexOf("/export");
             downloadUrlBase = downloadUrlBase.substring(pos);
-            String downloadTarget = baseUrl + downloadUrlBase + "tsv";
+            String downloadTarget = baseUrl + "/phenotypes" + downloadUrlBase + ".tsv";
 
             // Get the download stream and statistics for the TSV stream.
             URL url = new URL(downloadTarget);
@@ -312,18 +313,11 @@ public class PhenotypePage {
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
 
         return new GridMap(data, target);
-    }
-
-    /**
-     * Return the download url base
-     * @return the download url base embedded in div.
-     */
-    private String getDownloadUrlBase() {
-        return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
     }
 
     /**
@@ -333,15 +327,16 @@ public class PhenotypePage {
      */
     private GridMap getDownloadXls(RunStatus status) {
         String[][] data = new String[0][0];
-        String downloadUrlBase = getDownloadUrlBase();
 
         try {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            int pos = downloadUrlBase.indexOf("/export?");
+            // The downloadTarget is a path of the form 'http://ves-ebi-d0:8080/mi/impc/dev/phenotype-archive/phenotypes/export/MP:0002102?fileType=xls&fileName=abnormal%20ear%20morphology.
+            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export' with the baseUrl
+            // and "/phenotypes".
+            String downloadUrlBase = driver.findElement(By.xpath("//a[@id='xlsDownload']")).getAttribute("href");
+            int pos = downloadUrlBase.indexOf("/export");
             downloadUrlBase = downloadUrlBase.substring(pos);
-            String downloadTarget = baseUrl + downloadUrlBase + "xls";
+            String downloadTarget = baseUrl + "/phenotypes" + downloadUrlBase + ".xls";
 
             // Get the download stream and statistics for the XLS stream.
             URL url = new URL(downloadTarget);
@@ -353,6 +348,7 @@ public class PhenotypePage {
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
 
@@ -471,21 +467,30 @@ public class PhenotypePage {
         int errorCount = 0;
 
         final Integer[] pageColumns = {
-                PhenotypeTable.COL_INDEX_PHENOTYPES_GENE_ALLELE
+                  PhenotypeTable.COL_INDEX_PHENOTYPES_GENE
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_ALLELE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_ZYGOSITY
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_SEX
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_LIFE_STAGE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPE
-                , PhenotypeTable.COL_INDEX_PHENOTYPES_PROCEDURE_PARAMETER
-                , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER_SOURCE
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_PROCEDURE
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_PARAMETER
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_PHENOTYPING_CENTER
+                , PhenotypeTable.COL_INDEX_PHENOTYPES_SOURCE
                 , PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
-                DownloadPhenotypeMap.COL_INDEX_ALLELE
+
+                  DownloadPhenotypeMap.COL_INDEX_GENE
+                , DownloadPhenotypeMap.COL_INDEX_ALLELE
                 , DownloadPhenotypeMap.COL_INDEX_ZYGOSITY
+                , DownloadPhenotypeMap.COL_INDEX_SEX
                 , DownloadPhenotypeMap.COL_INDEX_LIFE_STAGE
                 , DownloadPhenotypeMap.COL_INDEX_PHENOTYPE
-                , DownloadPhenotypeMap.COL_INDEX_PROCEDURE_PARAMETER
-                , DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER_SOURCE
+                , DownloadPhenotypeMap.COL_INDEX_PROCEDURE
+                , DownloadPhenotypeMap.COL_INDEX_PARAMETER
+                , DownloadPhenotypeMap.COL_INDEX_PHENOTYPING_CENTER
+                , DownloadPhenotypeMap.COL_INDEX_SOURCE
                 , DownloadPhenotypeMap.COL_INDEX_GRAPH_LINK
         };
         final Integer[] decodeColumns = {
@@ -504,8 +509,8 @@ public class PhenotypePage {
             int i = 0;
             while (it.hasNext()) {
                 String value = (String) it.next();
-                logger.error("[" + i + "]:\t page data: " + value);
-                logger.error("\t download data: " + testUtils.closestMatch(downloadSet, value) + "\n");
+                logger.error("[" + i + "]:\t page data:\n" + value);
+                logger.error("\t download data:\n" + testUtils.closestMatch(downloadSet, value) + "\n");
                 i++;
                 errorCount++;
             }

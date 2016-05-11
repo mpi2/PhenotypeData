@@ -255,7 +255,7 @@ public class GraphPageTest {
         String testName = "testKnownGraphs";
 
         List<String> graphUrls = Arrays.asList(new String[]{
-                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=NULL-3A8C98B85&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                // UNIDIMENSIONAL_ABR_PLOT
+                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=MGI:5755614&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                   // UNIDIMENSIONAL_ABR_PLOT
                 , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // UNIDIMENSIONAL_ABR_PLOT
                 , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // UNIDIMENSIONAL_ABR_PLOT
                 , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // TIME_SERIES_LINE

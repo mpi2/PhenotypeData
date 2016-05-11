@@ -154,14 +154,13 @@ public class MAIndexer extends AbstractIndexer {
                     }
                 }
 
+                System.out.println("MA ID: "+ ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
-                // TODO put back in after testing.
-                // Error says: Document contains at least one immense term in field="text" (whose UTF8 encoding is longer than the max length 32766)
-                // Error is on MP:0001600
                 TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
                 helper.setExcludedNodeIds(excludedNodeIds);
 
-                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "0", null, ma.getMaId());
+                // for MA the root node id is 1 (MA is 0)
+                List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, ma.getMaId());
                 ma.setSearchTermJson(searchTree.toString());
 
                 String scrollNodeId = ontologyBrowser.getScrollTo(searchTree);

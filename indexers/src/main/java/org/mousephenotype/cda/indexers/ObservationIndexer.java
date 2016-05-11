@@ -19,10 +19,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.db.beans.OntologyTermBean;
+import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
+import org.mousephenotype.cda.db.dao.MaOntologyDAO;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperEmap;
+import org.mousephenotype.cda.indexers.beans.OntologyTermHelperMa;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
@@ -68,12 +73,20 @@ public class ObservationIndexer extends AbstractIndexer {
 	@Qualifier("observationIndexing")
 	SolrServer observationSolrServer;
 
+	@Autowired
+	MaOntologyDAO maOntologyService;
+
+	@Autowired
+	EmapOntologyDAO emapOntologyService;
+
 	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
 	Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
 
 	Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
 	Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
 	Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+
+	Map<Integer, String> anatomyMap = new HashMap<>();
 
 	Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
 	Map<Integer, DatasourceBean> projectMap = new HashMap<>();
@@ -118,14 +131,49 @@ public class ObservationIndexer extends AbstractIndexer {
 
 			connection = komp2DataSource.getConnection();
 
-			System.out.println("populating pipeline map");
+			logger.info("populating supporting maps");
 			pipelineMap = IndexerMap.getImpressPipelines(connection);
-			System.out.println("populating procedure map");
 			procedureMap = IndexerMap.getImpressProcedures(connection);
-			System.out.println("populating parameter map");
 			parameterMap = IndexerMap.getImpressParameters(connection);
+			logger.debug(" IMPReSS maps\n  Pipeline: {}, Procedure: {}, Parameter: {} " + pipelineMap.size(), procedureMap.size(), parameterMap.size());
+
+			logger.debug("populating ontology entity map");
 			ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
-			System.out.println("ontology entity map size=" + ontologyEntityMap.size());
+			logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
+
+			logger.info("populating supporting maps");
+			populateDatasourceDataMap();
+
+			logger.debug("populating categorynames map");
+			populateCategoryNamesDataMap();
+			logger.debug("  map size: " + translateCategoryNames.size());
+
+			logger.debug("populating biological data map");
+			populateBiologicalDataMap();
+			logger.debug("  map size: " + biologicalData.size());
+
+			logger.debug("populating line data map");
+			populateLineBiologicalDataMap();
+			logger.debug("  map size: " + lineBiologicalData.size());
+
+			logger.debug("populating parameter association map");
+			populateParameterAssociationMap();
+			logger.debug("  map size: " + parameterAssociationMap.size());
+
+			logger.debug("populating weight map");
+			populateWeightMap();
+			logger.debug("  map size: " + weightMap.size());
+
+			logger.debug("populating ipgt map");
+			populateIpgttWeightMap();
+			logger.debug("  map size: " + ipgttWeightMap.size());
+
+			logger.debug("populating anatomy map");
+			populateAnatomyMap();
+			logger.debug("  map size: " + anatomyMap.size());
+
+			logger.info("maps populated");
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
@@ -142,20 +190,6 @@ public class ObservationIndexer extends AbstractIndexer {
 		long start = System.currentTimeMillis();
 
 		try {
-
-			System.out.println("pop datasource map");
-			populateDatasourceDataMap();
-			System.out.println("pop categorynames map");
-			populateCategoryNamesDataMap();
-			System.out.println("pop biological data map");
-			populateBiologicalDataMap();
-			System.out.println("pop line data map");
-			populateLineBiologicalDataMap();
-			populateParameterAssociationMap();
-			System.out.println("pop weight map");
-			populateWeightMap();
-			System.out.println("pop ipgt map");
-			populateIpgttWeightMap();
 
 			count = populateObservationSolrCore(runStatus);
 
@@ -183,10 +217,10 @@ public class ObservationIndexer extends AbstractIndexer {
 				+ "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, "
 				+ "e.date_of_experiment, e.external_id, e.id as experiment_id, "
 				+ "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, "
-				+ "co.category as raw_category, " + "uo.data_point as unidimensional_data_point, "
-				+ "mo.data_point as multidimensional_data_point, " + "tso.data_point as time_series_data_point, "
-				+ "tro.text as text_value, " + "mo.order_index, " + "mo.dimension, " + "tso.time_point, "
-				+ "tso.discrete_point, " + "iro.file_type, " + "iro.download_file_path ";
+				+ "co.category as raw_category, uo.data_point as unidimensional_data_point, "
+				+ "mo.data_point as multidimensional_data_point, tso.data_point as time_series_data_point, "
+				+ "tro.text as text_value, mo.order_index, mo.dimension, tso.time_point, "
+				+ "tso.discrete_point, iro.file_type, iro.download_file_path ";
 
 		if (hasSequenceIdColumn) {
 			query += ", o.sequence_id as sequence_id ";
@@ -200,14 +234,10 @@ public class ObservationIndexer extends AbstractIndexer {
 				+ "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
 				+ "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
 				+ "INNER JOIN experiment e on eo.experiment_id=e.id " + "WHERE o.missing=0";
-
-		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
-				java.sql.ResultSet.CONCUR_READ_ONLY)) {
+		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
 			p.setFetchSize(Integer.MIN_VALUE);
-			System.out.println("runnin main prep statement");
 			ResultSet r = p.executeQuery();
-			System.out.println("executed query");
 			while (r.next()) {
 
 				ObservationDTOWrite o = new ObservationDTOWrite();
@@ -229,12 +259,10 @@ public class ObservationIndexer extends AbstractIndexer {
 
 				ZonedDateTime dateOfExperiment = null;
 				try {
-					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"),
-							DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
 					o.setDateOfExperiment(dateOfExperiment);
 				} catch (NullPointerException e) {
-					logger.debug("No date of experiment set for experiment external ID: {}",
-							r.getString("external_id"));
+					logger.debug("No date of experiment set for experiment external ID: {}", r.getString("external_id"));
 					o.setDateOfExperiment(null);
 				}
 
@@ -251,6 +279,89 @@ public class ObservationIndexer extends AbstractIndexer {
 				o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
 				o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
 				o.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
+
+				if (anatomyMap.containsKey(r.getInt("parameter_id"))) {
+
+					String anatomyTermId = anatomyMap.get(r.getInt("parameter_id"));
+
+					if (anatomyTermId != null) {
+
+						if (anatomyTermId.startsWith("MA:")) {
+							if (o.getMaId() == null) {
+								// Initialize all the collections of ma terms
+								o.setMaId(new ArrayList<>());
+								o.setMaTerm(new ArrayList<>());
+								o.setMaTermSynonym(new ArrayList<>());
+								o.setIntermediateMaId(new ArrayList<>());
+								o.setIntermediateMaTerm(new ArrayList<>());
+								o.setIntermediateMaTermSynonym(new ArrayList<>());
+								o.setSelectedTopLevelMaId(new ArrayList<>());
+								o.setSelectedTopLevelMaTerm(new ArrayList<>());
+								o.setSelectedTopLevelMaTermSynonym(new ArrayList<>());
+							}
+
+							OntologyTermBean term = maOntologyService.getTerm(anatomyTermId);
+
+							if(term!=null) {
+								o.getMaId().add(term.getId());
+								o.getMaTerm().add(term.getName());
+								o.getMaTermSynonym().addAll(term.getSynonyms());
+
+								OntologyTermHelperMa b = new OntologyTermHelperMa(maOntologyService, term.getId());
+								if (b!=null) {
+
+									if (b.getIntermediates() != null) {
+										o.getIntermediateMaId().addAll(b.getIntermediates().getIds());
+										o.getIntermediateMaTerm().addAll(b.getIntermediates().getNames());
+										o.getIntermediateMaTermSynonym().addAll(b.getIntermediates().getSynonyms());
+									}
+									if (b.getTopLevels() != null) {
+										o.getSelectedTopLevelMaId().addAll(b.getTopLevels().getIds());
+										o.getSelectedTopLevelMaTerm().addAll(b.getTopLevels().getNames());
+										o.getSelectedTopLevelMaTermSynonym().addAll(b.getTopLevels().getSynonyms());
+									}
+								}
+							}
+
+						} else if (anatomyTermId.startsWith("EMAP:")) {
+
+							if (o.getEmapId() == null) {
+								// Initialize all the collections of ma terms
+								o.setEmapId(new ArrayList<>());
+								o.setEmapTerm(new ArrayList<>());
+								o.setEmapTermSynonym(new ArrayList<>());
+								o.setIntermediateEmapId(new ArrayList<>());
+								o.setIntermediateEmapTerm(new ArrayList<>());
+								o.setIntermediateEmapTermSynonym(new ArrayList<>());
+								o.setSelectedTopLevelEmapId(new ArrayList<>());
+								o.setSelectedTopLevelEmapTerm(new ArrayList<>());
+								o.setSelectedTopLevelEmapTermSynonym(new ArrayList<>());
+							}
+
+							OntologyTermBean term = emapOntologyService.getTerm(anatomyTermId);
+							if(term!=null) {
+
+								o.getEmapId().add(term.getId());
+								o.getEmapTerm().add(term.getName());
+								o.getEmapTermSynonym().addAll(term.getSynonyms());
+								OntologyTermHelperEmap b = new OntologyTermHelperEmap(emapOntologyService, term.getId());
+								if (b!=null) {
+
+									if (b.getIntermediates() != null) {
+										o.getIntermediateEmapId().addAll(b.getIntermediates().getIds());
+										o.getIntermediateEmapTerm().addAll(b.getIntermediates().getNames());
+										o.getIntermediateEmapTermSynonym().addAll(b.getIntermediates().getSynonyms());
+									}
+									if (b.getTopLevels() != null) {
+										o.getSelectedTopLevelEmapId().addAll(b.getTopLevels().getIds());
+										o.getSelectedTopLevelEmapTerm().addAll(b.getTopLevels().getNames());
+										o.getSelectedTopLevelEmapTermSynonym().addAll(b.getTopLevels().getSynonyms());
+									}
+								}
+							}
+						}
+					}
+				}
 
 				o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
 				o.setDataSourceName(datasourceMap.get(r.getInt("datasource_id")).name);
@@ -966,6 +1077,28 @@ public class ObservationIndexer extends AbstractIndexer {
 
 	}
 
+	/**
+	 * Return map of specimen ID => weight for
+	 *
+	 * @exception SQLException
+	 *                When a database error occurrs
+	 */
+	void populateAnatomyMap() throws SQLException {
+
+		String query = "SELECT DISTINCT p.id, o.ontology_acc " +
+			"FROM phenotype_parameter p " +
+			"INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
+			"INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " +
+			"WHERE p.stable_id like '%_ALZ_%' OR p.stable_id like '%_ELZ_%' " ;
+
+		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+			ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
+				anatomyMap.put(resultSet.getInt("id"), resultSet.getString("ontology_acc"));
+			}
+		}
+
+	}
 	public Connection getConnection() {
 		return connection;
 	}

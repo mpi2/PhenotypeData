@@ -45,7 +45,7 @@ public abstract class DataReader implements AutoCloseable {
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
      * 
-     * @throws TestException
+     * @throws Exception
      */
     public String[][] getData() throws Exception {
         return getData(null);
@@ -58,7 +58,7 @@ public abstract class DataReader implements AutoCloseable {
      * invoking the url provided with the constructor. Supported stream formats
      * are defined in the public enum <code>DataReader.DataType</code>.
      * 
-     * @throws TestException
+     * @throws Exception
      */
     public String[][] getData(Integer maxRows) throws Exception {
         String message;
@@ -111,7 +111,7 @@ public abstract class DataReader implements AutoCloseable {
     /**
      * @return the number of lines in this <code>DataReader</code> stream,
      * including headings.
-     * @throws TestException
+     * @throws Exception
      */
     public int lineCount() throws Exception {
         String message;
