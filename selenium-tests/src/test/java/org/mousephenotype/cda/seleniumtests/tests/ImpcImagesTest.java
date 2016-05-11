@@ -15,19 +15,18 @@
  */
 package org.mousephenotype.cda.seleniumtests.tests;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.seleniumtests.support.GenePage;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -39,8 +38,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -118,16 +115,9 @@ public class ImpcImagesTest {
     // PRIVATE METHODS
 
 
-    private void geneIdsTestEngine(String testName, List<String> geneIds)
-            throws SolrServerException {
-        RunStatus status = new RunStatus();
-        DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-
-geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
+    private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
+        RunStatus masterStatus = new RunStatus();
         String target = "";
-        List<String> successList = new ArrayList();
-        String message;
         Date start = new Date();
 
         testUtils.logTestStartup(logger, this.getClass(), testName, geneIds.size(), geneIds.size());
@@ -136,51 +126,40 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         int i = 0;
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         for (String geneId : geneIds) {
-
+            RunStatus status = new RunStatus();
             target = baseUrl + "/genes/" + geneId;
-            logger.debug("gene[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
-                wait.until(ExpectedConditions.presenceOfElementLocated(By
-                        .cssSelector("span#enu")));
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
-                boolean hasImpcImages = genePage.hasImpcImages();
-                if ( ! hasImpcImages) {
+
+                if (genePage.hasImpcImages()) {
+                    List<String> parameters = genePage.getAssociatedImpcImageSections();
+                    if (parameters.isEmpty()) {
+                        status.addError("Parameter list is empty!");
+                    }
+                } else {
                     status.addError("No IMPC Images found for " + target);
-                    continue;
                 }
 
-                List<String> parameters = genePage.getAssociatedImpcImageSections();
-                if (parameters.isEmpty()) {
-                    status.addError("Parameter list is empty!");
-                    continue;
-                }
-
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
-                te.printStackTrace();
-                status.addError(message);
-                commonUtils.sleep(threadWaitInMilliseconds);
-                continue;
             } catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": "
-                        + e.getLocalizedMessage();
                 e.printStackTrace();
-                status.addError(message);
-                commonUtils.sleep(threadWaitInMilliseconds);
-                continue;
+                status.addError(e.getLocalizedMessage());
             }
 
-            message = "SUCCESS: MGI_ACCESSION_ID " + geneId + ". URL: "
-                    + target;
-            successList.add(message);
+            if (status.hasErrors()) {
+                System.out.println("[" + i + "] [FAIL]. REASON: " + StringUtils.join(status.getErrorMessages(), ", "));
+            } else {
+                status.successCount++;
+                System.out.println("[" + i + "] [PASS]. URL: " + target);
+            }
 
-            commonUtils.sleep(threadWaitInMilliseconds);
             i ++;
+            masterStatus.add(status);
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), i, geneIds.size());
+        testUtils.printEpilogue(testName, start, masterStatus, geneIds.size(), geneIds.size());
     }
 
 
@@ -223,10 +202,6 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
         genes.add("Plekhm1");
         genes.add("Stk16");
         genes.add("Vps13d");
-        String geneString = genes.toString();
-//		System.out.println(geneString);
-        String orQuery = geneString.replace(",", " OR ");
-        System.out.println(orQuery);
         List<String> geneIds = new ArrayList<>();
 
         for (String gene : genes) {
@@ -235,28 +210,6 @@ geneIds = testUtils.removeKnownBadGeneIds(geneIds);
             geneIds.add(geneDto.getMgiAccessionId());
         }
         geneIdsTestEngine(testName, geneIds);
-
-    }
-
-    @Test
-//@Ignore
-    public void testImpcImagesOnaSpecificGenePage() throws Exception {
-
-        String testName = "testImpcImagesOnGenePage";
-        ArrayList<String> genes = new ArrayList<>();
-        // genes.add("Akt2"); should fail on Akt2 as no impc_images
-        genes.add("Baz1a");
-        String geneString = genes.toString();
-        System.out.println(geneString);
-        String orQuery = geneString.replace(",", " OR ");
-        System.out.println(orQuery);
-        List<String> geneIds = new ArrayList<>();
-		// genes.add("Wee1");
-        //
-        // GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
-        // System.out.println("geneDto=" + geneDto.getMgiAccessionId());
-        // geneIds.add(geneDto.getMgiAccessionId());
-        // }
 
     }
 }

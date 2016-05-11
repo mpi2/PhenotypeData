@@ -121,9 +121,6 @@ public class GenePageTest {
     private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
         RunStatus masterStatus = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         String target = "";
         String message;
         Date start = new Date();
