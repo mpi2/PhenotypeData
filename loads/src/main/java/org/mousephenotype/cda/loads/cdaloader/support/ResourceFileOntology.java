@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.support;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologiesItemReader;
+import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologyItemReader;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class ResourceFileOntology extends ResourceFile {
     @Autowired
     public FlatFileItemWriter ontologyWriter;
 
-    private OntologiesItemReader ontologyReader = null;
+    private OntologyItemReader ontologyReader = null;
 
     /**
      * Initialise a new <code>ResourceFileOntology</code> instance
@@ -43,7 +43,7 @@ public class ResourceFileOntology extends ResourceFile {
     public void initialise(String sourceUrl, String filename, int dbId, String prefix) throws CdaLoaderException {
         super.initialise(sourceUrl, filename);
 
-        ontologyReader = new OntologiesItemReader();
+        ontologyReader = new OntologyItemReader();
         ontologyReader.initialise(filename, dbId, prefix);
     }
 
