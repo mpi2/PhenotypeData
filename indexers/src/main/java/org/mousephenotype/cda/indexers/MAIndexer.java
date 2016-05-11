@@ -103,7 +103,7 @@ public class MAIndexer extends AbstractIndexer {
             List<OntologyTermBean> beans = maOntologyService.getAllTerms();
 
             // fetch list of excludedNodeIds (do not want to display this part of tree for MA)
-            List<String> excludedNodeIds = ontologyBrowser.getExcludedNodeIds();
+            //List<String> excludedNodeIds = ontologyBrowser.getExcludedNodeIds();
 
             // Add all ma terms to the index.
             for (OntologyTermBean bean : beans) {
@@ -154,10 +154,11 @@ public class MAIndexer extends AbstractIndexer {
                     }
                 }
 
-                System.out.println("MA ID: "+ ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
+
+                //System.out.println("MA ID: " + ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
                 TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
-                helper.setExcludedNodeIds(excludedNodeIds);
+                //helper.setExcludedNodeIds(excludedNodeIds);
 
                 // for MA the root node id is 1 (MA is 0)
                 List<JSONObject> searchTree = ontologyBrowser.createTreeJson(helper, "1", null, ma.getMaId());
