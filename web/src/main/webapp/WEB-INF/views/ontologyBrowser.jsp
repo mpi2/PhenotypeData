@@ -21,19 +21,22 @@
 
  	 <script type="text/javascript" src='${baseUrl}/js/vendor/jstree/jstree.min.js'></script>
 
-	    <c:if test="${termId}.startsWith(\"MP:\")">
-		    <h1 id="h1tree">Browse Mammalian Phenotype Ontology</h1>
-	    </c:if>
-	    <c:if test="${termId}.startsWith(\"MA:\")">
-		    <h1 id="h1tree">Browse Mouse Adult Gross Anatomy Ontology</h1>
-	    </c:if>
-
-  	 <%--<h1 id="h1tree">Browse Mammalian Phenotype Ontology</h1>--%>
+	 <div id="ontotree">Browse Mammalian Phenotype Ontology</div>
   	 <div id="tree"></div>
 
 	 <script  type="text/javascript" >
 
 		 var termId = "${termId}";
+
+		 var ontologyLabel = "";
+		 if ( termId.indexOf("MP:") != -1){
+			 ontologyLabel = "Browse Mammalian Phenotype Ontology";
+		 }
+		 if ( termId.indexOf("MA:") != -1){
+			 ontologyLabel = "Browse Mouse Adult Gross Anatomy Ontology";
+		 }
+		 $('#ontotree').text(ontologyLabel);
+
 		 var clickToOpen = false; // The tree expands too many nodes at load time. This is a hack to only allow it on mouseclick
 		 
 		 var ontologyTree = $('#tree').jstree({
