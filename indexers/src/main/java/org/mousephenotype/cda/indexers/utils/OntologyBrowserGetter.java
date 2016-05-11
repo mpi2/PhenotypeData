@@ -1,20 +1,13 @@
 package org.mousephenotype.cda.indexers.utils;
 
+import net.sf.json.JSONObject;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
-import net.sf.json.JSONObject;
+import java.util.*;
 
 
 public class OntologyBrowserGetter {
@@ -31,7 +24,6 @@ public class OntologyBrowserGetter {
 
 		List<JSONObject> tn = new ArrayList<>();
 		String sql = fetchNextLevelChildrenSql(helper, rootNodeId, childNodeId);
-		System.out.println("SQL1: "+ sql);
 		try (Connection conn = ontodbDataSource.getConnection(); PreparedStatement p = conn.prepareStatement(sql)) {
 
 			ResultSet resultSet = p.executeQuery();
@@ -39,7 +31,6 @@ public class OntologyBrowserGetter {
 			while (resultSet.next()) {
 
 				String nodeId = resultSet.getString("node_id");  // child_node_id
-				System.out.println("open: " + helper.getPreOpenNodes() + " vs node id --- "+ nodeId);
 
 				if ( helper.getPreOpenNodes().containsKey(nodeId)){   // check if this is the node to start fetching its children recursively
 					// the tree should be expanded until the query term eg. 5267 = [{0=5344}, {0=5353}], a node could have same top node but diff. end node
@@ -52,7 +43,6 @@ public class OntologyBrowserGetter {
 					}
 
 					String thisSql = fetchNextLevelChildrenSql(helper, topNodeId, nodeId);
-					System.out.println("SQL2: "+ thisSql);
 					try (PreparedStatement p2 = conn.prepareStatement(thisSql)) {
 
 						ResultSet resultSet2 = p2.executeQuery();
@@ -230,7 +220,6 @@ public class OntologyBrowserGetter {
 				+ "_node_backtrace_fullpath " + "WHERE node_id IN " + "(SELECT node_id FROM " + ontologyName
 				+ "_node2term WHERE term_id = ?)";
 
-		System.out.println("QUERY: "+ query);
 		Map<String, String> nameMap = new HashMap<>();
 		nameMap.put("ma", "/anatomy");
 		nameMap.put("mp", "/phenotypes");
@@ -269,7 +258,6 @@ public class OntologyBrowserGetter {
 			while (resultSet.next()) {
 
 				String fullpath = resultSet.getString("path");
-				System.out.println("Path: " + fullpath);
 				String[] nodes = fullpath.split(" ");
 
 				if ( nodes.length >= minPathLen ) {

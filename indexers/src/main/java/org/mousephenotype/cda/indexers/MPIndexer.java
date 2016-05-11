@@ -174,7 +174,6 @@ public class MPIndexer extends AbstractIndexer {
                 mp.setMpTerm(rs.getString("name"));
                 mp.setMpDefinition(rs.getString("definition"));
 
-                System.out.println(termId + " -- "+ mp.getMpTerm());
                 // alternative MP ID
                 String alt_ids = rs.getString("alt_ids");
                 if ( !rs.wasNull() ) {

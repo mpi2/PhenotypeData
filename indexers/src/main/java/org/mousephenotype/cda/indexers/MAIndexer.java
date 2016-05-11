@@ -154,7 +154,6 @@ public class MAIndexer extends AbstractIndexer {
                     }
                 }
 
-                System.out.println("MA ID: "+ ma.getMaId() + " --- MA node id: " + ma.getMaNodeId() + " --- " + ma.getMaTerm());
                 // OntologyBrowser stuff
                 TreeHelper helper = ontologyBrowser.getTreeHelper("ma", ma.getMaId());
                 helper.setExcludedNodeIds(excludedNodeIds);
