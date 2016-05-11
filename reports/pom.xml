@@ -28,11 +28,13 @@
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-db</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -71,40 +73,21 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <!-- Maven Assembly Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4.1</version>
                 <configuration>
-
-                    <!-- get all project dependencies -->
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-
-                    <!-- MainClass in mainfest make a executable jar -->
-                    <archive>
-                        <manifest>
-                            <mainClass>org.mousephenotype.cda.reports.ReportsManager</mainClass>
-                        </manifest>
-                    </archive>
-
+                    <mainClass>org.mousephenotype.cda.reports.ReportsManager</mainClass>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
-
-                        <!-- bind to the packaging phase -->
-                        <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>repackage</goal>
                         </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>
