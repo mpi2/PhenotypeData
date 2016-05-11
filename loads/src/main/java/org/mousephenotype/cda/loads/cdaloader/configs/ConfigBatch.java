@@ -16,15 +16,14 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFile;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -53,8 +52,8 @@ public class ConfigBatch {
 //    @Qualifier("oboReader")
 //    public FlatFileItemReader<OntologyTerm> ontologyReader;
 
-    @Autowired
-    public ItemWriter<OntologyTerm> ontologyWriter;
+//    @Autowired
+//    public ItemWriter<OntologyTerm> ontologyWriter;
 
 
 //    @Autowired
@@ -64,6 +63,10 @@ public class ConfigBatch {
 //    @Autowired
 //    @Qualifier("recreateAndLoadDbTables")
 //    public SystemCommandTasklet recreateAndLoadDbTables;
+
+    @Autowired
+    @Qualifier("resourceFileDbItemWriter")
+    public ResourceFileDbItemWriter resourceFileDbItemWriter;
 
     @Autowired
     @Qualifier("resourceFileOntologyMa")
@@ -115,9 +118,9 @@ public class ConfigBatch {
     public Job cdaLoadJob() throws CdaLoaderException {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
-                .flow(resourceFileOntologyMp.getDownloadStep())
+                .flow(recreateAndLoadDbTables.getStep())
+                .next(resourceFileOntologyMp.getDownloadStep())
                 .next(resourceFileOntologyMp.getLoadStep())
-                .next(recreateAndLoadDbTables.getStep())
                 .end()
                 .build();
     }

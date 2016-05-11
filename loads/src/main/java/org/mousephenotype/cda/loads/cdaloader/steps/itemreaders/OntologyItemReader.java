@@ -16,10 +16,13 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps.itemreaders;
 
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.loads.cdaloader.OntologyParser;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.adapter.ItemReaderAdapter;
 
 import java.util.List;
@@ -28,6 +31,8 @@ import java.util.List;
  * Created by mrelac on 03/05/16.
  */
 public class OntologyItemReader extends ItemReaderAdapter<OntologyTerm> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private int dbId;
     private String filename;
@@ -51,9 +56,9 @@ public class OntologyItemReader extends ItemReaderAdapter<OntologyTerm> {
 
         try {
             terms = new OntologyParser(filename, prefix).getTerms();
-System.out.println("FILENAME: " + filename);
-System.out.println("PREFIX: " + prefix);
-System.out.println("TERMS COUNT: " + terms.size());
+            logger.info("FILENAME: " + filename);
+            logger.info("PREFIX: " + prefix);
+            logger.info("TERMS COUNT: " + terms.size());
 
         } catch (OWLOntologyCreationException e) {
             throw new CdaLoaderException(e);
@@ -64,8 +69,10 @@ System.out.println("TERMS COUNT: " + terms.size());
     public OntologyTerm read () {
         OntologyTerm term = null;
 
-        if (index < terms.size())
+        if (index < terms.size()) {
             term = terms.get(index);
+            term.setId(new DatasourceEntityId(term.getId().getAccession(), getDbId()));         // Get the dbId from the ResourceFileOntologyXx bean.
+        }
 
         index++;
 

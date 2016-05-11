@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -81,6 +82,7 @@ public class ConfigApp {
 
    		return sessionBuilder.buildSessionFactory();
    	}
+
     @Bean
    	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
    		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
@@ -93,4 +95,9 @@ public class ConfigApp {
 
    		return emf;
    	}
+
+	@Bean(name = "jdbcTemplate")
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(komp2Loads());
+	}
 }

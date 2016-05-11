@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
@@ -78,6 +79,14 @@ public class ConfigBeans {
         writer.setLineAggregator(new PassThroughLineAggregator<>());
         String sourcePath = "/tmp/loadOntologies.log";
         writer.setResource(new FileSystemResource(sourcePath));
+
+        return writer;
+    }
+
+    @Bean(name = "resourceFileDbItemWriter")
+    @StepScope
+    public ResourceFileDbItemWriter resourceFileDbItemWriter() {
+        ResourceFileDbItemWriter writer = new ResourceFileDbItemWriter();
 
         return writer;
     }

@@ -18,9 +18,10 @@ package org.mousephenotype.cda.loads.cdaloader.support;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologyItemReader;
+import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Created by mrelac on 04/05/16.
@@ -28,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ResourceFileOntology extends ResourceFile {
 
     @Autowired
-    public FlatFileItemWriter ontologyWriter;
+    @Qualifier("resourceFileDbItemWriter")
+    public ResourceFileDbItemWriter ontologyWriter;
+//    public FlatFileItemWriter ontologyWriter;
 
     private OntologyItemReader ontologyReader = null;
 
