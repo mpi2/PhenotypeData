@@ -121,9 +121,6 @@ public class GenePageTest {
     private void geneIdsTestEngine(String testName, List<String> geneIds) throws SolrServerException {
         RunStatus masterStatus = new RunStatus();
         DateFormat dateFormat = new SimpleDateFormat(TestUtils.DATE_FORMAT);
-
-        geneIds = testUtils.removeKnownBadGeneIds(geneIds);
-
         String target = "";
         String message;
         Date start = new Date();
@@ -153,11 +150,13 @@ public class GenePageTest {
                 masterStatus.add(status);
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                te.printStackTrace();
                 masterStatus.addError(message);
                 commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
             } catch (Exception e) {
                 message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+                e.printStackTrace();
                 masterStatus.addError(message);
                 commonUtils.sleep(threadWaitInMilliseconds);
                 continue;
@@ -277,9 +276,11 @@ public class GenePageTest {
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
             } catch (NoSuchElementException | TimeoutException te) {
                 message = "Expected page for MGI_ACCESSION_ID " + geneId + "(" + target + ") but found none.";
+                te.printStackTrace();
                 status.addError(message);
             } catch (Exception e) {
                 status.addError("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
+                e.printStackTrace();
                 continue;
             }
 
@@ -308,6 +309,7 @@ public class GenePageTest {
     public void testPageForGeneIds() throws SolrServerException {
         String testName = "testPageForGeneIds";
         List<String> geneIds = new ArrayList<>(geneService.getAllGenes());
+
         geneIdsTestEngine(testName, geneIds);
     }
 
@@ -465,6 +467,7 @@ public class GenePageTest {
             }
         } catch (Exception e) {
             message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
 

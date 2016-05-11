@@ -31,11 +31,13 @@ package org.mousephenotype.cda.seleniumtests.tests;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.seleniumtests.support.TestUtils;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.openqa.selenium.*;
+import org.mousephenotype.cda.utilities.RunStatus;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
@@ -47,8 +49,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.validation.constraints.NotNull;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -131,21 +131,16 @@ public class PhenotypePageStatistics {
      */
     @Test
     public void testCollectTableAndImageStatistics() throws SolrServerException {
-        RunStatus status = new RunStatus();
+        RunStatus masterStatus = new RunStatus();
         String testName = "testCollectTableAndImageStatistics";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
         String target = "";
-        List<String> errorList = new ArrayList();
-        List<String> successList = new ArrayList();
-        List<String> exceptionList = new ArrayList();
 
         List<String> phenotypeTableOnly = new ArrayList();
         List<String> imagesOnly = new ArrayList();
         List<String> both = new ArrayList();
         String message;
         Date start = new Date();
-        Date stop;
 
         int pagesWithPhenotypeTableCount = 0;
         int pagesWithImageCount = 0;
@@ -158,28 +153,21 @@ public class PhenotypePageStatistics {
         // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
         int i = 0;
         for (String phenotypeId : phenotypeIds) {
+            RunStatus status = new RunStatus();
             if (i >= targetCount) {
                 break;
             }
             i++;
 
             boolean found = false;
-//if (i == 1) phenotypeId = "MP:0001304";
 
             target = baseUrl + "/phenotypes/" + phenotypeId;
             logger.debug("phenotype[" + i + "] URL: " + target);
 
             try {
                 driver.get(target);
-                (new WebDriverWait(driver, timeoutInSeconds))
-                        .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
+                (new WebDriverWait(driver, timeoutInSeconds)).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
                 found = true;
-            } catch (NoSuchElementException | TimeoutException te) {
-                message = "Expected page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                status.addError(message);
-                continue;
-            }
-            try {
                 boolean hasPhenotypeTable = false;
                 boolean hasImage = false;
 
@@ -193,8 +181,7 @@ public class PhenotypePageStatistics {
                 if (testUtils.contains(elementList, "Images")) {
                     List<WebElement> imagesAccordion = driver.findElements(By.cssSelector("div.accordion-body ul li"));
                     if (imagesAccordion.isEmpty()) {
-                        message = "ERROR: Found Image tag but there were no image links";
-                        status.addError(message);
+                        status.addError("ERROR: Found Image tag but there were no image links");
                     } else {
                         hasImage = true;
                     }
@@ -213,19 +200,17 @@ public class PhenotypePageStatistics {
                     urlsWithNeitherPhenotypeTableNorImage.add(driver.getCurrentUrl());
                 }
             } catch (Exception e) {
-                message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
-                status.addError(message);
+                e.printStackTrace();
+                status.addError("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
             }
 
             if (found) {
-                message = "SUCCESS: MGI link OK for " + phenotypeId + ". Target URL: " + target;
-                successList.add(message);
+                status.successCount++;
             } else {
-                message = "h1 with id 'top' not found.";
-                status.addError(message);
+                status.addError("h1 with id 'top' not found.");
             }
 
-            commonUtils.sleep(threadWaitInMilliseconds);
+            masterStatus.add(status);
         }
 
         System.out.println("\nPhenotype pages with tables but no images: " + pagesWithPhenotypeTableCount);
@@ -252,7 +237,6 @@ public class PhenotypePageStatistics {
             }
         }
 
-        testUtils.printEpilogue(testName, start, status, successList.size(), targetCount, phenotypeIds.size());
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, phenotypeIds.size());
     }
-
 }

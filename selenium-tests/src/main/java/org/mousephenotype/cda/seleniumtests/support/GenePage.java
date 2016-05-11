@@ -250,7 +250,7 @@ public class GenePage {
                 }
 
                 for (List<String> row : graphUrlList) {
-                    String rawRow = row.get(GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER);
+                    String rawRow = row.get(GeneTable.COL_INDEX_GENES_PROCEDURE) + " | " + row.get(GeneTable.COL_INDEX_GENES_PARAMETER);
                     if (rawRow.equals(procedureName + " | " + parameterName)) {
                         urls.add(row.get(GeneTable.COL_INDEX_GENES_GRAPH_LINK));
                     }
@@ -524,7 +524,7 @@ public class GenePage {
         List<WebElement> elements;
 
 
-        // Check for phenotype associations. If it does, get the results count.
+        // Check for phenotype associations. If any, get the results count.
         try {
             elements = driver.findElements(By.xpath("//table[@id='genes']"));
             hasGenesTable = ! elements.isEmpty();
@@ -573,15 +573,16 @@ public class GenePage {
      */
     private GridMap getDownloadTsv(String baseUrl, RunStatus status) {
         String[][] data = new String[0][0];
-        String downloadUrlBase = getDownloadUrlBase();
 
         try {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            int pos = downloadUrlBase.indexOf("/export?");
+            // The downloadTarget is a path of the form '/mi/impc/dev/phenotype-archive/genes/export/MGI:2158015?fileType=tsv&fileName=Rln3'.
+            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export' with the baseUrl
+            // and "/genes".
+            String downloadUrlBase = driver.findElement(By.xpath("//a[@id='tsvDownload']")).getAttribute("href");
+            int pos = downloadUrlBase.indexOf("/export");
             downloadUrlBase = downloadUrlBase.substring(pos);
-            String downloadTarget = baseUrl + downloadUrlBase + "tsv";
+            String downloadTarget = baseUrl + "/genes" + downloadUrlBase + ".tsv";
 
             // Get the download stream and statistics for the TSV stream.
             URL url = new URL(downloadTarget);
@@ -593,18 +594,11 @@ public class GenePage {
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
 
         return new GridMap(data, target);
-    }
-
-    /**
-     * Return the download url base
-     * @return the download url base embedded in div.
-     */
-    private String getDownloadUrlBase() {
-        return driver.findElement(By.xpath("//div[@id='exportIconsDiv']")).getAttribute("data-exporturl");
     }
 
     /**
@@ -615,15 +609,16 @@ public class GenePage {
      */
     private GridMap getDownloadXls(String baseUrl, RunStatus status) {
         String[][] data = new String[0][0];
-        String downloadUrlBase = getDownloadUrlBase();
 
         try {
             // Typically baseUrl is a fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve.
-            // getDownloadTargetUrlBase() typically returns a path of the form '/mi/impc/dev/phenotype-archive/export?xxxxxxx...'.
-            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export?' with the baseUrl.
-            int pos = downloadUrlBase.indexOf("/export?");
+            // The downloadTarget is a path of the form '/mi/impc/dev/phenotype-archive/genes/export/MGI:2158015?fileType=xls&fileName=Rln3'.
+            // To create the correct url for the stream, replace everything in downloadTargetUrlBase before '/export' with the baseUrl
+            // and "/genes".
+            String downloadUrlBase = driver.findElement(By.xpath("//a[@id='xlsDownload']")).getAttribute("href");
+            int pos = downloadUrlBase.indexOf("/export");
             downloadUrlBase = downloadUrlBase.substring(pos);
-            String downloadTarget = baseUrl + downloadUrlBase + "xls";
+            String downloadTarget = baseUrl + "/genes" + downloadUrlBase + "xls";
 
             // Get the download stream and statistics for the XLS stream.
             URL url = new URL(downloadTarget);
@@ -635,6 +630,7 @@ public class GenePage {
             status.addError(message);
         }  catch (Exception e) {
             String message = "EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage();
+            e.printStackTrace();
             status.addError(message);
         }
 
@@ -719,18 +715,24 @@ public class GenePage {
                   GeneTable.COL_INDEX_GENES_PHENOTYPE
                 , GeneTable.COL_INDEX_GENES_ALLELE
                 , GeneTable.COL_INDEX_GENES_ZYGOSITY
+                , GeneTable.COL_INDEX_GENES_SEX
                 , GeneTable.COL_INDEX_GENES_LIFE_STAGE
-                , GeneTable.COL_INDEX_GENES_PROCEDURE_PARAMETER
-                , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER_SOURCE
+                , GeneTable.COL_INDEX_GENES_PROCEDURE
+                , GeneTable.COL_INDEX_GENES_PARAMETER
+                , GeneTable.COL_INDEX_GENES_PHENOTYPING_CENTER
+                , GeneTable.COL_INDEX_GENES_SOURCE
                 , GeneTable.COL_INDEX_GENES_GRAPH_LINK
         };
         final Integer[] downloadColumns = {
                   DownloadGeneMap.COL_INDEX_PHENOTYPE
                 , DownloadGeneMap.COL_INDEX_ALLELE
                 , DownloadGeneMap.COL_INDEX_ZYGOSITY
+                , DownloadGeneMap.COL_INDEX_SEX
                 , DownloadGeneMap.COL_INDEX_LIFE_STAGE
-                , DownloadGeneMap.COL_INDEX_PROCEDURE_PARAMETER
-                , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER_SOURCE
+                , DownloadGeneMap.COL_INDEX_PROCEDURE
+                , DownloadGeneMap.COL_INDEX_PARAMETER
+                , DownloadGeneMap.COL_INDEX_PHENOTYPING_CENTER
+                , DownloadGeneMap.COL_INDEX_SOURCE
                 , DownloadGeneMap.COL_INDEX_GRAPH_LINK
         };
         final Integer[] decodeColumns = {
