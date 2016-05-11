@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Created by mrelac on 03/05/16.
  */
-public class OntologiesItemReader extends ItemReaderAdapter<OntologyTerm> {
+public class OntologyItemReader extends ItemReaderAdapter<OntologyTerm> {
 
     private int dbId;
     private String filename;
@@ -38,7 +38,7 @@ public class OntologiesItemReader extends ItemReaderAdapter<OntologyTerm> {
 
 
     /**
-     * Initialise a new <code>OntologiesItemReader</code> instance
+     * Initialise a new <code>OntologyItemReader</code> instance
      * @param filename the fully qualified filename where the resource will be downloaded to and from which the <code>
      *                 ItemReader</code> will read
      * @param dbId the ontology identifier (from the komp2 table 'external_db')
