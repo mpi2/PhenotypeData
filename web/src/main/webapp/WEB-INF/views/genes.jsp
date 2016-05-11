@@ -323,6 +323,12 @@
 					div#diseasetabs div.dataTables_paginate li.active a {
 						color: white;
 					}
+					div.gxaAnatomogram {
+						margin-top: 50px;
+					}
+					ul#expList li a.mahighlight {
+						color: #E2701E;
+					}
 
 				</style>
 
@@ -648,8 +654,8 @@
 
 		<%--<script type="text/javascript" src="${baseUrl}/js/vendor.bundle-not-used.js?v=${version}"></script>--%>
 		<%--<script type="text/javascript" src="${baseUrl}/js/anatomogram.bundle-not-used.js?v=${version}"></script>--%>
-		<script language="JavaScript" type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>
-		<script language="JavaScript" type="text/javascript" src="http://www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>
+		<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/vendorCommons.bundle.js"></script>
+		<script language="JavaScript" type="text/javascript" src="//www.ebi.ac.uk/gxa/resources/js-bundles/expressionAtlasAnatomogram.bundle.js"></script>
 
 
 
@@ -685,6 +691,10 @@
 
 					// anatomogram stuff
 					var expData = JSON.parse('${anatomogram}');
+					var topLevelName2maIdMap = expData.topLevelName2maIdMap;
+					var maId2UberonMap = expData.maId2UberonMap;
+					var uberon2MaIdMap = expData.uberon2MaIdMap;
+					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
 					//console.log("no expression: ")
 					//console.log(expData.noExpression);
@@ -717,11 +727,8 @@
 							"expressions": expData.expression
 						}
 					];
-					//console.log("profile: ");
-					//console.log(profileRows);
 
-//					var EventEmitter = window.exposed.EventEmitter;
-//					var eventEmitter = new EventEmitter();
+					//console.log(profileRows);
 
 					var eventEmitter = expressionAtlasAnatomogram.eventEmitter;
 
@@ -730,26 +737,63 @@
 							anatomogramData,
 							profileRows,
 							"grey",
-							"blue"
+							"red"
 							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
 					);
 
-					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
-					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
+//					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
+//					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
 
+//					$("ul#expList li a").on("mouseover", function() {
+//						var topname = $(this).text();
+//						console.log(topname);
+//						console.log(topLevelName2maIdMap);
+//						var maIds = topLevelName2maIdMap[topname];
+//
+//						console.log("maids: "+  maIds);
+//						var uberonIds = [];
+//						for( var a=0; a<maIds.length; a++){
+//							var uberons = maIds[a];
+//							for ( var b=0; b<uberons.length; b++){
+//								console.log("now: "+ uberons[b]);
+//								uberonIds.push(uberons[b]);
+//							}
+//						}
+//						uberonIds = $.fn.getUnique(uberonIds);
+//
+//						console.log(uberonIds);
+//						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
+//						//eventEmitter.emit("gxaHeatmapColumnHoverChange", ["UBERON_0000010","UBERON_0001103"]);
+//
+//					}).on("mouseout", function(){
+//						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
+//					});
 
-
-
-//					var AnatomogramBuilder = window.exposed.AnatomogramBuilder;
-
-//					AnatomogramBuilder(
-//							document.getElementById("anatomogramContainer"),
-//							anatomogramData,
-//							profileRows,
-//							// make color the same to disguise mouseover highlight
-//							"blue",  // all tissues being tested
-//							"red",  // tissue color when mouseover
-//							eventEmitter);
+					// anatomogram tissue talks to MA list
+//					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
+//						//console.log(e)
+//
+//						var maIds = uberon2MaIdMap[e];
+//						var topLevelNames = [];
+//						for( var i=0; i<maIds.length; i++) {
+//							var tops = maId2topLevelNameMap[maIds[i]];
+//							for (var j=0; j<tops.length; j++){
+//								topLevelNames.push(tops[j]);
+//							}
+//						}
+//
+//						topLevelNames = $.fn.getUnique(topLevelNames);
+//
+//						$('ul#expList li a').each(function () {
+//							if ($.fn.inArray($(this).text(), topLevelNames)) {
+//								$(this).addClass("mahighlight");
+//							}
+//						});
+//
+//					});
+//					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
+//						$('ul#expList li a').removeClass("mahighlight");
+//					});
 				}
 
 				$("img.ui-button").each(function () {

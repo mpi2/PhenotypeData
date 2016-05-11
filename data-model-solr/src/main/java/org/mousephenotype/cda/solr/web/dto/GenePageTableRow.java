@@ -91,4 +91,32 @@ public class GenePageTableRow extends DataTableRow {
             return pvalueOp;
         }
     }
+    
+    /**
+     * @since 2016/05/05
+     * @return Tabbed header to be used in table export. 
+     * ! Keep in synch with order in getTabbedToString !
+     */
+    public static String getTabbedHeader(){
+    	return "Phenotype\tAllele\tZygosity\tSex\tLife Stage\tProcedure\tParameter\tPhenotyping Center\tSource\tP Value\tGraph";
+    }
+    
+    /**
+     * @since 2016/05/05
+     * @return Tabbed row for data export
+     */
+    public String toTabbedString(){
+    	return getPhenotypeTerm().getName() + "\t"
+                + getAllele().getSymbol() + "\t"
+                + getZygosity() + "\t"
+                + getSexes().get(0) + "\t"
+                + getLifeStageName() + "\t"
+                + getProcedure().getName() + "\t"
+                + getParameter().getName() + "\t"
+                + getPhenotypingCenter() + "\t"
+                + getDataSourceName() + "\t"
+                + getPrValueAsString() + "\t"
+                + getEvidenceLink().getUrl();
+    }
+    
 }

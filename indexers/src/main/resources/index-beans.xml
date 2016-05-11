@@ -24,10 +24,6 @@
     <bean id="encodedOrganisationConversionMap" class="org.mousephenotype.cda.solr.imits.EncodedOrganisationConversionMap" />
 
 
-    <bean id="datasourceDAO" class="org.mousephenotype.cda.db.dao.DatasourceDAOImpl">
-		<constructor-arg ref="sessionFactory" />
-	</bean>
-
 	<!-- Get the datasources from the filesystem overrides -->
 	<!-- Creates a MySQL Datasource -->
 	<bean id="komp2DataSource" class="org.apache.commons.dbcp.BasicDataSource"
@@ -199,7 +195,7 @@
 		<constructor-arg index="1" value="1000" /> <!--Queue size -->
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
-	
+
 	<bean id="mgiPhenotypeIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
 		<constructor-arg index="0"

@@ -35,6 +35,7 @@ import java.util.TreeSet;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -64,6 +65,7 @@ import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
@@ -92,6 +94,7 @@ import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.service.UniprotDTO;
 import uk.ac.ebi.phenotype.service.UniprotService;
+import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 import uk.ac.ebi.phenodigm.dao.PhenoDigmWebDao;
 import uk.ac.ebi.phenodigm.model.Gene;
 import uk.ac.ebi.phenodigm.model.GeneIdentifier;
@@ -148,7 +151,7 @@ public class GenesController {
 	
 	HttpProxy proxy = new HttpProxy();
 	
-	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806" });
+	private static final List<String> genesWithVignettes=Arrays.asList(new String[]{"MGI:1913761","MGI:97491" , "MGI:1922814","MGI:3039593" ,"MGI:1915138" , "MGI:1915138","MGI:1195985" ,"MGI:102806", "MGI:1195985","MGI:1915138", "MGI:1337104", "MGI:3039593","MGI:1922814", "MGI:97491","MGI:1928849","MGI:2151064","MGI:104606","MGI:103226","MGI:1920939","MGI:95698","MGI:1915091","MGI:1924285","MGI:1914797","MGI:1351614","MGI:2147810" });
 
 	/**
 	 * Runs when the request missing an accession ID. This redirects to the
@@ -201,11 +204,42 @@ public class GenesController {
 	}
 
 
+	@RequestMapping("/genes/export/{acc}")
+	public void genesExport(@PathVariable String acc, 
+			@RequestParam(required = true, value = "fileType") String fileType,
+			@RequestParam(required = true, value = "fileName") String fileName,
+			@RequestParam(required = false, value = "top_level_mp_term_name")  List<String> topLevelMpTermName,
+			@RequestParam(required = false, value = "resource_fullname")  List<String> resourceFullname,
+			@RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, 
+			Model model, HttpServletRequest request, HttpServletResponse response,RedirectAttributes attributes)
+	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+
+        PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+        List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
+        List<GenePageTableRow> phenotypes = new ArrayList<GenePageTableRow>();
+        String url =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        
+        for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+            List<String> sex = new ArrayList<String>();
+            sex.add(pcs.getSex().toString());
+            // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
+            GenePageTableRow pr = new GenePageTableRow(pcs, url, config, false);
+            phenotypes.add(pr);
+        } 
+        
+        List<String> dataRows = new ArrayList<>();
+		dataRows.add(GenePageTableRow.getTabbedHeader());
+		for (GenePageTableRow row : phenotypes) {
+			dataRows.add(row.toTabbedString());
+		}
+		
+		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
+	}
+	
+
 	private void processGeneRequest(String acc, Model model, HttpServletRequest request)
 	throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
 
-		
-		
 		GeneDTO gene = geneService.getGeneById(acc);
 
 		if (gene == null) {
@@ -333,7 +367,7 @@ public class GenesController {
 			e.printStackTrace();
 		}
 
-		processPhenotypes(acc, model, "", request);
+		processPhenotypes(acc, model, null, null, request);
 
 		model.addAttribute("viabilityCalls", viabilityCalls);
 		model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
@@ -389,12 +423,15 @@ public class GenesController {
 	 * @throws SolrServerException
 	 */
 	@RequestMapping("/genesPhenoFrag/{acc}")
-	public String genesPhenoFrag(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
+	public String genesPhenoFrag(@PathVariable String acc, 
+			@RequestParam(required = false, value = "top_level_mp_term_name")  List<String> topLevelMpTermName,
+			@RequestParam(required = false, value = "resource_fullname")  List<String> resourceFullname,
+			Model model, HttpServletRequest request, RedirectAttributes attributes)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
 		// Pass on any query string after the
 		String queryString = request.getQueryString();
-		processPhenotypes(acc, model, queryString, request);
+		processPhenotypes(acc, model, topLevelMpTermName, resourceFullname, request);
 
 		return "PhenoFrag";
 	}
@@ -513,12 +550,8 @@ public class GenesController {
 	}
 
 
-	private void processPhenotypes(String acc, Model model, String queryString, HttpServletRequest request)
+	private void processPhenotypes(String acc, Model model, List<String> topLevelMpTermName, List<String> resourceFullname, HttpServletRequest request)
 	throws IOException, URISyntaxException, SolrServerException {
-
-		if (queryString == null) {
-			queryString = "";
-		}
 
 		List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
 		PhenotypeFacetResult phenoResult = null;
@@ -526,8 +559,8 @@ public class GenesController {
 
 		try {
 
-			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
-			preQcResult = phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, queryString);
+			phenoResult = phenoDAO.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
+			preQcResult = phenoDAO.getPreQcPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
 
 			phenotypeList = phenoResult.getPhenotypeCallSummaries();
 			phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
