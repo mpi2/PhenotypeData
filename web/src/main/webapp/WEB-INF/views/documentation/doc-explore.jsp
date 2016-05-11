@@ -30,7 +30,8 @@
         <li><a href="#tabs-3">Diseases Page</a></li>
         <li><a href="#tabs-4">Anatomy Page</a></li>
         <li><a href="#tabs-5">Images Page</a></li>
-        <li><a href="#tabs-6">Others</a></li>
+        <li><a href="#tabs-6">Landing Page</a></li>
+        <li><a href="#tabs-7">Others</a></li>
       </ul>
 
 
@@ -50,8 +51,12 @@
         <%@ include file="image-help.jsp" %>
       </div>
       <div id="tabs-6" class="srchdocTab">
+        <%@ include file="landing-help.jsp" %>
+      </div>
+      <div id="tabs-7" class="srchdocTab">
         <%@ include file="data-release-overview.jsp" %>
       </div>
+  
 
     </div>
 

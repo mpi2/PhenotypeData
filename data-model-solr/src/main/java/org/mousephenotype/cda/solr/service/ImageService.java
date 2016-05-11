@@ -66,28 +66,28 @@ public class ImageService implements WebStatus{
 
 
 
-    public List<ImageSummary> getImageSummary(String markerAccessionId) 
+    public List<ImageSummary> getImageSummary(String markerAccessionId)
     throws SolrServerException{
-    	
+
     	SolrQuery q = new SolrQuery();
     	q.setQuery("*:*");
     	q.setFilterQueries(ImageDTO.GENE_ACCESSION_ID + ":\"" + markerAccessionId + "\"");
 
     	// TM decided only to display some procedures in the Summary
-    	q.addFilterQuery("(" + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_XRY* OR " 
+    	q.addFilterQuery("(" + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_XRY* OR "
     			+ ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_XRY* OR "
     			 + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_ALZ* OR "
     			  + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_PAT* OR "
     			   + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_EYE* OR "
     			    + ImageDTO.PROCEDURE_STABLE_ID + ":IMPC_HIS*" + ")");
-    	
+
     	q.set("group", true);
     	q.set("group.field", ImageDTO.PROCEDURE_NAME);
     	q.set("group.limit", 1);
     	q.set("group.sort" , ImageDTO.DATE_OF_EXPERIMENT + " DESC");
 
     	List<ImageSummary> res =  new ArrayList<>();
-    	
+
     	for (Group group : solr.query(q).getGroupResponse().getValues().get(0).getValues()){
     		ImageSummary iSummary = new ImageSummary();
     		iSummary.setNumberOfImages(group.getResult().getNumFound());
@@ -96,11 +96,11 @@ public class ImageService implements WebStatus{
     		iSummary.setThumbnailUrl(group.getResult().get(0).getFieldValue(ImageDTO.JPEG_URL).toString().replace("render_image", "render_thumbnail"));
     		res.add(iSummary);
     	}
-    	
+
     	return res;
     }
-    
-    
+
+
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
 			List<String> procedure, List<String> paramAssoc)
@@ -236,7 +236,7 @@ public class ImageService implements WebStatus{
 		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
-			for (String maId : image.getMaTermId()) {
+			for (String maId : image.getMaId()) {
 				AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId,
 						baseUrl, "expression");
 				if (res.containsKey(row.getKey())) {
@@ -406,13 +406,13 @@ public class ImageService implements WebStatus{
 	}
 
 	/**
-	 * 
-	 * @return list of image DTOs with laczData. Selected fields only. 
-	 * @throws SolrServerException 
+	 *
+	 * @return list of image DTOs with laczData. Selected fields only.
+	 * @throws SolrServerException
 	 */
-	public List<ImageDTO> getImagesForLacZ() 
+	public List<ImageDTO> getImagesForLacZ()
 	throws SolrServerException{
-		
+
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
 		query.setFilterQueries(ImageDTO.MA_ID + ":*");
@@ -422,11 +422,11 @@ public class ImageService implements WebStatus{
 		query.addField(ImageDTO.GENE_ACCESSION_ID);
 		query.addField(ImageDTO.MA_ID);
 		query.addField(ImageDTO.MA_TERM);
-		
+
 		return solr.query(query).getBeans(ImageDTO.class);
 	}
-	
-	
+
+
 	public List<String[]> getLaczExpressionSpreadsheet() {
         SolrQuery query = new SolrQuery();
         ArrayList<String[]> res = new ArrayList<>();
@@ -905,7 +905,7 @@ public class ImageService implements WebStatus{
 		return true;
 
 	}
-	
+
 	public long getWebStatus() throws SolrServerException {
 
 		SolrQuery query = new SolrQuery();
@@ -917,7 +917,7 @@ public class ImageService implements WebStatus{
 		QueryResponse response = solr.query(query);
 		return response.getResults().getNumFound();
 	}
-	
+
 	public String getServiceName(){
 		return "impc_images";
 	}
@@ -938,8 +938,8 @@ public class ImageService implements WebStatus{
 		//ImageDTO image = response.get(0);
 		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
 		return img;
-		
+
 	}
-	
+
 
 }
