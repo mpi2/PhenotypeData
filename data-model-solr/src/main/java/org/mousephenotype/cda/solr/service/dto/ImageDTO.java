@@ -163,6 +163,49 @@ public class ImageDTO extends ObservationDTO {
 	@Field(INTERMEDIATE_LEVEL_MA_TERM_SYNONYM)
 	private ArrayList<String> intermediateLevelMaTermSynonym;
 	
+	@Field(MpDTO.MP_ID)
+	private ArrayList<String> mpTermIds;
+	
+	@Field(MpDTO.MP_TERM)
+	private List<String> mpTerm;
+
+	@Field(MpDTO.MP_ID)
+	private List<String> mpIdTerm;
+
+	@Field(MpDTO.MP_TERM_SYNONYM)
+	private List<String> mpTermSynonym;
+	
+	public ArrayList<String> getMpTermIds() {
+		return mpTermIds;
+	}
+
+	public void setMpTermIds(ArrayList<String> mpTermIds) {
+		this.mpTermIds = mpTermIds;
+	}
+
+	public List<String> getMpTerm() {
+		return mpTerm;
+	}
+
+	public void setMpTerm(List<String> mpTerm) {
+		this.mpTerm = mpTerm;
+	}
+
+	public List<String> getMpIdTerm() {
+		return mpIdTerm;
+	}
+
+	public void setMpIdTerm(List<String> mpIdTerm) {
+		this.mpIdTerm = mpIdTerm;
+	}
+
+	public List<String> getMpTermSynonym() {
+		return mpTermSynonym;
+	}
+
+	public void setMpTermSynonym(List<String> mpTermSynonym) {
+		this.mpTermSynonym = mpTermSynonym;
+	}
 	
 	
 	@Field(EMAP_ID)
@@ -928,6 +971,11 @@ public class ImageDTO extends ObservationDTO {
 
 	public void setIntermediateLevelEmapTermSynonym(ArrayList<String> intermediateLevelEmapTermSynonym) {
 		this.intermediateLevelEmapTermSynonym = intermediateLevelEmapTermSynonym;
+	}
+
+	public void setMpTermId(ArrayList<String> mpTermIds) {
+		this.mpTermIds=mpTermIds;
+		
 	}
 
 

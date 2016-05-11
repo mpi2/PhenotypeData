@@ -20,10 +20,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * Created by mrelac on 13/07/2015.
@@ -53,6 +52,63 @@ public class CommonUtils {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Walks <code>data</code>, replacing each value in <code>expandColumnDefinitions</code> that contains a <code>delimeter</code>
+     * symbol into separate columns, adding each new column after the original. Returns the new data set.
+     * @param data The data against which to perform the translation
+     * @param expandColumnDefinitions A list of column indexes against which the translation will be performed
+     * @param delimeter the unescaped component separator (e.g. "|" or "/")
+     * @return the transformed (expanded) list
+     */
+    public List<List<String>> expandCompoundColumns(List<List<String>> data, List<Integer> expandColumnDefinitions, String delimeter) {
+        List<List<String>> retVal = new ArrayList<>();
+
+        for (List<String> sourceRow : data) {
+            List<String> targetRow = new ArrayList<>();
+            retVal.add(targetRow);
+            for (int colIndex = 0; colIndex < sourceRow.size(); colIndex++) {
+                String value = sourceRow.get(colIndex);
+                if (expandColumnDefinitions.contains(colIndex)) {
+                    String[] parts = value.split(Pattern.quote(delimeter));
+                    for (String s : parts) {
+                        targetRow.add(s.trim());
+                    }
+                } else {
+                    targetRow.add(value);
+                }
+            }
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Walks <code>data</code>, replacing each sex value of 'both' in <code>expandColumnDefinitions</code> with the
+     * value 'male', and adding another identical row to the result set with the sex value 'female'. Returns the new
+     * data set.
+     * @param data The data against which to perform the translation
+     * @param sexColumnDefinition The index of the sex column against which the translation will be performed
+     * @return the transformed (expanded) list
+     */
+    public List<List<String>> expandSexColumn(List<List<String>> data, Integer sexColumnDefinition) {
+        List<List<String>> retVal = new ArrayList<>();
+
+        for (List<String> sourceRow : data) {
+            if (sourceRow.get(sexColumnDefinition).equals("both")) {
+                List<String> newRow = new ArrayList<>(sourceRow);
+                newRow.set(sexColumnDefinition, "female");
+                retVal.add(newRow);
+                newRow = new ArrayList<>(sourceRow);
+                newRow.set(sexColumnDefinition, "male");
+                retVal.add(newRow);
+            } else {
+                retVal.add(sourceRow);
+            }
+        }
+
+        return retVal;
     }
 
     /**

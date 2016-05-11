@@ -708,42 +708,6 @@ public class TestUtils {
      * @param testName the test name (must not be null)
      * @param start the test start time (must not be null)
      * @param status the <code>RunStatus</code> instance
-     * @param successRecords the number of success records processed
-     * @param totalRecords the total number of expected records to process
-     * @param totalPossible the total number of possible records to process
-     */
-    @Deprecated
-    public void printEpilogue(String testName, Date start, RunStatus status, int successRecords, int totalRecords, int totalPossible) {
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        System.out.println(dateFormat.format(new Date()) + ": " + testName + " finished.");
-        Date stop;
-
-        if (status.hasWarnings()) {
-            System.out.println(status.getWarningMessages().size() + " records had warnings:");
-            System.out.println(status.toStringWarningMessages());
-        }
-
-        if (status.hasErrors()) {
-            System.out.println(status.getErrorMessages().size() + " errors:");
-            System.out.println(status.toStringErrorMessages());
-        }
-
-        stop = new Date();
-        String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
-        System.out.println(dateFormat.format(stop) + ": " + successRecords + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + formatDateDifference(start, stop) + ".");
-        if (status.hasErrors()) {
-            fail("ERRORS: " + status.getErrorMessages().size());
-        }
-    }
-
-    /**
-     * Given a test name, test start time, error list, exception list, success list,
-     * and total number of expected records to be processed, writes the given
-     * information to stdout.
-     *
-     * @param testName the test name (must not be null)
-     * @param start the test start time (must not be null)
-     * @param status the <code>RunStatus</code> instance
      * @param totalRecords the total number of expected records to process
      * @param totalPossible the total number of possible records to process
      */
@@ -836,34 +800,6 @@ public class TestUtils {
         long seconds = diff / 1000 % 60;
 
         return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
-    }
-
-    /**
-     * Removes known bad gene ids like MGI:3688249, otherwise known as Ostes, which is a heritable phenotypic marker
-     * and thus, correctly, has no gene in the gene core but has a record in the genotype-phenotype core. This gene id
-     * comes up regularly enough in tests (and fails the test because it generates an "Oops!" page) that it warrants
-     * exclusion in testing. MGI may someday make it a real gene, in which case we can remove calls to this method.
-     *
-     * @param geneIdList The gene list
-     *
-     * @return a copy of <code>geneIdList</code>, with specific gene ids removed, if they are in the list.
-     *
-     * @deprecated This deprecated flag is a reminder to check these genes against MGI to see if they are real genes
-     * yet (and can thus participate in testing). Until that time, this filter method should be called to avoid
-     * false test failures.
-     *
-     * See also Jira ticket MPII-1493.
-     */
-    @Deprecated
-    public List<String> removeKnownBadGeneIds(List<String> geneIdList) {
-        final List<String> badGeneIds = new ArrayList<>(Arrays.asList(new String[] {
-                "MGI:3688249",
-//                "MGI:1336993"   // This hangs the genes test.
-        }));
-
-        geneIdList.removeAll(badGeneIds);
-
-        return geneIdList;
     }
 
     /**
