@@ -11,13 +11,6 @@
 	<jsp:attribute name="header">       
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/ontologyBrowser.css"/>
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
-		<style>
-				#ontotree {
-					margin: 40px 0;
-					font-family: "Source Sans Pro",\80 \8b Arial,\80 \8b Helvetica,\80 \8b sans-serif;
-					font-size: 25px;
-				}
-		</style>
 	</jsp:attribute>
 
 	<jsp:attribute name="addToFooter">	
