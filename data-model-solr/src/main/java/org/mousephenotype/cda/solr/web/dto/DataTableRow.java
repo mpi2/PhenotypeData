@@ -17,6 +17,7 @@ package org.mousephenotype.cda.solr.web.dto;
 
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -74,7 +75,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
 	    this.config = config;
         List<String> sex = new ArrayList<String>();
-        sex.add(pcs.getSex().toString());
+       	sex.add(pcs.getSex().toString());
         this.setGid(pcs.getgId());
         this.setPreQc(pcs.isPreQC());
         this.setGene(pcs.getGene());

@@ -48,8 +48,8 @@
             <td style="font-family:Verdana;font-weight:bold;">
                 <c:set var="count" value="0" scope="page"/>
                 <c:forEach var="sex" items="${phenotype.sexes}"><c:set var="count" value="${count + 1}" scope="page"/>
-                    <c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/>
-                        <img alt="Female" src="${baseUrl}/img/female.jpg"/></c:if><c:if test="${sex == 'male'}"><c:set
+                    <c:if test="${sex == 'female' || sex == 'both' }"><c:set var="europhenome_gender" value="Female"/>
+                        <img alt="Female" src="${baseUrl}/img/female.jpg"/></c:if><c:if test="${sex == 'male' || sex == 'both'}"><c:set
                             var="europhenome_gender" value="Male"/><img alt="Male"
                                                                         src="${baseUrl}/img/male.jpg"/></c:if></c:forEach>
             </td>
