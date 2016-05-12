@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.EmapOntologyDAO;
 import org.mousephenotype.cda.db.dao.MaOntologyDAO;
+import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.db.dao.OntologyDAO;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -77,6 +78,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	@Autowired
 	EmapOntologyDAO emapService;
 
+	@Autowired
+	MpOntologyDAO mpService;
+
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
@@ -98,6 +102,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	private Map<String, String> parameterStableIdToEmapTermIdMap = new HashMap(); // key:
 																					// EMAP
 																					// id;
+	private Map<String, String> parameterStableIdToMpTermIdMap;
 
 	public ImpcImagesIndexer() {
 		super();
@@ -124,6 +129,14 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		try {
 			parameterStableIdToMaTermIdMap = this.populateParameterStableIdToMaIdMap();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("building parameter to abnormal mp map");
+			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
+			System.out.println("parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -234,8 +247,10 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 					addOntology(runStatus, imageDTO, parameterStableIdToMaTermIdMap, maService);
 					addOntology(runStatus, imageDTO, parameterStableIdToEmapTermIdMap, emapService);
+					addOntology(runStatus, imageDTO, parameterStableIdToMpTermIdMap, mpService);
 
 					impcImagesCore.addBean(imageDTO);
+
 					documentCount++;
 				}
 			}
@@ -314,21 +329,21 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 			if (ontologyDAO instanceof EmapOntologyDAO) {
 				if (!termIds.isEmpty()) {
-					imageDTO.setEmapTermId(termIds);
+					imageDTO.setEmapId(termIds);
 
-					ArrayList<String> maIdTerms = new ArrayList<>();
+					ArrayList<String> emapIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
-						String maId = termIds.get(i);
+						String emapId = termIds.get(i);
 
 						try {
-							String maTerm = terms.get(i);
-							maIdTerms.add(maId + "_" + maTerm);
+							String emapTerm = terms.get(i);
+							emapIdTerms.add(emapId + "_" + emapTerm);
 						} catch (Exception e) {
-							runStatus.addWarning(" Could not find term when indexing EMAP " + maId + ". Exception: "
+							runStatus.addWarning(" Could not find term when indexing EMAP " + emapId + ". Exception: "
 									+ e.getLocalizedMessage());
 						}
 					}
-					imageDTO.setEmapIdTerm(maIdTerms);
+					imageDTO.setEmapIdTerm(emapIdTerms);
 				}
 				if (!terms.isEmpty()) {
 					imageDTO.setEmapTerm(terms);
@@ -338,28 +353,28 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setEmapTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setTopLevelEmapIds(topLevelIds);
+					imageDTO.setSelectedTopLevelEmapId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setTopLeveEmapTerm(topLevelTerm);
+					imageDTO.setSelectedTopLevelEmapTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelEmapTermSynonym(topLevelTermSynonym);
+					imageDTO.setSelectedTopLevelEmapTermSynonym(topLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapId(intermediateLevelIds);
+					imageDTO.setIntermediateEmapId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateEmapTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateEmapTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 
 			if (ontologyDAO instanceof MaOntologyDAO) {
 				if (!termIds.isEmpty()) {
-					imageDTO.setMaTermId(termIds);
+					imageDTO.setMaId(termIds);
 
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
@@ -399,23 +414,56 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setMaTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setTopLevelMaId(topLevelIds);
+					imageDTO.setSelectedTopLevelMaId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setTopLevelMaTerm(topLevelTerm);
+					imageDTO.setSelectedTopLevelMaTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelMaTermSynonym(topLevelTermSynonym);
+					imageDTO.setSelectedTopLevelMaTermSynonym(topLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateLevelMaId(intermediateLevelIds);
+					imageDTO.setIntermediateMaId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateLevelMaTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateMaTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateMaTermSynonym(intermediateLevelTermSynonym);
 				}
+			}
+
+			if (ontologyDAO instanceof MpOntologyDAO) {
+//				System.out.println("instance of mp ontology DAO");
+				if (!termIds.isEmpty()) {
+					//System.out.println("setting mp term ids="+termIds);
+					imageDTO.setMpTermId(termIds);
+
+					ArrayList<String> mpIdTerms = new ArrayList<>();
+					for (int i = 0; i < termIds.size(); i++) {
+						String mpId = termIds.get(i);
+
+						try {
+
+
+
+							String mpTerm = terms.get(i);
+							mpIdTerms.add(mpId + "_" + mpTerm);
+						} catch (Exception e) {
+							runStatus.addWarning(" Could not find term when indexing MP " + mpId + ". Exception: "
+									+ e.getLocalizedMessage());
+						}
+					}
+					imageDTO.setMpIdTerm(mpIdTerms);
+				}
+				if (!terms.isEmpty()) {
+					imageDTO.setMpTerm(terms);
+				}
+
+				if (!termSynonyms.isEmpty()) {
+					imageDTO.setMpTermSynonym(termSynonyms);
+				}
+
 			}
 		}
 	}
@@ -431,7 +479,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		Map<String, ImageBean> imageBeansMap = new HashMap<>();
 		final String getExtraImageInfoSQL = "SELECT " + ImageDTO.OMERO_ID + ", " + ImageDTO.DOWNLOAD_FILE_PATH + ", "
-				+ ImageDTO.IMAGE_LINK 
+				+ ImageDTO.IMAGE_LINK
 				+ ", "
 				+ ImageDTO.FULL_RESOLUTION_FILE_PATH
 				+","
@@ -467,13 +515,13 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		return imageBeansMap;
 	}
-	
+
 	public static boolean isInteger(String s) {
-	    try { 
-	        Integer.parseInt(s); 
-	    } catch(NumberFormatException e) { 
+	    try {
+	        Integer.parseInt(s);
+	    } catch(NumberFormatException e) {
 	    	e.printStackTrace();
-	        return false; 
+	        return false;
 	    } catch(NullPointerException e) {
 	    	e.printStackTrace();
 	        return false;
@@ -614,6 +662,23 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		}
 		logger.debug(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
+	}
+
+	public Map<String, String> populateParameterStableIdToMpIdMap() throws SQLException {
+		Map<String, String> paramToMp = new HashMap<String, String>();
+		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=5 and ppoa.event_type='abnormal' LIMIT 1000000";
+		try (PreparedStatement statement = komp2DataSource.getConnection().prepareStatement(query)) {
+			ResultSet resultSet = statement.executeQuery();
+
+			while (resultSet.next()) {
+				String parameterStableId = resultSet.getString("stable_id");
+				String maAcc = resultSet.getString("ontology_acc");
+				//System.out.println("parameterStableId="+parameterStableId+" maAcc="+maAcc);
+				paramToMp.put(parameterStableId, maAcc);
+			}
+		}
+		logger.debug(" paramToMp size = " + paramToMp.size());
+		return paramToMp;
 	}
 	// SELECT * FROM phenotype_parameter pp INNER JOIN
 	// phenotype_parameter_lnk_ontology_annotation pploa ON

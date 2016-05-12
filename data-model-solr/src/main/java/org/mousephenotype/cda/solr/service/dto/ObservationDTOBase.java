@@ -1390,7 +1390,7 @@ public class ObservationDTOBase {
 		this.emapTermSynonym = emapTermSynonym;
 	}
 
-	public List<String> getIntermediateEmapID() {
+	public List<String> getIntermediateEmapId() {
 		return intermediateEmapID;
 	}
 
@@ -1414,7 +1414,7 @@ public class ObservationDTOBase {
 		this.intermediateEmapTermSynonym = intermediateEmapTermSynonym;
 	}
 
-	public List<String> getSelectedTopLevelEmapID() {
+	public List<String> getSelectedTopLevelEmapId() {
 		return selectedTopLevelEmapID;
 	}
 
