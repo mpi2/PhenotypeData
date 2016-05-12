@@ -77,10 +77,7 @@
 
             <td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
             <td>${phenotype.phenotypingCenter} |  ${phenotype.dataSourceName}</td>
-           <!-- <td>
-                    ${phenotype.dataSourceName}
-            </td>
-    -->
+         
             <td>${phenotype.prValueAsString}</td>
 
             <c:if test="${phenotype.isPreQc()}">
