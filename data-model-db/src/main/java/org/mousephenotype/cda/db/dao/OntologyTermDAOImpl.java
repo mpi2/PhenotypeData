@@ -140,7 +140,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 
 	@Override
 	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId) {
-d		return (OntologyTerm)this.getCurrentSession().createQuery("from OntologyTerm as o where o.name= :name and o.id.databaseId = :databaseId")
+		return (OntologyTerm)this.getCurrentSession().createQuery("from OntologyTerm as o where o.name= :name and o.id.databaseId = :databaseId")
 			.setString("name", name)
 			.setInteger("databaseId", databaseId)
 			.uniqueResult();
