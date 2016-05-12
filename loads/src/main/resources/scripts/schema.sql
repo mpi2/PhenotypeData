@@ -731,8 +731,7 @@ CREATE TABLE consider_id (
 
 	PRIMARY KEY (id),
 	KEY ontology_term_idx (acc, db_id),
-	KEY ontology_term_acc_idx (acc),
-  FOREIGN KEY ontology_term_pk (ontologyTerm_pk) REFERENCES ontology_term (id)
+	KEY ontology_term_acc_idx (acc)
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
