@@ -88,14 +88,14 @@
                          				<a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> 
                          				(expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and
                          				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while 
-                         				the lethal €‹embryos may have a heart defect.
+                         				the lethal ï¿½ï¿½embryos may have a heart defect.
                         			</p>
 
                         			<p>Phenotype data links</p>
 
                             		<ul>
                             			<li>
-                            				Viability:<a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
+                            				Viability: <a href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell" target="_blank">Complete preweaning lethality</a>
                             			</li>
                             			<li> Embryonic Viability: <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a> </li>
                             			<li>
@@ -117,7 +117,7 @@
                             		</ul>
 
                             	</div>
-                            	<div class="onethird"><a href="${baseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804"><img alt="E18.5  Klhdc2 null embryo" src="${baseUrl}/img/vignettes/Kldhc2.png" >E18.5 Klhdc2 null embryo</a></div>
+                            	<div class="onethird"><a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804"><img alt="E18.5  Klhdc2 null embryo" src="${baseUrl}/img/vignettes/Kldhc2.png" >E18.5 Klhdc2 null embryo</a></div>
 
                             	<div class="clear"></div>
                             </div>
@@ -211,7 +211,7 @@
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1195985&v=2d&pid=203&h=561&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=Average&wx=92&wy=62&wz=175&wl=23&wu=255&mn=AAPN_K1026-1-e15.5&mx=92&my=68&mz=139&ml=20&mu=179&wov=jacobian&mov=none">Image</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
@@ -409,7 +409,7 @@
 
 				            		</ul>
 								</div>
-                            	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/Tox3MRI.png">                            	
+                            	<div class="half"><img alt="Tox3 MRI" src="${baseUrl}/img/vignettes/tox3MRI.png">                            	
                             		Caudal to rostral coronal sections of whole brain MRI with automated volume analysis revealed P7 
                             		<t:formatAllele>Tox3<tm1b/tm1b></t:formatAllele> mutant mice had smaller (blue) and larger (red) tissues compared 
                             		to the <t:formatAllele>Tox3<+/+></t:formatAllele> wildtype average.
@@ -1024,6 +1024,127 @@
                             </div>
 
                        	</div>
+                       	
+                       	
+                       	<div class="section">
+                        <c:set var="geneId" value="MGI:1351614"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Gyg<tm1b(KOMP)Wtsi></t:formatAllele>
+							</h2>
+
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>Glycogenin is an enzyme that converts glucose to glycogen. Glycogenin catalyzes UDP-alpha-D-glucose + glycogenin &rlhar; UDP + alpha-D-glucosylglycogenin. The enzyme is a homodimer of 37 kDa subunits. 
+                         			Mutations in human GYG1 are associated with Glyocgen Storage Disease XV and Polyglucosan Body Myopathy 2 (<a href="http://www.omim.org/entry/603942">OMIM</a>). Homozygous null Gyg mice die between birth and weaning but were found in normal proportions at E18.5. Mutants were indistinguishable from littermates at E12.5, E15.5 or E18.5 but analysis of microCT images revealed obvious cardiac abnormalities, enlarged thymus and abnormal nervous system morphology. This is the first reported Gyg mouse mutant. 
+									</p>
+
+                        			<p>Phenotype data links</p>
+
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${drupalBaseUrl}/phenoview/?gid=3385-18-1&qeid=IMPC_EVP_001_001" target="_blank">Embryo viability E18.5</a>
+                            			</li>
+                            			
+                            			<li>
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=3385-18-1&qeid=IMPC_ELZ_064_001">Images</a>
+                            						
+                            			</li>
+                            			
+                            			<li>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1351614">Images</a>
+                            			</li>
+                            			<li>
+                            				Adult het phenotype data: <a href="${baseUrl}/charts?accession=MGI:1351614&allele_accession_id=MGI:5548475&zygosity=heterozygote&parameter_stable_id=IMPC_ECH_009_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Thick ventricular wall</a>
+                            			</li>
+                            		</ul>
+                            	</div>
+
+                            	<div class="half">
+                            		<img alt="Single images from E18.5 microCT volumes showing spinal cord abnormalities (arrow), enlarged thymus (asterisk) and thickened myocardium (arrowhead) in homozygous null embryos compared to wild-type littermates." src="${baseUrl}/img/vignettes/Gygmutants.png"> <br/> Single images from E18.5 microCT volumes showing spinal cord abnormalities (arrow), enlarged thymus (asterisk) and thickened myocardium (arrowhead) in homozygous null embryos compared to wild-type littermates.
+                            	</div>
+
+                            	<div class="clear"></div>
+
+                            </div>
+
+                       	</div>
+                       	
+                       	
+                       	<div class="section">
+                        <c:set var="geneId" value="MGI:2147810"></c:set>
+							<h2 class="title" id="${geneId}">
+								<t:formatAllele>Tmem132a<tm1b(KOMP)Wtsi></t:formatAllele>
+							</h2>
+
+                            <div class="inner">
+                            	<div class="half">
+                         			<p>Transmembrane protein132a is transmembrane protein of unknown function.
+                         			Homozygous null mutants were viable at normal proportions at E15.5 and E18.5 but showed obvious and severe defects that were readibly visible by eye. Embryos had abnormal limb morphology with syndactyly, spina bifida, heart abnormalities. Some mutants were smaller than littermates.
+                         			
+                         			
+                         			</p>
+
+                        			<p>Phenotype data links</p>
+
+                            		<ul>
+                            			<li>
+                            				Viability: <a href="${drupalBaseUrl}/phenoview/?gid=263-18-1&qeid=IMPC_EVP_001_001" target="_blank">Embryo viability E18.5</a>
+                            			</li>
+                            			
+                            			<li>
+                            				Embryo LacZ Expression:	<a href="${drupalBaseUrl}/phenoview/?gid=263-18-1&qeid=IMPC_ELZ_064_001">Images</a>
+                            						
+                            			</li>
+                            			
+                            			<li>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Images</a>
+                            			</li>
+                            			<li>
+                            				Adult het phenotype data: <a href="${baseUrl}/charts?accession=MGI:2147810&allele_accession_id=MGI:5548753&zygosity=heterozygote&parameter_stable_id=IMPC_DXA_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Abnormal bone structure</a>, 
+                            				<a href="${baseUrl}/charts?accession=MGI:2147810&allele_accession_id=MGI:5548753&zygosity=heterozygote&parameter_stable_id=IMPC_DXA_009_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Increased total body fat</a>,
+                            				<a href="${baseUrl}/charts?accession=MGI:2147810&allele_accession_id=MGI:5548753&zygosity=heterozygote&parameter_stable_id=IMPC_DXA_005_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Decreased bone mineral content</a>
+                            			</li>
+                            			<li>
+                            				Sagittal images from microCT: <a href="#tmem132aMri" class="various" id="tmem132aTrigger">Images</a>
+                            			</li>
+                            			<li>
+                            				Axial images from microCT <a href="#tmem132amCT" class="various" id="tmem132amCTTrigger">Images</a>
+                            			</li>
+                            		</ul>
+                            	</div>
+
+                            	<div class="half">
+                            		<img alt="Surface renderings of  microCT volumes of Tmem132a mutants compared to wildtype littermates" src="${baseUrl}/img/vignettes/Tmem132a surface recon.png"> <br/> Surface renderings of  microCT volumes of Tmem132a mutants compared to wildtype littermates
+                            	</div>
+                            	
+                            	<div id="tmem132aMri" style="display:none">
+		                       		<img src="${baseUrl}/img/vignettes/Tmem132aE15.5 sag.png">
+		                       		<p> 		                       			
+		                       			Sagittal images from microCT volumes of wildtype (WT) and mutant (<t:formatAllele>Tmem132a<tm1b/tm1b></t:formatAllele>) showing areas of defects (red arrows) indicating reduced neural tissue, heart defects and kidney abnormalities (extra lobe).
+		                       		</p>
+		                       	</div>
+		                       	
+		                       	<div id="tmem132amCT" style="display:none">
+		                       		<img src="${baseUrl}/img/vignettes/Tmem132a axial.png">
+		                       		<p> 		                       			
+		                       			Axial images from microCT volumes of wildtype (WT) and mutant (<t:formatAllele>Tmem132a<tm1b/tm1b></t:formatAllele>) showing kidney abnormalities (extra lobe). 
+		                       		</p>
+		                       	</div>
+
+                            	<div class="clear"></div>
+
+                            </div>
+
+                       	</div>
+                       	
+                       	
+                       	
+                       	
+                       	
+                       	
+                       	
+                       	
+                       	
 
 
                        	</div>
@@ -1049,7 +1170,9 @@
     $("#tox3HisTrigger").fancybox();
     $("#rsph9ViableTrigger").fancybox();
     $("#rsph9MriTrigger").fancybox();
-
+    $("#tmem132aTrigger").fancybox();
+    $("#tmem132amCTTrigger").fancybox();
+    
 
 
 </script>

@@ -81,16 +81,37 @@ public class ImageDTO extends ObservationDTO {
 	public final static String WEIGHT_DAYS_OLD = ObservationDTO.WEIGHT_DAYS_OLD;
 	public final static String WEIGHT = ObservationDTO.WEIGHT;
 
+	public static final String MA_ID = ObservationDTO.MA_ID;
+	public static final String MA_TERM = ObservationDTO.MA_TERM;
+	public static final String MA_TERM_SYNONYM = ObservationDTO.MA_TERM_SYNONYM;
+	public static final String INTERMEDIATE_MA_ID = ObservationDTO.INTERMEDIATE_MA_ID;
+	public static final String INTERMEDIATE_MA_TERM = ObservationDTO.INTERMEDIATE_MA_TERM;
+	public static final String INTERMEDIATE_MA_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_MA_TERM_SYNONYM;
+	public static final String SELECTED_TOP_LEVEL_MA_ID = ObservationDTO.SELECTED_TOP_LEVEL_MA_ID;
+	public static final String SELECTED_TOP_LEVEL_MA_TERM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM;
+	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM;
+
+	public static final String EMAP_ID = ObservationDTO.EMAP_ID;
+	public static final String EMAP_TERM = ObservationDTO.EMAP_TERM;
+	public static final String EMAP_TERM_SYNONYM = ObservationDTO.EMAP_TERM_SYNONYM;
+	public static final String INTERMEDIATE_EMAP_ID = ObservationDTO.INTERMEDIATE_EMAP_ID;
+	public static final String INTERMEDIATE_EMAP_TERM = ObservationDTO.INTERMEDIATE_EMAP_TERM;
+	public static final String INTERMEDIATE_EMAP_TERM_SYNONYM = ObservationDTO.INTERMEDIATE_EMAP_TERM_SYNONYM;
+	public static final String SELECTED_TOP_LEVEL_EMAP_ID = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_ID;
+	public static final String SELECTED_TOP_LEVEL_EMAP_TERM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM;
+	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = ObservationDTO.SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM;
+
+
 	public static final String FULL_RESOLUTION_FILE_PATH="full_resolution_file_path";
 
 	public static final String OMERO_ID = "omero_id";
 	public static final String DOWNLOAD_URL = "download_url";
 	public static final String JPEG_URL = "jpeg_url";
 	public static final String IMAGE_LINK = "image_link";
-	
+
 	public static final String EFO_ID = "efo_id";
 	public static final String UBERON_ID = "uberon_id";
-	
+
 	public static final String SYMBOL_GENE = "symbol_gene";
 	public static final String SYMBOL = "symbol";
 	public static final String SUBTYPE = "subtype";
@@ -108,92 +129,77 @@ public class ImageDTO extends ObservationDTO {
 	public static final String MARKER_TYPE = SangerImageDTO.MARKER_TYPE;
 	public static final String HUMAN_GENE_SYMBOL = SangerImageDTO.HUMAN_GENE_SYMBOL;
 	public static final String LATEST_PHENOTYPE_STATUS = AlleleDTO.LATEST_PHENOTYPE_STATUS;
-	
-	public static final String MA_ID = "ma_id";
-	public static final String MA_TERM = "ma_term";
-	public static final String MA_ID_TERM = "ma_id_term";
-	public static final String MA_TERM_SYNONYM = "ma_term_synonym";
-	public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
-	public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
-	
-	public static final String INTERMEDIATE_LEVEL_MA_TERM_ID = "intermediate_ma_term_id";
-	public static final String INTERMEDIATE_LEVEL_MA_TERM = "intermediate_ma_term";
-	public static final String INTERMEDIATE_LEVEL_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
-	
-	public static final String EMAP_ID = "emap_id";
-	public static final String EMAP_TERM = "emap_term";
-	public static final String EMAP_ID_TERM = "emap_id_term";
-	public static final String EMAP_TERM_SYNONYM = "emap_term_synonym";
-	public static final String SELECTED_TOP_LEVEL_EMAP_ID = "selected_top_level_emap_id";
-	public static final String SELECTED_TOP_LEVEL_EMAP_TERM = "selected_top_level_emap_term";
-	public static final String SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM = "selected_top_level_emap_term_synonym";
-	
-	public static final String INTERMEDIATE_LEVEL_EMAP_TERM_ID = "intermediate_emap_term_id";
-	public static final String INTERMEDIATE_LEVEL_EMAP_TERM = "intermediate_emap_term";
-	public static final String INTERMEDIATE_LEVEL_EMAP_TERM_SYNONYM = "intermediate_emap_term_synonym";
-	public static final String INCREMENT_VALUE="increment_value";
 
-	@Field(MA_ID)
-	private List<String> maTermId;
-	@Field(MA_TERM)
-	private List<String> maTerm;
+	public static final String MA_ID_TERM = "ma_id_term";
+
+	public static final String EMAP_ID_TERM = "emap_id_term";
+	public static final String MP_ID_TERM = "mp_id_term";
+
+	public static final String INCREMENT_VALUE="increment_value";
 
 	@Field(MA_ID_TERM)
 	private List<String> maIdTerm;
 
-	@Field(MA_TERM_SYNONYM)
-	private List<String> maTermSynonym;
-
-	@Field(SELECTED_TOP_LEVEL_MA_ID)
-	private List<String> topLevelMaIds;
-
-	@Field(SELECTED_TOP_LEVEL_MA_TERM)
-	private List<String> topLeveMaTerm;
-
-	@Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
-	private List<String> topLevelMaTermSynonym;
-	
-	@Field(INTERMEDIATE_LEVEL_MA_TERM_ID)
-	private ArrayList<String> intermediateLevelMaId;
-
-	@Field(INTERMEDIATE_LEVEL_MA_TERM)
-	private ArrayList<String> intermediateLevelMaTerm;
-	
-	@Field(INTERMEDIATE_LEVEL_MA_TERM_SYNONYM)
-	private ArrayList<String> intermediateLevelMaTermSynonym;
-	
-	
-	
-	@Field(EMAP_ID)
-	private List<String> emapTermId;
-	@Field(EMAP_TERM)
-	private List<String> emapTerm;
-
 	@Field(EMAP_ID_TERM)
 	private List<String> emapIdTerm;
 
-	@Field(EMAP_TERM_SYNONYM)
-	private List<String> emapTermSynonym;
 
-	@Field(SELECTED_TOP_LEVEL_EMAP_ID)
-	private List<String> topLevelEmapIds;
+	@Field(MpDTO.MP_ID)
+	private ArrayList<String> mpTermIds;
 
-	@Field(SELECTED_TOP_LEVEL_EMAP_TERM)
-	private List<String> topLeveEmapTerm;
+	@Field(MpDTO.MP_TERM)
+	private List<String> mpTerm;
 
-	@Field(SELECTED_TOP_LEVEL_EMAP_TERM_SYNONYM)
-	private List<String> topLevelEmapTermSynonym;
-	
-	@Field(INTERMEDIATE_LEVEL_EMAP_TERM_ID)
-	private ArrayList<String> intermediateLevelEmapId;
 
-	@Field(INTERMEDIATE_LEVEL_EMAP_TERM)
-	private ArrayList<String> intermediateLevelEmapTerm;
-	
-	@Field(INTERMEDIATE_LEVEL_EMAP_TERM_SYNONYM)
-	private ArrayList<String> intermediateLevelEmapTermSynonym;
-	
+	@Field(MP_ID_TERM)
+	private List<String> mpIdTerm;
+
+	@Field(MpDTO.MP_TERM_SYNONYM)
+	private List<String> mpTermSynonym;
+
+	public List<String> getMpIdTerm() {
+		return mpIdTerm;
+	}
+
+	public void setMpIdTerm(List<String> mpIdTerm) {
+		this.mpIdTerm = mpIdTerm;
+	}
+
+	public List<String> getEmapIdTerm() {
+		return emapIdTerm;
+	}
+
+	public void setEmapIdTerm(List<String> emapIdTerm) {
+		this.emapIdTerm = emapIdTerm;
+	}
+
+	public ArrayList<String> getMpTermIds() {
+		return mpTermIds;
+	}
+
+	public void setMpTermIds(ArrayList<String> mpTermIds) {
+		this.mpTermIds = mpTermIds;
+	}
+
+	public List<String> getMpTerm() {
+		return mpTerm;
+	}
+
+	public void setMpTerm(List<String> mpTerm) {
+		this.mpTerm = mpTerm;
+	}
+
+
+	public List<String> getMpTermSynonym() {
+		return mpTermSynonym;
+	}
+
+	public void setMpTermSynonym(List<String> mpTermSynonym) {
+		this.mpTermSynonym = mpTermSynonym;
+	}
+
+
+
 	@Field(FULL_RESOLUTION_FILE_PATH)
 	private String fullResolutionFilePath;
 
@@ -211,11 +217,11 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(EFO_ID)
 	private List<String> efoId;
-	
+
 	@Field(UBERON_ID)
 	private List<String> uberonId;
-	
-	
+
+
 
 	@Field(SYMBOL_GENE)
 	private String symbolGene;//for search and annotation view
@@ -264,11 +270,11 @@ public class ImageDTO extends ObservationDTO {
 
 	@Field(SUBTYPE)
 	private String subtype;
-	
+
 	@Field(INCREMENT_VALUE)
 	private Integer increment;
 
-	
+
 
 	public int getIncrement() {
 		return increment;
@@ -327,15 +333,6 @@ public class ImageDTO extends ObservationDTO {
 		return this.symbolGene;
 	}
 
-	public List<String> getMaTermId() {
-
-		return maTermId;
-	}
-
-	public void setMaTermId(List<String> maTermId) {
-
-		this.maTermId = maTermId;
-	}
 
 	public List<String> getEfoId() {
 
@@ -346,14 +343,14 @@ public class ImageDTO extends ObservationDTO {
 
 		this.efoId = efoId;
 	}
-	
+
 	public void addEfoId(String id) {
 		if(this.efoId==null){
 			this.efoId=new ArrayList<>();
 		}
 		this.efoId.add(id);
 	}
-	
+
 	public List<String> getUberonId() {
 
 		return uberonId;
@@ -363,14 +360,14 @@ public class ImageDTO extends ObservationDTO {
 
 		this.uberonId = uberonId;
 	}
-	
+
 	public void addUberonId(String id) {
 		if(this.uberonId==null){
 			this.uberonId=new ArrayList<>();
 		}
 		this.uberonId.add(id);
 	}
-	
+
 	public List<String> getMaIdTerm() {
 
 		return maIdTerm;
@@ -552,63 +549,15 @@ public class ImageDTO extends ObservationDTO {
 		this.maTermSynonym = maTermSynonym;
 	}
 
-	public void setTopLevelMaId(ArrayList<String> topLevelMaIds) {
-		this.topLevelMaIds=topLevelMaIds;
-	}
-
-	public void setTopLevelMaTerm(ArrayList<String> topLevelMaTerm) {
-		this.topLeveMaTerm=topLevelMaTerm;
-	}
-
-	public void setTopLevelMaTermSynonym(ArrayList<String> topLevelMaTermSynonym) {
-		this.topLevelMaTermSynonym=topLevelMaTermSynonym;
-	}
-
-	public List<String> getTopLevelMaIds() {
-		return topLevelMaIds;
-	}
-
-	public List<String> getTopLeveMaTerm() {
-		return topLeveMaTerm;
-	}
-
-	public List<String> getTopLevelMaTermSynonym() {
-		return topLevelMaTermSynonym;
-	}
-
 	public String getExpression(String maId){
 
-		int pos = maTermId.indexOf(maId);
+		int pos = maId.indexOf(maId);
 		return getParameterAssociationValue().get(pos);
 
 	}
 
-	public void setIntermediateLevelMaId(ArrayList<String> intermediateLevelMaId) {
-		this.intermediateLevelMaId=intermediateLevelMaId;
-	}
-
-	public void setIntermediateLevelMaTerm(ArrayList<String> intermediateLevelMaTerm) {
-		this.intermediateLevelMaTerm=intermediateLevelMaTerm;
-	}
-
-	public void setIntermediateLevelMaTermSynonym(
-			ArrayList<String> intermediateLevelMaTermSynonym) {
-		this.intermediateLevelMaTermSynonym=intermediateLevelMaTermSynonym;
-	}
-
-	public static String getIntermediateLevelMaTermId() {
-		return INTERMEDIATE_LEVEL_MA_TERM_ID;
-	}
 
 
-	public static String getIntermediateLevelMaTerm() {
-		return INTERMEDIATE_LEVEL_MA_TERM;
-	}
-
-
-	public static String getIntermediateLevelMaTermSynonym() {
-		return INTERMEDIATE_LEVEL_MA_TERM_SYNONYM;
-	}
 
 	@Override
 	public int hashCode() {
@@ -623,10 +572,6 @@ public class ImageDTO extends ObservationDTO {
 		result = prime * result + ((imitsPhenotypeComplete == null) ? 0 : imitsPhenotypeComplete.hashCode());
 		result = prime * result + ((imitsPhenotypeStarted == null) ? 0 : imitsPhenotypeStarted.hashCode());
 		result = prime * result + ((imitsPhenotypeStatus == null) ? 0 : imitsPhenotypeStatus.hashCode());
-		result = prime * result + ((intermediateLevelMaId == null) ? 0 : intermediateLevelMaId.hashCode());
-		result = prime * result + ((intermediateLevelMaTerm == null) ? 0 : intermediateLevelMaTerm.hashCode());
-		result = prime * result
-				+ ((intermediateLevelMaTermSynonym == null) ? 0 : intermediateLevelMaTermSynonym.hashCode());
 		result = prime * result + ((jpegUrl == null) ? 0 : jpegUrl.hashCode());
 		result = prime * result + ((latestPhenotypeStatus == null) ? 0 : latestPhenotypeStatus.hashCode());
 		result = prime * result + ((latestPhenotypingCentre == null) ? 0 : latestPhenotypingCentre.hashCode());
@@ -634,7 +579,7 @@ public class ImageDTO extends ObservationDTO {
 		result = prime * result + ((legacyPhenotypeStatus == null) ? 0 : legacyPhenotypeStatus.hashCode());
 		result = prime * result + ((maIdTerm == null) ? 0 : maIdTerm.hashCode());
 		result = prime * result + ((maTerm == null) ? 0 : maTerm.hashCode());
-		result = prime * result + ((maTermId == null) ? 0 : maTermId.hashCode());
+		result = prime * result + ((maId == null) ? 0 : maId.hashCode());
 		result = prime * result + ((maTermSynonym == null) ? 0 : maTermSynonym.hashCode());
 		result = prime * result + ((markerName == null) ? 0 : markerName.hashCode());
 		result = prime * result + ((markerSymbol == null) ? 0 : markerSymbol.hashCode());
@@ -645,9 +590,6 @@ public class ImageDTO extends ObservationDTO {
 		result = prime * result + ((subtype == null) ? 0 : subtype.hashCode());
 		result = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
 		result = prime * result + ((symbolGene == null) ? 0 : symbolGene.hashCode());
-		result = prime * result + ((topLeveMaTerm == null) ? 0 : topLeveMaTerm.hashCode());
-		result = prime * result + ((topLevelMaIds == null) ? 0 : topLevelMaIds.hashCode());
-		result = prime * result + ((topLevelMaTermSynonym == null) ? 0 : topLevelMaTermSynonym.hashCode());
 		result = prime * result + ((uberonId == null) ? 0 : uberonId.hashCode());
 		return result;
 	}
@@ -706,21 +648,6 @@ public class ImageDTO extends ObservationDTO {
 				return false;
 		} else if (!imitsPhenotypeStatus.equals(other.imitsPhenotypeStatus))
 			return false;
-		if (intermediateLevelMaId == null) {
-			if (other.intermediateLevelMaId != null)
-				return false;
-		} else if (!intermediateLevelMaId.equals(other.intermediateLevelMaId))
-			return false;
-		if (intermediateLevelMaTerm == null) {
-			if (other.intermediateLevelMaTerm != null)
-				return false;
-		} else if (!intermediateLevelMaTerm.equals(other.intermediateLevelMaTerm))
-			return false;
-		if (intermediateLevelMaTermSynonym == null) {
-			if (other.intermediateLevelMaTermSynonym != null)
-				return false;
-		} else if (!intermediateLevelMaTermSynonym.equals(other.intermediateLevelMaTermSynonym))
-			return false;
 		if (jpegUrl == null) {
 			if (other.jpegUrl != null)
 				return false;
@@ -755,11 +682,6 @@ public class ImageDTO extends ObservationDTO {
 			if (other.maTerm != null)
 				return false;
 		} else if (!maTerm.equals(other.maTerm))
-			return false;
-		if (maTermId == null) {
-			if (other.maTermId != null)
-				return false;
-		} else if (!maTermId.equals(other.maTermId))
 			return false;
 		if (maTermSynonym == null) {
 			if (other.maTermSynonym != null)
@@ -808,21 +730,6 @@ public class ImageDTO extends ObservationDTO {
 				return false;
 		} else if (!symbolGene.equals(other.symbolGene))
 			return false;
-		if (topLeveMaTerm == null) {
-			if (other.topLeveMaTerm != null)
-				return false;
-		} else if (!topLeveMaTerm.equals(other.topLeveMaTerm))
-			return false;
-		if (topLevelMaIds == null) {
-			if (other.topLevelMaIds != null)
-				return false;
-		} else if (!topLevelMaIds.equals(other.topLevelMaIds))
-			return false;
-		if (topLevelMaTermSynonym == null) {
-			if (other.topLevelMaTermSynonym != null)
-				return false;
-		} else if (!topLevelMaTermSynonym.equals(other.topLevelMaTermSynonym))
-			return false;
 		if (uberonId == null) {
 			if (other.uberonId != null)
 				return false;
@@ -834,10 +741,9 @@ public class ImageDTO extends ObservationDTO {
 	@Override
 	public String toString() {
 		return "ImageDTO [fullResolutionFilePath=" + fullResolutionFilePath + ", omeroId=" + omeroId + ", downloadUrl="
-				+ downloadUrl + ", imageLink=" + imageLink + ", jpegUrl=" + jpegUrl + ", maTermId=" + maTermId
+				+ downloadUrl + ", imageLink=" + imageLink + ", jpegUrl=" + jpegUrl
 				+ ", efoId=" + efoId + ", uberonId=" + uberonId + ", maTerm=" + maTerm + ", maIdTerm=" + maIdTerm
-				+ ", maTermSynonym=" + maTermSynonym + ", topLevelMaIds=" + topLevelMaIds + ", topLeveMaTerm="
-				+ topLeveMaTerm + ", topLevelMaTermSynonym=" + topLevelMaTermSynonym + ", symbolGene=" + symbolGene
+				+ ", maTermSynonym=" + maTermSynonym + ", topLevelMaIds=" + ", symbolGene=" + symbolGene
 				+ ", status=" + status + ", imitsPhenotypeStarted=" + imitsPhenotypeStarted
 				+ ", imitsPhenotypeComplete=" + imitsPhenotypeComplete + ", imitsPhenotypeStatus="
 				+ imitsPhenotypeStatus + ", legacyPhenotypeStatus=" + legacyPhenotypeStatus
@@ -845,93 +751,17 @@ public class ImageDTO extends ObservationDTO {
 				+ latestPhenotypingCentre + ", alleleName=" + alleleName + ", markerSymbol=" + markerSymbol
 				+ ", markerName=" + markerName + ", markerSynonym=" + markerSynonym + ", markerType=" + markerType
 				+ ", humanGeneSymbol=" + humanGeneSymbol + ", symbol=" + symbol + ", subtype=" + subtype
-				+ ", latestPhenotypeStatus=" + latestPhenotypeStatus + ", intermediateLevelMaId="
-				+ intermediateLevelMaId + ", intermediateLevelMaTerm=" + intermediateLevelMaTerm
-				+ ", intermediateLevelMaTermSynonym=" + intermediateLevelMaTermSynonym + "]";
-	}
-
-	public List<String> getEmapTermId() {
-		return emapTermId;
-	}
-
-	public void setEmapTermId(List<String> emapTermId) {
-		this.emapTermId = emapTermId;
-	}
-
-	public List<String> getEmapTerm() {
-		return emapTerm;
-	}
-
-	public void setEmapTerm(List<String> emapTerm) {
-		this.emapTerm = emapTerm;
-	}
-
-	public List<String> getEmapIdTerm() {
-		return emapIdTerm;
-	}
-
-	public void setEmapIdTerm(List<String> emapIdTerm) {
-		this.emapIdTerm = emapIdTerm;
-	}
-
-	public List<String> getEmapTermSynonym() {
-		return emapTermSynonym;
-	}
-
-	public void setEmapTermSynonym(List<String> emapTermSynonym) {
-		this.emapTermSynonym = emapTermSynonym;
-	}
-
-	public List<String> getTopLevelEmapIds() {
-		return topLevelEmapIds;
-	}
-
-	public void setTopLevelEmapIds(List<String> topLevelEmapIds) {
-		this.topLevelEmapIds = topLevelEmapIds;
-	}
-
-	public List<String> getTopLeveEmapTerm() {
-		return topLeveEmapTerm;
-	}
-
-	public void setTopLeveEmapTerm(List<String> topLeveEmapTerm) {
-		this.topLeveEmapTerm = topLeveEmapTerm;
-	}
-
-	public List<String> getTopLevelEmapTermSynonym() {
-		return topLevelEmapTermSynonym;
-	}
-
-	public void setTopLevelEmapTermSynonym(List<String> topLevelEmapTermSynonym) {
-		this.topLevelEmapTermSynonym = topLevelEmapTermSynonym;
-	}
-
-	public ArrayList<String> getIntermediateLevelEmapId() {
-		return intermediateLevelEmapId;
-	}
-
-	public void setIntermediateLevelEmapId(ArrayList<String> intermediateLevelEmapId) {
-		this.intermediateLevelEmapId = intermediateLevelEmapId;
-	}
-
-	public ArrayList<String> getIntermediateLevelEmapTerm() {
-		return intermediateLevelEmapTerm;
-	}
-
-	public void setIntermediateLevelEmapTerm(ArrayList<String> intermediateLevelEmapTerm) {
-		this.intermediateLevelEmapTerm = intermediateLevelEmapTerm;
-	}
-
-	public ArrayList<String> getIntermediateLevelEmapTermSynonym() {
-		return intermediateLevelEmapTermSynonym;
-	}
-
-	public void setIntermediateLevelEmapTermSynonym(ArrayList<String> intermediateLevelEmapTermSynonym) {
-		this.intermediateLevelEmapTermSynonym = intermediateLevelEmapTermSynonym;
+				+ ", latestPhenotypeStatus=" + latestPhenotypeStatus + "]";
 	}
 
 
-	
-	
-	
+	public void setMpTermId(ArrayList<String> mpTermIds) {
+		this.mpTermIds=mpTermIds;
+
+	}
+
+
+
+
+
 }

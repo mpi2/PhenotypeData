@@ -97,7 +97,7 @@ public class TestConfig {
 
 		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
 		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/test-data.sql");
-		hibernateProperties.setProperty("hibernate.show_sql", "true");
+		hibernateProperties.setProperty("hibernate.show_sql", "false");
 		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
 		hibernateProperties.setProperty("hibernate.format_sql", "true");
 		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");

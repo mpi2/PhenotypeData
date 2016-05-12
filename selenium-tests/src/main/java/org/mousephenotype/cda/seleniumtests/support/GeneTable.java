@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.seleniumtests.support;
 
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -38,6 +40,7 @@ import java.util.List;
  */
 public class GeneTable {
 
+    private CommonUtils commonUtils = new CommonUtils();
     private GridMap data;       // Contains postQc rows only.
     protected WebDriver driver;
     protected Paginator paginator;
@@ -49,15 +52,29 @@ public class GeneTable {
     protected UrlUtils urlUtils = new UrlUtils();
     protected WebDriverWait wait;
 
-    public static final int COL_INDEX_GENES_PHENOTYPE                  =  0;
-    public static final int COL_INDEX_GENES_ALLELE                     =  1;
-    public static final int COL_INDEX_GENES_ZYGOSITY                   =  2;
-    public static final int COL_INDEX_GENES_SEX                        =  3;
-    public static final int COL_INDEX_GENES_LIFE_STAGE                 =  4;
-    public static final int COL_INDEX_GENES_PROCEDURE_PARAMETER        =  5;
-    public static final int COL_INDEX_GENES_PHENOTYPING_CENTER_SOURCE  =  6;
-    public static final int COL_INDEX_GENES_P_VALUE                    =  7;
-    public static final int COL_INDEX_GENES_GRAPH_LINK                 =  8;
+    // These are used to parse the page. Keep them private. Callers should be using the public definitions below this group.
+    private static final int COL_INDEX_GENES_PAGE_PHENOTYPE                  =  0;
+    private static final int COL_INDEX_GENES_PAGE_ALLELE                     =  1;
+    private static final int COL_INDEX_GENES_PAGE_ZYGOSITY                   =  2;
+    private static final int COL_INDEX_GENES_PAGE_SEX                        =  3;
+    private static final int COL_INDEX_GENES_PAGE_LIFE_STAGE                 =  4;
+    private static final int COL_INDEX_GENES_PAGE_PROCEDURE_PARAMETER        =  5;
+    private static final int COL_INDEX_GENES_PAGE_PHENOTYPING_CENTER_SOURCE  =  6;
+    private static final int COL_INDEX_GENES_PAGE_P_VALUE                    =  7;
+    private static final int COL_INDEX_GENES_PAGE_GRAPH_LINK                 =  8;
+
+    // These are used to parameterise the page after the compound columns have been split out (for comparison against the download files).
+    public static final int COL_INDEX_GENES_PHENOTYPE                  =   0;
+    public static final int COL_INDEX_GENES_ALLELE                     =   1;
+    public static final int COL_INDEX_GENES_ZYGOSITY                   =   2;
+    public static final int COL_INDEX_GENES_SEX                        =   3;
+    public static final int COL_INDEX_GENES_LIFE_STAGE                 =   4;
+    public static final int COL_INDEX_GENES_PROCEDURE                  =   5;
+    public static final int COL_INDEX_GENES_PARAMETER                  =   6;
+    public static final int COL_INDEX_GENES_PHENOTYPING_CENTER         =   7;
+    public static final int COL_INDEX_GENES_SOURCE                     =   8;
+    public static final int COL_INDEX_GENES_P_VALUE                    =   9;
+    public static final int COL_INDEX_GENES_GRAPH_LINK                 =  10;
 
     public static final String COL_GENES_PHENOTYPE                  = "Phenotype";
     public static final String COL_GENES_ALLELE                     = "Allele";
@@ -68,6 +85,9 @@ public class GeneTable {
     public static final String COL_GENES_PHENOTYPING_CENTER_SOURCE  = "Phenotyping Center | Source";
     public static final String COL_GENES_P_VALUE                    = "P Value";
     public static final String COL_GENES_GRAPH                      = "Graph";
+
+    public static final List<Integer> expandColumnList = new ArrayList<>(
+        Arrays.asList(new Integer[] { COL_INDEX_GENES_PAGE_PROCEDURE_PARAMETER, COL_INDEX_GENES_PAGE_PHENOTYPING_CENTER_SOURCE }));
 
     public static final String NO_SUPPORTING_DATA                   = "No supporting data supplied.";
 
@@ -156,14 +176,14 @@ public class GeneTable {
             boolean skipLink = false;
             for (WebElement cell : cells) {
                 value = "";
-                if (sourceColIndex == COL_INDEX_GENES_PHENOTYPE) {
+                if (sourceColIndex == COL_INDEX_GENES_PAGE_PHENOTYPE) {
                     List<WebElement> elements = cell.findElements(By.cssSelector("a"));
                     if ( ! elements.isEmpty()) {
                         value = elements.get(0).getText();
                     } else {
                         value = cell.getText();
                     }
-                } else if (sourceColIndex == COL_INDEX_GENES_ALLELE) {
+                } else if (sourceColIndex == COL_INDEX_GENES_PAGE_ALLELE) {
                     String rawAllele = cell.getText();
                     List<WebElement> supList = cell.findElements(By.cssSelector("sup"));
                     if (supList.isEmpty()) {
@@ -173,16 +193,18 @@ public class GeneTable {
                         AlleleParser ap = new AlleleParser(rawAllele, sup);
                         value = ap.toString();
                     }
-                } else if (sourceColIndex == COL_INDEX_GENES_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', or 'both'.
+                } else if (sourceColIndex == COL_INDEX_GENES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', 'both', or 'no data'.
                     List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
-                    if ( ! sex.isEmpty()) {
+                    if (sex.isEmpty()) {
+                        value = SexType.no_data.toString();
+                    } else {
                         if (sex.size() == 2) {
-                            value = "both";
+                            value = SexType.both.toString();
                         } else {
                             value = sex.get(0).getAttribute("alt").toLowerCase();
                         }
                     }
-                } else if (sourceColIndex == COL_INDEX_GENES_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
+                } else if (sourceColIndex == COL_INDEX_GENES_PAGE_GRAPH_LINK) {                    // Extract the graph url from the <a> anchor and decode it.
                     // NOTE: Graph links are disabled if there is no supporting data.
                     List<WebElement> graphLinks = cell.findElements(By.cssSelector("a"));
                     value = "";
@@ -214,8 +236,7 @@ public class GeneTable {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
                     if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
-                        data = new GridMap(postQcList, target);
-                        return data;
+                        break;
                     }
                 }
             }
@@ -223,6 +244,12 @@ public class GeneTable {
             sourceRowIndex++;
         }
 
+        preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnList, "|");
+        preQcList = commonUtils.expandSexColumn(preQcList, COL_INDEX_GENES_SEX);
+        postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnList, "|");
+        postQcList = commonUtils.expandSexColumn(postQcList, COL_INDEX_GENES_SEX);
+        preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnList, "|");
+        preAndPostQcList = commonUtils.expandSexColumn(preAndPostQcList, COL_INDEX_GENES_SEX);
         data = new GridMap(postQcList, target);
         return data;
     }
