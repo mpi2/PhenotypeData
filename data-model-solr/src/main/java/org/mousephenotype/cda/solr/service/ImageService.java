@@ -110,21 +110,24 @@ public class ImageService implements WebStatus{
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
-				.addFilterQuery(
-						"(" + ImageDTO.MA_ID + ":\"" + maId + "\" OR "
-								+ ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
-								+ maId + "\")")
-				.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
-				.setRows(100000)
-				.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
-						ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
-						ImageDTO.MA_ID, ImageDTO.MA_TERM,
-						ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
-						ImageDTO.PARAMETER_ASSOCIATION_VALUE,
-						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
-						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
-						ImageDTO.PHENOTYPING_CENTER, ImageDTO.MA_ID,
-						ImageDTO.MA_TERM);
+			.addFilterQuery(
+				"(" + ImageDTO.MA_ID + ":\"" + maId + "\" OR "
+					+ ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
+					+ maId + "\")")
+			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
+			.setRows(100000)
+			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
+				ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
+				ImageDTO.MA_ID, ImageDTO.MA_TERM,
+				ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
+				ImageDTO.PARAMETER_ASSOCIATION_VALUE,
+				ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
+				ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
+				ImageDTO.PHENOTYPING_CENTER,
+				ImageDTO.MA_ID, ImageDTO.MA_TERM,
+				ImageDTO.INTERMEDIATE_MA_ID, ImageDTO.INTERMEDIATE_MA_TERM,
+				ImageDTO.SELECTED_TOP_LEVEL_MA_ID, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM
+			);
 
 		if (maTerms != null) {
 			query.addFilterQuery(ImageDTO.MA_TERM
