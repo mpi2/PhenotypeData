@@ -67,7 +67,6 @@ public class FileExportUtils {
 			response.setContentType("application/vnd.ms-excel");
 			response.setHeader("Content-disposition", "attachment;filename=" + outfile);
 			
-			String sheetName = fileName;
 			String[] titles = null;
 			String[][] tableData = new String[0][0];
 			ServletOutputStream output = response.getOutputStream();
@@ -77,11 +76,17 @@ public class FileExportUtils {
 				tableData = Tools.composeXlsTableData(dataRows);
 			}
 
-			wb = new ExcelWorkBook(titles, tableData, sheetName).fetchWorkBook();
+			wb = new ExcelWorkBook(titles, tableData, escapeCharsFileName(fileName)).fetchWorkBook();
 			wb.write(output);
 			output.close();			
 
 		}
 		
 	}
+	
+	// ExcelWorkBook complains about some special characters, i.e. "/"
+	private static String escapeCharsFileName(String fileName){
+		return fileName.replaceAll("/", " ");
+	}
+	
 }

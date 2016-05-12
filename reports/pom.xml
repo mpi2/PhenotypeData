@@ -28,11 +28,13 @@
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-db</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -71,7 +73,21 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.mousephenotype.cda.reports.ReportsManager</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>
