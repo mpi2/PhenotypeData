@@ -119,8 +119,15 @@ public class ConfigBatch {
         return jobBuilderFactory.get("cdaLoadJob")
                 .incrementer(new RunIdIncrementer())
                 .flow(recreateAndLoadDbTables.getStep())
+
+                // Download the ontology owl files.
+                .next(resourceFileOntologyMa.getDownloadStep())
                 .next(resourceFileOntologyMp.getDownloadStep())
+
+                // Load the ontology_term table.
+                .next(resourceFileOntologyMa.getLoadStep())
                 .next(resourceFileOntologyMp.getLoadStep())
+
                 .end()
                 .build();
     }
