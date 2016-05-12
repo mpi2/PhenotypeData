@@ -30,10 +30,10 @@
 
 		 var ontologyLabel = "";
 		 if ( termId.indexOf("MP:") != -1){
-			 ontologyLabel = "Mammalian Phenotype Ontology";
+			 ontologyLabel = "Mammalian Phenotype Ontology (MP)";
 		 }
 		 if ( termId.indexOf("MA:") != -1){
-			 ontologyLabel = "Mouse Adult Gross Anatomy Ontology";
+			 ontologyLabel = "Mouse Adult Gross Anatomy Ontology (MA)";
 		 }
 		 $('#ontotree').text(ontologyLabel);
 
