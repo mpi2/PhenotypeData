@@ -101,12 +101,17 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 
     public String getAnatomyWithLinks(String baseUrl){
-    	String links = "<a href=\"" + baseUrl + "/anatomy/";
-    	for (int i = 0; i < anatomy.size(); i++){
-    		links += anatomy.get(i).getId().getAccession() + "\">" + anatomy.get(i).getName() + "</a>";
-    		if (i != anatomy.size()-1 ){
-    			links += ", <a href=\"" + baseUrl + "/anatomy/";
-    		}
+    	
+    	String links = "";
+    	
+    	if (anatomy != null && anatomy.size() > 0){
+	    	links = "<a href=\"" + baseUrl + "/anatomy/";
+	    	for (int i = 0; i < anatomy.size(); i++){
+	    		links += anatomy.get(i).getId().getAccession() + "\">" + anatomy.get(i).getName() + "</a>";
+	    		if (i != anatomy.size()-1 ){
+	    			links += ", <a href=\"" + baseUrl + "/anatomy/";
+	    		}
+	    	}
     	}
 
     	return links;
