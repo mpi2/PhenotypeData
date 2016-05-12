@@ -15,15 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -37,18 +30,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.generic.util.JSONMAUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class AnatomyController {
@@ -60,7 +53,7 @@ public class AnatomyController {
 
 	@Autowired
 	MaService maService;
-	
+
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
@@ -73,8 +66,8 @@ public class AnatomyController {
 	 * Phenotype controller loads information required for displaying the
 	 * phenotype page or, in the case of an error, redirects to the error page
 	 *
-	 * @param phenotype_id
-	 *            the Mammalian phenotype id of the phenotype to display
+	 * @param anatomy_id
+	 *            the Mammalian anatomy id of the tissue to display
 	 * @return the name of the view to render, or redirect to search page on
 	 *         error
 	 * @throws URISyntaxException
@@ -91,27 +84,27 @@ public class AnatomyController {
 		//get expression only images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomy_id, config, numberOfImagesToDisplay);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null);
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, null, null, null, null, request.getAttribute("baseUrl").toString());
 
 		model.addAttribute("anatomy", ma);
 		model.addAttribute("expressionImages", expressionImageDocs);
 		model.addAttribute("anatomyTable", anatomyTable);
         model.addAttribute("phenoFacets", getFacets(anatomy_id));
-		
+
         // Stuff for parent-child display
         model.addAttribute("hasChildren", maService.getChildren(anatomy_id).size() > 0 ? true : false);
         model.addAttribute("hasParents", maService.getParents(anatomy_id).size() > 0 ? true : false);
-        
+
         System.out.println(" --- " + maService.getChildren(anatomy_id) + " " + maService.getParents(anatomy_id));
-        
+
         return "anatomy";
-		
+
 	}
 
 	 /**
      * @author ilinca
      * @since 2016/05/03
-     * @param mpId
+     * @param maId
      * @param type
      * @param model
      * @return
@@ -119,25 +112,25 @@ public class AnatomyController {
      * @throws IOException
      * @throws URISyntaxException
      */
-    @RequestMapping(value="/maTree/json/{maId}", method=RequestMethod.GET)	
-    public @ResponseBody String getParentChildren( @PathVariable String maId, @RequestParam(value = "type", required = true) String type, Model model) 
+    @RequestMapping(value="/maTree/json/{maId}", method=RequestMethod.GET)
+    public @ResponseBody String getParentChildren( @PathVariable String maId, @RequestParam(value = "type", required = true) String type, Model model)
     throws SolrServerException, IOException, URISyntaxException {
-    	
+
     	if (type.equals("parents")){
-    	
+
 	    	JSONObject data = new JSONObject();
 	    	data.element("id", maId);
 	    	JSONArray nodes = new JSONArray();
-	    
+
 	    	for (OntologyBean term : maService.getParents(maId)){
 	    		nodes.add(term.toJson());
 	    	}
 
 	    	data.element("children", nodes);
 			return data.toString();
-			
+
     	} else if (type.equals("children")){
-    		
+
     		JSONObject data = new JSONObject();
         	data.element("id", maId);
         	JSONArray nodes = new JSONArray();
@@ -145,13 +138,13 @@ public class AnatomyController {
         	for (OntologyBean term : maService.getChildren(maId)){
 	    		nodes.add(term.toJson());
 	    	}
-        	
+
         	data.element("children", nodes);
     		return data.toString();
     	}
     	return "";
     }
-	
+
 
     @RequestMapping(value = "/anatomyFrag/{anatomy_id}", method = RequestMethod.GET)
 	public String loadMaTable(	@PathVariable String anatomy_id,
@@ -164,7 +157,7 @@ public class AnatomyController {
 								RedirectAttributes attributes)
 	throws SolrServerException, IOException, URISyntaxException {
 
-		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue);
+		List<AnatomyPageTableRow> anatomyTable = is.getImagesForMA(anatomy_id, maTerms, phenotypingCenter, procedureName, parameterAssociationValue, request.getAttribute("baseUrl").toString());
 		model.addAttribute("anatomyTable", anatomyTable);
 
 		return "anatomyFrag";
