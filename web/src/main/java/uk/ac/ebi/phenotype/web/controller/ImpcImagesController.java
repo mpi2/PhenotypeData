@@ -129,25 +129,25 @@ public class ImpcImagesController {
 		// we will also want to call the getControls method and display side by
 		// side
 		SolrDocumentList experimental = new SolrDocumentList();
-		QueryResponse responseExperimental2 = imageService
+		QueryResponse responseExperimental = imageService
 				.getImagesForGeneByParameter(acc, parameter_stable_id,
 						"experimental", 10000, null, null, null);
-		if (responseExperimental2 != null) {
-			experimental.addAll(responseExperimental2.getResults());
+		SolrDocument imgDoc =null;
+		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
+			experimental=responseExperimental.getResults();
+			System.out.println("list size=" + experimental.size());
+			imgDoc = experimental.get(0);
 		}
-		System.out.println("list size=" + experimental.size());
-
-		// QueryResponse responseControl =
-		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
-		// "control", 6, null, null, null);
-		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
+		
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
-		SolrDocumentList controls=new SolrDocumentList();
-		for (SexType sex : SexType.values()) {
+		SolrDocumentList controls = new SolrDocumentList();
+		if (imgDoc != null) {
+			for (SexType sex : SexType.values()) {
 
-			SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-			controls.addAll(controlsTemp);
+				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+				controls.addAll(controlsTemp);
+			}
 		}
 		
 		this.addGeneToPage(acc, model);
