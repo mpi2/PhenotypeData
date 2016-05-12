@@ -60,12 +60,6 @@ public class ImageService implements WebStatus{
     @Value("${drupalBaseUrl}")
     private String drupalBaseUrl;
 
-    @NotNull
-    @Value("${baseUrl}")
-    private String baseUrl;
-
-
-
     public List<ImageSummary> getImageSummary(String markerAccessionId)
     throws SolrServerException{
 
@@ -103,7 +97,7 @@ public class ImageService implements WebStatus{
 
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
-			List<String> procedure, List<String> paramAssoc)
+			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
 
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
@@ -213,7 +207,7 @@ public class ImageService implements WebStatus{
 		return res;
 	}
 
-	public List<DataTableRow> getImagesForGene(String geneAccession)
+	public List<DataTableRow> getImagesForGene(String geneAccession, String baseUrl)
 			throws SolrServerException {
 
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
