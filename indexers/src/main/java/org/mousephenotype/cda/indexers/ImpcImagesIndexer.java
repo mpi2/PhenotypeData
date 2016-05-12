@@ -134,9 +134,9 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		}
 
 		try {
-			System.out.println("building parameter to abnormal mp map");
+			logger.info(" Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
-			System.out.println("parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
+			logger.info(" Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
