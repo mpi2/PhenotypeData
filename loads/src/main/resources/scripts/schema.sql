@@ -727,7 +727,7 @@ CREATE TABLE consider_id (
 	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	acc                        VARCHAR(20) NOT NULL,
 	db_id                      INT(10) NOT NULL,
-  ontologyTerm_pk            INT(10) UNSIGNED NOT NULL,
+	term                       VARCHAR(20) NOT NULL,
 
 	PRIMARY KEY (id),
 	KEY ontology_term_idx (acc, db_id),

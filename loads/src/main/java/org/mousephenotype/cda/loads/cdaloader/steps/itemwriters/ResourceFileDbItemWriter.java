@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.util.List;
 
@@ -43,6 +44,13 @@ public class ResourceFileDbItemWriter implements ItemWriter {
     @Autowired
     @Qualifier("komp2TxManager")
     private PlatformTransactionManager tx;
+
+
+    // Make sure we start with an empty table.
+    @PostConstruct
+    private void initialise() {
+        jdbcTemplate.execute("DELETE FROM ontology_term");
+    }
 
     /**
      * Process the supplied data element. Will not be called with any null items
@@ -64,6 +72,7 @@ public class ResourceFileDbItemWriter implements ItemWriter {
 //        }
 //    }
 
+
     /**
      * Process the supplied data element. Will not be called with any null items
      * in normal operation.
@@ -79,22 +88,15 @@ public class ResourceFileDbItemWriter implements ItemWriter {
             jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?)",
                     term.getId().getAccession(), term.getId().getDatabaseId(), term.getName(), term.getDescription(), term.getIsObsolete(), term.getReplacementAcc());
 
-            // Write synonyms.
+            // Write synonym items.
             for (Synonym synonym : term.getSynonyms()) {
                 jdbcTemplate.update("INSERT INTO synonym (acc, db_id, symbol) VALUES (?, ?, ?)",
                         term.getId().getAccession(), term.getId().getDatabaseId(), synonym.getSymbol());
             }
-        }
-    }
 
-    public void writeConsiderIds(List items) throws Exception {
-        for (Object term1 : items) {
-            OntologyTerm term = (OntologyTerm) term1;
-
-            // Write considerIds.
+            // Write consider_id items.
             for (String considerId : term.getConsiderIds()) {
-
-                jdbcTemplate.update("INSERT INTO consider_id (acc, db_id, ontologyTerm_pk) VALUES (?, ?, ?)",
+                jdbcTemplate.update("INSERT INTO consider_id (acc, db_id, term) VALUES (?, ?, ?)",
                         term.getId().getAccession(), term.getId().getDatabaseId(), considerId);
             }
         }
