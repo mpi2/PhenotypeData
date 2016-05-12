@@ -211,7 +211,7 @@
                             				Embryo Gross Morphology: NA
                             			</li>
                             			<li>
-                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                            				3-D Imaging: <a href="${drupalBaseUrl}/embryoviewer/?mgi=MGI:1195985&v=2d&pid=203&h=561&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=Average&wx=92&wy=62&wz=175&wl=23&wu=255&mn=AAPN_K1026-1-e15.5&mx=92&my=68&mz=139&ml=20&mu=179&wov=jacobian&mov=none">Image</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
