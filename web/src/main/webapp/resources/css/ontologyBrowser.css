@@ -15,17 +15,7 @@ div.breadcrumb {
 
 input#s {
 	line-height: 16px;
-	height: 30px !important;
-}
-
-h1#h1tree {
-	font-family: "Source Sans Pro", Arial, Helvetica, sans-serif;
-	font-size: 40px;
-	font-weight: 300;
-	color: rgb(51, 51, 51);
-	letter-spacing: -1px;
-	line-height: 40px;
-	margin-top: 35px;
+	height: 20px !important;
 }
 
 div#tree {
@@ -123,4 +113,13 @@ td a {
 ul.ui-autocomplete li {
 	padding: 3px;
 	font-size: 12px;
+}
+#ontotree {
+	font-family: "Source Sans Pro", Arial, Helvetica, sans-serif;
+	font-size: 25px;
+	font-weight: 300;
+	color: rgb(51, 51, 51);
+	letter-spacing: -1px;
+	line-height: 40px;
+	margin-top: 35px;
 }

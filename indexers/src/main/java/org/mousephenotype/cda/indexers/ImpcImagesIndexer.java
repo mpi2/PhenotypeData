@@ -77,7 +77,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 	@Autowired
 	EmapOntologyDAO emapService;
-	
+
 	@Autowired
 	MpOntologyDAO mpService;
 
@@ -132,7 +132,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			logger.info(" Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
@@ -250,6 +250,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					addOntology(runStatus, imageDTO, parameterStableIdToMpTermIdMap, mpService);
 
 					impcImagesCore.addBean(imageDTO);
+
 					documentCount++;
 				}
 			}
@@ -328,21 +329,21 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 			if (ontologyDAO instanceof EmapOntologyDAO) {
 				if (!termIds.isEmpty()) {
-					imageDTO.setEmapTermId(termIds);
+					imageDTO.setEmapId(termIds);
 
-					ArrayList<String> maIdTerms = new ArrayList<>();
+					ArrayList<String> emapIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
-						String maId = termIds.get(i);
+						String emapId = termIds.get(i);
 
 						try {
-							String maTerm = terms.get(i);
-							maIdTerms.add(maId + "_" + maTerm);
+							String emapTerm = terms.get(i);
+							emapIdTerms.add(emapId + "_" + emapTerm);
 						} catch (Exception e) {
-							runStatus.addWarning(" Could not find term when indexing EMAP " + maId + ". Exception: "
+							runStatus.addWarning(" Could not find term when indexing EMAP " + emapId + ". Exception: "
 									+ e.getLocalizedMessage());
 						}
 					}
-					imageDTO.setEmapIdTerm(maIdTerms);
+					imageDTO.setEmapIdTerm(emapIdTerms);
 				}
 				if (!terms.isEmpty()) {
 					imageDTO.setEmapTerm(terms);
@@ -352,28 +353,28 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setEmapTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setTopLevelEmapIds(topLevelIds);
+					imageDTO.setSelectedTopLevelEmapId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setTopLeveEmapTerm(topLevelTerm);
+					imageDTO.setSelectedTopLevelEmapTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelEmapTermSynonym(topLevelTermSynonym);
+					imageDTO.setSelectedTopLevelEmapTermSynonym(topLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapId(intermediateLevelIds);
+					imageDTO.setIntermediateEmapId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateEmapTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateLevelEmapTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateEmapTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
 
 			if (ontologyDAO instanceof MaOntologyDAO) {
 				if (!termIds.isEmpty()) {
-					imageDTO.setMaTermId(termIds);
+					imageDTO.setMaId(termIds);
 
 					ArrayList<String> maIdTerms = new ArrayList<>();
 					for (int i = 0; i < termIds.size(); i++) {
@@ -413,25 +414,25 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 					imageDTO.setMaTermSynonym(termSynonyms);
 				}
 				if (!topLevelIds.isEmpty()) {
-					imageDTO.setTopLevelMaId(topLevelIds);
+					imageDTO.setSelectedTopLevelMaId(topLevelIds);
 				}
 				if (!topLevelTerm.isEmpty()) {
-					imageDTO.setTopLevelMaTerm(topLevelTerm);
+					imageDTO.setSelectedTopLevelMaTerm(topLevelTerm);
 				}
 				if (!topLevelTermSynonym.isEmpty()) {
-					imageDTO.setTopLevelMaTermSynonym(topLevelTermSynonym);
+					imageDTO.setSelectedTopLevelMaTermSynonym(topLevelTermSynonym);
 				}
 				if (!intermediateLevelIds.isEmpty()) {
-					imageDTO.setIntermediateLevelMaId(intermediateLevelIds);
+					imageDTO.setIntermediateMaId(intermediateLevelIds);
 				}
 				if (!intermediateLevelTerm.isEmpty()) {
-					imageDTO.setIntermediateLevelMaTerm(intermediateLevelTerm);
+					imageDTO.setIntermediateMaTerm(intermediateLevelTerm);
 				}
 				if (!intermediateLevelTermSynonym.isEmpty()) {
-					imageDTO.setIntermediateLevelMaTermSynonym(intermediateLevelTermSynonym);
+					imageDTO.setIntermediateMaTermSynonym(intermediateLevelTermSynonym);
 				}
 			}
-			
+
 			if (ontologyDAO instanceof MpOntologyDAO) {
 //				System.out.println("instance of mp ontology DAO");
 				if (!termIds.isEmpty()) {
@@ -444,7 +445,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 						try {
 
-							
+
 
 							String mpTerm = terms.get(i);
 							mpIdTerms.add(mpId + "_" + mpTerm);
@@ -462,7 +463,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 				if (!termSynonyms.isEmpty()) {
 					imageDTO.setMpTermSynonym(termSynonyms);
 				}
-				
+
 			}
 		}
 	}
@@ -478,7 +479,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		Map<String, ImageBean> imageBeansMap = new HashMap<>();
 		final String getExtraImageInfoSQL = "SELECT " + ImageDTO.OMERO_ID + ", " + ImageDTO.DOWNLOAD_FILE_PATH + ", "
-				+ ImageDTO.IMAGE_LINK 
+				+ ImageDTO.IMAGE_LINK
 				+ ", "
 				+ ImageDTO.FULL_RESOLUTION_FILE_PATH
 				+","
@@ -514,13 +515,13 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 
 		return imageBeansMap;
 	}
-	
+
 	public static boolean isInteger(String s) {
-	    try { 
-	        Integer.parseInt(s); 
-	    } catch(NumberFormatException e) { 
+	    try {
+	        Integer.parseInt(s);
+	    } catch(NumberFormatException e) {
 	    	e.printStackTrace();
-	        return false; 
+	        return false;
 	    } catch(NullPointerException e) {
 	    	e.printStackTrace();
 	        return false;
@@ -662,7 +663,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 		logger.debug(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
-	
+
 	public Map<String, String> populateParameterStableIdToMpIdMap() throws SQLException {
 		Map<String, String> paramToMp = new HashMap<String, String>();
 		String query = "SELECT * FROM phenotype_parameter pp INNER JOIN phenotype_parameter_lnk_ontology_annotation pploa ON pp.id=pploa.parameter_id INNER JOIN phenotype_parameter_ontology_annotation ppoa ON ppoa.id=pploa.annotation_id WHERE ppoa.ontology_db_id=5 and ppoa.event_type='abnormal' LIMIT 1000000";
