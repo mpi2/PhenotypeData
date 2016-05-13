@@ -60,12 +60,6 @@ public class ImageService implements WebStatus{
     @Value("${drupalBaseUrl}")
     private String drupalBaseUrl;
 
-    @NotNull
-    @Value("${baseUrl}")
-    private String baseUrl;
-
-
-
     public List<ImageSummary> getImageSummary(String markerAccessionId)
     throws SolrServerException{
 
@@ -103,28 +97,31 @@ public class ImageService implements WebStatus{
 
 	public List<AnatomyPageTableRow> getImagesForMA(String maId,
 			List<String> maTerms, List<String> phenotypingCenter,
-			List<String> procedure, List<String> paramAssoc)
+			List<String> procedure, List<String> paramAssoc, String baseUrl)
 			throws SolrServerException {
 
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
-				.addFilterQuery(
-						"(" + ImageDTO.MA_ID + ":\"" + maId + "\" OR "
-								+ ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
-								+ maId + "\")")
-				.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
-				.setRows(100000)
-				.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
-						ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
-						ImageDTO.MA_ID, ImageDTO.MA_TERM,
-						ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
-						ImageDTO.PARAMETER_ASSOCIATION_VALUE,
-						ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
-						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
-						ImageDTO.PHENOTYPING_CENTER, ImageDTO.MA_ID,
-						ImageDTO.MA_TERM);
+			.addFilterQuery(
+				"(" + ImageDTO.MA_ID + ":\"" + maId + "\" OR "
+					+ ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
+					+ maId + "\")")
+			.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ")
+			.setRows(100000)
+			.setFields(ImageDTO.SEX, ImageDTO.ALLELE_SYMBOL,
+				ImageDTO.ALLELE_ACCESSION_ID, ImageDTO.ZYGOSITY,
+				ImageDTO.MA_ID, ImageDTO.MA_TERM,
+				ImageDTO.PROCEDURE_STABLE_ID, ImageDTO.DATASOURCE_NAME,
+				ImageDTO.PARAMETER_ASSOCIATION_VALUE,
+				ImageDTO.GENE_SYMBOL, ImageDTO.GENE_ACCESSION_ID,
+				ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
+				ImageDTO.PHENOTYPING_CENTER,
+				ImageDTO.MA_ID, ImageDTO.MA_TERM,
+				ImageDTO.INTERMEDIATE_MA_ID, ImageDTO.INTERMEDIATE_MA_TERM,
+				ImageDTO.SELECTED_TOP_LEVEL_MA_ID, ImageDTO.SELECTED_TOP_LEVEL_MA_TERM
+			);
 
 		if (maTerms != null) {
 			query.addFilterQuery(ImageDTO.MA_TERM
@@ -158,11 +155,9 @@ public class ImageService implements WebStatus{
 
 		for (ImageDTO image : response) {
 
-			for (String expressionValue : image
-					.getDistinctParameterAssociationsValue()) {
+			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
 				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
-					AnatomyPageTableRow row = new AnatomyPageTableRow(image,
-							maId, baseUrl, expressionValue);
+					AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
 						row.addSex(image.getSex());
@@ -177,16 +172,14 @@ public class ImageService implements WebStatus{
 	}
 
 	public Map<String, Map<String, Long>> getFacets(String anatomyId)
-			throws SolrServerException {
+	throws SolrServerException {
 
 		Map<String, Map<String, Long>> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ");
 
 		if (anatomyId != null) {
-			query.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + anatomyId
-					+ "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
-					+ anatomyId + "\")");
+			query.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + anatomyId + "\")");
 		}
 
 		query.setFacet(true);
@@ -210,8 +203,8 @@ public class ImageService implements WebStatus{
 		return res;
 	}
 
-	public List<DataTableRow> getImagesForGene(String geneAccession)
-			throws SolrServerException {
+	public List<DataTableRow> getImagesForGene(String geneAccession, String baseUrl)
+	throws SolrServerException {
 
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
@@ -242,6 +235,7 @@ public class ImageService implements WebStatus{
 				if (res.containsKey(row.getKey())) {
 					row = res.get(row.getKey());
 					row.addSex(image.getSex());
+					row.addIncrementToNumberOfImages();
 				}
 				res.put(row.getKey(), row);
 			}

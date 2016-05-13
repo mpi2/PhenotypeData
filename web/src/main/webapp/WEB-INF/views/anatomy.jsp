@@ -65,15 +65,13 @@
 										<c:if test="${fn:length(anatomy.synonyms) > 0 }">			
 											<p class="with-label"> <span class="label">Synonyms </span>
 												<c:forEach items="${anatomy.synonyms}" var="synonym" varStatus="synonymLoop">
-													<a href="${baseUrl}/anatomy/${anatomy.synonyms[synonymLoop.index]}">${synonym}</a> <c:if test="${!synonymLoop.last}">, &nbsp;</c:if>	
+													${synonym}<c:if test="${!synonymLoop.last}">,&nbsp;</c:if>	
 												</c:forEach>
 											</p>	
 										</c:if>
 										<c:if test="${fn:length(anatomy.childTerms) > 0 }">								
 											<p class="with-label"> <span class="label">Child Terms </span>
-												<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus">
-													<a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${childTerm}</a> <c:if test="${!childStatus.last}">, &nbsp;</c:if>	
-												</c:forEach>
+												<c:forEach items="${anatomy.childTerms}" var="childTerm" varStatus="childStatus"><a href="${baseUrl}/anatomy/${anatomy.childIds[childStatus.index]}">${childTerm}</a><c:if test="${!childStatus.last}">,&nbsp;</c:if></c:forEach>
 											</p>
 										</c:if>	
 									</div>
