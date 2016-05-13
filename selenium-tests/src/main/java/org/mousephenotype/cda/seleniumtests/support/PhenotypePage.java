@@ -453,15 +453,6 @@ public class PhenotypePage {
         RunStatus status = new RunStatus();
         int downloadDataLineCount = downloadData.getBody().length;
 
-        // Check that the number of rows in the download file is at least as
-        // many rows as the number of [non-preqc] sex icons shown on the first page.
-        int sexIconCount = testUtils.getSexIconCount(pageData, PhenotypeTable.COL_INDEX_PHENOTYPES_SEX,
-                PhenotypeTable.COL_INDEX_PHENOTYPES_GRAPH_LINK);
-        if (downloadDataLineCount < sexIconCount) {
-            status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
-                    sexIconCount + ").");
-        }
-
         // Do a set difference between the rows on the first displayed page
         // and the rows in the download file. The difference should be empty.
         int errorCount = 0;
