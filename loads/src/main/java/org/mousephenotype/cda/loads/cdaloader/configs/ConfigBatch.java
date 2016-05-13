@@ -17,17 +17,20 @@
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFile;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.support.ConcurrentExecutorAdapter;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 
 /**
  * Created by mrelac on 12/04/2016.
@@ -39,8 +42,8 @@ public class ConfigBatch {
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
-//    @Autowired
-//    public StepBuilderFactory stepBuilderFactory;
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
 
 //    @Autowired
 //    public DataSource komp2Loads;
@@ -64,9 +67,9 @@ public class ConfigBatch {
 //    @Qualifier("recreateAndLoadDbTables")
 //    public SystemCommandTasklet recreateAndLoadDbTables;
 
-    @Autowired
-    @Qualifier("resourceFileDbItemWriter")
-    public ResourceFileDbItemWriter resourceFileDbItemWriter;
+//    @Autowired
+//    @Qualifier("resourceFileDbItemWriter")
+//    public ResourceFileDbItemWriter resourceFileDbItemWriter;
 
     @Autowired
     @Qualifier("resourceFileOntologyMa")
@@ -79,6 +82,12 @@ public class ConfigBatch {
     @Autowired
     @Qualifier("recreateAndLoadDbTables")
     public RecreateAndLoadDbTables recreateAndLoadDbTables;
+
+    @Autowired
+    public Step loadMaStep;
+
+    @Autowired
+    public Step loadMpStep;
 
 
 
@@ -99,57 +108,66 @@ public class ConfigBatch {
 //    }
 
 
-//    @Bean
-//    public Job cdaLoadJob() throws CdaLoaderException {
-//        return jobBuilderFactory.get("cdaLoadJob")
-//                .incrementer(new RunIdIncrementer())
-////                .listener(listener())
-//
-//                .flow(resourceFileOntologyMa.getDownloadStep())
-//                .next(resourceFileOntologyMa.getLoadStep())
-////                .next(recreateAndLoadDbTablesStep())
-////                .next(loadOntologyMaStep())
-////                .flow(loadOntologyMaStep())
-//                .end()
-//                .build();
-//    }
-
+    /**
+     *
+     * NOTES:
+     *  recreateAndLoadDbTables works fine.
+     *  resourceFileOntologyMa.getDownloadStep() works fine on its own.
+     *  resourceFileOntologyMp.getDownloadStep() works fine on its own.
+     *    the two together cause an infinite loop downloading the Ma file.
+     */
     @Bean
-    public Job cdaLoadJob() throws CdaLoaderException {
-        return jobBuilderFactory.get("cdaLoadJob")
+    public Job cdaDownloadJob() throws CdaLoaderException {
+        return jobBuilderFactory.get("cdaDownloadJob")
                 .incrementer(new RunIdIncrementer())
                 .flow(recreateAndLoadDbTables.getStep())
 
-                // Download the ontology owl files.
-                .next(resourceFileOntologyMa.getDownloadStep())
-                .next(resourceFileOntologyMp.getDownloadStep())
 
-                // Load the ontology_term table.
-                .next(resourceFileOntologyMa.getLoadStep())
-                .next(resourceFileOntologyMp.getLoadStep())
+//                .chunk(10)
+//                .reader(new ResourceFileOntology())
+//                .writer(ontologyWriter)
+//                .build();
+//
+//
+//
+//
+                // Download the ontology owl files.
+
+                // THESE TWO STATEMENTS ENABLED LOAD THE MA TERMS, BUT NEVER LOAD THE MP TERMS. THE PROCESS JUST HANGS.
+//                .next(resourceFileOntologyMa.getLoadStep())
+//                .next(resourceFileOntologyMp.getLoadStep())
+
+
+                // THIS SET OF STATEMENTS IS INTENDED TO PARALLELIZE. MP GETS LOADED, BUT MA DOESN'T. THE PROCESS JUST HANGS.
+//                .split(new ConcurrentTaskExecutor())
+//                .add()
+//                .next(resourceFileOntologyMa.getLoadStep())
+//                .split(new ConcurrentTaskExecutor())
+//                .add()
+//                .next(resourceFileOntologyMp.getLoadStep())
+
+
+                // THESE TWO STATEMENTS ENABLED LOAD MA AND MP TERMS AS EXPECTED.
+                .next(loadMaStep)
+                .next(loadMpStep)
+
+
+
+                // THIS SET OF STATEMENTS IS INTENDED TO PARALLELIZE. MA GETS LOADED, BUT MP DOESN'T. THE PROCESS JUST HANGS. SIMILAR TO ABOVE, EXCEPT IT'S MA THAT GETS LOADED.
+//                .split(new ConcurrentTaskExecutor())
+//                .add()
+//                .next(loadMaStep)
+//                .split(new ConcurrentTaskExecutor())
+//                .add()
+//                .next(loadMpStep)
+
+
 
                 .end()
                 .build();
     }
 
-//    public Step downloadResourceFilesStep() {
-//        return stepBuilderFactory.get("downloadResourceFiles")
-//                .tasklet(downloadResourceFiles)
-//                .build();
-//    }
 
-//    public Step recreateAndLoadDbTablesStep() {
-//        return stepBuilderFactory.get("recreateAndLoadDbTablesStep")
-//                .tasklet(recreateAndLoadDbTables)
-//                .build();
-//    }
 
-//    public Step loadOntologyMaStep() throws CdaLoaderException{
-//
-//        return stepBuilderFactory.get("loadOntologyMaStep")
-//                .chunk(10)
-//                .reader(resourceFileOntologyMa.getItemReader())
-//                .writer(ontologyWriter)
-//                .build();
-//    }
+
 }

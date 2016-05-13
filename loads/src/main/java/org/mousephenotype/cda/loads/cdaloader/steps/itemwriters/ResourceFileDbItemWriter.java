@@ -24,15 +24,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.util.List;
 
 /**
  * Created by mrelac on 26/04/16.
  */
-//public class ResourceFileDbItemWriter implements ItemWriter<OntologyTerm> {
-
 public class ResourceFileDbItemWriter implements ItemWriter {
     @Autowired
     @Qualifier("komp2Loads")
@@ -44,34 +41,6 @@ public class ResourceFileDbItemWriter implements ItemWriter {
     @Autowired
     @Qualifier("komp2TxManager")
     private PlatformTransactionManager tx;
-
-
-    // Make sure we start with an empty table.
-    @PostConstruct
-    private void initialise() {
-        jdbcTemplate.execute("DELETE FROM ontology_term");
-    }
-
-    /**
-     * Process the supplied data element. Will not be called with any null items
-     * in normal operation.
-     *
-     * @param items items to be written
-     * @throws Exception if there are errors. The framework will catch the
-     *                   exception and convert or rethrow it as appropriate.
-     */
-//    @Override
-//    public void write(List<? extends OntologyTerm> items) throws Exception {
-//        for (OntologyTerm term : items) {
-//            jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?",
-//                    term.getId().getAccession(), term.getId().getDatabaseId(), term.getName(), term.getDescription(), term.getIsObsolete(), term.getReplacementAcc());
-//
-//            // Write synonyms.
-//
-//            // Write considerIds.
-//        }
-//    }
-
 
     /**
      * Process the supplied data element. Will not be called with any null items

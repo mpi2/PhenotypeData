@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -106,6 +107,7 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
         return null;
     }
 
+    @StepScope
     public Step getStep() {
         return stepBuilderFactory.get("recreateAndLoadDbTablesStep")
                 .tasklet(this)

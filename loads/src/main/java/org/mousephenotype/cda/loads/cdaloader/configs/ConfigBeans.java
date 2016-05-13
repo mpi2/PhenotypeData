@@ -17,16 +17,17 @@
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologyItemReader;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
-import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.file.transform.PassThroughLineAggregator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.FileSystemResource;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,10 +42,17 @@ public class ConfigBeans {
     protected String owlpath;
 
     @Bean(name = "recreateAndLoadDbTables")
-//    @StepScope
     public RecreateAndLoadDbTables recreateAndLoadDbTables() {
         return new RecreateAndLoadDbTables();
     }
+
+    @Autowired
+    public StepBuilderFactory stepBuilderFactory;
+
+//    @Autowired
+//    @Qualifier("resourceFileDbItemWriter")
+//    public ResourceFileDbItemWriter resourceFileDbItemWriter;
+
 
     @Bean(name = "resourceFileOntologyMa")
 //    @StepScope
@@ -72,22 +80,45 @@ public class ConfigBeans {
         return resourceFileOntology;
     }
 
-    @Bean(name = "resourceFileItemWriter")
-    @StepScope
-    public ResourceFileItemWriter resourceFileItemWriter() {
-        ResourceFileItemWriter writer = new ResourceFileItemWriter();
-        writer.setLineAggregator(new PassThroughLineAggregator<>());
-        String sourcePath = "/tmp/loadOntologies.log";
-        writer.setResource(new FileSystemResource(sourcePath));
-
-        return writer;
-    }
-
     @Bean(name = "resourceFileDbItemWriter")
     @StepScope
     public ResourceFileDbItemWriter resourceFileDbItemWriter() {
         ResourceFileDbItemWriter writer = new ResourceFileDbItemWriter();
 
         return writer;
+    }
+
+    @Bean
+    public Step loadMaStep() throws CdaLoaderException {
+
+        String filename = owlpath + "/ma.owl";
+        int dbId = 8;
+        String prefix = "MA";
+
+        OntologyItemReader ontologyReader = new OntologyItemReader();
+        ontologyReader.initialise(filename, dbId, prefix);
+
+        return stepBuilderFactory.get("loadMaStep")
+                .chunk(10)
+                .reader(ontologyReader)
+                .writer(resourceFileDbItemWriter())
+                .build();
+    }
+
+    @Bean
+    public Step loadMpStep () throws CdaLoaderException {
+
+        String filename = owlpath + "/mp.owl";
+        int dbId = 5;
+        String prefix = "MP";
+
+        OntologyItemReader ontologyReader = new OntologyItemReader();
+        ontologyReader.initialise(filename, dbId, prefix);
+
+        return stepBuilderFactory.get("loadMpStep")
+                .chunk(10)
+                .reader(ontologyReader)
+                .writer(resourceFileDbItemWriter())
+                .build();
     }
 }
