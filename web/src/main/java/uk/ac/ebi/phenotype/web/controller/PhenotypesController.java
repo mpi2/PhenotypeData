@@ -154,7 +154,6 @@ public class PhenotypesController {
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
-        Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
         Set<Synonym> synonymTerms = new HashSet<Synonym>();
         Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
 
@@ -188,21 +187,11 @@ public class PhenotypesController {
 	            if (mpData.containsKey("hp_term")) {
 	            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
 	            }
-
-	            if (mpData.containsKey("sibling_mp_id")) {
-	                terms = mpData.getJSONArray("sibling_mp_id");
-	                for (Object obj : terms) {
-	                    String id = (String) obj;
-	                    if ( ! id.equals(phenotype_id)) {
-	                        mpSiblings.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 5));
-	                    }
-	                }
-	            }
+	        
 	        }
 
         } catch (Exception e) {
             e.printStackTrace();
-            mpSiblings = new HashSet<OntologyTerm>();
         }
 
         // register interest state
@@ -214,7 +203,6 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
  		// other stuff
-        model.addAttribute("siblings", mpSiblings);
         model.addAttribute("synonyms", synonymTerms);
         model.addAttribute("hpTerms", computationalHPTerms);
         // Query the images for this phenotype
