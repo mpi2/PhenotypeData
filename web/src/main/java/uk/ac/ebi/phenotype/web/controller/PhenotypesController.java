@@ -16,9 +16,25 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
@@ -33,13 +49,19 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
-import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.OntologyBean;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.PreQcService;
+import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
-import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
@@ -49,25 +71,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestDrupalSolr;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
-import java.util.*;
 
 @Controller
 public class PhenotypesController {
@@ -126,8 +146,6 @@ public class PhenotypesController {
     @RequestMapping(value = "/phenotypes/{phenotype_id}", method = RequestMethod.GET)
     public String loadMpPage(   @PathVariable String phenotype_id,  Model model, HttpServletRequest request, RedirectAttributes attributes)
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
-
-    	long time = System.currentTimeMillis();
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
@@ -137,7 +155,6 @@ public class PhenotypesController {
         }
 
         Set<OntologyTerm> mpSiblings = new HashSet<OntologyTerm>();
-        Set<OntologyTerm> goTerms = new HashSet<OntologyTerm>();
         Set<Synonym> synonymTerms = new HashSet<Synonym>();
         Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
 
@@ -181,15 +198,6 @@ public class PhenotypesController {
 	                    }
 	                }
 	            }
-
-	            if (mpData.containsKey("go_id")) {
-	                terms = mpData.getJSONArray("go_id");
-	                for (Object obj : terms) {
-	                    String id = (String) obj;
-	                    goTerms.add(ontoTermDao.getOntologyTermByAccessionAndDatabaseId(id, 11));
-	                }
-	            }
-
 	        }
 
         } catch (Exception e) {
@@ -206,7 +214,6 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
  		// other stuff
-        model.addAttribute("go", goTerms);
         model.addAttribute("siblings", mpSiblings);
         model.addAttribute("synonyms", synonymTerms);
         model.addAttribute("hpTerms", computationalHPTerms);
@@ -262,7 +269,7 @@ public class PhenotypesController {
     	
         
     	List<PhenotypeCallSummaryDTO> phenotypeList;
-        Set<String> errorCodes = new HashSet();
+        Set<String> errorCodes = new HashSet<>();
         
         try {
         	
