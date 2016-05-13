@@ -20,6 +20,7 @@ import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologyItemReader;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -51,6 +52,7 @@ public class ResourceFileOntology extends ResourceFile {
     }
 
     @Override
+    @StepScope
     public Step getLoadStep() throws CdaLoaderException {
 
         return stepBuilderFactory.get("loadOntologyStep")
