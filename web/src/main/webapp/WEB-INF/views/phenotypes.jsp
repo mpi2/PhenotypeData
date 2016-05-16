@@ -133,7 +133,7 @@
 								<c:if test="${not empty synonyms}">
 									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
 										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
-											${synonym.symbol}<c:if test="${!loop.last}">,&nbsp;</c:if>
+											${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if>
 										</c:forEach>
 									</p>
 								</c:if>
@@ -141,7 +141,7 @@
 									<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
 										<ul>
 											<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
-												<li>${hpTerm.termName}</li>
+												<li>${hpTerm}</li>
 												<c:if test="${loop.last}">&nbsp;</c:if>
 											</c:forEach>
 										</ul>
