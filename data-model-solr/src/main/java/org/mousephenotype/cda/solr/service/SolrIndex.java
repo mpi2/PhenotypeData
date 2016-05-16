@@ -672,25 +672,6 @@ public class SolrIndex {
 		return null;
 	}
 
-	/**
-	 * Get the MP solr document associated to a specific MP term. The document
-	 * contains the relations to MA terms and sibling MP terms
-	 *
-	 * @param phenotype_id
-	 *            the MP term in question
-	 * @return a (json) solr document with the results of doing a solr query on
-	 *         the mp index for the mp term in question
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 */
-	public JSONObject getMpData(String phenotype_id) throws IOException,
-			URISyntaxException {
-		String url = internalSolrUrl
-				+ "/mp/select?wt=json&qf=mp_id&defType=edismax&q="
-				+ phenotype_id;
-
-		return getResults(url);
-	}
 
 	public JSONObject getImageInfo(int imageId) throws SolrServerException,
 			IOException, URISyntaxException {
