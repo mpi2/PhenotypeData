@@ -32,7 +32,6 @@ public class UniprotServiceTest {
     UniprotService uniprotService;
 
     @Test
-    @Ignore
     public void testCheckTypeParameterString() {
        
         UniprotDTO dto = new UniprotDTO();
