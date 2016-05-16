@@ -154,44 +154,21 @@ public class PhenotypesController {
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
-        Set<Synonym> synonymTerms = new HashSet<Synonym>();
-        Set<SimpleOntoTerm> computationalHPTerms = new HashSet<SimpleOntoTerm>();
+        Set<String> synonymTerms = new HashSet<String>();
+        List<String> computationalHPTerms = new ArrayList<String>();
 
-        try {
-
-        	JSONArray docs = solrIndex
-                    .getMpData(phenotype_id)
-                    .getJSONObject("response")
-                    .getJSONArray("docs");
-
-        	int nbDocs = docs.size();
-
-        	if ( nbDocs == 0 && (preqcService.getGenesBy(phenotype_id, null, true).isEmpty() || preqcService.getGenesBy(phenotype_id, null, true) == null)) {
-        		model.addAttribute("hasData", false);
-        	} else {
-	        	model.addAttribute("hasData", true);
-
-	            JSONObject mpData = docs.getJSONObject(0);
-	            JSONArray terms;
-
-	            if (mpData.containsKey("mp_term_synonym")) {
-	                JSONArray syonymsArray = mpData.getJSONArray("mp_term_synonym");
-	                for (Object syn : syonymsArray) {
-	                    String synm = (String) syn;
-	                    Synonym synonym = new Synonym();
-	                    synonym.setSymbol(synm);
-	                    synonymTerms.add(synonym);
-	                }
-	            }
-
-	            if (mpData.containsKey("hp_term")) {
-	            	computationalHPTerms = mpService.getComputationalHPTerms(mpData);
-	            }
-	        
-	        }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+       	if ( mpTerm  == null) {
+       		model.addAttribute("hasData", false);
+       	} else {
+       		model.addAttribute("hasData", true);
+            if (mpTerm.getMpTermSynonym() != null && mpTerm.getMpTermSynonym().size() > 0) {
+				for ( String synonym : mpTerm.getMpTermSynonym()) {
+                    synonymTerms.add(synonym);
+                }
+            }
+            if (mpTerm.getHpId() != null && mpTerm.getHpId().size() > 0) {
+            	computationalHPTerms = mpTerm.getHpTerm();
+            }
         }
 
         // register interest state
