@@ -155,11 +155,9 @@ public class ImageService implements WebStatus{
 
 		for (ImageDTO image : response) {
 
-			for (String expressionValue : image
-					.getDistinctParameterAssociationsValue()) {
+			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
 				if (paramAssoc == null || paramAssoc.contains(expressionValue)) {
-					AnatomyPageTableRow row = new AnatomyPageTableRow(image,
-							maId, baseUrl, expressionValue);
+					AnatomyPageTableRow row = new AnatomyPageTableRow(image, maId, baseUrl, expressionValue);
 					if (res.containsKey(row.getKey())) {
 						row = res.get(row.getKey());
 						row.addSex(image.getSex());
@@ -174,16 +172,14 @@ public class ImageService implements WebStatus{
 	}
 
 	public Map<String, Map<String, Long>> getFacets(String anatomyId)
-			throws SolrServerException {
+	throws SolrServerException {
 
 		Map<String, Map<String, Long>> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ");
 
 		if (anatomyId != null) {
-			query.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + anatomyId
-					+ "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\""
-					+ anatomyId + "\")");
+			query.addFilterQuery("(" + ImageDTO.MA_ID + ":\"" + anatomyId + "\" OR " + ImageDTO.SELECTED_TOP_LEVEL_MA_ID + ":\"" + anatomyId + "\")");
 		}
 
 		query.setFacet(true);
@@ -208,7 +204,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public List<DataTableRow> getImagesForGene(String geneAccession, String baseUrl)
-			throws SolrServerException {
+	throws SolrServerException {
 
 		Map<String, AnatomyPageTableRow> res = new HashMap<>();
 		SolrQuery query = new SolrQuery();
@@ -239,6 +235,7 @@ public class ImageService implements WebStatus{
 				if (res.containsKey(row.getKey())) {
 					row = res.get(row.getKey());
 					row.addSex(image.getSex());
+					row.addIncrementToNumberOfImages();
 				}
 				res.put(row.getKey(), row);
 			}

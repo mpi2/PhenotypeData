@@ -43,6 +43,10 @@ public class AnatomyPageTableRow extends DataTableRow{
         super();
     }
 
+    
+    public void  addIncrementToNumberOfImages(){
+    	numberOfImages ++;
+    }
 
     public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl, String expressionValue) {
 
@@ -94,7 +98,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 		    .flatMap(Collection::stream)
 		    .collect(Collectors.toList());
 
-        this.setEvidenceLink(buildImageUrl(baseUrl, maId, maTerms.get(maIds.indexOf(maId))));
+        this.setEvidenceLink(buildImageUrl(baseUrl, maId, maTerms.get(maIds.indexOf(maId)), expressionValue));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
         this.numberOfImages ++;
     }
@@ -118,7 +122,7 @@ public class AnatomyPageTableRow extends DataTableRow{
     }
 
 
-    public EvidenceLink buildImageUrl(String baseUrl, String maId, String maTerm){
+    public EvidenceLink buildImageUrl(String baseUrl, String maId, String maTerm, String expressionValue){
 
     	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
         url += ImageDTO.MA_ID + ":\"";
@@ -135,7 +139,11 @@ public class AnatomyPageTableRow extends DataTableRow{
     	if (getParameter() != null){
     		url += " AND " + ImageDTO.PARAMETER_NAME + ":\"" + getParameter().getName() + "\"";
     	}
-    	url += "&title=gene " + this.getGene().getSymbol() + " in " + maTerm + "";
+    	if ( expressionValue != null){
+    		url += " AND " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"" + expressionValue + "\"";
+    	}
+    	
+    	url += "&title=gene " + this.getGene().getSymbol() + " with " + expressionValue + " in " + maTerm + "";
 
     	EvidenceLink link = new EvidenceLink();
     	link.setUrl(url);
@@ -167,7 +175,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 	}
 
 	public String getKey(){
-		return getAllele().getSymbol() + getZygosity().name() + getParameter().getName() + getExpression();
+		return getAllele().getSymbol() + getZygosity().name() + getParameter().getName() + getExpression() + getPhenotypingCenter();
 	}
 
 	public boolean equals(AnatomyPageTableRow obj) {
