@@ -304,9 +304,9 @@
 
 											<div class="clear"></div>
 									</form>
-									<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
-										<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
-									</jsp:include>
+									
+									<jsp:include page="geneVariantsWithPhenotypeTable.jsp"/>
+									
 									<br/>
 									<div id="export">
 										<p class="textright"> 
@@ -343,7 +343,6 @@
 									class="fa fa-question-circle pull-right"></i>
 						</h2>
 							<div class="inner">
-								<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>
 								<div class="accordion-group">
 										<div class="accordion-heading">
 												Phenotype Associated Images
@@ -360,7 +359,7 @@
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
 												<p class="textright">
-												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a>
+												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${images.getNumFound()} images</a>
 											</p>
 												</c:if>
 										</div>

@@ -155,11 +155,7 @@ public class PhenotypesController {
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
-       	if ( mpTerm  == null) {
-       		model.addAttribute("hasData", false);
-       	} else {
-       		model.addAttribute("hasData", true);
-       	}
+     	model.addAttribute("hasData", mpTerm  == null ? false : true);
         
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
@@ -171,7 +167,6 @@ public class PhenotypesController {
         
         // Query the images for this phenotype
         SolrDocumentList images = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
-        model.addAttribute("numberFound", images.getNumFound());
         model.addAttribute("images", images);
        
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
@@ -181,16 +176,16 @@ public class PhenotypesController {
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 
-        model.addAttribute("genePercentage", getPercentages(phenotype_id));
+	    model.addAttribute("parametersAssociated", getParameters(phenotype_id));
 
-        model.addAttribute("parametersAssociated", getParameters(phenotype_id));
+	    model.addAttribute("genePercentage", getPercentages(phenotype_id));
 
         // Stuff for parent-child display
         model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
         model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
-        
 
-        processPhenotypes(phenotype_id, null, null, null, model, request);
+        // Associations table
+        model.addAttribute("phenotypes", processPhenotypes(phenotype_id, null, null, null, model, request));
         
         return "phenotypes";
     }
@@ -216,7 +211,7 @@ public class PhenotypesController {
      * @throws URISyntaxException
      * @throws SolrServerException 
      */
-    private void processPhenotypes(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName, Model model, HttpServletRequest request) 
+    private List<DataTableRow> processPhenotypes(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName, Model model, HttpServletRequest request) 
     throws IOException, URISyntaxException, SolrServerException {
     	
         
@@ -289,29 +284,8 @@ public class PhenotypesController {
 
         List<DataTableRow> list = new ArrayList<DataTableRow>(phenotypes.values());
         Collections.sort(list);
-
-        model.addAttribute("phenotypes", list);
-
-        // Check the number of document first
-        JSONArray docs = solrIndex
-                .getMpData(phenotype_id)
-                .getJSONObject("response")
-                .getJSONArray("docs");
-
-        int nb = docs.size();
-
-        if (nb == 0) {
-        	model.addAttribute("isImpcTerm", false);
-        } else {
-
-        JSONObject mpData = docs.getJSONObject(0);
-
-        if (mpData.containsKey("ontology_subset")) {
-            model.addAttribute("isImpcTerm", mpData.getJSONArray("ontology_subset").contains("IMPC_Terms"));
-        } else {
-            model.addAttribute("isImpcTerm", false);
-        }
-        }
+        
+        return list;
 
     }
 
@@ -457,8 +431,16 @@ public class PhenotypesController {
     }
     
     
-    public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException { // <sex, percentage>
-        PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
+    /**
+     * 
+     * @param phenotype_id
+     * @return <sex, percentage>, to be used on overview pie chart
+     * @throws SolrServerException
+     */
+    public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) 
+    throws SolrServerException { 
+    
+    	PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 
         int total = 0;
         int nominator = 0;
@@ -519,11 +501,10 @@ public class PhenotypesController {
     
     	List<String> parameters = srService.getParametersForPhenotype(mpId);
     	List<ParameterDTO> res =  new ArrayList<>();
+    	
     	for (String parameterStableId : parameters){
     		ParameterDTO param = impressService.getParameterByStableId(parameterStableId);
-    		if (param.getObservationType().equals(ObservationType.categorical) && (param.getStableId().contains("_VIA_") || param.getStableId().contains("_FER_"))){
-    			res.add(param);
-    		} else if (param.getObservationType().equals(ObservationType.unidimensional)){
+    		if (param.getObservationType().equals(ObservationType.unidimensional)){
     			res.add(param);
     		} 
     	}
