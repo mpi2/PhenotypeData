@@ -97,8 +97,6 @@ public class PhenotypesController {
     private static final int numberOfImagesToDisplay = 5;
 
     @Autowired
-    private OntologyTermDAO ontoTermDao;
-    @Autowired
     private PhenotypeCallSummarySolr phenoDAO;
     @Autowired
     @Qualifier("phenotypePipelineDAOImpl")
@@ -150,11 +148,7 @@ public class PhenotypesController {
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
-    	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
-        if (mpTerm == null && mpDbTerm == null) {
-            throw new OntologyTermNotFoundException("", phenotype_id);
-        }
-
+    	
      	model.addAttribute("hasData", mpTerm  == null ? false : true);
         
         // register interest state
@@ -163,13 +157,13 @@ public class PhenotypesController {
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
-
         
         // Query the images for this phenotype
         SolrDocumentList images = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
         model.addAttribute("images", images);
        
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
+        
         model.addAttribute("phenotype", mpTerm);
         
 	    List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotype_id));
