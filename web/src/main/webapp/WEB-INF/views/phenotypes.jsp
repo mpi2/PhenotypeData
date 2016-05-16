@@ -130,18 +130,18 @@
 								<c:if test="${not empty phenotype.getMpDefinition()}">
 									<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 								</c:if>
-								<c:if test="${not empty synonyms}">
+								<c:if test="${not empty phenotype.getMpTermSynonym()}">
 									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
-										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
-											${synonym.symbol}<c:if test="${!loop.last}">,&nbsp;</c:if>
+										<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
+											${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if>
 										</c:forEach>
 									</p>
 								</c:if>
-								<c:if test="${not empty hpTerms}">
+								<c:if test="${not empty phenotype.getHpTerm()}">
 									<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
 										<ul>
-											<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
-												<li>${hpTerm.termName}</li>
+											<c:forEach var="hpTerm" items="${phenotype.getHpTerm()}" varStatus="loop">
+												<li>${hpTerm}</li>
 												<c:if test="${loop.last}">&nbsp;</c:if>
 											</c:forEach>
 										</ul>
@@ -304,9 +304,9 @@
 
 											<div class="clear"></div>
 									</form>
-									<jsp:include page="geneVariantsWithPhenotypeTable.jsp">
-										<jsp:param name="isImpcTerm" value="${isImpcTerm}"/>
-									</jsp:include>
+									
+									<jsp:include page="geneVariantsWithPhenotypeTable.jsp"/>
+									
 									<br/>
 									<div id="export">
 										<p class="textright"> 
@@ -343,7 +343,6 @@
 									class="fa fa-question-circle pull-right"></i>
 						</h2>
 							<div class="inner">
-								<%-- <a href="${baseUrl}/images?phenotype_id=${phenotype_id}">[show all  ${numberFound} images]</a> --%>
 								<div class="accordion-group">
 										<div class="accordion-heading">
 												Phenotype Associated Images
@@ -360,7 +359,7 @@
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
 												<p class="textright">
-												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${numberFound} images</a>
+												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${images.getNumFound()} images</a>
 											</p>
 												</c:if>
 										</div>
