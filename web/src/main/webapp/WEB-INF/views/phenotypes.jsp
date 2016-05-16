@@ -130,17 +130,17 @@
 								<c:if test="${not empty phenotype.getMpDefinition()}">
 									<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
 								</c:if>
-								<c:if test="${not empty synonyms}">
+								<c:if test="${not empty phenotype.getMpTermSynonym()}">
 									<p id="synonyms" class="with-label"> <span class="label">Synonyms</span>
-										<c:forEach var="synonym" items="${synonyms}" varStatus="loop">
+										<c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
 											${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if>
 										</c:forEach>
 									</p>
 								</c:if>
-								<c:if test="${not empty hpTerms}">
+								<c:if test="${not empty phenotype.getHpTerm()}">
 									<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>
 										<ul>
-											<c:forEach var="hpTerm" items="${hpTerms}" varStatus="loop">
+											<c:forEach var="hpTerm" items="${phenotype.getHpTerm()}" varStatus="loop">
 												<li>${hpTerm}</li>
 												<c:if test="${loop.last}">&nbsp;</c:if>
 											</c:forEach>
