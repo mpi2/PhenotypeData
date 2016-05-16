@@ -39,7 +39,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.common.SolrDocumentList;
-import org.hibernate.HibernateException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
@@ -76,7 +75,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
@@ -170,10 +168,48 @@ public class PhenotypesController {
         model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
         model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
 
-        // Associations table
-        model.addAttribute("phenotypes", processPhenotypes(phenotype_id, null, null, null, model, request));
+        // Associations table and filters
+        PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  null, null, null);
+        PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  null, null, null);       
+        model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
+        model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
+        model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
         
         return "phenotypes";
+        
+    }
+    
+    
+    private  Map<String, Map<String, Integer>> getPhenotypeFacets(PhenotypeFacetResult  phenoResult, PhenotypeFacetResult  preQcResult){
+    	
+        Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
+        Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
+
+		for (String key : preQcFacets.keySet()){
+			if (preQcFacets.get(key).keySet().size() > 0){
+				for (String key2: preQcFacets.get(key).keySet()){
+					phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2)); 
+				}
+			}
+		}
+		
+        return sortPhenFacets(phenoFacets);
+    }
+    
+    
+    private String getErrorMessage(PhenotypeFacetResult... phenoResult){
+    	
+    	Set<String> errorCodes = new HashSet<>();
+    	for (PhenotypeFacetResult result: phenoResult){
+    		errorCodes.addAll(result.getErrorCodes());
+    	}
+ 		String errorMessage = null;
+ 		if (errorCodes != null && errorCodes.size() > 0){
+ 			errorMessage = "There was a problem retrieving some of the phenotype calls. Some rows migth be missing from the table below. Error code(s) " +
+ 			StringUtils.join(errorCodes, ", ") + ".";
+ 		}
+ 		
+ 		return errorMessage;
     }
     
 
@@ -189,7 +225,7 @@ public class PhenotypesController {
 
     /**
      *
-     * @param phenotype_id
+     * @param phenotypeId
      * @param filter
      * @param model
      * @param request
@@ -197,49 +233,13 @@ public class PhenotypesController {
      * @throws URISyntaxException
      * @throws SolrServerException 
      */
-    private List<DataTableRow> processPhenotypes(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName, Model model, HttpServletRequest request) 
+    private List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, PhenotypeFacetResult preQcResult, String baseUrl) 
     throws IOException, URISyntaxException, SolrServerException {
     	
         
     	List<PhenotypeCallSummaryDTO> phenotypeList;
-        Set<String> errorCodes = new HashSet<>();
-        
-        try {
-        	
-            PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
-            PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
-
-            phenotypeList = phenoResult.getPhenotypeCallSummaries();
-            phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
-
-            Map<String, Map<String, Integer>> phenoFacets = phenoResult.getFacetResults();
-            Map<String, Map<String, Integer>> preQcFacets = preQcResult.getFacetResults();
-
-			for (String key : preQcFacets.keySet()){
-				if (preQcFacets.get(key).keySet().size() > 0){
-					for (String key2: preQcFacets.get(key).keySet()){
-						phenoFacets.get(key).put(key2, preQcFacets.get(key).get(key2));
-					}
-				}
-			}
-			
-			errorCodes.addAll(phenoResult.getErrorCodes());
-			errorCodes.addAll(preQcResult.getErrorCodes());
-			String errorMessage = null;
-			if (errorCodes != null && errorCodes.size() > 0){
-				errorMessage = "There was a problem retrieving some of the phenotype calls. Some rows migth be missing from the table below. Error code(s) " +
-				StringUtils.join(errorCodes, ", ") + ".";
-			}
-			
-            phenoFacets = sortPhenFacets(phenoFacets);
-            model.addAttribute("phenoFacets", phenoFacets);
-            model.addAttribute("errorMessage", errorMessage);
-
-        } catch (HibernateException | JSONException e) {
-            log.error("ERROR GETTING PHENOTYPE LIST");
-            e.printStackTrace();
-            phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
-        }
+        phenotypeList = phenoResult.getPhenotypeCallSummaries();
+        phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
         // This is a map because we need to support lookups
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
@@ -247,7 +247,7 @@ public class PhenotypesController {
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            DataTableRow pr = new PhenotypePageTableRow(pcs, request.getAttribute("baseUrl").toString(), config, false);
+            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, config, false);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
@@ -304,9 +304,15 @@ public class PhenotypesController {
 			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,			
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+            RedirectAttributes attributes) 
+    throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
         
-        processPhenotypes(acc, procedureName, markerSymbol, mpTermName, model, request);
+        // Associations table and filters
+        PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(acc,  procedureName, markerSymbol, mpTermName);
+        PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(acc,  procedureName, markerSymbol, mpTermName);       
+        model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult, preQcResult));
+        model.addAttribute("errorMessage", getErrorMessage(phenoResult, preQcResult));   
+        model.addAttribute("phenotypes", getPhenotypeRows(phenoResult, preQcResult, request.getAttribute("baseUrl").toString()));
         return "geneVariantsWithPhenotypeTable";
     }
 
