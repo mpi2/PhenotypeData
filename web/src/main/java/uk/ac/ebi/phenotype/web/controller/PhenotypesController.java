@@ -92,12 +92,10 @@ public class PhenotypesController {
     private static final int numberOfImagesToDisplay = 5;
 
     @Autowired
-    private PhenotypeCallSummarySolr phenoDAO;
+    private PhenotypeCallSummarySolr phenotypeSummaryHelper;
+    
     @Autowired
-    @Qualifier("phenotypePipelineDAOImpl")
-    private PhenotypePipelineDAO pipelineDao;
-    @Autowired
-    private ImagesSolrDao imagesSolrDao;
+    private ImagesSolrDao imagesSummaryHelper;
 
     @Autowired
     SolrIndex solrIndex;
@@ -154,7 +152,7 @@ public class PhenotypesController {
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
         
         // Query the images for this phenotype
-        SolrDocumentList images = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
+        SolrDocumentList images = imagesSummaryHelper.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
         model.addAttribute("images", images);
        
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
@@ -209,8 +207,8 @@ public class PhenotypesController {
         
         try {
         	
-            PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
-            PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
+            PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
+            PhenotypeFacetResult preQcResult = phenotypeSummaryHelper.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
 
             phenotypeList = phenoResult.getPhenotypeCallSummaries();
             phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
@@ -335,7 +333,7 @@ public class PhenotypesController {
             RedirectAttributes attributes) 
     throws IOException, URISyntaxException, SolrServerException {
             
-        PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
+        PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
         List<PhenotypePageTableRow> phenotypes = new ArrayList<PhenotypePageTableRow>();
         String url =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
