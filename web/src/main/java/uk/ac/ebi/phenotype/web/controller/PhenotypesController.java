@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -154,42 +155,25 @@ public class PhenotypesController {
             throw new OntologyTermNotFoundException("", phenotype_id);
         }
 
-        Set<String> synonymTerms = new HashSet<String>();
-        List<String> computationalHPTerms = new ArrayList<String>();
-
        	if ( mpTerm  == null) {
        		model.addAttribute("hasData", false);
        	} else {
        		model.addAttribute("hasData", true);
-            if (mpTerm.getMpTermSynonym() != null && mpTerm.getMpTermSynonym().size() > 0) {
-				for ( String synonym : mpTerm.getMpTermSynonym()) {
-                    synonymTerms.add(synonym);
-                }
-            }
-            if (mpTerm.getHpId() != null && mpTerm.getHpId().size() > 0) {
-            	computationalHPTerms = mpTerm.getHpTerm();
-            }
-        }
-
+       	}
+        
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
- 		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest);
- 		
+ 		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest); 		
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
 
- 		// other stuff
-        model.addAttribute("synonyms", synonymTerms);
-        model.addAttribute("hpTerms", computationalHPTerms);
-        // Query the images for this phenotype
-        QueryResponse response = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay);
-        model.addAttribute("numberFound", response.getResults().getNumFound());
-        model.addAttribute("images", response.getResults());
-
-        processPhenotypes(phenotype_id, null, null, null, model, request);
-
         
+        // Query the images for this phenotype
+        SolrDocumentList images = imagesSolrDao.getDocsForMpTerm(phenotype_id, 0, numberOfImagesToDisplay).getResults();
+        model.addAttribute("numberFound", images.getNumFound());
+        model.addAttribute("images", images);
+       
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         model.addAttribute("phenotype", mpTerm);
         
@@ -204,6 +188,9 @@ public class PhenotypesController {
         // Stuff for parent-child display
         model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
         model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
+        
+
+        processPhenotypes(phenotype_id, null, null, null, model, request);
         
         return "phenotypes";
     }
