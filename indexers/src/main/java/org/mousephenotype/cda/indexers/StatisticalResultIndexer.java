@@ -238,7 +238,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			"  INNER JOIN external_db db ON db.id = obs.db_id " +
 			"  INNER JOIN project proj ON proj.id = exp.project_id " +
 			"  INNER JOIN organisation org ON org.id = exp.organisation_id " +
-			"WHERE bs.sample_group = 'experimental' " ;
+			"WHERE bs.sample_group = 'experimental' ";
 
 		try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 			p.setFetchSize(Integer.MIN_VALUE);
@@ -248,9 +248,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			while (r.next()) {
 
 				StatisticalResultDTO doc = parseLineResult(r);
-
-				doc.setDocId(doc.getDocId()+"-"+count);
-
+				doc.setDocId(doc.getDocId());
 
 				if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
 
