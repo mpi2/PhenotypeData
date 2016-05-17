@@ -11,8 +11,10 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.mousephenotype.cda.db.dao.MpOntologyDAO;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -37,6 +39,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Load documents into the statistical-results SOLR core
@@ -75,6 +78,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 	private Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
 	private Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
 	private Map<String, String> embryoSignificantResults = new HashMap<>();
+	private List<String> shouldHaveAdded = new ArrayList<>();
 
 	public StatisticalResultIndexer() {
 
@@ -140,25 +144,73 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			statResultCore.deleteByQuery("*:*");
 
 			count += processViabilityResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
+
 			count += processFertilityResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
+
 			count += processReferenceRangePlusResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
+
 			count += processUnidimensionalResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
+
 			count += processCategoricalResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
+
 			count += processEmbryoViabilityResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
+
 			count += processEmbryoResults();
+			statResultCore.commit(true, true);
+			checkSolrCount(count);
 
 			logger.info(" Added {} statistical result documents", count);
-
-
-			// Final commit to save the rest of the docs
-			// waitflush, waitserver = true
-			statResultCore.commit(true, true);
 
 		} catch (SQLException | IOException | SolrServerException e) {
 			throw new IndexerException(e);
 		}
 
 		return count;
+	}
+
+
+	/**
+	 * Check to see if the count of documents we think have been added actually matches
+	 * the number of documents in solr
+	 *
+	 * @param count the number of documents that should have been added
+	 * @throws SolrServerException
+	 */
+	public void checkSolrCount(Integer count) throws SolrServerException {
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*").setRows(0);
+		QueryResponse response = statResultCore.query(query);
+		Long solrCount = response.getResults().getNumFound();
+
+		logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrCount, count, count - solrCount);
+
+		if (count - solrCount > 0) {
+
+			// The java Set.add() method returns false when attempting to add an element that already exists in
+			// the set so the filter will remove all non-duplicate elements leaving only those document IDs that
+			// have been added twice
+			Set<String> uniques = new HashSet<>();
+			Set<String> diff = shouldHaveAdded
+				.stream()
+				.filter(e -> ! uniques.add(e))
+				.collect(Collectors.toSet());
+
+			logger.warn("Should have added these {} doc IDs, but missing from solr {}", diff.size(), StringUtils.join(diff, ", "));
+		}
+
 	}
 
 	// Populate embryo results
@@ -197,6 +249,9 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 				StatisticalResultDTO doc = parseLineResult(r);
 
+				doc.setDocId(doc.getDocId()+"-"+count);
+
+
 				if (embryoSignificantResults.containsKey(r.getString("doc_id"))) {
 
 					addMpTermData(embryoSignificantResults.get(r.getString("doc_id")), doc);
@@ -205,6 +260,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 
 				documentCount++;
 				statResultCore.addBean(doc, 5000);
+				shouldHaveAdded.add(doc.getDocId());
 				count++;
 
 			}
@@ -256,6 +312,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				StatisticalResultDTO doc = parseLineResult(r);
 				documentCount++;
 				statResultCore.addBean(doc, 30000);
+				shouldHaveAdded.add(doc.getDocId());
 				count++;
 			}
 		}
@@ -305,6 +362,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				StatisticalResultDTO doc = parseLineResult(r);
 				documentCount++;
 				statResultCore.addBean(doc, 30000);
+				shouldHaveAdded.add(doc.getDocId());
 				count++;
 			}
 
@@ -361,6 +419,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				StatisticalResultDTO doc = parseLineResult(r);
 				documentCount++;
 				statResultCore.addBean(doc, 30000);
+				shouldHaveAdded.add(doc.getDocId());
 				count++;
 			}
 		}
@@ -373,7 +432,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		String query;
 
 		// Populate categorical statistic results
-		query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
+		query = "SELECT CONCAT(dependent_variable, '_CAT_', sr.id) as doc_id, "
 			+ "  'categorical' AS data_type, sr.id AS db_id, control_id, "
 			+ "  experimental_id, experimental_sex as sex, experimental_zygosity, "
 			+ "  external_db_id, organisation_id, "
@@ -400,6 +459,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				StatisticalResultDTO doc = parseCategoricalResult(r);
 				documentCount++;
 				statResultCore.addBean(doc, 30000);
+				shouldHaveAdded.add(doc.getDocId());
 				count++;
 			}
 		}
@@ -412,7 +472,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		int count = 0;
 
 		// Populate reference range plus statistic results
-		String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
+		String query = "SELECT CONCAT(dependent_variable, '_RR_', sr.id) as doc_id, "
 			+ "  'unidimensional' AS data_type, "
 			+ "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
 			+ "  external_db_id, organisation_id, "
@@ -442,6 +502,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 				StatisticalResultDTO doc = parseReferenceRangeResult(r);
 				documentCount++;
 				statResultCore.addBean(doc, 30000);
+				shouldHaveAdded.add(doc.getDocId());
 				count++;
 			}
 		}
@@ -454,7 +515,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 		int count = 0;
 
 		// Populate unidimensional statistic results
-		String query = "SELECT CONCAT(dependent_variable, '_', sr.id) as doc_id, "
+		String query = "SELECT CONCAT(dependent_variable, '_CONT_', sr.id) as doc_id, "
 			+ "  'unidimensional' AS data_type, "
 			+ "  sr.id AS db_id, control_id, experimental_id, experimental_zygosity, "
 			+ "  external_db_id, organisation_id, "
@@ -491,6 +552,7 @@ public class StatisticalResultIndexer extends AbstractIndexer {
 			while (r.next()) {
 				StatisticalResultDTO doc = parseUnidimensionalResult(r);
 				documentCount++;
+				shouldHaveAdded.add(doc.getDocId());
 				statResultCore.addBean(doc, 30000);
 				count++;
 			}
