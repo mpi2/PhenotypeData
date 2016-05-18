@@ -34,3 +34,16 @@ width:100%;
 .picker{
 	width:100%;
 }
+
+.img_selected{
+	z-index: 2;
+	opacity: 0.5;
+}
+
+.clickbox{
+	background:blue;
+	/* float: left; */
+	display: inline-block
+}
+
+
