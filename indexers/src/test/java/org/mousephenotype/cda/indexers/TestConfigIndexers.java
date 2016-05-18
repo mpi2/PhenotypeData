@@ -29,8 +29,7 @@ import java.util.Properties;
 
 /**
  * TestConfig sets up the in memory database for supporting the database tests.
- * <p>
- * This will also import the data specified in the sql/test-data.sql file.
+ * @author jmason
  */
 
 @Configuration
