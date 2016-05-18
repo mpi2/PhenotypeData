@@ -158,6 +158,8 @@ public class ImpcImagesController {
 		model.addAttribute("controls", controls);
 		return "imagePicker";
 	}
+	
+	
 
 	@RequestMapping("/expressionImagePicker/{acc}/{anatomy}")
 	public String expressionImagePicker(@PathVariable String acc,
