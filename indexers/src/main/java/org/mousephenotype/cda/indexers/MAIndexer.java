@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -48,6 +49,7 @@ import static org.mousephenotype.cda.db.dao.OntologyDAO.BATCH_SIZE;
 /**
  * Populate the MA core
  */
+@Component
 public class MAIndexer extends AbstractIndexer {
     CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,7 +62,7 @@ public class MAIndexer extends AbstractIndexer {
     DataSource ontodbDataSource;
 
     @Autowired
-    @Qualifier("sangerImagesReadOnlyIndexing")
+    @Qualifier("sangerImagesIndexing")
     SolrServer imagesCore;
 
     @Autowired
