@@ -36,7 +36,7 @@ import java.util.Properties;
 
 /**
  * TestConfig sets up the in memory database for supporting the database tests.
- * <p>
+ * @author jmason
  */
 
 @Configuration
@@ -74,34 +74,6 @@ public class TestConfigIndexers {
 	@Bean
 	@ConfigurationProperties(prefix = "datasource.admintools")
 	public DataSource admintoolsDataSource() {
-		DataSource ds = DataSourceBuilder.create().build();
-		return ds;
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.ontodb")
-	public DataSource ontodbDataSource() {
-		DataSource ds = DataSourceBuilder.create().build();
-		return ds;
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.goapro")
-	public DataSource goaproDataSource() {
-		DataSource ds = DataSourceBuilder.create().build();
-		return ds;
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.uniprot")
-	public DataSource uniprotDataSource() {
-		DataSource ds = DataSourceBuilder.create().build();
-		return ds;
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.pfam")
-	public DataSource pfamDataSource() {
 		DataSource ds = DataSourceBuilder.create().build();
 		return ds;
 	}
