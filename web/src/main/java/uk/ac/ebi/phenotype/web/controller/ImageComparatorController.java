@@ -101,11 +101,18 @@ public class ImageComparatorController {
 			sexTypes.add(SexType.male);
 			sexTypes.add(SexType.female);
 		}
+		
+		SolrDocumentList filteredMutants = new SolrDocumentList();
 		if (imgDoc != null) {
 			for (SexType sex : sexTypes) {
 				System.out.println("sex="+sex);
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 				controls.addAll(controlsTemp);
+				for(SolrDocument mutant:mutants){
+					if(mutant.get("sex").equals(sex.getName())){
+						filteredMutants.add(mutant);
+					}
+				}
 				
 			}
 		}
@@ -121,8 +128,8 @@ public class ImageComparatorController {
 		
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
-		System.out.println("mutants size=" + mutants.size());
-		model.addAttribute("mutants", mutants.subList(0, 3));
+		System.out.println("mutants size=" + filteredMutants.size());
+		model.addAttribute("mutants", filteredMutants.subList(0, 3));
 		System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls.subList(0, 3));
 		return "comparator";
