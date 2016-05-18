@@ -8,7 +8,7 @@
 
 	<context:annotation-config />
 
-	<context:component-scan base-package="org.mousephenotype.cda.db">
+	<context:component-scan base-package="org.mousephenotype.cda.db, org.mousephenotype.cda.indexers">
 		<context:exclude-filter type="annotation" expression="org.mousephenotype.cda.annotations.ComponentScanNonParticipant" />
     </context:component-scan>
 
@@ -116,22 +116,12 @@
 		<constructor-arg index="1" value="10000" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
-	<bean id="alleleReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/allele" />
-		<!-- <constructor-arg index="0" value="${devBuildIndexesSolrUrl:${buildIndexesSolrUrl}}/allele" /> -->
-	</bean>
 
 	<bean id="preqcIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc" />
 		<constructor-arg index="1" value="10000" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
-	</bean>
-
-	<bean id="preqcReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/preqc" />
 	</bean>
 
 	<!-- used for concurrently loading the experiment core -->
@@ -142,11 +132,6 @@
 		<constructor-arg index="1" value="100000" /> <!--Queue size -->
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
-	<bean id="observationReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}/experiment" />
-	</bean>
 
 	<!-- used for concurrently loading the MA core -->
 	<bean id="maIndexing"
@@ -154,10 +139,6 @@
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/ma" />
 		<constructor-arg index="1" value="100000" /> <!--Queue size -->
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
-	</bean>
-	<bean id="maReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/ma" />
 	</bean>
 
 	<!-- used for concurrently loading the disease core -->
@@ -168,12 +149,6 @@
 		<constructor-arg index="1" value="1000" /> <!--Queue size -->
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
-	<bean id="diseaseReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}/disease" />
-	</bean>
-
 
 	<!-- used for concurrently loading the gene core -->
 	<bean id="geneIndexing"
@@ -181,10 +156,6 @@
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gene" />
 		<constructor-arg index="1" value="1000" /> <!--Queue size -->
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
-	</bean>
-	<bean id="geneReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gene" />
 	</bean>
 
 	<!-- used for concurrently loading the genotype phenotype core -->
@@ -204,13 +175,6 @@
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
 
-	<!-- used for concurrently loading the genotype phenotype core -->
-	<bean id="genotypePhenotypeReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}/genotype-phenotype" />
-	</bean>
-
 	<!-- used for concurrently loading the pipeline core -->
 	<bean id="pipelineIndexing"
 		class="org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer">
@@ -219,12 +183,6 @@
 		<constructor-arg index="1" value="500" /> <!--Queue size -->
 		<constructor-arg index="2" value="5" /> <!--Num threads -->
 	</bean>
-	<bean id="pipelineReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}}/pipeline" />
-	</bean>
-
 
 	<!-- used for concurrently loading the samger images (or just images) core -->
 	<bean id="sangerImagesIndexing"
@@ -232,10 +190,6 @@
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/images" />
 		<constructor-arg index="1" value="2000" /> <!--Queue size -->
 		<constructor-arg index="2" value="2" /> <!--Num threads -->
-	</bean>
-	<bean id="sangerImagesReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/images" />
 	</bean>
 
 	<!-- used for concurrently loading the MP core -->
@@ -245,10 +199,6 @@
 		<constructor-arg index="1" value="200" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
-	<bean id="mpReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/mp" />
-	</bean>
 
 	<!-- used for concurrently loading the EMAP core -->
 	<bean id="emapIndexing"
@@ -256,10 +206,6 @@
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/emap" />
 		<constructor-arg index="1" value="200" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
-	</bean>
-	<bean id="emapReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/emap" />
 	</bean>
 
 	<!-- used for concurrently loading the autosuggest core -->
@@ -270,11 +216,6 @@
 		<constructor-arg index="1" value="1000" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
 	</bean>
-	<bean id="autosuggestReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}/autosuggest" />
-	</bean>
 
 	<!-- used for concurrently loading the impc_images core -->
 	<bean id="impcImagesIndexing"
@@ -283,11 +224,6 @@
 			value="${buildIndexesSolrUrl}/impc_images" />
 		<constructor-arg index="1" value="10000" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
-	</bean>
-	<bean id="impcImagesReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}/impc_images" />
 	</bean>
 
 	<!-- used for concurrently loading the statistical results core -->
@@ -298,11 +234,6 @@
 		<constructor-arg index="1" value="50000" /> <!--Queue size -->
 		<constructor-arg index="2" value="6" /> <!--Num threads -->
 	</bean>
-	<bean id="statisticalResultsReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0"
-			value="${buildIndexesSolrUrl}/statistical-result" />
-	</bean>
 
 	<!-- IMPC to GWAS similarity annotation indexing core -->
 	<bean id="gwasIndexing"
@@ -310,10 +241,6 @@
 		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gwas" />
 		<constructor-arg index="1" value="10000" /> <!--Queue size -->
 		<constructor-arg index="2" value="3" /> <!--Num threads -->
-	</bean>
-	<bean id="gwasReadOnlyIndexing"
-		class="org.apache.solr.client.solrj.impl.HttpSolrServer">
-		<constructor-arg index="0" value="${buildIndexesSolrUrl}/gwas" />
 	</bean>
 
 
@@ -347,28 +274,11 @@
 	<!-- core indexer beans -->
 
 	<!-- used for concurrently loading the impc_images core -->
-	<bean id="observationIndexer" class="org.mousephenotype.cda.indexers.ObservationIndexer" />
-	<bean id="genotypePhenotypeIndexer"
-		class="org.mousephenotype.cda.indexers.GenotypePhenotypeIndexer" />
-	<bean id="mgiPhenotypeIndexer"
-		class="org.mousephenotype.cda.indexers.MGIPhenotypeIndexer" />
 	<bean id="mpOntologyService" class="org.mousephenotype.cda.db.dao.MpOntologyDAO" />
 	<bean id="maOntologyDAO" class="org.mousephenotype.cda.db.dao.MaOntologyDAO" />
 	<bean id="emapOntologyDAO" class="org.mousephenotype.cda.db.dao.EmapOntologyDAO" />
-	<bean id="statisticalResultIndexer"
-		class="org.mousephenotype.cda.indexers.StatisticalResultIndexer" />
-	<bean id="preqcIndexer" class="org.mousephenotype.cda.indexers.PreqcIndexer" />
-	<bean id="alleleIndexer" class="org.mousephenotype.cda.indexers.AlleleIndexer" />
-	<bean id="imagesIndexer" class="org.mousephenotype.cda.indexers.SangerImagesIndexer" />
-	<bean id="impcImagesIndexer" class="org.mousephenotype.cda.indexers.ImpcImagesIndexer" />
-	<bean id="mpIndexer" class="org.mousephenotype.cda.indexers.MPIndexer" />
-	<bean id="maIndexer" class="org.mousephenotype.cda.indexers.MAIndexer" />
-	<bean id="pipelineIndexer" class="org.mousephenotype.cda.indexers.PipelineIndexer" />
-	<bean id="geneIndexer" class="org.mousephenotype.cda.indexers.GeneIndexer" />
-	<bean id="diseaseIndexer" class="org.mousephenotype.cda.indexers.DiseaseIndexer" />
-	<bean id="autosuggestIndexer" class="org.mousephenotype.cda.indexers.AutosuggestIndexer" />
-
 	<bean id="gwasDao" class="org.mousephenotype.cda.db.dao.GwasDAO" />
+
 </beans>
 
 
