@@ -72,15 +72,15 @@ public class ImageComparatorController {
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
-		SolrDocumentList experimental = new SolrDocumentList();
+		SolrDocumentList mutants = new SolrDocumentList();
 		QueryResponse responseExperimental = imageService
 				.getImagesForGeneByParameter(acc, parameter_stable_id,
 						"experimental", 10000, null, null, null);
 		SolrDocument imgDoc =null;
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
-			experimental=responseExperimental.getResults();
-			System.out.println("list size=" + experimental.size());
-			imgDoc = experimental.get(0);
+			mutants=responseExperimental.getResults();
+			System.out.println("list size=" + mutants.size());
+			imgDoc = mutants.get(0);
 		}
 		
 		int numberOfControlsPerSex = 5;
@@ -96,8 +96,8 @@ public class ImageComparatorController {
 		
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
-		System.out.println("experimental size=" + experimental.size());
-		model.addAttribute("experimental", experimental);
+		System.out.println("mutants size=" + mutants.size());
+		model.addAttribute("mutants", mutants);
 		System.out.println("controls size=" + controls.size());
 		model.addAttribute("controls", controls);
 		return "comparator";
