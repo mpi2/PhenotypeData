@@ -41,6 +41,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 //import Glacier2.CannotCreateSessionException;
 //import Glacier2.PermissionDeniedException;
@@ -60,9 +61,12 @@ public class ImageComparatorController {
 	
 	@RequestMapping("/imageComparator/{acc}/{parameter_stable_id}")
 	public String imageCompBrowser(@PathVariable String acc,
-			@PathVariable String parameter_stable_id, Model model, HttpServletRequest request)
+			@PathVariable String parameter_stable_id,
+			@RequestParam(value = "gender", defaultValue="both") String[] gender, @RequestParam(value = "zygosity", defaultValue="both") String[] zygosity, Model model, HttpServletRequest request)
 			throws SolrServerException {
-
+		
+		if(gender!=null)System.out.println("sex="+gender);
+		if(zygosity!=null)System.out.println("zygParam="+zygosity);
 		
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
@@ -86,20 +90,41 @@ public class ImageComparatorController {
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
 		SolrDocumentList controls = new SolrDocumentList();
+		List<SexType> sexTypes=new ArrayList<>();
+		if(gender[0].equals("male")){
+			sexTypes.add(SexType.male);
+		}else
+		if(gender[0].equals("female")){
+			sexTypes.add(SexType.female);
+		}else
+		if(gender[0].equals("both")){
+			sexTypes.add(SexType.male);
+			sexTypes.add(SexType.female);
+		}
 		if (imgDoc != null) {
-			for (SexType sex : SexType.values()) {
-
+			for (SexType sex : sexTypes) {
+				System.out.println("sex="+sex);
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
 				controls.addAll(controlsTemp);
+				
 			}
 		}
+		
+//		if(!gender.equals("both")){
+//			for(SolrDocument control:controls){
+//				if(!control.get("sex").equals(gender[0])){
+//					//controls.remove(control);
+//				}
+//			}
+//		}
+		
 		
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
 		System.out.println("mutants size=" + mutants.size());
-		model.addAttribute("mutants", mutants);
+		model.addAttribute("mutants", mutants.subList(0, 3));
 		System.out.println("controls size=" + controls.size());
-		model.addAttribute("controls", controls);
+		model.addAttribute("controls", controls.subList(0, 3));
 		return "comparator";
 	}
 	

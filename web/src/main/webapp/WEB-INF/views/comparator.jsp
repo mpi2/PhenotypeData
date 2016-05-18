@@ -42,15 +42,25 @@
             		</select>
             		</div>
 	            	<div id="control_box" class=box>
-	            		<iframe id="control_frame"
-										src="http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/89929"></iframe>
+		            	<c:choose>
+			            	<c:when test="${not empty controls}">
+			            	
+			            		<iframe id="control_frame"
+												src="http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/${controls[0].omero_id }"></iframe>
+							</c:when>
+							<c:otherwise>
+								No Image for Controls Selected
+							</c:otherwise>
+						</c:choose>
 	            
-	            		<div class="annotation">
+	            		<div id="control_annotation" class="annotation">
 	            			control annotations go here
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}">
-	            				<img src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70">
+	            			<div class="clickbox">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control" title="${img.sex}">
+	            			</div>
 	            			</c:forEach>
 	            		</div>
 	            	
@@ -59,14 +69,23 @@
 	            	
 	            	
 	            	<div id="mutant_box" class=box>
-	            		<iframe id="mutant_frame"
-										src="http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/89929"></iframe>
-	            		<div class="annotation">
+	            	<c:choose>
+			            	<c:when test="${not empty mutants}">
+								<iframe id="mutant_frame"
+										src="http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/${mutants[0].omero_id }"></iframe>
+							</c:when>
+							<c:otherwise>
+								No Image for Mutants Selected
+							</c:otherwise>
+					</c:choose>
+	            		<div id="mutant_annotation" class="annotation">
 	            		mutant annotations go here
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${mutants}">
-	            				<img src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70">
+	            			<div class="clickbox">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_mutant" title="${img.sex}">
+	            			</div>
 	            			</c:forEach> 
 	            		</div>
 	            	
