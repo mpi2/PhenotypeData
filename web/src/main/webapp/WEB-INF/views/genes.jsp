@@ -450,29 +450,38 @@
 												<ul class='tabs'>
 													<li><a href="#tabs-1">Adult Expression</a></li>
 
-														<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
-														<%--<li><a href="#tabs-2">Adult Expression Data Overview</a></li>--%>
-														<%--</c:if>--%>
+													<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
+														<%--<li><a href="#tabs-1">Adult Expression</a></li>--%>
+													<%--</c:if>--%>
 
-													<c:if test="${not empty impcExpressionImageFacets}">
+													<%--<c:if test="${not empty impcExpressionImageFacets}">--%>
 														<li><a href="#tabs-3">Adult Expression Image</a></li>
-													</c:if>
+													<%--</c:if>--%>
 
-													<c:if test="${not empty embryoExpressionAnatomyToRow}">
+													<%--<c:if test="${not empty embryoExpressionAnatomyToRow}">--%>
 														<li><a href="#tabs-4">Embryo Expression</a></li>
-													</c:if>
+													<%--</c:if>--%>
 
-													<c:if test="${not empty impcEmbryoExpressionImageFacets}">
+													<%--<c:if test="${not empty impcEmbryoExpressionImageFacets}">--%>
 														<li><a href="#tabs-5">Embryo Expression Image</a></li>
-													</c:if>
+													<%--</c:if>--%>
 
 												</ul>
 
-												<div id="tabs-1">
-													<!-- Expression in Anatomogram -->
-                                                    <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
-												</div>
-
+												<c:choose>
+													<c:when test="${not empty expressionAnatomyToRow }">
+														<div id="tabs-1">
+															<!-- Expression in Anatomogram -->
+                                                            <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-1">
+															<!-- Expression in Anatomogram -->
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
 													<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
 													<%--<div id="tabs-2">--%>
 													<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
@@ -480,25 +489,46 @@
 													<%--</c:if>--%>
 
 												<!-- section for expression data here -->
-												<c:if test="${not empty impcExpressionImageFacets}">
-													<div id="tabs-3">
-														<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
-													</div>
-												</c:if>
+												<c:choose>
+													<c:when test="${not empty impcExpressionImageFacets}">
+														<div id="tabs-3">
+															<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-3">
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
 
-												<c:if test="${not empty embryoExpressionAnatomyToRow}">
-													<div id="tabs-4" style="height: 500px; overflow: auto;">
-														<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
-													</div>
-												</c:if>
-
+												<c:choose>
+													<c:when test="${not empty embryoExpressionAnatomyToRow}">
+														<div id="tabs-4" style="height: 500px; overflow: auto;">
+															<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-4">
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
 												<!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
 												<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
-												<c:if test="${not empty impcEmbryoExpressionImageFacets}">
-													<div id="tabs-5">
-														<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
-													</div>
-												</c:if>
+												<c:choose>
+													<c:when  test="${not empty impcEmbryoExpressionImageFacets}">
+														<div id="tabs-5">
+															<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-5">
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
+
 												<br style="clear: both">
 											</div><!-- end of tabs -->
 									</c:if>
