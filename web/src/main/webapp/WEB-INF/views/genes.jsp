@@ -377,8 +377,9 @@
 												href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
 									<!--  this works, but need js to drive tip position -->
 								</h2>
-
+	
 								<div class="inner">
+									
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 								</div>
 
