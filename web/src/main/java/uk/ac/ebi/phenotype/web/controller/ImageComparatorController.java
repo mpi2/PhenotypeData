@@ -65,10 +65,10 @@ public class ImageComparatorController {
 	@RequestMapping("/imageComparator/{acc}/{parameter_stable_id}")
 	public String imageCompBrowser(@PathVariable String acc,
 			@PathVariable String parameter_stable_id,
-			@RequestParam(value = "gender", defaultValue="both") String[] gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String[] zygosity, Model model, HttpServletRequest request)
+			@RequestParam(value = "gender", defaultValue="both") String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		
-		if(gender!=null)System.out.println("sex in controller="+gender[0]);
+		if(gender!=null)System.out.println("sex in controller="+gender);
 		if(zygosity!=null)System.out.println("zygParam="+zygosity);
 		
 		// good example url with control and experimental images
@@ -162,30 +162,30 @@ public class ImageComparatorController {
 		return controls;
 	}
 
-	private List<SexType> getSexTypesForFilter(String[] gender) {
+	private List<SexType> getSexTypesForFilter(String gender) {
 		List<SexType> sexTypes=new ArrayList<>();
-		if(gender[0].equals("male")){
+		if(gender.equals("male")){
 			sexTypes.add(SexType.male);
 		}else
-		if(gender[0].equals("female")){
+		if(gender.equals("female")){
 			sexTypes.add(SexType.female);
 		}else
-		if(gender[0].equals("both")){
+		if(gender.equals("both")){
 			sexTypes.add(SexType.male);
 			sexTypes.add(SexType.female);
 		}
 		return sexTypes;
 	}
 	
-	private List<ZygosityType> getZygosityTypesForFilter(String[] zygosity) {
+	private List<ZygosityType> getZygosityTypesForFilter(String zygosity) {
 		List<ZygosityType> zygosityTypes=new ArrayList<>();
-		if(zygosity[0].equals("homozygote")){
+		if(zygosity.equals("homozygote")){
 			zygosityTypes.add(ZygosityType.homozygote);
 		}else
-		if(zygosity[0].equals("heterozygote")){
+		if(zygosity.equals("heterozygote")){
 			zygosityTypes.add(ZygosityType.heterozygote);
 		}else
-		if(zygosity[0].equals("not_applicable")){
+		if(zygosity.equals("not_applicable")){
 			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
 			
 		}
