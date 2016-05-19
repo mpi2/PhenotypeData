@@ -33,6 +33,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -41,6 +42,7 @@ import java.util.*;
 /**
  * @author Jeremy
  */
+@Component
 public class DiseaseIndexer extends AbstractIndexer {
     private CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
