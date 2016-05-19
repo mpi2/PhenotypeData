@@ -30,6 +30,7 @@ width:100%;
 
 .annotation{
 	border: #ddd 2px solid; color: #666;
+	text-align: center;
 }
 .picker{
 	width:100%;

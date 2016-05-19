@@ -32,13 +32,14 @@
            
 	            <div id="comparator" class="section">
 	            	<div id="filters">Filter Images by gender: 
-	            	${param.gender}
+	            	<%-- ${param.gender} --%>
 	            	<select name="gender">
 	            	<option value="both" <c:if test="${param.gender eq 'both'}">selected</c:if> >Both</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
             			<option value="female"  <c:if test="${param.gender eq 'female'}">selected</c:if>>Females</option>
             		</select>
-            		zygosity: ${param.zygosity}
+            		zygosity: 
+            		<%-- ${param.zygosity} --%>
              		<select name="zygosity">
              		<option value="not_applicable" <c:if test="${param.zygosity eq 'not_applicable'}">selected</c:if>>All</option>
             			<option value="heterozygote" <c:if test="${param.zygosity eq 'heterozygote'}">selected</c:if>>Het</option>
@@ -62,9 +63,9 @@
 	            			control annotations go here
 	            		</div>
 	            		<div class="picker">
-	            			<c:forEach var="img" items="${controls}">
+	            			<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control" title="${img.sex}">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
 	            			</div>
 	            			</c:forEach>
 	            		</div>
@@ -84,12 +85,12 @@
 							</c:otherwise>
 					</c:choose>
 	            		<div id="mutant_annotation" class="annotation">
-	            		mutant annotations go here
+	            		${mutants[0].sex}, ${mutants[0].zygosity}
 	            		</div>
 	            		<div class="picker">
-	            			<c:forEach var="img" items="${mutants}">
+	            			<c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_mutant" title="${img.sex}, ${img.zygosity}">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
 	            			</div>
 	            			</c:forEach> 
 	            		</div>

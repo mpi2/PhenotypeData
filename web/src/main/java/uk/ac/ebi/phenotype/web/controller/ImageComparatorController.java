@@ -65,17 +65,16 @@ public class ImageComparatorController {
 	@RequestMapping("/imageComparator/{acc}/{parameter_stable_id}")
 	public String imageCompBrowser(@PathVariable String acc,
 			@PathVariable String parameter_stable_id,
-			@RequestParam(value = "gender", defaultValue="both") String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, Model model, HttpServletRequest request)
+			@RequestParam(value = "gender", defaultValue="both") String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
 			throws SolrServerException {
-		
+		System.out.println("calling image imageComparator");
 		if(gender!=null)System.out.println("sex in controller="+gender);
 		if(zygosity!=null)System.out.println("zygParam="+zygosity);
 		
 		// good example url with control and experimental images
 		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
-		System.out.println("calling image imageComparator");
-				String mediaType=request.getParameter("mediaType");
-				 if(mediaType!=null) System.out.println("mediaType= "+mediaType);
+		
+		if(mediaType!=null) System.out.println("mediaType= "+mediaType);
 		// get experimental images
 		// we will also want to call the getControls method and display side by
 		// side
@@ -154,9 +153,7 @@ public class ImageComparatorController {
 			for (SexType sex : sexTypes) {
 				System.out.println("sex in controls="+sex);
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-				controls.addAll(controlsTemp);
-				
-				
+				controls.addAll(controlsTemp);	
 			}
 		}
 		return controls;
@@ -191,14 +188,6 @@ public class ImageComparatorController {
 		}
 		return zygosityTypes;
 	}
-	
-//	@RequestMapping("/imgDetail/{id}")
-//	public String imgDetail(@PathVariable String id, Model model, HttpServletRequest request)
-//			throws SolrServerException {
-//		System.out.println("calling imgDetail");
-//		model.addAttribute("id", id);
-//		return "imgDetail";
-//	}
 
 	private void addGeneToPage(String acc, Model model)
 			throws SolrServerException {
