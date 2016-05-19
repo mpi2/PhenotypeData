@@ -32,15 +32,17 @@
            
 	            <div id="comparator" class="section">
 	            	<div id="filters">Filter Images by gender: 
-	            	${parameter.gender} blah
+	            	${param.gender}
 	            	<select name="gender">
-            			<option value="male" <c:if test="${gender[0] eq 'male'}">selected</c:if> >Males</option>
-            			<option value="female"  <c:if test="${gender[0] eq 'female'}">selected</c:if>>Females</option>
+	            	<option value="both" <c:if test="${param.gender eq 'both'}">selected</c:if> >Both</option>
+            			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
+            			<option value="female"  <c:if test="${param.gender eq 'female'}">selected</c:if>>Females</option>
             		</select>
-            		zygosity: ${parameter.zygosity}
+            		zygosity: ${param.zygosity}
              		<select name="zygosity">
-            			<option value="heterozygote" <c:if test="${zygosity[0] eq 'heterozygote'}">selected</c:if>>Het</option>
-            			<option value="homozygote" <c:if test="${zygosity[0] eq 'homozygote'}">selected</c:if>>Hom</option>
+             		<option value="not_applicable" <c:if test="${param.zygosity eq 'not_applicable'}">selected</c:if>>All</option>
+            			<option value="heterozygote" <c:if test="${param.zygosity eq 'heterozygote'}">selected</c:if>>Het</option>
+            			<option value="homozygote" <c:if test="${param.zygosity eq 'homozygote'}">selected</c:if>>Hom</option>
             		</select>
             		<input type="submit" value="Go">
             		</div>
@@ -62,7 +64,7 @@
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control" title="${img.sex}, ${img.zygosity}">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control" title="${img.sex}">
 	            			</div>
 	            			</c:forEach>
 	            		</div>
