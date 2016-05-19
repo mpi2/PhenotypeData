@@ -24,7 +24,6 @@ import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.Xref;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -46,8 +46,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * Populate the MA core
+ * Populate the gene core
  */
+@Component
 public class GeneIndexer extends AbstractIndexer {
     CommonUtils commonUtils = new CommonUtils();
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -58,7 +59,7 @@ public class GeneIndexer extends AbstractIndexer {
     DataSource komp2DataSource;
 
     @Autowired
-    @Qualifier("alleleReadOnlyIndexing")
+    @Qualifier("alleleIndexing")
     SolrServer alleleCore;
 
     @Autowired
@@ -66,11 +67,11 @@ public class GeneIndexer extends AbstractIndexer {
     SolrServer geneCore;
 
     @Autowired
-    @Qualifier("mpReadOnlyIndexing")
+    @Qualifier("mpIndexing")
     SolrServer mpCore;
 
     @Autowired
-    @Qualifier("sangerImagesReadOnlyIndexing")
+    @Qualifier("sangerImagesIndexing")
     SolrServer imagesCore;
 
     @Autowired
@@ -211,7 +212,7 @@ public class GeneIndexer extends AbstractIndexer {
                 		List<String> embryoModalitiesForGene=new ArrayList<String>();
 
                 		for( EmbryoStrain strain : embryoStrainsForGene){
-                			
+
                 			if(strain.getModalities()!=null && strain.getModalities().size()>0){
                 				embryoModalitiesForGene.addAll(strain.getModalities());
                 			}
