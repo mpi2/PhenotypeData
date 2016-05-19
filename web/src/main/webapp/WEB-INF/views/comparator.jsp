@@ -28,18 +28,21 @@
 	<div class="block">
     	<div class="content">
         	<div class="node"> -->
-            <form>
+            <form action="">
            
 	            <div id="comparator" class="section">
-	            	<div id="filters">Filter Images: 
-	            	<select>
-            			<option>Males</option>
-            			<option>Females</option>
+	            	<div id="filters">Filter Images by gender: 
+	            	${parameter.gender} blah
+	            	<select name="gender">
+            			<option value="male" <c:if test="${gender[0] eq 'male'}">selected</c:if> >Males</option>
+            			<option value="female"  <c:if test="${gender[0] eq 'female'}">selected</c:if>>Females</option>
             		</select>
-             		<select>
-            			<option>Het</option>
-            			<option>Hom</option>
+            		zygosity: ${parameter.zygosity}
+             		<select name="zygosity">
+            			<option value="heterozygote" <c:if test="${zygosity[0] eq 'heterozygote'}">selected</c:if>>Het</option>
+            			<option value="homozygote" <c:if test="${zygosity[0] eq 'homozygote'}">selected</c:if>>Hom</option>
             		</select>
+            		<input type="submit" value="Go">
             		</div>
 	            	<div id="control_box" class=box>
 		            	<c:choose>
@@ -59,7 +62,7 @@
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control" title="${img.sex}">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control" title="${img.sex}, ${img.zygosity}">
 	            			</div>
 	            			</c:forEach>
 	            		</div>
@@ -84,7 +87,7 @@
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${mutants}">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_mutant" title="${img.sex}">
+	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_mutant" title="${img.sex}, ${img.zygosity}">
 	            			</div>
 	            			</c:forEach> 
 	            		</div>

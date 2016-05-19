@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +33,12 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -62,10 +65,10 @@ public class ImageComparatorController {
 	@RequestMapping("/imageComparator/{acc}/{parameter_stable_id}")
 	public String imageCompBrowser(@PathVariable String acc,
 			@PathVariable String parameter_stable_id,
-			@RequestParam(value = "gender", defaultValue="both") String[] gender, @RequestParam(value = "zygosity", defaultValue="both") String[] zygosity, Model model, HttpServletRequest request)
+			@RequestParam(value = "gender", defaultValue="both") String[] gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String[] zygosity, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		
-		if(gender!=null)System.out.println("sex="+gender);
+		if(gender!=null)System.out.println("sex in controller="+gender[0]);
 		if(zygosity!=null)System.out.println("zygParam="+zygosity);
 		
 		// good example url with control and experimental images
@@ -89,7 +92,77 @@ public class ImageComparatorController {
 		
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
+		
+		List<SexType> sexTypes = getSexTypesForFilter(gender);
+		
+		
+		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
+		SolrDocumentList controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
+		
+		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
+		
+		List<ZygosityType> zygosityTypes=getZygosityTypesForFilter(zygosity);
+		
+		//only filter mutants by zygosity as all controls are homs.
+		filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
+		
+		
+		this.addGeneToPage(acc, model);
+		model.addAttribute("mediaType", mediaType);
+		System.out.println("mutants size=" + filteredMutants.size());
+		model.addAttribute("mutants", filteredMutants);
+		System.out.println("controls size=" + controls.size());
+		model.addAttribute("controls", controls);
+		return "comparator";
+	}
+
+	private SolrDocumentList filterImagesByZygosity(SolrDocumentList imageDocs, List<ZygosityType> zygosityTypes) {
+		SolrDocumentList filteredImages=new SolrDocumentList();
+		if(zygosityTypes.get(0).getName().equals("not_applicable")){//just return don't filter if not applicable default is found
+			return imageDocs;
+		}
+		for(ZygosityType zygosityType:zygosityTypes){
+			for(SolrDocument control:imageDocs){
+				if(control.get(ImageDTO.ZYGOSITY).equals(zygosityType.getName())){
+					filteredImages.add(control);
+				}
+			}
+		}
+		return filteredImages;
+	}
+
+	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, List<SexType> sexTypes) {
+		SolrDocumentList filteredMutants = new SolrDocumentList();
+		
+		if (imgDoc != null) {
+			for (SexType sex : sexTypes) {
+				for(SolrDocument mutant:mutants){
+					if(mutant.get("sex").equals(sex.getName())){
+						filteredMutants.add(mutant);
+					}
+				}
+				
+			}
+		}
+		return filteredMutants;
+	}
+
+	private SolrDocumentList filterControlsBySexAndOthers(SolrDocument imgDoc, int numberOfControlsPerSex,
+			List<SexType> sexTypes) throws SolrServerException {
 		SolrDocumentList controls = new SolrDocumentList();
+		if (imgDoc != null) {
+			for (SexType sex : sexTypes) {
+				System.out.println("sex in controls="+sex);
+				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
+				controls.addAll(controlsTemp);
+				
+				
+			}
+		}
+		return controls;
+	}
+
+	private List<SexType> getSexTypesForFilter(String[] gender) {
 		List<SexType> sexTypes=new ArrayList<>();
 		if(gender[0].equals("male")){
 			sexTypes.add(SexType.male);
@@ -101,38 +174,22 @@ public class ImageComparatorController {
 			sexTypes.add(SexType.male);
 			sexTypes.add(SexType.female);
 		}
-		
-		SolrDocumentList filteredMutants = new SolrDocumentList();
-		if (imgDoc != null) {
-			for (SexType sex : sexTypes) {
-				System.out.println("sex="+sex);
-				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-				controls.addAll(controlsTemp);
-				for(SolrDocument mutant:mutants){
-					if(mutant.get("sex").equals(sex.getName())){
-						filteredMutants.add(mutant);
-					}
-				}
-				
-			}
+		return sexTypes;
+	}
+	
+	private List<ZygosityType> getZygosityTypesForFilter(String[] zygosity) {
+		List<ZygosityType> zygosityTypes=new ArrayList<>();
+		if(zygosity[0].equals("homozygote")){
+			zygosityTypes.add(ZygosityType.homozygote);
+		}else
+		if(zygosity[0].equals("heterozygote")){
+			zygosityTypes.add(ZygosityType.heterozygote);
+		}else
+		if(zygosity[0].equals("not_applicable")){
+			zygosityTypes.addAll(Arrays.asList(ZygosityType.values()));
+			
 		}
-		
-//		if(!gender.equals("both")){
-//			for(SolrDocument control:controls){
-//				if(!control.get("sex").equals(gender[0])){
-//					//controls.remove(control);
-//				}
-//			}
-//		}
-		
-		
-		this.addGeneToPage(acc, model);
-		model.addAttribute("mediaType", mediaType);
-		System.out.println("mutants size=" + filteredMutants.size());
-		model.addAttribute("mutants", filteredMutants.subList(0, 3));
-		System.out.println("controls size=" + controls.size());
-		model.addAttribute("controls", controls.subList(0, 3));
-		return "comparator";
+		return zygosityTypes;
 	}
 	
 //	@RequestMapping("/imgDetail/{id}")
