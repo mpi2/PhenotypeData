@@ -694,15 +694,6 @@ public class GenePage {
         RunStatus status = new RunStatus();
         int downloadDataLineCount = downloadData.getBody().length;
 
-        // Check that the number of rows in the download file is at least as
-        // many rows as the number of [non-preqc] sex icons shown on the first page.
-        int sexIconCount = testUtils.getSexIconCount(pageData, GeneTable.COL_INDEX_GENES_SEX,
-                GeneTable.COL_INDEX_GENES_GRAPH_LINK);
-        if (downloadDataLineCount < sexIconCount) {
-            status.addError("ERROR: download data line count (" + downloadDataLineCount + ") is LESS THAN the sex icon count (" +
-                    sexIconCount + ").");
-        }
-
         // Encode the page and download graph links for accurate comparison.
         pageData = new GridMap(urlUtils.urlEncodeColumn(pageData.getData(), GeneTable.COL_INDEX_GENES_GRAPH_LINK), pageData.getTarget());
         downloadData = new GridMap(urlUtils.urlEncodeColumn(downloadData.getData(), DownloadGeneMap.COL_INDEX_GRAPH_LINK), downloadData.getTarget());

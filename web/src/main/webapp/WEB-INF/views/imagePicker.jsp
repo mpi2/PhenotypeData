@@ -3,7 +3,6 @@
     <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <t:genericpage>
 <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Image Picker</jsp:attribute>
 
@@ -59,10 +58,28 @@
          		<c:set var="thumbnailUrl" value="../${pdfThumbnailUrl}"/>
          		</c:if>
                                 	<option data-img-src="${thumbnailUrl}" value="${img.omero_id}" data-img-label="
-   										<c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
+   										<%-- <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if> --%>
    										<c:if test="${not empty img.parameter_name}">${img.parameter_name}<br/></c:if>
-   										<c:if test="${not empty img.sex and img.sex ne 'no_data'}">${img.sex}<br/></c:if>
-   										<c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if>
+   										<c:if test="${not empty img.sex and img.sex ne 'no_data'}">
+   											<c:if test="${not empty img.sex}">
+   									${img.sex}
+   									<%-- <img alt="Female" src="${baseUrl}/img/female.jpg" />
+   											<c:choose>
+   											
+   												<c:when test="${img.sex == 'female'}">
+   												
+													<img alt="Female" src="${baseUrl}/img/female.jpg" />
+												</c:when>
+												<c:otherwise>
+												
+													<img alt="Male" src="${baseUrl}/img/male.jpg" />
+												</c:otherwise>
+											</c:choose> --%>
+										
+									</c:if>
+   										
+   										</c:if>
+   										<%-- <c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if> --%>
    										 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                  <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach items="${img.parameter_association_name}" varStatus="status">
@@ -98,12 +115,23 @@
          		                                <option 
                                 data-img-src="${thumbnailUrl}" 
                                 value="${img.omero_id}" data-img-label="
-                                    <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
+                                   <%--  <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if> --%>
                                     <c:if test="${not empty img.parameter_name}">${img.parameter_name}<br/></c:if>
                                     <c:if test="${not empty img.zygosity}">${img.zygosity}</c:if>
-   									<c:if test="${not empty img.sex}">${img.sex}<br/></c:if>
+   									<c:if test="${not empty img.sex}">
+   									${img.sex}
+   									<%-- <c:choose>
+   										<c:when test="${img.sex == 'female'}">
+											<img alt="Female" src="${baseUrl}/img/female.jpg" />
+										</c:when>
+										<c:otherwise>
+											<img alt="Male" src="${baseUrl}/img/male.jpg" />
+										</c:otherwise>
+									</c:choose> --%>
+										
+									</c:if>
    									 <c:if test="${not empty count}">${count} Images<br/></c:if>
-   									 <c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if>
+   									 <%-- <c:if test="${not empty img.date_of_experiment}">${img.date_of_experiment}<br/></c:if> --%>
                                                <%--  <c:if test="${not empty img.parameter_association_name}">
                                                 	<c:forEach var="pAssName" items="${img.parameter_association_name}" varStatus="status">${pAssName}<br/></c:forEach>
                                                 </c:if>

@@ -346,7 +346,7 @@ public class GenesController {
 			getExpressionImages(acc, model);
 			getImpcImages(acc, model);
 			getImpcExpressionImages(acc, model);
-			getImpcEmbryoExpressionImages(acc, model);
+			getImpcEmbryoExpression(acc, model);
 
 		} catch (SolrServerException e1) {
 			e1.printStackTrace();
@@ -771,7 +771,7 @@ public class GenesController {
 	 * @throws SolrServerException
 	 * @throws SQLException
 	 */
-	private void getImpcEmbryoExpressionImages(String acc, Model model)
+	private void getImpcEmbryoExpression(String acc, Model model)
 	throws SolrServerException, SQLException {
 		//good test gene:Nxn with selected top level emap terms
 		boolean overview=true;
