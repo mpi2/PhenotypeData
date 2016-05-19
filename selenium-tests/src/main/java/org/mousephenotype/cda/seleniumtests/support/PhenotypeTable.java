@@ -166,6 +166,7 @@ public class PhenotypeTable {
             boolean isPreQcLink = false;
             sourceColIndex = 0;
             boolean skipLink = false;
+            boolean createMaleRow = false;
             for (WebElement cell : cells) {
                 value = "";
                 if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_GENE_ALLELE) {
@@ -180,12 +181,18 @@ public class PhenotypeTable {
                         value = ap.gene + " / " + ap.toString();
                     }
                 } else if (sourceColIndex == COL_INDEX_PHENOTYPES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', 'both', or 'no_data'.
-                    List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
+                    List<WebElement> sex = cell.findElements(By.xpath(".//img[@alt='Male' or @alt='Female']"));
                     if (sex.isEmpty()) {
                         value = SexType.no_data.toString();
                     } else {
                         if (sex.size() == 2) {
-                            value = SexType.both.toString();
+                            List<WebElement> bothSexesElement = cell.findElements(By.xpath("./span[@class='bothSexes']"));
+                            if (bothSexesElement.isEmpty()) {
+                                value = SexType.female.toString();
+                                createMaleRow = true;
+                            } else {
+                                value = SexType.both.toString();
+                            }
                         } else {
                             value = sex.get(0).getAttribute("alt").toLowerCase();
                         }
@@ -217,31 +224,49 @@ public class PhenotypeTable {
                 sourceColIndex++;
             }
 
+            String[] maleRow = null;
+            if (createMaleRow) {
+                maleRow = dataArray[sourceRowIndex].clone();
+                maleRow[COL_INDEX_PHENOTYPES_PAGE_SEX] = "male";
+            }
+
             // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
             if (isPreQcLink) {
                 preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
+                if (maleRow != null) {
+                    preQcList.add(Arrays.asList(maleRow));
+                }
             } else {
                 if ( ! skipLink) {
                     postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the postQc list.
+                    if (maleRow != null) {
+                        postQcList.add(Arrays.asList(maleRow));
+                    }
                     if (postQcList.size() >= numRows) {                         // Return when we have the number of requested rows.
                         break;                                                  // Return when we have the number of requested rows.
                     }
                 }
             }
+
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
+            if (maleRow != null) {
+                preAndPostQcList.add(Arrays.asList(maleRow));
+            }
+
             sourceRowIndex++;
         }
 
         preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnPipeList, "|");
         preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnSlashList, "/");
-        preQcList = commonUtils.expandSexColumn(preQcList, COL_INDEX_PHENOTYPES_SEX);
+
         postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnPipeList, "|");
         postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnSlashList, "/");
-        postQcList = commonUtils.expandSexColumn(postQcList, COL_INDEX_PHENOTYPES_SEX);
+
         preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnPipeList, "|");
         preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnSlashList, "/");
-        preAndPostQcList = commonUtils.expandSexColumn(preAndPostQcList, COL_INDEX_PHENOTYPES_SEX);
+
         data = new GridMap(postQcList, target);
+
         return data;
     }
 

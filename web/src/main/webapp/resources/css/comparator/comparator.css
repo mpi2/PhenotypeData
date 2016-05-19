@@ -1,0 +1,49 @@
+#comparator{
+min-width:1220px;	
+min-height:900px;
+width:100%;
+}
+
+#control_box, #mutant_box {
+	width: 0%;
+	display: inline;
+	border: #ddd 2px solid; color: #666;
+	width: 49.6%;
+}
+
+#control_box{
+	float: left;
+	clear: right;
+	
+}
+
+#mutant_box{
+	float: right;
+}
+
+#control_frame, #mutant_frame {
+	min-width: 600px;
+	min-height:500px;
+	width: auto;
+	display: inline;
+}
+
+.annotation{
+	border: #ddd 2px solid; color: #666;
+}
+.picker{
+	width:100%;
+}
+
+.img_selected{
+	z-index: 2;
+	opacity: 0.5;
+}
+
+.clickbox{
+	background:blue;
+	/* float: left; */
+	display: inline-block
+}
+
+

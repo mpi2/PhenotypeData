@@ -50,15 +50,15 @@ public class EmapIndexer2 extends AbstractIndexer {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("alleleReadOnlyIndexing")
+    @Qualifier("alleleIndexing")
     private SolrServer alleleCore;
 
     @Autowired
-    @Qualifier("preqcReadOnlyIndexing")
+    @Qualifier("preqcIndexing")
     private SolrServer preqcCore;
 
     @Autowired
-    @Qualifier("genotypePhenotypeReadOnlyIndexing")
+    @Qualifier("genotypePhenotypeIndexing")
     private SolrServer genotypePhenotypeCore;
 
     @Autowired

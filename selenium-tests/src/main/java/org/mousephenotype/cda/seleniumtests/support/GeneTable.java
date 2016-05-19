@@ -174,6 +174,7 @@ public class GeneTable {
             boolean isPreQcLink = false;
             sourceColIndex = 0;
             boolean skipLink = false;
+            boolean createMaleRow = false;
             for (WebElement cell : cells) {
                 value = "";
                 if (sourceColIndex == COL_INDEX_GENES_PAGE_PHENOTYPE) {
@@ -194,12 +195,18 @@ public class GeneTable {
                         value = ap.toString();
                     }
                 } else if (sourceColIndex == COL_INDEX_GENES_PAGE_SEX) {              // Translate the male/female symbol into a string: 'male', 'female', 'both', or 'no data'.
-                    List<WebElement> sex = cell.findElements(By.xpath("img[@alt='Male' or @alt='Female']"));
+                    List<WebElement> sex = cell.findElements(By.xpath(".//img[@alt='Male' or @alt='Female']"));
                     if (sex.isEmpty()) {
                         value = SexType.no_data.toString();
                     } else {
                         if (sex.size() == 2) {
-                            value = SexType.both.toString();
+                            List<WebElement> bothSexesElement = cell.findElements(By.xpath("./span[@class='bothSexes']"));
+                            if (bothSexesElement.isEmpty()) {
+                                value = SexType.female.toString();
+                                createMaleRow = true;
+                            } else {
+                                value = SexType.both.toString();
+                            }
                         } else {
                             value = sex.get(0).getAttribute("alt").toLowerCase();
                         }
@@ -229,27 +236,40 @@ public class GeneTable {
                 sourceColIndex++;
             }
 
+            String[] maleRow = null;
+            if (createMaleRow) {
+                maleRow = dataArray[sourceRowIndex].clone();
+                maleRow[COL_INDEX_GENES_PAGE_SEX] = "male";
+            }
+
             // If the graph link is a postQc link, increment the index and return when we have the number of requested rows.
             if (isPreQcLink) {
                 preQcList.add(Arrays.asList(dataArray[sourceRowIndex]));        // Add the row to the preQc list.
+                if (maleRow != null) {
+                    preQcList.add(Arrays.asList(maleRow));
+                }
             } else {
                 if ( ! skipLink) {
-                    postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));       // Add the row to the preQc list.
-                    if (postQcList.size() >= numRows) {                             // Return when we have the number of requested rows.
+                    postQcList.add(Arrays.asList(dataArray[sourceRowIndex]));   // Add the row to the preQc list.
+                    if (maleRow != null) {
+                        postQcList.add(Arrays.asList(maleRow));
+                    }
+                    if (postQcList.size() >= numRows) {                         // Return when we have the number of requested rows.
                         break;
                     }
                 }
             }
+
             preAndPostQcList.add(Arrays.asList(dataArray[sourceRowIndex]));     // Add the row to the preQc- and postQc-list.
+            if (maleRow != null) {
+                preAndPostQcList.add(Arrays.asList(maleRow));
+            }
             sourceRowIndex++;
         }
 
         preQcList = commonUtils.expandCompoundColumns(preQcList, expandColumnList, "|");
-        preQcList = commonUtils.expandSexColumn(preQcList, COL_INDEX_GENES_SEX);
         postQcList = commonUtils.expandCompoundColumns(postQcList, expandColumnList, "|");
-        postQcList = commonUtils.expandSexColumn(postQcList, COL_INDEX_GENES_SEX);
         preAndPostQcList = commonUtils.expandCompoundColumns(preAndPostQcList, expandColumnList, "|");
-        preAndPostQcList = commonUtils.expandSexColumn(preAndPostQcList, COL_INDEX_GENES_SEX);
         data = new GridMap(postQcList, target);
         return data;
     }
