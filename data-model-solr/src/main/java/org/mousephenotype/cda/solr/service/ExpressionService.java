@@ -689,8 +689,8 @@ public class ExpressionService extends BasicService {
 							row.setAbnormalMaId(ontologyBean.getId());
 							row.setMaName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							// System.out.println("no ma id for anatomy term=" +
-							// anatomy);
+							System.out.println("no ma id for anatomy term=" +
+							 anatomy+" and param id:"+parameterStableId);
 						}
 					}
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);

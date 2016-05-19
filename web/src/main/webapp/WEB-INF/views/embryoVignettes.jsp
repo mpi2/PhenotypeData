@@ -591,7 +591,7 @@
                             				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
                             			<li>
-                            				3-D Imaging: NA
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1928849&pid=204">E18.5</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>

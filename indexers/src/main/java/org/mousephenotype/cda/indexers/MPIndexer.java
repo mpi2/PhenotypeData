@@ -40,6 +40,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -55,6 +56,7 @@ import java.util.*;
  * @author ilinca
  *
  */
+@Component
 public class MPIndexer extends AbstractIndexer {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     CommonUtils commonUtils = new CommonUtils();
@@ -859,7 +861,7 @@ public class MPIndexer extends AbstractIndexer {
     }
 
     private void addMpHpTerms(MpDTO mp, List<MPHPBean> hpBeans) {
-        
+
     	if (hpBeans != null) {
             List<String> hpIds = new ArrayList<>(hpBeans.size());
             List<String> hpTerms = new ArrayList<>(hpBeans.size());
