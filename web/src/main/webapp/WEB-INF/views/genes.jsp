@@ -696,6 +696,7 @@
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
+					//console.log(expData);
 					//console.log("no expression: ")
 					//console.log(expData.noExpression);
 					//console.log("all paths: ")
@@ -741,59 +742,50 @@
 							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
 					);
 
-//					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
-//					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
+					// top level MA term talks to anatomogram
+					$("ul#expList li a").on("mouseover", function() {
+						var topname = $(this).text();
+						var maIds = topLevelName2maIdMap[topname];
+						console.log(topname + " - " + maIds);
+						var uberonIds = [];
+						for( var a=0; a<maIds.length; a++){
+							uberonIds = uberonIds.concat(maId2UberonMap[maIds[a]]);
+						}
+						uberonIds = $.fn.getUnique(uberonIds);
 
-//					$("ul#expList li a").on("mouseover", function() {
-//						var topname = $(this).text();
-//						console.log(topname);
-//						console.log(topLevelName2maIdMap);
-//						var maIds = topLevelName2maIdMap[topname];
-//
-//						console.log("maids: "+  maIds);
-//						var uberonIds = [];
-//						for( var a=0; a<maIds.length; a++){
-//							var uberons = maIds[a];
-//							for ( var b=0; b<uberons.length; b++){
-//								console.log("now: "+ uberons[b]);
-//								uberonIds.push(uberons[b]);
-//							}
-//						}
-//						uberonIds = $.fn.getUnique(uberonIds);
-//
-//						console.log(uberonIds);
-//						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
-//						//eventEmitter.emit("gxaHeatmapColumnHoverChange", ["UBERON_0000010","UBERON_0001103"]);
-//
-//					}).on("mouseout", function(){
-//						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
-//					});
+						console.log(topname + " : " + uberonIds);
+
+						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
+						//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
+					}).on("mouseout", function(){
+						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
+					});
 
 					// anatomogram tissue talks to MA list
-//					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
-//						//console.log(e)
-//
-//						var maIds = uberon2MaIdMap[e];
-//						var topLevelNames = [];
-//						for( var i=0; i<maIds.length; i++) {
-//							var tops = maId2topLevelNameMap[maIds[i]];
-//							for (var j=0; j<tops.length; j++){
-//								topLevelNames.push(tops[j]);
-//							}
-//						}
-//
-//						topLevelNames = $.fn.getUnique(topLevelNames);
-//
-//						$('ul#expList li a').each(function () {
-//							if ($.fn.inArray($(this).text(), topLevelNames)) {
-//								$(this).addClass("mahighlight");
-//							}
-//						});
-//
-//					});
-//					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
-//						$('ul#expList li a').removeClass("mahighlight");
-//					});
+					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
+						console.log(e)
+
+						var maIds = uberon2MaIdMap[e];
+						var topLevelNames = [];
+						for( var i=0; i<maIds.length; i++) {
+							var tops = maId2topLevelNameMap[maIds[i]];
+							for (var j=0; j<tops.length; j++){
+								topLevelNames.push(tops[j]);
+							}
+						}
+
+						topLevelNames = $.fn.getUnique(topLevelNames);
+
+						$('ul#expList li a').each(function () {
+							if ($.fn.inArray($(this).text(), topLevelNames)) {
+								$(this).addClass("mahighlight");
+							}
+						});
+
+					});
+					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
+						$('ul#expList li a').removeClass("mahighlight");
+					});
 				}
 
 				$("img.ui-button").each(function () {
