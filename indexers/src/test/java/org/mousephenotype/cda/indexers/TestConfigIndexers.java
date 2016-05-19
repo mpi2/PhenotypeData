@@ -138,82 +138,82 @@ public class TestConfigIndexers {
 
 
 	@Bean(name = "alleleIndexing")
-	SolrServer getalleleIndexing() {
+	SolrServer getAlleleIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/allele", 10000, 5);
 	}
 
 	@Bean(name = "preqcIndexing")
-	SolrServer getpreqcIndexing() {
+	SolrServer getPreqcIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/preqc", 10000, 5);
 	}
 
 	@Bean(name = "observationIndexing")
-	SolrServer getobservationIndexing() {
+	SolrServer getObservationIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/experiment", 10000, 5);
 	}
 
 	@Bean(name = "maIndexing")
-	SolrServer getmaIndexing() {
+	SolrServer getMaIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/ma", 10000, 5);
 	}
 
 	@Bean(name = "diseaseIndexing")
-	SolrServer getdiseaseIndexing() {
+	SolrServer getDiseaseIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/disease", 10000, 5);
 	}
 
 	@Bean(name = "geneIndexing")
-	SolrServer getgeneIndexing() {
+	SolrServer getGeneIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/gene", 10000, 5);
 	}
 
 	@Bean(name = "genotypePhenotypeIndexing")
-	SolrServer getgenotypePhenotypeIndexing() {
+	SolrServer getGenotypePhenotypeIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/genotype-phenotype", 10000, 5);
 	}
 
 	@Bean(name = "mgiPhenotypeIndexing")
-	SolrServer getmgiPhenotypeIndexing() {
+	SolrServer getMgiPhenotypeIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/mgi-phenotype", 10000, 5);
 	}
 
 	@Bean(name = "pipelineIndexing")
-	SolrServer getpipelineIndexing() {
+	SolrServer getPipelineIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/pipeline", 10000, 5);
 	}
 
 	@Bean(name = "sangerImagesIndexing")
-	SolrServer getsangerImagesIndexing() {
+	SolrServer getSangerImagesIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/images", 10000, 5);
 	}
 
 	@Bean(name = "mpIndexing")
-	SolrServer getmpIndexing() {
+	SolrServer getMpIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/mp", 10000, 5);
 	}
 
 	@Bean(name = "emapIndexing")
-	SolrServer getemapIndexing() {
+	SolrServer getEmapIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/emap", 10000, 5);
 	}
 
 	@Bean(name = "autosuggestIndexing")
-	SolrServer getautosuggestIndexing() {
+	SolrServer getAutosuggestIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/autosuggest", 10000, 5);
 	}
 
 	@Bean(name = "impcImagesIndexing")
-	SolrServer getimpcImagesIndexing() {
+	SolrServer getImpcImagesIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/impc_images", 10000, 5);
 	}
 
 	@Bean(name = "statisticalResultsIndexing")
-	SolrServer getstatisticalResultsIndexing() {
+	SolrServer getStatisticalResultsIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/statistical-result", 10000, 5);
 	}
 
 	@Bean(name = "gwasIndexing")
-	SolrServer getgwasIndexing() {
+	SolrServer getGwasIndexing() {
 		return new ConcurrentUpdateSolrServer(solrBaseUrl + "/gwas", 10000, 5);
 	}
 
@@ -229,7 +229,7 @@ public class TestConfigIndexers {
 	}
 
 	@Bean(name = "emapOntologyDAO")
-	EmapOntologyDAO getapOntologyDAO() throws SQLException {
+	EmapOntologyDAO getEmapOntologyDAO() throws SQLException {
 		return new EmapOntologyDAO();
 	}
 
