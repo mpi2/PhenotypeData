@@ -39,6 +39,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -54,6 +55,7 @@ import java.util.*;
 /**
  * Populate the experiment core
  */
+@Component
 public class ObservationIndexer extends AbstractIndexer {
 
 	final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";

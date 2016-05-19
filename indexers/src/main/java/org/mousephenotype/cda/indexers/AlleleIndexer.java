@@ -37,6 +37,7 @@ import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -55,6 +56,7 @@ import java.util.*;
  * @author jmason
  *
  */
+@Component
 public class AlleleIndexer extends AbstractIndexer {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
