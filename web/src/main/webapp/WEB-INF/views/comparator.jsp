@@ -30,16 +30,8 @@
         	<div class="node"> -->
         	<%--  mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
-        	request uri=${httpSerlvetRequest.isSecure()}
-        	<c:set var="protocol" value="http:"/>
-	        <c:if test="${fn:startsWith(pageContext.request.requestURI,'https:')}">
-	        protocol before set in if  =${protocol }
-	        	<c:set var="protocol" value="https:"/>
-	        	protocol after set in if  =${protocol }
-	        </c:if>
-	        
-	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}/render_thumbnail"/>
-	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}/img_detail"/>
+	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_thumbnail"/>
+	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
 	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="70"/>
 	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
