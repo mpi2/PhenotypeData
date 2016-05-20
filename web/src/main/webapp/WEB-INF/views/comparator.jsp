@@ -39,9 +39,9 @@
 	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}img_detail/"/>
 	        <c:set var="pdfWithoutId" value="${protocol}${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
 	        <c:set var="thumbnailSize" value="70"/>
-	       <%--  jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
+	       jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
-	        pdfWithoutId: ${pdfWithoutId} --%>
+	        pdfWithoutId: ${pdfWithoutId}
             <form action="">
            
 	            <div id="comparator" class="section">
@@ -92,7 +92,7 @@
 	            			<div class="clickbox">
 	            				<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
 									</c:when>
 									<c:otherwise>
 	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}${img.omero_id}/${thumbnailSize}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
@@ -133,7 +133,7 @@
 	            			<div class="clickbox">
 								<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
 									</c:when>
 									<c:otherwise>
 	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
