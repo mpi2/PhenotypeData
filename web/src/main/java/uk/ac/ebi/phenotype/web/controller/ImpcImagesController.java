@@ -158,68 +158,6 @@ public class ImpcImagesController {
 		model.addAttribute("controls", controls);
 		return "imagePicker";
 	}
-	
-	
-
-	@RequestMapping("/expressionImagePicker/{acc}/{anatomy}")
-	public String expressionImagePicker(@PathVariable String acc,
-			@PathVariable String anatomy, Model model)
-			throws SolrServerException {
-
-		// good example url with control and experimental images
-		// http://localhost:8080/phenotype-archive/imagePicker/MGI:2669829/IMPC_EYE_050_001
-		System.out.println("calling image picker");
-
-		// get experimental images
-		// we will also want to call the getControls method and display side by
-		// side
-		SolrDocumentList experimental = new SolrDocumentList();
-		QueryResponse responseExperimental2 = expressionService
-				.getExpressionImagesForGeneByAnatomy(acc, anatomy,
-						"experimental", 10000, null, null, null);
-		if (responseExperimental2 != null) {
-			experimental.addAll(responseExperimental2.getResults());
-		}
-		System.out.println("list size=" + experimental.size());
-		SolrDocumentList controls = new SolrDocumentList();
-		// QueryResponse responseControl =
-		// imageService.getImagesForGeneByParameter(acc, parameter_stable_id,
-		// "control", 6, null, null, null);
-		SolrDocument imgDoc = responseExperimental2.getResults().get(0);
-		int numberOfControlsPerSex = 5;
-		// int daysEitherSide = 30;// get a month either side
-		for (SexType sex : SexType.values()) {
-			SolrDocumentList list = null;
-			list = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, anatomy);
-			controls.addAll(list);
-		}
-
-		System.out.println("experimental size=" + experimental.size());
-		model.addAttribute("experimental", experimental);
-		System.out.println("controls size=" + controls.size());
-		model.addAttribute("controls", controls);
-		return "imagePicker";
-	}
-
-	@RequestMapping("/imageComparator")
-	public String imageComparator(HttpServletRequest request, Model model) {
-
-		String page = "imageComparator";
-		System.out.println("calling imageComparator");
-		// String[] omeroIds = request.getParameterValues("imgId");
-		// if(omeroIds==null || omeroIds.length==0){
-		// System.out.println("error no items selected");
-		// model.addAttribute("error", "You need to select at least one image");
-		// return page;
-		// }
-		//
-		// for (String value : omeroIds) {
-		// System.out.println("omeroId=" + value);
-		// }
-		// model.addAttribute("omeroIds", omeroIds);
-
-		return page;
-	}
 
 	@RequestMapping("/imageNavigator")
 	public String imageControlNavigator(HttpServletRequest request, Model model) {
@@ -229,26 +167,6 @@ public class ImpcImagesController {
 		return page;
 	}
 
-	@RequestMapping("/impcImages/ContAndExp*")
-	public String imagesControlAndExperimental(HttpServletRequest request,
-			Model model) throws SolrServerException, IOException,
-			URISyntaxException {
-
-		System.out.println("calling imagesContAndExp");
-		String solrQueryString = request.getQueryString();
-		System.out.println("solrQueryString=" + solrQueryString);
-		String acc = request.getParameter("gene_accession_id");
-		String procedureName = request.getParameter("procedure_name");
-		String parameterStableId = request.getParameter("parameter_stable_id");
-		List<Count> filteredCounts = new ArrayList<Count>();
-		Map<String, SolrDocumentList> facetToDocs = new HashMap<String, SolrDocumentList>();
-		imageService.getControlAndExperimentalImpcImages(acc, model,
-				procedureName, parameterStableId, 5, 100, null, filteredCounts,
-				facetToDocs);
-		model.addAttribute("impcImageFacets", filteredCounts);
-		model.addAttribute("impcFacetToDocs", facetToDocs);
-		return "impcImagesContAndExp";
-	}
 
 	@RequestMapping("/impcImages/images*")
 	public String allImages(HttpServletRequest request, Model model)
