@@ -3,8 +3,9 @@ $(document).ready(function(){
 console.log('comparator.js ready');
 
 
-var previousControlId;
-var previousMutantId;
+var previousControlId=$(".clickable_image_control").first().attr('id');
+console.log('control prev'+previousControlId)
+var previousMutantId=$(".clickable_image_mutant").first().attr('id');
 
 $(".clickable_image_control").click(function() {
   console.log( this.id );
