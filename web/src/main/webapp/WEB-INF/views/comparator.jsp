@@ -31,7 +31,7 @@
         	 mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl } 
         	<c:set var="protocol" value="http:"/>
-	        <c:if test="${fn:substring(pageContext.request.requestURI, 0, 5) eq 'https:'}">
+	        <c:if test="${fn:startsWith(pageContext.request.requestURI,'https:')}">
 	        	<c:set var="protocal" value="https:"/>
 	        </c:if>
 	        
