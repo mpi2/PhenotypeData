@@ -1001,7 +1001,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testInstanceBuildSingleCoreNodeps() throws SQLException {
+     public void testInstanceBuildSingleCoreNodeps() throws SQLException, IOException, SolrServerException {
         String testName = "testInstanceBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
@@ -1063,7 +1063,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testInstanceBuildMultipleCoresNodeps() throws SQLException {
+     public void testInstanceBuildMultipleCoresNodeps() throws SQLException, IOException, SolrServerException {
         String testName = "testInstanceBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
