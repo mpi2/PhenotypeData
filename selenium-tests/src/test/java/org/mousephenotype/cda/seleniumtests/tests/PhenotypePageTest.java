@@ -257,43 +257,43 @@ public class PhenotypePageTest {
         }
     }
 
-     /**
-      * Tests that a sensible page is returned for an invalid phenotype id.
-      *
-      * @throws SolrServerException
-      */
- //@Ignore
-     @Test
-     public void testInvalidMpTermId() throws SolrServerException {
-         RunStatus status = new RunStatus();
-         String testName = "testInvalidMpTermId";
-         String target = "";
-         String message;
-         Date start = new Date();
-         String phenotypeId = "junkBadPhenotype";
+    /**
+     * Tests that a sensible page is returned for an invalid phenotype id.
+     *
+     * @throws SolrServerException
+     */
+//@Ignore
+    @Test
+    public void testInvalidMpTermId() throws SolrServerException {
+        RunStatus status = new RunStatus();
+        String testName = "testInvalidMpTermId";
+        String target = "";
+        String message;
+        Date start = new Date();
+        String phenotypeId = "junkBadPhenotype";
 
-         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-         target = baseUrl + "/phenotypes/" + phenotypeId;
+        target = baseUrl + "/phenotypes/" + phenotypeId;
 
-         driver.get(target);
-         List<WebElement> oopsElement = driver.findElements(By.xpath("//h1"));
-         if (oopsElement.isEmpty()) {
-             message = "Expected h1 element but found none";
-             status.addError(message);
-         } else {
-             if ( ! oopsElement.get(0).getText().toLowerCase().contains("oops")) {
-                 message = "Expected Oops! error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                 status.addError(message);
-             }
-         }
+        driver.get(target);
+        List<WebElement> oopsElement = driver.findElements(By.xpath("//h1"));
+        if (oopsElement.isEmpty()) {
+            message = "Expected h1 element but found none";
+            status.addError(message);
+        } else {
+            if ( ! oopsElement.get(0).getText().toLowerCase().contains("oops")) {
+                message = "Expected Oops! error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                status.addError(message);
+            }
+        }
 
-         if ( ! status.hasErrors()) {
-             status.successCount++;
-         }
+        if ( ! status.hasErrors()) {
+            status.successCount++;
+        }
 
-         testUtils.printEpilogue(testName, start, status, 1, 1);
-     }
+        testUtils.printEpilogue(testName, start, status, 1, 1);
+    }
 
      // Tests known phenotype pages that have historically been broken or are interesting cases, such as one with a download filename with a forward slash.
         @Test

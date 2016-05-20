@@ -88,7 +88,7 @@
                          				<a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a> 
                          				(expression atlas link) and has been implicated in  <a href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial differentation</a> and
                          				<a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>. Heterozygote null mice have abnormal heart rhythms while 
-                         				the lethal ��embryos may have a heart defect.
+                         				the lethal embryos may have a heart defect.
                         			</p>
 
                         			<p>Phenotype data links</p>
@@ -148,7 +148,7 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Morphology: <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Images</a>
+                            				Embryo Gross Morphology: <a href="${baseUrl}/imageComparator/MGI:102806/IMPC_GEO_050_001">Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
@@ -591,7 +591,7 @@
                             				Embryo Gross Morphology: <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>, <a href="${drupalBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a> images
                             			</li>
                             			<li>
-                            				3-D Imaging: NA
+                            				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1928849&pid=204">E18.5</a>
                             			</li>
                             			<li>
                             				Adult and Embryo Phenotype Data: <a href="${baseUrl}/genes/${geneId}#section-associations">Table</a>

@@ -377,8 +377,9 @@
 												href='' id='phenoAssocSection' class="fa fa-question-circle pull-right"></a></span>
 									<!--  this works, but need js to drive tip position -->
 								</h2>
-
+	
 								<div class="inner">
+									
 									<jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
 								</div>
 
@@ -449,29 +450,38 @@
 												<ul class='tabs'>
 													<li><a href="#tabs-1">Adult Expression</a></li>
 
-														<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
-														<%--<li><a href="#tabs-2">Adult Expression Data Overview</a></li>--%>
-														<%--</c:if>--%>
+													<%--<c:if test="${not empty expressionAnatomyToRow }">--%>
+														<%--<li><a href="#tabs-1">Adult Expression</a></li>--%>
+													<%--</c:if>--%>
 
-													<c:if test="${not empty impcExpressionImageFacets}">
+													<%--<c:if test="${not empty impcExpressionImageFacets}">--%>
 														<li><a href="#tabs-3">Adult Expression Image</a></li>
-													</c:if>
+													<%--</c:if>--%>
 
-													<c:if test="${not empty embryoExpressionAnatomyToRow}">
+													<%--<c:if test="${not empty embryoExpressionAnatomyToRow}">--%>
 														<li><a href="#tabs-4">Embryo Expression</a></li>
-													</c:if>
+													<%--</c:if>--%>
 
-													<c:if test="${not empty impcEmbryoExpressionImageFacets}">
+													<%--<c:if test="${not empty impcEmbryoExpressionImageFacets}">--%>
 														<li><a href="#tabs-5">Embryo Expression Image</a></li>
-													</c:if>
+													<%--</c:if>--%>
 
 												</ul>
 
-												<div id="tabs-1">
-													<!-- Expression in Anatomogram -->
-                                                    <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
-												</div>
-
+												<c:choose>
+													<c:when test="${not empty expressionAnatomyToRow }">
+														<div id="tabs-1">
+															<!-- Expression in Anatomogram -->
+                                                            <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-1">
+															<!-- Expression in Anatomogram -->
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
 													<%--<c:if test="${ not empty expressionAnatomyToRow}"><!-- if size greater than 1 we have more data than just unassigned which we will -->--%>
 													<%--<div id="tabs-2">--%>
 													<%--<jsp:include page="genesAdultExpEata_frag.jsp"></jsp:include>--%>
@@ -479,25 +489,44 @@
 													<%--</c:if>--%>
 
 												<!-- section for expression data here -->
-												<c:if test="${not empty impcExpressionImageFacets}">
-													<div id="tabs-3">
-														<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
-													</div>
-												</c:if>
+												<c:choose>
+													<c:when test="${not empty impcExpressionImageFacets}">
+														<div id="tabs-3">
+															<jsp:include page="genesAdultLacZ+ExpImg_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-3">
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
 
-												<c:if test="${not empty embryoExpressionAnatomyToRow}">
-													<div id="tabs-4" style="height: 500px; overflow: auto;">
-														<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
-													</div>
-												</c:if>
+												<c:choose>
+													<c:when test="${not empty embryoExpressionAnatomyToRow}">
+														<div id="tabs-4" style="height: 500px; overflow: auto;">
+															<jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-4">
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
+												<c:choose>
+													<c:when  test="${not empty impcEmbryoExpressionImageFacets}">
+														<div id="tabs-5">
+															<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+														</div>
+													</c:when>
+													<c:otherwise>
+														<div id="tabs-5">
+															No expression data was found
+														</div>
+													</c:otherwise>
+												</c:choose>
 
-												<!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
-												<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
-												<c:if test="${not empty impcEmbryoExpressionImageFacets}">
-													<div id="tabs-5">
-														<jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
-													</div>
-												</c:if>
 												<br style="clear: both">
 											</div><!-- end of tabs -->
 									</c:if>
@@ -696,6 +725,7 @@
 					var uberon2MaIdMap = expData.uberon2MaIdMap;
 					var maId2topLevelNameMap = expData.maId2topLevelNameMap;
 
+					//console.log(expData);
 					//console.log("no expression: ")
 					//console.log(expData.noExpression);
 					//console.log("all paths: ")
@@ -741,59 +771,50 @@
 							// "vader" is equivalent to <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/vader/jquery-ui.css">
 					);
 
-//					eventEmitter.emit("gxaHeatmapRowHoverChange", "tissues with expression");
-//					eventEmitter.emit("gxaHeatmapRowHoverChange", "");
+					// top level MA term talks to anatomogram
+					$("ul#expList li a").on("mouseover", function() {
+						var topname = $(this).text();
+						var maIds = topLevelName2maIdMap[topname];
+						console.log(topname + " - " + maIds);
+						var uberonIds = [];
+						for( var a=0; a<maIds.length; a++){
+							uberonIds = uberonIds.concat(maId2UberonMap[maIds[a]]);
+						}
+						uberonIds = $.fn.getUnique(uberonIds);
 
-//					$("ul#expList li a").on("mouseover", function() {
-//						var topname = $(this).text();
-//						console.log(topname);
-//						console.log(topLevelName2maIdMap);
-//						var maIds = topLevelName2maIdMap[topname];
-//
-//						console.log("maids: "+  maIds);
-//						var uberonIds = [];
-//						for( var a=0; a<maIds.length; a++){
-//							var uberons = maIds[a];
-//							for ( var b=0; b<uberons.length; b++){
-//								console.log("now: "+ uberons[b]);
-//								uberonIds.push(uberons[b]);
-//							}
-//						}
-//						uberonIds = $.fn.getUnique(uberonIds);
-//
-//						console.log(uberonIds);
-//						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
-//						//eventEmitter.emit("gxaHeatmapColumnHoverChange", ["UBERON_0000010","UBERON_0001103"]);
-//
-//					}).on("mouseout", function(){
-//						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
-//					});
+						console.log(topname + " : " + uberonIds);
+
+						eventEmitter.emit("gxaHeatmapColumnHoverChange", uberonIds[0]);
+						//eventEmitter.emit("gxaHeatmapColumnHoverChange", "UBERON_0000955"); // test for brain
+					}).on("mouseout", function(){
+						eventEmitter.emit("gxaHeatmapColumnHoverChange", "");
+					});
 
 					// anatomogram tissue talks to MA list
-//					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
-//						//console.log(e)
-//
-//						var maIds = uberon2MaIdMap[e];
-//						var topLevelNames = [];
-//						for( var i=0; i<maIds.length; i++) {
-//							var tops = maId2topLevelNameMap[maIds[i]];
-//							for (var j=0; j<tops.length; j++){
-//								topLevelNames.push(tops[j]);
-//							}
-//						}
-//
-//						topLevelNames = $.fn.getUnique(topLevelNames);
-//
-//						$('ul#expList li a').each(function () {
-//							if ($.fn.inArray($(this).text(), topLevelNames)) {
-//								$(this).addClass("mahighlight");
-//							}
-//						});
-//
-//					});
-//					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
-//						$('ul#expList li a').removeClass("mahighlight");
-//					});
+					eventEmitter.addListener("gxaAnatomogramTissueMouseEnter", function(e) {
+						console.log(e)
+
+						var maIds = uberon2MaIdMap[e];
+						var topLevelNames = [];
+						for( var i=0; i<maIds.length; i++) {
+							var tops = maId2topLevelNameMap[maIds[i]];
+							for (var j=0; j<tops.length; j++){
+								topLevelNames.push(tops[j]);
+							}
+						}
+
+						topLevelNames = $.fn.getUnique(topLevelNames);
+
+						$('ul#expList li a').each(function () {
+							if ($.fn.inArray($(this).text(), topLevelNames)) {
+								$(this).addClass("mahighlight");
+							}
+						});
+
+					});
+					eventEmitter.addListener("gxaAnatomogramTissueMouseLeave", function(e) {
+						$('ul#expList li a').removeClass("mahighlight");
+					});
 				}
 
 				$("img.ui-button").each(function () {

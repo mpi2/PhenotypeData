@@ -30,9 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.hibernate.exception.JDBCConnectionException;
+import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,9 @@ public class ExperimentsController {
 	@Autowired
 	private StatisticalResultService srService;
 
+	@Autowired
+	private MpService mpService;
+	
 	@Autowired
 	private ObservationService observationService;
 
@@ -97,6 +102,7 @@ public class ExperimentsController {
 
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
+		
 		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);
 
@@ -129,6 +135,10 @@ public class ExperimentsController {
 
 		String chart = phenomeChartProvider.generatePvaluesOverviewChart(geneAccession, experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 
+		List<MpDTO> mpTerms = new ArrayList<>();
+		mpTerms.addAll(mpService.getPhenotypes(mpTermId));
+		
+		model.addAttribute("phenotypeFilters", mpTerms);
 		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);
 		model.addAttribute("experimentRows", experimentRows);

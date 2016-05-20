@@ -87,33 +87,6 @@ public class CommonUtils {
     }
 
     /**
-     * Walks <code>data</code>, replacing each sex value of 'both' in <code>expandColumnDefinitions</code> with the
-     * value 'male', and adding another identical row to the result set with the sex value 'female'. Returns the new
-     * data set.
-     * @param data The data against which to perform the translation
-     * @param sexColumnDefinition The index of the sex column against which the translation will be performed
-     * @return the transformed (expanded) list
-     */
-    public List<List<String>> expandSexColumn(List<List<String>> data, Integer sexColumnDefinition) {
-        List<List<String>> retVal = new ArrayList<>();
-
-        for (List<String> sourceRow : data) {
-            if (sourceRow.get(sexColumnDefinition).equals("both")) {
-                List<String> newRow = new ArrayList<>(sourceRow);
-                newRow.set(sexColumnDefinition, "female");
-                retVal.add(newRow);
-                newRow = new ArrayList<>(sourceRow);
-                newRow.set(sexColumnDefinition, "male");
-                retVal.add(newRow);
-            } else {
-                retVal.add(sourceRow);
-            }
-        }
-
-        return retVal;
-    }
-
-    /**
      * Returns the first int found, if the int is wrapped in a set of parentheses; returns null otherwise
      * Example: "Females: (32), Males: (47)" returns the int value 32.
      *
