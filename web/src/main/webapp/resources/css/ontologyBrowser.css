@@ -123,3 +123,6 @@ ul.ui-autocomplete li {
 	line-height: 40px;
 	margin-top: 35px;
 }
+a.jstree-anchor a {
+	font-size: 14px;
+}

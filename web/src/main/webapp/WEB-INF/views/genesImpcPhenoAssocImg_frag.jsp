@@ -40,7 +40,7 @@
         <div class="accordion-body">
           <ul>
             <c:set var="href" scope="page"
-                   value="${baseUrl}/imagePicker/${acc}/${entry.name}"></c:set>
+                   value="${baseUrl}/imageComparator/${acc}/${entry.name}"></c:set>
             <a href="${href}">
               <t:impcimgdisplay2
                       img="${doc}"

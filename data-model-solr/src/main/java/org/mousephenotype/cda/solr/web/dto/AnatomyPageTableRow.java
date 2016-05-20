@@ -24,7 +24,11 @@ import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 import org.mousephenotype.cda.solr.web.dto.EvidenceLink.IconType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class AnatomyPageTableRow extends DataTableRow{
@@ -39,6 +43,10 @@ public class AnatomyPageTableRow extends DataTableRow{
         super();
     }
 
+    
+    public void  addIncrementToNumberOfImages(){
+    	numberOfImages ++;
+    }
 
     public AnatomyPageTableRow(ImageDTO image, String maId, String baseUrl, String expressionValue) {
 
@@ -79,26 +87,42 @@ public class AnatomyPageTableRow extends DataTableRow{
 
         this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
-        this.setEvidenceLink(buildImageUrl(baseUrl, maId, image.getMaTerm().get(image.getMaId().indexOf(maId))));
+
+	    // Collect the parallel lists of IDs and Term names into combined parallel list of all three sets (term, intermediates, top levels)
+	    List<String> maIds = Stream.of(image.getMaId(), image.getIntermediateMaId(), image.getSelectedTopLevelMaId())
+		    .filter(Objects::nonNull)
+		    .flatMap(Collection::stream)
+		    .collect(Collectors.toList());
+	    List<String> maTerms = Stream.of(image.getMaTerm(), image.getIntermediateMaTerm(), image.getSelectedTopLevelMaTerm())
+		    .filter(Objects::nonNull)
+		    .flatMap(Collection::stream)
+		    .collect(Collectors.toList());
+
+        this.setEvidenceLink(buildImageUrl(baseUrl, maId, maTerms.get(maIds.indexOf(maId)), expressionValue));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
         this.numberOfImages ++;
     }
 
 
     public String getAnatomyWithLinks(String baseUrl){
-    	String links = "<a href=\"" + baseUrl + "/anatomy/";
-    	for (int i = 0; i < anatomy.size(); i++){
-    		links += anatomy.get(i).getId().getAccession() + "\">" + anatomy.get(i).getName() + "</a>";
-    		if (i != anatomy.size()-1 ){
-    			links += ", <a href=\"" + baseUrl + "/anatomy/";
-    		}
+    	
+    	String links = "";
+    	
+    	if (anatomy != null && anatomy.size() > 0){
+	    	links = "<a href=\"" + baseUrl + "/anatomy/";
+	    	for (int i = 0; i < anatomy.size(); i++){
+	    		links += anatomy.get(i).getId().getAccession() + "\">" + anatomy.get(i).getName() + "</a>";
+	    		if (i != anatomy.size()-1 ){
+	    			links += ", <a href=\"" + baseUrl + "/anatomy/";
+	    		}
+	    	}
     	}
 
     	return links;
     }
 
 
-    public EvidenceLink buildImageUrl(String baseUrl, String maId, String maTerm){
+    public EvidenceLink buildImageUrl(String baseUrl, String maId, String maTerm, String expressionValue){
 
     	String url = baseUrl + "/impcImages/images?q=*:*&defType=edismax&wt=json&fq=(";
         url += ImageDTO.MA_ID + ":\"";
@@ -115,7 +139,11 @@ public class AnatomyPageTableRow extends DataTableRow{
     	if (getParameter() != null){
     		url += " AND " + ImageDTO.PARAMETER_NAME + ":\"" + getParameter().getName() + "\"";
     	}
-    	url += "&title=gene " + this.getGene().getSymbol() + " in " + maTerm + "";
+    	if ( expressionValue != null){
+    		url += " AND " + ImageDTO.PARAMETER_ASSOCIATION_VALUE + ":\"" + expressionValue + "\"";
+    	}
+    	
+    	url += "&title=gene " + this.getGene().getSymbol() + " with " + expressionValue + " in " + maTerm + "";
 
     	EvidenceLink link = new EvidenceLink();
     	link.setUrl(url);
@@ -147,7 +175,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 	}
 
 	public String getKey(){
-		return getAllele().getSymbol() + getZygosity().name() + getParameter().getName() + getExpression();
+		return getAllele().getSymbol() + getZygosity().name() + getParameter().getName() + getExpression() + getPhenotypingCenter();
 	}
 
 	public boolean equals(AnatomyPageTableRow obj) {

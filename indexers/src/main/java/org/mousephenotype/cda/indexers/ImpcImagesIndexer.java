@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
@@ -52,12 +53,13 @@ import java.util.Map;
  *
  * @author jwarren
  */
+@Component
 public class ImpcImagesIndexer extends AbstractIndexer {
 	CommonUtils commonUtils = new CommonUtils();
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	@Qualifier("observationReadOnlyIndexing")
+	@Qualifier("observationIndexing")
 	private SolrServer observationCore;
 
 	@Autowired
@@ -65,7 +67,7 @@ public class ImpcImagesIndexer extends AbstractIndexer {
 	SolrServer impcImagesCore;
 
 	@Autowired
-	@Qualifier("alleleReadOnlyIndexing")
+	@Qualifier("alleleIndexing")
 	SolrServer alleleIndexing;
 
 	@Autowired
