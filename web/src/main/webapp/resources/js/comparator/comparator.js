@@ -13,9 +13,9 @@ $(".clickable_image_control").click(function() {
 			$('#'+previousControlId).toggleClass( "img_selected");
 		}
 		if(this.src.indexOf('_pdf')>-1){
-			$('#control_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+this.id));
+			$('#control_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));
 		}else{
-			$('#control_frame').attr('src',jpegUrlDetailWithoutId+this.id);
+			$('#control_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
 		}
 		
 		$('#'+this.id).toggleClass( "img_selected");
@@ -28,10 +28,10 @@ $(".clickable_image_mutant").click(function() {
 		  $('#'+previousMutantId).toggleClass( "img_selected");
 	  }
 	  if(this.src.indexOf('_pdf')>-1){
-		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+this.id));
+		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+'/'+this.id));
 	  }else
 	 {
-		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+this.id);
+		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+'/'+this.id);
 	 }
 	  $('#'+this.id).toggleClass( "img_selected");
 	  previousMutantId=this.id;
