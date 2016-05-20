@@ -76,7 +76,7 @@
 						</c:choose>
 	            
 	            		<div id="control_annotation" class="annotation">
-	            			${controls[0].sex}, ${controls[0].zygosity}
+	            			WT: ${controls[0].sex}, ${controls[0].parameter_name }
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}" varStatus="controlLoop">
@@ -117,17 +117,18 @@
 							</c:otherwise>
 					</c:choose>
 	            		<div id="mutant_annotation" class="annotation">
-	            		${mutants[0].sex}, ${mutants[0].zygosity}
+	            		<t:formatAllele>${mutants[0].allele_symbol}</t:formatAllele>, ${mutants[0].zygosity}, ${mutants[0].sex}, ${mutants[0].parameter_name }
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
+	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${mutants[0].parameter_name}"/>
 	            			<div class="clickbox">
 								<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
-										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div>
