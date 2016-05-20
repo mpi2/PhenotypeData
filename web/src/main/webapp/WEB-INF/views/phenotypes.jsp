@@ -305,8 +305,8 @@
 											<div class="clear"></div>
 												<c:if test="${entry.count>5}">
 												<p class="textright">
-												<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${images.getNumFound()} images</a>
-											</p>
+													<a href="${baseUrl}/images?phenotype_id=${phenotype_id}">show all  ${images.getNumFound()} images</a>
+												</p>
 												</c:if>
 										</div>
 									</div>
