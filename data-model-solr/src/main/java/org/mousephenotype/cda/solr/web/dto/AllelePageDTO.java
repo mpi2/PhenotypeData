@@ -78,7 +78,6 @@ public class AllelePageDTO {
 		mpTerms = mpTerms == null ? new ArrayList<>() : mpTerms;
 		mpTerms.add(mpTerm);
 	}
-
 	
 	public List<String> getAlleleSymbols() {
 		return alleleSymbols;
