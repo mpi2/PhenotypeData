@@ -28,9 +28,26 @@
 	<div class="block">
     	<div class="content">
         	<div class="node"> -->
+        	<%-- mediaType: ${mediaType }
+        	impcMediaBaseUrl: ${impcMediaBaseUrl } --%>
+        	<c:set var="protocol" value="http:"/>
+	        <c:if test="${fn:substring(pageContext.request.requestURI, 0, 5) eq 'https'}">
+	        	<c:set var="protocal" value="https:"/>
+	        </c:if>
+	        
+	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}render_thumbnail/"/>
+	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}img_detail/"/>
+	        <c:set var="pdfWithoutId" value="${protocol}${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
+	        <c:set var="thumbnailSize" value="70"/>
+	       <%--  jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
+	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
+	        pdfWithoutId: ${pdfWithoutId} --%>
             <form action="">
            
 	            <div id="comparator" class="section">
+	            <c:if test="${mediaType !=null }">
+	            <input type="hidden" name="mediaType" value="${mediaType}">
+	            </c:if>
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
 	            	<select name="gender">
@@ -50,9 +67,17 @@
 	            	<div id="control_box" class=box>
 		            	<c:choose>
 			            	<c:when test="${not empty controls}">
-			            	
-			            		<iframe id="control_frame"
-												src="http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/${controls[0].omero_id }"></iframe>
+			            		<c:choose>
+			            			<c:when test="${mediaType eq 'pdf' }">		            			
+			            				<iframe id="control_frame"
+											src="${protocol}//docs.google.com/gview?url=${pdfWithoutId}${controls[0].omero_id}&embedded=true"></iframe>
+			            			</c:when>
+			            			<c:otherwise>
+			            				<iframe id="control_frame"
+												src="${jpegUrlDetailWithoutId}${controls[0].omero_id }"></iframe>
+			            			</c:otherwise>
+			            		</c:choose>
+			            		
 							</c:when>
 							<c:otherwise>
 								No Image for Controls Selected
@@ -60,25 +85,41 @@
 						</c:choose>
 	            
 	            		<div id="control_annotation" class="annotation">
-	            			control annotations go here
+	            			${controls[0].sex}, ${controls[0].zygosity}
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
-	            			</div>
+	            				<c:choose>
+									<c:when test="${mediaType eq 'pdf' }">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
+									</c:when>
+									<c:otherwise>
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}${img.omero_id}/${thumbnailSize}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
+	            					</c:otherwise>
+	            				</c:choose>
+	            				</div>
 	            			</c:forEach>
 	            		</div>
 	            	
 	            	</div>
 	            
-	            	
-	            	
+	 
 	            	<div id="mutant_box" class=box>
 	            	<c:choose>
 			            	<c:when test="${not empty mutants}">
-								<iframe id="mutant_frame"
-										src="http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/${mutants[0].omero_id }"></iframe>
+			            		<c:choose>
+			            			
+			            			<c:when test="${mediaType eq 'pdf' }">		            			
+			            			<iframe id="mutant_frame"
+										src="${protocol}//docs.google.com/gview?url=${pdfWithoutId}${mutants[0].omero_id}&embedded=true"></iframe>
+			            			</c:when>
+			            			<c:otherwise>
+			            			<iframe id="mutant_frame"
+										src="${jpegUrlDetailWithoutId}${mutants[0].omero_id }"></iframe>
+			            			</c:otherwise>
+			            			</c:choose>
+								
 							</c:when>
 							<c:otherwise>
 								No Image for Mutants Selected
@@ -90,7 +131,14 @@
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 	            			<div class="clickbox">
-	            				<img id="${img.omero_id}" src="${fn:replace(img.jpeg_url, 'image','thumbnail')}/70" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+								<c:choose>
+									<c:when test="${mediaType eq 'pdf' }">
+										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+									</c:when>
+									<c:otherwise>
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+	            					</c:otherwise>
+	            				</c:choose>
 	            			</div>
 	            			</c:forEach> 
 	            		</div>
@@ -107,6 +155,12 @@
 			</div>
  		</div>
 	</div> -->
+	
+	<script type='text/javascript'>
+	var jpegUrlDetailWithoutId = "${jpegUrlDetailWithoutId}";
+	var pdfWithoutId = "${pdfWithoutId}";
+	var googlePdf="${protocol}//docs.google.com/gview?url=replace&embedded=true";
+	</script>
 
 </jsp:body>
 </t:genericpage>
