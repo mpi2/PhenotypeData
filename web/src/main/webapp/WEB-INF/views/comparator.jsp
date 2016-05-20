@@ -28,15 +28,15 @@
 	<div class="block">
     	<div class="content">
         	<div class="node"> -->
-        	<%-- mediaType: ${mediaType }
-        	impcMediaBaseUrl: ${impcMediaBaseUrl } --%>
+        	 mediaType: ${mediaType }
+        	impcMediaBaseUrl: ${impcMediaBaseUrl } 
         	<c:set var="protocol" value="http:"/>
 	        <c:if test="${fn:substring(pageContext.request.requestURI, 0, 5) eq 'https'}">
 	        	<c:set var="protocal" value="https:"/>
 	        </c:if>
 	        
-	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}render_thumbnail/"/>
-	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}img_detail/"/>
+	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}/render_thumbnail/"/>
+	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}/img_detail/"/>
 	        <c:set var="pdfWithoutId" value="${protocol}${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
 	        <c:set var="thumbnailSize" value="70"/>
 	       jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
