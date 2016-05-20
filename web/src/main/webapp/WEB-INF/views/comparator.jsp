@@ -30,7 +30,7 @@
         	<div class="node"> -->
         	<%--  mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
-        	request uri=${pageContext.request.requestURI}
+        	request uri=${httpSerlvetRequest.isSecure()}
         	<c:set var="protocol" value="http:"/>
 	        <c:if test="${fn:startsWith(pageContext.request.requestURI,'https:')}">
 	        protocol before set in if  =${protocol }
@@ -40,7 +40,7 @@
 	        
 	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}/render_thumbnail/"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}/img_detail/"/>
-	        <c:set var="pdfWithoutId" value="${protocol}${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
+	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
 	        <c:set var="thumbnailSize" value="70"/>
 	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
@@ -73,7 +73,7 @@
 			            		<c:choose>
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
 			            				<iframe id="control_frame"
-											src="${protocol}//docs.google.com/gview?url=${pdfWithoutId}${controls[0].omero_id}&embedded=true"></iframe>
+											src="//docs.google.com/gview?url=${pdfWithoutId}${controls[0].omero_id}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
 			            				<iframe id="control_frame"
@@ -115,7 +115,7 @@
 			            			
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
 			            			<iframe id="mutant_frame"
-										src="${protocol}//docs.google.com/gview?url=${pdfWithoutId}${mutants[0].omero_id}&embedded=true"></iframe>
+										src="//docs.google.com/gview?url=${pdfWithoutId}${mutants[0].omero_id}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
 			            			<iframe id="mutant_frame"
