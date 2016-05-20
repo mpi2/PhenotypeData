@@ -148,7 +148,7 @@
                             				Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
                             			</li>
                             			<li>
-                            				Embryo Gross Morphology: <a href="${baseUrl}/imageCompara/MGI:102806/IMPC_GEO_050_001">Images</a>
+                            				Embryo Gross Morphology: <a href="${baseUrl}/imageComparator/MGI:102806/IMPC_GEO_050_001">Images</a>
                             			</li>
                             			<li>
                             				3-D Imaging: <a href="${drupalBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
