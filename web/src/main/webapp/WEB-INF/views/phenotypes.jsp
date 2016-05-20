@@ -13,14 +13,7 @@
 	<jsp:attribute name="header">
 
 	<!-- CSS Local Imports -->
-		<link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/mp-heatmap/heatmap/css/heatmap.css">
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
-		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css" />
-		<link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css" />
-		<style>
-			.ui-dropdownchecklist-selector > .ui-icon {margin-top:4px;}
-			.ui-dropdownchecklist-text {padding:2px;margin:0;}
-		</style-->
 		
 		<script type="text/javascript">
 			var phenotypeId = '${phenotype.getMpId()}';
@@ -63,7 +56,6 @@
 		            </c:if>
 		            <c:if test="${hasData}">
 		                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
-		                <li><a href="#phenotypeHeatmapSection">Heatmap</a></li>
 		            </c:if>
 		            <c:if test="${not empty images && fn:length(images) !=0}">
 		                <li><a href="#imagesSection">Images</a></li>
@@ -75,42 +67,6 @@
 	        </div>
 
 	</div>
-
-    <c:if test="${hasData}">
-			<script type="text/javascript" src="${drupalBaseUrl}/mp-heatmap/heatmap/js/heatmap.js"></script>
-			<script>
-				new dcc.PhenoHeatMap(
-						{
-							'container' : 'phenodcc-heatmap-3',
-							'mode' : 'exploration',
-							'format' : {
-								'column' : function(datum) {
-									return datum.m;
-								},
-								'row' : function(datum) {
-									return datum.v
-								}
-							},
-							'mpterm' : phenotypeId,
-							'annotationthreshold' : 0.001,
-							'url' : {
-								/* The base URL of the gene page*/
-								'genePageURL' : drupalBaseUrl + "/data/genes/",
-								/* the base URL of the heatmap javascript source */
-								/* the base URL of the heatmap javascript source */
-								'jssrc' : '${fn:replace(drupalBaseUrl, "https:", "")}/heatmap/js/',
-								/* the base URL of the heatmap data source */
-								'json' : '${fn:replace(drupalBaseUrl, "https:", "")}/mp-heatmap/rest/',
-								/* function that generates target URL for data
-								 * visualisation */
-								'viz' : function(r, c) {
-									return drupalBaseUrl + '/phenoview?gid=' + r
-											+ '&qeid=' + c;
-								}
-							}
-						});
-			</script>
-		</c:if>
 
 	</jsp:attribute>
 	<jsp:body>
@@ -323,17 +279,7 @@
 						</div>
 					</div>
 				</div><!-- end of section -->
-
-
-				<!--  HEATMAP section -->
-				<div class="section" id="phenotypeHeatmapSection" >
-					<h2 class="title" id="heatmapGenePage">Gene phenotyping heatmap for ${phenotype.getMpTerm()}
-						<span class="documentation" ><a href='https://www.mousephenotype.org/heatmap/manual.html' id='pre-qc' class="fa fa-question-circle pull-right"></a></span>
-					</h2>
-					<div class="inner">
-						<div id="phenodcc-heatmap-3"> </div>
-	        		</div>
-				</div><!-- end of section -->
+				
 			</c:if>
 
 			<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
