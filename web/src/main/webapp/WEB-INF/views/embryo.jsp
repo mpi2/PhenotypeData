@@ -111,7 +111,7 @@
                             	<div class="half">
                             		<h2>Embryo LacZ</h2>
                             		<img src="${baseUrl}/img/Tmem100_het.jpeg" height="200" style="width:auto" class="twothird"/>
-                            		<a class="onethird" href="${baseUrl}/imagePicker/MGI:1915138/IMPC_ELZ_063_001">Tmem100</a>
+                            		<a class="onethird" href="${baseUrl}/imageComparator/MGI:1915138/IMPC_ELZ_063_001">Tmem100</a>
                             		<div class="clear"></div> 
                             		<p class="minpadding"> The majority of IMPC knockout strains replace a critical protein coding exon with a LacZ gene expression 
                             		reporter element. Heterozygote E12.5 embryos from IMPC strains are treated to determine in situ expression of the targeted gene.
@@ -121,7 +121,7 @@
 								<div class="half ">
 									<h2>Embryo Gross Morphology</h2>
                             		<img class="twothird"src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200" style="width:auto"/>
-                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${baseUrl}/imagePicker/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
+                            		<p class="onethird ">&nbsp;&nbsp;WT / <a href="${baseUrl}/imageComparator/MGI:102806/IMPC_GEO_050_001">Acvr2a</a> </p>
                             		<div class="clear"></div> 
                             		<p class="minpadding">  Gross morphology of embryos from lethal and subviable strains highlights which biological systems are impacted when the 
                             		function of a gene is turned off. The developmental stage selected is determined by an initial assessment.

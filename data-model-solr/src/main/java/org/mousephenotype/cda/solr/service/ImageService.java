@@ -478,7 +478,7 @@ public class ImageService implements WebStatus{
                 ArrayList<String> params = new ArrayList<>();
                 ArrayList<String> paramValues = new ArrayList<>();
                 String urlToImagePicker = drupalBaseUrl
-                        + "/data/imagePicker/";
+                        + "/data/imageComparator/";
 
                 for (SolrDocument doc : group.getResult()) {
                     if (row.size() == 0) {

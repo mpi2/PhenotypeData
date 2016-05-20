@@ -28,20 +28,15 @@
 	<div class="block">
     	<div class="content">
         	<div class="node"> -->
-        	 mediaType: ${mediaType }
-        	impcMediaBaseUrl: ${impcMediaBaseUrl } 
-        	<c:set var="protocol" value="http:"/>
-	        <c:if test="${fn:substring(pageContext.request.requestURI, 0, 5) eq 'https:'}">
-	        	<c:set var="protocal" value="https:"/>
-	        </c:if>
-	        
-	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}/render_thumbnail/"/>
-	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}/img_detail/"/>
-	        <c:set var="pdfWithoutId" value="${protocol}${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
+        	<%--  mediaType: ${mediaType }
+        	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
+	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_thumbnail"/>
+	        <c:set var="jpegUrlDetailWithoutId" value="${impcMediaBaseUrl}/img_detail"/>
+	        <c:set var="pdfWithoutId" value="http:${fn:replace(impcMediaBaseUrl,'webgateway','webclient/annotation')}"/>
 	        <c:set var="thumbnailSize" value="70"/>
-	       jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
+	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
-	        pdfWithoutId: ${pdfWithoutId}
+	        pdfWithoutId: ${pdfWithoutId} --%>
             <form action="">
            
 	            <div id="comparator" class="section">
@@ -70,11 +65,11 @@
 			            		<c:choose>
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
 			            				<iframe id="control_frame"
-											src="${protocol}//docs.google.com/gview?url=${pdfWithoutId}${controls[0].omero_id}&embedded=true"></iframe>
+											src="//docs.google.com/gview?url=${pdfWithoutId}/${controls[0].omero_id}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
 			            				<iframe id="control_frame"
-												src="${jpegUrlDetailWithoutId}${controls[0].omero_id }"></iframe>
+												src="${jpegUrlDetailWithoutId}/${controls[0].omero_id }"></iframe>
 			            			</c:otherwise>
 			            		</c:choose>
 			            		
@@ -95,7 +90,7 @@
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}${img.omero_id}/${thumbnailSize}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/${thumbnailSize}" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            				</div>
@@ -112,11 +107,11 @@
 			            			
 			            			<c:when test="${mediaType eq 'pdf' }">		            			
 			            			<iframe id="mutant_frame"
-										src="${protocol}//docs.google.com/gview?url=${pdfWithoutId}${mutants[0].omero_id}&embedded=true"></iframe>
+										src="//docs.google.com/gview?url=${pdfWithoutId}/${mutants[0].omero_id}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
 			            			<iframe id="mutant_frame"
-										src="${jpegUrlDetailWithoutId}${mutants[0].omero_id }"></iframe>
+										src="${jpegUrlDetailWithoutId}/${mutants[0].omero_id }"></iframe>
 			            			</c:otherwise>
 			            			</c:choose>
 								
@@ -136,7 +131,7 @@
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
 									</c:when>
 									<c:otherwise>
-	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
+	            						<img id="${img.omero_id}" src="${jpegUrlThumbWithoutId}/${img.omero_id}/${thumbnailSize}" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.sex}, ${img.zygosity}">
 	            					</c:otherwise>
 	            				</c:choose>
 	            			</div>
@@ -159,7 +154,7 @@
 	<script type='text/javascript'>
 	var jpegUrlDetailWithoutId = "${jpegUrlDetailWithoutId}";
 	var pdfWithoutId = "${pdfWithoutId}";
-	var googlePdf="${protocol}//docs.google.com/gview?url=replace&embedded=true";
+	var googlePdf="//docs.google.com/gview?url=replace&embedded=true";
 	</script>
 
 </jsp:body>
