@@ -28,20 +28,20 @@
 	<div class="block">
     	<div class="content">
         	<div class="node"> -->
-        	 mediaType: ${mediaType }
-        	impcMediaBaseUrl: ${impcMediaBaseUrl } 
+        	<%--  mediaType: ${mediaType }
+        	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
         	<c:set var="protocol" value="http:"/>
 	        <c:if test="${fn:startsWith(pageContext.request.requestURI,'https:')}">
-	        	<c:set var="protocal" value="https:"/>
+	        	<c:set var="protocol" value="https:"/>
 	        </c:if>
 	        
 	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}/render_thumbnail/"/>
 	        <c:set var="jpegUrlDetailWithoutId" value="${protocol}/${impcMediaBaseUrl}/img_detail/"/>
 	        <c:set var="pdfWithoutId" value="${protocol}${fn:replace(impcMediaBaseUrl,'webgateway/','webclient/annotation/')}"/>
 	        <c:set var="thumbnailSize" value="70"/>
-	       jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
+	       <%-- jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
-	        pdfWithoutId: ${pdfWithoutId}
+	        pdfWithoutId: ${pdfWithoutId} --%>
             <form action="">
            
 	            <div id="comparator" class="section">
