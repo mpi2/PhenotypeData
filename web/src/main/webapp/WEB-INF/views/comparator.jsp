@@ -30,9 +30,12 @@
         	<div class="node"> -->
         	<%--  mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
+        	request uri=${pageContext.request.requestURI}
         	<c:set var="protocol" value="http:"/>
 	        <c:if test="${fn:startsWith(pageContext.request.requestURI,'https:')}">
+	        protocol before set in if  =${protocol }
 	        	<c:set var="protocol" value="https:"/>
+	        	protocol after set in if  =${protocol }
 	        </c:if>
 	        
 	        <c:set var="jpegUrlThumbWithoutId" value="${protocol}/${impcMediaBaseUrl}/render_thumbnail/"/>
