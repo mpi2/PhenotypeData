@@ -7,17 +7,13 @@
 <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Image Comparator</jsp:attribute>
 
 
- <jsp:attribute name="title">Image Picker</jsp:attribute>
+ <jsp:attribute name="title">${gene.markerSymbol} Image Picker</jsp:attribute>
 <jsp:attribute name="header">
- <!--  <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
-  <link rel="stylesheet" type="text/css" href="css/bootstrap-responsive.css">
-  <link rel="stylesheet" type="text/css" href="examples.css">
-  <link rel="stylesheet" type="text/css" href="image-picker/image-picker.css"> -->
   
-  <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" />
+  <%-- <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" /> --%>
  <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" />
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script> -->
 <script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
  
  
