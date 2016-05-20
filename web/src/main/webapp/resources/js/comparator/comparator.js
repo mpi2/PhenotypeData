@@ -8,13 +8,18 @@ console.log('control prev'+previousControlId)
 var previousMutantId=$(".clickable_image_mutant").first().attr('id');
 
 $(".clickable_image_control").click(function() {
-  console.log( this.id );
-  if(previousControlId){
-	  $('#'+previousControlId).toggleClass( "img_selected");
-  }
-  $('#control_frame').attr('src','http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/'+this.id+'/');
-  $('#'+this.id).toggleClass( "img_selected");
-  previousControlId=this.id;
+		console.log( this.id );
+		if(previousControlId){
+			$('#'+previousControlId).toggleClass( "img_selected");
+		}
+		if(this.src.indexOf('_pdf')>-1){
+			$('#control_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+this.id));
+		}else{
+			$('#control_frame').attr('src',jpegUrlDetailWithoutId+this.id);
+		}
+		
+		$('#'+this.id).toggleClass( "img_selected");
+		previousControlId=this.id;
 });
 
 $(".clickable_image_mutant").click(function() {
@@ -22,7 +27,12 @@ $(".clickable_image_mutant").click(function() {
 	  if(previousMutantId){
 		  $('#'+previousMutantId).toggleClass( "img_selected");
 	  }
-	  $('#mutant_frame').attr('src','http://www.ebi.ac.uk/mi/media/omero/webgateway/img_detail/'+this.id+'/');
+	  if(this.src.indexOf('_pdf')>-1){
+		  $('#mutant_frame').attr('src',googlePdf.replace('replace',pdfWithoutId+this.id));
+	  }else
+	 {
+		  $('#mutant_frame').attr('src',jpegUrlDetailWithoutId+this.id);
+	 }
 	  $('#'+this.id).toggleClass( "img_selected");
 	  previousMutantId=this.id;
 	});

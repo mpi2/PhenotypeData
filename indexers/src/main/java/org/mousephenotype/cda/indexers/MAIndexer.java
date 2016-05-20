@@ -89,7 +89,11 @@ public class MAIndexer extends AbstractIndexer {
     }
 
     @Override
-    public RunStatus run() throws IndexerException {
+    public RunStatus run() throws IndexerException, IOException, SolrServerException {
+
+        // Delete the documents in the core if there are any.
+        maCore.deleteByQuery("*:*");
+        maCore.commit();
 
         int count = 0;
         RunStatus runStatus = new RunStatus();
@@ -282,7 +286,7 @@ public class MAIndexer extends AbstractIndexer {
         maUberonEfoMap = IndexerMap.mapMaToUberronOrEfo(resource);
     }
 
-    public static void main(String[] args) throws IndexerException, SQLException {
+    public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
 
         MAIndexer indexer = new MAIndexer();
         indexer.initialise(args);
