@@ -16,6 +16,8 @@
 package org.mousephenotype.cda.solr.service;
 
 import net.sf.json.JSONObject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -88,6 +90,24 @@ public class MpService extends BasicService implements WebStatus{
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param ids MP ids to query for (only query on MP_ID field. 
+	 * @return List<MpDTO> corresponding to the passed ids. 
+	 * @throws SolrServerException
+	 */
+	public List<MpDTO> getPhenotypes(List<String> ids) 
+	throws SolrServerException {
+
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\""); 
+
+		QueryResponse rsp = solr.query(solrQuery);
+		System.out.println("RETURNED -- " + rsp.getResults().size() + " " + solr.getBaseURL() + "/select?" + solrQuery);
+		return rsp.getBeans(MpDTO.class);
+		
+	}
+	
 
 	/**
 	 * @author ilinca
