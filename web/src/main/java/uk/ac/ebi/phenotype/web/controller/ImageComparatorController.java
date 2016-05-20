@@ -106,6 +106,7 @@ public class ImageComparatorController {
 		filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
 		
 		
+
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
 		System.out.println("mutants size=" + filteredMutants.size());
