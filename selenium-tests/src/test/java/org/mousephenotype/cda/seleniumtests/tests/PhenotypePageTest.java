@@ -257,55 +257,43 @@ public class PhenotypePageTest {
         }
     }
 
-    /**
-     * Tests that a sensible page is returned for an invalid phenotype id.
-     *
-     * @throws SolrServerException
-     */
-//@Ignore
-    @Test
-    public void testInvalidMpTermId() throws SolrServerException {
-        RunStatus status = new RunStatus();
-        String testName = "testInvalidMpTermId";
-        String target = "";
-        String message;
-        Date start = new Date();
-        String phenotypeId = "junkBadPhenotype";
-        final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
+     /**
+      * Tests that a sensible page is returned for an invalid phenotype id.
+      *
+      * @throws SolrServerException
+      */
+ //@Ignore
+     @Test
+     public void testInvalidMpTermId() throws SolrServerException {
+         RunStatus status = new RunStatus();
+         String testName = "testInvalidMpTermId";
+         String target = "";
+         String message;
+         Date start = new Date();
+         String phenotypeId = "junkBadPhenotype";
 
-        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        boolean found = false;
-        target = baseUrl + "/phenotypes/" + phenotypeId;
+         target = baseUrl + "/phenotypes/" + phenotypeId;
 
-        try {
-            driver.get(target);
-            List<WebElement> phenotypeLinks = (new WebDriverWait(driver, timeoutInSeconds))
-                    .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.node h1")));
-            if (phenotypeLinks == null) {
-                message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-                status.addError(message);
-            }
-            for (WebElement div : phenotypeLinks) {
-                if (div.getText().equals(EXPECTED_ERROR_MESSAGE)) {
-                    found = true;
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            message = "Timeout: Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            status.addError(message);
-        }
+         driver.get(target);
+         List<WebElement> oopsElement = driver.findElements(By.xpath("//h1"));
+         if (oopsElement.isEmpty()) {
+             message = "Expected h1 element but found none";
+             status.addError(message);
+         } else {
+             if ( ! oopsElement.get(0).getText().toLowerCase().contains("oops")) {
+                 message = "Expected Oops! error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+                 status.addError(message);
+             }
+         }
 
-        if (found && ( ! status.hasErrors())) {
-            status.successCount++;
-        } else {
-            message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            status.addError(message);
-        }
+         if ( ! status.hasErrors()) {
+             status.successCount++;
+         }
 
-        testUtils.printEpilogue(testName, start, status, 1, 1);
-    }
+         testUtils.printEpilogue(testName, start, status, 1, 1);
+     }
 
      // Tests known phenotype pages that have historically been broken or are interesting cases, such as one with a download filename with a forward slash.
         @Test
