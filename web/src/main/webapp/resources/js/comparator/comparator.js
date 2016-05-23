@@ -47,6 +47,13 @@ $("#mutant_only_button").click(function() {
 	  $('#control_box').toggle('no_box');//need to set this to display none instead of hidden which still tatkes up space
 	  $('#mutant_box').toggleClass('half_box_right full_box');
 	  $('#mutant_frame').toggleClass('full_frame');
+	  if($('#mutant_only_button').text() === 'Display Mutant Only'){
+		  $('#mutant_only_button').text('Display WT and Mutant');
+	  }else{
+		  $('#mutant_only_button').text('Display Mutant Only');
+	  }
+	  console.log('mutant: '+$('#mutant_only_button').attr('value'));
+	  //$('#mutant_only_button').toggleAttr('value','full_frame');
 	});
 
 });
