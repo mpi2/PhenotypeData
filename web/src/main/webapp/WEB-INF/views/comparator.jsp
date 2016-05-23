@@ -53,7 +53,7 @@
             			<option value="heterozygote" <c:if test="${param.zygosity eq 'heterozygote'}">selected</c:if>>Het</option>
             			<option value="homozygote" <c:if test="${param.zygosity eq 'homozygote'}">selected</c:if>>Hom</option>
             		</select>
-            		<input type="submit" value="Go"> <input type="button" id="mutant_only_button" value="Mutant Only">
+            		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>
             		</div>
 	            	<div id="control_box" class="box half_box_left">
 		            	<c:choose>
