@@ -50,6 +50,7 @@ public abstract class ResourceFile {
     public Step getDownloadStep() {
         Downloader downloader = new Downloader();
         downloader.initialise(this.sourceUrl, this.filename);
+System.out.println("Download Step: DOWNLOADING " + this.filename);
         return stepBuilderFactory.get("downloadStep")
                 .tasklet(downloader)
                 .build();

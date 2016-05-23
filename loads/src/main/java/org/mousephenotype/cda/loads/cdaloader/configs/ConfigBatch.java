@@ -18,19 +18,17 @@ package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
-import org.mousephenotype.cda.loads.cdaloader.support.ResourceFile;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.support.ConcurrentExecutorAdapter;
-import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 
 /**
  * Created by mrelac on 12/04/2016.
@@ -44,6 +42,12 @@ public class ConfigBatch {
 
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
+
+    @Autowired
+    public JobRepository jobRepository;
+
+//    @Autowired
+//    public JobExecution execution;
 
 //    @Autowired
 //    public DataSource komp2Loads;
@@ -68,26 +72,48 @@ public class ConfigBatch {
 //    public SystemCommandTasklet recreateAndLoadDbTables;
 
 //    @Autowired
-//    @Qualifier("resourceFileDbItemWriter")
-//    public ResourceFileDbItemWriter resourceFileDbItemWriter;
+//    @Qualifier("dbItemWriter")
+//    public ResourceFileDbItemWriter dbItemWriter;
 
-    @Autowired
-    @Qualifier("resourceFileOntologyMa")
-    public ResourceFile resourceFileOntologyMa;
 
-    @Autowired
-    @Qualifier("resourceFileOntologyMp")
-    public ResourceFile resourceFileOntologyMp;
+
+
+
+
+
+
+//    @Autowired
+//    @Qualifier("ontologyMa")
+//    public ResourceFile ontologyMa;
+//
+//    @Autowired
+//    @Qualifier("ontologyMp")
+//    public ResourceFile ontologyMp;
 
     @Autowired
     @Qualifier("recreateAndLoadDbTables")
     public RecreateAndLoadDbTables recreateAndLoadDbTables;
 
-    @Autowired
-    public Step loadMaStep;
+
+
+
+
+
+
+
 
     @Autowired
-    public Step loadMpStep;
+    public Step doNothingStep;
+
+//    @Autowired
+//    public Step loadMaStep;
+//
+//    @Autowired
+//    public Step loadMpStep;
+
+
+
+
 
 
 
@@ -112,15 +138,38 @@ public class ConfigBatch {
      *
      * NOTES:
      *  recreateAndLoadDbTables works fine.
-     *  resourceFileOntologyMa.getDownloadStep() works fine on its own.
-     *  resourceFileOntologyMp.getDownloadStep() works fine on its own.
+     *  ontologyMa.getDownloadStep() works fine on its own.
+     *  ontologyMp.getDownloadStep() works fine on its own.
      *    the two together cause an infinite loop downloading the Ma file.
      */
     @Bean
     public Job cdaDownloadJob() throws CdaLoaderException {
+
+
+
         return jobBuilderFactory.get("cdaDownloadJob")
                 .incrementer(new RunIdIncrementer())
                 .flow(recreateAndLoadDbTables.getStep())
+                .next(doNothingStep)
+
+
+
+
+//                .next(downloadJob(loadJob(doNothingStep)))
+//                .flow(recreateAndLoadDbTables.getStep())
+//.end()
+//                .next(downloadJob(loadJob(doNothingStep)))
+//                .next(loadJob(doNothingStep))
+//                .on("*").to(ontologyMa.getDownloadStep())
+////                .end()
+//                .start(ontologyMp.getDownloadStep())
+////                .end()
+//
+//                .start(ontologyMa.getLoadStep())
+////                .end()
+//                .start(ontologyMp.getLoadStep())
+//                .end()
+
 
 
 //                .chunk(10)
@@ -134,22 +183,22 @@ public class ConfigBatch {
                 // Download the ontology owl files.
 
                 // THESE TWO STATEMENTS ENABLED LOAD THE MA TERMS, BUT NEVER LOAD THE MP TERMS. THE PROCESS JUST HANGS.
-//                .next(resourceFileOntologyMa.getLoadStep())
-//                .next(resourceFileOntologyMp.getLoadStep())
+//                .next(ontologyMa.getLoadStep())
+//                .next(ontologyMp.getLoadStep())
 
 
                 // THIS SET OF STATEMENTS IS INTENDED TO PARALLELIZE. MP GETS LOADED, BUT MA DOESN'T. THE PROCESS JUST HANGS.
 //                .split(new ConcurrentTaskExecutor())
 //                .add()
-//                .next(resourceFileOntologyMa.getLoadStep())
+//                .next(ontologyMa.getLoadStep())
 //                .split(new ConcurrentTaskExecutor())
 //                .add()
-//                .next(resourceFileOntologyMp.getLoadStep())
+//                .next(ontologyMp.getLoadStep())
 
 
                 // THESE TWO STATEMENTS ENABLED LOAD MA AND MP TERMS AS EXPECTED.
-                .next(loadMaStep)
-                .next(loadMpStep)
+//                .flow(loadMaStep)
+//                .next(loadMpStep)
 
 
 
@@ -163,11 +212,84 @@ public class ConfigBatch {
 
 
 
+
+
                 .end()
                 .build();
     }
 
 
+//    @Bean
+//    public Job cdaRecreateAndLoadDbTablesJob() throws CdaLoaderException {
+//        return jobBuilderFactory.get("cdaDownloadJob")
+//                .incrementer(new RunIdIncrementer())
+//                .flow(recreateAndLoadDbTables.getStep())
+//
+//                .end()
+//                .build();
+//    }
+//
+//
+//    @Bean
+//    public Job cdaLoadJob() throws CdaLoaderException {
+//        return jobBuilderFactory.get("cdaLoadJob")
+//                .incrementer(new RunIdIncrementer())
+//                .flow(ontologyMa.getLoadStep())
+//                .end()
+//                .start(ontologyMp.getLoadStep())
+//                .end()
+//                .build();
+//    }
 
+//    @Bean
+//    public Job cdaMasterJob() throws CdaLoaderException {
+//        return jobBuilderFactory.get("cdaMasterJob")
+//                .incrementer(new RunIdIncrementer())
+//                .flow(cdaRecreateAndLoadDbTablesJob())
+//
+//
+//                .flow(recreateAndLoadDbTables.getStep())
+//
+//
+//                .next(ontologyMa.getDownloadStep())
+//                .end()
+//                .start(ontologyMp.getDownloadStep())
+//                .end()
+//                .start(ontologyMa.getLoadStep())
+//                .end()
+//                .start(ontologyMp.getLoadStep())
+//                .end()
+//                .build();
+//    }
 
+//    public Step downloadJob(Step nextStep) {
+//        Flow flow = new FlowBuilder<Flow>("downloadSubflow")
+//                .from(ontologyMa.getDownloadStep())
+//                .from(ontologyMp.getDownloadStep())
+//                .end();
+//
+//        SimpleJobBuilder builder = new JobBuilder("downloadFlow").repository(jobRepository).start(ontologyMa.getDownloadStep());
+//        builder.incrementer(new RunIdIncrementer());
+//        builder.split(new SimpleAsyncTaskExecutor()).add(flow).end();
+//
+//        builder.preventRestart().build().execute(execution);
+//
+//        return nextStep;
+//    }
+//
+//    public Step loadJob(Step nextStep) throws CdaLoaderException {
+//
+//        Flow flow = new FlowBuilder<Flow>("loadSubflow")
+//                .from(ontologyMa.getLoadStep())
+//                .from(ontologyMp.getLoadStep())
+//                .end();
+//
+//        SimpleJobBuilder builder = new JobBuilder("loadFlow").repository(jobRepository).start(ontologyMa.getLoadStep());
+//        builder.incrementer(new RunIdIncrementer());
+//        builder.split(new SimpleAsyncTaskExecutor()).add(flow).end();
+//
+//        builder.preventRestart().build().execute(execution);
+//
+//        return nextStep;
+//    }
 }

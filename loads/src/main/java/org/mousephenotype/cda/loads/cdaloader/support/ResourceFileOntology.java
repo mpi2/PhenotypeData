@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public class ResourceFileOntology extends ResourceFile {
 
     @Autowired
-    @Qualifier("resourceFileDbItemWriter")
+    @Qualifier("dbItemWriter")
     public ResourceFileDbItemWriter ontologyWriter;
 //    public FlatFileItemWriter ontologyWriter;
 
