@@ -81,7 +81,16 @@
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}" varStatus="controlLoop">
 	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameter_name}"/>
-	            			<div class="clickbox">
+	            			<div class="
+	            			<c:choose>
+	            				<c:when test="${img.sex eq 'male' }">
+	            					clickbox_male"
+	            				</c:when>
+	            				<c:otherwise>
+	            					clickbox_female
+	            				</c:otherwise>
+	            			</c:choose>
+	            			">
 	            				<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_control <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
@@ -123,7 +132,16 @@
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 	            			<c:set var="mutantText" value="Mutant: ${img.allele_symbol}, ${img.zygosity}, ${img.sex}, ${img.parameter_name}"/>
-	            			<div class="clickbox">
+	            			<div class="
+	            			<c:choose>
+	            				<c:when test="${img.sex eq 'male' }">
+	            					clickbox_male"
+	            				</c:when>
+	            				<c:otherwise>
+	            					clickbox_female
+	            				</c:otherwise>
+	            			</c:choose>
+	            			">
 								<c:choose>
 									<c:when test="${mediaType eq 'pdf' }">
 										<img id="${img.omero_id}" src="../${pdfThumbnailUrl}" style="width:${thumbnailSize}px" class="clickable_image_mutant <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">

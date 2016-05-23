@@ -63,10 +63,15 @@ width:100%;
 	opacity: 0.5;
 }
 
-.clickbox{
+.clickbox_male{
 	background:#0978a1;
 	/* float: left; */
 	display: inline-block
 }
 
+.clickbox_female{
+	background:#EF7B0B;
+	/* float: left; */
+	display: inline-block
+}
 
