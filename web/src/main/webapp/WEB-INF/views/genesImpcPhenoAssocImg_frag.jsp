@@ -18,27 +18,25 @@
                                    <%--class="fa fa-question-circle pull-right"></a></span>--%>
   <%--</h2>--%>
 
-
+<div class="accordion-body" style="display: block">
+     <div id="grid">
 <c:forEach var="entry" items="${impcImageFacets}" varStatus="status">
 
-  <c:forEach var="doc"
+  			<c:forEach var="doc"
              items="${impcFacetToDocs[entry.name]}">
-    <c:if test="${doc.procedure_name ne 'Embryo LacZ' }">
-      <div id="impc-images-heading" class="accordion-group">
-
-        <div class="accordion-heading">
-           <c:choose>
+    
+    	<ul>
+          <%--  <c:choose>
            	<c:when test="${doc.parameter_name eq 'Images'}">
            		${doc.procedure_name}
            	</c:when>
            	<c:otherwise>
             	${doc.parameter_name}
            	</c:otherwise>
-           </c:choose>
-           (${entry.count})
-        </div>
-        <div class="accordion-body">
-          <ul>
+           </c:choose> --%>
+           <%-- (${entry.count}) --%>
+        
+          
             <c:set var="href" scope="page"
                    value="${baseUrl}/imageComparator/${acc}/${entry.name}"></c:set>
             <a href="${href}">
@@ -47,21 +45,25 @@
                       impcMediaBaseUrl="${impcMediaBaseUrl}"
                       pdfThumbnailUrl="${pdfThumbnailUrl}"
                       href="${href}"
-                      count="${entry.count}"></t:impcimgdisplay2>
+                      count="${entry.count}"
+                      parameterName="${doc.parameter_name}"></t:impcimgdisplay2>
             </a>
-          </ul>
+           
+          
 
 
             <%--  <div class="clear"></div>
                 <c:if test="${entry.count>5}">
                     <p class="textright"><a href="${baseUrl}/images?gene_id=${acc}&fq=expName:${entry.name}"><i class="fa fa-caret-right"></i> show all ${entry.count} images</a></p>
                 </c:if> --%>
-        </div> <!--  end of accordion body -->
-      </div> <!-- accordion-group -->
-    </c:if>
+          
+		</ul>
+  			</c:forEach>
+   		
 
-  </c:forEach>
 
 </c:forEach>
+	</div>
+</div>
 
 
