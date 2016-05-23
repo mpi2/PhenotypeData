@@ -26,14 +26,10 @@
              items="${impcFacetToDocs[entry.name]}">
     
     	<ul>
-          <%--  <c:choose>
-           	<c:when test="${doc.parameter_name eq 'Images'}">
-           		${doc.procedure_name}
-           	</c:when>
-           	<c:otherwise>
-            	${doc.parameter_name}
-           	</c:otherwise>
-           </c:choose> --%>
+    	<c:set var="label" value="${doc.parameter_name}"/>
+       	<c:if test="${doc.parameter_name eq 'Images'}">
+           		<c:set var="label" value="${doc.procedure_name}"/>
+        </c:if>
            <%-- (${entry.count}) --%>
         
           
@@ -46,7 +42,7 @@
                       pdfThumbnailUrl="${pdfThumbnailUrl}"
                       href="${href}"
                       count="${entry.count}"
-                      parameterName="${doc.parameter_name}"></t:impcimgdisplay2>
+                      parameterName="${label}"></t:impcimgdisplay2>
             </a>
            
           
