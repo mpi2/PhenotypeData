@@ -17,13 +17,17 @@
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.mousephenotype.cda.loads.cdaloader.steps.DoNothingStep;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologyItemReader;
 import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,22 +45,106 @@ public class ConfigBeans {
     @Value("${owlpath}")
     protected String owlpath;
 
+
+
+
+@Autowired
+public JobRepository jobRepository;
+// THIS CAUSES NPE.
+//    @Bean
+//    public JobRepository jobRepository() throws CdaLoaderException {
+//        try {
+//
+//            // Add a JobExecution to JobRepository.
+//            JobRepository jr = new MapJobRepositoryFactoryBean().getObject();
+//            jobExecution = jr.createJobExecution("flow", new JobParameters());
+//
+//
+//            // Using MapJobRepositoryFactoryBean automatically rebuilds the BATCH tables if necessary.
+//            return new MapJobRepositoryFactoryBean().getObject();
+//        } catch (Exception e) {
+//
+//            throw new CdaLoaderException(e);
+//        }
+//    }
+
+
+
+
+
+     // THIS CAUSES "A job execution for this job is already running: JobInstance: id=2, version=0, Job=[flow]"
+//    private JobExecution jobExecution;
+//    @Bean
+//    public JobExecution jobExecution() throws CdaLoaderException {
+//        try {
+////            if (jobExecution == null) {
+//                jobExecution = jobRepository().createJobExecution("flow", new JobParameters());
+////            }
+//        } catch (Exception e) {
+//
+//            throw new CdaLoaderException(e);
+//        }
+//
+//        return jobExecution;
+//    }
+
+
+
+
+
+
+//    private JobRepository jobRepository;
+//    private JobExecution jobExecution;
+//
+//    @PostConstruct
+//    public void init() throws CdaLoaderException {
+//        try {
+//            jobRepository = new MapJobRepositoryFactoryBean().getObject();
+//            jobExecution = jobRepository.createJobExecution("flow", new JobParameters());
+//        } catch (Exception e) {//
+//            throw new CdaLoaderException(e);
+//        }
+//    }
+
+
+
+
+
+
+        @Autowired
+        public StepBuilderFactory stepBuilderFactory;
+    // THIS CAUSES java.lang.IllegalStateException: Already value [org.springframework.jdbc.datasource.ConnectionHolder@586737ff] for key [org.apache.commons.dbcp.BasicDataSource@14292d71] bound to thread [main]
+//    @Autowired
+//    public PlatformTransactionManager komp2TxManager;
+//
+//    @Bean
+//    public StepBuilderFactory stepBuilderFactory() throws CdaLoaderException {
+//        return new StepBuilderFactory(jobRepository, komp2TxManager);
+//    }
+
+
+
+
+    @Bean
+    public JobBuilderFactory jobBuilderFactory() throws CdaLoaderException {
+        JobBuilderFactory jobBuilderFactory = new JobBuilderFactory(jobRepository);
+        jobBuilderFactory.get("cdaDownloadJob").incrementer(new RunIdIncrementer());
+        return jobBuilderFactory;
+    }
+
+
+
+
+
+
     @Bean(name = "recreateAndLoadDbTables")
     public RecreateAndLoadDbTables recreateAndLoadDbTables() {
         return new RecreateAndLoadDbTables();
     }
 
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
-
-//    @Autowired
-//    @Qualifier("resourceFileDbItemWriter")
-//    public ResourceFileDbItemWriter resourceFileDbItemWriter;
-
-
-    @Bean(name = "resourceFileOntologyMa")
+    @Bean(name = "ontologyMa")
 //    @StepScope
-    public ResourceFileOntology resourceFileOntologyMa() throws CdaLoaderException {
+    public ResourceFileOntology ontologyMa() throws CdaLoaderException {
         ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
         String sourceUrl = "http://purl.obolibrary.org/obo/ma.owl";
         String filename = owlpath + "/ma.owl";
@@ -64,12 +152,13 @@ public class ConfigBeans {
         String prefix = "MA";
         resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
 
+System.out.println("ontologyMa bean invocation");
         return resourceFileOntology;
     }
 
-    @Bean(name = "resourceFileOntologyMp")
+    @Bean(name = "ontologyMp")
 //    @StepScope
-    public ResourceFileOntology resourceFileOntologyMp() throws CdaLoaderException {
+    public ResourceFileOntology ontologyMp() throws CdaLoaderException {
         ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
         String sourceUrl = "ftp://ftp.informatics.jax.org/pub/reports/mp.owl";
         String filename = owlpath + "/mp.owl";
@@ -77,18 +166,20 @@ public class ConfigBeans {
         String prefix = "MP";
         resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
 
+System.out.println("ontologyMp bean invocation");
         return resourceFileOntology;
     }
 
-    @Bean(name = "resourceFileDbItemWriter")
+    @Bean(name = "dbItemWriter")
     @StepScope
-    public ResourceFileDbItemWriter resourceFileDbItemWriter() {
+    public ResourceFileDbItemWriter dbItemWriter() {
         ResourceFileDbItemWriter writer = new ResourceFileDbItemWriter();
 
         return writer;
     }
 
     @Bean
+    @StepScope
     public Step loadMaStep() throws CdaLoaderException {
 
         String filename = owlpath + "/ma.owl";
@@ -98,14 +189,16 @@ public class ConfigBeans {
         OntologyItemReader ontologyReader = new OntologyItemReader();
         ontologyReader.initialise(filename, dbId, prefix);
 
+System.out.println("loadMaStep()");
         return stepBuilderFactory.get("loadMaStep")
-                .chunk(10)
+                .chunk(1000)
                 .reader(ontologyReader)
-                .writer(resourceFileDbItemWriter())
+                .writer(dbItemWriter())
                 .build();
     }
 
     @Bean
+    @StepScope
     public Step loadMpStep () throws CdaLoaderException {
 
         String filename = owlpath + "/mp.owl";
@@ -115,10 +208,16 @@ public class ConfigBeans {
         OntologyItemReader ontologyReader = new OntologyItemReader();
         ontologyReader.initialise(filename, dbId, prefix);
 
+System.out.println("loadMpStep()");
         return stepBuilderFactory.get("loadMpStep")
-                .chunk(10)
+                .chunk(1000)
                 .reader(ontologyReader)
-                .writer(resourceFileDbItemWriter())
+                .writer(dbItemWriter())
                 .build();
+    }
+
+    @Bean
+    public Step doNothingStep() {
+        return new DoNothingStep();
     }
 }

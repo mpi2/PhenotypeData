@@ -83,23 +83,13 @@ public class DownloadResourceFiles extends SystemCommandTasklet {
 //                , { "ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt" }
 //
                 // OWL ontologies
-                , { "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl" }                                              // mammalian_phenotype.obo
-                , { "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl" }                        // quality.obo
-                , { "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl" }                                                         // adult_mouse_anatomy.obo
-                , { "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl" }                                                     // EMAP.obo
                 , { "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl" }           // eco.obo
                 , { "http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl" }                                                             // efo.obo
+                , { "http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl" }                                                     // EMAP.obo
+                , { "http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl" }                                                         // adult_mouse_anatomy.obo
+                , { "ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl" }                                              // mammalian_phenotype.obo
                 , { "http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl" }                                                   // mpath.obo
-
-                // OBO ontologies (old)
-//                , { "ftp://ftp.informatics.jax.org/pub/reports/MPheno_OBO.ontology", cdaWorkspace + "/mammalian_phenotype.obo" }
-//                , { "http://pato.googlecode.com/svn/trunk/quality.obo", cdaWorkspace + "/quality.obo" }
-//                  { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/anatomy/gross_anatomy/animal_gross_anatomy/mouse/adult_mouse_anatomy.obo", cdaWorkspace + "/adult_mouse_anatomy.obo" }
-//                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/chemical/chebi.obo", cdaWorkspace + "/chebi.obo" }                // According to Ilinca, chebi is not used in PhenotypeArchive.
-//                , { "http://obo.cvs.sourceforge.net/viewvc/obo/obo/ontology/anatomy/gross_anatomy/animal_gross_anatomy/mouse/EMAP.obo", cdaWorkspace + "/EMAP.obo" }
-//                , { "https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.obo", cdaWorkspace + "/eco.obo" }
-//                , { "http://svn.code.sf.net/p/efo/code/trunk/src/efoinobo/efo.obo", cdaWorkspace + "/efo.obo" }
-//                , { "http://mpath.googlecode.com/svn/trunk/mpath.obo", cdaWorkspace + "/mpath.obo" }
+                , { "https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl" }                        // quality.obo
         };
 
 //        downloadReportsTasklet = new SystemCommandTasklet();

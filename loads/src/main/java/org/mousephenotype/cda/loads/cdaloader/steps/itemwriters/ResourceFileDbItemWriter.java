@@ -41,7 +41,7 @@ public class ResourceFileDbItemWriter implements ItemWriter {
     @Autowired
     @Qualifier("komp2TxManager")
     private PlatformTransactionManager tx;
-
+private boolean firstTime = false;
     /**
      * Process the supplied data element. Will not be called with any null items
      * in normal operation.
@@ -52,6 +52,10 @@ public class ResourceFileDbItemWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
+ if (firstTime) {
+     System.out.println("WRITING TO DATABASE");
+     firstTime = false;
+ }
         for (Object term1 : items) {
             OntologyTerm term = (OntologyTerm) term1;
             jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?)",

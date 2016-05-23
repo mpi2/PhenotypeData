@@ -20,26 +20,36 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.SystemCommandTasklet;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Date;
 
 /**
  * Created by mrelac on 13/04/2016.
  */
-public class RecreateAndLoadDbTables extends SystemCommandTasklet {
+public class RecreateAndLoadDbTables implements Tasklet, InitializingBean {
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+  	    Assert.notNull(mysql, "mysql executable must be set");
+        Assert.notNull(dbhostname, "dbhostname must be set");
+        Assert.notNull(dbport, "dbport must be set");
+        Assert.notNull(dbusername, "dbusername must be set");
+        Assert.notNull(dbpassword, "dbpassword must be set");
+        Assert.notNull(dbname, "dbname must be set");
+    }
 
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
@@ -49,9 +59,6 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
 
     CommonUtils commonUtils = new CommonUtils();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    DataSource komp2loads;
 
     @Value("${cdaload.dbname}")
     private String dbname;
@@ -71,15 +78,6 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
     @Value("${cdaload.dbport}")
     private String dbport;
 
-    public final long TASKLET_TIMEOUT = 10000;                                  // Timeout in milliseconds
-
-
-    @PostConstruct
-    public void systemCommandTaskletInitialisation() {
-        // A SystemCommandTasklet needs something to execute or it throws an exception. This is a do-nothing command to satisfy that requirement.
-        setCommand("ls");
-        setTimeout(TASKLET_TIMEOUT);
-    }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -103,8 +101,9 @@ public class RecreateAndLoadDbTables extends SystemCommandTasklet {
         }
 
         logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
-
-        return null;
+        contribution.setExitStatus(ExitStatus.COMPLETED);
+        chunkContext.setComplete();
+        return RepeatStatus.FINISHED;
     }
 
     @StepScope
