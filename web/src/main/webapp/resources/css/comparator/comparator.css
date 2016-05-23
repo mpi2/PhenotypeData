@@ -5,14 +5,11 @@ width:100%;
 }
 
 #control_box, #mutant_box {
-	width: 0%;
 	display: inline;
 	border: #ddd 2px solid; color: #666;
-	width: 49.6%;
 }
 
 #control_box{
-	float: left;
 	clear: right;
 	
 }
@@ -21,16 +18,41 @@ width:100%;
 	float: right;
 }
 
+.half_box_left{
+	width: 49.6%;
+	float: left;
+}
+
+.half_box_right{
+	width: 49.6%;
+	float: right;
+}
+
+.full_box{
+	width: 100%;
+	float: left;
+}
+
+.no_box{
+	float: left;
+	display: none;
+}
+
 #control_frame, #mutant_frame {
 	min-width: 600px;
 	min-height:500px;
-	width: auto;
 	display: inline;
+}
+
+.full_frame{
+	width: 1200px;
+	height:1000px;
 }
 
 .annotation{
 	border: #ddd 2px solid; color: #666;
 	text-align: center;
+	color: #0978a1;
 }
 .picker{
 	width:100%;
@@ -42,7 +64,7 @@ width:100%;
 }
 
 .clickbox{
-	background:blue;
+	background:#0978a1;
 	/* float: left; */
 	display: inline-block
 }
