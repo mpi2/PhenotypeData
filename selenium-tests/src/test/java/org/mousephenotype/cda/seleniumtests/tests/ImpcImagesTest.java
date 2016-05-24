@@ -135,7 +135,7 @@ public class ImpcImagesTest {
                 GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
 
                 if (genePage.hasImpcImages()) {
-                    List<String> parameters = genePage.getAssociatedImpcImageSections();
+                    List<String> parameters = genePage.getAssociatedImpcImageUrls();
                     if (parameters.isEmpty()) {
                         status.addError("Parameter list is empty!");
                     }

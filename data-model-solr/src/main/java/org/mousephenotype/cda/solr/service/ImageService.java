@@ -636,7 +636,7 @@ public class ImageService implements WebStatus{
 	public void getImpcImagesForGenePage(String acc, Model model,
 			int numberOfControls, int numberOfExperimental,
 			boolean getForAllParameters) throws SolrServerException {
-		String excludeProcedureName = "Adult LacZ";// exclude adult lacz from
+		String excludeProcedureName = null;// "Adult LacZ";// exclude adult lacz from
 													// the images section as
 													// this will now be in the
 													// expression section on the
