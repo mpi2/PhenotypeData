@@ -215,7 +215,7 @@
         <div class="container span12">
 
           <c:if test="${not empty phenotypes}">
-            <form class="tablefiltering no-style" id="target" action="destination.html">
+            <%-- <form class="tablefiltering no-style" id="target" action="destination.html">
               <c:forEach
                       var="phenoFacet" items="${phenoFacets}"
                       varStatus="phenoFacetStatus">
@@ -229,7 +229,7 @@
                 </select>
               </c:forEach>
               <div class="clear"></div>
-            </form>
+            </form> --%>
             <div class="clear"></div>
 
             <c:set var="count" value="0" scope="page"/>

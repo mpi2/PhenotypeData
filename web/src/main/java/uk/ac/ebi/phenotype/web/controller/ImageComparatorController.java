@@ -65,7 +65,7 @@ public class ImageComparatorController {
 	@RequestMapping("/imageComparator/{acc}/{parameter_stable_id}")
 	public String imageCompBrowser(@PathVariable String acc,
 			@PathVariable String parameter_stable_id,
-			@RequestParam(value = "gender", defaultValue="both") String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
+			@RequestParam(value = "gender", defaultValue="not applicable") String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
 		if(gender!=null)System.out.println("sex in controller="+gender);
@@ -97,7 +97,6 @@ public class ImageComparatorController {
 		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
 		SolrDocumentList controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
-		
 		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
 		
 		List<ZygosityType> zygosityTypes=getZygosityTypesForFilter(zygosity);
@@ -171,6 +170,8 @@ public class ImageComparatorController {
 		if(gender.equals("both")){
 			sexTypes.add(SexType.male);
 			sexTypes.add(SexType.female);
+		}else if(gender.equals("not applicable") || gender.equals("no data")){
+			return Arrays.asList(SexType.values());
 		}
 		return sexTypes;
 	}
