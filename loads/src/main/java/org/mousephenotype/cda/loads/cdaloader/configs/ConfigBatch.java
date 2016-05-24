@@ -18,17 +18,27 @@ package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.mousephenotype.cda.loads.cdaloader.support.ResourceFile;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.builder.SimpleJobBuilder;
+import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by mrelac on 12/04/2016.
@@ -45,6 +55,8 @@ public class ConfigBatch {
 
     @Autowired
     public JobRepository jobRepository;
+
+    private CommonUtils commonUtils = new CommonUtils();
 
 //    @Autowired
 //    public JobExecution execution;
@@ -82,25 +94,17 @@ public class ConfigBatch {
 
 
 
-//    @Autowired
-//    @Qualifier("ontologyMa")
-//    public ResourceFile ontologyMa;
-//
-//    @Autowired
-//    @Qualifier("ontologyMp")
-//    public ResourceFile ontologyMp;
+    @Autowired
+    @Qualifier("ontologyMa")
+    public ResourceFile ontologyMa;
+
+    @Autowired
+    @Qualifier("ontologyMp")
+    public ResourceFile ontologyMp;
 
     @Autowired
     @Qualifier("recreateAndLoadDbTables")
     public RecreateAndLoadDbTables recreateAndLoadDbTables;
-
-
-
-
-
-
-
-
 
     @Autowired
     public Step doNothingStep;
@@ -134,6 +138,40 @@ public class ConfigBatch {
 //    }
 
 
+    @Bean
+    public Job[] runLoadJobs() throws CdaLoaderException {
+        Job[] jobs = new Job[] { cdaDownloadJob2(), cdaDownloadJob()};
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String now = dateFormat.format(new Date());
+
+
+        for (int i = 0; i < jobs.length; i++) {
+            Job job = jobs[i];
+            try {
+                JobInstance instance = jobRepository.createJobInstance("flow_" + now + "_" + i, new JobParameters());
+                JobExecution execution = jobRepository.createJobExecution(instance, new JobParameters(), "xxx_" + now + "_" + i);
+                job.execute(execution);
+            } catch (Exception e) {
+
+                throw new CdaLoaderException(e);
+            }
+        }
+
+        return jobs;
+    }
+
+
+    public Job cdaDownloadJob2() throws CdaLoaderException {
+System.out.println("cdaDownloadJob2");
+        return jobBuilderFactory.get("cdaDownloadJob")
+                .incrementer(new RunIdIncrementer())
+                .flow(recreateAndLoadDbTables.getStep())
+                .next(doNothingStep)
+                .end()
+                .build();
+    }
+
+
     /**
      *
      * NOTES:
@@ -142,15 +180,17 @@ public class ConfigBatch {
      *  ontologyMp.getDownloadStep() works fine on its own.
      *    the two together cause an infinite loop downloading the Ma file.
      */
-    @Bean
-    public Job cdaDownloadJob() throws CdaLoaderException {
 
+    public Job cdaDownloadJob() throws CdaLoaderException {
+System.out.println("cdaDownloadJob");
 
 
         return jobBuilderFactory.get("cdaDownloadJob")
                 .incrementer(new RunIdIncrementer())
                 .flow(recreateAndLoadDbTables.getStep())
                 .next(doNothingStep)
+//                .end()
+//                .start(downloadFlow())
 
 
 
@@ -262,21 +302,32 @@ public class ConfigBatch {
 //                .build();
 //    }
 
-//    public Step downloadJob(Step nextStep) {
-//        Flow flow = new FlowBuilder<Flow>("downloadSubflow")
-//                .from(ontologyMa.getDownloadStep())
-//                .from(ontologyMp.getDownloadStep())
-//                .end();
+    public Step downloadJob(Step nextStep) throws CdaLoaderException {
+        Flow flow = new FlowBuilder<Flow>("downloadSubflow")
+                .from(ontologyMa.getDownloadStep())
+                .from(ontologyMp.getDownloadStep())
+                .end();
+
+        SimpleJobBuilder builder = new JobBuilder("downloadFlow").repository(jobRepository).start(ontologyMa.getDownloadStep());
+        builder.incrementer(new RunIdIncrementer());
+        builder.split(new SimpleAsyncTaskExecutor()).add(flow).end();
+
+        try {
+            builder.preventRestart().build().execute(jobRepository.createJobExecution("flow", new JobParameters()));
+        } catch (Exception e) {
+
+            throw new CdaLoaderException(e);
+        }
+
+        return nextStep;
+    }
+
+//    public Flow downloadFlow() {
+//        Flow flow = null;
 //
-//        SimpleJobBuilder builder = new JobBuilder("downloadFlow").repository(jobRepository).start(ontologyMa.getDownloadStep());
-//        builder.incrementer(new RunIdIncrementer());
-//        builder.split(new SimpleAsyncTaskExecutor()).add(flow).end();
-//
-//        builder.preventRestart().build().execute(execution);
-//
-//        return nextStep;
+//        return flow;
 //    }
-//
+
 //    public Step loadJob(Step nextStep) throws CdaLoaderException {
 //
 //        Flow flow = new FlowBuilder<Flow>("loadSubflow")
