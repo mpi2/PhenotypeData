@@ -23,10 +23,8 @@ import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbIt
 import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
 import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,22 +44,22 @@ public class ConfigBeans {
     protected String owlpath;
 
 
-
-
-@Autowired
-public JobRepository jobRepository;
+//@Autowired
+//public JobRepository jobRepository;
 // THIS CAUSES NPE.
 //    @Bean
 //    public JobRepository jobRepository() throws CdaLoaderException {
 //        try {
 //
-//            // Add a JobExecution to JobRepository.
-//            JobRepository jr = new MapJobRepositoryFactoryBean().getObject();
-//            jobExecution = jr.createJobExecution("flow", new JobParameters());
-//
-//
 //            // Using MapJobRepositoryFactoryBean automatically rebuilds the BATCH tables if necessary.
-//            return new MapJobRepositoryFactoryBean().getObject();
+//            JobRepository jobRepository = new MapJobRepositoryFactoryBean().getObject();
+//
+//
+//            // Add a JobExecution to JobRepository.
+//            jobExecution = jobRepository.createJobExecution("flow", new JobParameters());
+//
+//
+//            return jobRepository;
 //        } catch (Exception e) {
 //
 //            throw new CdaLoaderException(e);
@@ -78,7 +76,7 @@ public JobRepository jobRepository;
 //    public JobExecution jobExecution() throws CdaLoaderException {
 //        try {
 ////            if (jobExecution == null) {
-//                jobExecution = jobRepository().createJobExecution("flow", new JobParameters());
+//                jobExecution = jobRepository.createJobExecution("flow", new JobParameters());
 ////            }
 //        } catch (Exception e) {
 //
@@ -87,9 +85,21 @@ public JobRepository jobRepository;
 //
 //        return jobExecution;
 //    }
-
-
-
+//    private JobExecution jobExecution;
+//    @Bean
+//    public JobExecution jobExecution() throws CdaLoaderException {
+////        JobExecution jobExecution;
+//        try {
+//            if (jobExecution == null) {
+//                jobExecution = jobRepository().createJobExecution("flow", new JobParameters());
+//            }
+//        } catch (Exception e) {
+//
+//            throw new CdaLoaderException(e);
+//        }
+//
+//        return jobExecution;
+//    }
 
 
 
@@ -125,17 +135,12 @@ public JobRepository jobRepository;
 
 
 
-    @Bean
-    public JobBuilderFactory jobBuilderFactory() throws CdaLoaderException {
-        JobBuilderFactory jobBuilderFactory = new JobBuilderFactory(jobRepository);
-        jobBuilderFactory.get("cdaDownloadJob").incrementer(new RunIdIncrementer());
-        return jobBuilderFactory;
-    }
-
-
-
-
-
+//    @Bean
+//    public JobBuilderFactory jobBuilderFactory() throws CdaLoaderException {
+//        JobBuilderFactory jobBuilderFactory = new JobBuilderFactory(jobRepository);
+//        jobBuilderFactory.get("cdaDownloadJob").incrementer(new RunIdIncrementer());
+//        return jobBuilderFactory;
+//    }
 
     @Bean(name = "recreateAndLoadDbTables")
     public RecreateAndLoadDbTables recreateAndLoadDbTables() {
