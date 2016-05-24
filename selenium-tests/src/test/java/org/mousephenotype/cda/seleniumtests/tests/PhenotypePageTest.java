@@ -305,6 +305,7 @@ public class PhenotypePageTest {
                       "MP:0005386"      // phenotype name has forward slash which caused a problem with downloading XLS (but not TSV) streams.
                     , "MP:0013509"      // page has lots of graphs with sex missing from page but not missing from download.
                     , "MP:0004940"      // page has lots of graphs with sex missing from page but not missing from download.
+                    , "MP:0008250"      // page has false mismatch on lkzf3 (CD19-  CD11c-)
             });
 
             try {
@@ -470,7 +471,6 @@ public class PhenotypePageTest {
                 break;
             }
 
-            String message;
             RunStatus status = new RunStatus();
             WebElement mpLinkElement = null;
             target = baseUrl + "/phenotypes/" + phenotypeId;
