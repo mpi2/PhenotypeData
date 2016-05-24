@@ -218,6 +218,11 @@ public class PhenotypeTable {
                     isPreQcLink = testUtils.isPreQcLink(value);
                 } else {
                     value = cell.getText();
+
+                    // SPECIAL RULES: For some reason, cell.getText() removes one space from the <td> element, thus causing a download file mismatch.
+                    if (value.startsWith("Immunophenotyping | RP Macrophage (CD19- CD11c-)")) {
+                        value = "Immunophenotyping | RP Macrophage (CD19-  CD11c-)";
+                    }
                 }
 
                 dataArray[sourceRowIndex][sourceColIndex] = value;
