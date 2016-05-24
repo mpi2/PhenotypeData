@@ -17,7 +17,7 @@ $(document).ready(function(){
 						oDataTable.fnDestroy();  */
 	// use jquery DataTable for table searching/sorting/pagination
     function initGenePhenotypesTable(){
-		var aDataTblCols = [0,1,2,3,4,5,6,7,8];
+		var aDataTblCols = [0,1,2,3,4,5,6];
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
 	    $('table#genes').dataTable( {
 			"aoColumns": [
@@ -30,13 +30,13 @@ $(document).ready(function(){
 			              { "sType": "string"},
 			              { "sType": "string"},
 			              { "sType": "string"},
-			              { "sType": "string"},
-			              { "sType": "html"},
+//			              { "sType": "string"},
+//			              { "sType": "html"},
 	                      { "sType": "allnumeric"},
 			              { "sType": "string", "bSortable" : false }
 	
 			              ],
-		    "aaSorting": [[ 7, 'asc' ]],//sort on pValue first
+		    "aaSorting": [[ 5, 'asc' ]],//sort on pValue first
 			"bDestroy": true,
 			"bFilter":false,
 			"bPaginate":true,
