@@ -14,13 +14,12 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.steps.tasklets;
+package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -29,7 +28,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
@@ -39,26 +37,16 @@ import java.util.Date;
 /**
  * Created by mrelac on 13/04/2016.
  */
-public class RecreateAndLoadDbTables implements Tasklet, InitializingBean {
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-  	    Assert.notNull(mysql, "mysql executable must be set");
-        Assert.notNull(dbhostname, "dbhostname must be set");
-        Assert.notNull(dbport, "dbport must be set");
-        Assert.notNull(dbusername, "dbusername must be set");
-        Assert.notNull(dbpassword, "dbpassword must be set");
-        Assert.notNull(dbname, "dbname must be set");
-    }
-
-    @Autowired
-    public StepBuilderFactory stepBuilderFactory;
-
-    @Value("${cdaload.workspace}")
-    private String cdaWorkspace;
+public class DatabaseInitialiser implements Tasklet, InitializingBean {
 
     CommonUtils commonUtils = new CommonUtils();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${cdaload.dbhostname}")
+    private String dbhostname;
+
+    @Value("${cdaload.dbport}")
+    private String dbport;
 
     @Value("${cdaload.dbname}")
     private String dbname;
@@ -72,12 +60,16 @@ public class RecreateAndLoadDbTables implements Tasklet, InitializingBean {
     @Value("${cdaload.mysql}")
     private String mysql;
 
-    @Value("${cdaload.dbhostname}")
-    private String dbhostname;
 
-    @Value("${cdaload.dbport}")
-    private String dbport;
-
+    @Override
+    public void afterPropertiesSet() throws Exception {
+  	    Assert.notNull(mysql, "mysql executable must be set");
+        Assert.notNull(dbhostname, "dbhostname must be set");
+        Assert.notNull(dbport, "dbport must be set");
+        Assert.notNull(dbusername, "dbusername must be set");
+        Assert.notNull(dbpassword, "dbpassword must be set");
+        Assert.notNull(dbname, "dbname must be set");
+    }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -101,14 +93,13 @@ public class RecreateAndLoadDbTables implements Tasklet, InitializingBean {
         }
 
         logger.info("Total steps elapsed time: " + commonUtils.msToHms(new Date().getTime() - startStep));
-        contribution.setExitStatus(ExitStatus.COMPLETED);
-        chunkContext.setComplete();
+
         return RepeatStatus.FINISHED;
     }
 
     @StepScope
-    public Step getStep() {
-        return stepBuilderFactory.get("recreateAndLoadDbTablesStep")
+    public Step getStep(StepBuilderFactory stepBuilderFactory) {
+        return stepBuilderFactory.get("databaseInitialiserStep")
                 .tasklet(this)
                 .build();
     }

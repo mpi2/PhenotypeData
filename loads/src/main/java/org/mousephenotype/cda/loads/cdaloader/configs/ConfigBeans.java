@@ -16,22 +16,20 @@
 
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
+import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.steps.DoNothingStep;
-import org.mousephenotype.cda.loads.cdaloader.steps.itemreaders.OntologyItemReader;
-import org.mousephenotype.cda.loads.cdaloader.steps.itemwriters.ResourceFileDbItemWriter;
-import org.mousephenotype.cda.loads.cdaloader.steps.tasklets.RecreateAndLoadDbTables;
-import org.mousephenotype.cda.loads.cdaloader.support.ResourceFileOntology;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.mousephenotype.cda.loads.cdaloader.DbItemWriter;
+import org.mousephenotype.cda.loads.cdaloader.steps.DatabaseInitialiser;
+import org.mousephenotype.cda.loads.cdaloader.steps.Downloader;
+import org.mousephenotype.cda.loads.cdaloader.steps.OntologyLoader;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mrelac on 03/05/16.
@@ -40,189 +38,115 @@ import javax.validation.constraints.NotNull;
 public class ConfigBeans {
 
     @NotNull
+    @Value("${cdaload.workspace}")
+    protected String cdaWorkspace;
+
+    @NotNull
     @Value("${owlpath}")
     protected String owlpath;
 
 
-//@Autowired
-//public JobRepository jobRepository;
-// THIS CAUSES NPE.
-//    @Bean
-//    public JobRepository jobRepository() throws CdaLoaderException {
-//        try {
-//
-//            // Using MapJobRepositoryFactoryBean automatically rebuilds the BATCH tables if necessary.
-//            JobRepository jobRepository = new MapJobRepositoryFactoryBean().getObject();
-//
-//
-//            // Add a JobExecution to JobRepository.
-//            jobExecution = jobRepository.createJobExecution("flow", new JobParameters());
-//
-//
-//            return jobRepository;
-//        } catch (Exception e) {
-//
-//            throw new CdaLoaderException(e);
-//        }
-//    }
+    public class DownloadFilename {
+        public final String sourceUrl;
+        public final String targetFilename;
+        public final int dbId;
 
-
-
-
-
-     // THIS CAUSES "A job execution for this job is already running: JobInstance: id=2, version=0, Job=[flow]"
-//    private JobExecution jobExecution;
-//    @Bean
-//    public JobExecution jobExecution() throws CdaLoaderException {
-//        try {
-////            if (jobExecution == null) {
-//                jobExecution = jobRepository.createJobExecution("flow", new JobParameters());
-////            }
-//        } catch (Exception e) {
-//
-//            throw new CdaLoaderException(e);
-//        }
-//
-//        return jobExecution;
-//    }
-//    private JobExecution jobExecution;
-//    @Bean
-//    public JobExecution jobExecution() throws CdaLoaderException {
-////        JobExecution jobExecution;
-//        try {
-//            if (jobExecution == null) {
-//                jobExecution = jobRepository().createJobExecution("flow", new JobParameters());
-//            }
-//        } catch (Exception e) {
-//
-//            throw new CdaLoaderException(e);
-//        }
-//
-//        return jobExecution;
-//    }
-
-
-
-//    private JobRepository jobRepository;
-//    private JobExecution jobExecution;
-//
-//    @PostConstruct
-//    public void init() throws CdaLoaderException {
-//        try {
-//            jobRepository = new MapJobRepositoryFactoryBean().getObject();
-//            jobExecution = jobRepository.createJobExecution("flow", new JobParameters());
-//        } catch (Exception e) {//
-//            throw new CdaLoaderException(e);
-//        }
-//    }
-
-
-
-
-
-
-        @Autowired
-        public StepBuilderFactory stepBuilderFactory;
-    // THIS CAUSES java.lang.IllegalStateException: Already value [org.springframework.jdbc.datasource.ConnectionHolder@586737ff] for key [org.apache.commons.dbcp.BasicDataSource@14292d71] bound to thread [main]
-//    @Autowired
-//    public PlatformTransactionManager komp2TxManager;
-//
-//    @Bean
-//    public StepBuilderFactory stepBuilderFactory() throws CdaLoaderException {
-//        return new StepBuilderFactory(jobRepository, komp2TxManager);
-//    }
-
-
-
-
-//    @Bean
-//    public JobBuilderFactory jobBuilderFactory() throws CdaLoaderException {
-//        JobBuilderFactory jobBuilderFactory = new JobBuilderFactory(jobRepository);
-//        jobBuilderFactory.get("cdaDownloadJob").incrementer(new RunIdIncrementer());
-//        return jobBuilderFactory;
-//    }
-
-    @Bean(name = "recreateAndLoadDbTables")
-    public RecreateAndLoadDbTables recreateAndLoadDbTables() {
-        return new RecreateAndLoadDbTables();
+        public DownloadFilename(String sourceUrl, String targetFilename, int dbId) {
+            this.sourceUrl = sourceUrl;
+            this.targetFilename = targetFilename;
+            this.dbId = dbId;
+        }
     }
 
-    @Bean(name = "ontologyMa")
-//    @StepScope
-    public ResourceFileOntology ontologyMa() throws CdaLoaderException {
-        ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
-        String sourceUrl = "http://purl.obolibrary.org/obo/ma.owl";
-        String filename = owlpath + "/ma.owl";
-        int dbId = 8;
-        String prefix = "MA";
-        resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
+    public class DownloadOntologyFilename extends DownloadFilename {
+        public final String prefix;
 
-System.out.println("ontologyMa bean invocation");
-        return resourceFileOntology;
+        public DownloadOntologyFilename(String sourceUrl, String targetFilename, int dbId, String prefix) {
+            super(sourceUrl, targetFilename, dbId);
+            this.prefix = prefix;
+        }
     }
 
-    @Bean(name = "ontologyMp")
-//    @StepScope
-    public ResourceFileOntology ontologyMp() throws CdaLoaderException {
-        ResourceFileOntology resourceFileOntology = new ResourceFileOntology();
-        String sourceUrl = "ftp://ftp.informatics.jax.org/pub/reports/mp.owl";
-        String filename = owlpath + "/mp.owl";
-        int dbId = 5;
-        String prefix = "MP";
-        resourceFileOntology.initialise(sourceUrl, filename, dbId, prefix);
 
-System.out.println("ontologyMp bean invocation");
-        return resourceFileOntology;
+    public DownloadFilename[] downloadFilenames;
+
+
+    @PostConstruct
+    public void initialise() {
+
+        downloadFilenames = new DownloadFilename[] {
+              // imsr
+//              new DownloadFilename("http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/report.txt", DbIdType.IMSR.intValue())
+
+              // mgi reports
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/ES_CellLine.rpt", cdaWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/EUCOMM_Allele.rpt", cdaWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/HMD_HumanPhenotype.rpt", cdaWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt", cdaWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_Gene_Model_Coord.rpt", cdaWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_GenePheno.rpt", cdaWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_GTGUP.gff", cdaWorkspace + "/MGI_GTGUP.gff", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenoGenoMP.rpt", cdaWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_PhenotypicAllele.rpt", cdaWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_QTLAllele.rpt", cdaWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MGI_Strain.rpt", cdaWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt", cdaWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_List1.rpt", cdaWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_List2.rpt", cdaWorkspace + "/MRK_List2.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_Reference.rpt", cdaWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_Sequence.rpt", cdaWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_SwissProt.rpt", cdaWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
+//            , new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt", cdaWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
+              new DownloadFilename("ftp://ftp.informatics.jax.org/pub/reports/NorCOMM_Allele.rpt", cdaWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
+
+            // OWL ontologies
+            , new DownloadOntologyFilename("https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
+            , new DownloadOntologyFilename("http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
+            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
+            , new DownloadOntologyFilename("http://www.berkeleybop.org/ontologies/emapa.owl", cdaWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
+            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
+            , new DownloadOntologyFilename("ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
+            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
+            , new DownloadOntologyFilename("https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.ECO.getName())
+        };
+    }
+
+
+    @Bean(name = "databaseInitialiser")
+    public DatabaseInitialiser databaseInitialiser() {
+        return new DatabaseInitialiser();
+    }
+
+    @Bean(name = "downloaders")
+    public List<Downloader> downloaders() {
+        List<Downloader> downloaderList = new ArrayList<>();
+
+        for (DownloadFilename download : downloadFilenames) {
+            downloaderList.add(new Downloader(download.sourceUrl, download.targetFilename));
+        }
+
+        return downloaderList;
+    }
+
+    @Bean(name = "ontologyLoaders")
+    public List<OntologyLoader> ontologyLoaders() throws CdaLoaderException {
+        List<OntologyLoader> ontologyloaderList = new ArrayList<>();
+
+        for (DownloadFilename download : downloadFilenames) {
+            if (download instanceof DownloadOntologyFilename) {
+                DownloadOntologyFilename downloadOntology = (DownloadOntologyFilename)download;
+                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix));
+            }
+        }
+
+        return ontologyloaderList;
     }
 
     @Bean(name = "dbItemWriter")
     @StepScope
-    public ResourceFileDbItemWriter dbItemWriter() {
-        ResourceFileDbItemWriter writer = new ResourceFileDbItemWriter();
+    public DbItemWriter dbItemWriter() {
+        DbItemWriter writer = new DbItemWriter();
 
         return writer;
-    }
-
-    @Bean
-    @StepScope
-    public Step loadMaStep() throws CdaLoaderException {
-
-        String filename = owlpath + "/ma.owl";
-        int dbId = 8;
-        String prefix = "MA";
-
-        OntologyItemReader ontologyReader = new OntologyItemReader();
-        ontologyReader.initialise(filename, dbId, prefix);
-
-System.out.println("loadMaStep()");
-        return stepBuilderFactory.get("loadMaStep")
-                .chunk(1000)
-                .reader(ontologyReader)
-                .writer(dbItemWriter())
-                .build();
-    }
-
-    @Bean
-    @StepScope
-    public Step loadMpStep () throws CdaLoaderException {
-
-        String filename = owlpath + "/mp.owl";
-        int dbId = 5;
-        String prefix = "MP";
-
-        OntologyItemReader ontologyReader = new OntologyItemReader();
-        ontologyReader.initialise(filename, dbId, prefix);
-
-System.out.println("loadMpStep()");
-        return stepBuilderFactory.get("loadMpStep")
-                .chunk(1000)
-                .reader(ontologyReader)
-                .writer(dbItemWriter())
-                .build();
-    }
-
-    @Bean
-    public Step doNothingStep() {
-        return new DoNothingStep();
     }
 }
