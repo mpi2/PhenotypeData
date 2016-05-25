@@ -14,43 +14,52 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader;
+package org.mousephenotype.cda.enumerations;
 
 /**
- * Created by mrelac on 12/04/2016.
+ * DbId enumerations
+ * 
+ * Created by mrelac on 24/05/16.
  */
-public class Person {
-    private String lastName;
-    private String firstName;
+public enum DbIdType {
+    NCBI_m38(1),
+    Genome_Feature_Type(2),
+    MGI(3),
+    X_Y(4),
+    MP(5),
+    IMPReSS(6),
+    PATO(7),
+    MA(8),
+    CHEBI(9),
+    EnvO(10),
+    GO(11),
+    EuroPhenome(12),
+    ECO(13),
+    EMAP(14),
+    EFO(15),
+    IMSR(16),
+    VEGA(17),
+    Ensembl(18),
+    EntrezGene(19),
+    MGP(20),
+    cCDS(21),
+    IMPC(22),
+    _3i(23),
+    MPATH(24),
+    EMAPA(25);
 
-    public Person() {
+    private final int value;
 
+    DbIdType(int value) {
+        this.value = value;
     }
 
-    public Person(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public String getName(){
+        return this.toString();
     }
-
-    public String getFirstName() {
-        return firstName;
+    
+    public int intValue() {
+        return value;
     }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    @Override
-    public String toString() {
-        return "firstName: " + firstName + ", lastName: " + lastName;
-    }
-
 }

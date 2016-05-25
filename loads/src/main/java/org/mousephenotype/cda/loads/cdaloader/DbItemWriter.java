@@ -14,34 +14,44 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader.steps.itemwriters;
+package org.mousephenotype.cda.loads.cdaloader;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Synonym;
+import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.util.List;
 
 /**
  * Created by mrelac on 26/04/16.
  */
-public class ResourceFileDbItemWriter implements ItemWriter {
+public class DbItemWriter implements ItemWriter {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     @Qualifier("komp2Loads")
     private DataSource komp2Loads;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    public JdbcTemplate jdbcTemplate;       // Create a new jdbcTemplate for every new instantiation. Don't autowire it.
 
-    @Autowired
-    @Qualifier("komp2TxManager")
-    private PlatformTransactionManager tx;
-private boolean firstTime = false;
+    @PostConstruct
+    public void initialise() throws CdaLoaderException {
+        try {
+            jdbcTemplate = new JdbcTemplate(komp2Loads);
+        } catch (Exception e) {
+            throw new CdaLoaderException(e);
+        }
+    }
+
+
     /**
      * Process the supplied data element. Will not be called with any null items
      * in normal operation.
@@ -52,12 +62,11 @@ private boolean firstTime = false;
      */
     @Override
     public void write(List items) throws Exception {
- if (firstTime) {
-     System.out.println("WRITING TO DATABASE");
-     firstTime = false;
- }
+
         for (Object term1 : items) {
             OntologyTerm term = (OntologyTerm) term1;
+
+            // Write ontology terms.
             jdbcTemplate.update("INSERT INTO ontology_term (acc, db_id, name, description, is_obsolete, replacement_acc) VALUES (?, ?, ?, ?, ?, ?)",
                     term.getId().getAccession(), term.getId().getDatabaseId(), term.getName(), term.getDescription(), term.getIsObsolete(), term.getReplacementAcc());
 
