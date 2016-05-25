@@ -75,3 +75,8 @@ width:100%;
 	display: inline-block
 }
 
+.clickbox_no_sex{
+	background:#c2c2c2;
+	/* float: left; */
+	display: inline-block
+}
