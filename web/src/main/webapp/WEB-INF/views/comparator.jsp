@@ -42,7 +42,7 @@
 	            	<div id="filters">Filter Images by gender: 
 	            	<%-- ${param.gender} --%>
 	            	<select name="gender">
-	            	<option value="both" <c:if test="${param.gender eq 'both'}">selected</c:if> >Both</option>
+	            	<option value="not applicable" <c:if test="${param.gender eq 'not applicable'}">selected</c:if> >All</option>
             			<option value="male" <c:if test="${param.gender eq 'male'}">selected</c:if> >Males</option>
             			<option value="female"  <c:if test="${param.gender eq 'female'}">selected</c:if>>Females</option>
             		</select>
@@ -86,8 +86,11 @@
 	            				<c:when test="${img.sex eq 'male' }">
 	            					clickbox_male"
 	            				</c:when>
+	            				<c:when test="${img.sex eq 'female' }">
+	            					clickbox_female"
+	            				</c:when>
 	            				<c:otherwise>
-	            					clickbox_female
+	            					clickbox_no_sex
 	            				</c:otherwise>
 	            			</c:choose>
 	            			">
