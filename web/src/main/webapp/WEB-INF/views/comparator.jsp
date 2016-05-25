@@ -140,8 +140,11 @@
 	            				<c:when test="${img.sex eq 'male' }">
 	            					clickbox_male"
 	            				</c:when>
+	            				<c:when test="${img.sex eq 'female' }">
+	            					clickbox_female"
+	            				</c:when>
 	            				<c:otherwise>
-	            					clickbox_female
+	            					clickbox_no_sex
 	            				</c:otherwise>
 	            			</c:choose>
 	            			">
