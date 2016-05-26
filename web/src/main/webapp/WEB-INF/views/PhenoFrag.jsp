@@ -47,7 +47,7 @@
     <tbody>
     <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
-        <tr title="title here">
+        <tr>
             <td>
                 <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
                     ${phenotype.phenotypeTerm.name}
