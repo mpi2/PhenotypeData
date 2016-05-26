@@ -701,16 +701,16 @@ public class AbstractGenotypePhenotypeService extends BasicService {
         q.setFacetMinCount(1);
         q.setFacetLimit(-1);
         q.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-        q.addFacetField(GenotypePhenotypeDTO.RESOURCE_FULLNAME);
+        //q.addFacetField(GenotypePhenotypeDTO.RESOURCE_FULLNAME);
         q.set("wt", "json");
         q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
                  
         if (topLevelMpTermName != null){
            	q.addFilterQuery(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"" + StringUtils.join(topLevelMpTermName, "\" OR \"") + "\")");
         }
-        if (resourceFullname != null){
-          	q.addFilterQuery(GenotypePhenotypeDTO.RESOURCE_FULLNAME + ":(\"" + StringUtils.join(resourceFullname, "\" OR \"") + "\")");
-        } 
+//        if (resourceFullname != null){
+//          	q.addFilterQuery(GenotypePhenotypeDTO.RESOURCE_FULLNAME + ":(\"" + StringUtils.join(resourceFullname, "\" OR \"") + "\")");
+//        } 
         
         solrUrl += q;
         

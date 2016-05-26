@@ -194,10 +194,6 @@ function initRowtoggle() {
    });
 }
 
-function initNiceButtons() {
-    /* Gives buttons an icon, if they haven't one */
-    $('.btn:not(:has(i))').prepend('<i class="fa fa-caret-right"></i>');
-}
 
 function initRangeslider() {
     /* jquery UI Slider (for the heatmap) */   
@@ -255,7 +251,6 @@ $(document).ready(function() {
     initTableFilter();
     initReduceLongTables();
     initRowtoggle();
-    initNiceButtons();
     initRangeslider();
 //    initHighchartDefaults();  
     
