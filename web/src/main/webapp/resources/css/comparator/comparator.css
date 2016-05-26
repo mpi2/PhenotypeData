@@ -39,8 +39,8 @@ width:100%;
 }
 
 #control_frame, #mutant_frame {
-	min-width: 600px;
-	min-height:500px;
+	height: 400px;
+    width: 500px;
 	display: inline;
 }
 
@@ -53,6 +53,8 @@ width:100%;
 	border: #ddd 2px solid; color: #666;
 	text-align: center;
 	color: #0978a1;
+	clear: both;
+	height:40px;
 }
 .picker{
 	width:100%;

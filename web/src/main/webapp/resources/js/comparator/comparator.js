@@ -7,6 +7,14 @@ var previousControlId=$(".clickable_image_control").first().attr('id');
 console.log('control prev'+previousControlId)
 var previousMutantId=$(".clickable_image_mutant").first().attr('id');
 
+
+console.log('ready...2');
+/* Prepare the viewport */
+var viewport = $.WeblitzViewport($("#control_frame"), "https://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/", {
+    'mediaroot': "https://wwwdev.ebi.ac.uk/mi/media/static/"
+});
+viewport.load(87269);
+
 $(".clickable_image_control").click(function() {
 		console.log( this.id );
 		if(previousControlId){
