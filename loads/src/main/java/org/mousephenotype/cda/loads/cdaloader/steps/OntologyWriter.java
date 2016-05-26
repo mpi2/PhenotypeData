@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.cdaloader;
+package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Synonym;
@@ -33,14 +33,19 @@ import java.util.List;
 /**
  * Created by mrelac on 26/04/16.
  */
-public class DbItemWriter implements ItemWriter {
+
+// For more info on ScopedProxyMode, see https://shekhargulati.com/2010/10/30/spring-scoped-proxy-beans-an-alternative-to-method-injection/
+public class OntologyWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("komp2Loads")
     private DataSource komp2Loads;
 
-    public JdbcTemplate jdbcTemplate;       // Create a new jdbcTemplate for every new instantiation. Don't autowire it.
+    // This class is created by Spring as a singleton, which is fine in parallel processing as long as there are no
+    // instance variables, or they exist but are always the same (e.g. komp2Loads). However, we need a new instance of
+    //  JdbcTemplate for each new instantion of this class to avoid race conditions.
+    public JdbcTemplate jdbcTemplate;
 
     @PostConstruct
     public void initialise() throws CdaLoaderException {
