@@ -6,6 +6,7 @@
 <c:set var="count" value="0" scope="page"/>
 <c:set var="maleCount" value="0" scope="page"/>
 <c:set var="femaleCount" value="0" scope="page"/>
+<c:set var="noSexCount" value="0" scope="page"/>
 <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
     <c:forEach var="sex" items="${phenotype.sexes}">
         <c:set var="count" value="${count + 1}" scope="page"/>
@@ -15,11 +16,14 @@
         <c:if test='${sex.equalsIgnoreCase("female")}'>
             <c:set var="femaleCount" value="${femaleCount + 1}" scope="page"/>
         </c:if>
+         <c:if test='${sex.equalsIgnoreCase("no data")}'>
+            <c:set var="noSexCount" value="${noSexCount + 1}" scope="page"/>
+        </c:if>
     </c:forEach>
 </c:forEach>
 <p class="resultCount">
     <%-- Total number of significant genotype-phenotype associations: ${count} --%>
-    Total number of significant genotype-phenotype associations: female(${femaleCount}) , male(${maleCount})
+    Total number of significant genotype-phenotype associations: female(${femaleCount}) , male(${maleCount}), no sex(${noSexCount})
 </p>
 
 <script>
@@ -32,6 +36,7 @@
 <table id="genes" class="table tableSorter">
     <thead>
     <tr>
+    	<th class="headerSort">Icon</th>
         <th class="headerSort">Phenotype</th>
         <th class="headerSort">Allele</th>
         <th class="headerSort" title="Zygosity">Zyg</th>
@@ -48,6 +53,19 @@
     <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
         <tr>
+        	<td>
+        		<div class="row_abnormalities">
+        		<!-- <div class="allicons"></div> -->
+        		<div class="no-sprite sprite_embryogenesis_phenotype" data-hasqtip="27"
+			title="all Lrrk1 embryogenesis phenotype measurements"></div>
+        			<c:forEach var="topLevelPhenotype" items="${phenotype.topLevelPhenotypeTerms }" varStatus="marginCount">
+        				<%-- ${topLevelPhenotype.name} --%>
+        		<c:set var="marginHeight" value="${marginCount.index * 40 }"/>
+					<div class="sprite_orange sprite_row_${topLevelPhenotype.name.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelPhenotype.name}" style="margin: 0px 0px 0px ${marginHeight}px"></div>
+				
+        			</c:forEach>
+        		</div>
+        	</td>
             <td>
                 <c:if test="${fn:containsIgnoreCase(phenotype.phenotypeTerm.id, 'MPATH:') }">
                     ${phenotype.phenotypeTerm.name}
