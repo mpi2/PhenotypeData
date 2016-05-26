@@ -16,7 +16,9 @@
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script> -->
 <script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
  
- 
+ <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link>  -->
+    <script src="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.js" type="text/javascript"></script>
+    
 </jsp:attribute>
 <jsp:body>
 
@@ -64,8 +66,10 @@
 											src="//docs.google.com/gview?url=${pdfWithoutId}/${controls[0].omero_id}&embedded=true"></iframe>
 			            			</c:when>
 			            			<c:otherwise>
-			            				<iframe id="control_frame"
-												src="${jpegUrlDetailWithoutId}/${controls[0].omero_id }"></iframe>
+			            				<div id="control_frame" 
+												<%-- src="${jpegUrlDetailWithoutId}/${controls[0].omero_id }" --%>
+												>
+										</div>
 			            			</c:otherwise>
 			            		</c:choose>
 			            		
