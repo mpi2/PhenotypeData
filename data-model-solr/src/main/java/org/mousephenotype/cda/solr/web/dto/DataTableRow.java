@@ -67,8 +67,13 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected boolean isPreQc;
     protected String gid;
     protected String colonyId;
+	private List<BasicBean> topLevelPhenotypeTerms;//keep the top level terms so we can display the correct icons next to them in the row
 
-    public DataTableRow() { }       
+    public List<BasicBean> getTopLevelPhenotypeTerms() {
+		return topLevelPhenotypeTerms;
+	}
+
+	public DataTableRow() { }       
 
     public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages) 
     throws UnsupportedEncodingException, SolrServerException {
@@ -91,6 +96,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         this.setParameter(pcs.getParameter());
         this.setPhenotypingCenter(pcs.getPhenotypingCenter());
         this.setColonyId(pcs.getColonyId());
+        this.setTopLevelPhenotypeTerms(pcs.getTopLevelPhenotypeTerms());
 
         if (pcs.getProject() != null && pcs.getProject().getId() != null) {
             this.setProjectId(new Integer(pcs.getProject().getId()));
@@ -100,7 +106,12 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         
     }
     
-    @Override
+    private void setTopLevelPhenotypeTerms(List<BasicBean> topLevelPhenotypeTerms) {
+		this.topLevelPhenotypeTerms=topLevelPhenotypeTerms;
+		
+	}
+
+	@Override
     public abstract int compareTo(DataTableRow o);
 
 
