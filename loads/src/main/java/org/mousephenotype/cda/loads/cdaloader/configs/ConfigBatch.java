@@ -17,11 +17,9 @@
 package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.DbItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.DatabaseInitialiser;
 import org.mousephenotype.cda.loads.cdaloader.steps.Downloader;
 import org.mousephenotype.cda.loads.cdaloader.steps.OntologyLoader;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.job.builder.FlowBuilder;
@@ -29,7 +27,6 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -60,18 +57,13 @@ public class ConfigBatch {
     public JobRepository jobRepository;
 
     @Autowired
-    @Qualifier("dbItemWriter")
-    @StepScope
-    public DbItemWriter ontologyWriter;
-
-    @Autowired
     public DatabaseInitialiser databaseInitialiser;
 
-    @Resource(name = "downloaders")
-    public List<Downloader> downloaders;
+    @Resource(name = "downloader")
+    public List<Downloader> downloader;
 
-    @Resource(name = "ontologyLoaders")
-    public List<OntologyLoader> ontologyLoaders;
+    @Resource(name = "ontologyLoaderList")
+    public List<OntologyLoader> ontologyLoaderList;
 
 
 
@@ -79,8 +71,8 @@ public class ConfigBatch {
     public Job[] runJobs() throws CdaLoaderException {
         Job[] jobs = new Job[] {
                   databaseInitialiserJob()
-                , downloaderJob()
-                , ontologyloaderJob()
+//                , downloaderJob()
+                , dbLoaderJob()
         };
         DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String now = dateFormat.format(new Date());
@@ -112,14 +104,14 @@ public class ConfigBatch {
     public Job downloaderJob() throws CdaLoaderException {
 
         List<Flow> flows = new ArrayList<>();
-        for (int i = 0; i < downloaders.size(); i++) {
-            Downloader downloader = downloaders.get(i);
+        for (int i = 0; i < downloader.size(); i++) {
+            Downloader downloader = this.downloader.get(i);
             flows.add(new FlowBuilder<Flow>("subflow_" + i).from(downloader.getStep(stepBuilderFactory)).end());
         }
 
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
 
-        for (int i = 1; i < downloaders.size(); i++) {
+        for (int i = 1; i < downloader.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
             flowBuilder.split(executor).add(flows.get(i));
         }
@@ -131,22 +123,22 @@ public class ConfigBatch {
                 .build();
     }
 
-    public Job ontologyloaderJob() throws CdaLoaderException {
-        System.out.println("ontologyloaderJob");
+    public Job dbLoaderJob() throws CdaLoaderException {
+        System.out.println("dbLoaderJob");
 
         List<Flow> flows = new ArrayList<>();
-        for (int i = 0; i < ontologyLoaders.size(); i++) {
-            OntologyLoader ontologyLoader = ontologyLoaders.get(i);
-            flows.add(new FlowBuilder<Flow>("subflow_" + i).from(ontologyLoader.getStep(stepBuilderFactory, ontologyWriter)).end());
+        for (int i = 0; i < ontologyLoaderList.size(); i++) {
+            OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
+            flows.add(new FlowBuilder<Flow>("subflow_" + i).from(ontologyLoader).end());
         }
 
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
-        for (int i = 1; i < ontologyLoaders.size(); i++) {
+        for (int i = 1; i < ontologyLoaderList.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
             flowBuilder.split(executor).add(flows.get(i));
         }
 
-        return jobBuilderFactory.get("ontologyLoaderJob")
+        return jobBuilderFactory.get("dbLoaderJob")
                 .incrementer(new RunIdIncrementer())
                 .start(flowBuilder.build())
                 .end()

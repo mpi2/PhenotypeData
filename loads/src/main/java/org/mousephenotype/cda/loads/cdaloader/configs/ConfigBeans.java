@@ -18,14 +18,17 @@ package org.mousephenotype.cda.loads.cdaloader.configs;
 
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.DbItemWriter;
 import org.mousephenotype.cda.loads.cdaloader.steps.DatabaseInitialiser;
 import org.mousephenotype.cda.loads.cdaloader.steps.Downloader;
 import org.mousephenotype.cda.loads.cdaloader.steps.OntologyLoader;
+import org.mousephenotype.cda.loads.cdaloader.steps.OntologyWriter;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -44,6 +47,9 @@ public class ConfigBeans {
     @NotNull
     @Value("${owlpath}")
     protected String owlpath;
+
+    @Autowired
+    private StepBuilderFactory stepBuilderFactory;
 
 
     public class DownloadFilename {
@@ -68,13 +74,13 @@ public class ConfigBeans {
     }
 
 
-    public DownloadFilename[] downloadFilenames;
+    public DownloadFilename[] filenames;
 
 
     @PostConstruct
     public void initialise() {
 
-        downloadFilenames = new DownloadFilename[] {
+        filenames = new DownloadFilename[] {
               // imsr
 //              new DownloadFilename("http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdaWorkspace + "/report.txt", DbIdType.IMSR.intValue())
 
@@ -102,12 +108,12 @@ public class ConfigBeans {
             // OWL ontologies
             , new DownloadOntologyFilename("https://raw.githubusercontent.com/evidenceontology/evidenceontology/master/eco.owl", cdaWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
             , new DownloadOntologyFilename("http://www.ebi.ac.uk/efo/efo.owl", cdaWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
-            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
-            , new DownloadOntologyFilename("http://www.berkeleybop.org/ontologies/emapa.owl", cdaWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
-            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
-            , new DownloadOntologyFilename("ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
-            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
-            , new DownloadOntologyFilename("https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.ECO.getName())
+//            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/emap.owl", cdaWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
+//            , new DownloadOntologyFilename("http://www.berkeleybop.org/ontologies/emapa.owl", cdaWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
+//            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/ma.owl", cdaWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
+//            , new DownloadOntologyFilename("ftp://ftp.informatics.jax.org/pub/reports/mp.owl", cdaWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
+//            , new DownloadOntologyFilename("http://purl.obolibrary.org/obo/mpath.owl", cdaWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
+//            , new DownloadOntologyFilename("https://raw.githubusercontent.com/pato-ontology/pato/master/pato.owl", cdaWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.ECO.getName())
         };
     }
 
@@ -117,35 +123,34 @@ public class ConfigBeans {
         return new DatabaseInitialiser();
     }
 
-    @Bean(name = "downloaders")
-    public List<Downloader> downloaders() {
+    @Bean(name = "downloader")
+    public List<Downloader> downloader() {
         List<Downloader> downloaderList = new ArrayList<>();
 
-        for (DownloadFilename download : downloadFilenames) {
+        for (DownloadFilename download : filenames) {
             downloaderList.add(new Downloader(download.sourceUrl, download.targetFilename));
         }
 
         return downloaderList;
     }
 
-    @Bean(name = "ontologyLoaders")
-    public List<OntologyLoader> ontologyLoaders() throws CdaLoaderException {
+    @Bean(name = "ontologyLoaderList")
+    public List<OntologyLoader> ontologyLoader() throws CdaLoaderException {
         List<OntologyLoader> ontologyloaderList = new ArrayList<>();
 
-        for (DownloadFilename download : downloadFilenames) {
-            if (download instanceof DownloadOntologyFilename) {
-                DownloadOntologyFilename downloadOntology = (DownloadOntologyFilename)download;
-                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix));
+        for (DownloadFilename filename : filenames) {
+            if (filename instanceof DownloadOntologyFilename) {
+                DownloadOntologyFilename downloadOntology = (DownloadOntologyFilename) filename;
+                ontologyloaderList.add(new OntologyLoader(downloadOntology.targetFilename, downloadOntology.dbId, downloadOntology.prefix, stepBuilderFactory, ontologyWriter()));
             }
         }
 
         return ontologyloaderList;
     }
 
-    @Bean(name = "dbItemWriter")
-    @StepScope
-    public DbItemWriter dbItemWriter() {
-        DbItemWriter writer = new DbItemWriter();
+    @Bean(name = "ontologyWriter")
+    public OntologyWriter ontologyWriter() {
+        OntologyWriter writer = new OntologyWriter();
 
         return writer;
     }
