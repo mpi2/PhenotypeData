@@ -607,6 +607,16 @@ public class GenesController {
 				if (pr.getpValue() > pcs.getpValue()){
 					pr.setpValue(pcs.getpValue());
 				}
+				
+				//now we severely collapsing rows by 
+				 //projectId;
+				//pr.getProjectId()
+		        //phenotypingCenter
+		        //procedure.hashCode() 
+		        // parameter
+		        //dataSourceName
+		       // pipeline
+				
 			}
 			
 			if(pr.getTopLevelPhenotypeTerms()!=null){
@@ -624,6 +634,9 @@ public class GenesController {
 		
 		ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
 		Collections.sort(l);
+		for(GenePageTableRow row:l){
+			System.out.println("row="+row);
+		}
 		model.addAttribute("phenotypes", l);
 
 	}
