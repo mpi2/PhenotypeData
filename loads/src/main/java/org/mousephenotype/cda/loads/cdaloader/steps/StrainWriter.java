@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.cdaloader.steps;
 
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.support.SqlUtils;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 
 // For more info on ScopedProxyMode, see https://shekhargulati.com/2010/10/30/spring-scoped-proxy-beans-an-alternative-to-method-injection/
-public class OntologyWriter implements ItemWriter {
+public class StrainWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -45,9 +45,8 @@ public class OntologyWriter implements ItemWriter {
     // This class is created by Spring as a singleton, which is fine in parallel processing as long as there are no
     // instance variables, or they exist but are always the same (e.g. komp2Loads). However, we need a new instance of
     //  JdbcTemplate for each new instantion of this class to avoid race conditions.
-    private JdbcTemplate jdbcTemplate;
+    public JdbcTemplate jdbcTemplate;
 
-    private SqlUtils sqlUtils = new SqlUtils();
 
     @PostConstruct
     public void initialise() throws CdaLoaderException {
@@ -70,10 +69,10 @@ public class OntologyWriter implements ItemWriter {
     @Override
     public void write(List items) throws Exception {
 
-        for (Object term1 : items) {
-            OntologyTerm term = (OntologyTerm) term1;
+        for (Object strain1 : items) {
+            Strain strain = (Strain) strain1;
 
-            sqlUtils.loadOntologyTerm(jdbcTemplate, term);
+            SqlUtils.putStrain(jdbcTemplate,strain);
         }
     }
 }

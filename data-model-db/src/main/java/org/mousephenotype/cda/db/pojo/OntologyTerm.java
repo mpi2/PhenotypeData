@@ -69,7 +69,7 @@ public class OntologyTerm {
    	)
    	@LazyCollection(LazyCollectionOption.FALSE)
    	@Fetch(FetchMode.SELECT)
-	private List<String> considerIds = new ArrayList<>();
+	private List<ConsiderId> considerIds = new ArrayList<>();
 	
 	@ElementCollection
 	@CollectionTable(
@@ -87,11 +87,11 @@ public class OntologyTerm {
 		super();
 	}
 
-	public List<String> getConsiderIds() {
+	public List<ConsiderId> getConsiderIds() {
 		return considerIds;
 	}
 
-	public void setConsiderIds(List<String> considerIds) {
+	public void setConsiderIds(List<ConsiderId> considerIds) {
 		this.considerIds = considerIds;
 	}
 

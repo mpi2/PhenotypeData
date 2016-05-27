@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
+import org.mousephenotype.cda.db.pojo.ConsiderId;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Synonym;
@@ -8,11 +9,7 @@ import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class OntologyParser {
 
@@ -55,7 +52,7 @@ public class OntologyParser {
 	    		}
 	    		term.setSynonyms(synonyms);
 	    		term.setIsObsolete(isObsolete(cls));
-	    		if (term.getIsObsolete() && getReplacementId(cls) != null){
+	    		if ((term.getIsObsolete()) && (getReplacementId(cls) != null)){
 	    			term.setConsiderIds(getConsiderIds(cls));
 	    			term.setReplacementAcc(getReplacementId(cls));
 	    		}
@@ -215,23 +212,21 @@ public class OntologyParser {
 	 * @param cls
 	 * @return IDs of classes to consider using instead of an obsolete term. There can be multiple ids for each obsolete term. 
 	 */
-	private List<String> getConsiderIds(OWLClass cls){
-		
-		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, CONSIDER); 
-		List<String> ids = new ArrayList<>();
-		
-		if (res.size() > 0){
-			Iterator<OWLAnnotation> i = res.iterator();
-			while (i.hasNext()){
-				if (res.iterator().next().getValue() instanceof OWLLiteral) {
-					ids.add(((OWLLiteral) i.next().getValue()).getLiteral());
-				}
+	private List<ConsiderId> getConsiderIds(OWLClass cls){
+
+		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, CONSIDER);
+		List<ConsiderId> ids = new ArrayList<>();
+
+		while (res.iterator().hasNext()) {
+			OWLAnnotationValue value = res.iterator().next().getValue();
+			if (value instanceof OWLLiteral) {
+				ConsiderId considerId = new ConsiderId();
+				considerId.setTerm(((OWLLiteral) value).getLiteral());
+				ids.add(considerId);
 			}
 		}
+
 		return ids;
-		
+
 	}
-	
-	
-	
 }

@@ -79,10 +79,10 @@ public class OntologyReader implements ItemReader<OntologyTerm> {
         if (terms == null) {
             try {
                 terms = new OntologyParser(sourceFilename, prefix).getTerms();
+                logger.info("");
                 logger.info("FILENAME: " + sourceFilename);
                 logger.info("PREFIX: " + prefix);
                 logger.info("TERMS COUNT: " + terms.size());
-                logger.info("");
 
             } catch (OWLOntologyCreationException e) {
                 throw new CdaLoaderException(e);

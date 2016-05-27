@@ -31,7 +31,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 
 /**
@@ -83,9 +85,24 @@ public class DatabaseInitialiser implements Tasklet, InitializingBean {
 
         try {
             System.out.println("cmd = " + StringUtils.join(commands, " "));
-            Process p = Runtime.getRuntime().exec(commands);
-            int exitVal = p.waitFor();
+            Process process = Runtime.getRuntime().exec(commands);
+            BufferedReader stdInput = new BufferedReader(new
+                    InputStreamReader(process.getInputStream()));
+
+            BufferedReader stdError = new BufferedReader(new
+                 InputStreamReader(process.getErrorStream()));
+
+            int exitVal = process.waitFor();
             System.out.println("exitVal = " + exitVal);
+            if (exitVal > 0) {
+                String s = null;
+                while ((s = stdInput.readLine()) != null) {
+                    System.out.println(s);
+                }
+                while ((s = stdError.readLine()) != null) {
+                    System.err.println(s);
+                }
+            }
         }
 
         catch(IOException | InterruptedException e) {
