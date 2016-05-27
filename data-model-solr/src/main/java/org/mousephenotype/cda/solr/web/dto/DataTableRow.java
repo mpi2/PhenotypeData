@@ -67,9 +67,18 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected boolean isPreQc;
     protected String gid;
     protected String colonyId;
-	private List<BasicBean> topLevelPhenotypeTerms;//keep the top level terms so we can display the correct icons next to them in the row
+	protected List<BasicBean> topLevelPhenotypeTerms;//keep the top level terms so we can display the correct icons next to them in the row
+	protected List<String> topLevelMpGroups;
+	
+    public List<String> getTopLevelMpGroups() {
+		return topLevelMpGroups;
+	}
 
-    public List<BasicBean> getTopLevelPhenotypeTerms() {
+	public void setTopLevelMpGroups(List<String> topLevelMpGroups) {
+		this.topLevelMpGroups = topLevelMpGroups;
+	}
+
+	public List<BasicBean> getTopLevelPhenotypeTerms() {
 		return topLevelPhenotypeTerms;
 	}
 
