@@ -20,8 +20,15 @@ import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
 import org.mousephenotype.cda.loads.cdaloader.steps.DatabaseInitialiser;
 import org.mousephenotype.cda.loads.cdaloader.steps.Downloader;
 import org.mousephenotype.cda.loads.cdaloader.steps.OntologyLoader;
-import org.springframework.batch.core.*;
-import org.springframework.batch.core.configuration.annotation.*;
+import org.mousephenotype.cda.loads.cdaloader.steps.StrainLoaderMgi;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobInstance;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -64,6 +71,9 @@ public class ConfigBatch {
 
     @Resource(name = "ontologyLoaderList")
     public List<OntologyLoader> ontologyLoaderList;
+
+    @Autowired
+    public StrainLoaderMgi strainLoaderMgi;
 
 
 
@@ -124,16 +134,20 @@ public class ConfigBatch {
     }
 
     public Job dbLoaderJob() throws CdaLoaderException {
-        System.out.println("dbLoaderJob");
-
         List<Flow> flows = new ArrayList<>();
+
+        // Ontologies
         for (int i = 0; i < ontologyLoaderList.size(); i++) {
             OntologyLoader ontologyLoader = ontologyLoaderList.get(i);
             flows.add(new FlowBuilder<Flow>("subflow_" + i).from(ontologyLoader).end());
         }
 
+        // Strains
+        flows.add(new FlowBuilder<Flow>("subflow_mgi_strains").from(strainLoaderMgi).end());
+
+        // Parallelize the flows.
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<Flow>("splitflow").start(flows.get(0));
-        for (int i = 1; i < ontologyLoaderList.size(); i++) {
+        for (int i = 1; i < flows.size(); i++) {
             SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor(Executors.defaultThreadFactory());
             flowBuilder.split(executor).add(flows.get(i));
         }

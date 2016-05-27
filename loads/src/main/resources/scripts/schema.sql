@@ -2278,3 +2278,50 @@ INSERT INTO participant(project_id, organisation_id, role)
 INSERT INTO participant(project_id, organisation_id, role)
   SELECT p.id, o.id, 'part_of'
   FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'BCM';
+
+  /**
+   * MGI allele types
+   */
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000001', 3, 'Chemically and radiation induced', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000002', 3, 'Chemically induced (ENU)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000003', 3, 'Chemically induced (other)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000004', 3, 'Gene trapped', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000005', 3, 'Not Applicable', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000006', 3, 'Not Specified', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000007', 3, 'QTL', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000008', 3, 'Radiation induced', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000009', 3, 'Spontaneous', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000010', 3, 'Targeted (Floxed/Frt)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000011', 3, 'Targeted (Reporter)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000012', 3, 'Targeted (knock-in)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000013', 3, 'Targeted (knock-out)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000014', 3, 'Targeted (other)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000015', 3, 'Transgenic (Cre/Flp)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000016', 3, 'Transgenic (Reporter)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000017', 3, 'Transgenic (Transposase)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000018', 3, 'Transgenic (random, expressed)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000019', 3, 'Transgenic (random, gene disruption)', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000020', 3, 'Transposon induced', '');
+
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000101', 3, 'Targeted', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000102', 3, 'Transgenic', '');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:000000103', 3, 'Endonuclease-mediated', '');
+
+
+  /**
+   * MGI strain classification
+   */
+
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000021', 3, 'coisogenic', 'coisogenic strain');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000022', 3, 'congenic', 'congenic strain');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000023', 3, 'conplastic', 'conplastic strain');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000024', 3, 'consomic', 'consomic strain');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000025', 3, 'inbred strain', 'inbred strain');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000026', 3, 'recombinant congenic (RC)', 'recombinant congenic (RC)');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000027', 3, 'recombinant inbred (RI)', 'recombinant inbred (RI)');
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000028', 3, 'mutant strain', 'mutant strain as defined in IMSR');
+
+  INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000050', 3, 'EuroPhenome mutant strain', 'mutant strain as defined in EuroPhenome');
+  INSERT INTO ontology_term (acc, db_id, name, description)
+  VALUES ('CV:00000051', 3, 'IMPC uncharacterized background strain', 'background strain used in IMPC');
+

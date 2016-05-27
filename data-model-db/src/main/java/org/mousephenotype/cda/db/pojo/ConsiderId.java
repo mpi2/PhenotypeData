@@ -27,27 +27,27 @@ import javax.persistence.Embeddable;
 
 
 @Embeddable
-public class Synonym {
+public class ConsiderId {
 
 	private int id;
-	private String symbol;
+	private String term;
 
-	public Synonym() {
+	public ConsiderId() {
 
 	}
 
 	/**
-	 * @return the symbol
+	 * @return the term
 	 */
-	public String getSymbol() {
-		return symbol;
+	public String getTerm() {
+		return term;
 	}
 
 	/**
-	 * @param symbol the symbol to set
+	 * @param term the term to set
 	 */
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
+	public void setTerm(String term) {
+		this.term = term;
 	}
 
 	public int getId() {
@@ -58,12 +58,10 @@ public class Synonym {
 		this.id = id;
 	}
 
-	/* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
+
 	@Override
 	public String toString() {
-		return "Synonym [id=" + id + ", symbol=" + symbol + "]";
+		return "ConsiderId [id=" + id + ", term=" + term + "]";
 	}
 
 }
