@@ -439,32 +439,34 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
         result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
         result = 31 * result + (lifeStageAcc != null ? lifeStageAcc.hashCode() : 0);
-        result = 31 * result + projectId;
-        result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
-        result = 31 * result + (procedure != null ? procedure.hashCode() : 0);
-        result = 31 * result + (parameter != null ? parameter.hashCode() : 0);
-        result = 31 * result + (dataSourceName != null ? dataSourceName.hashCode() : 0);
-        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
+        //result = 31 * result + projectId;
+        //result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
+        //result = 31 * result + (procedure != null ? procedure.hashCode() : 0);
+        //result = 31 * result + (parameter != null ? parameter.hashCode() : 0);
+        //result = 31 * result + (dataSourceName != null ? dataSourceName.hashCode() : 0);
+       // result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
  //       result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
         result = 31 * result + (isPreQc ? 1 : 0);
         result = 31 * result + (gid != null ? gid.hashCode() : 0);
+        //result = 31 * result + (topLevelPhenotypeTerms != null ? topLevelPhenotypeTerms.hashCode() : 0);
         
         return result;
     }
 
+   
+
     @Override
-    public String toString() {
-        return "PhenotypeRow [phenotypeTerm=" + phenotypeTerm
-                + ", gene=" + gene + ", allele=" + allele + ", sexes=" + sexes
-                + ", zygosity=" + zygosity
-                + ", lifeStageName=" + lifeStageName
-                + ", projectId=" + projectId + ", procedure=" + procedure
-                + ", parameter=" + parameter + ", dataSourceName="
-                + dataSourceName + ", phenotypingCenter=" + phenotypingCenter + "]";
-    }
+	public String toString() {
+		return "DataTableRow [config=" + config + ", phenotypeTerm=" + phenotypeTerm + ", gene=" + gene + ", allele="
+				+ allele + ", sexes=" + sexes + ", zygosity=" + zygosity + ", lifeStageName=" + lifeStageName
+				+ ", lifeStageAcc=" + lifeStageAcc + ", projectId=" + projectId + ", phenotypingCenter="
+				+ phenotypingCenter + ", procedure=" + procedure + ", parameter=" + parameter + ", dataSourceName="
+				+ dataSourceName + ", evidenceLink=" + evidenceLink + ", pipeline=" + pipeline + ", pValue=" + pValue
+				+ ", isPreQc=" + isPreQc + ", gid=" + gid + ", colonyId=" + colonyId + ", topLevelPhenotypeTerms="
+				+ topLevelPhenotypeTerms + ", topLevelMpGroups=" + topLevelMpGroups + "]";
+	}
 
-
-    public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, String metadataGroup, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
+	public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, String alleleAcc, String metadataGroup, ZygosityType zygosity, String parameterStableId, String pipelineStableId, String phenotypingCenter) {
         String url = baseUrl;
         url += "/charts?accession=" + geneAcc;
         url += "&allele_accession_id=" + alleleAcc;
