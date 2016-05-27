@@ -18,14 +18,27 @@
  
  <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link>  -->
     <script src="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.js" type="text/javascript"></script>
-    
+     <link href="${baseUrl}/css/comparator/ome.viewport.css" rel="stylesheet" type="text/css" />
+     <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
+     <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link>
+    <style type="text/css">
+    .viewport {
+        height: 400px;
+        width: 500px;
+    }
+    .thumbList {
+        width: 500px;
+        float: left;
+        margin: 20px;
+    }
+    </style>
 </jsp:attribute>
 <jsp:body>
 
-<!-- <div class="region region-content">
+<div class="region region-content">
 	<div class="block">
     	<div class="content">
-        	<div class="node"> -->
+        	<div class="node"> 
         	<%--  mediaType: ${mediaType }
         	impcMediaBaseUrl: ${impcMediaBaseUrl }  --%>
 	        <c:set var="jpegUrlThumbWithoutId" value="${impcMediaBaseUrl}/render_birds_eye_view"/>
@@ -167,7 +180,7 @@
 	            	</div>
 	            </div>
             </form>
-            <!-- </div>
+            </div>
 
 
 
@@ -175,7 +188,7 @@
 		
 			</div>
  		</div>
-	</div> -->
+	</div>
 	
 	<script type='text/javascript'>
 	var jpegUrlDetailWithoutId = "${jpegUrlDetailWithoutId}";
