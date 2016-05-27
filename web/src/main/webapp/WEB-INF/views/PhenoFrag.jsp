@@ -55,13 +55,10 @@
         <tr>
         	<td>
         		<div class="row_abnormalities">
-        		<!-- <div class="allicons"></div> -->
-        		<div class="no-sprite sprite_embryogenesis_phenotype" data-hasqtip="27"
-			title="all Lrrk1 embryogenesis phenotype measurements"></div>
-        			<c:forEach var="topLevelPhenotype" items="${phenotype.topLevelPhenotypeTerms }" varStatus="marginCount">
+        			<c:forEach var="topLevelPhenotype" items="${phenotype.topLevelMpGroups }" varStatus="marginCount">
         				<%-- ${topLevelPhenotype.name} --%>
         		<c:set var="marginHeight" value="${marginCount.index * 40 }"/>
-					<div class="sprite_orange sprite_row_${topLevelPhenotype.name.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelPhenotype.name}" style="margin: 0px 0px 0px ${marginHeight}px"></div>
+					<div class="sprite_orange sprite_row_${topLevelPhenotype.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelPhenotype}" style="margin: 0px 0px 0px ${marginHeight}px"></div>
 				
         			</c:forEach>
         		</div>
