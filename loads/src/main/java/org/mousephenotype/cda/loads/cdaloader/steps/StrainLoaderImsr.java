@@ -40,21 +40,20 @@ import javax.sql.DataSource;
 import java.util.regex.Pattern;
 
 /**
- * Loads the MGI_Strain.rpt file into the strain table of the target database.
- * As of 31-May-2016, the MGI_Strain.rpt has no heading line; thus, no skip required.
- * Comments are denoted by lines starting with '#'
+ * Loads the report.txt IMSR strain file into the strain and synonym tables of the target database.
+ * As of 31-May-2016, the report.txt file's first line is a heading that must be skipped.
  *
  * Created by mrelac on 13/04/2016.
  *
  */
-public class StrainLoaderMgi implements Step, InitializingBean {
+public class StrainLoaderImsr implements Step, InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Required for ItemReader
     private String sourceFilename;
 
-    private FlatFileItemReader<Strain> mgiReader;
+    private FlatFileItemReader<Strain> imsrReader;
     private StrainWriter               writer;
     private StepBuilderFactory         stepBuilderFactory;
 
@@ -63,15 +62,21 @@ public class StrainLoaderMgi implements Step, InitializingBean {
     private DataSource komp2Loads;
 
 
-    public StrainLoaderMgi(String sourceFilename, StepBuilderFactory stepBuilderFactory, StrainWriter writer) throws CdaLoaderException {
+    public StrainLoaderImsr(String sourceFilename, StepBuilderFactory stepBuilderFactory, StrainWriter writer) throws CdaLoaderException {
         this.sourceFilename = sourceFilename;
         this.stepBuilderFactory = stepBuilderFactory;
         this.writer = writer;
 
-        mgiReader = new FlatFileItemReader<>();
-        mgiReader.setResource(new FileSystemResource(sourceFilename));
-        mgiReader.setComments( new String[] { "#" });
-        mgiReader.setLineMapper((line, lineNumber) -> {
+        imsrReader = new FlatFileItemReader<>();
+        imsrReader.setResource(new FileSystemResource(sourceFilename));
+
+        // Skip the first line. It's a heading.
+
+        // Do some basic validation. The file format has changed drastically in the past.
+
+
+        imsrReader.setComments( new String[] {"#" });
+        imsrReader.setLineMapper((line, lineNumber) -> {
             Strain strain = new Strain();
 
             String[] values = line.split(Pattern.quote("\t"));
@@ -110,7 +115,7 @@ public class StrainLoaderMgi implements Step, InitializingBean {
      */
     @Override
     public String getName() {
-        return "strainLoaderMgiStep";
+        return "strainLoaderImsrStep";
     }
 
     /**
@@ -143,7 +148,7 @@ public class StrainLoaderMgi implements Step, InitializingBean {
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
         stepBuilderFactory.get("strainLoaderStep")
                 .chunk(100)
-                .reader(mgiReader)
+                .reader(imsrReader)
                 .writer(writer)
                 .build()
                 .execute(stepExecution);

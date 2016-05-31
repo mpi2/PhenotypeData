@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Created by mrelac on 27/05/16.
  */
-public class SqlUtils {
+public class SqlLoaderUtils {
 
     public static void loadOntologyTerm(JdbcTemplate jdbcTemplate, OntologyTerm term) {
         // Write ontology terms.
