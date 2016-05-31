@@ -736,6 +736,18 @@ CREATE TABLE consider_id (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
+ * This table will store the ontology 'consider id's.
+ */
+CREATE TABLE consider_id (
+
+	ontology_term_acc          VARCHAR(20) NOT NULL,
+	acc                        VARCHAR(20) NOT NULL,
+
+  FOREIGN KEY ontology_term_acc_fk (ontology_term_acc) REFERENCES ontology_term (acc)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
+
+/**
  * unidimensional_observation
  * Unidimensional data point measurement
  */

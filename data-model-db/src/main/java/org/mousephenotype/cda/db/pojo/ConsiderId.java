@@ -29,39 +29,65 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ConsiderId {
 
-	private int id;
-	private String term;
+	private String ontologyTermAcc;
+	private String acc;
 
 	public ConsiderId() {
 
 	}
 
 	/**
-	 * @return the term
-	 */
-	public String getTerm() {
-		return term;
+	 * Create a new {@code ConsiderId} instance
+	 *
+	 * @param ontologyTermAcc the ontology term accession id (foreign key to the ontology_term table)
+	 * @param @param acc the accession id
+     */
+	public ConsiderId(String ontologyTermAcc, String acc) {
+		this.ontologyTermAcc = ontologyTermAcc;
+		this.acc = acc;
 	}
 
 	/**
-	 * @param term the term to set
+	 * Return the accession id
+	 *
+	 * @return the accession id
 	 */
-	public void setTerm(String term) {
-		this.term = term;
+	public String getAcc() {
+		return acc;
 	}
 
-	public int getId() {
-		return id;
+	/**
+	 * Set the acc
+	 *
+	 * @param acc the accession id to set
+	 */
+	public void setAcc(String acc) {
+		this.acc = acc;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	/**
+	 * Return the ontology term accession id (foreign key to the ontology_term table)
+	 *
+	 * @return the ontology term accession id (foreign key to the ontology_term table)
+	 */
+	public String getOntologyTermAcc() {
+		return ontologyTermAcc;
 	}
 
+	/**
+	 * Set the ontology term accession id (foreign key to the ontology_term table)
+	 *
+	 * @param ontologyTermAcc the ontology term accession id (foreign key to the ontology_term table) to set
+	 */
+	public void setOntologyTermAcc(String ontologyTermAcc) {
+		this.ontologyTermAcc = ontologyTermAcc;
+	}
 
 	@Override
 	public String toString() {
-		return "ConsiderId [id=" + id + ", term=" + term + "]";
+		return "ConsiderId{" +
+				"ontologyTermAcc='" + ontologyTermAcc + '\'' +
+				", acc='" + acc + '\'' +
+				'}';
 	}
-
 }

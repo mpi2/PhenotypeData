@@ -42,8 +42,8 @@ public class SqlLoaderUtils {
 
         // Write consider_id items.
         for (ConsiderId considerId : term.getConsiderIds()) {
-            jdbcTemplate.update("INSERT INTO consider_id (acc, db_id, term) VALUES (?, ?, ?)",
-                    term.getId().getAccession(), term.getId().getDatabaseId(), considerId.getTerm());
+            jdbcTemplate.update("INSERT INTO consider_id (ontology_term_acc, acc) VALUES (?, ?)",
+                    term.getId().getAccession(), considerId.getAcc());
         }
     }
 
@@ -64,7 +64,7 @@ public class SqlLoaderUtils {
         if ( ! termList.isEmpty()) {
             retVal = termList.get(0);
 
-            retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession(), retVal.getId().getDatabaseId()));
+            retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession()));
             retVal.setSynonyms(getOntologyTermSynonyms(jdbcTemplate, retVal.getId().getAccession(), retVal.getId().getDatabaseId()));
         }
 
@@ -87,7 +87,7 @@ public class SqlLoaderUtils {
         if ( ! termList.isEmpty()) {
             retVal = termList.get(0);
 
-            retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession(), retVal.getId().getDatabaseId()));
+            retVal.setConsiderIds(getConsiderIs(jdbcTemplate, retVal.getId().getAccession()));
             retVal.setSynonyms(getOntologyTermSynonyms(jdbcTemplate, retVal.getId().getAccession(), retVal.getId().getDatabaseId()));
         }
 
@@ -164,18 +164,16 @@ public class SqlLoaderUtils {
     }
 
     /**
-     * Return the list of consider ids matching the given {@code accesionId} and {@code dbId}
+     * Return the list of consider ids matching the given {@code ontologyTermAcc}
      *
      * @param jdbcTemplate a valid {@code JdbcTemplate} instance
-     * @param accessionId the desired term's accession id
-     * @param dbId the desired term's db id
+     * @param ontologyTermAcc the desired ontology term's accession id
      *
-     * @return the list of consider ids matching the given {@code accesionId} and {@code dbId}, if
-     *         found; an empty list otherwise
+     * @return the list of consider ids matching the given {@code ontologyTermAcc}, if found; an empty list otherwise
      */
-    public static List<ConsiderId> getConsiderIs(JdbcTemplate jdbcTemplate, String accessionId, int dbId) {
+    public static List<ConsiderId> getConsiderIs(JdbcTemplate jdbcTemplate, String ontologyTermAcc) {
 
-        List<ConsiderId> termList = jdbcTemplate.query("SELECT * FROM consider_id WHERE acc = ? AND db_id = ?", new ConsiderIdRowMapper(), accessionId, dbId);
+        List<ConsiderId> termList = jdbcTemplate.query("SELECT * FROM consider_id WHERE ontology_term_acc = ?", new ConsiderIdRowMapper(), ontologyTermAcc);
 
         return termList;
     }
@@ -197,8 +195,8 @@ public class SqlLoaderUtils {
         public ConsiderId mapRow(ResultSet rs, int rowNum) throws SQLException {
             ConsiderId considerId = new ConsiderId();
 
-            considerId.setId(rs.getInt("id"));
-            considerId.setTerm(rs.getString("term"));
+            considerId.setAcc(rs.getString("acc"));
+            considerId.setOntologyTermAcc(rs.getString("ontology_term_acc"));
 
             return considerId;
         }
