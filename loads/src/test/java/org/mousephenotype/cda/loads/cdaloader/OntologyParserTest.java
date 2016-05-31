@@ -1,6 +1,14 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
@@ -10,12 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {TestConfigLoaders.class} )
@@ -34,7 +36,8 @@ public class OntologyParserTest {
     public void setUp() throws Exception {
 
     }
-
+    
+    @Ignore
     @Test
     public void testOwlOntologyDownloads() throws Exception {
         String message;
@@ -72,6 +75,18 @@ public class OntologyParserTest {
         }
     }
     
+    @Test
+    public void testEFO() // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+    throws Exception{
+        // ontologyParser = new OntologyParser(owlpath + "/efo.owl", "EFO");
+        ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/efo.owl", "EFO");
+        List<OntologyTerm> terms = ontologyParser.getTerms();
+        if (terms.isEmpty())
+            throw new Exception("testDeprecated: term list is empty!");
+    	
+    }
+    
+    
     @Test 
     public void testDeprecated() 
     throws Exception{
@@ -79,13 +94,9 @@ public class OntologyParserTest {
         // FIXME FIXME FIXME TEST ALL COMPONENT PIECES!!!
 
 
-
-
-
-
         List<Exception> exception = new ArrayList();
         ontologyParser = new OntologyParser(owlpath + "/mp.owl", "MP");
-       // ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP:");
+ //       ontologyParser = new OntologyParser("/Users/ilinca/Documents/ontologies/mp.owl", "MP");
         List<OntologyTerm> terms = ontologyParser.getTerms();
         if (terms.isEmpty())
             throw new Exception("testDeprecated: term list is empty!");

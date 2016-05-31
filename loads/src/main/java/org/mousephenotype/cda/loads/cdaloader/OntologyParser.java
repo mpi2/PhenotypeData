@@ -1,15 +1,27 @@
 package org.mousephenotype.cda.loads.cdaloader;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import org.mousephenotype.cda.db.pojo.ConsiderId;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.*;
+import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotation;
+import org.semanticweb.owlapi.model.OWLAnnotationProperty;
+import org.semanticweb.owlapi.model.OWLAnnotationValue;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.search.EntitySearcher;
-
-import java.io.File;
-import java.util.*;
 
 public class OntologyParser {
 
@@ -52,9 +64,13 @@ public class OntologyParser {
 	    		}
 	    		term.setSynonyms(synonyms);
 	    		term.setIsObsolete(isObsolete(cls));
-	    		if ((term.getIsObsolete()) && (getReplacementId(cls) != null)){
-	    			term.setConsiderIds(getConsiderIds(cls));
-	    			term.setReplacementAcc(getReplacementId(cls));
+	    		if (term.getIsObsolete()){
+	    			if((getReplacementId(cls) != null)){
+		    			term.setReplacementAcc(getReplacementId(cls));
+	    			}
+	    			if(getConsiderIds(cls) != null && getConsiderIds(cls).size() > 0){
+	    				term.setConsiderIds(getConsiderIds(cls));
+	    			}
 	    		}
 	    		
 	    		terms.add(term);
@@ -132,9 +148,6 @@ public class OntologyParser {
 	}
 	
 	
-	
-	
-	
 	/**
 	 * 
 	 * @param cls
@@ -194,6 +207,7 @@ public class OntologyParser {
 	private String getReplacementId(OWLClass cls){
 		
 		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, REPLACEMENT); 
+		
 		if (res.size() > 0){
 			if (res.size() > 1){
 				System.out.println("WARNING: more than 1 replacement terms for deprecated class " + getIdentifierShortForm(cls));
@@ -216,17 +230,21 @@ public class OntologyParser {
 
 		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, CONSIDER);
 		List<ConsiderId> ids = new ArrayList<>();
-
-		while (res.iterator().hasNext()) {
-			OWLAnnotationValue value = res.iterator().next().getValue();
-			if (value instanceof OWLLiteral) {
-				ConsiderId considerId = new ConsiderId();
-				considerId.setTerm(((OWLLiteral) value).getLiteral());
-				ids.add(considerId);
-			}
-		}
-
+		
+		res.stream()
+			.filter(item->(item.getValue() instanceof OWLLiteral))
+			.forEach(item->ids.add(getConsiderObj(item)));
+		
 		return ids;
 
+	}
+	
+	private ConsiderId getConsiderObj(OWLAnnotation ann){
+		
+		ConsiderId consider = new ConsiderId();
+		if (ann.getValue() instanceof OWLLiteral){
+			consider.setTerm(((OWLLiteral) ann.getValue()).getLiteral());
+		}
+		return consider;
 	}
 }
