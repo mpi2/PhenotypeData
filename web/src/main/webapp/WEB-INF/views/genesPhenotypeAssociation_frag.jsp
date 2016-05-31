@@ -47,7 +47,7 @@
         <p></p>
         <c:if test="${!(empty dataMapList)}">
             <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
+            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All ${gene.markerSymbol} Measurements</a>
         </c:if>
         <c:if test="${gene.embryoDataAvailable}">
             <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">Embryo Viewer</a>
@@ -213,9 +213,10 @@
       <div class="row-fluid" id="phenotypesDiv">
 
         <div class="container span12">
-
+ 
           <c:if test="${not empty phenotypes}">
             <form class="tablefiltering no-style" id="target" action="destination.html">
+           
               <c:forEach
                       var="phenoFacet" items="${phenoFacets}"
                       varStatus="phenoFacetStatus">
@@ -228,8 +229,9 @@
                   </c:forEach>
                 </select>
               </c:forEach>
+           
               <div class="clear"></div>
-            </form>
+            </form> 
             <div class="clear"></div>
 
             <c:set var="count" value="0" scope="page"/>

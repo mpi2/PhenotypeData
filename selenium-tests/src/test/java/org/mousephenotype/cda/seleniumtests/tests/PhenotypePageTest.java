@@ -271,37 +271,25 @@ public class PhenotypePageTest {
         String message;
         Date start = new Date();
         String phenotypeId = "junkBadPhenotype";
-        final String EXPECTED_ERROR_MESSAGE = "Oops! junkBadPhenotype is not a valid mammalian phenotype identifier.";
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        boolean found = false;
         target = baseUrl + "/phenotypes/" + phenotypeId;
 
-        try {
-            driver.get(target);
-            List<WebElement> phenotypeLinks = (new WebDriverWait(driver, timeoutInSeconds))
-                    .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.node h1")));
-            if (phenotypeLinks == null) {
-                message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
+        driver.get(target);
+        List<WebElement> oopsElement = driver.findElements(By.xpath("//h1"));
+        if (oopsElement.isEmpty()) {
+            message = "Expected h1 element but found none";
+            status.addError(message);
+        } else {
+            if ( ! oopsElement.get(0).getText().toLowerCase().contains("oops")) {
+                message = "Expected Oops! error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
                 status.addError(message);
             }
-            for (WebElement div : phenotypeLinks) {
-                if (div.getText().equals(EXPECTED_ERROR_MESSAGE)) {
-                    found = true;
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            message = "Timeout: Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            status.addError(message);
         }
 
-        if (found && ( ! status.hasErrors())) {
+        if ( ! status.hasErrors()) {
             status.successCount++;
-        } else {
-            message = "Expected error page for MP_TERM_ID " + phenotypeId + "(" + target + ") but found none.";
-            status.addError(message);
         }
 
         testUtils.printEpilogue(testName, start, status, 1, 1);
@@ -317,6 +305,7 @@ public class PhenotypePageTest {
                       "MP:0005386"      // phenotype name has forward slash which caused a problem with downloading XLS (but not TSV) streams.
                     , "MP:0013509"      // page has lots of graphs with sex missing from page but not missing from download.
                     , "MP:0004940"      // page has lots of graphs with sex missing from page but not missing from download.
+                    , "MP:0008250"      // page has false mismatch on lkzf3 (CD19-  CD11c-)
             });
 
             try {
@@ -482,7 +471,6 @@ public class PhenotypePageTest {
                 break;
             }
 
-            String message;
             RunStatus status = new RunStatus();
             WebElement mpLinkElement = null;
             target = baseUrl + "/phenotypes/" + phenotypeId;

@@ -123,16 +123,16 @@ public class GenePage {
 
     /**
      *
-     * @return A list of Impc Images parameters.
+     * @return A list of Impc Image urls.
      */
-    public List<String> getAssociatedImpcImageSections() {
-        List<String> associatedImageSections = new ArrayList();
-        List<WebElement> associatedImageSectionElements = driver.findElements(By.id("impc-images-heading"));
-        for (WebElement associatedImageSectionElement : associatedImageSectionElements) {
-            associatedImageSections.add(associatedImageSectionElement.getText());
+    public List<String> getAssociatedImpcImageUrls() {
+        List<String> associatedImageUrls = new ArrayList();
+        List<WebElement> associatedImageUrlElements = driver.findElements(By.xpath("//div[@id='grid']/ul//img"));
+        for (WebElement associatedImageUrlElement : associatedImageUrlElements) {
+            associatedImageUrls.add(associatedImageUrlElement.getText());
         }
 
-        return associatedImageSections;
+        return associatedImageUrls;
     }
 
     /**

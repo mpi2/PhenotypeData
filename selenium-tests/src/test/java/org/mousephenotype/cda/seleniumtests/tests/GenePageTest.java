@@ -839,7 +839,7 @@ public class GenePageTest {
                 "Click-evoked + 6 To 30kHz Tone Waveforms (pdf Format)"
         });
 
-        List<String> actualPhenotypeAssociatedImageSections = genePage.getAssociatedImpcImageSections();
+        List<String> actualPhenotypeAssociatedImageSections = genePage.getAssociatedImpcImageUrls();
         if (actualPhenotypeAssociatedImageSections.size() < expectedPhenotypeAssociatedImageSections.size()) {
             message = "IMPC Phenotype Associated Images (count): [FAILED]. Expected at least " + expectedPhenotypeAssociatedImageSections.size() + " strings but found " + actualPhenotypeAssociatedImageSections.size() + ".";
             status.addError(message);
