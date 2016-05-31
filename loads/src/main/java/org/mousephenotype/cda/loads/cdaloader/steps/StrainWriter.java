@@ -18,7 +18,7 @@ package org.mousephenotype.cda.loads.cdaloader.steps;
 
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.loads.cdaloader.exceptions.CdaLoaderException;
-import org.mousephenotype.cda.loads.cdaloader.support.SqlUtils;
+import org.mousephenotype.cda.loads.cdaloader.support.SqlLoaderUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -72,7 +72,7 @@ public class StrainWriter implements ItemWriter {
         for (Object strain1 : items) {
             Strain strain = (Strain) strain1;
 
-            SqlUtils.putStrain(jdbcTemplate,strain);
+            SqlLoaderUtils.putStrain(jdbcTemplate,strain);
         }
     }
 }
