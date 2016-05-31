@@ -70,7 +70,6 @@ public class OntologyParser {
 	    			}
 	    			if(getConsiderIds(cls) != null && getConsiderIds(cls).size() > 0){
 	    				term.setConsiderIds(getConsiderIds(cls));
-	    				System.out.println(term.getId().getAccession() +  " " + term.getConsiderIds());
 	    			}
 	    		}
 	    		
@@ -147,9 +146,6 @@ public class OntologyParser {
 		return "";
 		
 	}
-	
-	
-	
 	
 	
 	/**
@@ -234,7 +230,6 @@ public class OntologyParser {
 
 		Collection<OWLAnnotation> res = EntitySearcher.getAnnotations(cls, ontology, CONSIDER);
 		List<ConsiderId> ids = new ArrayList<>();
-		System.out.println("Size : " + res.size());
 		
 		res.stream()
 			.filter(item->(item.getValue() instanceof OWLLiteral))
