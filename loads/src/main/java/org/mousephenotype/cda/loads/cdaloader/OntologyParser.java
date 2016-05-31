@@ -233,17 +233,18 @@ public class OntologyParser {
 		
 		res.stream()
 			.filter(item->(item.getValue() instanceof OWLLiteral))
-			.forEach(item->ids.add(getConsiderObj(item)));
+			.forEach(item->ids.add(getConsiderObj(item, cls)));
 		
 		return ids;
 
 	}
 	
-	private ConsiderId getConsiderObj(OWLAnnotation ann){
+	private ConsiderId getConsiderObj(OWLAnnotation ann, OWLClass cls){
 		
 		ConsiderId consider = new ConsiderId();
 		if (ann.getValue() instanceof OWLLiteral){
-			consider.setTerm(((OWLLiteral) ann.getValue()).getLiteral());
+			consider.setOntologyTermAcc(getIdentifierShortForm(cls));
+			consider.setAcc(((OWLLiteral) ann.getValue()).getLiteral());
 		}
 		return consider;
 	}
