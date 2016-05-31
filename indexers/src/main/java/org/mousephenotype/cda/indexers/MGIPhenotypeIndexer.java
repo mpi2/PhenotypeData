@@ -109,7 +109,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
 
 	    Connection connection = komp2DataSource.getConnection();
 
-	    int count = 0;
+	    int count = 1;
 
         mgiSolrServer.deleteByQuery("*:*");
 
@@ -134,7 +134,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer {
             while (r.next()) {
                 GenotypePhenotypeDTO doc = new GenotypePhenotypeDTO();
 
-                doc.setId(r.getInt("id"));
+                doc.setId(count);
                 doc.setZygosity(r.getString("zygosity"));
                 doc.setProjectName(r.getString("project_name"));
                 doc.setProjectFullname(r.getString("project_fullname"));
