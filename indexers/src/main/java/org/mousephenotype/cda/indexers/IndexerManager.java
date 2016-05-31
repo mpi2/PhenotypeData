@@ -109,7 +109,8 @@ public class IndexerManager {
           // In dependency order. These are built only for a new data release.
           OBSERVATION_CORE
         , GENOTYPE_PHENOTYPE_CORE
-        , STATSTICAL_RESULT_CORE
+	    , STATSTICAL_RESULT_CORE
+	    , MGI_PHENOTYPE_CORE
 
           // These are built daily.
         , PREQC_CORE
@@ -411,7 +412,7 @@ public class IndexerManager {
             switch (core) {
                 case OBSERVATION_CORE:          indexerItemList.add(new IndexerItem(OBSERVATION_CORE, observationIndexer));                 break;
                 case GENOTYPE_PHENOTYPE_CORE:   indexerItemList.add(new IndexerItem(GENOTYPE_PHENOTYPE_CORE, genotypePhenotypeIndexer));    break;
-                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));    break;
+                case MGI_PHENOTYPE_CORE:		indexerItemList.add(new IndexerItem(MGI_PHENOTYPE_CORE, mgiPhenotypeIndexer));              break;
                 case STATSTICAL_RESULT_CORE:    indexerItemList.add(new IndexerItem(STATSTICAL_RESULT_CORE, statisticalResultIndexer));     break;
 
                 case PREQC_CORE:                indexerItemList.add(new IndexerItem(PREQC_CORE, preqcIndexer));                             break;
@@ -810,7 +811,8 @@ public class IndexerManager {
                     "Core list (in priority build order):\n" +
                     "   experiment\n" +
                     "   genotype-phenotype\n" +
-                    "   statistical-result\n" +
+	                "   statistical-result\n" +
+	                "   mgi-phenotype\n" +
                     "   preqc\n" +
                     "   allele\n" +
                     "   images\n" +

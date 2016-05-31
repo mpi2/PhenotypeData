@@ -478,7 +478,7 @@ public class ImageService implements WebStatus{
                 ArrayList<String> params = new ArrayList<>();
                 ArrayList<String> paramValues = new ArrayList<>();
                 String urlToImagePicker = drupalBaseUrl
-                        + "/data/imagePicker/";
+                        + "/data/imageComparator/";
 
                 for (SolrDocument doc : group.getResult()) {
                     if (row.size() == 0) {
@@ -636,7 +636,7 @@ public class ImageService implements WebStatus{
 	public void getImpcImagesForGenePage(String acc, Model model,
 			int numberOfControls, int numberOfExperimental,
 			boolean getForAllParameters) throws SolrServerException {
-		String excludeProcedureName = "Adult LacZ";// exclude adult lacz from
+		String excludeProcedureName = null;// "Adult LacZ";// exclude adult lacz from
 													// the images section as
 													// this will now be in the
 													// expression section on the
