@@ -724,22 +724,6 @@ CREATE TABLE categorical_observation (
  */
 CREATE TABLE consider_id (
 
-	id                         INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	acc                        VARCHAR(20) NOT NULL,
-	db_id                      INT(10) NOT NULL,
-	term                       VARCHAR(20) NOT NULL,
-
-	PRIMARY KEY (id),
-	KEY ontology_term_idx (acc, db_id),
-	KEY ontology_term_acc_idx (acc)
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
-/**
- * This table will store the ontology 'consider id's.
- */
-CREATE TABLE consider_id (
-
 	ontology_term_acc          VARCHAR(20) NOT NULL,
 	acc                        VARCHAR(20) NOT NULL,
 
