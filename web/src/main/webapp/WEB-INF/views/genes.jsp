@@ -514,8 +514,6 @@
 														</div>
 													</c:otherwise>
 												</c:choose>
-												<!--  <a href="/phenotype-archive/imagePicker/MGI:1922730/IMPC_ELZ_063_001">
-												<img src="//wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/177626/200/" style="max-height: 200px;"></a> -->
 												<c:choose>
 													<c:when  test="${not empty impcEmbryoExpressionImageFacets}">
 														<div id="tabs-5">
