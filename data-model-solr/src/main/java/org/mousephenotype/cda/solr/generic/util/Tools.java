@@ -177,7 +177,7 @@ public class Tools {
 		defaultOffset.put("ensembl", 9);
 		defaultOffset.put("disease", 5);
 		defaultOffset.put("mp", 6);
-		defaultOffset.put("ma", 5);
+		defaultOffset.put("anatomy", 5);
 		defaultOffset.put("hp", 8);
 
 		if ( corename.equals("gene") || corename.equals("marker_symbol")){
@@ -306,17 +306,17 @@ public class Tools {
 			additionalInfos.add("disease_id");
 			additionalInfos.add("disease_term");
 		}
-		else if ( corename.equals("ma") ) {
-			mainAttrs.add("ma_id");
-			mainAttrs.add("ma_term");
+		else if ( corename.equals("anatomy") ) {
+			mainAttrs.add("id");
+			mainAttrs.add("term");
 
 			// gene core stuff
 			mainAttrs.add("mgi_accession_id");
 			mainAttrs.add("marker_symbol");
 			mainAttrs.add("human_gene_symbol");
 
-			additionalInfos.add("selected_top_level_ma_id");
-			additionalInfos.add("selected_top_level_ma_term");
+			additionalInfos.add("selected_top_level_id");
+			additionalInfos.add("selected_top_level_term");
 			// impc images link
             //additionalInfos.add("images_link");
 		}

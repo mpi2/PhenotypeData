@@ -31,6 +31,12 @@ public class MaDTO {
     public static final String MA_NODE_ID = "ma_node_id";
     public static final String ALT_MA_ID = "alt_ma_id";
 
+    public static final String EMAPA_ID = "emapa_id";
+    public static final String EMAPA_TERM = "emapa_term";
+    public static final String EMAPA_NODE_ID = "emapa_node_id";
+    public static final String ALT_EMAPA_ID = "alt_emapa_id";
+
+
     public static final String UBERON_ID = "uberon_id";
     public static final String ALL_AE_MAPPED_UBERON_ID = "all_ae_mapped_uberon_id";
     public static final String EFO_ID = "efo_id";
@@ -39,27 +45,48 @@ public class MaDTO {
     public static final String MA_TERM_SYNONYM = "ma_term_synonym";
     public static final String ONTOLOGY_SUBSET = "ontology_subset";
 
+    public static final String EMAPA_TERM_SYNONYM = "emapa_term_synonym";
+
     public static final String CHILD_MA_ID = "child_ma_id";
     public static final String CHILD_MA_TERM = "child_ma_term";
     public static final String CHILD_MA_TERM_SYNONYM = "child_ma_term_synonym";
     public static final String CHILD_MA_ID_TERM = "child_ma_idTerm";
 
+    public static final String CHILD_EMAPA_ID = "child_emapa_id";
+    public static final String CHILD_EMAPA_TERM = "child_emapa_term";
+    public static final String CHILD_EMAPA_TERM_SYNONYM = "child_emapa_term_synonym";
+    public static final String CHILD_EMAPA_ID_TERM = "child_emapa_idTerm";
 
     public static final String PARENT_MA_ID = "parent_ma_id";
     public static final String PARENT_MA_TERM = "parent_ma_term";
     public static final String PARENT_MA_TERM_SYNONYM = "parent_ma_term_synonym";
 
+    public static final String PARENT_EMAPA_ID = "parent_emapa_id";
+    public static final String PARENT_EMAPA_TERM = "parent_emapa_term";
+    public static final String PARENT_EMAPA_TERM_SYNONYM = "parent_emapa_term_synonym";
+
     public static final String INTERMEDIATE_MA_ID = "intermediate_ma_id";
     public static final String INTERMEDIATE_MA_TERM = "intermediate_ma_term";
     public static final String INTERMEDIATE_MA_TERM_SYNONYM = "intermediate_ma_term_synonym";
+
+    public static final String INTERMEDIATE_EMAPA_ID = "intermediate_emapa_id";
+    public static final String INTERMEDIATE_EMAPA_TERM = "intermediate_emapa_term";
+    public static final String INTERMEDIATE_EMAPA_TERM_SYNONYM = "intermediate_emapa_term_synonym";
 
     public static final String TOP_LEVEL_MA_ID = "top_level_ma_id";
     public static final String TOP_LEVEL_MA_TERM = "top_level_ma_term";
 //    public static final String TOP_LEVEL_MA_TERM_SYNONYM = "top_level_ma_term_synonym";
 
+    public static final String TOP_LEVEL_EMAPA_ID = "top_level_emapa_id";
+    public static final String TOP_LEVEL_EMAPA_TERM = "top_level_emapa_term";
+
     public static final String SELECTED_TOP_LEVEL_MA_ID = "selected_top_level_ma_id";
     public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
     public static final String SELECTED_TOP_LEVEL_MA_TERM_SYNONYM = "selected_top_level_ma_term_synonym";
+
+    public static final String SELECTED_TOP_LEVEL_EMAPA_ID = "selected_top_level_emapa_id";
+    public static final String SELECTED_TOP_LEVEL_EMAPA_TERM = "selected_top_level_emapa_term";
+    public static final String SELECTED_TOP_LEVEL_EMAPA_TERM_SYNONYM = "selected_top_level_emapa_term_synonym";
 
     // mp to hp mapping
     public static final String HP_ID = "hp_id";
@@ -203,6 +230,33 @@ public class MaDTO {
     @Field(MA_ID)
     private String maId;
 
+    @Field(EMAPA_ID)
+    private String emapaId;
+
+    @Field(MA_TERM)
+    private String maTerm;
+
+    @Field(EMAPA_TERM)
+    private String emapaTerm;
+
+    @Field(MA_TERM_SYNONYM)
+    private List<String> maTermSynonym;
+
+    @Field(EMAPA_TERM_SYNONYM)
+    private List<String> emapaTermSynonym;
+
+    @Field(ALT_MA_ID)
+    private List<String> altMaIds;
+
+    @Field(ALT_EMAPA_ID)
+    private List<String> altEmapaIds;
+
+    @Field(MA_NODE_ID)
+    private List<Integer> maNodeId;
+
+    @Field(EMAPA_NODE_ID)
+    private List<Integer> emapaNodeId;
+
 	@Field(SEARCH_TERM_JSON)
 	private String searchTermJson;
 
@@ -224,18 +278,6 @@ public class MaDTO {
     @Field(ALL_AE_MAPPED_EFO_ID)
     private List<String> all_ae_mapped_efoIds;
 
-    @Field(MA_TERM)
-    private String maTerm;
-
-    @Field(MA_TERM_SYNONYM)
-    private List<String> maTermSynonym;
-
-    @Field(MA_NODE_ID)
-    private List<Integer> maNodeId;
-
-    @Field(ALT_MA_ID)
-    private List<String> altMaIds;
-
     @Field(ONTOLOGY_SUBSET)
     private List<String> ontologySubset;
 
@@ -247,7 +289,34 @@ public class MaDTO {
 
     @Field(PARENT_MA_TERM_SYNONYM)
     private List<String> parentMaTermSynonym;
-    
+
+    @Field(PARENT_EMAPA_ID)
+    private List<String> parentEmapaId;
+
+    @Field(PARENT_EMAPA_TERM)
+    private List<String> parentEmapaTerm;
+
+    @Field(PARENT_EMAPA_TERM_SYNONYM)
+    private List<String> parentEmapaTermSynonym;
+
+    @Field(INTERMEDIATE_MA_ID)
+    private List<String> intermediateMaId;
+
+    @Field(INTERMEDIATE_MA_TERM)
+    private List<String> intermediateMaTerm;
+
+    @Field(INTERMEDIATE_MA_TERM_SYNONYM)
+    private List<String> intermediateMaTermSynonym;
+
+    @Field(INTERMEDIATE_EMAPA_ID)
+    private List<String> intermediateEmapaId;
+
+    @Field(INTERMEDIATE_EMAPA_TERM)
+    private List<String> intermediateEmapaTerm;
+
+    @Field(INTERMEDIATE_EMAPA_TERM_SYNONYM)
+    private List<String> intermediateEmapaTermSynonym;
+
     @Field(CHILD_MA_ID)
     private List<String> childMaId;
 
@@ -257,15 +326,32 @@ public class MaDTO {
     @Field(CHILD_MA_TERM_SYNONYM)
     private List<String> childMaTermSynonym;
 
+    @Field(CHILD_EMAPA_ID)
+    private List<String> childEmapaId;
+
+    @Field(CHILD_EMAPA_TERM)
+    private List<String> childEmapaTerm;
+
+    @Field(CHILD_EMAPA_TERM_SYNONYM)
+    private List<String> childEmapaTermSynonym;
+
     @Field(CHILD_MA_ID_TERM)
     private List<String> childMaIdTerm;
 
+    @Field(CHILD_EMAPA_ID_TERM)
+    private List<String> childEmapaIdTerm;
 
     @Field(TOP_LEVEL_MA_ID)
     private List<String> topLevelMaId;
 
     @Field(TOP_LEVEL_MA_TERM)
     private List<String> topLevelMaTerm;
+
+    @Field(TOP_LEVEL_EMAPA_ID)
+    private List<String> topLevelEmapaId;
+
+    @Field(TOP_LEVEL_EMAPA_TERM)
+    private List<String> topLevelEmapaTerm;
 
 //    @Field(TOP_LEVEL_MA_TERM_SYNONYM)
 //    private List<String> topLevelMaTermSynonym;
@@ -278,6 +364,15 @@ public class MaDTO {
 
     @Field(SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
     private List<String> selectedTopLevelMaTermSynonym;
+
+    @Field(SELECTED_TOP_LEVEL_EMAPA_ID)
+    private List<String> selectedTopLevelEmapaId;
+
+    @Field(SELECTED_TOP_LEVEL_EMAPA_TERM)
+    private List<String> selectedTopLevelEmapaTerm;
+
+    @Field(SELECTED_TOP_LEVEL_EMAPA_TERM_SYNONYM)
+    private List<String> selectedTopLevelEmapaTermSynonym;
 
     // mp to hp mapping
     @Field(HP_ID)
@@ -542,17 +637,6 @@ public class MaDTO {
     @Field(TOP_LEVEL_MP_TERM_SYNONYM)
     private List<String> topLevelMpTermSynonym;
 
-
-    @Field(INTERMEDIATE_MA_ID)
-    private List<String> intermediateMaId;
-
-    @Field(INTERMEDIATE_MA_TERM)
-    private List<String> intermediateMaTerm;
-
-    @Field(INTERMEDIATE_MA_TERM_SYNONYM)
-    private List<String> intermediateMaTermSynonym;
-
-
     @Field(CHILD_MP_ID)
     private List<String> childMpId;
 
@@ -609,36 +693,96 @@ public class MaDTO {
 		return parentMaTermSynonym;
 	}
 
-	public void setParentMaTermSynonym(List<String> parentMaTermSynonym) {
-		this.parentMaTermSynonym = parentMaTermSynonym;
-	}
+	public void setParentMaTermSynonym(List<String> parentMaTermSynonym) { this.parentMaTermSynonym = parentMaTermSynonym; }
 
-	public void setDataType(String dataType) {
+    public List<String> getParentEmapaId() {
+        return parentEmapaId;
+    }
+
+    public void setParentEmapaId(List<String> parentEmapaId) {
+        this.parentEmapaId = parentEmapaId;
+    }
+
+    public List<String> getParentEmapaTerm() {
+        return parentEmapaTerm;
+    }
+
+    public void setParentEmapaTerm(List<String> parentEmapaTerm) {
+        this.parentEmapaTerm = parentEmapaTerm;
+    }
+
+    public List<String> getParentEmapaTermSynonym() {
+        return parentEmapaTermSynonym;
+    }
+
+    public void setParentEmapaTermSynonym(List<String> parentEmapaTermSynonym) { this.parentEmapaTermSynonym = parentEmapaTermSynonym; }
+
+    public void setDataType(String dataType) {
         this.dataType = dataType;
     }
 
-    public String getMaId() {
-        return maId;
-    }
+    public String getMaId() {return maId;}
 
     public void setMaId(String maId) {
         this.maId = maId;
+    }
+
+    public String getEmapaId() {return emapaId;}
+
+    public void setEmapaId(String emapaId) {
+        this.emapaId = emapaId;
+    }
+
+    public String getMaTerm() { return maTerm; }
+
+    public void setMaTerm(String maTerm) {
+        this.maTerm = maTerm;
+    }
+
+    public String getEmapaTerm() { return emapaTerm; }
+
+    public void setEmapaTerm(String emapaTerm) {
+        this.emapaTerm = emapaTerm;
+    }
+
+    public List<String> getMaTermSynonym() {
+        return maTermSynonym;
+    }
+
+    public void setMaTermSynonym(List<String> maTermSynonym) {
+        this.maTermSynonym = maTermSynonym;
+    }
+
+    public List<String> getEmapaTermSynonym() {
+        return emapaTermSynonym;
+    }
+
+    public void setEmapaTermSynonym(List<String> emapaTermSynonym) {
+        this.emapaTermSynonym = emapaTermSynonym;
     }
 
     public List<String> getAltMaIds() {
         return altMaIds;
     }
 
-    public List<Integer> getMaNodeId() {
-        return maNodeId;
+    public void setAltMaIds(List<String> altMaIds) { this.altMaIds = altMaIds; }
+
+    public List<String> getAltEmapaIds() {
+        return altEmapaIds;
     }
+
+    public void setAltEmapaIds(List<String> altEmapaIds) { this.altEmapaIds = altEmapaIds; }
+
+    public List<Integer> getMaNodeId() { return maNodeId; }
 
     public void setMaNodeId(List<Integer> maNodeId) {
         this.maNodeId = maNodeId;
     }
 
-    public void setAltMaIds(List<String> altMaIds) {
-        this.altMaIds = altMaIds;
+    public List<Integer> getEmapaNodeId() { return emapaNodeId; }
+
+    public void setEmapaNodeId(List<Integer> emapaNodeId) {
+        this.emapaNodeId = emapaNodeId;
     }
 
     public List<String> getUberonIds() {
@@ -670,22 +814,6 @@ public class MaDTO {
     public void setAllAeMappedEfoIds(List<String> all_ae_mapped_efoIds) {
         this.all_ae_mapped_efoIds = all_ae_mapped_efoIds;
     }
-    
-    public String getMaTerm() {
-        return maTerm;
-    }
-
-    public void setMaTerm(String maTerm) {
-        this.maTerm = maTerm;
-    }
-
-    public List<String> getMaTermSynonym() {
-        return maTermSynonym;
-    }
-
-    public void setMaTermSynonym(List<String> maTermSynonym) {
-        this.maTermSynonym = maTermSynonym;
-    }
 
     public List<String> getOntologySubset() {
         return ontologySubset;
@@ -703,12 +831,26 @@ public class MaDTO {
         this.childMaId = childMaId;
     }
 
+    public List<String> getChildEmapaId() { return childEmapaId; }
+
+    public void setChildEmapaId(List<String> childEmapaId) {
+        this.childEmapaId = childEmapaId;
+    }
+
     public List<String> getChildMaTerm() {
         return childMaTerm;
     }
 
     public void setChildMaTerm(List<String> childMaTerm) {
         this.childMaTerm = childMaTerm;
+    }
+
+    public List<String> getChildEmapaTerm() {
+        return childEmapaTerm;
+    }
+
+    public void setChildEmapaTerm(List<String> childEmapaTerm) {
+        this.childEmapaTerm = childEmapaTerm;
     }
 
     public List<String> getChildMaTermSynonym() {
@@ -719,12 +861,26 @@ public class MaDTO {
         this.childMaTermSynonym = childMaTermSynonym;
     }
 
+    public List<String> getChildEmapaTermSynonym() {
+        return childEmapaTermSynonym;
+    }
+
+    public void setChildEmapaTermSynonym(List<String> childEmapaTermSynonym) { this.childEmapaTermSynonym = childEmapaTermSynonym; }
+
     public List<String> getChildMaIdTerm() {
         return childMaIdTerm;
     }
 
     public void setChildMaIdTerm(List<String> childMaIdTerm) {
         this.childMaIdTerm = childMaIdTerm;
+    }
+
+    public List<String> getChildEmapaIdTerm() {
+        return childEmapaIdTerm;
+    }
+
+    public void getChildEmapaIdTerm(List<String> childEmapaIdTerm) {
+        this.childEmapaIdTerm = childEmapaIdTerm;
     }
 
     public List<String> getTopLevelMaId() {
@@ -734,13 +890,29 @@ public class MaDTO {
     public void setTopLevelMaId(List<String> topLevelMaId) {
         this.topLevelMaId = topLevelMaId;
     }
-        
+
+    public List<String> getTopLevelEmapaId() {
+        return topLevelEmapaId;
+    }
+
+    public void setTopLevelEmapaId(List<String> topLevelEmapaId) {
+        this.topLevelEmapaId = topLevelEmapaId;
+    }
+
     public List<String> getTopLevelMaTerm() {
         return topLevelMaTerm;
     }
 
     public void setTopLevelMaTerm(List<String> topLevelMaTerm) {
         this.topLevelMaTerm = topLevelMaTerm;
+    }
+
+    public List<String> getTopLevelEmapaTerm() {
+        return topLevelEmapaTerm;
+    }
+
+    public void setTopLevelEmapaTerm(List<String> topLevelEmapaTerm) {
+        this.topLevelEmapaTerm = topLevelEmapaTerm;
     }
 
 //    public List<String> getTopLevelMaTermSynonym() {
@@ -751,12 +923,21 @@ public class MaDTO {
 //        this.topLevelMaTermSynonym = topLevelMaTermSynonym;
 //    }
 
+
     public List<String> getSelectedTopLevelMaId() {
         return selectedTopLevelMaId;
     }
 
     public void setSelectedTopLevelMaId(List<String> selectedTopLevelMaId) {
         this.selectedTopLevelMaId = selectedTopLevelMaId;
+    }
+
+    public List<String> getSelectedTopLevelEmapaId() {
+        return selectedTopLevelEmapaId;
+    }
+
+    public void setSelectedTopLevelEmapaId(List<String> selectedTopLevelEmapaId) {
+        this.selectedTopLevelEmapaId = selectedTopLevelEmapaId;
     }
 
     public List<String> getSelectedTopLevelMaTerm() {
@@ -767,12 +948,28 @@ public class MaDTO {
         this.selectedTopLevelMaTerm = selectedTopLevelMaTerm;
     }
 
+    public List<String> getSelectedTopLevelEmapaTerm() {
+        return selectedTopLevelEmapaTerm;
+    }
+
+    public void setSelectedTopLevelEmapaTerm(List<String> selectedTopLevelEmapaTerm) {
+        this.selectedTopLevelEmapaTerm = selectedTopLevelEmapaTerm;
+    }
+
     public List<String> getSelectedTopLevelMaTermSynonym() {
         return selectedTopLevelMaTermSynonym;
     }
 
     public void setSelectedTopLevelMaTermSynonym(List<String> selectedTopLevelMaTermSynonym) {
         this.selectedTopLevelMaTermSynonym = selectedTopLevelMaTermSynonym;
+    }
+
+    public List<String> getSelectedTopLevelEmapaTermSynonym() {
+        return selectedTopLevelEmapaTermSynonym;
+    }
+
+    public void setSelectedTopLevelEmapaTermSynonym(List<String> selectedTopLevelEmapaTermSynonym) {
+        this.selectedTopLevelEmapaTermSynonym = selectedTopLevelEmapaTermSynonym;
     }
 
     public List<String> getHpId() {
@@ -1463,6 +1660,24 @@ public class MaDTO {
         this.intermediateMaTermSynonym = intermediateMaTermSynonym;
     }
 
+    public List<String> getIntermediateEmapaId() { return intermediateEmapaId; }
+
+    public void setIntermediateEmapaId(List<String> intermediateEmapaId) {
+        this.intermediateEmapaId = intermediateEmapaId;
+    }
+
+    public List<String> getIntermediateEmapaTerm() { return intermediateEmapaTerm; }
+
+    public void setIntermediateEmapaTerm(List<String> intermediateEmapaTerm) {
+        this.intermediateEmapaTerm = intermediateEmapaTerm;
+    }
+
+    public List<String> getIntermediateEmapaTermSynonym() { return intermediateEmapaTermSynonym; }
+
+    public void setIntermediateEmapaTermSynonym(List<String> intermediateEmapaTermSynonym) {
+        this.intermediateEmapaTermSynonym = intermediateEmapaTermSynonym;
+    }
+
     public List<String> getChildMpId() {
         return childMpId;
     }
@@ -1568,6 +1783,15 @@ public class MaDTO {
 
         if (!dataType.equals(maDTO.dataType)) return false;
         if (!maId.equals(maDTO.maId)) return false;
+        if (!emapaId.equals(maDTO.emapaId)) return false;
+        if (!maTerm.equals(maDTO.maTerm)) return false;
+        if (!emapaTerm.equals(maDTO.emapaTerm)) return false;
+        if (!maTermSynonym.equals(maDTO.maTermSynonym)) return false;
+        if (!emapaTermSynonym.equals(maDTO.emapaTermSynonym)) return false;
+        if (!altMaIds.equals(maDTO.altMaIds)) return false;
+        if (!altEmapaIds.equals(maDTO.altEmapaIds)) return false;
+        if (!maNodeId.equals(maDTO.maNodeId)) return false;
+        if (!emapaNodeId.equals(maDTO.emapaNodeId)) return false;
         if (!searchTermJson.equals(maDTO.searchTermJson)) return false;
         if (!childrenJson.equals(maDTO.childrenJson)) return false;
         if (!scrollNode.equals(maDTO.scrollNode)) return false;
@@ -1575,23 +1799,37 @@ public class MaDTO {
         if (!all_ae_mapped_uberonIds.equals(maDTO.all_ae_mapped_uberonIds)) return false;
         if (!efoIds.equals(maDTO.efoIds)) return false;
         if (!all_ae_mapped_efoIds.equals(maDTO.all_ae_mapped_efoIds)) return false;
-        if (!maTerm.equals(maDTO.maTerm)) return false;
-        if (!maTermSynonym.equals(maDTO.maTermSynonym)) return false;
-        if (!maNodeId.equals(maDTO.maNodeId)) return false;
-        if (!altMaIds.equals(maDTO.altMaIds)) return false;
         if (!ontologySubset.equals(maDTO.ontologySubset)) return false;
         if (!parentMaId.equals(maDTO.parentMaId)) return false;
         if (!parentMaTerm.equals(maDTO.parentMaTerm)) return false;
         if (!parentMaTermSynonym.equals(maDTO.parentMaTermSynonym)) return false;
+        if (!parentEmapaId.equals(maDTO.parentEmapaId)) return false;
+        if (!parentEmapaTerm.equals(maDTO.parentEmapaTerm)) return false;
+        if (!parentEmapaTermSynonym.equals(maDTO.parentEmapaTermSynonym)) return false;
+        if (!intermediateMaId.equals(maDTO.intermediateMaId)) return false;
+        if (!intermediateMaTerm.equals(maDTO.intermediateMaTerm)) return false;
+        if (!intermediateMaTermSynonym.equals(maDTO.intermediateMaTermSynonym)) return false;
+        if (!intermediateEmapaId.equals(maDTO.intermediateEmapaId)) return false;
+        if (!intermediateEmapaTerm.equals(maDTO.intermediateEmapaTerm)) return false;
+        if (!intermediateEmapaTermSynonym.equals(maDTO.intermediateEmapaTermSynonym)) return false;
         if (!childMaId.equals(maDTO.childMaId)) return false;
         if (!childMaTerm.equals(maDTO.childMaTerm)) return false;
         if (!childMaTermSynonym.equals(maDTO.childMaTermSynonym)) return false;
+        if (!childEmapaId.equals(maDTO.childEmapaId)) return false;
+        if (!childEmapaTerm.equals(maDTO.childEmapaTerm)) return false;
+        if (!childEmapaTermSynonym.equals(maDTO.childEmapaTermSynonym)) return false;
         if (!childMaIdTerm.equals(maDTO.childMaIdTerm)) return false;
+        if (!childEmapaIdTerm.equals(maDTO.childEmapaIdTerm)) return false;
         if (!topLevelMaId.equals(maDTO.topLevelMaId)) return false;
         if (!topLevelMaTerm.equals(maDTO.topLevelMaTerm)) return false;
+        if (!topLevelEmapaId.equals(maDTO.topLevelEmapaId)) return false;
+        if (!topLevelEmapaTerm.equals(maDTO.topLevelEmapaTerm)) return false;
         if (!selectedTopLevelMaId.equals(maDTO.selectedTopLevelMaId)) return false;
         if (!selectedTopLevelMaTerm.equals(maDTO.selectedTopLevelMaTerm)) return false;
         if (!selectedTopLevelMaTermSynonym.equals(maDTO.selectedTopLevelMaTermSynonym)) return false;
+        if (!selectedTopLevelEmapaId.equals(maDTO.selectedTopLevelEmapaId)) return false;
+        if (!selectedTopLevelEmapaTerm.equals(maDTO.selectedTopLevelEmapaTerm)) return false;
+        if (!selectedTopLevelEmapaTermSynonym.equals(maDTO.selectedTopLevelEmapaTermSynonym)) return false;
         if (!hpId.equals(maDTO.hpId)) return false;
         if (!hpTerm.equals(maDTO.hpTerm)) return false;
         if (!goId.equals(maDTO.goId)) return false;
@@ -1676,9 +1914,6 @@ public class MaDTO {
         if (!topLevelMpId.equals(maDTO.topLevelMpId)) return false;
         if (!topLevelMpTerm.equals(maDTO.topLevelMpTerm)) return false;
         if (!topLevelMpTermSynonym.equals(maDTO.topLevelMpTermSynonym)) return false;
-        if (!intermediateMaId.equals(maDTO.intermediateMaId)) return false;
-        if (!intermediateMaTerm.equals(maDTO.intermediateMaTerm)) return false;
-        if (!intermediateMaTermSynonym.equals(maDTO.intermediateMaTermSynonym)) return false;
         if (!childMpId.equals(maDTO.childMpId)) return false;
         if (!childMpTerm.equals(maDTO.childMpTerm)) return false;
         if (!childMpTermSynonym.equals(maDTO.childMpTermSynonym)) return false;
@@ -1695,6 +1930,15 @@ public class MaDTO {
     public int hashCode() {
         int result = dataType.hashCode();
         result = 31 * result + maId.hashCode();
+        result = 31 * result + emapaId.hashCode();
+        result = 31 * result + maTerm.hashCode();
+        result = 31 * result + emapaTerm.hashCode();
+        result = 31 * result + maTermSynonym.hashCode();
+        result = 31 * result + emapaTermSynonym.hashCode();
+        result = 31 * result + altMaIds.hashCode();
+        result = 31 * result + altEmapaIds.hashCode();
+        result = 31 * result + maNodeId.hashCode();
+        result = 31 * result + emapaNodeId.hashCode();
         result = 31 * result + searchTermJson.hashCode();
         result = 31 * result + childrenJson.hashCode();
         result = 31 * result + scrollNode.hashCode();
@@ -1702,23 +1946,37 @@ public class MaDTO {
         result = 31 * result + all_ae_mapped_uberonIds.hashCode();
         result = 31 * result + efoIds.hashCode();
         result = 31 * result + all_ae_mapped_efoIds.hashCode();
-        result = 31 * result + maTerm.hashCode();
-        result = 31 * result + maTermSynonym.hashCode();
-        result = 31 * result + maNodeId.hashCode();
-        result = 31 * result + altMaIds.hashCode();
         result = 31 * result + ontologySubset.hashCode();
         result = 31 * result + parentMaId.hashCode();
         result = 31 * result + parentMaTerm.hashCode();
         result = 31 * result + parentMaTermSynonym.hashCode();
+        result = 31 * result + parentEmapaId.hashCode();
+        result = 31 * result + parentEmapaTerm.hashCode();
+        result = 31 * result + parentEmapaTermSynonym.hashCode();
+        result = 31 * result + intermediateMaId.hashCode();
+        result = 31 * result + intermediateMaTerm.hashCode();
+        result = 31 * result + intermediateMaTermSynonym.hashCode();
+        result = 31 * result + intermediateEmapaId.hashCode();
+        result = 31 * result + intermediateEmapaTerm.hashCode();
+        result = 31 * result + intermediateEmapaTermSynonym.hashCode();
         result = 31 * result + childMaId.hashCode();
         result = 31 * result + childMaTerm.hashCode();
         result = 31 * result + childMaTermSynonym.hashCode();
+        result = 31 * result + childEmapaId.hashCode();
+        result = 31 * result + childEmapaTerm.hashCode();
+        result = 31 * result + childEmapaTermSynonym.hashCode();
         result = 31 * result + childMaIdTerm.hashCode();
+        result = 31 * result + childEmapaIdTerm.hashCode();
         result = 31 * result + topLevelMaId.hashCode();
         result = 31 * result + topLevelMaTerm.hashCode();
+        result = 31 * result + topLevelEmapaId.hashCode();
+        result = 31 * result + topLevelEmapaTerm.hashCode();
         result = 31 * result + selectedTopLevelMaId.hashCode();
         result = 31 * result + selectedTopLevelMaTerm.hashCode();
         result = 31 * result + selectedTopLevelMaTermSynonym.hashCode();
+        result = 31 * result + selectedTopLevelEmapaId.hashCode();
+        result = 31 * result + selectedTopLevelEmapaTerm.hashCode();
+        result = 31 * result + selectedTopLevelEmapaTermSynonym.hashCode();
         result = 31 * result + hpId.hashCode();
         result = 31 * result + hpTerm.hashCode();
         result = 31 * result + goId.hashCode();
@@ -1802,9 +2060,6 @@ public class MaDTO {
         result = 31 * result + topLevelMpId.hashCode();
         result = 31 * result + topLevelMpTerm.hashCode();
         result = 31 * result + topLevelMpTermSynonym.hashCode();
-        result = 31 * result + intermediateMaId.hashCode();
-        result = 31 * result + intermediateMaTerm.hashCode();
-        result = 31 * result + intermediateMaTermSynonym.hashCode();
         result = 31 * result + childMpId.hashCode();
         result = 31 * result + childMpTerm.hashCode();
         result = 31 * result + childMpTermSynonym.hashCode();
@@ -1822,6 +2077,15 @@ public class MaDTO {
         return "MaDTO{" +
                 "dataType='" + dataType + '\'' +
                 ", maId='" + maId + '\'' +
+                ", emapaId='" + emapaId + '\'' +
+                ", maTerm='" + maTerm + '\'' +
+                ", emapaTerm='" + emapaTerm + '\'' +
+                ", maTermSynonym=" + maTermSynonym +
+                ", emapaTermSynonym=" + emapaTermSynonym +
+                ", altMaIds=" + altMaIds +
+                ", altEmapaIds=" + altEmapaIds +
+                ", maNodeId=" + maNodeId +
+                ", emapaNodeId=" + emapaNodeId +
                 ", searchTermJson='" + searchTermJson + '\'' +
                 ", childrenJson='" + childrenJson + '\'' +
                 ", scrollNode='" + scrollNode + '\'' +
@@ -1829,23 +2093,37 @@ public class MaDTO {
                 ", all_ae_mapped_uberonIds=" + all_ae_mapped_uberonIds +
                 ", efoIds=" + efoIds +
                 ", all_ae_mapped_efoIds=" + all_ae_mapped_efoIds +
-                ", maTerm='" + maTerm + '\'' +
-                ", maTermSynonym=" + maTermSynonym +
-                ", maNodeId=" + maNodeId +
-                ", altMaIds=" + altMaIds +
                 ", ontologySubset=" + ontologySubset +
                 ", parentMaId=" + parentMaId +
                 ", parentMaTerm=" + parentMaTerm +
                 ", parentMaTermSynonym=" + parentMaTermSynonym +
+                ", parentEmapaId=" + parentEmapaId +
+                ", parentEmapaTerm=" + parentEmapaTerm +
+                ", parentEmapaTermSynonym=" + parentEmapaTermSynonym +
+                ", intermediateMaId=" + intermediateMaId +
+                ", intermediateMaTerm=" + intermediateMaTerm +
+                ", intermediateMaTermSynonym=" + intermediateMaTermSynonym +
+                ", intermediateEmapaId=" + intermediateEmapaId +
+                ", intermediateEmapaTerm=" + intermediateEmapaTerm +
+                ", intermediateEmapaTermSynonym=" + intermediateEmapaTermSynonym +
                 ", childMaId=" + childMaId +
                 ", childMaTerm=" + childMaTerm +
                 ", childMaTermSynonym=" + childMaTermSynonym +
+                ", childEmapaId=" + childEmapaId +
+                ", childEmapaTerm=" + childEmapaTerm +
+                ", childEmapaTermSynonym=" + childEmapaTermSynonym +
                 ", childMaIdTerm=" + childMaIdTerm +
+                ", childEmapaIdTerm=" + childEmapaIdTerm +
                 ", topLevelMaId=" + topLevelMaId +
                 ", topLevelMaTerm=" + topLevelMaTerm +
+                ", topLevelEmapaId=" + topLevelEmapaId +
+                ", topLevelEmapaTerm=" + topLevelEmapaTerm +
                 ", selectedTopLevelMaId=" + selectedTopLevelMaId +
                 ", selectedTopLevelMaTerm=" + selectedTopLevelMaTerm +
                 ", selectedTopLevelMaTermSynonym=" + selectedTopLevelMaTermSynonym +
+                ", selectedTopLevelEmapaId=" + selectedTopLevelEmapaId +
+                ", selectedTopLevelEmapaTerm=" + selectedTopLevelEmapaTerm +
+                ", selectedTopLevelEmapaTermSynonym=" + selectedTopLevelEmapaTermSynonym +
                 ", hpId=" + hpId +
                 ", hpTerm=" + hpTerm +
                 ", goId=" + goId +
@@ -1929,9 +2207,6 @@ public class MaDTO {
                 ", topLevelMpId=" + topLevelMpId +
                 ", topLevelMpTerm=" + topLevelMpTerm +
                 ", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
-                ", intermediateMaId=" + intermediateMaId +
-                ", intermediateMaTerm=" + intermediateMaTerm +
-                ", intermediateMaTermSynonym=" + intermediateMaTermSynonym +
                 ", childMpId=" + childMpId +
                 ", childMpTerm=" + childMpTerm +
                 ", childMpTermSynonym=" + childMpTermSynonym +

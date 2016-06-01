@@ -20,36 +20,35 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.beans.OntologyTermBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.annotation.PostConstruct;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-
-
 /**
- * This class encapsulates the code and data necessary to serve a Mouse
- * Anatomy ontology.
+ * This class encapsulates the code and data necessary to serve a EMAP ontology
  * 
- * @author mrelac
+ * 
+ * @author ckchen based on mrelac
  */
-public class MaOntologyDAO extends OntologyDAO {
-    
+public class EmapaOntologyOldDAO extends OntologyDAO {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Map<String, String> subsets = new HashMap();
     private Map<String, List<Integer>> term2NodesMap = null;
     private boolean showAncestorMapWarnings = false;
     private boolean hasAncestorMapWarnings = false;
 
-    public MaOntologyDAO() throws SQLException {
+    public EmapaOntologyOldDAO() throws SQLException {
         
     }
     
     /**
      * Returns the set of descendent graphs for the given id.
      * 
-     * @param id the ma id to query
+     * @param id the emapa id to query
      * 
      * @return the set of descendent graphs for the given id.
      */
@@ -58,7 +57,7 @@ public class MaOntologyDAO extends OntologyDAO {
         String nodeIds = StringUtils.join(id2nodesMap.get(id), ",");
         String query =
             "SELECT *\n"
-          + "FROM ma_node_subsumption_fullpath_concat\n"
+          + "FROM emapa_node_subsumption_fullpath_concat\n"
           + "WHERE node_id IN (" + nodeIds + ")\n";
         
         return getDescendentGraphsInternal(query);
@@ -84,10 +83,10 @@ public class MaOntologyDAO extends OntologyDAO {
         }
     }
 
-    public List<Integer> getNodeIds(String maTermId){
-    	return term2NodesMap.get(maTermId);
+    public List<Integer> getNodeIds(String emapaTermId){
+        return term2NodesMap.get(emapaTermId);
     }
-    
+
     public boolean hasAncestorMapWarnings() {
         return hasAncestorMapWarnings;
     }
@@ -110,24 +109,24 @@ public class MaOntologyDAO extends OntologyDAO {
     }
     
     /**
-     * Returns the ma subset for the given id.
+     * Returns the emapa subset for the given id.
      * 
-     * @param id the ma id to query
+     * @param id the emapa id to query
      * 
-     * @return the ma subset for the given id.
+     * @return the emapa subset for the given id.
      */
     public String getSubset(String id) {
         return subsets.get(id);
     }
     
     /**
-     * Returns the ma subset for the given id in the provided list.
+     * Returns the emapa subset for the given id in the provided list.
      * 
-     * @param id the ma id to query
+     * @param id the emapa id to query
      * 
      * @param list the list to which the subset is appended.
      * 
-     * @return the ma subset for the given id.
+     * @return the emapa subset for the given id.
      */
     public List<String> getSubset(String id, List<String> list) {
         list.add(subsets.get(id));
@@ -156,53 +155,51 @@ public class MaOntologyDAO extends OntologyDAO {
                 + ", ti.name                   AS termName \n"
                 + ", ti.definition             AS termDefinition\n"
                 + ", GROUP_CONCAT(DISTINCT alt.alt_id) AS alt_ids\n"
-        + "FROM ma_node2term n2t\n"
-                + "LEFT OUTER JOIN ma_term_infos ti ON ti.term_id = n2t.term_id\n"
-                + "LEFT OUTER JOIN ma_alt_ids alt ON ti.term_id = alt.term_id\n"
-                + "WHERE n2t.term_id != 'MA:0000001'\n"
+                + "FROM emapa_node2term n2t\n"
+                + "LEFT OUTER JOIN emapa_term_infos ti ON ti.term_id = n2t.term_id\n"
+                + "LEFT OUTER JOIN emapa_alt_ids alt ON ti.term_id = alt.term_id\n"
+                + "WHERE (n2t.term_id != 'EMAPA:0' AND n2t.term_id not like 'TS%')\n"
                 + "GROUP BY n2t.term_id\n"
                 + "ORDER BY n2t.term_id, n2t.node_id\n";
-
+        
         populateAllTerms(query);
     }
-    
+
     /**
      * Populates each node's ancestor hash.
-     * 
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     @Override
     protected void populateAncestorMap() throws SQLException {
-        
+
         // Populate backtraceMap so the fullpath can be modified to contain the selected top-level terms.
         String query =
             "SELECT *\n"
-          + "FROM ma_node_backtrace_fullpath\n";
-        Map<Integer, String> backtraceMap = new HashMap();                      // key = nodeId. value = fullpath.
+          + "FROM emapa_node_backtrace_fullpath\n";
+        Map<Integer, String> backtraceMapa = new HashMap();                      // key = nodeId. value = fullpath.
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
+
                 Integer nodeId = resultSet.getInt("node_id");
                 String fullpath = resultSet.getString("fullpath");
                 //fullpath += " " + nodeId;                                       // append node_id to fullpath:   e.g. for node_id 1, fullpath "0" -> fullpath "0 1".
-                
-                backtraceMap.put(nodeId, fullpath);
 
-                // get a full ancestor map
-                ancestorMap.put(nodeId, fullpath);
+               backtraceMapa.put(nodeId, fullpath);
+
             }
 
             ps.close();
         }
-
 
         // Dump Terry's selected top-levels into a map keyed by node.
         query =
             "SELECT \n"
           + "  node_id\n"
           + ", top_level_node_id\n"
-          + "FROM ma_node_2_selected_top_level_mapping\n";
-        HashMap<Integer, Integer> selectedTopLevelNodeMap = new HashMap();
+          + "FROM emapa_node_2_selected_top_level_mapping\n";
+        HashMap<Integer, Integer> selectedTopLevelNodeMapa = new HashMap();
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
             ResultSet resultSet = ps.executeQuery();
             while (resultSet.next()) {
@@ -210,80 +207,73 @@ public class MaOntologyDAO extends OntologyDAO {
                 int selectedTopLevelNodeId = resultSet.getInt("top_level_node_id");
                 if (selectedTopLevelNodeId == 0) {
                     hasAncestorMapWarnings = true;
-                    logger.warn("node " + node + " in ma_node_2_selected_top_level_mapping has no top-level node.");
+                    logger.warn("node " + node + " in emapa_node_2_selected_top_level_mapping has no top-level node.");
                     continue;
                 }
-                selectedTopLevelNodeMap.put(node, selectedTopLevelNodeId);
+                selectedTopLevelNodeMapa.put(node, selectedTopLevelNodeId);
             }
-            
+
             ps.close();
         }
             
         populateTerm2NodesMap();
         
-        // For each term in node2term:
-        // - For each of that term's nodes:
-        //   - Look up the node in the selectedTopLevelNodeMap.
-        //   - If found
-        //     - get the node's selectedTopLevelNodeId.
-        //     - Search the fullpath for selectedTopLevelNodeId.
-        //     - If found
-        //       - set selectedTopLevelFound = true.
-        //       - remove the nodes to the left of the selectedTopLevelNodeId.
-        //     - else
-        //       - Log a warning that this node has no fullpath entry.
-        //       - Add self to ancestorMap.
-        // - if ! selectedTopLevelFound
-        //   - Do any child nodes have a selected top-level term?
-        //     - Yes: Ok to ignore.
-        //     - No:  Log a warning that this term has no selected top level. Terry needs to choose one.
+//         For each term in node2term:
+//         - For each of that term's nodes:
+//           - Look up the node in the selectedTopLevelNodeMapa.
+//           - If found
+//             - get the node's selectedTopLevelNodeId.
+//             - Search the fullpath for selectedTopLevelNodeId.
+//             - If found
+//               - set selectedTopLevelFound = true.
+//               - remove the nodes to the left of the selectedTopLevelNodeId.
+//             - else
+//               - Log a warning that this node has no fullpath entry.
+//               - Add self to ancestorMap.
+//         - if ! selectedTopLevelFound
+//           - Do any child nodes have a selected top-level term?
+//             - Yes: Ok to ignore.
+//             - No:  Log a warning that this term has no selected top level. Terry needs to choose one.
         
         Map<String, String> missingFromFullpathMap = new HashMap();
         Map<String, List<Integer>> missingFromFullPathNodesList = new HashMap();
         Map<String, String> needsReviewByTerryCountMap = new HashMap();
         Map<String, List<Integer>> needsReviewByTerryCountNodesMap = new HashMap();
-        
+
         for (OntologyTermBean otBean : allTermsMap.values()) {
             String termId = otBean.getId();
-
             boolean selectedTopLevelFound = false;
             for (Integer nodeId : term2NodesMap.get(termId)) {
-                String[] fullpath = backtraceMap.get(nodeId).split(" ");
-
+                String[] fullpath = backtraceMapa.get(nodeId).split(" ");
                 List<Integer> fullpathNodeList = new ArrayList();
                 for (String sNode : fullpath) {
                     int node = Integer.parseInt(sNode);
-                    if (node > 0 ) {
+
+                    if (node > 0) {
+                    // node 1 is TS20 Mouse (treat this as root of TS20 ontology)
+                    //if (node > 1) {
+
                         fullpathNodeList.add(node);
                     }
                 }
 
-                if (selectedTopLevelNodeMap.containsKey(nodeId)) {
-                    // get partial ancestor map with the top level being the selected_top_level
-
+                if (selectedTopLevelNodeMapa.containsKey(nodeId)) {
                     selectedTopLevelFound = true;
-
-                    int newSelectedTopLevelNode = selectedTopLevelNodeMap.get(nodeId);
+                    int newSelectedTopLevelNode = selectedTopLevelNodeMapa.get(nodeId);
                     int newTopNodeIndex = fullpathNodeList.indexOf(newSelectedTopLevelNode);
                     if (newTopNodeIndex >= 0) {
-
                         // New top level was found in fullpath (i.e. entry.getValue()).
                         fullpathNodeList.subList(0, newTopNodeIndex).clear();
                         String newFullpath = "";
-
                         for (Integer node : fullpathNodeList) {
                             if ( ! newFullpath.isEmpty())
                                 newFullpath += " ";
                             newFullpath += Integer.toString(node);
                         }
 
-                        selectedAncestorMap.put(nodeId, newFullpath);
-
+                        ancestorMap.put(nodeId, newFullpath);
                     } else {
-
                         String ancestorTermId = node2termMap.get(Integer.toString(nodeId));
-
-
                         OntologyTermBean ot = allTermsMap.get(ancestorTermId);
                         String ancestorTerm = (ot != null ? ot.getName() : "<unknown>");
                         if ( ! missingFromFullpathMap.containsKey(ancestorTermId)) {
@@ -297,12 +287,11 @@ public class MaOntologyDAO extends OntologyDAO {
                         missingFromFullPathNodesList.put(ancestorTermId, nodes);
 
                         // New top level not found in fullpath. Replace fullpath with ancestor node.
-                        selectedAncestorMap.put(nodeId, Integer.toString(nodeId));
+                        ancestorMap.put(nodeId, Integer.toString(nodeId));
                     }
                 }
-                
-                if ( ! selectedTopLevelFound) {
 
+                if ( ! selectedTopLevelFound) {
                     if (getTopLevelTermIdCount(termId) <= 0) {
                         String ancestorTermId = node2termMap.get(Integer.toString(nodeId));
                         OntologyTermBean ot = allTermsMap.get(ancestorTermId);
@@ -320,7 +309,7 @@ public class MaOntologyDAO extends OntologyDAO {
                 }
             }
         }
-        
+
         if (showAncestorMapWarnings) {
             List<String> ancestorTermIdList = Arrays.asList(missingFromFullpathMap.keySet().toArray(new String[0]));
             Collections.sort(ancestorTermIdList);
@@ -330,7 +319,7 @@ public class MaOntologyDAO extends OntologyDAO {
                 Collections.sort(ancestorNodeIdList);
                 String nodes = StringUtils.join(ancestorNodeIdList, ",");
                 String ancestorTerm = missingFromFullpathMap.get(ancestorTermId);
-                String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") is in topLevelNodeMap but not in the fullpath.";
+                String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") is in topLevelNodeMapa but not in the fullpath.";
 
                 hasAncestorMapWarnings = true;
                 logger.warn(s);
@@ -347,12 +336,11 @@ public class MaOntologyDAO extends OntologyDAO {
                 String nodes = StringUtils.join(ancestorNodeIdList, ",");
                 String ancestorTerm = needsReviewByTerryCountMap.get(ancestorTermId);
                 String s = ancestorTermId + " ('" + ancestorTerm + "', nodes " + nodes + ") needs to be reviewed by Terry for a selected top-level term.";
-                
+
                 hasAncestorMapWarnings = true;
                 logger.warn(s);
             }
         }
-
     }
     
     /**
@@ -370,11 +358,11 @@ public class MaOntologyDAO extends OntologyDAO {
         
         String query =
             "SELECT COUNT(DISTINCT top_level_term_id) AS topLevelTermIdCount\n"
-          + "FROM ontodb_komp2.ma_node_2_selected_top_level_mapping stlm\n"
+          + "FROM emapa_node_2_selected_top_level_mapping stlm\n"
           + "WHERE node_id IN (\n"
-          + "        SELECT DISTINCT child_node_id FROM ontodb_komp2.ma_node_subsumption_fullpath sf\n"
+          + "        SELECT DISTINCT child_node_id FROM emapa_node_subsumption_fullpath sf\n"
           + "    WHERE sf.node_id IN (\n"
-          + "        SELECT node_id FROM ma_node2term WHERE term_id = ?\n"
+          + "        SELECT node_id FROM emapa_node2term WHERE term_id = ?\n"
           + "    )\n"
           + ")\n";
 
@@ -414,7 +402,7 @@ public class MaOntologyDAO extends OntologyDAO {
     protected void populateNode2TermMap() throws SQLException {
         String query =
             "SELECT *\n"
-          + "FROM ma_node2term\n"
+          + "FROM emapa_node2term\n"
           + "ORDER BY term_id\n";
         
         populateNode2TermMap(query);
@@ -428,11 +416,12 @@ public class MaOntologyDAO extends OntologyDAO {
                 "SELECT\n"
               + "  term_id\n"
               + ", GROUP_CONCAT(node_id) AS nodeIdList\n"
-              + "FROM ma_node2term\n"
-              + "WHERE term_id != 'MA:0000001'\n"
+              + "FROM emapa_node2term\n"
+              //+ "WHERE term_id != 'EMAPA:0'\n"
               + "GROUP BY term_id\n"
               + "ORDER BY term_id\n";
 
+            //System.out.println("TERM2NODE QUERY: "+query);
             try (final PreparedStatement ps = connection.prepareStatement(query)) {
                 ResultSet resultSet = ps.executeQuery();
                 while (resultSet.next()) {
@@ -461,7 +450,7 @@ public class MaOntologyDAO extends OntologyDAO {
             "SELECT\n"
           + "  term_id\n"
           + ", syn_name\n"
-          + "FROM ma_synonyms";
+          + "FROM emapa_synonyms";
         
         populateSynonyms(query);
     }
@@ -478,7 +467,7 @@ public class MaOntologyDAO extends OntologyDAO {
     private void populateSubsets() throws SQLException {
         String query =
             "SELECT DISTINCT *\n"
-          + "FROM ma_term_subsets\n"
+          + "FROM emapa_term_subsets\n"
           + "ORDER BY term_id\n";
         
         try (final PreparedStatement ps = connection.prepareStatement(query)) {
