@@ -55,11 +55,20 @@
         <tr>
         	<td>
         		<div class="row_abnormalities">
-        			<c:forEach var="topLevelPhenotype" items="${phenotype.topLevelMpGroups }" varStatus="marginCount">
-        				<%-- ${topLevelPhenotype.name} --%>
-        		<c:set var="marginHeight" value="${marginCount.index * 40 }"/>
-					<div class="sprite_orange sprite_row_${topLevelPhenotype.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelPhenotype}" style="margin: 0px 0px 0px ${marginHeight}px"></div>
+        		<c:set var="marginLeftCount" value="0"/>
+        		<c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">
+        		<c:choose>
+        		<c:when test="${topLevelMpGroup eq 'NA' }">
+        		<%-- <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term--%>
 				
+        		</c:when>
+        		<c:otherwise>
+        		<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
+        		<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
+				<c:set var="marginLeftCount" value="${count+1 }"/>
+        		</c:otherwise>
+        		</c:choose>
+					
         			</c:forEach>
         		</div>
         	</td>
