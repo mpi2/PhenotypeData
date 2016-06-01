@@ -16,15 +16,6 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.MaService;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -39,6 +30,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.List;
+
 /**
  * Created by ckc on 21/03/2016.
  * @author ilinca //edits
@@ -51,7 +48,7 @@ public class OntologyBrowserController {
     MpService mpService;
     @Autowired
     MaService maService;
-    
+
     @RequestMapping(value = "/ontologyBrowser", method = RequestMethod.GET)
     public String getParams( @RequestParam(value = "termId", required = true) String termId, HttpServletRequest request, Model model)
     throws IOException, URISyntaxException, SQLException, SolrServerException {
@@ -102,10 +99,10 @@ public class OntologyBrowserController {
 
 
     private HttpHeaders createResponseHeaders() {
-    	
+
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-        
+
         return responseHeaders;
     }
 }

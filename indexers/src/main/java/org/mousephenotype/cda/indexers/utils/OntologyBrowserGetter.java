@@ -1,20 +1,13 @@
 package org.mousephenotype.cda.indexers.utils;
 
+import net.sf.json.JSONObject;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
-import net.sf.json.JSONObject;
+import java.util.*;
 
 
 public class OntologyBrowserGetter {

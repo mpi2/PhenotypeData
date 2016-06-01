@@ -17,7 +17,6 @@ package org.mousephenotype.cda.solr.web.dto;
 
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -68,9 +67,9 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     protected String gid;
     protected String colonyId;
 
-    public DataTableRow() { }       
+    public DataTableRow() { }
 
-    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages) 
+    public DataTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, Map<String, String> config, boolean hasImages)
     throws UnsupportedEncodingException, SolrServerException {
 
 	    this.config = config;
@@ -97,9 +96,9 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         }
 
         this.buildEvidenceLink(baseUrl, hasImages);
-        
+
     }
-    
+
     @Override
     public abstract int compareTo(DataTableRow o);
 
@@ -199,12 +198,12 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
         return pipeline;
     }
 
-    
+
     public void setPipeline(ImpressBaseDTO pipeline) {
         this.pipeline = pipeline;
     }
 
-    
+
     public EvidenceLink getEvidenceLink() {
 		return evidenceLink;
 	}
@@ -212,27 +211,27 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     public void setEvidenceLink(EvidenceLink link){
     	this.evidenceLink = link;
     }
-	
+
     public void buildEvidenceLink(String baseGraphUrl, boolean hasImages)
 	throws UnsupportedEncodingException {
-		
+
 		this.evidenceLink =  buildGraphUrl(baseGraphUrl, hasImages);
 	}
-    
-	
-    public EvidenceLink buildGraphUrl(String baseUrl, boolean hasImage) 
+
+
+    public EvidenceLink buildGraphUrl(String baseUrl, boolean hasImage)
     throws UnsupportedEncodingException {
-    	
+
     	String url= baseUrl;
     	EvidenceLink evidenceLink = new EvidenceLink();
-    	
+
         if (!isPreQc){
             if ( procedure.getName().startsWith("Histopathology") ){
                 evidenceLink.setAlt("Table");
                 evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
 	            url = baseUrl + "/histopathsum/"+gene.getAccessionId();//getMpathImagesUrlPostQc(baseUrl, gene.getAccessionId(), gene.getSymbol(), procedure.getName(), this.colonyId);
 	            evidenceLink.setDisplay(true);
-            	
+
             }else if ( procedure.getName().startsWith("Gross Pathology and Tissue Collection") ){
                 evidenceLink.setAlt("Table");
                 evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
@@ -244,7 +243,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
                         pipeline.getStableId(), phenotypingCenter);
                 evidenceLink.setAlt("Graph");
                 evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-                if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")|| parameter.getStableId().contains("IMPC_EVP_001") || 
+                if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")|| parameter.getStableId().contains("IMPC_EVP_001") ||
                 		parameter.getStableId().contains("IMPC_EVO_001_") || parameter.getStableId().contains("IMPC_EVM_001_")){
                 	evidenceLink.setDisplay(false);
                 } else {
@@ -260,7 +259,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
             }
             evidenceLink.setAlt("Graph");
             evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
-            if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")|| parameter.getStableId().contains("IMPC_EVP_001") || 
+            if (parameter.getStableId().contains("_FER_") || parameter.getStableId().contains("IMPC_EVL_001_")|| parameter.getStableId().contains("IMPC_EVP_001") ||
             		parameter.getStableId().contains("IMPC_EVO_001_") || parameter.getStableId().contains("IMPC_EVM_001_")){
             	evidenceLink.setDisplay(false);
             } else {
@@ -405,9 +404,9 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
     }
 
     /**
-     * This hash ignores p-values and sex as it is used by the row collapsing code for the tables. 
+     * This hash ignores p-values and sex as it is used by the row collapsing code for the tables.
      * Do not add them back in. Ask Ilinca if you're not sure what to do about this method.
-     * 
+     *
      */
     @Override
     public int hashCode() {
@@ -428,7 +427,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
  //       result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
         result = 31 * result + (isPreQc ? 1 : 0);
         result = 31 * result + (gid != null ? gid.hashCode() : 0);
-        
+
         return result;
     }
 
@@ -479,5 +478,5 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 
         return url;
     }
-    
+
 }

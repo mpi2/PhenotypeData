@@ -39,7 +39,6 @@ import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
-import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
@@ -61,7 +60,6 @@ import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -87,7 +85,7 @@ public class PhenotypesController {
 
     @Autowired
     SolrIndex solrIndex;
-    
+
     @Autowired
     StatisticalResultService srService;
     @Autowired
@@ -128,7 +126,7 @@ public class PhenotypesController {
     throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
 
     	long time = System.currentTimeMillis();
-    	
+
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotype_id);
     	OntologyTerm mpDbTerm = ontoTermDao.getOntologyTermByAccessionAndDatabaseId(phenotype_id, 5);
@@ -200,7 +198,7 @@ public class PhenotypesController {
         // register interest state
  		RegisterInterestDrupalSolr registerInterest = new RegisterInterestDrupalSolr(config.get("drupalBaseUrl"), request);
  		Map<String, String> regInt = registerInterest.registerInterestState(phenotype_id, request, registerInterest);
- 		
+
  		model.addAttribute("registerInterestButtonString", regInt.get("registerInterestButtonString"));
  		model.addAttribute("registerButtonAnchor", regInt.get("registerButtonAnchor"));
  		model.addAttribute("registerButtonId", regInt.get("registerButtonId"));
@@ -217,10 +215,10 @@ public class PhenotypesController {
 
         processPhenotypes(phenotype_id, null, null, null, model, request);
 
-        
+
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
         model.addAttribute("phenotype", mpTerm);
-        
+
 	    List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotype_id));
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
@@ -232,20 +230,20 @@ public class PhenotypesController {
         // Stuff for parent-child display
         model.addAttribute("hasChildren", mpService.getChildren(phenotype_id).size() > 0 ? true : false);
         model.addAttribute("hasParents", mpService.getParents(phenotype_id).size() > 0 ? true : false);
-        
+
         return "phenotypes";
     }
-    
+
 
     private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
-    	
+
         Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
         for (String key : phenFacets.keySet()) {
             sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
         }
         return sortPhenFacets;
     }
-    
+
 
     /**
      *
@@ -255,17 +253,17 @@ public class PhenotypesController {
      * @param request
      * @throws IOException
      * @throws URISyntaxException
-     * @throws SolrServerException 
+     * @throws SolrServerException
      */
-    private void processPhenotypes(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName, Model model, HttpServletRequest request) 
+    private void processPhenotypes(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName, Model model, HttpServletRequest request)
     throws IOException, URISyntaxException, SolrServerException {
-    	
-        
+
+
     	List<PhenotypeCallSummaryDTO> phenotypeList;
         Set<String> errorCodes = new HashSet();
-        
+
         try {
-        	
+
             PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
             PhenotypeFacetResult preQcResult = phenoDAO.getPreQcPhenotypeCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
 
@@ -282,7 +280,7 @@ public class PhenotypesController {
 					}
 				}
 			}
-			
+
 			errorCodes.addAll(phenoResult.getErrorCodes());
 			errorCodes.addAll(preQcResult.getErrorCodes());
 			String errorMessage = null;
@@ -290,7 +288,7 @@ public class PhenotypesController {
 				errorMessage = "There was a problem retrieving some of the phenotype calls. Some rows migth be missing from the table below. Error code(s) " +
 				StringUtils.join(errorCodes, ", ") + ".";
 			}
-			
+
             phenoFacets = sortPhenFacets(phenoFacets);
             model.addAttribute("phenoFacets", phenoFacets);
             model.addAttribute("errorMessage", errorMessage);
@@ -311,7 +309,7 @@ public class PhenotypesController {
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
-            	
+
                 pr = phenotypes.get(pr.hashCode());
                 // Use a tree set to maintain an alphabetical order (Female, Male)
                 TreeSet<String> sexes = new TreeSet<String>();
@@ -319,7 +317,7 @@ public class PhenotypesController {
                     sexes.add(s);
                 }
                 sexes.add(pcs.getSex().toString());
-                
+
                 pr.setSexes(new ArrayList<String>(sexes));
             }
 
@@ -382,16 +380,16 @@ public class PhenotypesController {
             @PathVariable String acc,
 			@RequestParam(required = false, value = "procedure_name")  List<String> procedureName,
 			@RequestParam(required = false, value = "marker_symbol")  List<String> markerSymbol,
-			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,			
+			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
-        
+
         processPhenotypes(acc, procedureName, markerSymbol, mpTermName, model, request);
         return "geneVariantsWithPhenotypeTable";
     }
 
-    
+
     /**
      * @author ilinca
      * @since 2016/05/05
@@ -406,48 +404,48 @@ public class PhenotypesController {
 			@RequestParam(required = true, value = "fileName") String fileName,
 			@RequestParam(required = false, value = "procedure_name")  List<String> procedureName,
 			@RequestParam(required = false, value = "marker_symbol")  List<String> markerSymbol,
-			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,			
+			@RequestParam(required = false, value = "mp_term_name")  List<String> mpTermName,
             Model model,
             HttpServletRequest request,
 			HttpServletResponse response,
-            RedirectAttributes attributes) 
+            RedirectAttributes attributes)
     throws IOException, URISyntaxException, SolrServerException {
-            
+
         PhenotypeFacetResult phenoResult = phenoDAO.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
         List<PhenotypePageTableRow> phenotypes = new ArrayList<PhenotypePageTableRow>();
         String url =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        
+
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
             PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, config, false);
             phenotypes.add(pr);
-        } 
-        
+        }
+
         List<String> dataRows = new ArrayList<>();
 		dataRows.add(PhenotypePageTableRow.getTabbedHeader());
 		for (PhenotypePageTableRow row : phenotypes) {
 			dataRows.add(row.toTabbedString());
 		}
-		
+
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName);
     }
-    
+
     @RequestMapping("/mpTree/{mpId}")
     public String getChildParentTree(
             @PathVariable String mpId,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) 
+            RedirectAttributes attributes)
     throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
-        
+
     	model.addAttribute("ontId", mpId);
         return "pageTree";
-    }    
-    
-    
+    }
+
+
     /**
      * @author ilinca
      * @since 2016/03/22
@@ -459,25 +457,25 @@ public class PhenotypesController {
      * @throws IOException
      * @throws URISyntaxException
      */
-    @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
-    public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
+    @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)
+    public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model)
     throws SolrServerException, IOException, URISyntaxException {
-    	
+
     	if (type.equals("parents")){
-    	
+
 	    	JSONObject data = new JSONObject();
 	    	data.element("id", mpId);
 	    	JSONArray nodes = new JSONArray();
-	    
+
 	    	for (OntologyBean term : mpService.getParents(mpId)){
 	    		nodes.add(term.toJson());
 	    	}
 
 	    	data.element("children", nodes);
 			return data.toString();
-			
+
     	} else if (type.equals("children")){
-    		
+
     		JSONObject data = new JSONObject();
         	data.element("id", mpId);
         	JSONArray nodes = new JSONArray();
@@ -485,19 +483,19 @@ public class PhenotypesController {
         	for (OntologyBean term : mpService.getChildren(mpId)){
 	    		nodes.add(term.toJson());
 	    	}
-        	
+
         	data.element("children", nodes);
     		return data.toString();
     	}
     	return "";
     }
-        
-    
+
+
     public JSONObject getJsonObj(String name, String type){
     	return new JSONObject().element("name", name).element(type, true);
     }
-    
-    
+
+
     public PhenotypeGeneSummaryDTO getPercentages(String phenotype_id) throws SolrServerException { // <sex, percentage>
         PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();
 
@@ -555,9 +553,9 @@ public class PhenotypesController {
      * phenotype term or any of it's children
      * @throws SolrServerException
      */
-    public List<ParameterDTO> getParameters(String mpId) 
+    public List<ParameterDTO> getParameters(String mpId)
     throws SolrServerException {
-    
+
     	List<String> parameters = srService.getParametersForPhenotype(mpId);
     	List<ParameterDTO> res =  new ArrayList<>();
     	for (String parameterStableId : parameters){
@@ -566,7 +564,7 @@ public class PhenotypesController {
     			res.add(param);
     		} else if (param.getObservationType().equals(ObservationType.unidimensional)){
     			res.add(param);
-    		} 
+    		}
     	}
         Collections.sort(res, ImpressBaseDTO.getComparatorByNameImpcFirst());
 
