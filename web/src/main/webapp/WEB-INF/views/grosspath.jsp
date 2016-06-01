@@ -118,7 +118,7 @@
 										<c:forEach var="image" items="${histRow.imageList }">
 										
 										<%-- <img src="${impcMediaBaseUrl}render_thumbnail/${image.omeroId}/200"/>  --%>
-										increment= ${image.increment_value}
+										<%-- increment= ${image.increment_value} --%>
 										 <!-- <div id="grid"> -->
                                            
 												<t:impcimghistdisplay img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"></t:impcimghistdisplay>
