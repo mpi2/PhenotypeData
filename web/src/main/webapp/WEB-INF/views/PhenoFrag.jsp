@@ -65,7 +65,7 @@
         		<c:otherwise>
         		<c:set var="marginLeft" value="${marginLeftCount * 40 }"/>
         		<div class="sprite_orange sprite_row_${topLevelMpGroup.replaceAll(' |/', '_')}" data-hasqtip="27" title="${topLevelMpGroup}" style="margin: 0px 0px 0px ${marginLeft}px"></div>
-				<c:set var="marginLeftCount" value="${count+1 }"/>
+				<c:set var="marginLeftCount" value="${marginLeftCount+1 }"/>
         		</c:otherwise>
         		</c:choose>
 					
