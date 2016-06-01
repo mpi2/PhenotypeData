@@ -16,7 +16,7 @@
         <c:if test='${sex.equalsIgnoreCase("female")}'>
             <c:set var="femaleCount" value="${femaleCount + 1}" scope="page"/>
         </c:if>
-         <c:if test='${sex.equalsIgnoreCase("no data")}'>
+         <c:if test='${sex.equalsIgnoreCase("no_data")}'>
             <c:set var="noSexCount" value="${noSexCount + 1}" scope="page"/>
         </c:if>
     </c:forEach>
