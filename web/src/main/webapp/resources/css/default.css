@@ -542,10 +542,11 @@ a.status.qc, span.status.qc        { /*background:gray !important; */  backgroun
 
 /* Sprite Abnormalities */
 .abnormalities          { float: right; width: 200px; height: 160px; }
+.row_abnormalities          { float: right; width: 200px; height: 40px; }
 .abnormalities .allicons {  opacity: 0.4; position: absolute; width: 200px; height: 160px; background-image: url(../img/icon/sprite-abnormalities.png); }
 .lt-ie9 .abnormalities .abnormalities_legend .allicons { filter: alpha(opacity=40); }
 .abnormalities .sprite_blue  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities_over.png); }
-.abnormalities .sprite_orange  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-orange.png); }
+.abnormalities .sprite_orange, .row_abnormalities .sprite_orange  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-orange.png); }
 .abnormalities .sprite_green  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-green.png); }
 .abnormalities .sprite_red  { position: absolute; width: 40px; height: 40px; background-image: url(../img/icon/sprite-abnormalities-red.png); }
 

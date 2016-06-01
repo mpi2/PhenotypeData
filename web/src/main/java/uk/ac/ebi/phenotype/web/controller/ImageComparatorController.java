@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -65,7 +67,7 @@ public class ImageComparatorController {
 	@RequestMapping("/imageComparator/{acc}/{parameter_stable_id}")
 	public String imageCompBrowser(@PathVariable String acc,
 			@PathVariable String parameter_stable_id,
-			@RequestParam(value = "gender", defaultValue="both") String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
+			@RequestParam(value = "gender", required=false) String gender, @RequestParam(value = "zygosity", defaultValue="not_applicable") String zygosity, @RequestParam(value="mediaType", required=false) String mediaType, Model model, HttpServletRequest request)
 			throws SolrServerException {
 		System.out.println("calling image imageComparator");
 		if(gender!=null)System.out.println("sex in controller="+gender);
@@ -91,13 +93,14 @@ public class ImageComparatorController {
 		
 		int numberOfControlsPerSex = 5;
 		// int daysEitherSide = 30;// get a month either side
-		
-		List<SexType> sexTypes = getSexTypesForFilter(gender);
+		List<SexType> sexTypes=null;
+		if(gender!=null){
+			sexTypes = getSexTypesForFilter(gender);
+		}
 		
 		
 		//this filters controls by the sex and things like procedure and phenotyping center - based on first image - this may not be a good idea - there maybe multiple phenotyping centers for a procedure which woudln't show???
 		SolrDocumentList controls = filterControlsBySexAndOthers(imgDoc, numberOfControlsPerSex, sexTypes);
-		
 		SolrDocumentList filteredMutants = filterMutantsBySex(mutants, imgDoc, sexTypes);
 		
 		List<ZygosityType> zygosityTypes=getZygosityTypesForFilter(zygosity);
@@ -106,6 +109,7 @@ public class ImageComparatorController {
 		filteredMutants=filterImagesByZygosity(filteredMutants, zygosityTypes);
 		
 		
+
 		this.addGeneToPage(acc, model);
 		model.addAttribute("mediaType", mediaType);
 		System.out.println("mutants size=" + filteredMutants.size());
@@ -131,6 +135,10 @@ public class ImageComparatorController {
 	}
 
 	private SolrDocumentList filterMutantsBySex(SolrDocumentList mutants, SolrDocument imgDoc, List<SexType> sexTypes) {
+		if(sexTypes==null || sexTypes.isEmpty()){
+			return mutants;
+		}
+		
 		SolrDocumentList filteredMutants = new SolrDocumentList();
 		
 		if (imgDoc != null) {
@@ -148,14 +156,23 @@ public class ImageComparatorController {
 
 	private SolrDocumentList filterControlsBySexAndOthers(SolrDocument imgDoc, int numberOfControlsPerSex,
 			List<SexType> sexTypes) throws SolrServerException {
+		if(sexTypes==null){
+			return imageService.getControls(numberOfControlsPerSex, null, imgDoc, null);
+		}
 		SolrDocumentList controls = new SolrDocumentList();
+		Set<SolrDocument> uniqueControls=new HashSet<>();
 		if (imgDoc != null) {
 			for (SexType sex : sexTypes) {
 				System.out.println("sex in controls="+sex);
 				SolrDocumentList controlsTemp = imageService.getControls(numberOfControlsPerSex, sex, imgDoc, null);
-				controls.addAll(controlsTemp);	
+				
+				uniqueControls.addAll(controlsTemp);
 			}
 		}
+		
+		
+			controls.addAll(uniqueControls);//add a unique set only so we don't have duplicate omero ids!!!
+		
 		return controls;
 	}
 
@@ -170,6 +187,8 @@ public class ImageComparatorController {
 		if(gender.equals("both")){
 			sexTypes.add(SexType.male);
 			sexTypes.add(SexType.female);
+		}else if(gender.equals("not applicable") || gender.equals("no data")){
+			return Arrays.asList(SexType.values());
 		}
 		return sexTypes;
 	}

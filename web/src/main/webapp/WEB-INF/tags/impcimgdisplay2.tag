@@ -20,6 +20,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="count" required="false" %>
 <%@ attribute name="href" required="false" %>
 <%@ attribute name="category" required="false" %>
+<%@ attribute name="parameterName" required="false" %>
         <li style="height:275px; max-height:275px; min-height:275px; word-wrap: break-word;width:23%">
          <!-- href specified as arg to tag as in the case of gene page to image picker links -->
          <!-- pdf annotation not image -->
@@ -65,6 +66,13 @@ allele = allele.replaceAll("##", "</sup>");
                                                 </c:if>
                                                 <c:if test="${not empty category}"><a href="${href}">${category}</a><br/></c:if>
                                                 <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
+                                                
+                                                <c:choose>
+                                                <c:when test="${not empty parameterName }"><b>${parameterName}</b><br/>
+                                                <c:if test="${not empty count}">${count} Images<br/></c:if>
+                                                </c:when>
+                                                
+                                                <c:otherwise>
                                                 <c:if test="${not empty img.zygosity}">${img.zygosity}<br/></c:if>
                                                 <c:if test="${not empty count}">${count} Images<br/></c:if>
                                                 <c:if test="${not empty img.parameter_association_name}">
@@ -90,6 +98,8 @@ allele = allele.replaceAll("##", "</sup>");
                                                 	</c:forEach>
                                                 </c:if>
                                                 <c:if test="${not empty img.allele_symbol}"><t:formatAllele>${img.allele_symbol}</t:formatAllele><br/></c:if>
+                                                </c:otherwise>
+                                                </c:choose>
 
                                                 </div>
 
