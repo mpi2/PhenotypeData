@@ -73,6 +73,7 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -312,7 +313,7 @@ public class FileExportController {
 					}
 
 					JSONObject json = searchController.fetchSearchResultJson(query, dataType, iDisplayStart, rows, showImgView, fqStr, model, request);
-
+					
 					List<String> dr = new ArrayList<>();
 
 					dr = composeDataTableExportRows(query, dataType, json, iDisplayStart, rows, showImgView,
@@ -528,8 +529,8 @@ public class FileExportController {
 			rows = composeGeneDataTableRows(json, request, legacyOnly);
 		} else if (solrCoreName.equals("mp")) {
 			rows = composeMpDataTableRows(json, request);
-		} else if (solrCoreName.equals("ma")) {
-			rows = composeMaDataTableRows(json, request);
+		} else if (solrCoreName.equals("anatomy")) {
+			rows = composeAnatomyDataTableRows(json, request);
 		} else if (solrCoreName.equals("pipeline")) {
 			rows = composeProtocolDataTableRows(json, request);
 		} else if (solrCoreName.equals("images")) {
@@ -969,28 +970,28 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeMaDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
+	private List<String> composeAnatomyDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 
 		List<String> rowData = new ArrayList();
 		rowData.add(
-				"Mouse adult gross anatomy term\tMouse adult gross anatomy id\tMouse adult gross anatomy id link\tMouse adult gross anatomy synonym\tLacZ Expression Images"); // column
+				"Mouse anatomy term\tMouse anatomy id\tMouse anatomy id link\tMouse anatomy synonym\tLacZ Expression Images"); // column
 																																						// names
 
 		for (int i = 0; i < docs.size(); i++) {
 			List<String> data = new ArrayList();
 			JSONObject doc = docs.getJSONObject(i);
 
-			data.add(doc.getString("ma_term"));
-			String maId = doc.getString("ma_id");
-			data.add(maId);
-			data.add(hostName + baseUrl + maId);
+			data.add(doc.getString(AnatomyDTO.ANATOMY_TERM));
+			String anatomyId = doc.getString(AnatomyDTO.ANATOMY_ID);
+			data.add(anatomyId);
+			data.add(hostName + baseUrl + anatomyId);
 
-			if (doc.has("ma_term_synonym")) {
+			if (doc.has(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
 				List<String> syns = new ArrayList();
-				JSONArray syn = doc.getJSONArray("ma_term_synonym");
+				JSONArray syn = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
 				for (int t = 0; t < syn.size(); t++) {
 					syns.add(syn.getString(t));
 				}
@@ -1000,7 +1001,7 @@ public class FileExportController {
 			}
 
 			//get expression only images
-			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(maId, config, 1);
+			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
 			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
 			data.add(expressionImageDocs.size() == 0 ? "No" : "Yes");
 
@@ -1606,14 +1607,14 @@ public class FileExportController {
 		Map<String, String> dataTypeId = new HashMap<>();
 		dataTypeId.put("gene", "mgi_accession_id");
 		dataTypeId.put("mp", "mp_id");
-		dataTypeId.put("ma", "ma_id");
+		dataTypeId.put("anatomy", AnatomyDTO.ANATOMY_ID);
 		dataTypeId.put("hp", "hp_id");
 		dataTypeId.put("disease", "disease_id");
 
 		Map<String, String> dataTypePath = new HashMap<>();
 		dataTypePath.put("gene", "genes");
 		dataTypePath.put("mp", "phenotypes");
-		dataTypePath.put("ma", "anatomy");
+		dataTypePath.put("anatomy", "anatomy");
 		dataTypePath.put("hp", "");
 		dataTypePath.put("disease", "disease");
 
@@ -1656,7 +1657,7 @@ public class FileExportController {
 			List<String> phenotypicDiseaseTermAssociations = new ArrayList<>();
 
 			if (docMap.get("mgi_accession_id") != null
-					&& !(dataTypeName.equals("ma") || dataTypeName.equals("disease"))) {
+					&& !(dataTypeName.equals("anatomy") || dataTypeName.equals("disease"))) {
 				Collection<Object> mgiGeneAccs = docMap.get("mgi_accession_id");
 
 				for (Object acc : mgiGeneAccs) {
@@ -1738,9 +1739,9 @@ public class FileExportController {
 					if (dataTypeName.equals("gene")) {
 						qryField = "mgi_accession_id";
 						imgQryField = "gene_accession_id";
-					} else if (dataTypeName.equals("ma")) {
-						qryField = "ma_id";
-						imgQryField = "ma_id";
+					} else if (dataTypeName.equals("anatomy")) {
+						qryField = AnatomyDTO.ANATOMY_ID;
+						imgQryField = "id";
 					}
 
 					Collection<Object> accs = docMap.get(qryField);

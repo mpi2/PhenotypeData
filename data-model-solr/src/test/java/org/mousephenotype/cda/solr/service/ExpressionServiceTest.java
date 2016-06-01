@@ -23,9 +23,9 @@ public class ExpressionServiceTest {
 		String experimentCore=(solrServer+"experiment/");
 		String imagesCore=(solrServer+"impc_images/");
 		String pipelineCore=(solrServer+"pipeline/");
-		String maCore=(solrServer+"ma/");
+		String anatomyCore=(solrServer+"anatomy/");
 		
-		ExpressionService expressionService= new ExpressionService(experimentCore, imagesCore , pipelineCore, maCore );
+		ExpressionService expressionService= new ExpressionService(experimentCore, imagesCore , pipelineCore, anatomyCore );
 		expressionService.initialiseAbnormalOntologyMaps();
 		String geneAccession="MGI:1922730";
 		try {

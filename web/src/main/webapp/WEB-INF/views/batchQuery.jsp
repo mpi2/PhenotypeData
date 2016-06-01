@@ -4,7 +4,7 @@
 
 <t:genericpage>
     <jsp:attribute name="title">IMPC dataset batch query</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/batchQuery">&nbsp;Batch query</a></jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/batchQuery">&nbsp;Batch search</a></jsp:attribute>
     <jsp:attribute name="header">
     
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -224,7 +224,7 @@
                 
                 
                	// initialze search example qTip with close button and proper positioning
-               	var bqDoc = '<h3 id="bqdoc">How to use batchQuery</h3>'
+               	var bqDoc = '<h3 id="bqdoc">How to use batch search</h3>'
                	
                		+ '<div id="docTabs">'
                 	+ '<ul>'
@@ -261,7 +261,7 @@
        			        tip: {corner: 'center top'}
        			    },
        			    position: {my: 'left top',
-       			    		   adjust: {x: -350, y: 15}
+       			    		   adjust: {x: -500, y: 15}
        			    },
        			 	show: {
        					event: 'click' //override the default mouseover
@@ -716,7 +716,7 @@
 										  	<input type="radio" id="mp" value="MP:0001926" name="dataType" class='bq'>MP
 										  	<input type="radio" id="hp" value="HP:0003119" name="dataType" class='bq'>HP<br>
 										  	<input type="radio" id="disease" value="OMIM:100300 or ORPHANET:10 or DECIPHER:38" name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
-										  	<input type="radio" id="ma" value="MA:0000141" name="dataType" class='bq'>MA</td></tr>
+										  	<input type="radio" id="anatomy" value="MA:0000141 or EMAPA:16246 (ok to mix)" name="dataType" class='bq'>ANATOMY</td></tr>
 										  	<tr><td><span class='cat'>Symbol:</span></td>
 										  	<td><input type="radio" id="marker_symbol" value="Car4 or CAR4 (case insensitive). Synonym search supported" name="dataType" class='bq'>Marker Symbol</td>
 										  	<tr><td><span class='cat'>Example:</span></td><td class='note idnote'>MGI:106209</td></tr>

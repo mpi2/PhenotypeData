@@ -19,7 +19,7 @@ import org.mousephenotype.cda.solr.service.EucommToolsProductService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.MaService;
+import org.mousephenotype.cda.solr.service.AnatomyService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.OmeroStatusService;
@@ -79,7 +79,7 @@ public class WebStatusController {
 	MpService mpService;
 
 	@Autowired
-	MaService maService;
+	AnatomyService anatomyService;
 
 	@Autowired
 	ImpressService pipelineService;
@@ -134,7 +134,7 @@ public class WebStatusController {
 		webStatusObjects.add(sangerImages);
 		webStatusObjects.add(impcImageService);
 		webStatusObjects.add(mpService);
-		webStatusObjects.add(maService);
+		webStatusObjects.add(anatomyService);
 		webStatusObjects.add(pipelineService);
 		webStatusObjects.add(geneService);
 		webStatusObjects.add(diseaseService);

@@ -100,7 +100,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticNoArgs() throws IOException, SolrServerException {
+    public void testStaticNoArgs() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticNoArgs";
         System.out.println("-------------------" + testName + "-------------------");
         System.out.println("Command line = ");
@@ -150,7 +150,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticEmptyContext() throws IOException, SolrServerException {
+    public void testStaticEmptyContext() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticEmptyContext";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=" };
@@ -201,7 +201,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testStaticNoCoresNodeps() throws IOException, SolrServerException {
+     public void testStaticNoCoresNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticNoCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String args[] = { "--context=index-config_DEV.xml", "--nodeps" };
@@ -252,7 +252,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-     public void testStaticInvalidCoreName() throws IOException, SolrServerException {
+     public void testStaticInvalidCoreName() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticInvalidCoreName";
         System.out.println("-------------------" + testName + "-------------------");
         String args[] = { "--context=index-config_DEV.xml", "--cores=junk" };
@@ -499,7 +499,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndCores() throws IOException, SolrServerException {
+    public void testStaticAllAndCores() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndCores";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--all", "--cores=ma" };
@@ -523,7 +523,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndNodeps() throws IOException, SolrServerException {
+    public void testStaticAllAndNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--all", "--nodeps" };
@@ -547,7 +547,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticDailyAndNodeps() throws IOException, SolrServerException {
+    public void testStaticDailyAndNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--daily", "--nodeps" };
@@ -571,7 +571,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticDailyAndCores() throws IOException, SolrServerException {
+    public void testStaticDailyAndCores() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticDailyAndCores";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--daily", "--cores=ma" };
@@ -595,7 +595,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndDaily() throws IOException, SolrServerException {
+    public void testStaticAllAndDaily() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndDaily";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--all", "--daily" };
@@ -619,7 +619,7 @@ public class IndexerManagerTest {
       */
      @Test
 //@Ignore
-    public void testStaticAllAndDailyAndNodeps() throws IOException, SolrServerException {
+    public void testStaticAllAndDailyAndNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticAllAndDailyAndNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--all", "--daily", "--nodeps" };
@@ -944,7 +944,7 @@ public class IndexerManagerTest {
       */
      @Test
 	@Ignore
-    public void testStaticBuildAndDeploy() throws IOException, SolrServerException {
+    public void testStaticBuildAndDeploy() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticBuildAndDeploy";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
@@ -976,7 +976,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testStaticBuildSingleCoreNodeps() throws IOException, SolrServerException {
+     public void testStaticBuildSingleCoreNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticBuildSingleCoreNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma", "--nodeps" };
@@ -1037,7 +1037,7 @@ public class IndexerManagerTest {
       */
 	@Ignore
      @Test
-     public void testStaticBuildMultipleCoresNodeps() throws IOException, SolrServerException {
+     public void testStaticBuildMultipleCoresNodeps() throws IOException, SolrServerException, SQLException {
         String testName = "testStaticBuildMultipleCoresNodeps";
         System.out.println("-------------------" + testName + "-------------------");
         String[] args = new String[] { "--context=index-config_DEV.xml", "--cores=ma,ma", "--nodeps" };
