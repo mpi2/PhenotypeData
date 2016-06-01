@@ -22,7 +22,7 @@
 				<li id="geneT"><a href="${baseUrl}/search/gene?kw=*">Genes</a></li>
 				<li id="mpT"><a href="${baseUrl}/search/mp?kw=*">Phenotypes</a></li>
 				<li id="diseaseT"><a href="${baseUrl}/search/disease?kw=*">Diseases</a></li>
-				<li id="maT"><a href="${baseUrl}/search/ma?kw=*">Anatomy</a></li>
+				<li id="anatomyT"><a href="${baseUrl}/search/anatomy?kw=*">Anatomy</a></li>
 				<li id="impc_imagesT"><a href="${baseUrl}/search/impc_images?kw=*&showImgView=false">Images</a></li>
 				<!-- li id="imagesT"><a href="${baseUrl}/search/images?kw=*&showImgView=false">Images</a></li-->
 			</ul>
@@ -138,7 +138,7 @@
 			</div>
 		</div>
 
-		<div id="maTab" class="hideme">
+		<div id="anatomyTab" class="hideme">
 			<div class="region region-sidebar-first">
 
 				<div class='facet' class='fblock block'>
@@ -150,7 +150,7 @@
 						<div class='facetSrchMsg'><img src='../../img/loading_small.gif' /> Processing search ...</div>
 						<div class="flist">
 							<ul>
-								<li class="fmcat" id="ma">
+								<li class="fmcat" id="anatomy">
 									<span class="flabel">Anatomy</span>
 									<span class="fcount"></span>
 									<ul></ul>
@@ -388,7 +388,7 @@
 						if ( query.indexOf(":") != -1 ){
 							query = query.replace(":", "\\%3A");
 						}
-
+console.log("search.jsp: " + baseUrl + '/search/' + thisId + '?kw=' + query)
 						$(this).attr('href', baseUrl + '/search/' + thisId + '?kw=' + query);
 					}
 
@@ -474,7 +474,7 @@
 						noSort["gene"] = [1,2,3];
 						noSort["mp"] = [0,1,2,3];
 						noSort["disease"] = [1];
-						noSort["ma"] = [1];
+						noSort["anatomy"] = [1];
 						noSort["images"] = [0,1];
 						noSort["impc_images"] = [0,1];
 
@@ -682,7 +682,7 @@
 				else if ( coreName.indexOf('mp') != -1 ) {
 					$('table th:nth-child(3)').css('width', '10%');
 				}
-				else if ( coreName.indexOf('ma') != -1 ) {
+				else if ( coreName.indexOf('anatomy') != -1 ) {
 					$('table th:nth-child(2), table td:nth-child(2)').css('text-align', 'center');
 				}
 			}

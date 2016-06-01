@@ -31,8 +31,8 @@
 			return 'mp';
 		} else if (oCounts.disease != 0) {
 			return 'disease';
-		} else if (oCounts.ma != 0) {
-			return 'ma';
+		} else if (oCounts.anatomy != 0) {
+			return 'anatomy';
 		}
 		/*
 		 * else if (oCounts.pipeline != 0) { return 'pipeline'; }
@@ -410,7 +410,7 @@
 		} else if (core == 'mp') {
 			$('div#mpFacet div.facetCatList').show();
 			$('div#mpFacet div.facetCat').addClass('facetCatUp');
-		} else if (core == 'ma') {
+		} else if (core == 'anatomy') {
 			$('div#maFacet div.facetCatList').show();
 			$('div#maFacet div.facetCat').addClass('facetCatUp');
 		} else if (core == 'pipeline') {
